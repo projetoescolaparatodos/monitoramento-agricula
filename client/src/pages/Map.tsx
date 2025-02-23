@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
+import { Loader2, Tractor } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -42,6 +42,18 @@ const Map = () => {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
+    // Criar ícone personalizado do trator
+    const tratorIcon = L.divIcon({
+      html: `<div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9v8m0-8c0-1.1.9-2 2-2h2L9 3h6l2 4h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2m0 0h18M9 17v-6m6 6v-6" />
+              </svg>
+            </div>`,
+      className: '',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+    });
+
     const tratoresFiltrados = tratores.filter((trator) => {
       if (filtro === "todos") return true;
       if (filtro === "em-servico") return !trator.concluido;
@@ -50,20 +62,43 @@ const Map = () => {
     });
 
     tratoresFiltrados.forEach((trator) => {
-      const marker = L.marker([trator.latitude, trator.longitude]).addTo(map);
-      
+      const marker = L.marker([trator.latitude, trator.longitude], {
+        icon: tratorIcon
+      }).addTo(map);
+
       const status = trator.concluido ? 
         '<span class="text-green-600 font-medium">Concluído</span>' : 
         '<span class="text-blue-600 font-medium">Em Serviço</span>';
 
-      marker.bindPopup(`
-        <div class="p-2">
+      const popupContent = `
+        <div class="p-4 max-w-md">
           <h3 class="font-bold text-lg mb-2">${trator.nome}</h3>
-          <p><strong>Fazenda:</strong> ${trator.fazenda}</p>
-          <p><strong>Atividade:</strong> ${trator.atividade}</p>
-          <p><strong>Status:</strong> ${status}</p>
+          <div class="space-y-2">
+            <p><strong>Fazenda:</strong> ${trator.fazenda}</p>
+            <p><strong>Atividade:</strong> ${trator.atividade}</p>
+            <p><strong>Operador:</strong> ${trator.piloto}</p>
+            <p><strong>Data:</strong> ${new Date(trator.dataCadastro).toLocaleDateString()}</p>
+            <p><strong>Status:</strong> ${status}</p>
+            ${trator.tempoAtividade ? `<p><strong>Tempo de Atividade:</strong> ${trator.tempoAtividade} minutos</p>` : ''}
+            ${trator.areaTrabalhada ? `<p><strong>Área Trabalhada:</strong> ${trator.areaTrabalhada}</p>` : ''}
+          </div>
+          ${trator.midias && trator.midias.length > 0 ? `
+            <div class="mt-4">
+              <h4 class="font-semibold mb-2">Fotos/Vídeos:</h4>
+              <div class="grid grid-cols-2 gap-2">
+                ${trator.midias.map(url => `
+                  <img src="${url}" alt="Mídia" class="w-full h-24 object-cover rounded-lg" />
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
         </div>
-      `);
+      `;
+
+      marker.bindPopup(popupContent, {
+        maxWidth: 400,
+        className: 'rounded-lg shadow-lg'
+      });
     });
 
     return () => map.remove();
@@ -95,7 +130,7 @@ const Map = () => {
           </div>
         </RadioGroup>
       </Card>
-      
+
       <div id="map" className="h-full w-full" />
     </div>
   );
