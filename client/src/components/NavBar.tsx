@@ -8,9 +8,9 @@ const NavBar = () => {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link href="/">
           <div className="flex items-center gap-2 text-primary">
-            <img src="/semapa-logo.svg" alt="SEMAPA" className="h-8 w-auto" />
+            <img src="/semapa-logo.svg" alt="SEMAPA" className="h-10 w-auto" />
             <span className="font-semibold text-lg">
-              SEMAPA
+              SEMAPA - Vitória do Xingu
             </span>
           </div>
         </Link>
