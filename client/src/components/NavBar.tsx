@@ -8,11 +8,8 @@ const NavBar = () => {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link href="/">
           <div className="flex items-center gap-2 text-primary">
-            <img src="/semapa.png" alt="SEMAPA" className="h-10 w-10 object-contain" />
-            <span className="font-semibold text-lg hidden md:inline">
-              Secretaria Municipal de Agricultura, Pesca e Abastecimento (SEMAPA)
-            </span>
-            <span className="font-semibold text-lg md:hidden">
+            <img src="/semapa.png" alt="SEMAPA" className="h-8 w-auto" />
+            <span className="font-semibold text-lg">
               SEMAPA
             </span>
           </div>
