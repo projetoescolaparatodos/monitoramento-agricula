@@ -59,6 +59,9 @@ const Report = () => {
     }
   });
 
+  // Calcular área total trabalhada
+  const areaTotal = filteredData?.reduce((total, trator) => total + (trator.areaTrabalhada || 0), 0) || 0;
+
   const columns = [
     { header: "Nome", accessorKey: "nome" },
     { header: "Fazenda", accessorKey: "fazenda" },
@@ -67,6 +70,11 @@ const Report = () => {
       header: "Data", 
       accessorKey: "dataCadastro",
       cell: ({ row }) => formatDate(row.original.dataCadastro)
+    },
+    {
+      header: "Área (m²)",
+      accessorKey: "areaTrabalhada",
+      cell: ({ row }) => row.original.areaTrabalhada?.toLocaleString('pt-BR') || '0'
     },
     { 
       header: "Status", 
@@ -224,6 +232,18 @@ const Report = () => {
           </div>
         </Card>
       </div>
+
+      <Card className="p-6 mb-8">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Resumo das Áreas</h2>
+          <div className="text-right">
+            <p className="text-sm text-gray-600">Área Total Trabalhada</p>
+            <p className="text-2xl font-bold text-primary">
+              {areaTotal.toLocaleString('pt-BR')} m²
+            </p>
+          </div>
+        </div>
+      </Card>
 
       <Card>
         <DataTable

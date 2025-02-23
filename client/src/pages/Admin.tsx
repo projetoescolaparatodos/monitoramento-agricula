@@ -22,6 +22,7 @@ interface Trator {
   midias: string[];
   dataCadastro: string;
   tempoAtividade: number;
+  areaTrabalhada: number; // Novo campo
   concluido: boolean;
 }
 
@@ -34,6 +35,7 @@ const Admin = () => {
   const [longitude, setLongitude] = useState<number | null>(null);
   const [midias, setMidias] = useState<string[]>([]);
   const [tempoAtividade, setTempoAtividade] = useState(0);
+  const [areaTrabalhada, setAreaTrabalhada] = useState(0); // Novo estado
   const [dataCadastro, setDataCadastro] = useState(new Date().toISOString().split("T")[0]);
   const [tratoresCadastrados, setTratoresCadastrados] = useState<Trator[]>([]);
   const [tratorEmEdicao, setTratorEmEdicao] = useState<Trator | null>(null);
@@ -72,14 +74,14 @@ const Admin = () => {
     map.on("click", (e) => {
       setLatitude(e.latlng.lat);
       setLongitude(e.latlng.lng);
-      
+
       // Limpa marcadores anteriores
       map.eachLayer((layer) => {
         if (layer instanceof L.Marker) {
           map.removeLayer(layer);
         }
       });
-      
+
       // Adiciona novo marcador
       L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
     });
@@ -112,6 +114,7 @@ const Admin = () => {
         midias,
         dataCadastro: tratorEmEdicao ? tratorEmEdicao.dataCadastro : dataCadastro,
         tempoAtividade,
+        areaTrabalhada, // Novo campo
         concluido: false,
       };
 
@@ -138,6 +141,7 @@ const Admin = () => {
       setLongitude(null);
       setMidias([]);
       setTempoAtividade(0);
+      setAreaTrabalhada(0); // Limpa área trabalhada
       setDataCadastro(new Date().toISOString().split("T")[0]);
       setTratorEmEdicao(null);
 
@@ -174,6 +178,7 @@ const Admin = () => {
     setLongitude(trator.longitude);
     setMidias(trator.midias || []);
     setTempoAtividade(trator.tempoAtividade);
+    setAreaTrabalhada(trator.areaTrabalhada || 0); // Define área trabalhada
     setDataCadastro(trator.dataCadastro);
   };
 
@@ -210,7 +215,7 @@ const Admin = () => {
         </CardHeader>
         <CardContent>
           <div id="admin-map" className="w-full h-[400px] mb-8 rounded-lg overflow-hidden" />
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -222,7 +227,7 @@ const Admin = () => {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="fazenda">Fazenda</Label>
                 <Input
@@ -232,7 +237,7 @@ const Admin = () => {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="atividade">Atividade</Label>
                 <Input
@@ -242,7 +247,7 @@ const Admin = () => {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="piloto">Piloto</Label>
                 <Input
@@ -252,7 +257,7 @@ const Admin = () => {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="tempoAtividade">Tempo de Atividade (minutos)</Label>
                 <Input
@@ -263,7 +268,20 @@ const Admin = () => {
                   required
                 />
               </div>
-              
+
+              <div className="space-y-2">
+                <Label htmlFor="areaTrabalhada">Área a ser Trabalhada (m²)</Label>
+                <Input
+                  id="areaTrabalhada"
+                  type="number"
+                  value={areaTrabalhada}
+                  onChange={(e) => setAreaTrabalhada(Number(e.target.value))}
+                  required
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="dataCadastro">Data</Label>
                 <Input
