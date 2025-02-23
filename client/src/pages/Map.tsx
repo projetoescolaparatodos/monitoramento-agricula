@@ -2,10 +2,9 @@ import { useEffect, useState } from "react";
 import { db } from "../utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Loader2, Tractor } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -43,15 +42,11 @@ const Map = () => {
     }).addTo(map);
 
     // Criar ícone personalizado do trator
-    const tratorIcon = L.divIcon({
-      html: `<div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M3 9v8m0-8c0-1.1.9-2 2-2h2L9 3h6l2 4h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2m0 0h18M9 17v-6m6 6v-6" />
-              </svg>
-            </div>`,
-      className: '',
+    const tratorIcon = L.icon({
+      iconUrl: "/trator-icon.png",
       iconSize: [32, 32],
       iconAnchor: [16, 32],
+      popupAnchor: [0, -32]
     });
 
     const tratoresFiltrados = tratores.filter((trator) => {

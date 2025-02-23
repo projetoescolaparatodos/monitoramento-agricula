@@ -5,8 +5,11 @@ import { queryClient } from "./lib/queryClient";
 import Home from "@/pages/Home";
 import Report from "@/pages/Report";
 import Map from "@/pages/Map";
+import Login from "@/pages/Login";
+import Admin from "@/pages/Admin";
 import NotFound from "@/pages/not-found";
 import NavBar from "@/components/NavBar";
+import { auth } from "./utils/firebase";
 
 function Router() {
   return (
@@ -16,6 +19,17 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/map" component={Map} />
         <Route path="/report" component={Report} />
+        <Route path="/login" component={Login} />
+        <Route path="/admin">
+          {() => {
+            const user = auth.currentUser;
+            if (!user) {
+              window.location.href = "/login";
+              return null;
+            }
+            return <Admin />;
+          }}
+        </Route>
         <Route component={NotFound} />
       </Switch>
     </div>
