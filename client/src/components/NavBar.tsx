@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Tractor, BarChart3, Map } from "lucide-react";
+import { BarChart3, Map } from "lucide-react";
 
 const NavBar = () => {
   return (
@@ -8,9 +8,9 @@ const NavBar = () => {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link href="/">
           <div className="flex items-center gap-2 text-primary">
-            <img src="/semapa-logo.svg" alt="SEMAPA" className="h-8 w-8" />
+            <img src="/semapa.png" alt="SEMAPA" className="h-10 w-10 object-contain" />
             <span className="font-semibold text-lg hidden md:inline">
-              Secretaria Municipal de Agricultura, Pesca e abastecimento (SEMAPA)
+              Secretaria Municipal de Agricultura, Pesca e Abastecimento (SEMAPA)
             </span>
             <span className="font-semibold text-lg md:hidden">
               SEMAPA
