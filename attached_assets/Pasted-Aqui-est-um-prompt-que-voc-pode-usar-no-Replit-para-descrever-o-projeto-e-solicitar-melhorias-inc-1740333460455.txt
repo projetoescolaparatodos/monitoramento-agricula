@@ -1,0 +1,99 @@
+Aqui está um prompt que você pode usar no Replit para descrever o projeto e solicitar melhorias, incluindo a correção de erros, a implementação da área de relatórios e a melhoria do design da página inicial:
+
+---
+
+### **Prompt para o Replit**
+
+**Descrição do Projeto:**
+Este projeto é uma plataforma web desenvolvida para a Secretaria de Agricultura de Vitória do Xingu, com o objetivo de monitorar e gerenciar serviços agrícolas. A plataforma inclui as seguintes funcionalidades:
+
+1. **Página Inicial**:
+   - Exibe uma imagem de fundo de uma plantação.
+   - Possui dois botões principais:
+     - **Acompanhar Serviços**: Redireciona para um mapa interativo que mostra a localização e o status dos tratores em tempo real.
+     - **Gerar Relatórios**: Deve redirecionar para uma área de relatórios (ainda não implementada).
+
+2. **Mapa Interativo**:
+   - Exibe tratores como marcadores no mapa.
+   - Mostra detalhes como nome, atividade, localização e status (em serviço/concluído) ao clicar em um marcador.
+
+3. **Painel Administrativo**:
+   - Permite cadastrar, editar e excluir tratores.
+   - Inclui um formulário para adicionar informações como nome, fazenda, atividade, piloto, localização (latitude e longitude), tempo de atividade e fotos/vídeos.
+
+**Problemas Atuais:**
+1. **Botão "Acompanhar Serviços"**:
+   - O botão redireciona para a página `/map`, mas a funcionalidade de relatórios ainda não foi implementada.
+
+2. **Design da Página Inicial**:
+   - A imagem de fundo cobre a tela, mas o design pode ser melhorado para ser mais moderno e responsivo.
+
+3. **Área de Relatórios**:
+   - A funcionalidade de gerar relatórios ainda não foi implementada.
+
+**Solicitações de Melhoria:**
+1. **Implementar a Área de Relatórios**:
+   - Crie uma nova página `/relatorio` que permita gerar relatórios com base nos dados dos tratores (ex.: horas trabalhadas, áreas atendidas, status das atividades).
+   - Inclua gráficos ou tabelas para visualização dos dados.
+
+2. **Melhorar o Design da Página Inicial**:
+   - Aplique um design moderno e responsivo para a página inicial.
+   - Sugestões:
+     - Adicionar um efeito de sobreposição escura na imagem de fundo para melhorar a legibilidade do texto.
+     - Usar fontes modernas e cores que combinem com o tema agrícola.
+     - Adicionar animações suaves nos botões e no conteúdo.
+
+3. **Corrigir Problemas Existentes**:
+   - Verifique e corrija quaisquer erros no redirecionamento dos botões ou no carregamento de componentes.
+   - Garanta que todas as funcionalidades estejam funcionando corretamente.
+
+4. **Responsividade**:
+   - Certifique-se de que todas as páginas sejam totalmente responsivas e funcionem bem em dispositivos móveis, tablets e desktops.
+
+5. **Documentação**:
+   - Adicione comentários ao código para facilitar a manutenção e o entendimento.
+   - Crie um README.md com instruções claras para configurar e executar o projeto.
+
+**Tecnologias Utilizadas:**
+- Frontend: React.js, Tailwind CSS (ou outra biblioteca de estilos).
+- Backend: Firebase (Firestore, Storage, Authentication).
+- Mapas: Google Maps JavaScript API ou OpenStreetMap.
+
+**Exemplo de Melhoria no Design da Página Inicial:**
+- Adicionar um cabeçalho com o logo da Secretaria de Agricultura.
+- Incluir um rodapé com informações de contato e links úteis.
+- Usar cards modernos para os botões "Acompanhar Serviços" e "Gerar Relatórios".
+
+---
+
+### **Exemplo de Código para a Página de Relatórios**
+Aqui está um exemplo básico de como a página de relatórios pode ser implementada:
+
+```javascript
+import React from "react";
+
+const Relatorio = () => {
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Relatórios</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white p-4 rounded-lg shadow">
+          <h2 className="text-xl font-semibold">Horas Trabalhadas</h2>
+          <p>Gráfico ou tabela com as horas trabalhadas por trator.</p>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow">
+          <h2 className="text-xl font-semibold">Áreas Atendidas</h2>
+          <p>Gráfico ou tabela com as áreas atendidas no mês.</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Relatorio;
+```
+
+---
+
+### **Conclusão**
+Com esse prompt, o Replit terá todas as informações necessárias para entender o projeto, corrigir problemas existentes e implementar melhorias. Se precisar de mais detalhes ou ajustes, é só avisar! 🚜😊
