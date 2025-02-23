@@ -9,10 +9,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DataTable } from "@/components/ui/data-table";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Download, Loader2, Filter } from "lucide-react";
-import { format } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+
+// Função auxiliar para formatar datas com segurança
+const formatDate = (dateString: string) => {
+  try {
+    const date = parseISO(dateString);
+    if (!isValid(date)) return "Data inválida";
+    return format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+  } catch (error) {
+    return "Data inválida";
+  }
+};
 
 const Report = () => {
   const [dateStart, setDateStart] = useState("");
@@ -31,14 +42,21 @@ const Report = () => {
   });
 
   const filteredData = tratores?.filter(trator => {
-    const tratorDate = new Date(trator.dataCadastro);
-    const start = dateStart ? new Date(dateStart) : null;
-    const end = dateEnd ? new Date(dateEnd) : null;
+    try {
+      const tratorDate = parseISO(trator.dataCadastro);
+      const start = dateStart ? parseISO(dateStart) : null;
+      const end = dateEnd ? parseISO(dateEnd) : null;
 
-    const matchesDate = (!start || tratorDate >= start) && (!end || tratorDate <= end);
-    const matchesFazenda = fazendaFilter === "todas" || trator.fazenda === fazendaFilter;
+      if (!isValid(tratorDate)) return false;
 
-    return matchesDate && matchesFazenda;
+      const matchesDate = (!start || !isValid(start) || tratorDate >= start) && 
+                         (!end || !isValid(end) || tratorDate <= end);
+      const matchesFazenda = fazendaFilter === "todas" || trator.fazenda === fazendaFilter;
+
+      return matchesDate && matchesFazenda;
+    } catch (error) {
+      return false;
+    }
   });
 
   const columns = [
@@ -48,7 +66,7 @@ const Report = () => {
     { 
       header: "Data", 
       accessorKey: "dataCadastro",
-      cell: ({ row }) => format(new Date(row.original.dataCadastro), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+      cell: ({ row }) => formatDate(row.original.dataCadastro)
     },
     { 
       header: "Status", 
@@ -99,7 +117,7 @@ const Report = () => {
         trator.nome,
         trator.fazenda,
         trator.atividade,
-        format(new Date(trator.dataCadastro), "dd/MM/yyyy"),
+        formatDate(trator.dataCadastro),
         trator.concluido ? "Concluído" : "Em Serviço"
       ].join(","))
     ].join("\n");
