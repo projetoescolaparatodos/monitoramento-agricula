@@ -1,3 +1,6 @@
+
+import tratorNovo from "../assets/trator-novo.png";
+
 import { useEffect, useState } from "react";
 import { db } from "../utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
@@ -43,7 +46,7 @@ const Map = () => {
 
     // Criar ícone personalizado do trator
     const tratorIcon = L.icon({
-      iconUrl: "/trator-novo.png", // Assuming this is the correct path
+      iconUrl: tratorNovo,
       iconSize: [32, 32],
       iconAnchor: [16, 32],
       popupAnchor: [0, -32]
