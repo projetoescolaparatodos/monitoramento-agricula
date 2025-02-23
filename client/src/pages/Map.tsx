@@ -1,6 +1,4 @@
 
-import tratorIcon from "../assets/trator.png";
-
 import { useEffect, useState } from "react";
 import { db } from "../utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
@@ -53,7 +51,7 @@ const Map = () => {
     });
 
     const tratoresFiltrados = tratores.filter((trator) => {
-      const marker = L.marker([trator.latitude, trator.longitude], { icon: tratorMarker }).addTo(map);
+      const marker = L.marker([trator.latitude, trator.longitude]).addTo(map);
       if (filtro === "todos") return true;
       if (filtro === "em-servico") return !trator.concluido;
       if (filtro === "concluidos") return trator.concluido;
