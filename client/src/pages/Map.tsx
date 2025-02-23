@@ -109,7 +109,9 @@ const Map = () => {
 
   return (
     <div className="pt-16 relative h-screen">
-      <Card className="absolute left-4 top-20 z-[1000] p-4">
+      <Card 
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-[1000] p-4 bg-white/95 shadow-lg"
+      >
         <RadioGroup value={filtro} onValueChange={setFiltro}>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="todos" id="todos" />

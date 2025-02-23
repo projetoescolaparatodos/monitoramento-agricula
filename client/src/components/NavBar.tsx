@@ -7,12 +7,17 @@ const NavBar = () => {
     <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-sm border-b z-50">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link href="/">
-          <a className="flex items-center gap-2 text-primary">
-            <Tractor className="h-6 w-6" />
-            <span className="font-semibold text-lg">AgroMonitor</span>
-          </a>
+          <div className="flex items-center gap-2 text-primary">
+            <img src="/semapa-logo.svg" alt="SEMAPA" className="h-8 w-8" />
+            <span className="font-semibold text-lg hidden md:inline">
+              Secretaria Municipal de Agricultura, Pesca e abastecimento (SEMAPA)
+            </span>
+            <span className="font-semibold text-lg md:hidden">
+              SEMAPA
+            </span>
+          </div>
         </Link>
-        
+
         <div className="flex gap-4">
           <Link href="/map">
             <Button variant="ghost" className="flex gap-2">
