@@ -43,7 +43,7 @@ const Map = () => {
 
     // Criar ícone personalizado do trator
     const tratorIcon = L.icon({
-      iconUrl: "/trator-icon.png",
+      iconUrl: "/trator-novo.png", // Assuming this is the correct path
       iconSize: [32, 32],
       iconAnchor: [16, 32],
       popupAnchor: [0, -32]
