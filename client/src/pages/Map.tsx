@@ -1,5 +1,5 @@
 
-import tratorNovo from "../assets/trator-novo.png";
+import tratorIcon from "../assets/trator.png";
 
 import { useEffect, useState } from "react";
 import { db } from "../utils/firebase";
@@ -45,14 +45,15 @@ const Map = () => {
     }).addTo(map);
 
     // Criar ícone personalizado do trator
-    const tratorIcon = L.icon({
-      iconUrl: tratorNovo,
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-      popupAnchor: [0, -32]
+    const tratorMarker = L.icon({
+      iconUrl: tratorIcon,
+      iconSize: [40, 40],
+      iconAnchor: [20, 20],
+      popupAnchor: [0, -20]
     });
 
     const tratoresFiltrados = tratores.filter((trator) => {
+      const marker = L.marker([trator.latitude, trator.longitude], { icon: tratorMarker }).addTo(map);
       if (filtro === "todos") return true;
       if (filtro === "em-servico") return !trator.concluido;
       if (filtro === "concluidos") return trator.concluido;
