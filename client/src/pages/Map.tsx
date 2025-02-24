@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
 import { db } from "../utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
+import { Card } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Card, RadioGroup, RadioGroupItem, Label } from "@/components/ui";
-import { Loader2 } from "lucide-react";
-import Link from "next/link";
-
-// Import the icon image
-import tratorImage from "../../public/trator.png";
 
 const Map = () => {
   const [loading, setLoading] = useState(true);
@@ -43,14 +41,13 @@ const Map = () => {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
-    //Correctly configuring the Leaflet icon.
+    // Criar ícone personalizado do trator
     const tratorIcon = L.icon({
-      iconUrl: tratorImage,
-      iconSize: [40, 40],
-      iconAnchor: [20, 20],
-      popupAnchor: [0, -20]
+      iconUrl: "/trator-novo.png", // Assuming this is the correct path
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32]
     });
-
 
     const tratoresFiltrados = tratores.filter((trator) => {
       if (filtro === "todos") return true;
@@ -112,7 +109,9 @@ const Map = () => {
 
   return (
     <div className="pt-16 relative h-screen">
-      <Card className="absolute left-4 top-1/2 transform -translate-y-1/2 z-[1000] p-4 bg-white/95 shadow-lg">
+      <Card 
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-[1000] p-4 bg-white/95 shadow-lg"
+      >
         <RadioGroup value={filtro} onValueChange={setFiltro}>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="todos" id="todos" />
@@ -128,6 +127,7 @@ const Map = () => {
           </div>
         </RadioGroup>
       </Card>
+
       <div id="map" className="h-full w-full" />
     </div>
   );
