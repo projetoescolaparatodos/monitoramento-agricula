@@ -1,143 +1,111 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+
+import { useState, useEffect } from "react";
+import { Link } from "wouter";
 import { db } from "../utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DataTable } from "@/components/ui/data-table";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Download, Loader2, Filter } from "lucide-react";
-import { format, isValid, parseISO } from "date-fns";
-import { ptBR } from "date-fns/locale";
-
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
-
-// Função auxiliar para formatar datas com segurança
-const formatDate = (dateString: string) => {
-  try {
-    const date = parseISO(dateString);
-    if (!isValid(date)) return "Data inválida";
-    return format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
-  } catch (error) {
-    return "Data inválida";
-  }
-};
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BarChart2, Download, FilePieChart } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 const Report = () => {
-  const [dateStart, setDateStart] = useState("");
-  const [dateEnd, setDateEnd] = useState("");
-  const [fazendaFilter, setFazendaFilter] = useState("todas");
+  const [loading, setLoading] = useState(true);
+  const [tratoresData, setTratoresData] = useState<any[]>([]);
+  const [pescaData, setPescaData] = useState<any[]>([]);
+  const [paaData, setPaaData] = useState<any[]>([]);
 
-  const { data: tratores, isLoading } = useQuery({
-    queryKey: ["tratores"],
-    queryFn: async () => {
-      const querySnapshot = await getDocs(collection(db, "tratores"));
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-    }
-  });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Buscar dados de Agricultura (tratores)
+        const tratoresSnapshot = await getDocs(collection(db, "tratores"));
+        const tratores = tratoresSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setTratoresData(tratores);
 
-  const filteredData = tratores?.filter(trator => {
-    try {
-      const tratorDate = parseISO(trator.dataCadastro);
-      const start = dateStart ? parseISO(dateStart) : null;
-      const end = dateEnd ? parseISO(dateEnd) : null;
+        // Buscar dados de Pesca
+        const pescaSnapshot = await getDocs(collection(db, "pesca"));
+        const pesca = pescaSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setPescaData(pesca);
 
-      if (!isValid(tratorDate)) return false;
+        // Buscar dados de PAA
+        const paaSnapshot = await getDocs(collection(db, "paa"));
+        const paa = paaSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setPaaData(paa);
 
-      const matchesDate = (!start || !isValid(start) || tratorDate >= start) && 
-                         (!end || !isValid(end) || tratorDate <= end);
-      const matchesFazenda = fazendaFilter === "todas" || trator.fazenda === fazendaFilter;
+      } catch (error) {
+        console.error("Erro ao buscar dados para relatórios:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      return matchesDate && matchesFazenda;
-    } catch (error) {
-      return false;
-    }
-  });
-
-  // Calcular área total trabalhada
-  const areaTotal = filteredData?.reduce((total, trator) => total + (trator.areaTrabalhada || 0), 0) || 0;
-
-  const columns = [
-    { header: "Nome", accessorKey: "nome" },
-    { header: "Fazenda", accessorKey: "fazenda" },
-    { header: "Atividade", accessorKey: "atividade" },
-    { 
-      header: "Data", 
-      accessorKey: "dataCadastro",
-      cell: ({ row }) => formatDate(row.original.dataCadastro)
-    },
-    {
-      header: "Área (m²)",
-      accessorKey: "areaTrabalhada",
-      cell: ({ row }) => row.original.areaTrabalhada?.toLocaleString('pt-BR') || '0'
-    },
-    { 
-      header: "Status", 
-      accessorKey: "concluido",
-      cell: ({ row }) => (
-        <span className={`px-2 py-1 rounded-full text-sm ${
-          row.original.concluido 
-            ? "bg-green-100 text-green-800" 
-            : "bg-blue-100 text-blue-800"
-        }`}>
-          {row.original.concluido ? "Concluído" : "Em Serviço"}
-        </span>
-      )
-    }
-  ];
-
-  // Dados para o gráfico de atividades
-  const chartData = filteredData?.reduce((acc, trator) => {
-    const existing = acc.find(item => item.atividade === trator.atividade);
-    if (existing) {
-      existing.count += 1;
-    } else {
-      acc.push({ atividade: trator.atividade, count: 1 });
-    }
-    return acc;
+    fetchData();
   }, []);
 
-  // Dados para o gráfico de status
-  const statusData = filteredData?.reduce((acc, trator) => {
-    const status = trator.concluido ? "Concluído" : "Em Serviço";
-    const existing = acc.find(item => item.name === status);
-    if (existing) {
-      existing.value += 1;
-    } else {
-      acc.push({ name: status, value: 1 });
-    }
-    return acc;
-  }, []);
+  const calcularEstatisticasAgricultura = () => {
+    const totalTratores = tratoresData.length;
+    const tratoresConcluidos = tratoresData.filter(t => t.concluido).length;
+    const tratoresEmServico = totalTratores - tratoresConcluidos;
+    const totalAreaTrabalhada = tratoresData.reduce((sum, t) => sum + (t.areaTrabalhada || 0), 0);
+    const totalTempoAtividade = tratoresData.reduce((sum, t) => sum + (t.tempoAtividade || 0), 0);
 
-  const fazendas = tratores ? [...new Set(tratores.map(t => t.fazenda))] : [];
-
-  const handleExportCSV = () => {
-    if (!filteredData) return;
-
-    const csvContent = [
-      ["Nome", "Fazenda", "Atividade", "Data", "Status"].join(","),
-      ...filteredData.map(trator => [
-        trator.nome,
-        trator.fazenda,
-        trator.atividade,
-        formatDate(trator.dataCadastro),
-        trator.concluido ? "Concluído" : "Em Serviço"
-      ].join(","))
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `relatorio_tratores_${format(new Date(), "dd-MM-yyyy")}.csv`;
-    link.click();
+    return {
+      totalTratores,
+      tratoresConcluidos,
+      tratoresEmServico,
+      totalAreaTrabalhada,
+      totalTempoAtividade
+    };
   };
 
-  if (isLoading) {
+  const calcularEstatisticasPesca = () => {
+    const totalPesqueiros = pescaData.length;
+    const pesqueirosConcluidos = pescaData.filter(p => p.concluido).length;
+    const pesqueirosEmAndamento = totalPesqueiros - pesqueirosConcluidos;
+    const totalAreaMecanizacao = pescaData.reduce((sum, p) => sum + (p.areaMecanizacao || 0), 0);
+    const totalHoraMaquina = pescaData.reduce((sum, p) => sum + (p.horaMaquina || 0), 0);
+
+    return {
+      totalPesqueiros,
+      pesqueirosConcluidos,
+      pesqueirosEmAndamento,
+      totalAreaMecanizacao,
+      totalHoraMaquina
+    };
+  };
+
+  const calcularEstatisticasPAA = () => {
+    const totalPAA = paaData.length;
+    const paaConcluidos = paaData.filter(p => p.concluido).length;
+    const paaEmAndamento = totalPAA - paaConcluidos;
+    const totalAreaMecanizacao = paaData.reduce((sum, p) => sum + (p.areaMecanizacao || 0), 0);
+    const totalHoraMaquina = paaData.reduce((sum, p) => sum + (p.horaMaquina || 0), 0);
+
+    return {
+      totalPAA,
+      paaConcluidos,
+      paaEmAndamento,
+      totalAreaMecanizacao,
+      totalHoraMaquina
+    };
+  };
+
+  const exportarPDF = () => {
+    alert("Funcionalidade de exportação para PDF será implementada futuramente.");
+  };
+
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -145,112 +113,272 @@ const Report = () => {
     );
   }
 
+  const estatisticasAgricultura = calcularEstatisticasAgricultura();
+  const estatisticasPesca = calcularEstatisticasPesca();
+  const estatisticasPAA = calcularEstatisticasPAA();
+
   return (
     <div className="container mx-auto px-4 py-20">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">Relatório de Atividades</h1>
-        <Button onClick={handleExportCSV} className="gap-2">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Relatórios</h1>
+        <Button onClick={exportarPDF} className="flex items-center gap-2">
           <Download className="h-4 w-4" />
-          Exportar CSV
+          Exportar PDF
         </Button>
       </div>
 
-      <Card className="p-6 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Data Início</label>
-            <Input
-              type="date"
-              value={dateStart}
-              onChange={(e) => setDateStart(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Data Fim</label>
-            <Input
-              type="date"
-              value={dateEnd}
-              onChange={(e) => setDateEnd(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Fazenda</label>
-            <Select value={fazendaFilter} onValueChange={setFazendaFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione uma fazenda" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todas">Todas</SelectItem>
-                {fazendas.map(fazenda => (
-                  <SelectItem key={fazenda} value={fazenda}>
-                    {fazenda}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </Card>
+      <Tabs defaultValue="agricultura">
+        <TabsList className="mb-8">
+          <TabsTrigger value="agricultura">Agricultura</TabsTrigger>
+          <TabsTrigger value="pesca">Pesca</TabsTrigger>
+          <TabsTrigger value="paa">PAA</TabsTrigger>
+        </TabsList>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Atividades por Tipo</h2>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="atividade" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="count" fill="hsl(120, 40%, 35%)" />
-              </BarChart>
-            </ResponsiveContainer>
+        {/* Relatório de Agricultura */}
+        <TabsContent value="agricultura">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart2 className="h-5 w-5 text-primary" />
+                  Total de Tratores
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">{estatisticasAgricultura.totalTratores}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FilePieChart className="h-5 w-5 text-green-500" />
+                  Área Trabalhada
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">{estatisticasAgricultura.totalAreaTrabalhada} m²</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FilePieChart className="h-5 w-5 text-blue-500" />
+                  Tempo Total de Atividade
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">{estatisticasAgricultura.totalTempoAtividade} min</p>
+              </CardContent>
+            </Card>
           </div>
-        </Card>
 
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Status das Atividades</h2>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={statusData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                >
-                  {statusData?.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+          <Card>
+            <CardHeader>
+              <CardTitle>Detalhes dos Tratores</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Fazenda</TableHead>
+                    <TableHead>Atividade</TableHead>
+                    <TableHead>Piloto</TableHead>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Área (m²)</TableHead>
+                    <TableHead>Tempo (min)</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {tratoresData.map((trator) => (
+                    <TableRow key={trator.id}>
+                      <TableCell>{trator.nome}</TableCell>
+                      <TableCell>{trator.fazenda}</TableCell>
+                      <TableCell>{trator.atividade}</TableCell>
+                      <TableCell>{trator.piloto}</TableCell>
+                      <TableCell>{new Date(trator.dataCadastro).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <span className={trator.concluido ? 'text-green-600 font-medium' : 'text-blue-600 font-medium'}>
+                          {trator.concluido ? 'Concluído' : 'Em Serviço'}
+                        </span>
+                      </TableCell>
+                      <TableCell>{trator.areaTrabalhada || 0}</TableCell>
+                      <TableCell>{trator.tempoAtividade || 0}</TableCell>
+                    </TableRow>
                   ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-      </div>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-      <Card className="p-6 mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Resumo das Áreas</h2>
-          <div className="text-right">
-            <p className="text-sm text-gray-600">Área Total Trabalhada</p>
-            <p className="text-2xl font-bold text-primary">
-              {areaTotal.toLocaleString('pt-BR')} m²
-            </p>
+        {/* Relatório de Pesca */}
+        <TabsContent value="pesca">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart2 className="h-5 w-5 text-primary" />
+                  Total de Locais de Pesca
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">{estatisticasPesca.totalPesqueiros}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FilePieChart className="h-5 w-5 text-green-500" />
+                  Área Total para Mecanização
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">{estatisticasPesca.totalAreaMecanizacao} ha</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FilePieChart className="h-5 w-5 text-blue-500" />
+                  Total de Horas/Máquina
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">{estatisticasPesca.totalHoraMaquina} h</p>
+              </CardContent>
+            </Card>
           </div>
-        </div>
-      </Card>
 
-      <Card>
-        <DataTable
-          columns={columns}
-          data={filteredData || []}
-        />
-      </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Detalhes dos Locais de Pesca</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Localidade</TableHead>
+                    <TableHead>Imóvel Rural</TableHead>
+                    <TableHead>Proprietário</TableHead>
+                    <TableHead>Operação</TableHead>
+                    <TableHead>Operador</TableHead>
+                    <TableHead>Técnico</TableHead>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Área (ha)</TableHead>
+                    <TableHead>Horas</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pescaData.map((pesca) => (
+                    <TableRow key={pesca.id}>
+                      <TableCell>{pesca.localidade}</TableCell>
+                      <TableCell>{pesca.nomeImovel}</TableCell>
+                      <TableCell>{pesca.proprietario}</TableCell>
+                      <TableCell>{pesca.operacao}</TableCell>
+                      <TableCell>{pesca.operador}</TableCell>
+                      <TableCell>{pesca.tecnicoResponsavel}</TableCell>
+                      <TableCell>{new Date(pesca.dataCadastro).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <span className={pesca.concluido ? 'text-green-600 font-medium' : 'text-blue-600 font-medium'}>
+                          {pesca.concluido ? 'Concluído' : 'Em Andamento'}
+                        </span>
+                      </TableCell>
+                      <TableCell>{pesca.areaMecanizacao || 0}</TableCell>
+                      <TableCell>{pesca.horaMaquina || 0}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Relatório de PAA */}
+        <TabsContent value="paa">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart2 className="h-5 w-5 text-primary" />
+                  Total de Locais PAA
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">{estatisticasPAA.totalPAA}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FilePieChart className="h-5 w-5 text-green-500" />
+                  Área Total para Mecanização
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">{estatisticasPAA.totalAreaMecanizacao} ha</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FilePieChart className="h-5 w-5 text-blue-500" />
+                  Total de Horas/Máquina
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">{estatisticasPAA.totalHoraMaquina} h</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Detalhes dos Locais PAA</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Localidade</TableHead>
+                    <TableHead>Imóvel Rural</TableHead>
+                    <TableHead>Proprietário</TableHead>
+                    <TableHead>Operação</TableHead>
+                    <TableHead>Operador</TableHead>
+                    <TableHead>Técnico</TableHead>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Área (ha)</TableHead>
+                    <TableHead>Horas</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paaData.map((paa) => (
+                    <TableRow key={paa.id}>
+                      <TableCell>{paa.localidade}</TableCell>
+                      <TableCell>{paa.nomeImovel}</TableCell>
+                      <TableCell>{paa.proprietario}</TableCell>
+                      <TableCell>{paa.operacao}</TableCell>
+                      <TableCell>{paa.operador}</TableCell>
+                      <TableCell>{paa.tecnicoResponsavel}</TableCell>
+                      <TableCell>{new Date(paa.dataCadastro).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <span className={paa.concluido ? 'text-green-600 font-medium' : 'text-blue-600 font-medium'}>
+                          {paa.concluido ? 'Concluído' : 'Em Andamento'}
+                        </span>
+                      </TableCell>
+                      <TableCell>{paa.areaMecanizacao || 0}</TableCell>
+                      <TableCell>{paa.horaMaquina || 0}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
