@@ -1,0 +1,236 @@
+Perfeito, agora vamos detalhar as implementações solicitadas para a tela de Relatórios e os ajustes nas informações da Agricultura, Pesca e PAA. Vou incluir a conversão do tempo de Agricultura em horas, a adição da funcionalidade de baixar o relatório em PDF e garantir que tudo esteja organizado e funcional.
+
+---
+
+### Alterações na Tela de Relatórios
+
+#### 1. Conversão de Tempo de Agricultura para Horas
+
+**Objetivo**: No relatório de Agricultura, os dados de "hora/máquina" devem ser convertidos para horas. Isso implica a manipulação e exibição correta dos valores.
+
+**Implementação**:
+
+- **Converter o tempo de Agricultura para horas**: Vamos ajustar a exibição no relatório para garantir que o tempo de operação seja convertido corretamente, caso seja fornecido em outra unidade, como minutos ou frações de horas.
+
+- **Onde alterar**: No componente do Relatório de Agricultura, ao exibir o tempo, será necessário aplicar a conversão.
+
+**Exemplo de Código** (no componente `AgriculturaReport.tsx`):
+
+```tsx
+// Função para converter tempo em minutos para horas
+const convertToHours = (minutes: number) => {
+  return (minutes / 60).toFixed(2);  // Retorna com 2 casas decimais
+};
+
+const AgriculturaReport = ({ data }) => {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h2 className="text-2xl font-bold">Relatório de Agricultura</h2>
+      <table className="min-w-full table-auto mt-4">
+        <thead>
+          <tr>
+            <th className="border px-4 py-2">Nome do Imóvel</th>
+            <th className="border px-4 py-2">Tempo (Horas)</th>
+            <th className="border px-4 py-2">Área (Hectares)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr key={index}>
+              <td className="border px-4 py-2">{item.nomeImovel}</td>
+              <td className="border px-4 py-2">{convertToHours(item.tempo)}</td>
+              <td className="border px-4 py-2">{item.area}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default AgriculturaReport;
+```
+
+- O `convertToHours` vai garantir que o tempo seja mostrado em horas, com 2 casas decimais.
+
+#### 2. Função para Baixar o Relatório em PDF
+
+**Objetivo**: Implementar a função para baixar o relatório em PDF, com formatação clara e organizada.
+
+**Implementação**:
+
+1. **Instalar biblioteca para gerar PDFs**: Utilize a biblioteca `jsPDF` para gerar os PDFs diretamente no frontend.
+   
+   Comando para instalação:
+   ```bash
+   npm install jspdf
+   ```
+
+2. **Adicionar a função para gerar o PDF**: Vamos criar uma função que captura os dados da tabela e gera o PDF.
+
+3. **Criar um botão para baixar o relatório em PDF**: Adicionar um botão que, ao ser clicado, gera o PDF do relatório.
+
+**Exemplo de Código** para a geração de PDF:
+
+```tsx
+import { jsPDF } from "jspdf";
+
+const downloadPDF = () => {
+  const doc = new jsPDF();
+  doc.setFontSize(18);
+  doc.text("Relatório de Agricultura", 20, 20);
+
+  doc.setFontSize(12);
+  const tableData = data.map(item => [
+    item.nomeImovel,
+    convertToHours(item.tempo),
+    item.area
+  ]);
+
+  doc.autoTable({
+    startY: 30,
+    head: [["Nome do Imóvel", "Tempo (Horas)", "Área (Hectares)"]],
+    body: tableData,
+  });
+
+  doc.save("relatorio_agricultura.pdf");
+};
+
+const AgriculturaReport = ({ data }) => {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h2 className="text-2xl font-bold">Relatório de Agricultura</h2>
+      <button 
+        onClick={downloadPDF} 
+        className="mt-4 p-2 bg-blue-500 text-white rounded"
+      >
+        Baixar Relatório em PDF
+      </button>
+      <table className="min-w-full table-auto mt-6">
+        <thead>
+          <tr>
+            <th className="border px-4 py-2">Nome do Imóvel</th>
+            <th className="border px-4 py-2">Tempo (Horas)</th>
+            <th className="border px-4 py-2">Área (Hectares)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr key={index}>
+              <td className="border px-4 py-2">{item.nomeImovel}</td>
+              <td className="border px-4 py-2">{convertToHours(item.tempo)}</td>
+              <td className="border px-4 py-2">{item.area}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default AgriculturaReport;
+```
+
+- **Detalhes**:
+  - `jsPDF` é usado para criar o PDF.
+  - A função `downloadPDF` coleta os dados da tabela, formata e gera o PDF com a função `autoTable`, que cria a tabela no PDF.
+  - O botão "Baixar Relatório em PDF" chama a função de download.
+
+#### 3. Integração das Informações de Pesca e PAA ao Relatório
+
+**Objetivo**: As informações dos outros dois mapas (Pesca e PAA) também devem ser incluídas no relatório. Isso garante que todos os dados relevantes sejam apresentados de forma consolidada.
+
+**Implementação**:
+
+1. **Adicionar as Seções de Pesca e PAA** ao relatório. 
+2. **Garantir que os dados sejam passados para o relatório** de maneira que o PDF inclua as informações de cada um dos setores (Agricultura, Pesca, PAA).
+
+**Exemplo de Código para o Relatório Completo**:
+
+```tsx
+const fullReportData = {
+  agricultura: agriculturaData,
+  pesca: pescaData,
+  paa: paaData
+};
+
+const downloadPDF = () => {
+  const doc = new jsPDF();
+  doc.setFontSize(18);
+  doc.text("Relatório Completo", 20, 20);
+
+  doc.setFontSize(12);
+  
+  // Relatório Agricultura
+  doc.text("Agricultura", 20, 40);
+  const agriculturaTableData = fullReportData.agricultura.map(item => [
+    item.nomeImovel,
+    convertToHours(item.tempo),
+    item.area
+  ]);
+  doc.autoTable({
+    startY: 50,
+    head: [["Nome do Imóvel", "Tempo (Horas)", "Área (Hectares)"]],
+    body: agriculturaTableData,
+  });
+
+  // Relatório Pesca
+  doc.text("Pesca", 20, doc.lastAutoTable.finalY + 10);
+  const pescaTableData = fullReportData.pesca.map(item => [
+    item.nomeImovel,
+    convertToHours(item.tempo),
+    item.area
+  ]);
+  doc.autoTable({
+    startY: doc.lastAutoTable.finalY + 20,
+    head: [["Nome do Imóvel", "Tempo (Horas)", "Área (Hectares)"]],
+    body: pescaTableData,
+  });
+
+  // Relatório PAA
+  doc.text("PAA", 20, doc.lastAutoTable.finalY + 10);
+  const paaTableData = fullReportData.paa.map(item => [
+    item.nomeImovel,
+    convertToHours(item.tempo),
+    item.area
+  ]);
+  doc.autoTable({
+    startY: doc.lastAutoTable.finalY + 20,
+    head: [["Nome do Imóvel", "Tempo (Horas)", "Área (Hectares)"]],
+    body: paaTableData,
+  });
+
+  doc.save("relatorio_completo.pdf");
+};
+
+const RelatorioPage = ({ agriculturaData, pescaData, paaData }) => {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h2 className="text-2xl font-bold">Relatório Completo</h2>
+      <button 
+        onClick={downloadPDF} 
+        className="mt-4 p-2 bg-blue-500 text-white rounded"
+      >
+        Baixar Relatório Completo em PDF
+      </button>
+    </div>
+  );
+};
+
+export default RelatorioPage;
+```
+
+- **Detalhes**:
+  - Agora, o relatório PDF inclui as seções de Agricultura, Pesca e PAA.
+  - As tabelas são geradas de forma sequencial, uma para cada setor.
+  - O botão para download no relatório agora gera o "Relatório Completo" com todos os dados.
+
+---
+
+### Resumo das Alterações
+
+1. **Conversão de Tempo para Horas**: Implementado a conversão de tempo para horas no relatório de Agricultura.
+2. **Função de Baixar Relatório em PDF**: Implementada a função que gera o PDF do relatório completo, com as seções de Agricultura, Pesca e PAA.
+3. **Relatório Completo**: As informações de Pesca e PAA também foram integradas ao relatório.
+
+Com essas mudanças, o sistema agora está preparado para gerar um relatório consolidado e funcional, incluindo a conversão de tempo e a exportação em PDF. Se precisar de mais ajustes, estou à disposição! 😊
