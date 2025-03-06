@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { db } from "../utils/firebase";
 import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore";
@@ -10,23 +11,10 @@ import { Loader2, MapPin, Trash2, Edit2, Plus } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Upload from "@/components/Upload";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-interface Trator {
-  id: string;
-  nome: string;
-  fazenda: string;
-  atividade: string;
-  piloto: string;
-  latitude: number;
-  longitude: number;
-  midias: string[];
-  dataCadastro: string;
-  tempoAtividade: number;
-  areaTrabalhada: number; // Novo campo
-  concluido: boolean;
-}
-
-const Admin = () => {
+// Agriculture Tab
+const AgriculturaForm = () => {
   const [nome, setNome] = useState("");
   const [fazenda, setFazenda] = useState("");
   const [atividade, setAtividade] = useState("");
@@ -35,10 +23,10 @@ const Admin = () => {
   const [longitude, setLongitude] = useState<number | null>(null);
   const [midias, setMidias] = useState<string[]>([]);
   const [tempoAtividade, setTempoAtividade] = useState(0);
-  const [areaTrabalhada, setAreaTrabalhada] = useState(0); // Novo estado
+  const [areaTrabalhada, setAreaTrabalhada] = useState(0);
   const [dataCadastro, setDataCadastro] = useState(new Date().toISOString().split("T")[0]);
-  const [tratoresCadastrados, setTratoresCadastrados] = useState<Trator[]>([]);
-  const [tratorEmEdicao, setTratorEmEdicao] = useState<Trator | null>(null);
+  const [tratoresCadastrados, setTratoresCadastrados] = useState<any[]>([]);
+  const [tratorEmEdicao, setTratorEmEdicao] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -49,7 +37,7 @@ const Admin = () => {
         const tratoresData = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        })) as Trator[];
+        }));
         setTratoresCadastrados(tratoresData);
       } catch (error) {
         console.error("Erro ao buscar tratores:", error);
@@ -65,7 +53,7 @@ const Admin = () => {
   }, []);
 
   useEffect(() => {
-    const map = L.map("admin-map").setView([-2.87922, -52.0088], 12);
+    const map = L.map("admin-map-agricultura").setView([-2.87922, -52.0088], 12);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -114,7 +102,7 @@ const Admin = () => {
         midias,
         dataCadastro: tratorEmEdicao ? tratorEmEdicao.dataCadastro : dataCadastro,
         tempoAtividade,
-        areaTrabalhada, // Novo campo
+        areaTrabalhada,
         concluido: false,
       };
 
@@ -141,7 +129,7 @@ const Admin = () => {
       setLongitude(null);
       setMidias([]);
       setTempoAtividade(0);
-      setAreaTrabalhada(0); // Limpa área trabalhada
+      setAreaTrabalhada(0);
       setDataCadastro(new Date().toISOString().split("T")[0]);
       setTratorEmEdicao(null);
 
@@ -150,7 +138,7 @@ const Admin = () => {
       const tratoresData = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      })) as Trator[];
+      }));
       setTratoresCadastrados(tratoresData);
     } catch (error) {
       console.error("Erro ao salvar trator:", error);
@@ -168,7 +156,7 @@ const Admin = () => {
     setMidias([...midias, url]);
   };
 
-  const handleEditarTrator = (trator: Trator) => {
+  const handleEditarTrator = (trator: any) => {
     setTratorEmEdicao(trator);
     setNome(trator.nome);
     setFazenda(trator.fazenda);
@@ -178,7 +166,7 @@ const Admin = () => {
     setLongitude(trator.longitude);
     setMidias(trator.midias || []);
     setTempoAtividade(trator.tempoAtividade);
-    setAreaTrabalhada(trator.areaTrabalhada || 0); // Define área trabalhada
+    setAreaTrabalhada(trator.areaTrabalhada || 0);
     setDataCadastro(trator.dataCadastro);
   };
 
@@ -194,7 +182,7 @@ const Admin = () => {
         const tratoresData = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        })) as Trator[];
+        }));
         setTratoresCadastrados(tratoresData);
       } catch (error) {
         console.error("Erro ao excluir trator:", error);
@@ -208,13 +196,13 @@ const Admin = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-20">
+    <div>
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>Painel Administrativo</CardTitle>
+          <CardTitle>Gerenciar Agricultura</CardTitle>
         </CardHeader>
         <CardContent>
-          <div id="admin-map" className="w-full h-[400px] mb-8 rounded-lg overflow-hidden" />
+          <div id="admin-map-agricultura" className="w-full h-[400px] mb-8 rounded-lg overflow-hidden" />
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -364,6 +352,770 @@ const Admin = () => {
           </div>
         </CardContent>
       </Card>
+    </div>
+  );
+};
+
+// Pesca Tab
+const PescaForm = () => {
+  const [localidade, setLocalidade] = useState("");
+  const [nomeImovel, setNomeImovel] = useState("");
+  const [proprietario, setProprietario] = useState("");
+  const [operacao, setOperacao] = useState("");
+  const [horaMaquina, setHoraMaquina] = useState(0);
+  const [areaMecanizacao, setAreaMecanizacao] = useState(0);
+  const [operador, setOperador] = useState("");
+  const [tecnicoResponsavel, setTecnicoResponsavel] = useState("");
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [midias, setMidias] = useState<string[]>([]);
+  const [dataCadastro, setDataCadastro] = useState(new Date().toISOString().split("T")[0]);
+  const [pesqueirosCadastrados, setPesqueirosCadastrados] = useState<any[]>([]);
+  const [pesqueiroEmEdicao, setPesqueiroEmEdicao] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchPesqueiros = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "pesca"));
+        const pescaData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setPesqueirosCadastrados(pescaData);
+      } catch (error) {
+        console.error("Erro ao buscar dados de pesca:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar os dados de pesca.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchPesqueiros();
+  }, []);
+
+  useEffect(() => {
+    const map = L.map("admin-map-pesca").setView([-2.87922, -52.0088], 12);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    map.on("click", (e) => {
+      setLatitude(e.latlng.lat);
+      setLongitude(e.latlng.lng);
+
+      map.eachLayer((layer) => {
+        if (layer instanceof L.Marker) {
+          map.removeLayer(layer);
+        }
+      });
+
+      L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+    });
+
+    return () => map.remove();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    if (!latitude || !longitude) {
+      toast({
+        title: "Erro",
+        description: "Clique no mapa para selecionar a localização.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const pescaData = {
+        localidade,
+        nomeImovel,
+        proprietario,
+        operacao,
+        horaMaquina,
+        areaMecanizacao,
+        operador,
+        tecnicoResponsavel,
+        latitude,
+        longitude,
+        midias,
+        dataCadastro: pesqueiroEmEdicao ? pesqueiroEmEdicao.dataCadastro : dataCadastro,
+        concluido: false,
+      };
+
+      if (pesqueiroEmEdicao) {
+        await updateDoc(doc(db, "pesca", pesqueiroEmEdicao.id), pescaData);
+        toast({
+          title: "Sucesso",
+          description: "Dados de pesca atualizados com sucesso!",
+        });
+      } else {
+        await addDoc(collection(db, "pesca"), pescaData);
+        toast({
+          title: "Sucesso",
+          description: "Dados de pesca adicionados com sucesso!",
+        });
+      }
+
+      // Limpa o formulário
+      setLocalidade("");
+      setNomeImovel("");
+      setProprietario("");
+      setOperacao("");
+      setHoraMaquina(0);
+      setAreaMecanizacao(0);
+      setOperador("");
+      setTecnicoResponsavel("");
+      setLatitude(null);
+      setLongitude(null);
+      setMidias([]);
+      setDataCadastro(new Date().toISOString().split("T")[0]);
+      setPesqueiroEmEdicao(null);
+
+      // Atualiza a lista
+      const querySnapshot = await getDocs(collection(db, "pesca"));
+      const pescaData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setPesqueirosCadastrados(pescaData);
+    } catch (error) {
+      console.error("Erro ao salvar dados de pesca:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível salvar os dados de pesca.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpload = (url: string) => {
+    setMidias([...midias, url]);
+  };
+
+  const handleEditarPesqueiro = (pesqueiro: any) => {
+    setPesqueiroEmEdicao(pesqueiro);
+    setLocalidade(pesqueiro.localidade);
+    setNomeImovel(pesqueiro.nomeImovel);
+    setProprietario(pesqueiro.proprietario);
+    setOperacao(pesqueiro.operacao);
+    setHoraMaquina(pesqueiro.horaMaquina);
+    setAreaMecanizacao(pesqueiro.areaMecanizacao);
+    setOperador(pesqueiro.operador);
+    setTecnicoResponsavel(pesqueiro.tecnicoResponsavel);
+    setLatitude(pesqueiro.latitude);
+    setLongitude(pesqueiro.longitude);
+    setMidias(pesqueiro.midias || []);
+    setDataCadastro(pesqueiro.dataCadastro);
+  };
+
+  const handleExcluirPesqueiro = async (id: string) => {
+    if (window.confirm("Tem certeza que deseja excluir estes dados de pesca?")) {
+      try {
+        await deleteDoc(doc(db, "pesca", id));
+        toast({
+          title: "Sucesso",
+          description: "Dados de pesca excluídos com sucesso!",
+        });
+        const querySnapshot = await getDocs(collection(db, "pesca"));
+        const pescaData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setPesqueirosCadastrados(pescaData);
+      } catch (error) {
+        console.error("Erro ao excluir dados de pesca:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível excluir os dados de pesca.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  return (
+    <div>
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Gerenciar Pesca</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div id="admin-map-pesca" className="w-full h-[400px] mb-8 rounded-lg overflow-hidden" />
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="localidade">Localidade</Label>
+                <Input
+                  id="localidade"
+                  value={localidade}
+                  onChange={(e) => setLocalidade(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="nomeImovel">Nome do Imóvel Rural</Label>
+                <Input
+                  id="nomeImovel"
+                  value={nomeImovel}
+                  onChange={(e) => setNomeImovel(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="proprietario">Nome do Proprietário</Label>
+                <Input
+                  id="proprietario"
+                  value={proprietario}
+                  onChange={(e) => setProprietario(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="operacao">Operação</Label>
+                <Input
+                  id="operacao"
+                  value={operacao}
+                  onChange={(e) => setOperacao(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="horaMaquina">Hora/máquina</Label>
+                <Input
+                  id="horaMaquina"
+                  type="number"
+                  value={horaMaquina}
+                  onChange={(e) => setHoraMaquina(Number(e.target.value))}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="areaMecanizacao">Área para mecanização (hectares)</Label>
+                <Input
+                  id="areaMecanizacao"
+                  type="number"
+                  value={areaMecanizacao}
+                  onChange={(e) => setAreaMecanizacao(Number(e.target.value))}
+                  required
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="operador">Operador</Label>
+                <Input
+                  id="operador"
+                  value={operador}
+                  onChange={(e) => setOperador(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tecnicoResponsavel">Técnico Responsável</Label>
+                <Input
+                  id="tecnicoResponsavel"
+                  value={tecnicoResponsavel}
+                  onChange={(e) => setTecnicoResponsavel(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="dataCadastroPesca">Data</Label>
+                <Input
+                  id="dataCadastroPesca"
+                  type="date"
+                  value={dataCadastro}
+                  onChange={(e) => setDataCadastro(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Fotos/Vídeos</Label>
+              <Upload onUpload={handleUpload} />
+              <div className="grid grid-cols-4 gap-2 mt-2">
+                {midias.map((url, index) => (
+                  <img
+                    key={index}
+                    src={url}
+                    alt={`Mídia ${index + 1}`}
+                    className="w-full h-24 object-cover rounded-lg"
+                  />
+                ))}
+              </div>
+            </div>
+
+            <Button type="submit" disabled={loading} className="w-full">
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Salvando...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  {pesqueiroEmEdicao ? "Atualizar" : "Adicionar"}
+                </span>
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Pesqueiros Cadastrados</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {pesqueirosCadastrados.map((pesqueiro) => (
+              <div
+                key={pesqueiro.id}
+                className="flex items-center justify-between p-4 border rounded-lg"
+              >
+                <div>
+                  <h3 className="font-semibold">{pesqueiro.localidade}</h3>
+                  <p className="text-sm text-gray-600">
+                    {pesqueiro.nomeImovel} - {pesqueiro.concluido ? "Concluído" : "Em Andamento"}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEditarPesqueiro(pesqueiro)}
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleExcluirPesqueiro(pesqueiro.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// PAA Tab
+const PAAForm = () => {
+  const [localidade, setLocalidade] = useState("");
+  const [nomeImovel, setNomeImovel] = useState("");
+  const [proprietario, setProprietario] = useState("");
+  const [operacao, setOperacao] = useState("");
+  const [horaMaquina, setHoraMaquina] = useState(0);
+  const [areaMecanizacao, setAreaMecanizacao] = useState(0);
+  const [operador, setOperador] = useState("");
+  const [tecnicoResponsavel, setTecnicoResponsavel] = useState("");
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [midias, setMidias] = useState<string[]>([]);
+  const [dataCadastro, setDataCadastro] = useState(new Date().toISOString().split("T")[0]);
+  const [paaLocaisCadastrados, setPaaLocaisCadastrados] = useState<any[]>([]);
+  const [paaLocalEmEdicao, setPaaLocalEmEdicao] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchPaaLocais = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "paa"));
+        const paaData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setPaaLocaisCadastrados(paaData);
+      } catch (error) {
+        console.error("Erro ao buscar dados do PAA:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar os dados do PAA.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchPaaLocais();
+  }, []);
+
+  useEffect(() => {
+    const map = L.map("admin-map-paa").setView([-2.87922, -52.0088], 12);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    map.on("click", (e) => {
+      setLatitude(e.latlng.lat);
+      setLongitude(e.latlng.lng);
+
+      map.eachLayer((layer) => {
+        if (layer instanceof L.Marker) {
+          map.removeLayer(layer);
+        }
+      });
+
+      L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+    });
+
+    return () => map.remove();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    if (!latitude || !longitude) {
+      toast({
+        title: "Erro",
+        description: "Clique no mapa para selecionar a localização.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const paaData = {
+        localidade,
+        nomeImovel,
+        proprietario,
+        operacao,
+        horaMaquina,
+        areaMecanizacao,
+        operador,
+        tecnicoResponsavel,
+        latitude,
+        longitude,
+        midias,
+        dataCadastro: paaLocalEmEdicao ? paaLocalEmEdicao.dataCadastro : dataCadastro,
+        concluido: false,
+      };
+
+      if (paaLocalEmEdicao) {
+        await updateDoc(doc(db, "paa", paaLocalEmEdicao.id), paaData);
+        toast({
+          title: "Sucesso",
+          description: "Dados do PAA atualizados com sucesso!",
+        });
+      } else {
+        await addDoc(collection(db, "paa"), paaData);
+        toast({
+          title: "Sucesso",
+          description: "Dados do PAA adicionados com sucesso!",
+        });
+      }
+
+      // Limpa o formulário
+      setLocalidade("");
+      setNomeImovel("");
+      setProprietario("");
+      setOperacao("");
+      setHoraMaquina(0);
+      setAreaMecanizacao(0);
+      setOperador("");
+      setTecnicoResponsavel("");
+      setLatitude(null);
+      setLongitude(null);
+      setMidias([]);
+      setDataCadastro(new Date().toISOString().split("T")[0]);
+      setPaaLocalEmEdicao(null);
+
+      // Atualiza a lista
+      const querySnapshot = await getDocs(collection(db, "paa"));
+      const paaData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setPaaLocaisCadastrados(paaData);
+    } catch (error) {
+      console.error("Erro ao salvar dados do PAA:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível salvar os dados do PAA.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpload = (url: string) => {
+    setMidias([...midias, url]);
+  };
+
+  const handleEditarPaaLocal = (paaLocal: any) => {
+    setPaaLocalEmEdicao(paaLocal);
+    setLocalidade(paaLocal.localidade);
+    setNomeImovel(paaLocal.nomeImovel);
+    setProprietario(paaLocal.proprietario);
+    setOperacao(paaLocal.operacao);
+    setHoraMaquina(paaLocal.horaMaquina);
+    setAreaMecanizacao(paaLocal.areaMecanizacao);
+    setOperador(paaLocal.operador);
+    setTecnicoResponsavel(paaLocal.tecnicoResponsavel);
+    setLatitude(paaLocal.latitude);
+    setLongitude(paaLocal.longitude);
+    setMidias(paaLocal.midias || []);
+    setDataCadastro(paaLocal.dataCadastro);
+  };
+
+  const handleExcluirPaaLocal = async (id: string) => {
+    if (window.confirm("Tem certeza que deseja excluir estes dados do PAA?")) {
+      try {
+        await deleteDoc(doc(db, "paa", id));
+        toast({
+          title: "Sucesso",
+          description: "Dados do PAA excluídos com sucesso!",
+        });
+        const querySnapshot = await getDocs(collection(db, "paa"));
+        const paaData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setPaaLocaisCadastrados(paaData);
+      } catch (error) {
+        console.error("Erro ao excluir dados do PAA:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível excluir os dados do PAA.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  return (
+    <div>
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Gerenciar PAA</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div id="admin-map-paa" className="w-full h-[400px] mb-8 rounded-lg overflow-hidden" />
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="localidade">Localidade</Label>
+                <Input
+                  id="localidade"
+                  value={localidade}
+                  onChange={(e) => setLocalidade(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="nomeImovel">Nome do Imóvel Rural</Label>
+                <Input
+                  id="nomeImovel"
+                  value={nomeImovel}
+                  onChange={(e) => setNomeImovel(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="proprietario">Nome do Proprietário</Label>
+                <Input
+                  id="proprietario"
+                  value={proprietario}
+                  onChange={(e) => setProprietario(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="operacao">Operação</Label>
+                <Input
+                  id="operacao"
+                  value={operacao}
+                  onChange={(e) => setOperacao(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="horaMaquina">Hora/máquina</Label>
+                <Input
+                  id="horaMaquina"
+                  type="number"
+                  value={horaMaquina}
+                  onChange={(e) => setHoraMaquina(Number(e.target.value))}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="areaMecanizacao">Área para mecanização (hectares)</Label>
+                <Input
+                  id="areaMecanizacao"
+                  type="number"
+                  value={areaMecanizacao}
+                  onChange={(e) => setAreaMecanizacao(Number(e.target.value))}
+                  required
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="operador">Operador</Label>
+                <Input
+                  id="operador"
+                  value={operador}
+                  onChange={(e) => setOperador(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tecnicoResponsavel">Técnico Responsável</Label>
+                <Input
+                  id="tecnicoResponsavel"
+                  value={tecnicoResponsavel}
+                  onChange={(e) => setTecnicoResponsavel(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="dataCadastroPaa">Data</Label>
+                <Input
+                  id="dataCadastroPaa"
+                  type="date"
+                  value={dataCadastro}
+                  onChange={(e) => setDataCadastro(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Fotos/Vídeos</Label>
+              <Upload onUpload={handleUpload} />
+              <div className="grid grid-cols-4 gap-2 mt-2">
+                {midias.map((url, index) => (
+                  <img
+                    key={index}
+                    src={url}
+                    alt={`Mídia ${index + 1}`}
+                    className="w-full h-24 object-cover rounded-lg"
+                  />
+                ))}
+              </div>
+            </div>
+
+            <Button type="submit" disabled={loading} className="w-full">
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Salvando...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  {paaLocalEmEdicao ? "Atualizar" : "Adicionar"}
+                </span>
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>PAA Cadastrados</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {paaLocaisCadastrados.map((paaLocal) => (
+              <div
+                key={paaLocal.id}
+                className="flex items-center justify-between p-4 border rounded-lg"
+              >
+                <div>
+                  <h3 className="font-semibold">{paaLocal.localidade}</h3>
+                  <p className="text-sm text-gray-600">
+                    {paaLocal.nomeImovel} - {paaLocal.concluido ? "Concluído" : "Em Andamento"}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEditarPaaLocal(paaLocal)}
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleExcluirPaaLocal(paaLocal.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+const Admin = () => {
+  return (
+    <div className="container mx-auto px-4 py-20">
+      <Tabs defaultValue="agricultura">
+        <TabsList className="mb-8">
+          <TabsTrigger value="agricultura">Agricultura</TabsTrigger>
+          <TabsTrigger value="pesca">Pesca</TabsTrigger>
+          <TabsTrigger value="paa">PAA</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="agricultura">
+          <AgriculturaForm />
+        </TabsContent>
+        
+        <TabsContent value="pesca">
+          <PescaForm />
+        </TabsContent>
+        
+        <TabsContent value="paa">
+          <PAAForm />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

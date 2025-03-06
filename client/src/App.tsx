@@ -4,7 +4,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { queryClient } from "./lib/queryClient";
 import Home from "@/pages/Home";
 import Report from "@/pages/Report";
-import Map from "@/pages/Map";
+import AgriculturaMap from "@/pages/AgriculturaMap";
+import PescaMap from "@/pages/PescaMap";
+import PAAMap from "@/pages/PAAMap";
 import Login from "@/pages/Login";
 import Admin from "@/pages/Admin";
 import NotFound from "@/pages/not-found";
@@ -17,7 +19,9 @@ function Router() {
       <NavBar />
       <Switch>
         <Route path="/" component={Home} />
-        <Route path="/map" component={Map} />
+        <Route path="/agricultura" component={AgriculturaMap} />
+        <Route path="/pesca" component={PescaMap} />
+        <Route path="/paa" component={PAAMap} />
         <Route path="/report" component={Report} />
         <Route path="/login" component={Login} />
         <Route path="/admin">
