@@ -123,17 +123,18 @@ const Report = () => {
     doc.setFont('helvetica', 'bold');
 
     if (tipo === 'agricultura' || tipo === 'completo') {
-      doc.text("Relatório de Agricultura", 14, 20);
+      doc.text("Relatório de Agricultura", 14, 55); // Adjusted y-coordinate
 
       // Estatísticas de Agricultura
       const estAgri = calcularEstatisticasAgricultura();
       doc.setFontSize(12);
-      doc.text(`Total de Maquinários: ${estAgri.totalTratores}`, 14, 30);
-      doc.text(`Maquinários Concluídos: ${estAgri.tratoresConcluidos}`, 14, 36);
-      doc.text(`Maquinários em Serviço: ${estAgri.tratoresEmServico}`, 14, 42);
-      doc.text(`Tempo Total de Atividade: ${convertToHours(estAgri.totalTempoAtividade)} horas`, 14, 48); //mudança para horas
-      doc.text(`Área Total Trabalhada: ${estAgri.totalAreaTrabalhada.toFixed(2)} m²`, 14, 54);
-      doc.text(`Total de Horas/Máquina: ${estAgri.totalHoraMaquina} horas`, 14, 60); //adicionando totalHoraMaquina
+      doc.text(`Total de Tratores: ${estAgri.totalTratores}`, 14, 65); // Adjusted y-coordinate
+      doc.text(`Maquinários Concluídos: ${estAgri.tratoresConcluidos}`, 14, 71); // Adjusted y-coordinate
+      doc.text(`Maquinários em Serviço: ${estAgri.tratoresEmServico}`, 14, 77); // Adjusted y-coordinate
+      doc.text(`Tempo Total de Atividade: ${convertToHours(estAgri.totalTempoAtividade)} horas`, 14, 83); // Adjusted y-coordinate
+      doc.text(`Área Total Trabalhada: ${estAgri.totalAreaTrabalhada.toFixed(2)} m²`, 14, 89); // Adjusted y-coordinate
+      doc.text(`Total de Horas/Máquina: ${estAgri.totalHoraMaquina} horas`, 14, 95); // Adjusted y-coordinate
+
 
       // Tabela de Agricultura
       const agriculturaTableData = tratoresData.map(item => [
@@ -148,13 +149,13 @@ const Report = () => {
       ]);
 
       autoTable(doc, {
-        startY: 60,
+        startY: 90, // Adjusted y-coordinate
         head: [['Nome', 'Fazenda', 'Atividade', 'Operador', 'Data', 'Status', 'Horas', 'Área (m²)']],
         body: agriculturaTableData,
       });
     }
 
-    let yPos = tipo === 'agricultura' ? doc.lastAutoTable.finalY + 15 : 20;
+    let yPos = tipo === 'agricultura' ? doc.lastAutoTable.finalY + 15 : 55; // Adjusted starting position
 
     if (tipo === 'pesca' || tipo === 'completo') {
       doc.setFontSize(16);
@@ -183,7 +184,7 @@ const Report = () => {
       ]);
 
       autoTable(doc, {
-        startY: yPos + 40,
+        startY: yPos + 50, // Adjusted y-coordinate
         head: [['Localidade', 'Imóvel', 'Proprietário', 'Operação', 'Operador', 'Data', 'Status', 'Horas', 'Área (ha)']],
         body: pescaTableData,
       });
@@ -218,7 +219,7 @@ const Report = () => {
       ]);
 
       autoTable(doc, {
-        startY: yPos + 40,
+        startY: yPos + 50, // Adjusted y-coordinate
         head: [['Localidade', 'Imóvel', 'Proprietário', 'Operação', 'Operador', 'Data', 'Status', 'Horas', 'Área (ha)']],
         body: paaTableData,
       });
