@@ -21,10 +21,22 @@ const Home = () => {
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Link href="/map">
+              <Link href="/agricultura">
                 <Button size="lg" className="w-full flex items-center gap-2">
                   <Map className="h-5 w-5" />
-                  Mapa
+                  Agricultura
+                </Button>
+              </Link>
+              <Link href="/pesca">
+                <Button size="lg" className="w-full flex items-center gap-2">
+                  <Map className="h-5 w-5" />
+                  Pesca
+                </Button>
+              </Link>
+              <Link href="/paa">
+                <Button size="lg" className="w-full flex items-center gap-2">
+                  <Map className="h-5 w-5" />
+                  PAA
                 </Button>
               </Link>
               <Link href="/report">
