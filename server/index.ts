@@ -56,7 +56,7 @@ app.use((req, res, next) => {
 
   // Always serve the app on port 5000
   // This serves both the API and the client
-  const PORT = process.env.PORT || 3001;
+  const PORT = process.env.PORT || 5000;
   server.listen(Number(PORT), "0.0.0.0", () => {
     log(`serving on port ${PORT}`);
   });
