@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { db } from "../utils/firebase";
 import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore";
@@ -482,11 +481,11 @@ const PescaForm = () => {
 
       // Atualiza a lista
       const querySnapshot = await getDocs(collection(db, "pesca"));
-      const pescaData = querySnapshot.docs.map((doc) => ({
+      const updatedPescaData = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      setPesqueirosCadastrados(pescaData);
+      setPesqueirosCadastrados(updatedPescaData);
     } catch (error) {
       console.error("Erro ao salvar dados de pesca:", error);
       toast({
@@ -1103,15 +1102,15 @@ const Admin = () => {
           <TabsTrigger value="pesca">Pesca</TabsTrigger>
           <TabsTrigger value="paa">PAA</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="agricultura">
           <AgriculturaForm />
         </TabsContent>
-        
+
         <TabsContent value="pesca">
           <PescaForm />
         </TabsContent>
-        
+
         <TabsContent value="paa">
           <PAAForm />
         </TabsContent>
