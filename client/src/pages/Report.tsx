@@ -1,14 +1,14 @@
 
 import { useState, useEffect } from "react";
-import { Link } from "wouter";
 import { db } from "../utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart2, Download, FilePieChart } from "lucide-react";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { BarChart2, Download, FilePieChart, Loader2 } from "lucide-react";
+import { jsPDF } from "jspdf";
+import 'jspdf-autotable';
 
 const Report = () => {
   const [loading, setLoading] = useState(true);
@@ -53,19 +53,25 @@ const Report = () => {
     fetchData();
   }, []);
 
+  // Converter minutos para horas
+  const convertToHours = (minutes: number) => {
+    return (minutes / 60).toFixed(2);
+  };
+
   const calcularEstatisticasAgricultura = () => {
     const totalTratores = tratoresData.length;
     const tratoresConcluidos = tratoresData.filter(t => t.concluido).length;
     const tratoresEmServico = totalTratores - tratoresConcluidos;
-    const totalAreaTrabalhada = tratoresData.reduce((sum, t) => sum + (t.areaTrabalhada || 0), 0);
     const totalTempoAtividade = tratoresData.reduce((sum, t) => sum + (t.tempoAtividade || 0), 0);
+    const tempoAtividadeHoras = Number(convertToHours(totalTempoAtividade));
+    const totalAreaTrabalhada = tratoresData.reduce((sum, t) => sum + (t.areaTrabalhada || 0), 0);
 
     return {
       totalTratores,
       tratoresConcluidos,
       tratoresEmServico,
-      totalAreaTrabalhada,
-      totalTempoAtividade
+      totalTempoAtividade: tempoAtividadeHoras,
+      totalAreaTrabalhada
     };
   };
 
@@ -101,8 +107,121 @@ const Report = () => {
     };
   };
 
-  const exportarPDF = () => {
-    alert("Funcionalidade de exportação para PDF será implementada futuramente.");
+  const exportarPDF = (tipo: 'agricultura' | 'pesca' | 'paa' | 'completo') => {
+    const doc = new jsPDF();
+    
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    
+    if (tipo === 'agricultura' || tipo === 'completo') {
+      doc.text("Relatório de Agricultura", 14, 20);
+      
+      // Estatísticas de Agricultura
+      const estAgri = calcularEstatisticasAgricultura();
+      doc.setFontSize(12);
+      doc.text(`Total de Tratores: ${estAgri.totalTratores}`, 14, 30);
+      doc.text(`Tratores Concluídos: ${estAgri.tratoresConcluidos}`, 14, 36);
+      doc.text(`Tratores em Serviço: ${estAgri.tratoresEmServico}`, 14, 42);
+      doc.text(`Tempo Total de Atividade: ${estAgri.totalTempoAtividade} horas`, 14, 48);
+      doc.text(`Área Total Trabalhada: ${estAgri.totalAreaTrabalhada.toFixed(2)} m²`, 14, 54);
+      
+      // Tabela de Agricultura
+      const agriculturaTableData = tratoresData.map(item => [
+        item.nome || '',
+        item.fazenda || '',
+        item.atividade || '',
+        item.piloto || '',
+        new Date(item.dataCadastro).toLocaleDateString(),
+        item.concluido ? 'Concluído' : 'Em Serviço',
+        convertToHours(item.tempoAtividade || 0),
+        item.areaTrabalhada ? item.areaTrabalhada.toFixed(2) : '0.00'
+      ]);
+      
+      (doc as any).autoTable({
+        startY: 60,
+        head: [['Nome', 'Fazenda', 'Atividade', 'Operador', 'Data', 'Status', 'Horas', 'Área (m²)']],
+        body: agriculturaTableData,
+      });
+    }
+    
+    let yPos = tipo === 'agricultura' ? (doc as any).lastAutoTable.finalY + 15 : 20;
+    
+    if (tipo === 'pesca' || tipo === 'completo') {
+      doc.setFontSize(16);
+      doc.text("Relatório de Pesca", 14, yPos);
+      
+      // Estatísticas de Pesca
+      const estPesca = calcularEstatisticasPesca();
+      doc.setFontSize(12);
+      doc.text(`Total de Locais de Pesca: ${estPesca.totalPesqueiros}`, 14, yPos + 10);
+      doc.text(`Locais Concluídos: ${estPesca.pesqueirosConcluidos}`, 14, yPos + 16);
+      doc.text(`Locais em Andamento: ${estPesca.pesqueirosEmAndamento}`, 14, yPos + 22);
+      doc.text(`Área Total para Mecanização: ${estPesca.totalAreaMecanizacao.toFixed(2)} ha`, 14, yPos + 28);
+      doc.text(`Total de Horas/Máquina: ${estPesca.totalHoraMaquina.toFixed(2)} h`, 14, yPos + 34);
+      
+      // Tabela de Pesca
+      const pescaTableData = pescaData.map(item => [
+        item.localidade || '',
+        item.nomeImovel || '',
+        item.proprietario || '',
+        item.operacao || '',
+        item.operador || '',
+        new Date(item.dataCadastro).toLocaleDateString(),
+        item.concluido ? 'Concluído' : 'Em Andamento',
+        item.horaMaquina ? item.horaMaquina.toFixed(2) : '0.00',
+        item.areaMecanizacao ? item.areaMecanizacao.toFixed(2) : '0.00'
+      ]);
+      
+      (doc as any).autoTable({
+        startY: yPos + 40,
+        head: [['Localidade', 'Imóvel', 'Proprietário', 'Operação', 'Operador', 'Data', 'Status', 'Horas', 'Área (ha)']],
+        body: pescaTableData,
+      });
+      
+      yPos = (doc as any).lastAutoTable.finalY + 15;
+    }
+    
+    if (tipo === 'paa' || tipo === 'completo') {
+      doc.setFontSize(16);
+      doc.text("Relatório de PAA", 14, yPos);
+      
+      // Estatísticas de PAA
+      const estPAA = calcularEstatisticasPAA();
+      doc.setFontSize(12);
+      doc.text(`Total de Locais PAA: ${estPAA.totalPAA}`, 14, yPos + 10);
+      doc.text(`Locais Concluídos: ${estPAA.paaConcluidos}`, 14, yPos + 16);
+      doc.text(`Locais em Andamento: ${estPAA.paaEmAndamento}`, 14, yPos + 22);
+      doc.text(`Área Total para Mecanização: ${estPAA.totalAreaMecanizacao.toFixed(2)} ha`, 14, yPos + 28);
+      doc.text(`Total de Horas/Máquina: ${estPAA.totalHoraMaquina.toFixed(2)} h`, 14, yPos + 34);
+      
+      // Tabela de PAA
+      const paaTableData = paaData.map(item => [
+        item.localidade || '',
+        item.nomeImovel || '',
+        item.proprietario || '',
+        item.operacao || '',
+        item.operador || '',
+        new Date(item.dataCadastro).toLocaleDateString(),
+        item.concluido ? 'Concluído' : 'Em Andamento',
+        item.horaMaquina ? item.horaMaquina.toFixed(2) : '0.00',
+        item.areaMecanizacao ? item.areaMecanizacao.toFixed(2) : '0.00'
+      ]);
+      
+      (doc as any).autoTable({
+        startY: yPos + 40,
+        head: [['Localidade', 'Imóvel', 'Proprietário', 'Operação', 'Operador', 'Data', 'Status', 'Horas', 'Área (ha)']],
+        body: paaTableData,
+      });
+    }
+    
+    // Nome do arquivo
+    let filename = 'relatorio';
+    if (tipo === 'agricultura') filename += '_agricultura';
+    else if (tipo === 'pesca') filename += '_pesca';
+    else if (tipo === 'paa') filename += '_paa';
+    else filename += '_completo';
+    
+    doc.save(`${filename}.pdf`);
   };
 
   if (loading) {
@@ -121,14 +240,14 @@ const Report = () => {
     <div className="container mx-auto px-4 py-20">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Relatórios</h1>
-        <Button onClick={exportarPDF} className="flex items-center gap-2">
+        <Button onClick={() => exportarPDF('completo')} className="flex items-center gap-2">
           <Download className="h-4 w-4" />
-          Exportar PDF
+          Exportar Relatório Completo
         </Button>
       </div>
 
       <Tabs defaultValue="agricultura">
-        <TabsList className="mb-8">
+        <TabsList className="mb-6">
           <TabsTrigger value="agricultura">Agricultura</TabsTrigger>
           <TabsTrigger value="pesca">Pesca</TabsTrigger>
           <TabsTrigger value="paa">PAA</TabsTrigger>
@@ -136,6 +255,13 @@ const Report = () => {
 
         {/* Relatório de Agricultura */}
         <TabsContent value="agricultura">
+          <div className="flex justify-end mb-4">
+            <Button onClick={() => exportarPDF('agricultura')} variant="outline" className="flex items-center gap-2">
+              <Download className="h-4 w-4" />
+              Exportar Agricultura
+            </Button>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <Card>
               <CardHeader>
@@ -152,22 +278,22 @@ const Report = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FilePieChart className="h-5 w-5 text-green-500" />
-                  Área Trabalhada
+                  Tempo de Atividade
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{estatisticasAgricultura.totalAreaTrabalhada} m²</p>
+                <p className="text-3xl font-bold">{estatisticasAgricultura.totalTempoAtividade} h</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FilePieChart className="h-5 w-5 text-blue-500" />
-                  Tempo Total de Atividade
+                  Área Trabalhada
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{estatisticasAgricultura.totalTempoAtividade} min</p>
+                <p className="text-3xl font-bold">{estatisticasAgricultura.totalAreaTrabalhada.toFixed(2)} m²</p>
               </CardContent>
             </Card>
           </div>
@@ -183,11 +309,11 @@ const Report = () => {
                     <TableHead>Nome</TableHead>
                     <TableHead>Fazenda</TableHead>
                     <TableHead>Atividade</TableHead>
-                    <TableHead>Piloto</TableHead>
+                    <TableHead>Operador</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Tempo (h)</TableHead>
                     <TableHead>Área (m²)</TableHead>
-                    <TableHead>Tempo (min)</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -203,8 +329,8 @@ const Report = () => {
                           {trator.concluido ? 'Concluído' : 'Em Serviço'}
                         </span>
                       </TableCell>
-                      <TableCell>{trator.areaTrabalhada || 0}</TableCell>
-                      <TableCell>{trator.tempoAtividade || 0}</TableCell>
+                      <TableCell>{convertToHours(trator.tempoAtividade || 0)}</TableCell>
+                      <TableCell>{trator.areaTrabalhada ? trator.areaTrabalhada.toFixed(2) : '0.00'}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -215,6 +341,13 @@ const Report = () => {
 
         {/* Relatório de Pesca */}
         <TabsContent value="pesca">
+          <div className="flex justify-end mb-4">
+            <Button onClick={() => exportarPDF('pesca')} variant="outline" className="flex items-center gap-2">
+              <Download className="h-4 w-4" />
+              Exportar Pesca
+            </Button>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <Card>
               <CardHeader>
@@ -235,7 +368,7 @@ const Report = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{estatisticasPesca.totalAreaMecanizacao} ha</p>
+                <p className="text-3xl font-bold">{estatisticasPesca.totalAreaMecanizacao.toFixed(2)} ha</p>
               </CardContent>
             </Card>
             <Card>
@@ -246,7 +379,7 @@ const Report = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{estatisticasPesca.totalHoraMaquina} h</p>
+                <p className="text-3xl font-bold">{estatisticasPesca.totalHoraMaquina.toFixed(2)} h</p>
               </CardContent>
             </Card>
           </div>
@@ -298,6 +431,13 @@ const Report = () => {
 
         {/* Relatório de PAA */}
         <TabsContent value="paa">
+          <div className="flex justify-end mb-4">
+            <Button onClick={() => exportarPDF('paa')} variant="outline" className="flex items-center gap-2">
+              <Download className="h-4 w-4" />
+              Exportar PAA
+            </Button>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <Card>
               <CardHeader>
@@ -318,7 +458,7 @@ const Report = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{estatisticasPAA.totalAreaMecanizacao} ha</p>
+                <p className="text-3xl font-bold">{estatisticasPAA.totalAreaMecanizacao.toFixed(2)} ha</p>
               </CardContent>
             </Card>
             <Card>
@@ -329,7 +469,7 @@ const Report = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{estatisticasPAA.totalHoraMaquina} h</p>
+                <p className="text-3xl font-bold">{estatisticasPAA.totalHoraMaquina.toFixed(2)} h</p>
               </CardContent>
             </Card>
           </div>
