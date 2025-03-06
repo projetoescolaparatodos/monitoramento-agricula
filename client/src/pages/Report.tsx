@@ -1,71 +1,34 @@
-
-import React, { useState } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { db } from "../utils/firebase";
+import { collection, getDocs } from "firebase/firestore";
 import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/ui/data-table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChartContainer } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/utils/firebase";
-import { useQuery } from "@tanstack/react-query";
-import { parseISO, isValid, format } from "date-fns";
-import { DownloadIcon } from "lucide-react";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
+import { DataTable } from "@/components/ui/data-table";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { Download, Loader2, Filter } from "lucide-react";
+import { format, isValid, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
-const columns = [
-  {
-    accessorKey: "nome",
-    header: "Nome",
-  },
-  {
-    accessorKey: "tipo",
-    header: "Setor",
-    cell: ({ row }) => {
-      const tipo = row.getValue("tipo") as string;
-      const labels = {
-        agricultura: "🌾 Agricultura",
-        pesca: "🎣 Pesca",
-        paa: "🛒 PAA"
-      };
-      return labels[tipo] || tipo;
-    }
-  },
-  {
-    accessorKey: "fazenda",
-    header: "Local",
-  },
-  {
-    accessorKey: "dataCadastro",
-    header: "Data de Cadastro",
-    cell: ({ row }) => {
-      const date = row.getValue("dataCadastro") as string;
-      if (!date) return "";
-      try {
-        return format(new Date(date), "dd/MM/yyyy");
-      } catch (e) {
-        return date;
-      }
-    },
-  },
-  {
-    accessorKey: "areaTrabalhada",
-    header: "Área (m²)",
-    cell: ({ row }) => {
-      const area = row.getValue("areaTrabalhada") as number;
-      return area ? area.toLocaleString("pt-BR") : "N/A";
-    },
-  },
-];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+
+// Função auxiliar para formatar datas com segurança
+const formatDate = (dateString: string) => {
+  try {
+    const date = parseISO(dateString);
+    if (!isValid(date)) return "Data inválida";
+    return format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+  } catch (error) {
+    return "Data inválida";
+  }
+};
 
 const Report = () => {
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
-  const [localFilter, setLocalFilter] = useState("todos");
-  const [tipoFilter, setTipoFilter] = useState("todos");
+  const [fazendaFilter, setFazendaFilter] = useState("todas");
 
   const { data: tratores, isLoading } = useQuery({
     queryKey: ["tratores"],
@@ -87,11 +50,10 @@ const Report = () => {
       if (!isValid(tratorDate)) return false;
 
       const matchesDate = (!start || !isValid(start) || tratorDate >= start) && 
-                        (!end || !isValid(end) || tratorDate <= end);
-      const matchesLocal = localFilter === "todos" || trator.fazenda === localFilter;
-      const matchesTipo = tipoFilter === "todos" || trator.tipo === tipoFilter;
+                         (!end || !isValid(end) || tratorDate <= end);
+      const matchesFazenda = fazendaFilter === "todas" || trator.fazenda === fazendaFilter;
 
-      return matchesDate && matchesLocal && matchesTipo;
+      return matchesDate && matchesFazenda;
     } catch (error) {
       return false;
     }
@@ -100,171 +62,176 @@ const Report = () => {
   // Calcular área total trabalhada
   const areaTotal = filteredData?.reduce((total, trator) => total + (trator.areaTrabalhada || 0), 0) || 0;
 
-  // Preparar dados para o gráfico
-  const chartData = React.useMemo(() => {
-    if (!filteredData) return [];
-    
-    // Agrupar por tipo para o gráfico
-    const grupos = filteredData.reduce((acc, item) => {
-      const tipo = item.tipo || 'Não especificado';
-      if (!acc[tipo]) {
-        acc[tipo] = { 
-          nome: tipo, 
-          quantidade: 0, 
-          area: 0 
-        };
-      }
-      acc[tipo].quantidade += 1;
-      acc[tipo].area += (item.areaTrabalhada || 0);
-      return acc;
-    }, {});
-    
-    return Object.values(grupos);
-  }, [filteredData]);
+  const columns = [
+    { header: "Nome", accessorKey: "nome" },
+    { header: "Fazenda", accessorKey: "fazenda" },
+    { header: "Atividade", accessorKey: "atividade" },
+    { 
+      header: "Data", 
+      accessorKey: "dataCadastro",
+      cell: ({ row }) => formatDate(row.original.dataCadastro)
+    },
+    {
+      header: "Área (m²)",
+      accessorKey: "areaTrabalhada",
+      cell: ({ row }) => row.original.areaTrabalhada?.toLocaleString('pt-BR') || '0'
+    },
+    { 
+      header: "Status", 
+      accessorKey: "concluido",
+      cell: ({ row }) => (
+        <span className={`px-2 py-1 rounded-full text-sm ${
+          row.original.concluido 
+            ? "bg-green-100 text-green-800" 
+            : "bg-blue-100 text-blue-800"
+        }`}>
+          {row.original.concluido ? "Concluído" : "Em Serviço"}
+        </span>
+      )
+    }
+  ];
 
-  // Preparar dados para o gráfico de área por local
-  const chartDataPorLocal = React.useMemo(() => {
-    if (!filteredData) return [];
-    
-    // Agrupar por local para o gráfico
-    const grupos = filteredData.reduce((acc, item) => {
-      const local = item.fazenda || 'Não especificado';
-      if (!acc[local]) {
-        acc[local] = { 
-          nome: local, 
-          area: 0 
-        };
-      }
-      acc[local].area += (item.areaTrabalhada || 0);
-      return acc;
-    }, {});
-    
-    return Object.values(grupos);
-  }, [filteredData]);
+  // Dados para o gráfico de atividades
+  const chartData = filteredData?.reduce((acc, trator) => {
+    const existing = acc.find(item => item.atividade === trator.atividade);
+    if (existing) {
+      existing.count += 1;
+    } else {
+      acc.push({ atividade: trator.atividade, count: 1 });
+    }
+    return acc;
+  }, []);
 
-  // Função para gerar PDF do relatório
-  const gerarPDF = () => {
-    const doc = new jsPDF();
-    
-    // Título
-    doc.setFontSize(16);
-    doc.text("Relatório de Atividades", 105, 15, { align: "center" });
-    
-    // Subtítulo com data
-    doc.setFontSize(12);
-    doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy")}`, 105, 25, { align: "center" });
-    
-    // Filtros aplicados
-    doc.setFontSize(10);
-    let y = 35;
-    doc.text("Filtros aplicados:", 14, y);
-    y += 7;
-    doc.text(`Período: ${dateStart ? format(parseISO(dateStart), "dd/MM/yyyy") : "Início"} a ${dateEnd ? format(parseISO(dateEnd), "dd/MM/yyyy") : "Atual"}`, 14, y);
-    y += 7;
-    doc.text(`Setor: ${tipoFilter === "todos" ? "Todos" : tipoFilter}`, 14, y);
-    y += 7;
-    doc.text(`Local: ${localFilter === "todos" ? "Todos" : localFilter}`, 14, y);
-    
-    // Resumo
-    y += 10;
-    doc.setFontSize(12);
-    doc.text("Resumo", 14, y);
-    y += 7;
-    doc.setFontSize(10);
-    doc.text(`Total de registros: ${filteredData?.length || 0}`, 14, y);
-    y += 7;
-    doc.text(`Área total trabalhada: ${areaTotal.toLocaleString('pt-BR')} m²`, 14, y);
-    
-    // Tabela de dados
-    y += 15;
-    
-    // Converter dados para o formato da tabela
-    const tableData = filteredData?.map(item => [
-      item.nome || "",
-      item.tipo || "",
-      item.fazenda || "",
-      item.dataCadastro ? format(new Date(item.dataCadastro), "dd/MM/yyyy") : "",
-      item.areaTrabalhada ? item.areaTrabalhada.toLocaleString('pt-BR') : "N/A"
-    ]);
-    
-    // @ts-ignore - jspdf-autotable não está tipado corretamente
-    doc.autoTable({
-      startY: y,
-      head: [['Nome', 'Setor', 'Local', 'Data de Cadastro', 'Área (m²)']],
-      body: tableData || [],
-    });
-    
-    // Salvar o PDF
-    doc.save('relatorio-atividades.pdf');
+  // Dados para o gráfico de status
+  const statusData = filteredData?.reduce((acc, trator) => {
+    const status = trator.concluido ? "Concluído" : "Em Serviço";
+    const existing = acc.find(item => item.name === status);
+    if (existing) {
+      existing.value += 1;
+    } else {
+      acc.push({ name: status, value: 1 });
+    }
+    return acc;
+  }, []);
+
+  const fazendas = tratores ? [...new Set(tratores.map(t => t.fazenda))] : [];
+
+  const handleExportCSV = () => {
+    if (!filteredData) return;
+
+    const csvContent = [
+      ["Nome", "Fazenda", "Atividade", "Data", "Status"].join(","),
+      ...filteredData.map(trator => [
+        trator.nome,
+        trator.fazenda,
+        trator.atividade,
+        formatDate(trator.dataCadastro),
+        trator.concluido ? "Concluído" : "Em Serviço"
+      ].join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `relatorio_tratores_${format(new Date(), "dd-MM-yyyy")}.csv`;
+    link.click();
   };
 
-  // Obter lista de locais únicos para o filtro
-  const locaisUnicos = React.useMemo(() => {
-    if (!tratores) return [];
-    const locais = new Set(tratores.map(t => t.fazenda).filter(Boolean));
-    return Array.from(locais);
-  }, [tratores]);
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
-    <div className="container py-10">
-      <h1 className="text-2xl font-bold mb-6">Relatórios</h1>
-      
+    <div className="container mx-auto px-4 py-20">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold">Relatório de Atividades</h1>
+        <Button onClick={handleExportCSV} className="gap-2">
+          <Download className="h-4 w-4" />
+          Exportar CSV
+        </Button>
+      </div>
+
       <Card className="p-6 mb-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <Label htmlFor="date-start">Data Inicial</Label>
+            <label className="block text-sm font-medium mb-2">Data Início</label>
             <Input
-              id="date-start"
               type="date"
               value={dateStart}
               onChange={(e) => setDateStart(e.target.value)}
             />
           </div>
           <div>
-            <Label htmlFor="date-end">Data Final</Label>
+            <label className="block text-sm font-medium mb-2">Data Fim</label>
             <Input
-              id="date-end"
               type="date"
               value={dateEnd}
               onChange={(e) => setDateEnd(e.target.value)}
             />
           </div>
           <div>
-            <Label htmlFor="tipo-filter">Setor</Label>
-            <Select value={tipoFilter} onValueChange={setTipoFilter}>
-              <SelectTrigger id="tipo-filter">
-                <SelectValue placeholder="Todos os setores" />
+            <label className="block text-sm font-medium mb-2">Fazenda</label>
+            <Select value={fazendaFilter} onValueChange={setFazendaFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione uma fazenda" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="todos">Todos os setores</SelectItem>
-                <SelectItem value="agricultura">🌾 Agricultura</SelectItem>
-                <SelectItem value="pesca">🎣 Pesca</SelectItem>
-                <SelectItem value="paa">🛒 PAA</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="local-filter">Local</Label>
-            <Select value={localFilter} onValueChange={setLocalFilter}>
-              <SelectTrigger id="local-filter">
-                <SelectValue placeholder="Todos os locais" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos os locais</SelectItem>
-                {locaisUnicos.map(local => (
-                  <SelectItem key={local} value={local}>{local}</SelectItem>
+                <SelectItem value="todas">Todas</SelectItem>
+                {fazendas.map(fazenda => (
+                  <SelectItem key={fazenda} value={fazenda}>
+                    {fazenda}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
         </div>
-        
-        <div className="flex justify-end">
-          <Button onClick={gerarPDF} className="gap-2">
-            <DownloadIcon className="h-4 w-4" /> Exportar PDF
-          </Button>
-        </div>
       </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Atividades por Tipo</h2>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="atividade" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="hsl(120, 40%, 35%)" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Status das Atividades</h2>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={statusData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                >
+                  {statusData?.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+      </div>
 
       <Card className="p-6 mb-8">
         <div className="flex justify-between items-center mb-4">
@@ -274,41 +241,6 @@ const Report = () => {
             <p className="text-2xl font-bold text-primary">
               {areaTotal.toLocaleString('pt-BR')} m²
             </p>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
-          <div>
-            <h3 className="text-lg font-medium mb-4">Distribuição por Setor</h3>
-            <div className="h-80">
-              <ChartContainer config={{}} className="h-full">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="nome" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="quantidade" name="Quantidade" fill="#8884d8" />
-                  <Bar dataKey="area" name="Área (m²)" fill="#82ca9d" />
-                </BarChart>
-              </ChartContainer>
-            </div>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-medium mb-4">Distribuição por Local</h3>
-            <div className="h-80">
-              <ChartContainer config={{}} className="h-full">
-                <BarChart data={chartDataPorLocal}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="nome" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="area" name="Área (m²)" fill="#82ca9d" />
-                </BarChart>
-              </ChartContainer>
-            </div>
           </div>
         </div>
       </Card>
