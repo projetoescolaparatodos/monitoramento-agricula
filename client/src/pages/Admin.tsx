@@ -850,11 +850,11 @@ const PAAForm = () => {
 
       // Atualiza a lista
       const querySnapshot = await getDocs(collection(db, "paa"));
-      const paaData = querySnapshot.docs.map((doc) => ({
+      const updatedPaaData = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      setPaaLocaisCadastrados(paaData);
+      setPaaLocaisCadastrados(updatedPaaData);
     } catch (error) {
       console.error("Erro ao salvar dados do PAA:", error);
       toast({
