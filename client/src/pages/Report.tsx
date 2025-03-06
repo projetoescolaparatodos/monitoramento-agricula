@@ -57,6 +57,11 @@ const Report = () => {
     return (minutes / 60).toFixed(2);
   };
 
+  // Converter horas para dias
+  const convertToDays = (hours: number) => {
+    return (hours / 24).toFixed(2);
+  };
+
   const calcularEstatisticasAgricultura = () => {
     const totalTratores = tratoresData.length;
     const tratoresConcluidos = tratoresData.filter(t => t.concluido).length;
@@ -118,10 +123,10 @@ const Report = () => {
       // Estatísticas de Agricultura
       const estAgri = calcularEstatisticasAgricultura();
       doc.setFontSize(12);
-      doc.text(`Total de Tratores: ${estAgri.totalTratores}`, 14, 30);
-      doc.text(`Tratores Concluídos: ${estAgri.tratoresConcluidos}`, 14, 36);
-      doc.text(`Tratores em Serviço: ${estAgri.tratoresEmServico}`, 14, 42);
-      doc.text(`Tempo Total de Atividade: ${estAgri.totalTempoAtividade} horas`, 14, 48);
+      doc.text(`Total de Maquinários: ${estAgri.totalTratores}`, 14, 30);
+      doc.text(`Maquinários Concluídos: ${estAgri.tratoresConcluidos}`, 14, 36);
+      doc.text(`Maquinários em Serviço: ${estAgri.tratoresEmServico}`, 14, 42);
+      doc.text(`Tempo Total de Atividade: ${convertToDays(estAgri.totalTempoAtividade)} dias`, 14, 48);
       doc.text(`Área Total Trabalhada: ${estAgri.totalAreaTrabalhada.toFixed(2)} m²`, 14, 54);
 
       // Tabela de Agricultura
@@ -132,13 +137,13 @@ const Report = () => {
         item.piloto || '',
         new Date(item.dataCadastro).toLocaleDateString(),
         item.concluido ? 'Concluído' : 'Em Serviço',
-        convertToHours(item.tempoAtividade || 0),
+        convertToDays(convertToHours(item.tempoAtividade || 0)),
         item.areaTrabalhada ? item.areaTrabalhada.toFixed(2) : '0.00'
       ]);
 
       autoTable(doc, {
         startY: 60,
-        head: [['Nome', 'Fazenda', 'Atividade', 'Operador', 'Data', 'Status', 'Horas', 'Área (m²)']],
+        head: [['Nome', 'Fazenda', 'Atividade', 'Operador', 'Data', 'Status', 'Dias', 'Área (m²)']],
         body: agriculturaTableData,
       });
     }
@@ -266,7 +271,7 @@ const Report = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BarChart2 className="h-5 w-5 text-primary" />
-                  Total de Tratores
+                  Total de Maquinários
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -281,7 +286,7 @@ const Report = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{estatisticasAgricultura.totalTempoAtividade} h</p>
+                <p className="text-3xl font-bold">{convertToDays(estatisticasAgricultura.totalTempoAtividade)} dias</p>
               </CardContent>
             </Card>
             <Card>
@@ -299,7 +304,7 @@ const Report = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Detalhes dos Tratores</CardTitle>
+              <CardTitle>Detalhes dos Maquinários</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
@@ -311,7 +316,7 @@ const Report = () => {
                     <TableHead>Operador</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Tempo (h)</TableHead>
+                    <TableHead>Tempo (dias)</TableHead>
                     <TableHead>Área (m²)</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -328,7 +333,7 @@ const Report = () => {
                           {trator.concluido ? 'Concluído' : 'Em Serviço'}
                         </span>
                       </TableCell>
-                      <TableCell>{convertToHours(trator.tempoAtividade || 0)}</TableCell>
+                      <TableCell>{convertToDays(convertToHours(trator.tempoAtividade || 0))}</TableCell>
                       <TableCell>{trator.areaTrabalhada ? trator.areaTrabalhada.toFixed(2) : '0.00'}</TableCell>
                     </TableRow>
                   ))}
