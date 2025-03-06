@@ -57,11 +57,7 @@ const Report = () => {
     return (minutes / 60).toFixed(2);
   };
 
-  // Converter horas para dias
-  const convertToDays = (hours: number) => {
-    return (hours / 24).toFixed(2);
-  };
-
+  //Função para calcular estatísticas de agricultura, agora com total de horaMaquina
   const calcularEstatisticasAgricultura = () => {
     const totalTratores = tratoresData.length;
     const tratoresConcluidos = tratoresData.filter(t => t.concluido).length;
@@ -75,7 +71,8 @@ const Report = () => {
       tratoresConcluidos,
       tratoresEmServico,
       totalTempoAtividade: tempoAtividadeHoras,
-      totalAreaTrabalhada
+      totalAreaTrabalhada,
+      totalHoraMaquina: totalTempoAtividade // adicionando totalHoraMaquina
     };
   };
 
@@ -126,8 +123,9 @@ const Report = () => {
       doc.text(`Total de Maquinários: ${estAgri.totalTratores}`, 14, 30);
       doc.text(`Maquinários Concluídos: ${estAgri.tratoresConcluidos}`, 14, 36);
       doc.text(`Maquinários em Serviço: ${estAgri.tratoresEmServico}`, 14, 42);
-      doc.text(`Tempo Total de Atividade: ${convertToDays(estAgri.totalTempoAtividade)} dias`, 14, 48);
+      doc.text(`Tempo Total de Atividade: ${convertToHours(estAgri.totalTempoAtividade)} horas`, 14, 48); //mudança para horas
       doc.text(`Área Total Trabalhada: ${estAgri.totalAreaTrabalhada.toFixed(2)} m²`, 14, 54);
+      doc.text(`Total de Horas/Máquina: ${estAgri.totalHoraMaquina} horas`, 14, 60); //adicionando totalHoraMaquina
 
       // Tabela de Agricultura
       const agriculturaTableData = tratoresData.map(item => [
@@ -137,13 +135,13 @@ const Report = () => {
         item.piloto || '',
         new Date(item.dataCadastro).toLocaleDateString(),
         item.concluido ? 'Concluído' : 'Em Serviço',
-        convertToDays(convertToHours(item.tempoAtividade || 0)),
+        convertToHours(item.tempoAtividade || 0),
         item.areaTrabalhada ? item.areaTrabalhada.toFixed(2) : '0.00'
       ]);
 
       autoTable(doc, {
         startY: 60,
-        head: [['Nome', 'Fazenda', 'Atividade', 'Operador', 'Data', 'Status', 'Dias', 'Área (m²)']],
+        head: [['Nome', 'Fazenda', 'Atividade', 'Operador', 'Data', 'Status', 'Horas', 'Área (m²)']],
         body: agriculturaTableData,
       });
     }
@@ -266,7 +264,7 @@ const Report = () => {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"> {/* Increased columns for totalHoraMaquina */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -286,7 +284,7 @@ const Report = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{convertToDays(estatisticasAgricultura.totalTempoAtividade)} dias</p>
+                <p className="text-3xl font-bold">{convertToHours(estatisticasAgricultura.totalTempoAtividade)} horas</p> {/* Changed to hours */}
               </CardContent>
             </Card>
             <Card>
@@ -298,6 +296,17 @@ const Report = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">{estatisticasAgricultura.totalAreaTrabalhada.toFixed(2)} m²</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FilePieChart className="h-5 w-5 text-blue-500" />
+                  Total de Horas/Máquina
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">{estatisticasAgricultura.totalHoraMaquina} horas</p>
               </CardContent>
             </Card>
           </div>
@@ -316,7 +325,7 @@ const Report = () => {
                     <TableHead>Operador</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Tempo (dias)</TableHead>
+                    <TableHead>Tempo (horas)</TableHead> {/* Changed to hours */}
                     <TableHead>Área (m²)</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -333,7 +342,7 @@ const Report = () => {
                           {trator.concluido ? 'Concluído' : 'Em Serviço'}
                         </span>
                       </TableCell>
-                      <TableCell>{convertToDays(convertToHours(trator.tempoAtividade || 0))}</TableCell>
+                      <TableCell>{convertToHours(trator.tempoAtividade || 0)}</TableCell> {/* Changed to hours */}
                       <TableCell>{trator.areaTrabalhada ? trator.areaTrabalhada.toFixed(2) : '0.00'}</TableCell>
                     </TableRow>
                   ))}

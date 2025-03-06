@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { db } from "../utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
@@ -102,15 +101,16 @@ const PAAMap = () => {
         <div class="p-4 max-w-md">
           <h3 class="font-bold text-lg mb-2">${paa.localidade}</h3>
           <div class="space-y-2">
+            <p><strong>Localidade:</strong> ${paa.localidade}</p>
             <p><strong>Nome do Imóvel Rural:</strong> ${paa.nomeImovel}</p>
             <p><strong>Nome do Proprietário:</strong> ${paa.proprietario}</p>
             <p><strong>Operação:</strong> ${paa.operacao}</p>
-            <p><strong>Hora/máquina:</strong> ${paa.horaMaquina} horas</p>
-            <p><strong>Área para mecanização:</strong> ${paa.areaMecanizacao} hectares</p>
             <p><strong>Operador:</strong> ${paa.operador}</p>
-            <p><strong>Técnico Responsável:</strong> ${paa.tecnicoResponsavel}</p>
+            <p><strong>Técnico Responsável:</strong> ${paa.tecnicoResponsavel || 'Não informado'}</p>
             <p><strong>Data:</strong> ${new Date(paa.dataCadastro).toLocaleDateString()}</p>
             <p><strong>Status:</strong> ${status}</p>
+            ${paa.horaMaquina ? `<p><strong>Hora/máquina:</strong> ${paa.horaMaquina} horas</p>` : ''}
+            ${paa.areaMecanizacao ? `<p><strong>Área para mecanização:</strong> ${paa.areaMecanizacao} hectares</p>` : ''}
           </div>
           ${paa.midias && paa.midias.length > 0 ? `
             <div class="mt-4">

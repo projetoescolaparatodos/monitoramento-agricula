@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { db } from "../utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
@@ -102,15 +101,16 @@ const PescaMap = () => {
         <div class="p-4 max-w-md">
           <h3 class="font-bold text-lg mb-2">${pesca.localidade}</h3>
           <div class="space-y-2">
+            <p><strong>Localidade:</strong> ${pesca.localidade}</p>
             <p><strong>Nome do Imóvel Rural:</strong> ${pesca.nomeImovel}</p>
             <p><strong>Nome do Proprietário:</strong> ${pesca.proprietario}</p>
             <p><strong>Operação:</strong> ${pesca.operacao}</p>
-            <p><strong>Hora/máquina:</strong> ${pesca.horaMaquina} horas</p>
-            <p><strong>Área para mecanização:</strong> ${pesca.areaMecanizacao} hectares</p>
             <p><strong>Operador:</strong> ${pesca.operador}</p>
-            <p><strong>Técnico Responsável:</strong> ${pesca.tecnicoResponsavel}</p>
+            <p><strong>Técnico Responsável:</strong> ${pesca.tecnicoResponsavel || 'Não informado'}</p>
             <p><strong>Data:</strong> ${new Date(pesca.dataCadastro).toLocaleDateString()}</p>
             <p><strong>Status:</strong> ${status}</p>
+            ${pesca.horaMaquina ? `<p><strong>Hora/máquina:</strong> ${pesca.horaMaquina} horas</p>` : ''}
+            ${pesca.areaMecanizacao ? `<p><strong>Área para mecanização:</strong> ${pesca.areaMecanizacao} hectares</p>` : ''}
           </div>
           ${pesca.midias && pesca.midias.length > 0 ? `
             <div class="mt-4">

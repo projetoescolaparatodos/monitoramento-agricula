@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { db } from "../utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
@@ -24,6 +23,9 @@ const AgriculturaMap = () => {
     tempoAtividade?: number;
     areaTrabalhada?: string;
     midias?: string[];
+    localidade?: string;
+    proprietario?: string;
+    tecnicoResponsavel?: string;
   }
 
   const [tratores, setTratores] = useState<Trator[]>([]);
@@ -48,6 +50,9 @@ const AgriculturaMap = () => {
             tempoAtividade: data.tempoAtividade,
             areaTrabalhada: data.areaTrabalhada,
             midias: data.midias,
+            localidade: data.localidade,
+            proprietario: data.proprietario,
+            tecnicoResponsavel: data.tecnicoResponsavel,
           };
         });
         setTratores(tratoresData);
@@ -98,13 +103,16 @@ const AgriculturaMap = () => {
         <div class="p-4 max-w-md">
           <h3 class="font-bold text-lg mb-2">${trator.nome}</h3>
           <div class="space-y-2">
-            <p><strong>Fazenda:</strong> ${trator.fazenda}</p>
-            <p><strong>Atividade:</strong> ${trator.atividade}</p>
+            <p><strong>Localidade:</strong> ${trator.localidade || 'Não informado'}</p>
+            <p><strong>Nome do Imóvel Rural:</strong> ${trator.fazenda}</p>
+            <p><strong>Nome do Proprietário:</strong> ${trator.proprietario || 'Não informado'}</p>
+            <p><strong>Operação:</strong> ${trator.atividade}</p>
             <p><strong>Operador:</strong> ${trator.piloto}</p>
+            <p><strong>Técnico Responsável:</strong> ${trator.tecnicoResponsavel || 'Não informado'}</p>
             <p><strong>Data:</strong> ${new Date(trator.dataCadastro).toLocaleDateString()}</p>
             <p><strong>Status:</strong> ${status}</p>
-            ${trator.tempoAtividade ? `<p><strong>Tempo de Atividade:</strong> ${trator.tempoAtividade} minutos</p>` : ''}
-            ${trator.areaTrabalhada ? `<p><strong>Área Trabalhada:</strong> ${trator.areaTrabalhada}</p>` : ''}
+            ${trator.tempoAtividade ? `<p><strong>Hora/máquina:</strong> ${trator.tempoAtividade} horas</p>` : ''}
+            ${trator.areaTrabalhada ? `<p><strong>Área para mecanização:</strong> ${trator.areaTrabalhada} m²</p>` : ''}
           </div>
           ${trator.midias && trator.midias.length > 0 ? `
             <div class="mt-4">
