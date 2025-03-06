@@ -108,6 +108,14 @@ const Report = () => {
     };
   };
 
+  const calculateTotalMachineHours = (data: any[]) => {
+    let totalHours = 0;
+    data.forEach(item => {
+      totalHours += (item.tempoAtividade || 0) / 60;
+    });
+    return totalHours.toFixed(2);
+  };
+
   const exportarPDF = (tipo: 'agricultura' | 'pesca' | 'paa' | 'completo') => {
     const doc = new jsPDF();
 
@@ -264,7 +272,7 @@ const Report = () => {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"> {/* Increased columns for totalHoraMaquina */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -279,34 +287,23 @@ const Report = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FilePieChart className="h-5 w-5 text-green-500" />
-                  Tempo de Atividade
+                  <FilePieChart className="h-5 w-5 text-blue-500" />
+                  Hora/Máquina
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{convertToHours(estatisticasAgricultura.totalTempoAtividade)} horas</p> {/* Changed to hours */}
+                <p className="text-3xl font-bold">{calculateTotalMachineHours(tratoresData)} horas</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FilePieChart className="h-5 w-5 text-blue-500" />
+                  <FilePieChart className="h-5 w-5 text-green-500" />
                   Área Trabalhada
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">{estatisticasAgricultura.totalAreaTrabalhada.toFixed(2)} m²</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FilePieChart className="h-5 w-5 text-blue-500" />
-                  Total de Horas/Máquina
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold">{estatisticasAgricultura.totalHoraMaquina} horas</p>
               </CardContent>
             </Card>
           </div>
@@ -325,7 +322,7 @@ const Report = () => {
                     <TableHead>Operador</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Hora/Máquina</TableHead> {/* Changed to hours */}
+                    <TableHead>Hora/Máquina</TableHead>
                     <TableHead>Área (m²)</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -342,7 +339,7 @@ const Report = () => {
                           {trator.concluido ? 'Concluído' : 'Em Serviço'}
                         </span>
                       </TableCell>
-                      <TableCell>{convertToHours(trator.tempoAtividade || 0)}</TableCell> {/* Changed to hours */}
+                      <TableCell>{convertToHours(trator.tempoAtividade || 0)}</TableCell>
                       <TableCell>{trator.areaTrabalhada ? trator.areaTrabalhada.toFixed(2) : '0.00'}</TableCell>
                     </TableRow>
                   ))}
