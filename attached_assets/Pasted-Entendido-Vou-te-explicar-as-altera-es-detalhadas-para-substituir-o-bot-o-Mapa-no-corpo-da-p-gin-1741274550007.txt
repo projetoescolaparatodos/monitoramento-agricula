@@ -1,0 +1,178 @@
+Entendido! Vou te explicar as alterações detalhadas para substituir o botão "Mapa" no corpo da página inicial, assim como integrar as informações dos mapas **Pesca** e **PAA** aos relatórios, mantendo as melhorias que fizemos no **Navbar**. Abaixo, detalho as alterações necessárias para a implementação de tudo isso.
+
+---
+
+### **1. Substituir o Botão "Mapa" no Corpo da Página Inicial**
+O objetivo aqui é substituir o botão "Mapa" no corpo da página inicial pelos novos botões **Agricultura**, **Pesca** e **PAA**, mantendo a parte de "Relatórios" e "Administração" inalterada.
+
+#### **Alterações no Arquivo: `src/pages/Home.tsx`**
+1. **Localizar o botão "Mapa" no corpo da página**.
+2. **Substituir esse botão por três botões**, que vão redirecionar para os mapas correspondentes.
+3. **Manter os botões de Relatórios e Administração** como estão.
+
+Aqui está o exemplo de como o código pode ficar:
+
+```tsx
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
+
+const Home = () => {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">Bem-vindo ao Sistema de Monitoramento</h1>
+      <div className="flex gap-4">
+        {/* Botões substituídos */}
+        <Link href="/agricultura">
+          <Button variant="primary" className="w-full">
+            🌾 Agricultura
+          </Button>
+        </Link>
+        <Link href="/pesca">
+          <Button variant="primary" className="w-full">
+            🎣 Pesca
+          </Button>
+        </Link>
+        <Link href="/paa">
+          <Button variant="primary" className="w-full">
+            🛒 PAA
+          </Button>
+        </Link>
+      </div>
+
+      {/* Botões de Relatórios e Administração (sem alteração) */}
+      <div className="mt-6 flex gap-4">
+        <Link href="/report">
+          <Button variant="ghost" className="flex gap-2">
+            Relatórios
+          </Button>
+        </Link>
+        <Link href="/admin">
+          <Button variant="ghost" className="flex gap-2">
+            Administração
+          </Button>
+        </Link>
+      </div>
+    </div>
+  );
+};
+
+export default Home;
+```
+
+- **O botão "Mapa" foi substituído** por três botões: **Agricultura**, **Pesca**, e **PAA**.
+- **O layout permanece o mesmo**, com os botões de "Relatórios" e "Administração" abaixo desses novos botões.
+
+---
+
+### **2. Integrar as Informações dos Mapas Pesca e PAA aos Relatórios**
+Agora, precisamos garantir que as informações dos mapas **Pesca** e **PAA** sejam integradas aos relatórios, assim como as informações de Agricultura. Para isso, vamos ajustar o código da página de relatórios para que esses dados também sejam exibidos.
+
+#### **Alterações no Arquivo: `src/pages/Report.tsx`**
+1. Vamos importar e integrar os dados de **Pesca** e **PAA**.
+2. Garantir que os dados de cada mapa (Agricultura, Pesca e PAA) sejam visíveis na seção de relatórios.
+
+Aqui está o exemplo de como modificar o código:
+
+```tsx
+import React, { useState, useEffect } from "react";
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
+
+const Report = () => {
+  const [agriculturaData, setAgriculturaData] = useState([]);
+  const [pescaData, setPescaData] = useState([]);
+  const [paaData, setPaaData] = useState([]);
+
+  useEffect(() => {
+    // Aqui você pode integrar com a API ou carregar os dados do banco
+    // Exemplo fictício de dados
+    setAgriculturaData([
+      { localidade: "Fazenda X", operador: "João Silva", area: "20 ha" },
+      { localidade: "Fazenda Y", operador: "Maria Souza", area: "30 ha" },
+    ]);
+    setPescaData([
+      { localidade: "Rio Xingu", operador: "Carlos Mendes", area: "10 ha" },
+      { localidade: "Rio Araguaia", operador: "Fernanda Lima", area: "15 ha" },
+    ]);
+    setPaaData([
+      { localidade: "Vila Nova", operador: "Ana Oliveira", area: "25 ha" },
+      { localidade: "Vila Alegre", operador: "Pedro Alves", area: "35 ha" },
+    ]);
+  }, []);
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">Relatórios</h1>
+      
+      {/* Relatório de Agricultura */}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold">Agricultura</h2>
+        <ul>
+          {agriculturaData.map((data, index) => (
+            <li key={index}>
+              <p><strong>Localidade:</strong> {data.localidade}</p>
+              <p><strong>Operador:</strong> {data.operador}</p>
+              <p><strong>Área:</strong> {data.area}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Relatório de Pesca */}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold">Pesca</h2>
+        <ul>
+          {pescaData.map((data, index) => (
+            <li key={index}>
+              <p><strong>Localidade:</strong> {data.localidade}</p>
+              <p><strong>Operador:</strong> {data.operador}</p>
+              <p><strong>Área:</strong> {data.area}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Relatório de PAA */}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold">PAA</h2>
+        <ul>
+          {paaData.map((data, index) => (
+            <li key={index}>
+              <p><strong>Localidade:</strong> {data.localidade}</p>
+              <p><strong>Operador:</strong> {data.operador}</p>
+              <p><strong>Área:</strong> {data.area}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <Link href="/">
+        <Button variant="ghost">Voltar à página inicial</Button>
+      </Link>
+    </div>
+  );
+};
+
+export default Report;
+```
+
+### **Alterações no Código**
+- **Agricultura, Pesca e PAA** agora são carregados como **dados** nas seções de relatório.
+- Utilizamos `useState` e `useEffect` para carregar e exibir as informações.
+- Cada mapa (Agricultura, Pesca, PAA) tem a sua própria seção dentro do relatório, exibindo dados como **localidade**, **operador** e **área**.
+
+---
+
+### **Resumo das Alterações**
+
+- **Página Inicial (Home)**: Substituição do botão "Mapa" por três botões: **Agricultura**, **Pesca** e **PAA**, mantendo os botões de **Relatórios** e **Administração** inalterados.
+  
+- **Relatórios**: Integração das informações de **Pesca** e **PAA** com a mesma estrutura usada para **Agricultura**.
+
+- **Nada além do mencionado** deve ser alterado. Todos os outros elementos, como a navegação do Navbar, permanecem os mesmos.
+
+### **Arquivos Modificados**
+1. `src/pages/Home.tsx` - Para substituir o botão "Mapa" pelos três novos botões.
+2. `src/pages/Report.tsx` - Para integrar as informações dos mapas Pesca e PAA aos relatórios.
+
+Com essas alterações, você poderá visualizar corretamente os novos dados nos relatórios, mantendo a funcionalidade do sistema intacta. Se precisar de mais algum ajuste, só avisar! 😊
