@@ -17,7 +17,9 @@ function Router() {
       <NavBar />
       <Switch>
         <Route path="/" component={Home} />
-        <Route path="/map" component={Map} />
+        <Route path="/map/agricultura" component={props => <Map tipo="agricultura" {...props} />} />
+        <Route path="/map/pesca" component={props => <Map tipo="pesca" {...props} />} />
+        <Route path="/map/paa" component={props => <Map tipo="paa" {...props} />} />
         <Route path="/report" component={Report} />
         <Route path="/login" component={Login} />
         <Route path="/admin">
