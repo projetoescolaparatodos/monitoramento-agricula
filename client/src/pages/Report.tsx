@@ -325,7 +325,7 @@ const Report = () => {
                     <TableHead>Operador</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Tempo (horas)</TableHead> {/* Changed to hours */}
+                    <TableHead>Hora/Máquina</TableHead> {/* Changed to hours */}
                     <TableHead>Área (m²)</TableHead>
                   </TableRow>
                 </TableHeader>

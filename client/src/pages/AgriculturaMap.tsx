@@ -103,16 +103,16 @@ const AgriculturaMap = () => {
         <div class="p-4 max-w-md">
           <h3 class="font-bold text-lg mb-2">${trator.nome}</h3>
           <div class="space-y-2">
-            <p><strong>Localidade:</strong> ${trator.localidade || 'Não informado'}</p>
+            <p><strong>Localidade:</strong> ${trator.localidade || '-'}</p>
             <p><strong>Nome do Imóvel Rural:</strong> ${trator.fazenda}</p>
-            <p><strong>Nome do Proprietário:</strong> ${trator.proprietario || 'Não informado'}</p>
+            <p><strong>Nome do Proprietário:</strong> ${trator.proprietario || '-'}</p>
             <p><strong>Operação:</strong> ${trator.atividade}</p>
+            <p><strong>Hora/máquina:</strong> ${trator.tempoAtividade || '-'}</p>
+            <p><strong>Área para mecanização:</strong> ${trator.areaTrabalhada || '-'}</p>
             <p><strong>Operador:</strong> ${trator.piloto}</p>
-            <p><strong>Técnico Responsável:</strong> ${trator.tecnicoResponsavel || 'Não informado'}</p>
+            <p><strong>Técnico Responsável:</strong> ${trator.tecnicoResponsavel || '-'}</p>
             <p><strong>Data:</strong> ${new Date(trator.dataCadastro).toLocaleDateString()}</p>
             <p><strong>Status:</strong> ${status}</p>
-            ${trator.tempoAtividade ? `<p><strong>Hora/máquina:</strong> ${trator.tempoAtividade} horas</p>` : ''}
-            ${trator.areaTrabalhada ? `<p><strong>Área para mecanização:</strong> ${trator.areaTrabalhada} m²</p>` : ''}
           </div>
           ${trator.midias && trator.midias.length > 0 ? `
             <div class="mt-4">
