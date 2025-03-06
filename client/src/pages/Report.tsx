@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { db } from "../utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
@@ -8,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart2, Download, FilePieChart, Loader2 } from "lucide-react";
 import { jsPDF } from "jspdf";
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 const Report = () => {
   const [loading, setLoading] = useState(true);
@@ -109,13 +108,13 @@ const Report = () => {
 
   const exportarPDF = (tipo: 'agricultura' | 'pesca' | 'paa' | 'completo') => {
     const doc = new jsPDF();
-    
+
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    
+
     if (tipo === 'agricultura' || tipo === 'completo') {
       doc.text("Relatório de Agricultura", 14, 20);
-      
+
       // Estatísticas de Agricultura
       const estAgri = calcularEstatisticasAgricultura();
       doc.setFontSize(12);
@@ -124,7 +123,7 @@ const Report = () => {
       doc.text(`Tratores em Serviço: ${estAgri.tratoresEmServico}`, 14, 42);
       doc.text(`Tempo Total de Atividade: ${estAgri.totalTempoAtividade} horas`, 14, 48);
       doc.text(`Área Total Trabalhada: ${estAgri.totalAreaTrabalhada.toFixed(2)} m²`, 14, 54);
-      
+
       // Tabela de Agricultura
       const agriculturaTableData = tratoresData.map(item => [
         item.nome || '',
@@ -136,20 +135,20 @@ const Report = () => {
         convertToHours(item.tempoAtividade || 0),
         item.areaTrabalhada ? item.areaTrabalhada.toFixed(2) : '0.00'
       ]);
-      
-      (doc as any).autoTable({
+
+      autoTable(doc, {
         startY: 60,
         head: [['Nome', 'Fazenda', 'Atividade', 'Operador', 'Data', 'Status', 'Horas', 'Área (m²)']],
         body: agriculturaTableData,
       });
     }
-    
-    let yPos = tipo === 'agricultura' ? (doc as any).lastAutoTable.finalY + 15 : 20;
-    
+
+    let yPos = tipo === 'agricultura' ? doc.lastAutoTable.finalY + 15 : 20;
+
     if (tipo === 'pesca' || tipo === 'completo') {
       doc.setFontSize(16);
       doc.text("Relatório de Pesca", 14, yPos);
-      
+
       // Estatísticas de Pesca
       const estPesca = calcularEstatisticasPesca();
       doc.setFontSize(12);
@@ -158,7 +157,7 @@ const Report = () => {
       doc.text(`Locais em Andamento: ${estPesca.pesqueirosEmAndamento}`, 14, yPos + 22);
       doc.text(`Área Total para Mecanização: ${estPesca.totalAreaMecanizacao.toFixed(2)} ha`, 14, yPos + 28);
       doc.text(`Total de Horas/Máquina: ${estPesca.totalHoraMaquina.toFixed(2)} h`, 14, yPos + 34);
-      
+
       // Tabela de Pesca
       const pescaTableData = pescaData.map(item => [
         item.localidade || '',
@@ -171,20 +170,20 @@ const Report = () => {
         item.horaMaquina ? item.horaMaquina.toFixed(2) : '0.00',
         item.areaMecanizacao ? item.areaMecanizacao.toFixed(2) : '0.00'
       ]);
-      
-      (doc as any).autoTable({
+
+      autoTable(doc, {
         startY: yPos + 40,
         head: [['Localidade', 'Imóvel', 'Proprietário', 'Operação', 'Operador', 'Data', 'Status', 'Horas', 'Área (ha)']],
         body: pescaTableData,
       });
-      
-      yPos = (doc as any).lastAutoTable.finalY + 15;
+
+      yPos = doc.lastAutoTable.finalY + 15;
     }
-    
+
     if (tipo === 'paa' || tipo === 'completo') {
       doc.setFontSize(16);
       doc.text("Relatório de PAA", 14, yPos);
-      
+
       // Estatísticas de PAA
       const estPAA = calcularEstatisticasPAA();
       doc.setFontSize(12);
@@ -193,7 +192,7 @@ const Report = () => {
       doc.text(`Locais em Andamento: ${estPAA.paaEmAndamento}`, 14, yPos + 22);
       doc.text(`Área Total para Mecanização: ${estPAA.totalAreaMecanizacao.toFixed(2)} ha`, 14, yPos + 28);
       doc.text(`Total de Horas/Máquina: ${estPAA.totalHoraMaquina.toFixed(2)} h`, 14, yPos + 34);
-      
+
       // Tabela de PAA
       const paaTableData = paaData.map(item => [
         item.localidade || '',
@@ -206,21 +205,21 @@ const Report = () => {
         item.horaMaquina ? item.horaMaquina.toFixed(2) : '0.00',
         item.areaMecanizacao ? item.areaMecanizacao.toFixed(2) : '0.00'
       ]);
-      
-      (doc as any).autoTable({
+
+      autoTable(doc, {
         startY: yPos + 40,
         head: [['Localidade', 'Imóvel', 'Proprietário', 'Operação', 'Operador', 'Data', 'Status', 'Horas', 'Área (ha)']],
         body: paaTableData,
       });
     }
-    
+
     // Nome do arquivo
     let filename = 'relatorio';
     if (tipo === 'agricultura') filename += '_agricultura';
     else if (tipo === 'pesca') filename += '_pesca';
     else if (tipo === 'paa') filename += '_paa';
     else filename += '_completo';
-    
+
     doc.save(`${filename}.pdf`);
   };
 
@@ -261,7 +260,7 @@ const Report = () => {
               Exportar Agricultura
             </Button>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <Card>
               <CardHeader>
@@ -347,7 +346,7 @@ const Report = () => {
               Exportar Pesca
             </Button>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <Card>
               <CardHeader>
@@ -437,7 +436,7 @@ const Report = () => {
               Exportar PAA
             </Button>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <Card>
               <CardHeader>
