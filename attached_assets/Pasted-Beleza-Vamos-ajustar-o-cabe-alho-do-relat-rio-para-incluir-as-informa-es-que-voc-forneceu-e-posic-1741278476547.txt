@@ -1,0 +1,197 @@
+Beleza! Vamos ajustar o cabeçalho do relatório para incluir as informações que você forneceu e posicionar as logos corretamente. A logo da prefeitura ficará no **canto superior direito**, e a logo da secretaria (SEMAPA) ficará no **canto superior esquerdo**. As informações textuais ficarão centralizadas.
+
+---
+
+### **Passo 1: Preparar as Logos**
+1. **Adicionar as Logos ao Projeto**:
+   - Coloque as logos na pasta `public` do seu projeto:
+     - Logo da prefeitura: `public/prefeitura-logo.jpeg`
+     - Logo da SEMAPA: `public/semapa-logo.jpeg`
+
+2. **Verificar os Caminhos das Imagens**:
+   - No código, você pode referenciar as logos usando os caminhos:
+     - `/prefeitura-logo.jpeg`
+     - `/semapa-logo.jpeg`
+
+---
+
+### **Passo 2: Modificar o Código do Cabeçalho**
+Aqui está o código atualizado para o cabeçalho do relatório, com as logos e as informações textuais:
+
+```tsx
+import React from "react";
+
+const RelatorioGeral = () => {
+  return (
+    <div className="p-8 bg-white">
+      {/* Cabeçalho do Relatório */}
+      <div className="flex items-center justify-between border-b-2 border-gray-300 pb-4 mb-6">
+        {/* Logo da SEMAPA (esquerda) */}
+        <div>
+          <img
+            src="/semapa-logo.jpeg"
+            alt="Logo da SEMAPA"
+            className="h-16 w-auto"
+          />
+        </div>
+
+        {/* Informações Textuais (centro) */}
+        <div className="text-center">
+          <h1 className="text-xl font-bold">PREFEITURA MUNICIPAL DE VITÓRIA DO XINGU</h1>
+          <p className="text-lg">SECRETARIA MUNICIPAL DE AGRICULTURA, PESCA E ABASTECIMENTO</p>
+          <p className="text-md">VITÓRIA DO XINGU</p>
+          <p className="text-sm">CNPJ/MF: 34.887.935/0001-53</p>
+        </div>
+
+        {/* Logo da Prefeitura (direita) */}
+        <div>
+          <img
+            src="/prefeitura-logo.jpeg"
+            alt="Logo da Prefeitura"
+            className="h-16 w-auto"
+          />
+        </div>
+      </div>
+
+      {/* Conteúdo do Relatório */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Dados Gerais</h2>
+        <table className="w-full border-collapse border border-gray-300">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border border-gray-300 p-2">Setor</th>
+              <th className="border border-gray-300 p-2">Área Mecanizada</th>
+              <th className="border border-gray-300 p-2">Operações Realizadas</th>
+              <th className="border border-gray-300 p-2">Hora/Máquina</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border border-gray-300 p-2">Agricultura</td>
+              <td className="border border-gray-300 p-2">100 hectares</td>
+              <td className="border border-gray-300 p-2">Aragem, Plantio</td>
+              <td className="border border-gray-300 p-2">50 horas</td>
+            </tr>
+            <tr>
+              <td className="border border-gray-300 p-2">Pesca</td>
+              <td className="border border-gray-300 p-2">20 hectares</td>
+              <td className="border border-gray-300 p-2">Pesca Artesanal</td>
+              <td className="border border-gray-300 p-2">30 horas</td>
+            </tr>
+            <tr>
+              <td className="border border-gray-300 p-2">PAA</td>
+              <td className="border border-gray-300 p-2">50 hectares</td>
+              <td className="border border-gray-300 p-2">Colheita de Alimentos</td>
+              <td className="border border-gray-300 p-2">40 horas</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+export default RelatorioGeral;
+```
+
+---
+
+### **Passo 3: Explicação do Código**
+1. **Logos**:
+   - A logo da SEMAPA está no **canto superior esquerdo**.
+   - A logo da prefeitura está no **canto superior direito**.
+   - Ambas as logos têm tamanho ajustável (`h-16 w-auto`).
+
+2. **Informações Textuais**:
+   - As informações textuais estão centralizadas entre as logos.
+   - O texto está organizado em hierarquia (título maior, subtítulos menores).
+
+3. **Conteúdo do Relatório**:
+   - A tabela de dados gerais permanece a mesma, mas você pode ajustar os dados conforme necessário.
+
+---
+
+### **Passo 4: Exportar para PDF (Opcional)**
+Se você quiser exportar o relatório para PDF com o cabeçalho personalizado, aqui está um exemplo usando `jspdf`:
+
+#### **Instalar o `jspdf`**
+No terminal, execute:
+```bash
+npm install jspdf
+```
+
+#### **Código para Exportar para PDF**
+Adicione um botão no relatório para gerar o PDF:
+
+```tsx
+import React from "react";
+import { jsPDF } from "jspdf";
+
+const RelatorioGeral = () => {
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+
+    // Adicionar as logos ao PDF
+    doc.addImage("/semapa-logo.jpeg", "JPEG", 10, 10, 40, 40); // Logo da SEMAPA (esquerda)
+    doc.addImage("/prefeitura-logo.jpeg", "JPEG", 160, 10, 40, 40); // Logo da Prefeitura (direita)
+
+    // Adicionar as informações textuais ao PDF
+    doc.setFontSize(16);
+    doc.text("PREFEITURA MUNICIPAL DE VITÓRIA DO XINGU", 55, 20);
+    doc.setFontSize(14);
+    doc.text("SECRETARIA MUNICIPAL DE AGRICULTURA, PESCA E ABASTECIMENTO", 25, 30);
+    doc.setFontSize(12);
+    doc.text("VITÓRIA DO XINGU", 90, 40);
+    doc.text("CNPJ/MF: 34.887.935/0001-53", 80, 50);
+
+    // Adicionar o conteúdo ao PDF
+    doc.setFontSize(14);
+    doc.text("Dados Gerais", 10, 70);
+    doc.autoTable({
+      startY: 80,
+      head: [["Setor", "Área Mecanizada", "Operações Realizadas", "Hora/Máquina"]],
+      body: [
+        ["Agricultura", "100 hectares", "Aragem, Plantio", "50 horas"],
+        ["Pesca", "20 hectares", "Pesca Artesanal", "30 horas"],
+        ["PAA", "50 hectares", "Colheita de Alimentos", "40 horas"],
+      ],
+    });
+
+    // Salvar o PDF
+    doc.save("relatorio-geral.pdf");
+  };
+
+  return (
+    <div className="p-8 bg-white">
+      {/* Cabeçalho e conteúdo do relatório (mesmo código anterior) */}
+
+      {/* Botão para exportar PDF */}
+      <button
+        onClick={handleExportPDF}
+        className="mt-6 bg-blue-500 text-white px-4 py-2 rounded"
+      >
+        Exportar para PDF
+      </button>
+    </div>
+  );
+};
+
+export default RelatorioGeral;
+```
+
+---
+
+### **Passo 5: Testar no Replit**
+1. Adicione o código acima ao arquivo do relatório (por exemplo, `src/pages/RelatorioGeral.tsx`).
+2. Certifique-se de que as logos estão na pasta `public`.
+3. Execute o projeto no Replit e verifique se o cabeçalho aparece corretamente.
+4. Teste a exportação para PDF (se aplicável).
+
+---
+
+### **Resumo**
+- Adicionei as duas logos (prefeitura e SEMAPA) no cabeçalho, posicionadas corretamente.
+- Incluí as informações textuais centralizadas.
+- Mantive o código simples e fácil de ajustar conforme suas necessidades.
+
+Se precisar de mais ajuda ou ajustes, é só avisar! 😊
