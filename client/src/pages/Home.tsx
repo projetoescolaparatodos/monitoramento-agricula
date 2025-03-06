@@ -67,14 +67,14 @@ const Home = () => {
               <BarChart2 className="h-12 w-12 text-primary mb-4" />
               <h3 className="text-xl font-semibold mb-2">Relatórios Detalhados</h3>
               <p className="text-gray-600">
-                Gere relatórios completos com métricas importantes para melhor tomada de decisão.
+                Gere relatórios completos com métricas importantes.
               </p>
             </div>
             <div className="p-6 rounded-lg border bg-white shadow-sm">
               <Tractor className="h-12 w-12 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Gestão de Equipamentos</h3>
+              <h3 className="text-xl font-semibold mb-2">Gestão de Atividades</h3>
               <p className="text-gray-600">
-                Controle e gerencie sua frota de equipamentos agrícolas de forma eficiente.
+                fique por dentro das atividades desenvovidas pela SEMAPA - VTX.
               </p>
             </div>
           </div>

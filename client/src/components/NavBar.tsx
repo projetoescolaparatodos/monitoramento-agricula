@@ -5,10 +5,10 @@ import { BarChart3, Map } from "lucide-react";
 const NavBar = () => {
   return (
     <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-sm border-b z-50">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link href="/">
           <div className="flex items-center gap-2 text-primary">
-            <img src="/semapa-logo.svg" alt="SEMAPA" className="h-10 w-auto" />
+            <img src="/logo.png" alt="SEMAPA" className="h-14 w-auto" />
             <span className="font-semibold text-lg">
               SEMAPA - Vitória do Xingu
             </span>

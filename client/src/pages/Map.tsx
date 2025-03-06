@@ -10,17 +10,45 @@ import "leaflet/dist/leaflet.css";
 
 const Map = () => {
   const [loading, setLoading] = useState(true);
-  const [tratores, setTratores] = useState([]);
+  interface Trator {
+    id: string;
+    nome: string;
+    fazenda: string;
+    atividade: string;
+    piloto: string;
+    dataCadastro: string;
+    concluido: boolean;
+    latitude: number;
+    longitude: number;
+    tempoAtividade?: number;
+    areaTrabalhada?: string;
+    midias?: string[];
+  }
+
+  const [tratores, setTratores] = useState<Trator[]>([]);
   const [filtro, setFiltro] = useState("todos");
 
   useEffect(() => {
     const fetchTratores = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "tratores"));
-        const tratoresData = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const tratoresData = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            nome: data.nome,
+            fazenda: data.fazenda,
+            atividade: data.atividade,
+            piloto: data.piloto,
+            dataCadastro: data.dataCadastro,
+            concluido: data.concluido,
+            latitude: data.latitude,
+            longitude: data.longitude,
+            tempoAtividade: data.tempoAtividade,
+            areaTrabalhada: data.areaTrabalhada,
+            midias: data.midias,
+          };
+        });
         setTratores(tratoresData);
       } catch (error) {
         console.error("Erro ao buscar tratores:", error);
@@ -43,7 +71,7 @@ const Map = () => {
 
     // Criar ícone personalizado do trator
     const tratorIcon = L.icon({
-      iconUrl: "/trator-novo.png", // Assuming this is the correct path
+      iconUrl: "trator-icon.png", // Assuming this is the correct path
       iconSize: [32, 32],
       iconAnchor: [16, 32],
       popupAnchor: [0, -32]
@@ -96,7 +124,9 @@ const Map = () => {
       });
     });
 
-    return () => map.remove();
+    return () => {
+      map.remove();
+    };
   }, [tratores, filtro, loading]);
 
   if (loading) {
