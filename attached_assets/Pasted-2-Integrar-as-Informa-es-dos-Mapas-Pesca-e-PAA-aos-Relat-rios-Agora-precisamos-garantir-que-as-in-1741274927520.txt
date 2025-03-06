@@ -1,0 +1,101 @@
+2. Integrar as Informações dos Mapas Pesca e PAA aos Relatórios
+Agora, precisamos garantir que as informações dos mapas Pesca e PAA sejam integradas aos relatórios, assim como as informações de Agricultura. Para isso, vamos ajustar o código da página de relatórios para que esses dados também sejam exibidos.
+
+Alterações no Arquivo: src/pages/Report.tsx
+Vamos importar e integrar os dados de Pesca e PAA.
+Garantir que os dados de cada mapa (Agricultura, Pesca e PAA) sejam visíveis na seção de relatórios.
+Aqui está o exemplo de como modificar o código:
+
+tsx
+Copiar
+Editar
+import React, { useState, useEffect } from "react";
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
+
+const Report = () => {
+  const [agriculturaData, setAgriculturaData] = useState([]);
+  const [pescaData, setPescaData] = useState([]);
+  const [paaData, setPaaData] = useState([]);
+
+  useEffect(() => {
+    // Aqui você pode integrar com a API ou carregar os dados do banco
+    // Exemplo fictício de dados
+    setAgriculturaData([
+      { localidade: "Fazenda X", operador: "João Silva", area: "20 ha" },
+      { localidade: "Fazenda Y", operador: "Maria Souza", area: "30 ha" },
+    ]);
+    setPescaData([
+      { localidade: "Rio Xingu", operador: "Carlos Mendes", area: "10 ha" },
+      { localidade: "Rio Araguaia", operador: "Fernanda Lima", area: "15 ha" },
+    ]);
+    setPaaData([
+      { localidade: "Vila Nova", operador: "Ana Oliveira", area: "25 ha" },
+      { localidade: "Vila Alegre", operador: "Pedro Alves", area: "35 ha" },
+    ]);
+  }, []);
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">Relatórios</h1>
+      
+      {/* Relatório de Agricultura */}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold">Agricultura</h2>
+        <ul>
+          {agriculturaData.map((data, index) => (
+            <li key={index}>
+              <p><strong>Localidade:</strong> {data.localidade}</p>
+              <p><strong>Operador:</strong> {data.operador}</p>
+              <p><strong>Área:</strong> {data.area}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Relatório de Pesca */}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold">Pesca</h2>
+        <ul>
+          {pescaData.map((data, index) => (
+            <li key={index}>
+              <p><strong>Localidade:</strong> {data.localidade}</p>
+              <p><strong>Operador:</strong> {data.operador}</p>
+              <p><strong>Área:</strong> {data.area}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Relatório de PAA */}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold">PAA</h2>
+        <ul>
+          {paaData.map((data, index) => (
+            <li key={index}>
+              <p><strong>Localidade:</strong> {data.localidade}</p>
+              <p><strong>Operador:</strong> {data.operador}</p>
+              <p><strong>Área:</strong> {data.area}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <Link href="/">
+        <Button variant="ghost">Voltar à página inicial</Button>
+      </Link>
+    </div>
+  );
+};
+
+export default Report;
+Alterações no Código
+Agricultura, Pesca e PAA agora são carregados como dados nas seções de relatório.
+Utilizamos useState e useEffect para carregar e exibir as informações.
+Cada mapa (Agricultura, Pesca, PAA) tem a sua própria seção dentro do relatório, exibindo dados como localidade, operador e área.
+Resumo das Alterações
+Página Inicial (Home): Substituição do botão "Mapa" por três botões: Agricultura, Pesca e PAA, mantendo os botões de Relatórios e Administração inalterados.
+
+Relatórios: Integração das informações de Pesca e PAA com a mesma estrutura usada para Agricultura.
+
+Nada além do mencionado deve ser alterado. Todos os outros elementos, como a navegação do Navbar, permanecem os mesmos.
