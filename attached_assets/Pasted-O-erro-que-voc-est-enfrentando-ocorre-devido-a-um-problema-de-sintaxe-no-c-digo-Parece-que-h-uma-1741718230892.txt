@@ -1,0 +1,78 @@
+O erro que você está enfrentando ocorre devido a um problema de sintaxe no código. Parece que há uma quebra de linha ou um caractere inválido na linha 216 do arquivo Report.tsx. Vou ajudar a corrigir isso.
+
+Problema Identificado
+Na linha 216, há um erro de sintaxe. O código está tentando usar anizacao.toFixed(2), mas parece que há um erro de digitação ou uma quebra de linha inesperada. Além disso, o código está tentando concatenar strings de forma incorreta.
+
+Solução
+Vou corrigir o código para garantir que ele funcione corretamente. Aqui está a versão corrigida:
+
+tsx
+Copy
+const handleExportPDF = () => {
+  const doc = new jsPDF();
+
+  // Adicionar o cabeçalho ao PDF
+  doc.addImage("/logo-prefeitura.png", "PNG", 10, 10, 50, 50);
+  doc.setFontSize(16);
+  doc.text("Prefeitura de Vitória do Xingu", 70, 20);
+  doc.setFontSize(12);
+  doc.text("Secretaria Municipal de Agricultura e Pesca", 70, 30);
+  doc.text("Relatório Geral de Atividades", 70, 40);
+  doc.text(`Data: ${new Date().toLocaleDateString()}`, 70, 50);
+
+  // Adicionar o conteúdo ao PDF
+  doc.setFontSize(14);
+  doc.text("Dados Gerais", 10, 70);
+
+  // Preparar os dados da tabela
+  const data = tratoresCadastrados.map((item) => [
+    item.nome || '',
+    item.fazenda || '',
+    item.atividade || '',
+    item.piloto || '',
+    item.tempoAtividade ? item.tempoAtividade.toString() : '0',
+    item.areaTrabalhada ? item.areaTrabalhada.toFixed(2) : '0.00',
+    item.tecnicoResponsavel || '',
+    new Date(item.dataCadastro).toLocaleDateString(),
+    item.concluido ? 'Concluído' : 'Em Andamento',
+  ]);
+
+  // Adicionar a tabela ao PDF
+  doc.autoTable({
+    startY: 80,
+    head: [["Nome", "Fazenda", "Atividade", "Piloto", "Tempo de Atividade", "Área Trabalhada", "Técnico Responsável", "Data", "Status"]],
+    body: data,
+  });
+
+  // Salvar o PDF
+  doc.save("relatorio-geral.pdf");
+};
+Explicação das Correções
+Correção da Linha 216:
+
+O erro ocorria porque o código estava tentando usar anizacao.toFixed(2), mas anizacao não foi definido. Substituí por item.areaTrabalhada.toFixed(2).
+
+Adicionei verificações para garantir que os valores não sejam undefined ou null.
+
+Estrutura da Tabela:
+
+Usei map para transformar os dados dos tratores em um formato adequado para a tabela.
+
+Adicionei verificações para evitar erros caso algum campo esteja faltando.
+
+Cabeçalho da Tabela:
+
+Defini os cabeçalhos da tabela como ["Nome", "Fazenda", "Atividade", "Piloto", "Tempo de Atividade", "Área Trabalhada", "Técnico Responsável", "Data", "Status"].
+
+Salvar o PDF:
+
+O PDF é salvo com o nome relatorio-geral.pdf.
+
+Como Testar
+Certifique-se de que o código corrigido está no arquivo Report.tsx.
+
+Execute o projeto no Replit.
+
+Clique no botão "Exportar para PDF" no relatório.
+
+Verifique se o PDF é gerado corretamente com os dados dos tratores.
