@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { BarChart2, Download, FilePieChart, Loader2, Users, Leaf } from "lucide-react"; // Users e Leaf icons imported
+import { BarChart2, Download, FilePieChart, Loader2, Users, Leaf, Tractor, Fish } from "lucide-react"; // Added Tractor and Fish icons
 import { jsPDF } from "jspdf";
 import autoTable from 'jspdf-autotable';
 
