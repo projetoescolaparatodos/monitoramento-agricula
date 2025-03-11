@@ -139,14 +139,8 @@ const PAAMap = () => {
           ` : ''}
         </div>
       `;
-      
-      marker.bindPopup(fullPopupContent, {
-        maxWidth: 400,
-        className: 'rounded-lg shadow-lg'
-      });
-      `;
 
-      marker.bindPopup(popupContent, {
+      marker.bindPopup(fullPopupContent, {
         maxWidth: 400,
         className: 'rounded-lg shadow-lg'
       });
