@@ -96,8 +96,13 @@ const PAAMap = () => {
         : '<span class="text-blue-600 font-medium">Em Andamento</span>';
 
       const popupContent = `
-        <div class="p-4 max-w-md">
-          <h3 class="font-bold text-lg mb-2">${paa.localidade}</h3>
+        <div class="p-4 max-w-md popup-content" id="popup-${paa.id}">
+          <div class="flex justify-between items-center mb-2">
+            <h3 class="font-bold text-lg">${paa.localidade}</h3>
+            <button class="bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded text-xs expand-popup" data-id="${paa.id}">
+              Expandir
+            </button>
+          </div>
           <div class="space-y-2">
             <p><strong>Produtor:</strong> ${paa.proprietario || "Não informado"}</p>
             <p><strong>Tipo de Alimento:</strong> ${paa.tipoAlimento || "Não informado"}</p>
@@ -111,20 +116,20 @@ const PAAMap = () => {
           ${
             paa.midias && paa.midias.length > 0
               ? `
-            <div class="mt-4">
+            <div class="mt-4 media-container">
               <h4 class="font-semibold mb-2">Fotos/Vídeos:</h4>
               <div class="grid grid-cols-2 gap-2">
-                ${paa.midias.map(url => {
+                ${paa.midias.map((url, index) => {
                   // Verificar se é um vídeo (URLs do Cloudinary com /video/)
                   if (url.includes('/video/') || url.includes('/video/upload/')) {
                     return `
                       <div class="relative">
-                        <video src="${url}" controls class="w-full h-24 object-cover rounded-lg"></video>
+                        <video src="${url}" controls class="w-full h-24 object-cover rounded-lg popup-media" data-src="${url}" data-index="${index}" data-type="video"></video>
                       </div>
                     `;
                   } else {
                     return `
-                      <img src="${url}" alt="Mídia" class="w-full h-24 object-cover rounded-lg" />
+                      <img src="${url}" alt="Mídia" class="w-full h-24 object-cover rounded-lg popup-media" data-src="${url}" data-index="${index}" data-type="image" />
                     `;
                   }
                 }).join('')}
@@ -135,6 +140,77 @@ const PAAMap = () => {
           }
         </div>
       `;
+
+      // Adicionar listener para o botão de expandir após criar o popup
+      marker.on('popupopen', function() {
+        setTimeout(() => {
+          const expandButtons = document.querySelectorAll('.expand-popup');
+          expandButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+              e.stopPropagation();
+              const id = this.getAttribute('data-id');
+              const popupContent = document.getElementById(`popup-${id}`);
+              
+              if (this.textContent.includes('Expandir')) {
+                // Expandir popup
+                popupContent.classList.add('expanded-popup');
+                document.querySelectorAll('.popup-media').forEach(media => {
+                  if (media.closest(`#popup-${id}`)) {
+                    media.classList.remove('h-24');
+                    media.classList.add('h-40');
+                  }
+                });
+                this.textContent = 'Minimizar';
+                
+                // Adicionar CSS para estilizar o popup expandido
+                const style = document.createElement('style');
+                style.id = 'expanded-popup-style';
+                style.textContent = `
+                  .expanded-popup {
+                    position: fixed !important;
+                    top: 50% !important;
+                    left: 50% !important;
+                    transform: translate(-50%, -50%) !important;
+                    width: 90% !important;
+                    max-width: 800px !important;
+                    max-height: 80vh !important;
+                    overflow-y: auto !important;
+                    z-index: 10000 !important;
+                    background: white !important;
+                    border-radius: 8px !important;
+                    box-shadow: 0 0 20px rgba(0,0,0,0.3) !important;
+                  }
+                  .expanded-popup .media-container {
+                    margin-top: 20px !important;
+                  }
+                  .expanded-popup .media-container .grid {
+                    grid-template-columns: repeat(3, 1fr) !important;
+                  }
+                  .leaflet-popup-content {
+                    margin: 0 !important;
+                    width: auto !important;
+                  }
+                `;
+                document.head.appendChild(style);
+              } else {
+                // Minimizar popup
+                popupContent.classList.remove('expanded-popup');
+                document.querySelectorAll('.popup-media').forEach(media => {
+                  if (media.closest(`#popup-${id}`)) {
+                    media.classList.add('h-24');
+                    media.classList.remove('h-40');
+                  }
+                });
+                this.textContent = 'Expandir';
+                
+                // Remover o estilo
+                const expandedStyle = document.getElementById('expanded-popup-style');
+                if (expandedStyle) expandedStyle.remove();
+              }
+            });
+          });
+        }, 100);
+      });
 
       marker.bindPopup(popupContent, {
         maxWidth: 400,

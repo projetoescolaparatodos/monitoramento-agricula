@@ -19,8 +19,6 @@ const AgriculturaForm = () => {
   const [atividade, setAtividade] = useState("");
   const [piloto, setPiloto] = useState("");
   const [localidade, setLocalidade] = useState("");
-  const [nomeImovel, setNomeImovel] = useState("");
-  const [proprietario, setProprietario] = useState("");
   const [operacao, setOperacao] = useState("");
   const [horaMaquina, setHoraMaquina] = useState(0);
   const [tecnicoResponsavel, setTecnicoResponsavel] = useState("");
@@ -132,7 +130,6 @@ const AgriculturaForm = () => {
         areaTrabalhada: areaTrabalhadaNum,
         midias: midiasValidas,
         localidade: localidade || null,
-        proprietario: proprietario || null,
         tecnicoResponsavel: tecnicoResponsavel || null,
         horaMaquina: horaMaquinaNum,
         operacao
@@ -165,8 +162,6 @@ const AgriculturaForm = () => {
       setAtividade("");
       setPiloto("");
       setLocalidade("");
-      setNomeImovel("");
-      setProprietario("");
       setOperacao("");
       setHoraMaquina(0);
       setTecnicoResponsavel("");
@@ -208,8 +203,6 @@ const AgriculturaForm = () => {
     setAtividade(trator.atividade);
     setPiloto(trator.piloto);
     setLocalidade(trator.localidade || "");
-    setNomeImovel(trator.nomeImovel || "");
-    setProprietario(trator.proprietario || "");
     setOperacao(trator.operacao || "");
     setHoraMaquina(trator.horaMaquina || 0);
     setTecnicoResponsavel(trator.tecnicoResponsavel || "");
@@ -258,7 +251,7 @@ const AgriculturaForm = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="nome">Nome</Label>
+                <Label htmlFor="nome">Nome do Trator</Label>
                 <Input
                   id="nome"
                   value={nome}
@@ -285,16 +278,6 @@ const AgriculturaForm = () => {
                   onChange={(e) => setFazenda(e.target.value)}
                   required
                   placeholder="Du Rancho"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="proprietario">Nome do Proprietário</Label>
-                <Input
-                  id="proprietario"
-                  value={proprietario}
-                  onChange={(e) => setProprietario(e.target.value)}
-                  placeholder="-"
                 />
               </div>
 
@@ -443,8 +426,8 @@ const AgriculturaForm = () => {
                     {tratoresCadastrados.map((trator) => (
                       <tr key={trator.id} className="hover:bg-gray-50">
                         <td className="p-2 border">{trator.nome}</td>
-                        <td className="p-2 border">{trator.nomeImovel || trator.fazenda}</td>
-                        <td className="p-2 border">{trator.operacao || trator.atividade}</td>
+                        <td className="p-2 border">{trator.fazenda}</td>
+                        <td className="p-2 border">{trator.operacao}</td>
                         <td className="p-2 border">{trator.piloto}</td>
                         <td className="p-2 border">{trator.horaMaquina || "-"}</td>
                         <td className="p-2 border">{trator.areaTrabalhada}</td>
@@ -911,7 +894,7 @@ const PAAForm = () => {
   useEffect(() => {
     const map = L.map("admin-map-paa").setView([-2.87922, -52.0088], 12);
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{ypng", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
