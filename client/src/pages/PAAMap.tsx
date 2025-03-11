@@ -112,7 +112,7 @@ const PAAMap = () => {
         </div>
       `;
 
-      marker.bindPopup(popupContent);';
+      marker.bindPopup(popupContent);
 
       const popupContent = `
         <div class="p-4 max-w-md">
