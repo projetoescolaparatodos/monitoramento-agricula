@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart2, Download, FilePieChart, Loader2 } from "lucide-react";
+import { BarChart2, Download, FilePieChart, Loader2, Users } from "lucide-react"; // Users icon imported
 import { jsPDF } from "jspdf";
 import autoTable from 'jspdf-autotable';
 
@@ -452,7 +452,7 @@ const Report = () => {
               Exportar PAA
             </Button>
           </div>
-          
+
           <p className="text-slate-600 mb-6">O relatório do PAA acompanha a produção agrícola adquirida pelo programa, promovendo transparência e eficiência.</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 w-full">
