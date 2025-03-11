@@ -94,17 +94,21 @@ const Report = () => {
 
   const calcularEstatisticasPAA = () => {
     const totalPAA = paaData.length;
-    const paaConcluidos = paaData.filter(p => p.concluido).length;
-    const paaEmAndamento = totalPAA - paaConcluidos;
-    const totalAreaMecanizacao = paaData.reduce((sum, p) => sum + (p.areaMecanizacao || 0), 0);
-    const totalHoraMaquina = paaData.reduce((sum, p) => sum + (p.horaMaquina || 0), 0);
+    const totalProdutores = new Set(paaData.map(p => p.proprietario)).size;
+    const totalQuantidadeProduzida = paaData.reduce((sum, p) => sum + (p.quantidadeProduzida || 0), 0);
+    const tiposAlimentos = [...new Set(paaData.map(p => p.tipoAlimento).filter(Boolean))];
+    const metodosColheita = [...new Set(paaData.map(p => p.metodoColheita).filter(Boolean))];
+    const totalAreaCultivada = paaData.reduce((sum, p) => sum + (p.areaMecanizacao || 0), 0);
+    const valorTotalInvestido = paaData.reduce((sum, p) => sum + (p.valorInvestido || 0), 0);
 
     return {
       totalPAA,
-      paaConcluidos,
-      paaEmAndamento,
-      totalAreaMecanizacao,
-      totalHoraMaquina
+      totalProdutores,
+      totalQuantidadeProduzida,
+      tiposAlimentos,
+      metodosColheita,
+      totalAreaCultivada,
+      valorTotalInvestido
     };
   };
 
@@ -194,33 +198,34 @@ const Report = () => {
 
     if (tipo === 'paa' || tipo === 'completo') {
       doc.setFontSize(16);
-      doc.text("Relatório de PAA", 14, yPos);
+      doc.text("Relatório de PAA - Programa de Aquisição de Alimentos 🌾", 14, yPos);
 
       // Estatísticas de PAA
       const estPAA = calcularEstatisticasPAA();
       doc.setFontSize(12);
-      doc.text(`Total de Locais PAA: ${estPAA.totalPAA}`, 14, yPos + 10);
-      doc.text(`Locais Concluídos: ${estPAA.paaConcluidos}`, 14, yPos + 16);
-      doc.text(`Locais em Andamento: ${estPAA.paaEmAndamento}`, 14, yPos + 22);
-      doc.text(`Área Total para Mecanização: ${estPAA.totalAreaMecanizacao.toFixed(2)} ha`, 14, yPos + 28);
-      doc.text(`Total de Horas/Máquina: ${estPAA.totalHoraMaquina.toFixed(2)} h`, 14, yPos + 34);
+      doc.text(`Total de Alimentos Adquiridos: ${estPAA.totalQuantidadeProduzida.toFixed(2)} kg`, 14, yPos + 10);
+      doc.text(`Quantidade de Produtores Participantes: ${estPAA.totalProdutores}`, 14, yPos + 16);
+      doc.text(`Tipos de Alimentos Fornecidos: ${estPAA.tiposAlimentos.join(', ') || 'Não informado'}`, 14, yPos + 22);
+      doc.text(`Métodos de Colheita: ${estPAA.metodosColheita.join(', ') || 'Não informado'}`, 14, yPos + 28);
+      doc.text(`Área Total Cultivada: ${estPAA.totalAreaCultivada.toFixed(2)} ha`, 14, yPos + 34);
+      doc.text(`Valor Total Investido: R$ ${estPAA.valorTotalInvestido.toFixed(2)}`, 14, yPos + 40);
 
       // Tabela de PAA
       const paaTableData = paaData.map(item => [
-        item.localidade || '',
-        item.nomeImovel || '',
-        item.proprietario || '',
-        item.operacao || '',
-        item.operador || '',
+        item.localidade || '-',
+        item.proprietario || '-',
+        item.tipoAlimento || '-',
+        item.quantidadeProduzida ? item.quantidadeProduzida.toFixed(2) : '0.00',
+        item.metodoColheita || '-',
+        item.tecnicoResponsavel || '-',
         new Date(item.dataCadastro).toLocaleDateString(),
         item.concluido ? 'Concluído' : 'Em Andamento',
-        item.horaMaquina ? item.horaMaquina.toFixed(2) : '0.00',
         item.areaMecanizacao ? item.areaMecanizacao.toFixed(2) : '0.00'
       ]);
 
       autoTable(doc, {
         startY: yPos + 50, // Adjusted y-coordinate
-        head: [['Localidade', 'Imóvel', 'Proprietário', 'Operação', 'Operador', 'Data', 'Status', 'Horas', 'Área (ha)']],
+        head: [['Localidade', 'Produtor', 'Tipo de Alimento', 'Quantidade (kg)', 'Método de Colheita', 'Técnico', 'Data', 'Status', 'Área (ha)']],
         body: paaTableData,
       });
     }
@@ -440,78 +445,121 @@ const Report = () => {
 
         {/* Relatório de PAA */}
         <TabsContent value="paa">
-          <div className="flex justify-end mb-4">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold">Programa de Aquisição de Alimentos (PAA) 🌾</h2>
             <Button onClick={() => exportarPDF('paa')} variant="outline" className="flex items-center gap-2">
               <Download className="h-4 w-4" />
               Exportar PAA
             </Button>
           </div>
+          
+          <p className="text-slate-600 mb-6">O relatório do PAA acompanha a produção agrícola adquirida pelo programa, promovendo transparência e eficiência.</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 w-full">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BarChart2 className="h-5 w-5 text-primary" />
-                  Total de Locais PAA
+                  Total de Alimentos Adquiridos
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{estatisticasPAA.totalPAA}</p>
+                <p className="text-3xl font-bold">{estatisticasPAA.totalQuantidadeProduzida.toFixed(2)} kg</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FilePieChart className="h-5 w-5 text-green-500" />
-                  Área Total para Mecanização
+                  <Users className="h-5 w-5 text-green-500" />
+                  Produtores Participantes
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{estatisticasPAA.totalAreaMecanizacao.toFixed(2)} ha</p>
+                <p className="text-3xl font-bold">{estatisticasPAA.totalProdutores}</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FilePieChart className="h-5 w-5 text-blue-500" />
-                  Total de Horas/Máquina
+                  Área Total Cultivada
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{estatisticasPAA.totalHoraMaquina.toFixed(2)} h</p>
+                <p className="text-3xl font-bold">{estatisticasPAA.totalAreaCultivada.toFixed(2)} ha</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Wheat className="h-5 w-5 text-amber-500" />
+                  Tipos de Alimentos Fornecidos
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {estatisticasPAA.tiposAlimentos.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {estatisticasPAA.tiposAlimentos.map((tipo, index) => (
+                      <Badge key={index} variant="outline" className="bg-amber-50">{tipo}</Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-slate-500">Nenhum tipo de alimento registrado</p>
+                )}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Tractor className="h-5 w-5 text-orange-500" />
+                  Métodos de Colheita
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {estatisticasPAA.metodosColheita.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {estatisticasPAA.metodosColheita.map((metodo, index) => (
+                      <Badge key={index} variant="outline" className="bg-orange-50">{metodo}</Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-slate-500">Nenhum método de colheita registrado</p>
+                )}
               </CardContent>
             </Card>
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle>Detalhes dos Locais PAA</CardTitle>
+              <CardTitle>Detalhes dos Alimentos Adquiridos</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Localidade</TableHead>
-                    <TableHead>Imóvel Rural</TableHead>
-                    <TableHead>Proprietário</TableHead>
-                    <TableHead>Operação</TableHead>
-                    <TableHead>Operador</TableHead>
-                    <TableHead>Técnico</TableHead>
+                    <TableHead>Produtor</TableHead>
+                    <TableHead>Tipo de Alimento</TableHead>
+                    <TableHead>Quantidade (kg)</TableHead>
+                    <TableHead>Método de Colheita</TableHead>
+                    <TableHead>Técnico Responsável</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Área (ha)</TableHead>
-                    <TableHead>Horas</TableHead>
+                    <TableHead>Área Cultivada (ha)</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {paaData.map((paa) => (
                     <TableRow key={paa.id}>
-                      <TableCell>{paa.localidade}</TableCell>
-                      <TableCell>{paa.nomeImovel}</TableCell>
-                      <TableCell>{paa.proprietario}</TableCell>
-                      <TableCell>{paa.operacao}</TableCell>
-                      <TableCell>{paa.operador}</TableCell>
-                      <TableCell>{paa.tecnicoResponsavel}</TableCell>
+                      <TableCell>{paa.localidade || '-'}</TableCell>
+                      <TableCell>{paa.proprietario || '-'}</TableCell>
+                      <TableCell>{paa.tipoAlimento || '-'}</TableCell>
+                      <TableCell>{paa.quantidadeProduzida || 0}</TableCell>
+                      <TableCell>{paa.metodoColheita || '-'}</TableCell>
+                      <TableCell>{paa.tecnicoResponsavel || '-'}</TableCell>
                       <TableCell>{new Date(paa.dataCadastro).toLocaleDateString()}</TableCell>
                       <TableCell>
                         <span className={paa.concluido ? 'text-green-600 font-medium' : 'text-blue-600 font-medium'}>
@@ -519,7 +567,6 @@ const Report = () => {
                         </span>
                       </TableCell>
                       <TableCell>{paa.areaMecanizacao || 0}</TableCell>
-                      <TableCell>{paa.horaMaquina || 0}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

@@ -99,14 +99,14 @@ const PAAMap = () => {
         <div class="p-4 max-w-md">
           <h3 class="font-bold text-lg mb-2">${paa.localidade}</h3>
           <div class="space-y-2">
-            <p><strong>Localidade:</strong> ${paa.localidade}</p>
-            <p><strong>Tipo de Alimento:</strong> ${paa.tipoAlimento}</p>
-            <p><strong>Quantidade Produzida:</strong> ${paa.quantidadeProduzida} kg</p>
-            <p><strong>Método de Colheita:</strong> ${paa.metodoColheita}</p>
-            <p><strong>Operador:</strong> ${paa.operador}</p>
+            <p><strong>Produtor:</strong> ${paa.proprietario || "Não informado"}</p>
+            <p><strong>Tipo de Alimento:</strong> ${paa.tipoAlimento || "Não informado"}</p>
+            <p><strong>Quantidade Produzida:</strong> ${paa.quantidadeProduzida || 0} kg</p>
+            <p><strong>Método de Colheita:</strong> ${paa.metodoColheita || "Não informado"}</p>
             <p><strong>Técnico Responsável:</strong> ${paa.tecnicoResponsavel || "Não informado"}</p>
             <p><strong>Data:</strong> ${new Date(paa.dataCadastro).toLocaleDateString()}</p>
             <p><strong>Status:</strong> ${status}</p>
+            <p><strong>Área Cultivada:</strong> ${paa.areaMecanizacao || 0} ha</p>
           </div>
           ${
             paa.midias && paa.midias.length > 0
