@@ -28,27 +28,42 @@ const Upload = ({ onUpload }: UploadProps) => {
     formData.append("file", file);
     formData.append("upload_preset", "tratores_preset");
     formData.append("cloud_name", "di3lqsxxc");
-
+    
+    // Verificar se é um vídeo
+    const isVideo = file.type.startsWith('video/');
+    
     try {
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/di3lqsxxc/image/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-      const data = await response.json();
-      onUpload(data.secure_url);
-      toast({
-        title: "Sucesso",
-        description: "Upload realizado com sucesso!",
+      // Usar endpoint diferente para vídeos
+      const uploadUrl = isVideo 
+        ? `https://api.cloudinary.com/v1_1/di3lqsxxc/video/upload`
+        : `https://api.cloudinary.com/v1_1/di3lqsxxc/image/upload`;
+      
+      const response = await fetch(uploadUrl, {
+        method: "POST",
+        body: formData,
       });
-      setFile(null);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || "Erro no upload");
+      }
+      
+      const data = await response.json();
+      if (data.secure_url) {
+        onUpload(data.secure_url);
+        toast({
+          title: "Sucesso",
+          description: `Upload de ${isVideo ? 'vídeo' : 'imagem'} realizado com sucesso!`,
+        });
+        setFile(null);
+      } else {
+        throw new Error("URL de upload não encontrada na resposta");
+      }
     } catch (error) {
       console.error("Erro no upload:", error);
       toast({
         title: "Erro",
-        description: "Não foi possível fazer o upload do arquivo.",
+        description: `Não foi possível fazer o upload do ${isVideo ? 'vídeo' : 'arquivo'}: ${error.message || ''}`,
         variant: "destructive",
       });
     } finally {

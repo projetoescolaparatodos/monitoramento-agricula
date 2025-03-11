@@ -96,25 +96,54 @@ const AgriculturaForm = () => {
     setLoading(true);
 
     try {
+      // Verificar campos obrigatórios
+      if (!nome || !fazenda || !atividade || !piloto || !latitude || !longitude) {
+        toast({
+          title: "Erro",
+          description: "Preencha todos os campos obrigatórios",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Validar os valores numéricos
+      const latitudeNum = parseFloat(String(latitude));
+      const longitudeNum = parseFloat(String(longitude));
+      const tempoAtividadeNum = tempoAtividade ? parseFloat(String(tempoAtividade)) : null;
+      const horaMaquinaNum = parseFloat(String(horaMaquina));
+      const areaTrabalhadaNum = parseFloat(String(areaTrabalhada));
+
+
+      // Verificar se as mídias são válidas
+      const midiasValidas = midias.filter(url => url && typeof url === 'string' && url.trim() !== '');
+
+      // Criar objeto com dados validados
       const tratorData = {
         nome,
         fazenda,
         atividade,
         piloto,
-        latitude,
-        longitude,
-        midias,
-        tempoAtividade,
-        areaTrabalhada,
-        dataCadastro,
+        dataCadastro: new Date().toISOString(),
         concluido: false,
-        localidade,
-        nomeImovel,
-        proprietario,
-        operacao,
-        horaMaquina,
-        tecnicoResponsavel,
+        latitude: latitudeNum,
+        longitude: longitudeNum,
+        tempoAtividade: tempoAtividadeNum,
+        areaTrabalhada: areaTrabalhadaNum,
+        midias: midiasValidas,
+        localidade: localidade || null,
+        proprietario: proprietario || null,
+        tecnicoResponsavel: tecnicoResponsavel || null,
+        horaMaquina: horaMaquinaNum,
+        operacao
       };
+
+      // Remover propriedades com valores null ou undefined
+      Object.keys(tratorData).forEach(key => {
+        if (tratorData[key] === null || tratorData[key] === undefined) {
+          delete tratorData[key];
+        }
+      });
 
       if (tratorEmEdicao) {
         await updateDoc(doc(db, "tratores", tratorEmEdicao.id), tratorData);
@@ -160,7 +189,7 @@ const AgriculturaForm = () => {
       console.error("Erro ao salvar trator:", error);
       toast({
         title: "Erro",
-        description: "Não foi possível salvar o trator.",
+        description: "Não foi possível salvar o trator: " + (error.message || "Verifique o formato do vídeo"),
         variant: "destructive",
       });
     } finally {
@@ -870,7 +899,7 @@ const PAAForm = () => {
         const querySnapshot = await getDocs(collection(db, "paa"));
         const paaData = querySnapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data(),
+                    ...doc.data(),
         }));
         setPaaLocaisCadastrados(paaData);
       } catch (error) {
