@@ -77,18 +77,18 @@ const Report = () => {
   };
 
   const calcularEstatisticasPesca = () => {
-    const totalPesqueiros = pescaData.length;
-    const pesqueirosConcluidos = pescaData.filter(p => p.concluido).length;
-    const pesqueirosEmAndamento = totalPesqueiros - pesqueirosConcluidos;
-    const totalAreaMecanizacao = pescaData.reduce((sum, p) => sum + (p.areaMecanizacao || 0), 0);
-    const totalHoraMaquina = pescaData.reduce((sum, p) => sum + (p.horaMaquina || 0), 0);
+    const totalPesca = pescaData.length;
+    const pescaConcluidos = pescaData.filter(p => p.concluido).length;
+    const pescaEmAndamento = totalPesca - pescaConcluidos;
+    const totalQuantidadePescado = pescaData.reduce((sum, p) => sum + (p.quantidadePescado || 0), 0);
+    const totalCapacidadeEmbarcacao = pescaData.reduce((sum, p) => sum + (p.capacidadeEmbarcacao || 0), 0);
 
     return {
-      totalPesqueiros,
-      pesqueirosConcluidos,
-      pesqueirosEmAndamento,
-      totalAreaMecanizacao,
-      totalHoraMaquina
+      totalPesca,
+      pescaConcluidos,
+      pescaEmAndamento,
+      totalQuantidadePescado,
+      totalCapacidadeEmbarcacao
     };
   };
 
@@ -164,28 +164,28 @@ const Report = () => {
       // Estatísticas de Pesca
       const estPesca = calcularEstatisticasPesca();
       doc.setFontSize(12);
-      doc.text(`Total de Locais de Pesca: ${estPesca.totalPesqueiros}`, 14, yPos + 10);
-      doc.text(`Locais Concluídos: ${estPesca.pesqueirosConcluidos}`, 14, yPos + 16);
-      doc.text(`Locais em Andamento: ${estPesca.pesqueirosEmAndamento}`, 14, yPos + 22);
-      doc.text(`Área Total para Mecanização: ${estPesca.totalAreaMecanizacao.toFixed(2)} ha`, 14, yPos + 28);
-      doc.text(`Total de Horas/Máquina: ${estPesca.totalHoraMaquina.toFixed(2)} h`, 14, yPos + 34);
+      doc.text(`Total de Registros de Pesca: ${estPesca.totalPesca}`, 14, yPos + 10);
+      doc.text(`Registros Concluídos: ${estPesca.pescaConcluidos}`, 14, yPos + 16);
+      doc.text(`Registros em Andamento: ${estPesca.pescaEmAndamento}`, 14, yPos + 22);
+      doc.text(`Quantidade Total de Pescado: ${estPesca.totalQuantidadePescado.toFixed(2)} kg`, 14, yPos + 28);
+      doc.text(`Capacidade Total das Embarcações: ${estPesca.totalCapacidadeEmbarcacao.toFixed(2)} kg`, 14, yPos + 34);
 
       // Tabela de Pesca
       const pescaTableData = pescaData.map(item => [
         item.localidade || '',
-        item.nomeImovel || '',
-        item.proprietario || '',
-        item.operacao || '',
-        item.operador || '',
+        item.tipoPesca || '',
+        item.tipoEmbarcacao || '',
+        item.capacidadeEmbarcacao ? `${item.capacidadeEmbarcacao} kg` : '',
+        item.nomePescador || '',
         new Date(item.dataCadastro).toLocaleDateString(),
         item.concluido ? 'Concluído' : 'Em Andamento',
-        item.horaMaquina ? item.horaMaquina.toFixed(2) : '0.00',
-        item.areaMecanizacao ? item.areaMecanizacao.toFixed(2) : '0.00'
+        item.quantidadePescado ? item.quantidadePescado.toFixed(2) : '0.00',
+        item.tipoPescado || ''
       ]);
 
       autoTable(doc, {
         startY: yPos + 50, // Adjusted y-coordinate
-        head: [['Localidade', 'Imóvel', 'Proprietário', 'Operação', 'Operador', 'Data', 'Status', 'Horas', 'Área (ha)']],
+        head: [['Localidade', 'Tipo de Pesca', 'Tipo de Embarcação', 'Capacidade', 'Nome do Pescador', 'Data', 'Status', 'Quantidade Pescada (kg)', 'Tipo de Pescado']],
         body: pescaTableData,
       });
 
@@ -364,33 +364,33 @@ const Report = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BarChart2 className="h-5 w-5 text-primary" />
-                  Total de Locais de Pesca
+                  Total de Registros de Pesca
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{estatisticasPesca.totalPesqueiros}</p>
+                <p className="text-3xl font-bold">{estatisticasPesca.totalPesca}</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FilePieChart className="h-5 w-5 text-green-500" />
-                  Área Total para Mecanização
+                  Quantidade Total Pescada
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{estatisticasPesca.totalAreaMecanizacao.toFixed(2)} ha</p>
+                <p className="text-3xl font-bold">{estatisticasPesca.totalQuantidadePescado.toFixed(2)} kg</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FilePieChart className="h-5 w-5 text-blue-500" />
-                  Total de Horas/Máquina
+                  Capacidade Total das Embarcações
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{estatisticasPesca.totalHoraMaquina.toFixed(2)} h</p>
+                <p className="text-3xl font-bold">{estatisticasPesca.totalCapacidadeEmbarcacao.toFixed(2)} kg</p>
               </CardContent>
             </Card>
           </div>
@@ -404,34 +404,32 @@ const Report = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Localidade</TableHead>
-                    <TableHead>Imóvel Rural</TableHead>
-                    <TableHead>Proprietário</TableHead>
-                    <TableHead>Operação</TableHead>
-                    <TableHead>Operador</TableHead>
-                    <TableHead>Técnico</TableHead>
+                    <TableHead>Nome Pescador</TableHead>
+                    <TableHead>Tipo de Pesca</TableHead>
+                    <TableHead>Embarcação</TableHead>
+                    <TableHead>Capacidade</TableHead>
+                    <TableHead>Tipo Pescado</TableHead>
+                    <TableHead>Quantidade</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Área (ha)</TableHead>
-                    <TableHead>Horas</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {pescaData.map((pesca) => (
                     <TableRow key={pesca.id}>
-                      <TableCell>{pesca.localidade}</TableCell>
-                      <TableCell>{pesca.nomeImovel}</TableCell>
-                      <TableCell>{pesca.proprietario}</TableCell>
-                      <TableCell>{pesca.operacao}</TableCell>
-                      <TableCell>{pesca.operador}</TableCell>
-                      <TableCell>{pesca.tecnicoResponsavel}</TableCell>
+                      <TableCell>{pesca.localidade || "—"}</TableCell>
+                      <TableCell>{pesca.nomePescador || "—"}</TableCell>
+                      <TableCell>{pesca.tipoPesca || "—"}</TableCell>
+                      <TableCell>{pesca.tipoEmbarcacao || "—"}</TableCell>
+                      <TableCell>{pesca.capacidadeEmbarcacao ? `${pesca.capacidadeEmbarcacao} kg` : "—"}</TableCell>
+                      <TableCell>{pesca.tipoPescado || "—"}</TableCell>
+                      <TableCell>{pesca.quantidadePescado ? `${pesca.quantidadePescado.toFixed(2)} kg` : "—"}</TableCell>
                       <TableCell>{new Date(pesca.dataCadastro).toLocaleDateString()}</TableCell>
                       <TableCell>
                         <span className={pesca.concluido ? 'text-green-600 font-medium' : 'text-blue-600 font-medium'}>
                           {pesca.concluido ? 'Concluído' : 'Em Andamento'}
                         </span>
                       </TableCell>
-                      <TableCell>{pesca.areaMecanizacao || 0}</TableCell>
-                      <TableCell>{pesca.horaMaquina || 0}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
