@@ -360,9 +360,10 @@ const PescaForm = () => {
   const [localidade, setLocalidade] = useState("");
   const [nomeImovel, setNomeImovel] = useState("");
   const [proprietario, setProprietario] = useState("");
-  const [operacao, setOperacao] = useState("");
-  const [horaMaquina, setHoraMaquina] = useState(0);
-  const [areaMecanizacao, setAreaMecanizacao] = useState(0);
+  const [tipoTanque, setTipoTanque] = useState("");
+  const [especiePeixe, setEspeciePeixe] = useState("");
+  const [quantidadeAlevinos, setQuantidadeAlevinos] = useState(0);
+  const [metodoAlimentacao, setMetodoAlimentacao] = useState("");
   const [operador, setOperador] = useState("");
   const [tecnicoResponsavel, setTecnicoResponsavel] = useState("");
   const [latitude, setLatitude] = useState<number | null>(null);
@@ -438,9 +439,10 @@ const PescaForm = () => {
         localidade,
         nomeImovel,
         proprietario,
-        operacao,
-        horaMaquina,
-        areaMecanizacao,
+        tipoTanque,
+        especiePeixe,
+        quantidadeAlevinos,
+        metodoAlimentacao,
         operador,
         tecnicoResponsavel,
         latitude,
@@ -468,9 +470,10 @@ const PescaForm = () => {
       setLocalidade("");
       setNomeImovel("");
       setProprietario("");
-      setOperacao("");
-      setHoraMaquina(0);
-      setAreaMecanizacao(0);
+      setTipoTanque("");
+      setEspeciePeixe("");
+      setQuantidadeAlevinos(0);
+      setMetodoAlimentacao("");
       setOperador("");
       setTecnicoResponsavel("");
       setLatitude(null);
@@ -507,9 +510,10 @@ const PescaForm = () => {
     setLocalidade(pesqueiro.localidade);
     setNomeImovel(pesqueiro.nomeImovel);
     setProprietario(pesqueiro.proprietario);
-    setOperacao(pesqueiro.operacao);
-    setHoraMaquina(pesqueiro.horaMaquina);
-    setAreaMecanizacao(pesqueiro.areaMecanizacao);
+    setTipoTanque(pesqueiro.tipoTanque || "");
+    setEspeciePeixe(pesqueiro.especiePeixe || "");
+    setQuantidadeAlevinos(pesqueiro.quantidadeAlevinos || 0);
+    setMetodoAlimentacao(pesqueiro.metodoAlimentacao || "");
     setOperador(pesqueiro.operador);
     setTecnicoResponsavel(pesqueiro.tecnicoResponsavel);
     setLatitude(pesqueiro.latitude);
@@ -585,36 +589,48 @@ const PescaForm = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="operacao">Operação</Label>
+                <Label htmlFor="tipoTanque">Tipo de Tanque</Label>
                 <Input
-                  id="operacao"
-                  value={operacao}
-                  onChange={(e) => setOperacao(e.target.value)}
+                  id="tipoTanque"
+                  value={tipoTanque}
+                  onChange={(e) => setTipoTanque(e.target.value)}
+                  placeholder="Ex: Tanque escavado, tanque rede, etc."
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="horaMaquina">Hora/máquina</Label>
+                <Label htmlFor="especiePeixe">Espécie de Peixe</Label>
                 <Input
-                  id="horaMaquina"
-                  type="number"
-                  value={horaMaquina}
-                  onChange={(e) => setHoraMaquina(Number(e.target.value))}
+                  id="especiePeixe"
+                  value={especiePeixe}
+                  onChange={(e) => setEspeciePeixe(e.target.value)}
+                  placeholder="Ex: Tilápia, Tambaqui, etc."
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="areaMecanizacao">Área para mecanização (hectares)</Label>
+                <Label htmlFor="quantidadeAlevinos">Quantidade de Alevinos</Label>
                 <Input
-                  id="areaMecanizacao"
+                  id="quantidadeAlevinos"
                   type="number"
-                  value={areaMecanizacao}
-                  onChange={(e) => setAreaMecanizacao(Number(e.target.value))}
+                  value={quantidadeAlevinos}
+                  onChange={(e) => setQuantidadeAlevinos(Number(e.target.value))}
+                  placeholder="Número de alevinos no tanque"
                   required
                   min="0"
-                  step="0.01"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="metodoAlimentacao">Método de Alimentação</Label>
+                <Input
+                  id="metodoAlimentacao"
+                  value={metodoAlimentacao}
+                  onChange={(e) => setMetodoAlimentacao(e.target.value)}
+                  placeholder="Ex: Ração, alimentação natural, etc."
+                  required
                 />
               </div>
 
@@ -729,9 +745,9 @@ const PAAForm = () => {
   const [localidade, setLocalidade] = useState("");
   const [nomeImovel, setNomeImovel] = useState("");
   const [proprietario, setProprietario] = useState("");
-  const [operacao, setOperacao] = useState("");
-  const [horaMaquina, setHoraMaquina] = useState(0);
-  const [areaMecanizacao, setAreaMecanizacao] = useState(0);
+  const [tipoAlimento, setTipoAlimento] = useState("");
+  const [quantidadeProduzida, setQuantidadeProduzida] = useState(0);
+  const [metodoColheita, setMetodoColheita] = useState("");
   const [operador, setOperador] = useState("");
   const [tecnicoResponsavel, setTecnicoResponsavel] = useState("");
   const [latitude, setLatitude] = useState<number | null>(null);
@@ -807,9 +823,9 @@ const PAAForm = () => {
         localidade,
         nomeImovel,
         proprietario,
-        operacao,
-        horaMaquina,
-        areaMecanizacao,
+        tipoAlimento,
+        quantidadeProduzida,
+        metodoColheita,
         operador,
         tecnicoResponsavel,
         latitude,
@@ -837,9 +853,9 @@ const PAAForm = () => {
       setLocalidade("");
       setNomeImovel("");
       setProprietario("");
-      setOperacao("");
-      setHoraMaquina(0);
-      setAreaMecanizacao(0);
+      setTipoAlimento("");
+      setQuantidadeProduzida(0);
+      setMetodoColheita("");
       setOperador("");
       setTecnicoResponsavel("");
       setLatitude(null);
@@ -876,9 +892,9 @@ const PAAForm = () => {
     setLocalidade(paaLocal.localidade);
     setNomeImovel(paaLocal.nomeImovel);
     setProprietario(paaLocal.proprietario);
-    setOperacao(paaLocal.operacao);
-    setHoraMaquina(paaLocal.horaMaquina);
-    setAreaMecanizacao(paaLocal.areaMecanizacao);
+    setTipoAlimento(paaLocal.tipoAlimento || "");
+    setQuantidadeProduzida(paaLocal.quantidadeProduzida || 0);
+    setMetodoColheita(paaLocal.metodoColheita || "");
     setOperador(paaLocal.operador);
     setTecnicoResponsavel(paaLocal.tecnicoResponsavel);
     setLatitude(paaLocal.latitude);
@@ -954,36 +970,36 @@ const PAAForm = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="operacao">Operação</Label>
+                <Label htmlFor="tipoAlimento">Tipo de Alimento</Label>
                 <Input
-                  id="operacao"
-                  value={operacao}
-                  onChange={(e) => setOperacao(e.target.value)}
+                  id="tipoAlimento"
+                  value={tipoAlimento}
+                  onChange={(e) => setTipoAlimento(e.target.value)}
+                  placeholder="Ex: Feijão, Arroz, etc."
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="horaMaquina">Hora/máquina</Label>
+                <Label htmlFor="quantidadeProduzida">Quantidade Produzida</Label>
                 <Input
-                  id="horaMaquina"
+                  id="quantidadeProduzida"
                   type="number"
-                  value={horaMaquina}
-                  onChange={(e) => setHoraMaquina(Number(e.target.value))}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="areaMecanizacao">Área para mecanização (hectares)</Label>
-                <Input
-                  id="areaMecanizacao"
-                  type="number"
-                  value={areaMecanizacao}
-                  onChange={(e) => setAreaMecanizacao(Number(e.target.value))}
+                  value={quantidadeProduzida}
+                  onChange={(e) => setQuantidadeProduzida(Number(e.target.value))}
                   required
                   min="0"
-                  step="0.01"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="metodoColheita">Método de Colheita</Label>
+                <Input
+                  id="metodoColheita"
+                  value={metodoColheita}
+                  onChange={(e) => setMetodoColheita(e.target.value)}
+                  placeholder="Ex: Manual, Mecanizada"
+                  required
                 />
               </div>
 
