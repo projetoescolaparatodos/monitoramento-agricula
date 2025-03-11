@@ -213,7 +213,7 @@ const Report = () => {
         item.operador || '',
         item.tecnicoResponsavel || '',
         new Date(item.dataCadastro).toLocaleDateString(),
-        item.concluido ? 'Concluído' : 'Em Andamento'anizacao.toFixed(2) : '0.00'
+        item.concluido ? 'Concluído' : 'Em Andamento'
       ]);
 
       autoTable(doc, {
