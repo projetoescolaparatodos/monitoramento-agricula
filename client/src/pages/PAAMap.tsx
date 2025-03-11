@@ -114,13 +114,20 @@ const PAAMap = () => {
             <div class="mt-4">
               <h4 class="font-semibold mb-2">Fotos/Vídeos:</h4>
               <div class="grid grid-cols-2 gap-2">
-                ${paa.midias
-                  .map(
-                    (url) => `
-                  <img src="${url}" alt="Mídia" class="w-full h-24 object-cover rounded-lg" />
-                `,
-                  )
-                  .join("")}
+                ${paa.midias.map(url => {
+                  // Verificar se é um vídeo (URLs do Cloudinary com /video/)
+                  if (url.includes('/video/') || url.includes('/video/upload/')) {
+                    return `
+                      <div class="relative">
+                        <video src="${url}" controls class="w-full h-24 object-cover rounded-lg"></video>
+                      </div>
+                    `;
+                  } else {
+                    return `
+                      <img src="${url}" alt="Mídia" class="w-full h-24 object-cover rounded-lg" />
+                    `;
+                  }
+                }).join('')}
               </div>
             </div>
           `

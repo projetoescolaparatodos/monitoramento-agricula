@@ -97,7 +97,7 @@ const AgriculturaForm = () => {
 
     try {
       // Verificar campos obrigatórios
-      if (!nome || !fazenda || !atividade || !piloto || !latitude || !longitude) {
+      if (!nome || !fazenda || !atividade || !piloto || !latitude || !longitude || !operacao || !areaTrabalhada || !horaMaquina) {
         toast({
           title: "Erro",
           description: "Preencha todos os campos obrigatórios",
@@ -278,22 +278,13 @@ const AgriculturaForm = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="fazenda">Fazenda</Label>
+                <Label htmlFor="fazenda">Nome do Imóvel Rural</Label>
                 <Input
                   id="fazenda"
                   value={fazenda}
                   onChange={(e) => setFazenda(e.target.value)}
                   required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="nomeImovel">Nome do Imóvel Rural</Label>
-                <Input
-                  id="nomeImovel"
-                  value={nomeImovel}
-                  onChange={(e) => setNomeImovel(e.target.value)}
-                  required
+                  placeholder="Du Rancho"
                 />
               </div>
 
@@ -313,7 +304,7 @@ const AgriculturaForm = () => {
                   id="operacao"
                   value={operacao}
                   onChange={(e) => setOperacao(e.target.value)}
-                  placeholder="Ex: pulverização do solo"
+                  placeholder="pulverizacao do solo"
                   required
                 />
               </div>
@@ -329,11 +320,12 @@ const AgriculturaForm = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="piloto">Piloto/Operador</Label>
+                <Label htmlFor="piloto">Operador</Label>
                 <Input
                   id="piloto"
                   value={piloto}
                   onChange={(e) => setPiloto(e.target.value)}
+                  placeholder="Paulo Silva"
                   required
                 />
               </div>
@@ -355,6 +347,7 @@ const AgriculturaForm = () => {
                   type="number"
                   value={horaMaquina}
                   onChange={(e) => setHoraMaquina(Number(e.target.value))}
+                  placeholder="5"
                   required
                 />
               </div>
@@ -377,6 +370,7 @@ const AgriculturaForm = () => {
                   type="number"
                   value={areaTrabalhada}
                   onChange={(e) => setAreaTrabalhada(Number(e.target.value))}
+                  placeholder="4"
                   required
                 />
               </div>
@@ -904,8 +898,7 @@ const PAAForm = () => {
         setPaaLocaisCadastrados(paaData);
       } catch (error) {
         console.error("Erro ao buscar dados do PAA:", error);
-        toast({
-          title: "Erro",
+        toast({          title: "Erro",
           description: "Não foi possível carregar os dados do PAA.",
           variant: "destructive",
         });
