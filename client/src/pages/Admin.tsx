@@ -18,6 +18,12 @@ const AgriculturaForm = () => {
   const [fazenda, setFazenda] = useState("");
   const [atividade, setAtividade] = useState("");
   const [piloto, setPiloto] = useState("");
+  const [localidade, setLocalidade] = useState("");
+  const [nomeImovel, setNomeImovel] = useState("");
+  const [proprietario, setProprietario] = useState("");
+  const [operacao, setOperacao] = useState("");
+  const [horaMaquina, setHoraMaquina] = useState(0);
+  const [tecnicoResponsavel, setTecnicoResponsavel] = useState("");
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [midias, setMidias] = useState<string[]>([]);
@@ -78,17 +84,16 @@ const AgriculturaForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
     if (!latitude || !longitude) {
       toast({
         title: "Erro",
-        description: "Clique no mapa para selecionar a localização do trator.",
+        description: "Por favor, selecione uma localização no mapa.",
         variant: "destructive",
       });
-      setLoading(false);
       return;
     }
+
+    setLoading(true);
 
     try {
       const tratorData = {
@@ -99,10 +104,16 @@ const AgriculturaForm = () => {
         latitude,
         longitude,
         midias,
-        dataCadastro: tratorEmEdicao ? tratorEmEdicao.dataCadastro : dataCadastro,
         tempoAtividade,
         areaTrabalhada,
+        dataCadastro,
         concluido: false,
+        localidade,
+        nomeImovel,
+        proprietario,
+        operacao,
+        horaMaquina,
+        tecnicoResponsavel,
       };
 
       if (tratorEmEdicao) {
@@ -124,6 +135,12 @@ const AgriculturaForm = () => {
       setFazenda("");
       setAtividade("");
       setPiloto("");
+      setLocalidade("");
+      setNomeImovel("");
+      setProprietario("");
+      setOperacao("");
+      setHoraMaquina(0);
+      setTecnicoResponsavel("");
       setLatitude(null);
       setLongitude(null);
       setMidias([]);
@@ -161,6 +178,12 @@ const AgriculturaForm = () => {
     setFazenda(trator.fazenda);
     setAtividade(trator.atividade);
     setPiloto(trator.piloto);
+    setLocalidade(trator.localidade || "");
+    setNomeImovel(trator.nomeImovel || "");
+    setProprietario(trator.proprietario || "");
+    setOperacao(trator.operacao || "");
+    setHoraMaquina(trator.horaMaquina || 0);
+    setTecnicoResponsavel(trator.tecnicoResponsavel || "");
     setLatitude(trator.latitude);
     setLongitude(trator.longitude);
     setMidias(trator.midias || []);
@@ -206,7 +229,7 @@ const AgriculturaForm = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="nome">Nome do Trator</Label>
+                <Label htmlFor="nome">Nome</Label>
                 <Input
                   id="nome"
                   value={nome}
@@ -216,11 +239,52 @@ const AgriculturaForm = () => {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="localidade">Localidade</Label>
+                <Input
+                  id="localidade"
+                  value={localidade}
+                  onChange={(e) => setLocalidade(e.target.value)}
+                  placeholder="-"
+                />
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="fazenda">Fazenda</Label>
                 <Input
                   id="fazenda"
                   value={fazenda}
                   onChange={(e) => setFazenda(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="nomeImovel">Nome do Imóvel Rural</Label>
+                <Input
+                  id="nomeImovel"
+                  value={nomeImovel}
+                  onChange={(e) => setNomeImovel(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="proprietario">Nome do Proprietário</Label>
+                <Input
+                  id="proprietario"
+                  value={proprietario}
+                  onChange={(e) => setProprietario(e.target.value)}
+                  placeholder="-"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="operacao">Operação</Label>
+                <Input
+                  id="operacao"
+                  value={operacao}
+                  onChange={(e) => setOperacao(e.target.value)}
+                  placeholder="Ex: pulverização do solo"
                   required
                 />
               </div>
@@ -236,11 +300,32 @@ const AgriculturaForm = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="piloto">Piloto</Label>
+                <Label htmlFor="piloto">Piloto/Operador</Label>
                 <Input
                   id="piloto"
                   value={piloto}
                   onChange={(e) => setPiloto(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tecnicoResponsavel">Técnico Responsável</Label>
+                <Input
+                  id="tecnicoResponsavel"
+                  value={tecnicoResponsavel}
+                  onChange={(e) => setTecnicoResponsavel(e.target.value)}
+                  placeholder="-"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="horaMaquina">Hora/máquina</Label>
+                <Input
+                  id="horaMaquina"
+                  type="number"
+                  value={horaMaquina}
+                  onChange={(e) => setHoraMaquina(Number(e.target.value))}
                   required
                 />
               </div>
@@ -257,15 +342,13 @@ const AgriculturaForm = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="areaTrabalhada">Área a ser Trabalhada (m²)</Label>
+                <Label htmlFor="areaTrabalhada">Área para mecanização (m²)</Label>
                 <Input
                   id="areaTrabalhada"
                   type="number"
                   value={areaTrabalhada}
                   onChange={(e) => setAreaTrabalhada(Number(e.target.value))}
                   required
-                  min="0"
-                  step="0.01"
                 />
               </div>
 
@@ -318,37 +401,59 @@ const AgriculturaForm = () => {
           <CardTitle>Tratores Cadastrados</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {tratoresCadastrados.map((trator) => (
-              <div
-                key={trator.id}
-                className="flex items-center justify-between p-4 border rounded-lg"
-              >
-                <div>
-                  <h3 className="font-semibold">{trator.nome}</h3>
-                  <p className="text-sm text-gray-600">
-                    {trator.fazenda} - {trator.concluido ? "Concluído" : "Em Serviço"}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEditarTrator(trator)}
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleExcluirTrator(trator.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+          <div className="overflow-x-auto mt-6">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="p-2 border">Nome</th>
+                      <th className="p-2 border">Imóvel Rural</th>
+                      <th className="p-2 border">Operação</th>
+                      <th className="p-2 border">Operador</th>
+                      <th className="p-2 border">H/Máquina</th>
+                      <th className="p-2 border">Área (m²)</th>
+                      <th className="p-2 border">Data</th>
+                      <th className="p-2 border">Status</th>
+                      <th className="p-2 border">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tratoresCadastrados.map((trator) => (
+                      <tr key={trator.id} className="hover:bg-gray-50">
+                        <td className="p-2 border">{trator.nome}</td>
+                        <td className="p-2 border">{trator.nomeImovel || trator.fazenda}</td>
+                        <td className="p-2 border">{trator.operacao || trator.atividade}</td>
+                        <td className="p-2 border">{trator.piloto}</td>
+                        <td className="p-2 border">{trator.horaMaquina || "-"}</td>
+                        <td className="p-2 border">{trator.areaTrabalhada}</td>
+                        <td className="p-2 border">
+                          {new Date(trator.dataCadastro).toLocaleDateString()}
+                        </td>
+                        <td className="p-2 border">
+                          {trator.concluido ? "Concluído" : "Em Serviço"}
+                        </td>
+                        <td className="p-2 border">
+                          <div className="flex space-x-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEditarTrator(trator)}
+                            >
+                              <Edit2 className="h-4 w-4 mr-1" /> Editar
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleExcluirTrator(trator.id)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-1" /> Excluir
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            ))}
-          </div>
         </CardContent>
       </Card>
     </div>
@@ -798,7 +903,7 @@ const PAAForm = () => {
         }
       });
 
-      L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+      L.marker([e.latlnglat, e.latlng.lng]).addTo(map);
     });
 
     return () => map.remove();
