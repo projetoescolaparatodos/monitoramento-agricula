@@ -10,14 +10,13 @@ import "leaflet/dist/leaflet.css";
 
 const PAAMap = () => {
   const [loading, setLoading] = useState(true);
+
   interface PAA {
     id: string;
     localidade: string;
-    nomeImovel: string;
-    proprietario: string;
-    operacao: string;
-    horaMaquina: number;
-    areaMecanizacao: number;
+    tipoAlimento: string;
+    quantidadeProduzida: number;
+    metodoColheita: string;
     operador: string;
     tecnicoResponsavel: string;
     dataCadastro: string;
@@ -39,11 +38,9 @@ const PAAMap = () => {
           return {
             id: doc.id,
             localidade: data.localidade,
-            nomeImovel: data.nomeImovel,
-            proprietario: data.proprietario,
-            operacao: data.operacao,
-            horaMaquina: data.horaMaquina,
-            areaMecanizacao: data.areaMecanizacao,
+            tipoAlimento: data.tipoAlimento,
+            quantidadeProduzida: data.quantidadeProduzida,
+            metodoColheita: data.metodoColheita,
             operador: data.operador,
             tecnicoResponsavel: data.tecnicoResponsavel,
             dataCadastro: data.dataCadastro,
@@ -70,15 +67,16 @@ const PAAMap = () => {
     const map = L.map("paa-map").setView([-2.87922, -52.0088], 12);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
     // Criar ícone personalizado para PAA
     const paaIcon = L.icon({
-      iconUrl: "paa-icon.png", 
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-      popupAnchor: [0, -32]
+      iconUrl: "PAA-icon.png", // Substitua pelo caminho correto do ícone
+      iconSize: [50, 50],
+      iconAnchor: [30, 60],
+      popupAnchor: [0, -32],
     });
 
     const paaFiltrados = paaLocais.filter((paa) => {
@@ -90,44 +88,50 @@ const PAAMap = () => {
 
     paaFiltrados.forEach((paa) => {
       const marker = L.marker([paa.latitude, paa.longitude], {
-        icon: paaIcon
+        icon: paaIcon,
       }).addTo(map);
 
-      const status = paa.concluido ? 
-        '<span class="text-green-600 font-medium">Concluído</span>' : 
-        '<span class="text-blue-600 font-medium">Em Andamento</span>';
+      const status = paa.concluido
+        ? '<span class="text-green-600 font-medium">Concluído</span>'
+        : '<span class="text-blue-600 font-medium">Em Andamento</span>';
 
       const popupContent = `
         <div class="p-4 max-w-md">
           <h3 class="font-bold text-lg mb-2">${paa.localidade}</h3>
           <div class="space-y-2">
             <p><strong>Localidade:</strong> ${paa.localidade}</p>
-            <p><strong>Nome do Imóvel Rural:</strong> ${paa.nomeImovel}</p>
-            <p><strong>Nome do Proprietário:</strong> ${paa.proprietario}</p>
-            <p><strong>Operação:</strong> ${paa.operacao}</p>
+            <p><strong>Tipo de Alimento:</strong> ${paa.tipoAlimento}</p>
+            <p><strong>Quantidade Produzida:</strong> ${paa.quantidadeProduzida} kg</p>
+            <p><strong>Método de Colheita:</strong> ${paa.metodoColheita}</p>
             <p><strong>Operador:</strong> ${paa.operador}</p>
-            <p><strong>Técnico Responsável:</strong> ${paa.tecnicoResponsavel || 'Não informado'}</p>
+            <p><strong>Técnico Responsável:</strong> ${paa.tecnicoResponsavel || "Não informado"}</p>
             <p><strong>Data:</strong> ${new Date(paa.dataCadastro).toLocaleDateString()}</p>
             <p><strong>Status:</strong> ${status}</p>
-            ${paa.horaMaquina ? `<p><strong>Hora/máquina:</strong> ${paa.horaMaquina} horas</p>` : ''}
-            ${paa.areaMecanizacao ? `<p><strong>Área para mecanização:</strong> ${paa.areaMecanizacao} hectares</p>` : ''}
           </div>
-          ${paa.midias && paa.midias.length > 0 ? `
+          ${
+            paa.midias && paa.midias.length > 0
+              ? `
             <div class="mt-4">
               <h4 class="font-semibold mb-2">Fotos/Vídeos:</h4>
               <div class="grid grid-cols-2 gap-2">
-                ${paa.midias.map(url => `
+                ${paa.midias
+                  .map(
+                    (url) => `
                   <img src="${url}" alt="Mídia" class="w-full h-24 object-cover rounded-lg" />
-                `).join('')}
+                `,
+                  )
+                  .join("")}
               </div>
             </div>
-          ` : ''}
+          `
+              : ""
+          }
         </div>
       `;
 
       marker.bindPopup(popupContent, {
         maxWidth: 400,
-        className: 'rounded-lg shadow-lg'
+        className: "rounded-lg shadow-lg",
       });
     });
 
@@ -146,9 +150,7 @@ const PAAMap = () => {
 
   return (
     <div className="pt-16 relative h-screen">
-      <Card 
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-[1000] p-4 bg-white/95 shadow-lg"
-      >
+      <Card className="absolute left-4 top-1/2 transform -translate-y-1/2 z-[1000] p-4 bg-white/95 shadow-lg">
         <RadioGroup value={filtro} onValueChange={setFiltro}>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="todos" id="todos-paa" />
