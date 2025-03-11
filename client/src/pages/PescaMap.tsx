@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"; 
 import { db } from "../utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { Card } from "@/components/ui/card";
@@ -13,11 +13,10 @@ const PescaMap = () => {
   interface Pesca {
     id: string;
     localidade: string;
-    nomeImovel: string;
-    proprietario: string;
-    operacao: string;
-    horaMaquina: number;
-    areaMecanizacao: number;
+    tipoTanque: string;
+    especiePeixe: string;
+    quantidadeAlevinos: number;
+    metodoAlimentacao: string;
     operador: string;
     tecnicoResponsavel: string;
     dataCadastro: string;
@@ -39,11 +38,10 @@ const PescaMap = () => {
           return {
             id: doc.id,
             localidade: data.localidade,
-            nomeImovel: data.nomeImovel,
-            proprietario: data.proprietario,
-            operacao: data.operacao,
-            horaMaquina: data.horaMaquina,
-            areaMecanizacao: data.areaMecanizacao,
+            tipoTanque: data.tipoTanque,
+            especiePeixe: data.especiePeixe,
+            quantidadeAlevinos: data.quantidadeAlevinos,
+            metodoAlimentacao: data.metodoAlimentacao,
             operador: data.operador,
             tecnicoResponsavel: data.tecnicoResponsavel,
             dataCadastro: data.dataCadastro,
@@ -73,12 +71,11 @@ const PescaMap = () => {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
-    // Criar ícone personalizado para pesca
     const pescaIcon = L.icon({
       iconUrl: "pesca-icon.png", 
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-      popupAnchor: [0, -32]
+      iconSize: [50, 50], // Aumenta o tamanho do ícone
+      iconAnchor: [25, 50], // Ajusta o ponto de ancoragem
+      popupAnchor: [0, -50] // Ajusta a posição do pop-up
     });
 
     const pesqueirosFiltrados = pesqueiros.filter((pesca) => {
@@ -102,15 +99,14 @@ const PescaMap = () => {
           <h3 class="font-bold text-lg mb-2">${pesca.localidade}</h3>
           <div class="space-y-2">
             <p><strong>Localidade:</strong> ${pesca.localidade}</p>
-            <p><strong>Nome do Imóvel Rural:</strong> ${pesca.nomeImovel}</p>
-            <p><strong>Nome do Proprietário:</strong> ${pesca.proprietario}</p>
-            <p><strong>Operação:</strong> ${pesca.operacao}</p>
+            <p><strong>Tipo de Tanque:</strong> ${pesca.tipoTanque}</p>
+            <p><strong>Espécie de Peixe:</strong> ${pesca.especiePeixe}</p>
+            <p><strong>Quantidade de Alevinos:</strong> ${pesca.quantidadeAlevinos} unidades</p>
+            <p><strong>Método de Alimentação:</strong> ${pesca.metodoAlimentacao}</p>
             <p><strong>Operador:</strong> ${pesca.operador}</p>
             <p><strong>Técnico Responsável:</strong> ${pesca.tecnicoResponsavel || 'Não informado'}</p>
             <p><strong>Data:</strong> ${new Date(pesca.dataCadastro).toLocaleDateString()}</p>
             <p><strong>Status:</strong> ${status}</p>
-            ${pesca.horaMaquina ? `<p><strong>Hora/máquina:</strong> ${pesca.horaMaquina} horas</p>` : ''}
-            ${pesca.areaMecanizacao ? `<p><strong>Área para mecanização:</strong> ${pesca.areaMecanizacao} hectares</p>` : ''}
           </div>
           ${pesca.midias && pesca.midias.length > 0 ? `
             <div class="mt-4">
@@ -146,9 +142,7 @@ const PescaMap = () => {
 
   return (
     <div className="pt-16 relative h-screen">
-      <Card 
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-[1000] p-4 bg-white/95 shadow-lg"
-      >
+      <Card className="absolute left-4 top-1/2 transform -translate-y-1/2 z-[1000] p-4 bg-white/95 shadow-lg">
         <RadioGroup value={filtro} onValueChange={setFiltro}>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="todos" id="todos-pesca" />
@@ -164,7 +158,6 @@ const PescaMap = () => {
           </div>
         </RadioGroup>
       </Card>
-
       <div id="pesca-map" className="h-full w-full" />
     </div>
   );
