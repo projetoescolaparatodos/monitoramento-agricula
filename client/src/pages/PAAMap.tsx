@@ -15,9 +15,9 @@ const PAAMap = () => {
     localidade: string;
     nomeImovel: string;
     proprietario: string;
-    operacao: string;
-    horaMaquina: number;
-    areaMecanizacao: number;
+    tipoAlimento: string;
+    quantidadeProduzida: number;
+    metodoColheita: string;
     operador: string;
     tecnicoResponsavel: string;
     dataCadastro: string;
@@ -41,9 +41,9 @@ const PAAMap = () => {
             localidade: data.localidade,
             nomeImovel: data.nomeImovel,
             proprietario: data.proprietario,
-            operacao: data.operacao,
-            horaMaquina: data.horaMaquina,
-            areaMecanizacao: data.areaMecanizacao,
+            tipoAlimento: data.tipoAlimento,
+            quantidadeProduzida: data.quantidadeProduzida,
+            metodoColheita: data.metodoColheita,
             operador: data.operador,
             tecnicoResponsavel: data.tecnicoResponsavel,
             dataCadastro: data.dataCadastro,
@@ -96,6 +96,23 @@ const PAAMap = () => {
       const status = paa.concluido ? 
         '<span class="text-green-600 font-medium">Concluído</span>' : 
         '<span class="text-blue-600 font-medium">Em Andamento</span>';
+
+      const popupContent = `
+        <div class="popup-content">
+          <h3 class="text-lg font-bold">${paa.localidade}</h3>
+          <p><strong>Imóvel Rural:</strong> ${paa.nomeImovel}</p>
+          <p><strong>Proprietário:</strong> ${paa.proprietario}</p>
+          <p><strong>Tipo de Alimento:</strong> ${paa.tipoAlimento || 'Não informado'}</p>
+          <p><strong>Quantidade Produzida:</strong> ${paa.quantidadeProduzida || '0'} kg</p>
+          <p><strong>Método de Colheita:</strong> ${paa.metodoColheita || 'Não informado'}</p>
+          <p><strong>Operador:</strong> ${paa.operador}</p>
+          <p><strong>Técnico Responsável:</strong> ${paa.tecnicoResponsavel}</p>
+          <p><strong>Status:</strong> ${status}</p>
+          <p><strong>Data:</strong> ${new Date(paa.dataCadastro).toLocaleDateString()}</p>
+        </div>
+      `;
+
+      marker.bindPopup(popupContent);';
 
       const popupContent = `
         <div class="p-4 max-w-md">

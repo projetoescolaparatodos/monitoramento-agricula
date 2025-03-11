@@ -96,15 +96,13 @@ const Report = () => {
     const totalPAA = paaData.length;
     const paaConcluidos = paaData.filter(p => p.concluido).length;
     const paaEmAndamento = totalPAA - paaConcluidos;
-    const totalAreaMecanizacao = paaData.reduce((sum, p) => sum + (p.areaMecanizacao || 0), 0);
-    const totalHoraMaquina = paaData.reduce((sum, p) => sum + (p.horaMaquina || 0), 0);
+    const totalQuantidadeProduzida = paaData.reduce((sum, p) => sum + (p.quantidadeProduzida || 0), 0);
 
     return {
       totalPAA,
       paaConcluidos,
       paaEmAndamento,
-      totalAreaMecanizacao,
-      totalHoraMaquina
+      totalQuantidadeProduzida
     };
   };
 
@@ -202,20 +200,20 @@ const Report = () => {
       doc.text(`Total de Locais PAA: ${estPAA.totalPAA}`, 14, yPos + 10);
       doc.text(`Locais Concluídos: ${estPAA.paaConcluidos}`, 14, yPos + 16);
       doc.text(`Locais em Andamento: ${estPAA.paaEmAndamento}`, 14, yPos + 22);
-      doc.text(`Área Total para Mecanização: ${estPAA.totalAreaMecanizacao.toFixed(2)} ha`, 14, yPos + 28);
-      doc.text(`Total de Horas/Máquina: ${estPAA.totalHoraMaquina.toFixed(2)} h`, 14, yPos + 34);
+      doc.text(`Quantidade Total Produzida: ${estPAA.totalQuantidadeProduzida.toFixed(2)} kg`, 14, yPos + 28);
 
       // Tabela de PAA
       const paaTableData = paaData.map(item => [
         item.localidade || '',
         item.nomeImovel || '',
         item.proprietario || '',
-        item.operacao || '',
+        item.tipoAlimento || '',
+        item.quantidadeProduzida ? `${item.quantidadeProduzida} kg` : '0 kg',
+        item.metodoColheita || '',
         item.operador || '',
+        item.tecnicoResponsavel || '',
         new Date(item.dataCadastro).toLocaleDateString(),
-        item.concluido ? 'Concluído' : 'Em Andamento',
-        item.horaMaquina ? item.horaMaquina.toFixed(2) : '0.00',
-        item.areaMecanizacao ? item.areaMecanizacao.toFixed(2) : '0.00'
+        item.concluido ? 'Concluído' : 'Em Andamento'anizacao.toFixed(2) : '0.00'
       ]);
 
       autoTable(doc, {
