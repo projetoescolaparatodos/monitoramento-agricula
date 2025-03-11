@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart2, Download, FilePieChart, Loader2, Users } from "lucide-react"; // Users icon imported
+import { BarChart2, Download, FilePieChart, Loader2, Users, Leaf } from "lucide-react"; // Users e Leaf icons imported
 import { jsPDF } from "jspdf";
 import autoTable from 'jspdf-autotable';
 
@@ -495,7 +495,7 @@ const Report = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Wheat className="h-5 w-5 text-amber-500" />
+                  <Leaf className="h-5 w-5 text-amber-500" />
                   Tipos de Alimentos Fornecidos
                 </CardTitle>
               </CardHeader>
