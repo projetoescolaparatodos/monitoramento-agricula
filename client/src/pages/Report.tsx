@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { BarChart2, Download, FilePieChart, Loader2, Users, Leaf, Tractor, Fish } from "lucide-react"; // Added Tractor and Fish icons
+import { BarChart2, Download, FilePieChart, Loader2, Users, Leaf, Tractor, Fish, Shrub } from "lucide-react"; // Added Fish and Shrub icons
 import { jsPDF } from "jspdf";
 import autoTable from 'jspdf-autotable';
 
@@ -83,13 +83,27 @@ const Report = () => {
     const pescaEmAndamento = totalPesca - pescaConcluidos;
     const totalQuantidadePescado = pescaData.reduce((sum, p) => sum + (p.quantidadePescado || 0), 0);
     const totalCapacidadeEmbarcacao = pescaData.reduce((sum, p) => sum + (p.capacidadeEmbarcacao || 0), 0);
+    const totalTanques = new Set(pescaData.map(p => p.idTanque).filter(Boolean)).size;
+    const totalAreaCriacao = pescaData.reduce((sum, p) => sum + (p.areaTanque || 0), 0);
+    const tiposPeixes = [...new Set(pescaData.map(p => p.tipoPescado).filter(Boolean))];
+    const metodosAlimentacao = [...new Set(pescaData.map(p => p.metodoAlimentacao).filter(Boolean))];
+    const totalRacao = pescaData.reduce((sum, p) => sum + (p.quantidadeRacao || 0), 0);
+    const totalProdutores = new Set(pescaData.map(p => p.nomePescador).filter(Boolean)).size;
+    const taxaCrescimento = pescaData.reduce((sum, p) => sum + (p.taxaCrescimento || 0), 0) / (pescaData.length || 1);
 
     return {
       totalPesca,
       pescaConcluidos,
       pescaEmAndamento,
       totalQuantidadePescado,
-      totalCapacidadeEmbarcacao
+      totalCapacidadeEmbarcacao,
+      totalTanques,
+      totalAreaCriacao,
+      tiposPeixes,
+      metodosAlimentacao,
+      totalRacao,
+      totalProdutores,
+      taxaCrescimento
     };
   };
 
@@ -164,33 +178,36 @@ const Report = () => {
 
     if (tipo === 'pesca' || tipo === 'completo') {
       doc.setFontSize(16);
-      doc.text("Relatório de Pesca", 14, yPos);
+      doc.text("Relatório de Pesca em Tanques Criadouros 🐟", 14, yPos);
 
       // Estatísticas de Pesca
       const estPesca = calcularEstatisticasPesca();
       doc.setFontSize(12);
-      doc.text(`Total de Registros de Pesca: ${estPesca.totalPesca}`, 14, yPos + 10);
-      doc.text(`Registros Concluídos: ${estPesca.pescaConcluidos}`, 14, yPos + 16);
-      doc.text(`Registros em Andamento: ${estPesca.pescaEmAndamento}`, 14, yPos + 22);
-      doc.text(`Quantidade Total de Pescado: ${estPesca.totalQuantidadePescado.toFixed(2)} kg`, 14, yPos + 28);
-      doc.text(`Capacidade Total das Embarcações: ${estPesca.totalCapacidadeEmbarcacao.toFixed(2)} kg`, 14, yPos + 34);
+      doc.text(`Total de Pescado Produzido: ${estPesca.totalQuantidadePescado.toFixed(2)} kg`, 14, yPos + 10);
+      doc.text(`Quantidade de Tanques Cadastrados: ${estPesca.totalTanques}`, 14, yPos + 16);
+      doc.text(`Área Total de Criação: ${estPesca.totalAreaCriacao.toFixed(2)} m²`, 14, yPos + 22);
+      doc.text(`Tipos de Peixes Cultivados: ${estPesca.tiposPeixes.join(', ') || 'Não informado'}`, 14, yPos + 28);
+      doc.text(`Taxa de Crescimento dos Peixes: ${estPesca.taxaCrescimento.toFixed(2)} kg/período`, 14, yPos + 34);
+      doc.text(`Métodos de Alimentação: ${estPesca.metodosAlimentacao.join(', ') || 'Não informado'}`, 14, yPos + 40);
+      doc.text(`Quantidade de Ração Utilizada: ${estPesca.totalRacao.toFixed(2)} kg`, 14, yPos + 46);
+      doc.text(`Quantidade de Produtores Cadastrados: ${estPesca.totalProdutores}`, 14, yPos + 52);
 
       // Tabela de Pesca
       const pescaTableData = pescaData.map(item => [
         item.localidade || '',
-        item.tipoPesca || '',
-        item.tipoEmbarcacao || '',
-        item.capacidadeEmbarcacao ? `${item.capacidadeEmbarcacao} kg` : '',
         item.nomePescador || '',
-        new Date(item.dataCadastro).toLocaleDateString(),
-        item.concluido ? 'Concluído' : 'Em Andamento',
+        item.tipoPescado || '',
+        item.idTanque || '',
+        item.areaTanque ? `${item.areaTanque.toFixed(2)} m²` : '0.00',
+        item.metodoAlimentacao || '',
+        item.quantidadeRacao ? item.quantidadeRacao.toFixed(2) : '0.00',
         item.quantidadePescado ? item.quantidadePescado.toFixed(2) : '0.00',
-        item.tipoPescado || ''
+        item.concluido ? 'Concluído' : 'Em Andamento'
       ]);
 
       autoTable(doc, {
-        startY: yPos + 50, // Adjusted y-coordinate
-        head: [['Localidade', 'Tipo de Pesca', 'Tipo de Embarcação', 'Capacidade', 'Nome do Pescador', 'Data', 'Status', 'Quantidade Pescada (kg)', 'Tipo de Pescado']],
+        startY: yPos + 58, // Adjusted y-coordinate
+        head: [['Localidade', 'Produtor', 'Tipo de Peixe', 'ID Tanque', 'Área (m²)', 'Método Alimentação', 'Ração (kg)', 'Quantidade (kg)', 'Status']],
         body: pescaTableData,
       });
 
@@ -358,30 +375,22 @@ const Report = () => {
 
         {/* Relatório de Pesca */}
         <TabsContent value="pesca">
-          <div className="flex justify-end mb-4">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold">Pesca em Tanques Criadouros 🐟</h2>
             <Button onClick={() => exportarPDF('pesca')} variant="outline" className="flex items-center gap-2">
               <Download className="h-4 w-4" />
               Exportar Pesca
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 w-full">
+          <p className="text-slate-600 mb-6">O monitoramento da produção aquícola garante eficiência e sustentabilidade na criação de peixes.</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 w-full">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <BarChart2 className="h-5 w-5 text-primary" />
-                  Total de Registros de Pesca
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold">{estatisticasPesca.totalPesca}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FilePieChart className="h-5 w-5 text-green-500" />
-                  Quantidade Total Pescada
+                  <Fish className="h-5 w-5 text-blue-500" />
+                  Total de Pescado
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -391,32 +400,120 @@ const Report = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FilePieChart className="h-5 w-5 text-blue-500" />
-                  Capacidade Total das Embarcações
+                  <BarChart2 className="h-5 w-5 text-primary" />
+                  Tanques Cadastrados
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{estatisticasPesca.totalCapacidadeEmbarcacao.toFixed(2)} kg</p>
+                <p className="text-3xl font-bold">{estatisticasPesca.totalTanques}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FilePieChart className="h-5 w-5 text-green-500" />
+                  Área de Criação
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">{estatisticasPesca.totalAreaCriacao.toFixed(2)} m²</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-indigo-500" />
+                  Produtores
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">{estatisticasPesca.totalProdutores}</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Fish className="h-5 w-5 text-cyan-500" />
+                  Tipos de Peixes Cultivados
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {estatisticasPesca.tiposPeixes.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {estatisticasPesca.tiposPeixes.map((tipo, index) => (
+                      <Badge key={index} variant="outline" className="bg-blue-50">{tipo}</Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-slate-500">Nenhum tipo de peixe registrado</p>
+                )}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shrub className="h-5 w-5 text-teal-500" />
+                  Métodos de Alimentação
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {estatisticasPesca.metodosAlimentacao.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {estatisticasPesca.metodosAlimentacao.map((metodo, index) => (
+                      <Badge key={index} variant="outline" className="bg-teal-50">{metodo}</Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-slate-500">Nenhum método de alimentação registrado</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart2 className="h-5 w-5 text-orange-500" />
+                  Taxa de Crescimento (kg/período)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">{estatisticasPesca.taxaCrescimento.toFixed(2)} kg</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FilePieChart className="h-5 w-5 text-purple-500" />
+                  Ração Utilizada
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">{estatisticasPesca.totalRacao.toFixed(2)} kg</p>
               </CardContent>
             </Card>
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle>Detalhes dos Locais de Pesca</CardTitle>
+              <CardTitle>Detalhes dos Tanques de Criação</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Localidade</TableHead>
-                    <TableHead>Nome Pescador</TableHead>
-                    <TableHead>Tipo de Pesca</TableHead>
-                    <TableHead>Embarcação</TableHead>
-                    <TableHead>Capacidade</TableHead>
-                    <TableHead>Tipo Pescado</TableHead>
-                    <TableHead>Quantidade</TableHead>
-                    <TableHead>Data</TableHead>
+                    <TableHead>Produtor</TableHead>
+                    <TableHead>Tipo de Peixe</TableHead>
+                    <TableHead>ID Tanque</TableHead>
+                    <TableHead>Área (m²)</TableHead>
+                    <TableHead>Método Alimentação</TableHead>
+                    <TableHead>Ração (kg)</TableHead>
+                    <TableHead>Quantidade (kg)</TableHead>
                     <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -425,12 +522,12 @@ const Report = () => {
                     <TableRow key={pesca.id}>
                       <TableCell>{pesca.localidade || "—"}</TableCell>
                       <TableCell>{pesca.nomePescador || "—"}</TableCell>
-                      <TableCell>{pesca.tipoPesca || "—"}</TableCell>
-                      <TableCell>{pesca.tipoEmbarcacao || "—"}</TableCell>
-                      <TableCell>{pesca.capacidadeEmbarcacao ? `${pesca.capacidadeEmbarcacao} kg` : "—"}</TableCell>
                       <TableCell>{pesca.tipoPescado || "—"}</TableCell>
+                      <TableCell>{pesca.idTanque || "—"}</TableCell>
+                      <TableCell>{pesca.areaTanque ? `${pesca.areaTanque.toFixed(2)} m²` : "—"}</TableCell>
+                      <TableCell>{pesca.metodoAlimentacao || "—"}</TableCell>
+                      <TableCell>{pesca.quantidadeRacao ? `${pesca.quantidadeRacao.toFixed(2)} kg` : "—"}</TableCell>
                       <TableCell>{pesca.quantidadePescado ? `${pesca.quantidadePescado.toFixed(2)} kg` : "—"}</TableCell>
-                      <TableCell>{new Date(pesca.dataCadastro).toLocaleDateString()}</TableCell>
                       <TableCell>
                         <span className={pesca.concluido ? 'text-green-600 font-medium' : 'text-blue-600 font-medium'}>
                           {pesca.concluido ? 'Concluído' : 'Em Andamento'}
