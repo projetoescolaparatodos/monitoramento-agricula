@@ -24,7 +24,8 @@ export default defineConfig({
   ],
   server: {
     allowedHosts: [
-      "b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev"
+      "b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev",
+      "303548ff-1da9-44e3-82ae-34ecd1b6f479-00-knd92yva2khn.janeway.replit.dev"
     ],
   },
   resolve: {
