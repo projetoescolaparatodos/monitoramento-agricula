@@ -150,7 +150,7 @@ const PAAMap = () => {
               e.stopPropagation();
               const id = this.getAttribute('data-id');
               const popupContent = document.getElementById(`popup-${id}`);
-              
+
               if (this.textContent.includes('Expandir')) {
                 // Expandir popup
                 popupContent.classList.add('expanded-popup');
@@ -161,7 +161,7 @@ const PAAMap = () => {
                   }
                 });
                 this.textContent = 'Minimizar';
-                
+
                 // Adicionar CSS para estilizar o popup expandido
                 const style = document.createElement('style');
                 style.id = 'expanded-popup-style';
@@ -185,10 +185,19 @@ const PAAMap = () => {
                   }
                   .expanded-popup .media-container .grid {
                     grid-template-columns: repeat(3, 1fr) !important;
+                    gap: 12px !important;
+                  }
+                  .expanded-popup .popup-media {
+                    height: 160px !important;
+                    width: 100% !important;
+                    object-fit: cover !important;
+                    border-radius: 8px !important;
+                    transition: all 0.3s ease !important;
                   }
                   .leaflet-popup-content {
                     margin: 0 !important;
                     width: auto !important;
+                    min-width: 320px !important;
                   }
                 `;
                 document.head.appendChild(style);
@@ -202,7 +211,7 @@ const PAAMap = () => {
                   }
                 });
                 this.textContent = 'Expandir';
-                
+
                 // Remover o estilo
                 const expandedStyle = document.getElementById('expanded-popup-style');
                 if (expandedStyle) expandedStyle.remove();
