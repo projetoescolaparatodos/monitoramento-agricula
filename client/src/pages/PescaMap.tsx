@@ -147,7 +147,7 @@ const PescaMap = () => {
               const id = this.getAttribute('data-id');
               const popupContent = document.getElementById(`popup-${id}`);
 
-              if (this.textContent.includes('Expandir')) {
+              if (!popupContent.classList.contains('expanded-popup')) {
                 // Expandir popup
                 popupContent.classList.add('expanded-popup');
                 document.querySelectorAll('.popup-media').forEach(media => {
@@ -156,7 +156,7 @@ const PescaMap = () => {
                     media.classList.add('h-40');
                   }
                 });
-                this.textContent = 'Minimizar';
+                this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v4h13"/><path d="M3 21h13v-4"/><path d="m21 7-5-5-5 5"/><path d="m3 17 5 5 5-5"/></svg>`;nt = 'Minimizar';
 
                 // Adicionar CSS para estilizar o popup expandido
                 const style = document.createElement('style');
@@ -190,10 +190,18 @@ const PescaMap = () => {
                     border-radius: 8px !important;
                     transition: all 0.3s ease !important;
                   }
+                  .expanded-popup {
+                    width: 90vw !important;
+                    max-height: 90vh !important;
+                    overflow-y: auto !important;
+                  }
                   .leaflet-popup-content {
                     margin: 0 !important;
                     width: auto !important;
                     min-width: 320px !important;
+                  }
+                  .leaflet-popup {
+                    max-width: 90vw !important;
                   }
                 `;
                 document.head.appendChild(style);
@@ -206,7 +214,7 @@ const PescaMap = () => {
                     media.classList.remove('h-40');
                   }
                 });
-                this.textContent = 'Expandir';
+                this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/></svg>`;ent = 'Expandir';
 
                 // Remover o estilo
                 const expandedStyle = document.getElementById('expanded-popup-style');

@@ -7,6 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'; //Example Icon - Replace with your preferred library and icon
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'; //Example Icon - Replace with your preferred library and icon
+
 
 const AgriculturaMap = () => {
   const [loading, setLoading] = useState(true);
@@ -104,7 +107,7 @@ const AgriculturaMap = () => {
           <div class="flex justify-between items-center mb-2">
             <h3 class="font-bold text-lg">${trator.nome}</h3>
             <button class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-2 rounded text-xs expand-popup" data-id="${trator.id}">
-              Expandir
+              <ExpandMoreIcon/>
             </button>
           </div>
           <div class="space-y-2">
@@ -153,7 +156,7 @@ const AgriculturaMap = () => {
               const id = this.getAttribute('data-id');
               const popupContent = document.getElementById(`popup-${id}`);
 
-              if (this.textContent.includes('Expandir')) {
+              if (this.querySelector('svg').getAttribute('data-testid') === 'ExpandMoreIcon'){
                 // Expandir popup
                 popupContent.classList.add('expanded-popup');
                 document.querySelectorAll('.popup-media').forEach(media => {
@@ -162,9 +165,10 @@ const AgriculturaMap = () => {
                     media.classList.add('h-40');
                   }
                 });
-                this.textContent = 'Minimizar';
+                this.querySelector('svg').setAttribute('data-testid', 'ExpandLessIcon');
+                this.querySelector('svg').setAttribute('data-testid','ExpandLessIcon')
 
-                // Adicionar CSS para estilizar o popup expandido
+                // Adicionar estilo para expandir
                 const style = document.createElement('style');
                 style.id = 'expanded-popup-style';
                 style.textContent = `
@@ -173,9 +177,9 @@ const AgriculturaMap = () => {
                     top: 50% !important;
                     left: 50% !important;
                     transform: translate(-50%, -50%) !important;
-                    width: 90% !important;
+                    width: 90vw !important;
                     max-width: 800px !important;
-                    max-height: 80vh !important;
+                    max-height: 90vh !important;
                     overflow-y: auto !important;
                     z-index: 10000 !important;
                     background: white !important;
@@ -201,6 +205,9 @@ const AgriculturaMap = () => {
                     width: auto !important;
                     min-width: 320px !important;
                   }
+                  .leaflet-popup {
+                    max-width: 90vw !important;
+                  }
                 `;
                 document.head.appendChild(style);
               } else {
@@ -212,7 +219,7 @@ const AgriculturaMap = () => {
                     media.classList.remove('h-40');
                   }
                 });
-                this.textContent = 'Expandir';
+                this.querySelector('svg').setAttribute('data-testid', 'ExpandMoreIcon');
 
                 // Remover o estilo
                 const expandedStyle = document.getElementById('expanded-popup-style');
