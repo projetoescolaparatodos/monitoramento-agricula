@@ -156,7 +156,7 @@ const AgriculturaMap = () => {
               const id = this.getAttribute('data-id');
               const popupContent = document.getElementById(`popup-${id}`);
 
-              if (this.querySelector('svg').getAttribute('data-testid') === 'ExpandMoreIcon'){
+              if (!popupContent.classList.contains('expanded-popup')) {
                 // Expandir popup
                 popupContent.classList.add('expanded-popup');
                 document.querySelectorAll('.popup-media').forEach(media => {
@@ -165,8 +165,7 @@ const AgriculturaMap = () => {
                     media.classList.add('h-40');
                   }
                 });
-                this.querySelector('svg').setAttribute('data-testid', 'ExpandLessIcon');
-                this.querySelector('svg').setAttribute('data-testid','ExpandLessIcon')
+                this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-testid="ExpandLessIcon"><path d="M8 3v4h13"/><path d="M3 21h13v-4"/><path d="m21 7-5-5-5 5"/><path d="m3 17 5 5 5-5"/></svg>`;','ExpandLessIcon')
 
                 // Adicionar estilo para expandir
                 const style = document.createElement('style');
@@ -219,7 +218,7 @@ const AgriculturaMap = () => {
                     media.classList.remove('h-40');
                   }
                 });
-                this.querySelector('svg').setAttribute('data-testid', 'ExpandMoreIcon');
+                this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-testid="ExpandMoreIcon"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/></svg>`; 'ExpandMoreIcon');
 
                 // Remover o estilo
                 const expandedStyle = document.getElementById('expanded-popup-style');
