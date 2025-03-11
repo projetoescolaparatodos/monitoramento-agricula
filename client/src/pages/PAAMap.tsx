@@ -42,14 +42,7 @@ const PAAMap: React.FC = () => {
         const status = paa.concluido ? "Concluído" : "Em Andamento";
         const statusClass = paa.concluido ? "text-green-600 font-bold" : "text-blue-600 font-bold";
 
-        const popupContent = `
-        <div class="p-4 max-w-md">
-          <h3 class="font-bold text-lg mb-2">${paa.localidade || 'Localidade não informada'}</h3>
-          <div class="space-y-2">
-        </div>
-      `;
-
-      const fullPopupContent = `
+        const fullPopupContent = `
         <div class="p-4 max-w-md">
           <h3 class="font-bold text-lg mb-2">${paa.localidade || 'Localidade não informada'}</h3>
           <div class="space-y-2">
