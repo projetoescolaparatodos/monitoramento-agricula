@@ -113,9 +113,12 @@ const PAAMap = () => {
       `;
 
       marker.bindPopup(popupContent);
-
+      
+      // Second popup content was mistakenly duplicated
+      /* 
       const popupContent = `
         <div class="p-4 max-w-md">
+      */
           <h3 class="font-bold text-lg mb-2">${paa.localidade}</h3>
           <div class="space-y-2">
             <p><strong>Localidade:</strong> ${paa.localidade}</p>
