@@ -141,19 +141,27 @@ const Report = () => {
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
 
+    let yPos = 20; // Posição inicial no eixo Y
+
     if (tipo === 'agricultura' || tipo === 'completo') {
-      doc.text("Relatório de Agricultura", 14, 55); // Adjusted y-coordinate
+      doc.text("Relatório de Agricultura", 14, yPos);
+      yPos += 10; // Ajusta a posição Y para o próximo conteúdo
 
       // Estatísticas de Agricultura
       const estAgri = calcularEstatisticasAgricultura();
       doc.setFontSize(12);
-      doc.text(`Total de Tratores: ${estAgri.totalTratores}`, 14, 65); // Adjusted y-coordinate
-      doc.text(`Maquinários Concluídos: ${estAgri.tratoresConcluidos}`, 14, 71); // Adjusted y-coordinate
-      doc.text(`Maquinários em Serviço: ${estAgri.tratoresEmServico}`, 14, 77); // Adjusted y-coordinate
-      doc.text(`Tempo Total de Atividade: ${convertToHours(estAgri.totalTempoAtividade)} horas`, 14, 83); // Adjusted y-coordinate
-      doc.text(`Área Total Trabalhada: ${estAgri.totalAreaTrabalhada.toFixed(2)} m²`, 14, 89); // Adjusted y-coordinate
-      doc.text(`Total de Horas/Máquina: ${estAgri.totalHoraMaquina} horas`, 14, 95); // Adjusted y-coordinate
-
+      doc.text(`Total de Tratores: ${estAgri.totalTratores}`, 14, yPos);
+      yPos += 6;
+      doc.text(`Maquinários Concluídos: ${estAgri.tratoresConcluidos}`, 14, yPos);
+      yPos += 6;
+      doc.text(`Maquinários em Serviço: ${estAgri.tratoresEmServico}`, 14, yPos);
+      yPos += 6;
+      doc.text(`Tempo Total de Atividade: ${convertToHours(estAgri.totalTempoAtividade)} horas`, 14, yPos);
+      yPos += 6;
+      doc.text(`Área Total Trabalhada: ${estAgri.totalAreaTrabalhada.toFixed(2)} m²`, 14, yPos);
+      yPos += 6;
+      doc.text(`Total de Horas/Máquina: ${estAgri.totalHoraMaquina} horas`, 14, yPos);
+      yPos += 10; // Espaço extra antes da tabela
 
       // Tabela de Agricultura
       const agriculturaTableData = tratoresData.map(item => [
@@ -168,29 +176,44 @@ const Report = () => {
       ]);
 
       autoTable(doc, {
-        startY: 90, // Adjusted y-coordinate
+        startY: yPos,
         head: [['Nome', 'Fazenda', 'Atividade', 'Operador', 'Data', 'Status', 'Horas', 'Área (m²)']],
         body: agriculturaTableData,
       });
+
+      yPos = doc.lastAutoTable.finalY + 15; // Atualiza a posição Y após a tabela
     }
 
-    let yPos = tipo === 'agricultura' ? doc.lastAutoTable.finalY + 15 : 55; // Adjusted starting position
-
     if (tipo === 'pesca' || tipo === 'completo') {
+      // Adiciona nova página se o conteúdo for ficar muito junto do anterior
+      if (tipo === 'completo' && yPos > 180) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
       doc.setFontSize(16);
       doc.text("Relatório de Pesca em Tanques Criadouros 🐟", 14, yPos);
+      yPos += 10;
 
       // Estatísticas de Pesca
       const estPesca = calcularEstatisticasPesca();
       doc.setFontSize(12);
-      doc.text(`Total de Pescado Produzido: ${estPesca.totalQuantidadePescado.toFixed(2)} kg`, 14, yPos + 10);
-      doc.text(`Quantidade de Tanques Cadastrados: ${estPesca.totalTanques}`, 14, yPos + 16);
-      doc.text(`Área Total de Criação: ${estPesca.totalAreaCriacao.toFixed(2)} m²`, 14, yPos + 22);
-      doc.text(`Tipos de Peixes Cultivados: ${estPesca.tiposPeixes.join(', ') || 'Não informado'}`, 14, yPos + 28);
-      doc.text(`Taxa de Crescimento dos Peixes: ${estPesca.taxaCrescimento.toFixed(2)} kg/período`, 14, yPos + 34);
-      doc.text(`Métodos de Alimentação: ${estPesca.metodosAlimentacao.join(', ') || 'Não informado'}`, 14, yPos + 40);
-      doc.text(`Quantidade de Ração Utilizada: ${estPesca.totalRacao.toFixed(2)} kg`, 14, yPos + 46);
-      doc.text(`Quantidade de Produtores Cadastrados: ${estPesca.totalProdutores}`, 14, yPos + 52);
+      doc.text(`Total de Pescado Produzido: ${estPesca.totalQuantidadePescado.toFixed(2)} kg`, 14, yPos);
+      yPos += 6;
+      doc.text(`Quantidade de Tanques Cadastrados: ${estPesca.totalTanques}`, 14, yPos);
+      yPos += 6;
+      doc.text(`Área Total de Criação: ${estPesca.totalAreaCriacao.toFixed(2)} m²`, 14, yPos);
+      yPos += 6;
+      doc.text(`Tipos de Peixes Cultivados: ${estPesca.tiposPeixes.join(', ') || 'Não informado'}`, 14, yPos);
+      yPos += 6;
+      doc.text(`Taxa de Crescimento dos Peixes: ${estPesca.taxaCrescimento.toFixed(2)} kg/período`, 14, yPos);
+      yPos += 6;
+      doc.text(`Métodos de Alimentação: ${estPesca.metodosAlimentacao.join(', ') || 'Não informado'}`, 14, yPos);
+      yPos += 6;
+      doc.text(`Quantidade de Ração Utilizada: ${estPesca.totalRacao.toFixed(2)} kg`, 14, yPos);
+      yPos += 6;
+      doc.text(`Quantidade de Produtores Cadastrados: ${estPesca.totalProdutores}`, 14, yPos);
+      yPos += 10;
 
       // Tabela de Pesca
       const pescaTableData = pescaData.map(item => [
@@ -206,7 +229,7 @@ const Report = () => {
       ]);
 
       autoTable(doc, {
-        startY: yPos + 58, // Adjusted y-coordinate
+        startY: yPos,
         head: [['Localidade', 'Produtor', 'Tipo de Peixe', 'ID Tanque', 'Área (m²)', 'Método Alimentação', 'Ração (kg)', 'Quantidade (kg)', 'Status']],
         body: pescaTableData,
       });
@@ -215,18 +238,31 @@ const Report = () => {
     }
 
     if (tipo === 'paa' || tipo === 'completo') {
+      // Adiciona nova página se o conteúdo for ficar muito junto do anterior
+      if (tipo === 'completo' && yPos > 180) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
       doc.setFontSize(16);
       doc.text("Relatório de PAA - Programa de Aquisição de Alimentos 🌾", 14, yPos);
+      yPos += 10;
 
       // Estatísticas de PAA
       const estPAA = calcularEstatisticasPAA();
       doc.setFontSize(12);
-      doc.text(`Total de Alimentos Adquiridos: ${estPAA.totalQuantidadeProduzida.toFixed(2)} kg`, 14, yPos + 10);
-      doc.text(`Quantidade de Produtores Participantes: ${estPAA.totalProdutores}`, 14, yPos + 16);
-      doc.text(`Tipos de Alimentos Fornecidos: ${estPAA.tiposAlimentos.join(', ') || 'Não informado'}`, 14, yPos + 22);
-      doc.text(`Métodos de Colheita: ${estPAA.metodosColheita.join(', ') || 'Não informado'}`, 14, yPos + 28);
-      doc.text(`Área Total Cultivada: ${estPAA.totalAreaCultivada.toFixed(2)} ha`, 14, yPos + 34);
-      doc.text(`Valor Total Investido: R$ ${estPAA.valorTotalInvestido.toFixed(2)}`, 14, yPos + 40);
+      doc.text(`Total de Alimentos Adquiridos: ${estPAA.totalQuantidadeProduzida.toFixed(2)} kg`, 14, yPos);
+      yPos += 6;
+      doc.text(`Quantidade de Produtores Participantes: ${estPAA.totalProdutores}`, 14, yPos);
+      yPos += 6;
+      doc.text(`Tipos de Alimentos Fornecidos: ${estPAA.tiposAlimentos.join(', ') || 'Não informado'}`, 14, yPos);
+      yPos += 6;
+      doc.text(`Métodos de Colheita: ${estPAA.metodosColheita.join(', ') || 'Não informado'}`, 14, yPos);
+      yPos += 6;
+      doc.text(`Área Total Cultivada: ${estPAA.totalAreaCultivada.toFixed(2)} ha`, 14, yPos);
+      yPos += 6;
+      doc.text(`Valor Total Investido: R$ ${estPAA.valorTotalInvestido.toFixed(2)}`, 14, yPos);
+      yPos += 10;
 
       // Tabela de PAA
       const paaTableData = paaData.map(item => [
@@ -242,7 +278,7 @@ const Report = () => {
       ]);
 
       autoTable(doc, {
-        startY: yPos + 50, // Adjusted y-coordinate
+        startY: yPos,
         head: [['Localidade', 'Produtor', 'Tipo de Alimento', 'Quantidade (kg)', 'Método de Colheita', 'Técnico', 'Data', 'Status', 'Área (ha)']],
         body: paaTableData,
       });
