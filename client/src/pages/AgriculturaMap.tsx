@@ -274,4 +274,4 @@ const AgriculturaMap = () => {
   );
 };
 
-export default AgriculturaMapfault AgriculturaMap;
+export default AgriculturaMap;
