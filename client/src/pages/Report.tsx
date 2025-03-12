@@ -140,11 +140,13 @@ const Report = () => {
     
     // Função para adicionar o cabeçalho em cada página
     const addHeader = () => {
-      // Adicionar texto do cabeçalho
-      doc.setFontSize(14);
+      // Definir fonte padrão para todo o documento
       doc.setFont('helvetica', 'bold');
-      doc.text("PREFEITURA MUNICIPAL DE VITÓRIA DO XINGU", 105, 15, { align: 'center' });
+      
+      // Adicionar texto do cabeçalho centralizado
       doc.setFontSize(12);
+      doc.text("PREFEITURA MUNICIPAL DE VITÓRIA DO XINGU", 105, 15, { align: 'center' });
+      doc.setFontSize(11);
       doc.text("SECRETARIA MUNICIPAL DE AGRICULTURA, PESCA E ABASTECIMENTO", 105, 22, { align: 'center' });
       doc.text("VITÓRIA DO XINGU", 105, 29, { align: 'center' });
       doc.setFontSize(10);
@@ -159,29 +161,39 @@ const Report = () => {
     // Adicionar o cabeçalho
     addHeader();
 
-    doc.setFontSize(16);
+    // Configurações de fonte para os títulos de seção
+    doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
 
     let yPos = 50; // Posição inicial no eixo Y (abaixo do cabeçalho)
 
     if (tipo === 'agricultura' || tipo === 'completo') {
-      doc.text("Relatório de Agricultura", 14, yPos);
+      doc.text("RELATÓRIO DE AGRICULTURA", 105, yPos, { align: 'center' });
       yPos += 10; // Ajusta a posição Y para o próximo conteúdo
 
       // Estatísticas de Agricultura
       const estAgri = calcularEstatisticasAgricultura();
+      
+      // Título da subseção
       doc.setFontSize(12);
-      doc.text(`Total de Tratores: ${estAgri.totalTratores}`, 14, yPos);
+      doc.setFont('helvetica', 'bold');
+      doc.text("DADOS ESTATÍSTICOS:", 14, yPos);
+      yPos += 8;
+      
+      // Informações estatísticas
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Total de Tratores: ${estAgri.totalTratores}`, 20, yPos);
       yPos += 6;
-      doc.text(`Maquinários Concluídos: ${estAgri.tratoresConcluidos}`, 14, yPos);
+      doc.text(`Maquinários Concluídos: ${estAgri.tratoresConcluidos}`, 20, yPos);
       yPos += 6;
-      doc.text(`Maquinários em Serviço: ${estAgri.tratoresEmServico}`, 14, yPos);
+      doc.text(`Maquinários em Serviço: ${estAgri.tratoresEmServico}`, 20, yPos);
       yPos += 6;
-      doc.text(`Tempo Total de Atividade: ${convertToHours(estAgri.totalTempoAtividade)} horas`, 14, yPos);
+      doc.text(`Tempo Total de Atividade: ${convertToHours(estAgri.totalTempoAtividade)} horas`, 20, yPos);
       yPos += 6;
-      doc.text(`Área Total Trabalhada: ${estAgri.totalAreaTrabalhada.toFixed(2)} m²`, 14, yPos);
+      doc.text(`Área Total Trabalhada: ${estAgri.totalAreaTrabalhada.toFixed(2)} m²`, 20, yPos);
       yPos += 6;
-      doc.text(`Total de Horas/Máquina: ${estAgri.totalHoraMaquina} horas`, 14, yPos);
+      doc.text(`Total de Horas/Máquina: ${estAgri.totalHoraMaquina} horas`, 20, yPos);
       yPos += 10; // Espaço extra antes da tabela
 
       // Tabela de Agricultura
@@ -213,28 +225,57 @@ const Report = () => {
         yPos = 50; // Reposiciona após o cabeçalho
       }
       
-      doc.setFontSize(16);
-      doc.text("Relatório de Pesca em Tanques Criadouros 🐟", 14, yPos);
+      doc.setFontSize(14);
+      doc.text("RELATÓRIO DE PESCA EM TANQUES CRIADOUROS", 105, yPos, { align: 'center' });
       yPos += 10;
 
       // Estatísticas de Pesca
       const estPesca = calcularEstatisticasPesca();
+      
+      // Título da subseção
       doc.setFontSize(12);
-      doc.text(`Total de Pescado Produzido: ${estPesca.totalQuantidadePescado.toFixed(2)} kg`, 14, yPos);
+      doc.setFont('helvetica', 'bold');
+      doc.text("DADOS ESTATÍSTICOS:", 14, yPos);
+      yPos += 8;
+      
+      // Informações estatísticas
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Total de Pescado Produzido: ${estPesca.totalQuantidadePescado.toFixed(2)} kg`, 20, yPos);
       yPos += 6;
-      doc.text(`Quantidade de Tanques Cadastrados: ${estPesca.totalTanques}`, 14, yPos);
+      doc.text(`Quantidade de Tanques Cadastrados: ${estPesca.totalTanques}`, 20, yPos);
       yPos += 6;
-      doc.text(`Área Total de Criação: ${estPesca.totalAreaCriacao.toFixed(2)} m²`, 14, yPos);
+      doc.text(`Área Total de Criação: ${estPesca.totalAreaCriacao.toFixed(2)} m²`, 20, yPos);
       yPos += 6;
-      doc.text(`Tipos de Peixes Cultivados: ${estPesca.tiposPeixes.join(', ') || 'Não informado'}`, 14, yPos);
+      
+      // Tratando informações que podem ficar muito extensas
+      const tiposPeixesText = `Tipos de Peixes Cultivados: ${estPesca.tiposPeixes.join(', ') || 'Não informado'}`;
+      if (tiposPeixesText.length > 100) {
+        const wrapped = doc.splitTextToSize(tiposPeixesText, 170);
+        doc.text(wrapped, 20, yPos);
+        yPos += 6 * wrapped.length;
+      } else {
+        doc.text(tiposPeixesText, 20, yPos);
+        yPos += 6;
+      }
+      
+      doc.text(`Taxa de Crescimento dos Peixes: ${estPesca.taxaCrescimento.toFixed(2)} kg/período`, 20, yPos);
       yPos += 6;
-      doc.text(`Taxa de Crescimento dos Peixes: ${estPesca.taxaCrescimento.toFixed(2)} kg/período`, 14, yPos);
+      
+      // Tratando outras informações que podem ficar muito extensas
+      const metodosAlimentacaoText = `Métodos de Alimentação: ${estPesca.metodosAlimentacao.join(', ') || 'Não informado'}`;
+      if (metodosAlimentacaoText.length > 100) {
+        const wrapped = doc.splitTextToSize(metodosAlimentacaoText, 170);
+        doc.text(wrapped, 20, yPos);
+        yPos += 6 * wrapped.length;
+      } else {
+        doc.text(metodosAlimentacaoText, 20, yPos);
+        yPos += 6;
+      }
+      
+      doc.text(`Quantidade de Ração Utilizada: ${estPesca.totalRacao.toFixed(2)} kg`, 20, yPos);
       yPos += 6;
-      doc.text(`Métodos de Alimentação: ${estPesca.metodosAlimentacao.join(', ') || 'Não informado'}`, 14, yPos);
-      yPos += 6;
-      doc.text(`Quantidade de Ração Utilizada: ${estPesca.totalRacao.toFixed(2)} kg`, 14, yPos);
-      yPos += 6;
-      doc.text(`Quantidade de Produtores Cadastrados: ${estPesca.totalProdutores}`, 14, yPos);
+      doc.text(`Quantidade de Produtores Cadastrados: ${estPesca.totalProdutores}`, 20, yPos);
       yPos += 10;
 
       // Tabela de Pesca
@@ -267,24 +308,51 @@ const Report = () => {
         yPos = 50; // Reposiciona após o cabeçalho
       }
       
-      doc.setFontSize(16);
-      doc.text("Relatório de PAA - Programa de Aquisição de Alimentos 🌾", 14, yPos);
+      doc.setFontSize(14);
+      doc.text("RELATÓRIO DE PAA - PROGRAMA DE AQUISIÇÃO DE ALIMENTOS", 105, yPos, { align: 'center' });
       yPos += 10;
 
       // Estatísticas de PAA
       const estPAA = calcularEstatisticasPAA();
+      
+      // Título da subseção
       doc.setFontSize(12);
-      doc.text(`Total de Alimentos Adquiridos: ${estPAA.totalQuantidadeProduzida.toFixed(2)} kg`, 14, yPos);
+      doc.setFont('helvetica', 'bold');
+      doc.text("DADOS ESTATÍSTICOS:", 14, yPos);
+      yPos += 8;
+      
+      // Informações estatísticas
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Total de Alimentos Adquiridos: ${estPAA.totalQuantidadeProduzida.toFixed(2)} kg`, 20, yPos);
       yPos += 6;
-      doc.text(`Quantidade de Produtores Participantes: ${estPAA.totalProdutores}`, 14, yPos);
+      doc.text(`Quantidade de Produtores Participantes: ${estPAA.totalProdutores}`, 20, yPos);
       yPos += 6;
-      doc.text(`Tipos de Alimentos Fornecidos: ${estPAA.tiposAlimentos.join(', ') || 'Não informado'}`, 14, yPos);
+      
+      // Tratando informações que podem ficar muito extensas
+      const tiposAlimentosText = `Tipos de Alimentos Fornecidos: ${estPAA.tiposAlimentos.join(', ') || 'Não informado'}`;
+      if (tiposAlimentosText.length > 100) {
+        const wrapped = doc.splitTextToSize(tiposAlimentosText, 170);
+        doc.text(wrapped, 20, yPos);
+        yPos += 6 * wrapped.length;
+      } else {
+        doc.text(tiposAlimentosText, 20, yPos);
+        yPos += 6;
+      }
+      
+      const metodosColheitaText = `Métodos de Colheita: ${estPAA.metodosColheita.join(', ') || 'Não informado'}`;
+      if (metodosColheitaText.length > 100) {
+        const wrapped = doc.splitTextToSize(metodosColheitaText, 170);
+        doc.text(wrapped, 20, yPos);
+        yPos += 6 * wrapped.length;
+      } else {
+        doc.text(metodosColheitaText, 20, yPos);
+        yPos += 6;
+      }
+      
+      doc.text(`Área Total Cultivada: ${estPAA.totalAreaCultivada.toFixed(2)} ha`, 20, yPos);
       yPos += 6;
-      doc.text(`Métodos de Colheita: ${estPAA.metodosColheita.join(', ') || 'Não informado'}`, 14, yPos);
-      yPos += 6;
-      doc.text(`Área Total Cultivada: ${estPAA.totalAreaCultivada.toFixed(2)} ha`, 14, yPos);
-      yPos += 6;
-      doc.text(`Valor Total Investido: R$ ${estPAA.valorTotalInvestido.toFixed(2)}`, 14, yPos);
+      doc.text(`Valor Total Investido: R$ ${estPAA.valorTotalInvestido.toFixed(2)}`, 20, yPos);
       yPos += 10;
 
       // Tabela de PAA
@@ -435,7 +503,7 @@ const Report = () => {
         {/* Relatório de Pesca */}
         <TabsContent value="pesca">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">Pesca em Tanques Criadouros 🐟</h2>
+            <h2 className="text-2xl font-bold">Pesca em Tanques Criadouros</h2>
             <Button onClick={() => exportarPDF('pesca')} variant="outline" className="flex items-center gap-2">
               <Download className="h-4 w-4" />
               Exportar Pesca
@@ -603,7 +671,7 @@ const Report = () => {
         {/* Relatório de PAA */}
         <TabsContent value="paa">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">Programa de Aquisição de Alimentos (PAA) 🌾</h2>
+            <h2 className="text-2xl font-bold">Programa de Aquisição de Alimentos (PAA)</h2>
             <Button onClick={() => exportarPDF('paa')} variant="outline" className="flex items-center gap-2">
               <Download className="h-4 w-4" />
               Exportar PAA
