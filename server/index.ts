@@ -1,3 +1,4 @@
+
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
@@ -10,7 +11,7 @@ app.use(express.urlencoded({ extended: false }));
 // Configuração para o ambiente serverless do Vercel
 export const config = {
   api: {
-    bodyParser: true, // Alterado para true para permitir processamento de corpo
+    bodyParser: true,
   },
 };
 
@@ -45,7 +46,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Configuração fora de um IIFE para ser mais compatível com serverless
+// Configuração mais compatível com serverless
 const setupServer = async () => {
   const server = await registerRoutes(app);
 
