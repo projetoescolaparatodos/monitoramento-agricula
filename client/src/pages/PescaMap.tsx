@@ -73,9 +73,9 @@ const PescaMap = () => {
 
     const pescaIcon = L.icon({
       iconUrl: "pesca-icon.png", 
-      iconSize: [50, 50], // Aumenta o tamanho do ícone
-      iconAnchor: [25, 50], // Ajusta o ponto de ancoragem
-      popupAnchor: [0, -50] // Ajusta a posição do pop-up
+      iconSize: [50, 50], 
+      iconAnchor: [25, 50], 
+      popupAnchor: [0, -50] 
     });
 
     const pesqueirosFiltrados = pesqueiros.filter((pesca) => {
@@ -94,7 +94,7 @@ const PescaMap = () => {
         '<span class="text-green-600 font-medium">Concluído</span>' : 
         '<span class="text-blue-600 font-medium">Em Andamento</span>';
 
-      const popupContent = `
+      let popupContent = `
         <div class="p-4 max-w-md popup-content" id="popup-${pesca.id}">
           <div class="flex justify-between items-center mb-2">
             <h3 class="font-bold text-lg">${pesca.localidade}</h3>
@@ -113,116 +113,48 @@ const PescaMap = () => {
             <p><strong>Data:</strong> ${new Date(pesca.dataCadastro).toLocaleDateString()}</p>
             <p><strong>Status:</strong> ${status}</p>
           </div>
-          ${pesca.midias && pesca.midias.length > 0 ? `
-            <div class="mt-4 media-container">
-              <h4 class="font-semibold mb-2">Fotos/Vídeos:</h4>
-              <div class="grid grid-cols-2 gap-2">
-                ${pesca.midias.map((url, index) => {
-                  // Verificar se é um vídeo (URLs do Cloudinary com /video/)
-                  if (url.includes('/video/') || url.includes('/video/upload/')) {
-                    return `
-                      <div class="relative">
-                        <video src="${url}" controls class="w-full h-24 object-cover rounded-lg popup-media" data-src="${url}" data-index="${index}" data-type="video"></video>
-                      </div>
-                    `;
-                  } else {
-                    return `
-                      <img src="${url}" alt="Mídia" class="w-full h-24 object-cover rounded-lg popup-media" data-src="${url}" data-index="${index}" data-type="image" />
-                    `;
-                  }
-                }).join('')}
-              </div>
-            </div>
-          ` : ''}
-        </div>
       `;
 
-      // Adicionar listener para o botão de expandir após criar o popup
+      if (pesca.midias && pesca.midias.length > 0) {
+        popupContent += `
+          <div class="mt-4 media-container">
+            <h4 class="font-semibold mb-2">Fotos/Vídeos:</h4>
+            <div class="grid grid-cols-2 gap-2">
+              ${pesca.midias.map((url, index) => {
+                if (url.includes('/video/') || url.includes('/video/upload/')) {
+                  return `
+                    <div class="relative">
+                      <video src="${url}" controls class="w-full h-24 object-cover rounded-lg popup-media" data-src="${url}" data-index="${index}" data-type="video"></video>
+                    </div>
+                  `;
+                } else {
+                  return `
+                    <img src="${url}" alt="Mídia" class="w-full h-24 object-cover rounded-lg popup-media" data-src="${url}" data-index="${index}" data-type="image" />
+                  `;
+                }
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }
+      popupContent += `</div>`;
+
+
       marker.on('popupopen', function() {
-        setTimeout(() => {
-          const expandButtons = document.querySelectorAll('.expand-popup');
-          expandButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-              e.stopPropagation();
-              const id = this.getAttribute('data-id');
-              const popupContent = document.getElementById(`popup-${id}`);
-
-              if (!popupContent.classList.contains('expanded-popup')) {
-                // Expandir popup
-                popupContent.classList.add('expanded-popup');
-                document.querySelectorAll('.popup-media').forEach(media => {
-                  if (media.closest(`#popup-${id}`)) {
-                    media.classList.remove('h-24');
-                    media.classList.add('h-40');
-                  }
-                });
-                this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v4h13"/><path d="M3 21h13v-4"/><path d="m21 7-5-5-5 5"/><path d="m3 17 5 5 5-5"/></svg>`;nt = 'Minimizar';
-
-                // Adicionar CSS para estilizar o popup expandido
-                const style = document.createElement('style');
-                style.id = 'expanded-popup-style';
-                style.textContent = `
-                  .expanded-popup {
-                    position: fixed !important;
-                    top: 50% !important;
-                    left: 50% !important;
-                    transform: translate(-50%, -50%) !important;
-                    width: 90% !important;
-                    max-width: 800px !important;
-                    max-height: 80vh !important;
-                    overflow-y: auto !important;
-                    z-index: 10000 !important;
-                    background: white !important;
-                    border-radius: 8px !important;
-                    box-shadow: 0 0 20px rgba(0,0,0,0.3) !important;
-                  }
-                  .expanded-popup .media-container {
-                    margin-top: 20px !important;
-                  }
-                  .expanded-popup .media-container .grid {
-                    grid-template-columns: repeat(3, 1fr) !important;
-                    gap: 12px !important;
-                  }
-                  .expanded-popup .popup-media {
-                    height: 160px !important;
-                    width: 100% !important;
-                    object-fit: cover !important;
-                    border-radius: 8px !important;
-                    transition: all 0.3s ease !important;
-                  }
-                  .expanded-popup {
-                    width: 90vw !important;
-                    max-height: 90vh !important;
-                    overflow-y: auto !important;
-                  }
-                  .leaflet-popup-content {
-                    margin: 0 !important;
-                    width: auto !important;
-                    min-width: 320px !important;
-                  }
-                  .leaflet-popup {
-                    max-width: 90vw !important;
-                  }
-                `;
-                document.head.appendChild(style);
-              } else {
-                // Minimizar popup
-                popupContent.classList.remove('expanded-popup');
-                document.querySelectorAll('.popup-media').forEach(media => {
-                  if (media.closest(`#popup-${id}`)) {
-                    media.classList.add('h-24');
-                    media.classList.remove('h-40');
-                  }
-                });
-                this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/></svg>`;ent = 'Expandir';
-
-                // Remover o estilo
-                const expandedStyle = document.getElementById('expanded-popup-style');
-                if (expandedStyle) expandedStyle.remove();
-              }
-            });
-          });
-        }, 100);
+        const expandButton = this._popup._contentNode.querySelector('.expand-popup');
+        expandButton.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const popupContent = this.closest('.leaflet-popup-content');
+          if (popupContent.classList.contains('expanded')) {
+            popupContent.classList.remove('expanded');
+            popupContent.querySelectorAll('.popup-media').forEach(media => media.classList.remove('h-40'));
+            this.textContent = 'Expandir';
+          } else {
+            popupContent.classList.add('expanded');
+            popupContent.querySelectorAll('.popup-media').forEach(media => media.classList.add('h-40'));
+            this.textContent = 'Minimizar';
+          }
+        });
       });
 
       marker.bindPopup(popupContent, {
