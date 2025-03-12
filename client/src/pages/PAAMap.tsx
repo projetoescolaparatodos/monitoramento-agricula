@@ -157,15 +157,16 @@ const PAAMap = () => {
               e.stopPropagation();
               const id = this.getAttribute('data-id');
               const popupContent = document.getElementById(`popup-${id}`);
+              const mediaElements = document.querySelectorAll(`#popup-${id} .popup-media`);
+              const expandText = this.querySelector('span');
+              const expandIcon = this.querySelector('svg');
 
               if (!popupContent.classList.contains('expanded-popup')) {
                 // Expandir popup
                 popupContent.classList.add('expanded-popup');
-                document.querySelectorAll('.popup-media').forEach(media => {
-                  if (media.closest(`#popup-${id}`)) {
-                    media.classList.remove('h-24');
-                    media.classList.add('h-40');
-                  }
+                mediaElements.forEach(media => {
+                  media.classList.remove('h-24');
+                  media.classList.add('h-40');
                 });
                 this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-testid="ExpandLessIcon"><path d="M8 3v4h13"/><path d="M3 21h13v-4"/><path d="m21 7-5-5-5 5"/><path d="m3 17 5 5 5-5"/></svg>`;
 
@@ -206,11 +207,9 @@ const PAAMap = () => {
               } else {
                 // Recolher popup
                 popupContent.classList.remove('expanded-popup');
-                document.querySelectorAll('.popup-media').forEach(media => {
-                  if (media.closest(`#popup-${id}`)) {
-                    media.classList.remove('h-40');
-                    media.classList.add('h-24');
-                  }
+                mediaElements.forEach(media => {
+                  media.classList.add('h-24');
+                  media.classList.remove('h-40');
                 });
                 this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-testid="ExpandMoreIcon"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/></svg>`;
 
@@ -221,19 +220,6 @@ const PAAMap = () => {
             });
           });
         }, 100);
-      }); 5-5"/></svg>`;
-
-              } else {
-                popupContent.classList.remove('expanded-popup');
-                mediaElements.forEach(media => {
-                  media.classList.add('h-24');
-                  media.classList.remove('h-40');
-                });
-                expandText.textContent = 'Expandir';
-                expandIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/></svg>`;
-              }
-            });
-          }
       });
     });
 
