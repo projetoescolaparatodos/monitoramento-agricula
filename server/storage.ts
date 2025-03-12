@@ -1,7 +1,18 @@
 
 import { users, type User, type InsertUser } from "@shared/schema";
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, doc, getDoc, getDocs, addDoc, query, where } from "firebase/firestore";
+
+// Configuração do Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyCAHOYOjHyvoRXkVhuQc_Ld3VrJtmqO1XM",
+  authDomain: "transparencia-agricola.firebaseapp.com",
+  projectId: "transparencia-agricola",
+  storageBucket: "transparencia-agricola.firebasestorage.app",
+  messagingSenderId: "667594200798",
+  appId: "1:667594200798:web:77966c861af0943825944f",
+  measurementId: "G-335VMCKSLN",
+};
 
 // Interface para operações de storage
 export interface IStorage {
@@ -38,31 +49,30 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Classe para ambiente de produção (como Vercel)
-export class DbStorage implements IStorage {
-  private db: ReturnType<typeof drizzle>;
+// Classe para ambiente de produção usando Firebase
+export class FirebaseStorage implements IStorage {
+  private db;
+  private usersCollection;
 
   constructor() {
-    // Use a variável de ambiente do DATABASE_URL ou POSTGRES_URL que o Vercel fornece
-    const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL;
-    
-    if (!connectionString) {
-      console.warn("Nenhuma URL de banco de dados configurada, usando storage em memória");
-      return;
+    try {
+      const app = initializeApp(firebaseConfig);
+      this.db = getFirestore(app);
+      this.usersCollection = collection(this.db, "users");
+    } catch (error) {
+      console.error("Erro ao inicializar Firebase:", error);
     }
-
-    const pool = new Pool({
-      connectionString,
-      ssl: { rejectUnauthorized: false }
-    });
-    
-    this.db = drizzle(pool);
   }
 
   async getUser(id: number): Promise<User | undefined> {
     try {
-      const result = await this.db.select().from(users).where({ id }).limit(1);
-      return result[0];
+      const q = query(this.usersCollection, where("id", "==", id));
+      const querySnapshot = await getDocs(q);
+      
+      if (querySnapshot.empty) return undefined;
+      
+      const docData = querySnapshot.docs[0].data();
+      return { id: docData.id, username: docData.username, password: docData.password };
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);
       return undefined;
@@ -71,8 +81,13 @@ export class DbStorage implements IStorage {
 
   async getUserByUsername(username: string): Promise<User | undefined> {
     try {
-      const result = await this.db.select().from(users).where({ username }).limit(1);
-      return result[0];
+      const q = query(this.usersCollection, where("username", "==", username));
+      const querySnapshot = await getDocs(q);
+      
+      if (querySnapshot.empty) return undefined;
+      
+      const docData = querySnapshot.docs[0].data();
+      return { id: docData.id, username: docData.username, password: docData.password };
     } catch (error) {
       console.error("Erro ao buscar usuário por nome:", error);
       return undefined;
@@ -81,8 +96,22 @@ export class DbStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     try {
-      const result = await this.db.insert(users).values(insertUser).returning();
-      return result[0];
+      // Obter o maior ID atual para gerar um novo ID
+      const querySnapshot = await getDocs(this.usersCollection);
+      let maxId = 0;
+      
+      querySnapshot.forEach((doc) => {
+        const userData = doc.data();
+        if (userData.id && userData.id > maxId) {
+          maxId = userData.id;
+        }
+      });
+      
+      const newId = maxId + 1;
+      const newUser = { ...insertUser, id: newId };
+      
+      await addDoc(this.usersCollection, newUser);
+      return newUser;
     } catch (error) {
       console.error("Erro ao criar usuário:", error);
       throw error;
@@ -92,5 +121,7 @@ export class DbStorage implements IStorage {
 
 // Escolhe o storage apropriado dependendo do ambiente
 export const storage = process.env.NODE_ENV === "production" 
-  ? new DbStorage() 
-  : new MemStorage();
+  ? new FirebaseStorage() 
+  : process.env.NODE_ENV === "development" 
+    ? new FirebaseStorage() // Você pode usar Firebase em desenvolvimento também
+    : new MemStorage();
