@@ -56,11 +56,22 @@ export class FirebaseStorage implements IStorage {
 
   constructor() {
     try {
+      console.log("Configuração do Firebase:", {
+        ...firebaseConfig,
+        apiKey: firebaseConfig.apiKey ? "PRESENTE" : "AUSENTE",
+        authDomain: firebaseConfig.authDomain ? "PRESENTE" : "AUSENTE",
+        projectId: firebaseConfig.projectId ? "PRESENTE" : "AUSENTE",
+        storageBucket: firebaseConfig.storageBucket ? "PRESENTE" : "AUSENTE",
+        appId: firebaseConfig.appId ? "PRESENTE" : "AUSENTE"
+      });
+      
       const app = initializeApp(firebaseConfig);
       this.db = getFirestore(app);
       this.usersCollection = collection(this.db, "users");
+      console.log("Firebase inicializado com sucesso");
     } catch (error) {
       console.error("Erro ao inicializar Firebase:", error);
+      throw new Error(`Falha ao inicializar Firebase: ${error.message}`);
     }
   }
 

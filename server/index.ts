@@ -46,6 +46,23 @@ app.use((req, res, next) => {
   next();
 });
 
+// Middleware para capturar erros não tratados nas rotas
+app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
+  console.error('Erro na aplicação:', err);
+  if (res.headersSent) {
+    return next(err);
+  }
+  
+  const status = err.status || err.statusCode || 500;
+  const message = err.message || "Internal Server Error";
+  
+  res.status(status).json({
+    error: true,
+    message: message,
+    stack: process.env.NODE_ENV === 'production' ? undefined : err.stack
+  });
+});
+
 // Configuração mais compatível com serverless
 const setupServer = async () => {
   const server = await registerRoutes(app);
