@@ -7,13 +7,14 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// For Vercel serverless environment
+// Configuração para o ambiente serverless do Vercel
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: true, // Alterado para true para permitir processamento de corpo
   },
 };
 
+// Middleware para logging
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -44,7 +45,8 @@ app.use((req, res, next) => {
   next();
 });
 
-(async () => {
+// Configuração fora de um IIFE para ser mais compatível com serverless
+const setupServer = async () => {
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -63,12 +65,24 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // No ambiente serverless do Vercel, não precisamos iniciar o servidor
-  // Ele fará isso por nós
+  // Apenas inicia o servidor se não estivermos no Vercel
   if (process.env.NODE_ENV !== "production" || process.env.VERCEL !== "1") {
     const PORT = process.env.PORT || 5000;
     server.listen(Number(PORT), "0.0.0.0", () => {
       log(`serving on port ${PORT}`);
     });
   }
-})();
+
+  return app;
+};
+
+// Executa a configuração para desenvolvimento local
+if (process.env.NODE_ENV !== "production" || process.env.VERCEL !== "1") {
+  setupServer();
+}
+
+// Handler para o Vercel serverless
+export default async function handler(req: Request, res: Response) {
+  const appInstance = await setupServer();
+  return appInstance(req, res);
+}
