@@ -137,11 +137,32 @@ const Report = () => {
 
   const exportarPDF = (tipo: 'agricultura' | 'pesca' | 'paa' | 'completo') => {
     const doc = new jsPDF();
+    
+    // Função para adicionar o cabeçalho em cada página
+    const addHeader = () => {
+      // Adicionar texto do cabeçalho
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text("PREFEITURA MUNICIPAL DE VITÓRIA DO XINGU", 105, 15, { align: 'center' });
+      doc.setFontSize(12);
+      doc.text("SECRETARIA MUNICIPAL DE AGRICULTURA, PESCA E ABASTECIMENTO", 105, 22, { align: 'center' });
+      doc.text("VITÓRIA DO XINGU", 105, 29, { align: 'center' });
+      doc.setFontSize(10);
+      doc.text("CNPJ/MF: 34.887.935/0001-53", 105, 36, { align: 'center' });
+
+      // Adicionar uma linha divisória
+      doc.setDrawColor(0); // Cor da linha (preto)
+      doc.setLineWidth(0.5); // Espessura da linha
+      doc.line(14, 40, 200, 40); // x1, y1, x2, y2
+    };
+
+    // Adicionar o cabeçalho
+    addHeader();
 
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
 
-    let yPos = 20; // Posição inicial no eixo Y
+    let yPos = 50; // Posição inicial no eixo Y (abaixo do cabeçalho)
 
     if (tipo === 'agricultura' || tipo === 'completo') {
       doc.text("Relatório de Agricultura", 14, yPos);
@@ -188,7 +209,8 @@ const Report = () => {
       // Adiciona nova página se o conteúdo for ficar muito junto do anterior
       if (tipo === 'completo' && yPos > 180) {
         doc.addPage();
-        yPos = 20;
+        addHeader(); // Adiciona o cabeçalho na nova página
+        yPos = 50; // Reposiciona após o cabeçalho
       }
       
       doc.setFontSize(16);
@@ -241,7 +263,8 @@ const Report = () => {
       // Adiciona nova página se o conteúdo for ficar muito junto do anterior
       if (tipo === 'completo' && yPos > 180) {
         doc.addPage();
-        yPos = 20;
+        addHeader(); // Adiciona o cabeçalho na nova página
+        yPos = 50; // Reposiciona após o cabeçalho
       }
       
       doc.setFontSize(16);
