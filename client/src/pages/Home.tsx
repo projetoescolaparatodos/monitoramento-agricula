@@ -94,24 +94,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-12 md:py-20 bg-primary">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 md:mb-6">
-            Pronto para começar?
-          </h2>
-          <p className="text-base md:text-xl text-white/80 mb-6 md:mb-8 max-w-full md:max-w-2xl mx-auto">
-            Acesse nosso sistema e comece a gerenciar suas atividades agrícolas de forma eficiente.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4">
-            <Button asChild size="lg" className="w-full sm:w-auto">
-              <Link to="/dashboard">Acessar Dashboard</Link>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
-              <Link to="/contact">Entre em Contato</Link>
-            </Button>
-          </div>
-        </div>
+      
       </section>
 
       {/* Footer */}
