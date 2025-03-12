@@ -99,7 +99,7 @@ const PescaMap = () => {
           <div class="flex justify-between items-center mb-2">
             <h3 class="font-bold text-lg">${pesca.localidade}</h3>
             <button class="bg-cyan-500 hover:bg-cyan-700 text-white py-1 px-2 rounded text-xs expand-popup" data-id="${pesca.id}">
-              Expandir
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-testid="ExpandMoreIcon"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/></svg>
             </button>
           </div>
           <div class="space-y-2">
@@ -141,20 +141,77 @@ const PescaMap = () => {
 
 
       marker.on('popupopen', function() {
-        const expandButton = this._popup._contentNode.querySelector('.expand-popup');
-        expandButton.addEventListener('click', function(e) {
-          e.stopPropagation();
-          const popupContent = this.closest('.leaflet-popup-content');
-          if (popupContent.classList.contains('expanded')) {
-            popupContent.classList.remove('expanded');
-            popupContent.querySelectorAll('.popup-media').forEach(media => media.classList.remove('h-40'));
-            this.textContent = 'Expandir';
-          } else {
-            popupContent.classList.add('expanded');
-            popupContent.querySelectorAll('.popup-media').forEach(media => media.classList.add('h-40'));
-            this.textContent = 'Minimizar';
-          }
-        });
+        setTimeout(() => {
+          const expandButtons = document.querySelectorAll('.expand-popup');
+          expandButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+              e.stopPropagation();
+              const id = this.getAttribute('data-id');
+              const popupContent = document.getElementById(`popup-${id}`);
+
+              if (!popupContent.classList.contains('expanded-popup')) {
+                // Expandir popup
+                popupContent.classList.add('expanded-popup');
+                document.querySelectorAll('.popup-media').forEach(media => {
+                  if (media.closest(`#popup-${id}`)) {
+                    media.classList.remove('h-24');
+                    media.classList.add('h-40');
+                  }
+                });
+                this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-testid="ExpandLessIcon"><path d="M8 3v4h13"/><path d="M3 21h13v-4"/><path d="m21 7-5-5-5 5"/><path d="m3 17 5 5 5-5"/></svg>`;
+
+                // Adicionar estilo para expandir
+                const style = document.createElement('style');
+                style.id = 'expanded-popup-style';
+                style.textContent = `
+                  .expanded-popup {
+                    position: fixed !important;
+                    top: 50% !important;
+                    left: 50% !important;
+                    transform: translate(-50%, -50%) !important;
+                    width: 90vw !important;
+                    max-width: 800px !important;
+                    max-height: 90vh !important;
+                    overflow-y: auto !important;
+                    z-index: 10000 !important;
+                    background: white !important;
+                    border-radius: 8px !important;
+                    box-shadow: 0 0 20px rgba(0,0,0,0.3) !important;
+                  }
+                  .expanded-popup .media-container {
+                    margin-top: 20px !important;
+                  }
+                  .expanded-popup .media-container .grid {
+                    grid-template-columns: repeat(3, 1fr) !important;
+                    gap: 12px !important;
+                  }
+                  .expanded-popup .popup-media {
+                    height: 160px !important;
+                    width: 100% !important;
+                    object-fit: cover !important;
+                    border-radius: 8px !important;
+                    transition: all 0.3s ease !important;
+                  }
+                `;
+                document.head.appendChild(style);
+              } else {
+                // Recolher popup
+                popupContent.classList.remove('expanded-popup');
+                document.querySelectorAll('.popup-media').forEach(media => {
+                  if (media.closest(`#popup-${id}`)) {
+                    media.classList.remove('h-40');
+                    media.classList.add('h-24');
+                  }
+                });
+                this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-testid="ExpandMoreIcon"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/></svg>`;
+
+                // Remover o estilo
+                const expandedStyle = document.getElementById('expanded-popup-style');
+                if (expandedStyle) expandedStyle.remove();
+              }
+            });
+          });
+        }, 100);
       });
 
       marker.bindPopup(popupContent, {

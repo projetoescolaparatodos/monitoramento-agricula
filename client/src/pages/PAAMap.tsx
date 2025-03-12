@@ -105,9 +105,8 @@ const PAAMap = () => {
         <div class="p-4 max-w-md" id="popup-${paa.id}">
           <div class="flex justify-between items-center mb-2">
             <h3 class="font-bold text-lg">${paa.localidade}</h3>
-            <button class="expand-button mt-2 px-2 py-1 bg-blue-600 text-white rounded-md text-xs flex items-center gap-1" data-id="${paa.id}">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/></svg>
-              Expandir
+            <button class="expand-popup bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded text-xs" data-id="${paa.id}">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-testid="ExpandMoreIcon"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/></svg>
             </button>
           </div>
           <div class="space-y-2">
@@ -151,25 +150,78 @@ const PAAMap = () => {
       marker.bindPopup(popup);
 
       marker.on('popupopen', function() {
-        const expandButton = this._popup._contentNode.querySelector('.expand-button');
-          if (expandButton) {
-            expandButton.addEventListener('click', function(e) {
+        setTimeout(() => {
+          const expandButtons = document.querySelectorAll('.expand-popup');
+          expandButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
               e.stopPropagation();
               const id = this.getAttribute('data-id');
               const popupContent = document.getElementById(`popup-${id}`);
-              const mediaContainer = popupContent.querySelector('.media-container');
-              const mediaElements = mediaContainer.querySelectorAll('.popup-media');
-              const expandIcon = this.querySelector('svg');
-              const expandText = this.querySelector('span');
 
-              if (expandText.textContent === 'Expandir') {
-                  popupContent.classList.add('expanded-popup');
-                  mediaElements.forEach(media => {
+              if (!popupContent.classList.contains('expanded-popup')) {
+                // Expandir popup
+                popupContent.classList.add('expanded-popup');
+                document.querySelectorAll('.popup-media').forEach(media => {
+                  if (media.closest(`#popup-${id}`)) {
                     media.classList.remove('h-24');
                     media.classList.add('h-40');
-                  });
-                  expandText.textContent = 'Recolher';
-                  expandIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v4h13"/><path d="M3 21h13v-4"/><path d="m21 7-5-5-5 5"/><path d="m3 17 5 5 5-5"/></svg>`;
+                  }
+                });
+                this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-testid="ExpandLessIcon"><path d="M8 3v4h13"/><path d="M3 21h13v-4"/><path d="m21 7-5-5-5 5"/><path d="m3 17 5 5 5-5"/></svg>`;
+
+                // Adicionar estilo para expandir
+                const style = document.createElement('style');
+                style.id = 'expanded-popup-style';
+                style.textContent = `
+                  .expanded-popup {
+                    position: fixed !important;
+                    top: 50% !important;
+                    left: 50% !important;
+                    transform: translate(-50%, -50%) !important;
+                    width: 90vw !important;
+                    max-width: 800px !important;
+                    max-height: 90vh !important;
+                    overflow-y: auto !important;
+                    z-index: 10000 !important;
+                    background: white !important;
+                    border-radius: 8px !important;
+                    box-shadow: 0 0 20px rgba(0,0,0,0.3) !important;
+                  }
+                  .expanded-popup .media-container {
+                    margin-top: 20px !important;
+                  }
+                  .expanded-popup .media-container .grid {
+                    grid-template-columns: repeat(3, 1fr) !important;
+                    gap: 12px !important;
+                  }
+                  .expanded-popup .popup-media {
+                    height: 160px !important;
+                    width: 100% !important;
+                    object-fit: cover !important;
+                    border-radius: 8px !important;
+                    transition: all 0.3s ease !important;
+                  }
+                `;
+                document.head.appendChild(style);
+              } else {
+                // Recolher popup
+                popupContent.classList.remove('expanded-popup');
+                document.querySelectorAll('.popup-media').forEach(media => {
+                  if (media.closest(`#popup-${id}`)) {
+                    media.classList.remove('h-40');
+                    media.classList.add('h-24');
+                  }
+                });
+                this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-testid="ExpandMoreIcon"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/></svg>`;
+
+                // Remover o estilo
+                const expandedStyle = document.getElementById('expanded-popup-style');
+                if (expandedStyle) expandedStyle.remove();
+              }
+            });
+          });
+        }, 100);
+      }); 5-5"/></svg>`;
 
               } else {
                 popupContent.classList.remove('expanded-popup');
