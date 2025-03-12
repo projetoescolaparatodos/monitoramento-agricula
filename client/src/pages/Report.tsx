@@ -137,12 +137,12 @@ const Report = () => {
 
   const exportarPDF = (tipo: 'agricultura' | 'pesca' | 'paa' | 'completo') => {
     const doc = new jsPDF();
-    
+
     // Função para adicionar o cabeçalho em cada página
     const addHeader = () => {
       // Definir fonte padrão para todo o documento
       doc.setFont('helvetica', 'bold');
-      
+
       // Adicionar texto do cabeçalho centralizado
       doc.setFontSize(12);
       doc.text("PREFEITURA MUNICIPAL DE VITÓRIA DO XINGU", 105, 15, { align: 'center' });
@@ -173,13 +173,13 @@ const Report = () => {
 
       // Estatísticas de Agricultura
       const estAgri = calcularEstatisticasAgricultura();
-      
+
       // Título da subseção
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
       doc.text("DADOS ESTATÍSTICOS:", 14, yPos);
       yPos += 8;
-      
+
       // Informações estatísticas
       doc.setFontSize(11);
       doc.setFont('helvetica', 'normal');
@@ -191,7 +191,7 @@ const Report = () => {
       yPos += 6;
       doc.text(`Tempo Total de Atividade: ${convertToHours(estAgri.totalTempoAtividade)} horas`, 20, yPos);
       yPos += 6;
-      doc.text(`Área Total Trabalhada: ${estAgri.totalAreaTrabalhada.toFixed(2)} m²`, 20, yPos);
+      doc.text(`Área Total Trabalhada: ${(estAgri.totalAreaTrabalhada / 10000).toFixed(2)} ha`, 20, yPos); // Convertido para hectares
       yPos += 6;
       doc.text(`Total de Horas/Máquina: ${estAgri.totalHoraMaquina} horas`, 20, yPos);
       yPos += 10; // Espaço extra antes da tabela
@@ -205,12 +205,12 @@ const Report = () => {
         new Date(item.dataCadastro).toLocaleDateString(),
         item.concluido ? 'Concluído' : 'Em Serviço',
         convertToHours(item.tempoAtividade || 0),
-        item.areaTrabalhada ? item.areaTrabalhada.toFixed(2) : '0.00'
+        item.areaTrabalhada ? (item.areaTrabalhada / 10000).toFixed(2) : '0.00' // Convertido para hectares
       ]);
 
       autoTable(doc, {
         startY: yPos,
-        head: [['Nome', 'Fazenda', 'Atividade', 'Operador', 'Data', 'Status', 'Horas', 'Área (m²)']],
+        head: [['Nome', 'Fazenda', 'Atividade', 'Operador', 'Data', 'Status', 'Horas', 'Área (ha)']],
         body: agriculturaTableData,
       });
 
@@ -224,20 +224,20 @@ const Report = () => {
         addHeader(); // Adiciona o cabeçalho na nova página
         yPos = 50; // Reposiciona após o cabeçalho
       }
-      
+
       doc.setFontSize(14);
       doc.text("RELATÓRIO DE PESCA EM TANQUES CRIADOUROS", 105, yPos, { align: 'center' });
       yPos += 10;
 
       // Estatísticas de Pesca
       const estPesca = calcularEstatisticasPesca();
-      
+
       // Título da subseção
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
       doc.text("DADOS ESTATÍSTICOS:", 14, yPos);
       yPos += 8;
-      
+
       // Informações estatísticas
       doc.setFontSize(11);
       doc.setFont('helvetica', 'normal');
@@ -245,9 +245,9 @@ const Report = () => {
       yPos += 6;
       doc.text(`Quantidade de Tanques Cadastrados: ${estPesca.totalTanques}`, 20, yPos);
       yPos += 6;
-      doc.text(`Área Total de Criação: ${estPesca.totalAreaCriacao.toFixed(2)} m²`, 20, yPos);
+      doc.text(`Área Total de Criação: ${(estPesca.totalAreaCriacao / 10000).toFixed(2)} ha`, 20, yPos); // Convertido para hectares
       yPos += 6;
-      
+
       // Tratando informações que podem ficar muito extensas
       const tiposPeixesText = `Tipos de Peixes Cultivados: ${estPesca.tiposPeixes.join(', ') || 'Não informado'}`;
       if (tiposPeixesText.length > 100) {
@@ -258,10 +258,10 @@ const Report = () => {
         doc.text(tiposPeixesText, 20, yPos);
         yPos += 6;
       }
-      
+
       doc.text(`Taxa de Crescimento dos Peixes: ${estPesca.taxaCrescimento.toFixed(2)} kg/período`, 20, yPos);
       yPos += 6;
-      
+
       // Tratando outras informações que podem ficar muito extensas
       const metodosAlimentacaoText = `Métodos de Alimentação: ${estPesca.metodosAlimentacao.join(', ') || 'Não informado'}`;
       if (metodosAlimentacaoText.length > 100) {
@@ -272,7 +272,7 @@ const Report = () => {
         doc.text(metodosAlimentacaoText, 20, yPos);
         yPos += 6;
       }
-      
+
       doc.text(`Quantidade de Ração Utilizada: ${estPesca.totalRacao.toFixed(2)} kg`, 20, yPos);
       yPos += 6;
       doc.text(`Quantidade de Produtores Cadastrados: ${estPesca.totalProdutores}`, 20, yPos);
@@ -284,7 +284,7 @@ const Report = () => {
         item.nomePescador || '',
         item.tipoPescado || '',
         item.idTanque || '',
-        item.areaTanque ? `${item.areaTanque.toFixed(2)} m²` : '0.00',
+        item.areaTanque ? `${(item.areaTanque / 10000).toFixed(2)} ha` : '0.00', // Convertido para hectares
         item.metodoAlimentacao || '',
         item.quantidadeRacao ? item.quantidadeRacao.toFixed(2) : '0.00',
         item.quantidadePescado ? item.quantidadePescado.toFixed(2) : '0.00',
@@ -293,7 +293,7 @@ const Report = () => {
 
       autoTable(doc, {
         startY: yPos,
-        head: [['Localidade', 'Produtor', 'Tipo de Peixe', 'ID Tanque', 'Área (m²)', 'Método Alimentação', 'Ração (kg)', 'Quantidade (kg)', 'Status']],
+        head: [['Localidade', 'Produtor', 'Tipo de Peixe', 'ID Tanque', 'Área (ha)', 'Método Alimentação', 'Ração (kg)', 'Quantidade (kg)', 'Status']],
         body: pescaTableData,
       });
 
@@ -307,20 +307,20 @@ const Report = () => {
         addHeader(); // Adiciona o cabeçalho na nova página
         yPos = 50; // Reposiciona após o cabeçalho
       }
-      
+
       doc.setFontSize(14);
       doc.text("RELATÓRIO DE PAA - PROGRAMA DE AQUISIÇÃO DE ALIMENTOS", 105, yPos, { align: 'center' });
       yPos += 10;
 
       // Estatísticas de PAA
       const estPAA = calcularEstatisticasPAA();
-      
+
       // Título da subseção
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
       doc.text("DADOS ESTATÍSTICOS:", 14, yPos);
       yPos += 8;
-      
+
       // Informações estatísticas
       doc.setFontSize(11);
       doc.setFont('helvetica', 'normal');
@@ -328,7 +328,7 @@ const Report = () => {
       yPos += 6;
       doc.text(`Quantidade de Produtores Participantes: ${estPAA.totalProdutores}`, 20, yPos);
       yPos += 6;
-      
+
       // Tratando informações que podem ficar muito extensas
       const tiposAlimentosText = `Tipos de Alimentos Fornecidos: ${estPAA.tiposAlimentos.join(', ') || 'Não informado'}`;
       if (tiposAlimentosText.length > 100) {
@@ -339,7 +339,7 @@ const Report = () => {
         doc.text(tiposAlimentosText, 20, yPos);
         yPos += 6;
       }
-      
+
       const metodosColheitaText = `Métodos de Colheita: ${estPAA.metodosColheita.join(', ') || 'Não informado'}`;
       if (metodosColheitaText.length > 100) {
         const wrapped = doc.splitTextToSize(metodosColheitaText, 170);
@@ -349,7 +349,7 @@ const Report = () => {
         doc.text(metodosColheitaText, 20, yPos);
         yPos += 6;
       }
-      
+
       doc.text(`Área Total Cultivada: ${estPAA.totalAreaCultivada.toFixed(2)} ha`, 20, yPos);
       yPos += 6;
       doc.text(`Valor Total Investido: R$ ${estPAA.valorTotalInvestido.toFixed(2)}`, 20, yPos);
@@ -365,7 +365,8 @@ const Report = () => {
         item.tecnicoResponsavel || '-',
         new Date(item.dataCadastro).toLocaleDateString(),
         item.concluido ? 'Concluído' : 'Em Andamento',
-        item.areaMecanizacao ? item.areaMecanizacao.toFixed(2) : '0.00'
+        item.areaMecanizacao ? (item.areaMecanizacao / 10000).toFixed(2) : '0.00' // Convertido para hectares
+
       ]);
 
       autoTable(doc, {
@@ -454,7 +455,7 @@ const Report = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{estatisticasAgricultura.totalAreaTrabalhada.toFixed(2)} m²</p>
+                <p className="text-3xl font-bold">{(estatisticasAgricultura.totalAreaTrabalhada / 10000).toFixed(2)} ha</p> {/* Convertido para hectares */}
               </CardContent>
             </Card>
           </div>
@@ -474,7 +475,7 @@ const Report = () => {
                     <TableHead>Data</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Hora/Máquina</TableHead>
-                    <TableHead>Área (m²)</TableHead>
+                    <TableHead>Área (ha)</TableHead> {/* Changed to hectares */}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -491,7 +492,7 @@ const Report = () => {
                         </span>
                       </TableCell>
                       <TableCell>{convertToHours(trator.tempoAtividade || 0)}</TableCell>
-                      <TableCell>{trator.areaTrabalhada ? trator.areaTrabalhada.toFixed(2) : '0.00'}</TableCell>
+                      <TableCell>{trator.areaTrabalhada ? (trator.areaTrabalhada / 10000).toFixed(2) : '0.00'}</TableCell> {/* Convertido para hectares */}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -543,7 +544,7 @@ const Report = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{estatisticasPesca.totalAreaCriacao.toFixed(2)} m²</p>
+                <p className="text-3xl font-bold">{(estatisticasPesca.totalAreaCriacao / 10000).toFixed(2)} ha</p> {/* Convertido para hectares */}
               </CardContent>
             </Card>
             <Card>
@@ -637,7 +638,7 @@ const Report = () => {
                     <TableHead>Produtor</TableHead>
                     <TableHead>Tipo de Peixe</TableHead>
                     <TableHead>ID Tanque</TableHead>
-                    <TableHead>Área (m²)</TableHead>
+                    <TableHead>Área (ha)</TableHead> {/* Changed to hectares */}
                     <TableHead>Método Alimentação</TableHead>
                     <TableHead>Ração (kg)</TableHead>
                     <TableHead>Quantidade (kg)</TableHead>
@@ -651,7 +652,7 @@ const Report = () => {
                       <TableCell>{pesca.nomePescador || "—"}</TableCell>
                       <TableCell>{pesca.tipoPescado || "—"}</TableCell>
                       <TableCell>{pesca.idTanque || "—"}</TableCell>
-                      <TableCell>{pesca.areaTanque ? `${pesca.areaTanque.toFixed(2)} m²` : "—"}</TableCell>
+                      <TableCell>{pesca.areaTanque ? `${(pesca.areaTanque / 10000).toFixed(2)} ha` : "—"}</TableCell> {/* Convertido para hectares */}
                       <TableCell>{pesca.metodoAlimentacao || "—"}</TableCell>
                       <TableCell>{pesca.quantidadeRacao ? `${pesca.quantidadeRacao.toFixed(2)} kg` : "—"}</TableCell>
                       <TableCell>{pesca.quantidadePescado ? `${pesca.quantidadePescado.toFixed(2)} kg` : "—"}</TableCell>
@@ -773,7 +774,7 @@ const Report = () => {
                     <TableHead>Técnico Responsável</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Área Cultivada (ha)</TableHead>
+                    <TableHead>Área Cultivada (ha)</TableHead> {/* Changed to hectares */}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -791,7 +792,7 @@ const Report = () => {
                           {paa.concluido ? 'Concluído' : 'Em Andamento'}
                         </span>
                       </TableCell>
-                      <TableCell>{paa.areaMecanizacao || 0}</TableCell>
+                      <TableCell>{paa.areaMecanizacao ? (paa.areaMecanizacao / 10000).toFixed(2) : '0.00'}</TableCell> {/* Convertido para hectares */}
                     </TableRow>
                   ))}
                 </TableBody>
