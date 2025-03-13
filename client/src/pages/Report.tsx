@@ -108,6 +108,8 @@ const Report = () => {
     const totalRacao = pescaData.reduce((sum, p) => sum + (p.quantidadeRacao || 0), 0);
     const totalProdutores = new Set(pescaData.map(p => p.nomePescador).filter(Boolean)).size;
     const taxaCrescimento = pescaData.reduce((sum, p) => sum + (p.taxaCrescimento || 0), 0) / (pescaData.length || 1);
+    const tiposTanques = [...new Set(pescaData.map(p => p.tipoTanque).filter(Boolean))];
+
 
     return {
       totalPesca,
@@ -121,7 +123,8 @@ const Report = () => {
       metodosAlimentacao,
       totalRacao,
       totalProdutores,
-      taxaCrescimento
+      taxaCrescimento,
+      tiposTanques
     };
   };
 
@@ -295,6 +298,19 @@ const Report = () => {
       yPos += 6;
       doc.text(`Quantidade de Produtores Cadastrados: ${estPesca.totalProdutores}`, 20, yPos);
       yPos += 10;
+
+      // Tipos de Tanques
+      const tiposTanquesText = `Tipos de Tanques: ${estPesca.tiposTanques.join(', ') || 'Não informado'}`;
+      if (tiposTanquesText.length > 100) {
+        const wrapped = doc.splitTextToSize(tiposTanquesText, 170);
+        doc.text(wrapped, 20, yPos);
+        yPos += 6 * wrapped.length;
+      } else {
+        doc.text(tiposTanquesText, 20, yPos);
+        yPos += 6;
+      }
+
+      yPos += 10; // Espaço extra antes da tabela
 
       // Tabela de Pesca
       const pescaTableData = pescaData.map(item => [
@@ -578,7 +594,7 @@ const Report = () => {
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"> {/* Added a third column for Tipos de Tanques */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -614,6 +630,25 @@ const Report = () => {
                   </div>
                 ) : (
                   <p className="text-slate-500">Nenhum método de alimentação registrado</p>
+                )}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Fish className="h-5 w-5 text-green-500" />
+                  Tipos de Tanques
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {estatisticasPesca.tiposTanques.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {estatisticasPesca.tiposTanques.map((tipo, index) => (
+                      <Badge key={index} variant="outline" className="bg-green-50">{tipo}</Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-slate-500">Nenhum tipo de tanque registrado</p>
                 )}
               </CardContent>
             </Card>
@@ -660,8 +695,7 @@ const Report = () => {
                     <TableHead>Método Alimentação</TableHead>
                     <TableHead>Ração (kg)</TableHead>
                     <TableHead>Quantidade (kg)</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
+                    <TableHead>Status</TableHead>                  </TableRow>
                 </TableHeader>
                 <TableBody>
                   {pescaData.map((pesca) => (
