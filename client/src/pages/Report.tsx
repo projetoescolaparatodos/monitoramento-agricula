@@ -13,7 +13,7 @@ import autoTable from 'jspdf-autotable';
 const Report = () => {
   const [loading, setLoading] = useState(true);
   const [tratoresData, setTratoresData] = useState<any[]>([]);
-  const [pescaData, setPescaData] = useState<any[]>([]);
+  const [pescaData, setPescaData] = useState<any[]>([]); // Updated to reflect map data
   const [paaData, setPaaData] = useState<any[]>([]);
 
   useEffect(() => {
@@ -27,13 +27,16 @@ const Report = () => {
         }));
         setTratoresData(tratores);
 
-        // Buscar dados de Pesca
+        // Buscar dados de Pesca (incluindo integração com dados do mapa - hipotético)
         const pescaSnapshot = await getDocs(collection(db, "pesca"));
         const pesca = pescaSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
+          // Assuming map data integration.  Replace with your actual map data fetching logic.
+          ...getMapDataForPesca(doc.id) 
         }));
         setPescaData(pesca);
+
 
         // Buscar dados de PAA
         const paaSnapshot = await getDocs(collection(db, "paa"));
@@ -52,6 +55,21 @@ const Report = () => {
 
     fetchData();
   }, []);
+
+  // Placeholder function to simulate fetching map data.  REPLACE THIS WITH YOUR ACTUAL MAP DATA INTEGRATION
+  const getMapDataForPesca = async (pescaId: string) => {
+    // This is a placeholder.  Replace with your actual logic to get map data based on pescaId
+    // Example: Fetching location coordinates, species counts, etc., from your map service.
+    // Simulate fetching some map data.
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return {
+        localidade: `Localização da Pesca ${pescaId}`,
+        latitude: Math.random() * 180 - 90,
+        longitude: Math.random() * 360 - 180,
+        // Add other map-related fields as needed
+    };
+  };
+
 
   // Converter minutos para horas
   const convertToHours = (minutes: number) => {
@@ -280,10 +298,10 @@ const Report = () => {
 
       // Tabela de Pesca
       const pescaTableData = pescaData.map(item => [
+        item.especiePeixe || '',
+        item.tipoTanque || '',
         item.localidade || '',
         item.nomePescador || '',
-        item.tipoPescado || '',
-        item.idTanque || '',
         item.areaTanque ? `${(item.areaTanque / 10000).toFixed(2)} ha` : '0.00', // Convertido para hectares
         item.metodoAlimentacao || '',
         item.quantidadeRacao ? item.quantidadeRacao.toFixed(2) : '0.00',
@@ -293,7 +311,7 @@ const Report = () => {
 
       autoTable(doc, {
         startY: yPos,
-        head: [['Localidade', 'Produtor', 'Tipo de Peixe', 'ID Tanque', 'Área (ha)', 'Método Alimentação', 'Ração (kg)', 'Quantidade (kg)', 'Status']],
+        head: [['Espécie', 'Tanque', 'Localidade', 'Produtor', 'Área (ha)', 'Método Alimentação', 'Ração (kg)', 'Quantidade (kg)', 'Status']],
         body: pescaTableData,
       });
 
