@@ -894,7 +894,7 @@ const PAAForm = () => {
   useEffect(() => {
     const map = L.map("admin-map-paa").setView([-2.87922, -52.0088], 12);
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{ypng", {
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
@@ -908,7 +908,7 @@ const PAAForm = () => {
         }
       });
 
-      L.marker([e.latlnglat, e.latlng.lng]).addTo(map);
+      L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
     });
 
     return () => map.remove();
