@@ -164,6 +164,7 @@ const AgriculturaMap = () => {
             </div>
           )}
         </div>
+      </div>
       </InfoWindow>
     );
   };
