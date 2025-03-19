@@ -1,12 +1,12 @@
 
-import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useState, useEffect } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { GoogleMap, LoadScript, MarkerF, InfoWindow } from '@react-google-maps/api';
-import { getDocs, collection } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { Loader2 } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const PescaMap = () => {
   const [loading, setLoading] = useState(true);

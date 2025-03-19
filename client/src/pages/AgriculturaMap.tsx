@@ -1,12 +1,12 @@
 
-import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useState, useEffect } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { GoogleMap, LoadScript, MarkerF, InfoWindow } from '@react-google-maps/api';
-import { getDocs, collection } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { Loader2 } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const AgriculturaMap = () => {
   const [loading, setLoading] = useState(true);
@@ -123,9 +123,9 @@ const AgriculturaMap = () => {
                     <p><strong>Fazenda:</strong> {trator.fazenda}</p>
                     <p><strong>Atividade:</strong> {trator.atividade}</p>
                     <p><strong>Piloto:</strong> {trator.piloto}</p>
-                    <p><strong>Status:</strong> {trator.concluido ? 'Concluído' : 'Em serviço'}</p>
-                    {trator.tempoAtividade && <p><strong>Tempo de Atividade:</strong> {trator.tempoAtividade}h</p>}
-                    {trator.areaTrabalhada && <p><strong>Área Trabalhada:</strong> {trator.areaTrabalhada}</p>}
+                    <p><strong>Área Trabalhada:</strong> {trator.areaTrabalhada || '-'}</p>
+                    <p><strong>Tempo de Atividade:</strong> {trator.tempoAtividade || '-'}</p>
+                    <p><strong>Status:</strong> {trator.concluido ? 'Concluído' : 'Em andamento'}</p>
                   </div>
                 </InfoWindow>
               )}
