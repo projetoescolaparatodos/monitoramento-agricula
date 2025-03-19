@@ -305,6 +305,4 @@ const AgriculturaMap = () => {
   );
 };
 
-export default AgriculturaMap;us: 8px;
-  }
-</style>
+export default AgriculturaMap;
