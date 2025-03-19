@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { db } from '../utils/firebase';
 import { GoogleMap, LoadScript, MarkerF, InfoWindow } from '@react-google-maps/api';
 import { Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
