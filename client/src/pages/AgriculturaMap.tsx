@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../utils/firebase';
-import { GoogleMap, LoadScript, MarkerF, InfoWindow, Polygon } from '@react-google-maps/api';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
 import { Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -27,6 +28,11 @@ const AgriculturaMap = () => {
     localidade?: string;
     proprietario?: string;
     tecnicoResponsavel?: string;
+    descricao?: string; // Added based on the new map component
+    beneficiario?: string; // Added based on the new map component
+    areaMecanizacao?: string; // Added based on the new map component
+    dataInicio?: string; // Added based on the new map component
+
   }
 
   const [tratores, setTratores] = useState<Trator[]>([]);
@@ -198,48 +204,60 @@ const AgriculturaMap = () => {
         </RadioGroup>
       </Card>
 
-      <LoadScript googleMapsApiKey="AIzaSyC3fPdcovy7a7nQLe9aGBMR2PFY_qZZVZc">
-        <GoogleMap
-          mapContainerStyle={mapContainerStyle}
-          center={center}
-          zoom={12}
-          options={mapOptions}
-        >
-          <Polygon
-            paths={municipioBoundary}
-            options={municipioStyle.options}
-          />
-          {filteredTratores.map((trator) => (
-            <MarkerF
-              key={trator.id}
-              position={{ lat: trator.latitude, lng: trator.longitude }}
-              onClick={() => setSelectedMarker(trator.id)}
-              icon={{
-                url: trator.concluido
-                  ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
-                  : "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
-              }}
-            >
-              {selectedMarker === trator.id && (
-                <InfoWindow
-                  position={{ lat: trator.latitude, lng: trator.longitude }}
-                  onCloseClick={() => setSelectedMarker(null)}
-                >
-                  <div className="p-2">
-                    <h3 className="font-bold text-lg">{trator.nome}</h3>
-                    <p><strong>Fazenda:</strong> {trator.fazenda}</p>
-                    <p><strong>Atividade:</strong> {trator.atividade}</p>
-                    <p><strong>Piloto:</strong> {trator.piloto}</p>
-                    <p><strong>Área Trabalhada:</strong> {trator.areaTrabalhada || '-'}</p>
-                    <p><strong>Tempo de Atividade:</strong> {trator.tempoAtividade || '-'}</p>
-                    <p><strong>Status:</strong> {trator.concluido ? 'Concluído' : 'Em andamento'}</p>
-                  </div>
-                </InfoWindow>
-              )}
-            </MarkerF>
-          ))}
-        </GoogleMap>
-      </LoadScript>
+      <MapContainer
+        center={[center.lat, center.lng]}
+        zoom={13}
+        style={{ height: "100%", width: "100%" }}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+        {filteredTratores.map((trator) => (
+          <Marker
+            key={trator.id}
+            position={[trator.latitude, trator.longitude]}
+            icon={L.icon({
+              iconUrl: trator.concluido
+                ? '/marker-icon-green.png'
+                : '/marker-icon-red.png',
+              iconSize: [25, 41],
+              iconAnchor: [12, 41],
+              popupAnchor: [1, -34],
+              shadowUrl: '/marker-shadow.png',
+              shadowSize: [41, 41]
+            })}
+          >
+            <Popup>
+              <div className="p-2">
+                <h3 className="font-bold mb-2">{trator.nome}</h3>
+                <p className="text-sm">{trator.descricao || '-'}</p>
+                {trator.beneficiario && (
+                  <p className="text-sm mt-2">
+                    <strong>Beneficiário:</strong> {trator.beneficiario}
+                  </p>
+                )}
+                {trator.areaMecanizacao && (
+                  <p className="text-sm">
+                    <strong>Área:</strong> {trator.areaMecanizacao} ha
+                  </p>
+                )}
+                {trator.dataInicio && (
+                  <p className="text-sm">
+                    <strong>Data Início:</strong>{" "}
+                    {new Date(trator.dataInicio).toLocaleDateString()}
+                  </p>
+                )}
+                {trator.concluido && (
+                  <p className="text-sm">
+                    <strong>Status:</strong> Concluído
+                  </p>
+                )}
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
     </div>
   );
 };
