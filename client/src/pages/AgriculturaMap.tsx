@@ -1,19 +1,17 @@
-import { useEffect, useState } from "react";
-import { db } from "../utils/firebase";
-import { collection, getDocs } from "firebase/firestore";
-import { Card } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
-import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { GoogleMap, LoadScript, MarkerF, InfoWindow } from '@react-google-maps/api';
+import { getDocs, collection } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const AgriculturaMap = () => {
   const [loading, setLoading] = useState(true);
-  const [selectedMarker, setSelectedMarker] = useState<Trator | null>(null);
-  const [center, setCenter] = useState({ lat: -3.7436, lng: -38.5229 }); // Fortaleza como exemplo
-
+  const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
+  
   interface Trator {
     id: string;
     nome: string;
@@ -35,40 +33,14 @@ const AgriculturaMap = () => {
   const [tratores, setTratores] = useState<Trator[]>([]);
   const [filtro, setFiltro] = useState("todos");
 
-  const mapContainerStyle = {
-    width: '100%',
-    height: '600px'
-  };
-
-  const options = {
-    disableDefaultUI: true,
-    zoomControl: true,
-  };
-
   useEffect(() => {
     const fetchTratores = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "tratores"));
-        const tratoresData = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            nome: data.nome,
-            fazenda: data.fazenda,
-            atividade: data.atividade,
-            piloto: data.piloto,
-            dataCadastro: data.dataCadastro,
-            concluido: data.concluido,
-            latitude: data.latitude,
-            longitude: data.longitude,
-            tempoAtividade: data.tempoAtividade,
-            areaTrabalhada: data.areaTrabalhada,
-            midias: data.midias,
-            localidade: data.localidade,
-            proprietario: data.proprietario,
-            tecnicoResponsavel: data.tecnicoResponsavel,
-          };
-        });
+        const tratoresData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data()
+        } as Trator));
         setTratores(tratoresData);
       } catch (error) {
         console.error("Erro ao buscar tratores:", error);
@@ -80,73 +52,88 @@ const AgriculturaMap = () => {
     fetchTratores();
   }, []);
 
+  const filteredTratores = tratores.filter((trator) => {
+    if (filtro === "todos") return true;
+    if (filtro === "em-servico") return !trator.concluido;
+    if (filtro === "concluidos") return trator.concluido;
+    return true;
+  });
+
+  const mapContainerStyle = {
+    width: '100%',
+    height: '100%'
+  };
+
+  const center = {
+    lat: -2.87922,
+    lng: -52.0088
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
-    <LoadScript googleMapsApiKey={process.env.GOOGLE_MAPS_API_KEY || ''}>
-      <div className="p-4">
-        <Card className="mb-4 p-4">
-          <RadioGroup
-            value={filtro}
-            onValueChange={setFiltro}
-            className="flex space-x-4"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="todos" id="todos" />
-              <Label htmlFor="todos">Todos</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="concluidos" id="concluidos" />
-              <Label htmlFor="concluidos">Concluídos</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="pendentes" id="pendentes" />
-              <Label htmlFor="pendentes">Pendentes</Label>
-            </div>
-          </RadioGroup>
-        </Card>
-
-        {loading ? (
-          <div className="flex justify-center items-center h-96">
-            <Loader2 className="h-8 w-8 animate-spin" />
+    <div className="pt-16 relative h-screen">
+      <Card className="absolute left-4 top-1/2 transform -translate-y-1/2 z-[1000] p-4 bg-white/95 shadow-lg">
+        <RadioGroup value={filtro} onValueChange={setFiltro}>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="todos" id="todos" />
+            <Label htmlFor="todos">Todos</Label>
           </div>
-        ) : (
-          <GoogleMap
-            mapContainerStyle={mapContainerStyle}
-            zoom={13}
-            center={center}
-            options={options}
-          >
-            {tratores.filter((trator) => {
-              if (filtro === "todos") return true;
-              if (filtro === "pendentes") return !trator.concluido;
-              if (filtro === "concluidos") return trator.concluido;
-              return true;
-            }).map((trator) => (
-              <Marker
-                key={trator.id}
-                position={{ lat: trator.latitude, lng: trator.longitude }}
-                onClick={() => setSelectedMarker(trator)}
-              />
-            ))}
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="em-servico" id="em-servico" />
+            <Label htmlFor="em-servico">Em Serviço</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="concluidos" id="concluidos" />
+            <Label htmlFor="concluidos">Concluídos</Label>
+          </div>
+        </RadioGroup>
+      </Card>
 
-            {selectedMarker && (
-              <InfoWindow
-                position={{ lat: selectedMarker.latitude, lng: selectedMarker.longitude }}
-                onCloseClick={() => setSelectedMarker(null)}
-              >
-                <div>
-                  <h3 className="font-bold">{selectedMarker.nome}</h3>
-                  <p>Fazenda: {selectedMarker.fazenda}</p>
-                  <p>Atividade: {selectedMarker.atividade}</p>
-                  <p>Piloto: {selectedMarker.piloto}</p>
-                  <p>Status: {selectedMarker.concluido ? 'Concluído' : 'Pendente'}</p>
-                </div>
-              </InfoWindow>
-            )}
-          </GoogleMap>
-        )}
-      </div>
-    </LoadScript>
+      <LoadScript googleMapsApiKey="AIzaSyC3fPdcovy7a7nQLe9aGBMR2PFY_qZZVZc">
+        <GoogleMap
+          mapContainerStyle={mapContainerStyle}
+          center={center}
+          zoom={12}
+        >
+          {filteredTratores.map((trator) => (
+            <MarkerF
+              key={trator.id}
+              position={{ lat: trator.latitude, lng: trator.longitude }}
+              onClick={() => setSelectedMarker(trator.id)}
+              icon={{
+                url: trator.concluido 
+                  ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
+                  : "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
+              }}
+            >
+              {selectedMarker === trator.id && (
+                <InfoWindow
+                  position={{ lat: trator.latitude, lng: trator.longitude }}
+                  onCloseClick={() => setSelectedMarker(null)}
+                >
+                  <div className="p-2">
+                    <h3 className="font-bold text-lg">{trator.nome}</h3>
+                    <p><strong>Fazenda:</strong> {trator.fazenda}</p>
+                    <p><strong>Atividade:</strong> {trator.atividade}</p>
+                    <p><strong>Piloto:</strong> {trator.piloto}</p>
+                    <p><strong>Status:</strong> {trator.concluido ? 'Concluído' : 'Em serviço'}</p>
+                    {trator.tempoAtividade && <p><strong>Tempo de Atividade:</strong> {trator.tempoAtividade}h</p>}
+                    {trator.areaTrabalhada && <p><strong>Área Trabalhada:</strong> {trator.areaTrabalhada}</p>}
+                  </div>
+                </InfoWindow>
+              )}
+            </MarkerF>
+          ))}
+        </GoogleMap>
+      </LoadScript>
+    </div>
   );
 };
 

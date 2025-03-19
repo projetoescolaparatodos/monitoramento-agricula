@@ -1,16 +1,16 @@
-import { useEffect, useState } from "react";
-import { db } from "../utils/firebase";
-import { collection, getDocs } from "firebase/firestore";
-import { Card } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
-import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { GoogleMap, LoadScript, MarkerF, InfoWindow } from '@react-google-maps/api';
+import { getDocs, collection } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const PescaMap = () => {
   const [loading, setLoading] = useState(true);
-  const [selectedMarker, setSelectedMarker] = useState<Pesca | null>(null); // Changed PAA to Pesca
-  const [center, setCenter] = useState({ lat: -2.87922, lng: -52.0088 }); // Use original center
+  const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
 
   interface Pesca {
     id: string;
@@ -31,41 +31,17 @@ const PescaMap = () => {
   const [pesqueiros, setPesqueiros] = useState<Pesca[]>([]);
   const [filtro, setFiltro] = useState("todos");
 
-  const mapContainerStyle = {
-    width: '100%',
-    height: '600px'
-  };
-
-  const options = {
-    disableDefaultUI: true,
-    zoomControl: true,
-  };
-
   useEffect(() => {
     const fetchPesqueiros = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "pesca"));
-        const pescaData = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            localidade: data.localidade,
-            tipoTanque: data.tipoTanque,
-            especiePeixe: data.especiePeixe,
-            quantidadeAlevinos: data.quantidadeAlevinos,
-            metodoAlimentacao: data.metodoAlimentacao,
-            operador: data.operador,
-            tecnicoResponsavel: data.tecnicoResponsavel,
-            dataCadastro: data.dataCadastro,
-            concluido: data.concluido,
-            latitude: data.latitude,
-            longitude: data.longitude,
-            midias: data.midias,
-          };
-        });
-        setPesqueiros(pescaData);
+        const pesqueirosData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data()
+        } as Pesca));
+        setPesqueiros(pesqueirosData);
       } catch (error) {
-        console.error("Erro ao buscar dados de pesca:", error);
+        console.error("Erro ao buscar pesqueiros:", error);
       } finally {
         setLoading(false);
       }
@@ -74,73 +50,89 @@ const PescaMap = () => {
     fetchPesqueiros();
   }, []);
 
-  return (
-    <LoadScript googleMapsApiKey={process.env.GOOGLE_MAPS_API_KEY || ''}>
-      <div className="pt-16 relative h-screen">
-        <Card className="absolute left-4 top-1/2 transform -translate-y-1/2 z-[1000] p-4 bg-white/95 shadow-lg">
-          <RadioGroup value={filtro} onValueChange={setFiltro}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="todos" id="todos-pesca" />
-              <Label htmlFor="todos-pesca">Todos</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="em-servico" id="em-servico-pesca" />
-              <Label htmlFor="em-servico-pesca">Em Andamento</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="concluidos" id="concluidos-pesca" />
-              <Label htmlFor="concluidos-pesca">Concluídos</Label>
-            </div>
-          </RadioGroup>
-        </Card>
-        {loading ? (
-          <div className="min-h-screen flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : (
-          <GoogleMap
-            mapContainerStyle={mapContainerStyle}
-            zoom={13}
-            center={center}
-            options={options}
-          >
-            {pesqueiros.filter((pesca) => {
-              if (filtro === "todos") return true;
-              if (filtro === "em-servico") return !pesca.concluido;
-              if (filtro === "concluidos") return pesca.concluido;
-              return true;
-            }).map((pesca) => (
-              <Marker
-                key={pesca.id}
-                position={{ lat: pesca.latitude, lng: pesca.longitude }}
-                onClick={() => setSelectedMarker(pesca)}
-              >
-                {selectedMarker?.id === pesca.id && (
-                  <InfoWindow
-                    position={{ lat: pesca.latitude, lng: pesca.longitude }}
-                    onCloseClick={() => setSelectedMarker(null)}
-                  >
-                    <div className="p-4 max-w-md">
-                      <h3 className="font-bold text-lg">{pesca.localidade}</h3>
-                      <div className="space-y-2">
-                        <p><strong>Tipo de Tanque:</strong> {pesca.tipoTanque}</p>
-                        <p><strong>Espécie de Peixe:</strong> {pesca.especiePeixe}</p>
-                        <p><strong>Quantidade de Alevinos:</strong> {pesca.quantidadeAlevinos} unidades</p>
-                        <p><strong>Método de Alimentação:</strong> {pesca.metodoAlimentacao}</p>
-                        <p><strong>Operador:</strong> {pesca.operador}</p>
-                        <p><strong>Técnico Responsável:</strong> {pesca.tecnicoResponsavel || 'Não informado'}</p>
-                        <p><strong>Data:</strong> {new Date(pesca.dataCadastro).toLocaleDateString()}</p>
-                        <p><strong>Status:</strong> {pesca.concluido ? '<span class="text-green-600 font-medium">Concluído</span>' : '<span class="text-blue-600 font-medium">Em Andamento</span>'}</p>
-                      </div>
-                    </div>
-                  </InfoWindow>
-                )}
-              </Marker>
-            ))}
-          </GoogleMap>
-        )}
+  const filteredPesqueiros = pesqueiros.filter((pesca) => {
+    if (filtro === "todos") return true;
+    if (filtro === "em-servico") return !pesca.concluido;
+    if (filtro === "concluidos") return pesca.concluido;
+    return true;
+  });
+
+  const mapContainerStyle = {
+    width: '100%',
+    height: '100%'
+  };
+
+  const center = {
+    lat: -2.87922,
+    lng: -52.0088
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
-    </LoadScript>
+    );
+  }
+
+  return (
+    <div className="pt-16 relative h-screen">
+      <Card className="absolute left-4 top-1/2 transform -translate-y-1/2 z-[1000] p-4 bg-white/95 shadow-lg">
+        <RadioGroup value={filtro} onValueChange={setFiltro}>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="todos" id="todos" />
+            <Label htmlFor="todos">Todos</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="em-servico" id="em-servico" />
+            <Label htmlFor="em-servico">Em Serviço</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="concluidos" id="concluidos" />
+            <Label htmlFor="concluidos">Concluídos</Label>
+          </div>
+        </RadioGroup>
+      </Card>
+
+      <LoadScript googleMapsApiKey="AIzaSyC3fPdcovy7a7nQLe9aGBMR2PFY_qZZVZc">
+        <GoogleMap
+          mapContainerStyle={mapContainerStyle}
+          center={center}
+          zoom={12}
+        >
+          {filteredPesqueiros.map((pesca) => (
+            <MarkerF
+              key={pesca.id}
+              position={{ lat: pesca.latitude, lng: pesca.longitude }}
+              onClick={() => setSelectedMarker(pesca.id)}
+              icon={{
+                url: pesca.concluido 
+                  ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
+                  : "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
+              }}
+            >
+              {selectedMarker === pesca.id && (
+                <InfoWindow
+                  position={{ lat: pesca.latitude, lng: pesca.longitude }}
+                  onCloseClick={() => setSelectedMarker(null)}
+                >
+                  <div className="p-2">
+                    <h3 className="font-bold text-lg">{pesca.localidade}</h3>
+                    <p><strong>Tipo de Tanque:</strong> {pesca.tipoTanque}</p>
+                    <p><strong>Espécie:</strong> {pesca.especiePeixe}</p>
+                    <p><strong>Quantidade de Alevinos:</strong> {pesca.quantidadeAlevinos}</p>
+                    <p><strong>Método de Alimentação:</strong> {pesca.metodoAlimentacao}</p>
+                    <p><strong>Operador:</strong> {pesca.operador}</p>
+                    <p><strong>Técnico Responsável:</strong> {pesca.tecnicoResponsavel}</p>
+                    <p><strong>Status:</strong> {pesca.concluido ? 'Concluído' : 'Em andamento'}</p>
+                  </div>
+                </InfoWindow>
+              )}
+            </MarkerF>
+          ))}
+        </GoogleMap>
+      </LoadScript>
+    </div>
   );
 };
 
