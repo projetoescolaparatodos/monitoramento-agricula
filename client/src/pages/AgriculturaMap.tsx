@@ -305,18 +305,6 @@ const AgriculturaMap = () => {
   );
 };
 
-export default AgriculturaMap;
-
-id;
-    gap: 8px;
-  }
-
-  .popup-content .media-container .grid img,
-  .popup-content .media-container .grid video {
-    width: 100%;
-    height: auto;
-    max-height: 200px;
-    object-fit: cover;
-    border-radius: 8px;
+export default AgriculturaMap;us: 8px;
   }
 </style>
