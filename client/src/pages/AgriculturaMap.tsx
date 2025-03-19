@@ -194,8 +194,14 @@ const AgriculturaMap = () => {
               position={{ lat: trator.latitude, lng: trator.longitude }}
               icon={{
                 url: "trator-icon.png",
-                scaledSize: new window.google.maps.Size(32, 32),
-                anchor: new window.google.maps.Point(16, 32),
+                scaledSize: {
+                  width: 32,
+                  height: 32
+                },
+                anchor: {
+                  x: 16,
+                  y: 32
+                }
               }}
               onClick={() => setSelectedMarker(trator)}
             />
