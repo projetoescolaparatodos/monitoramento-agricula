@@ -12,6 +12,8 @@ import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
+import styles from './AgriculturaMap.module.css';
+
 const AgriculturaMap = () => {
   const [loading, setLoading] = useState(true);
   const [selectedMarker, setSelectedMarker] = useState<any>(null);
@@ -305,29 +307,7 @@ const AgriculturaMap = () => {
 
 export default AgriculturaMap;
 
-<style>
-  .popup-content {
-    display: flex;
-    flex-direction: row;
-    gap: 16px;
-  }
-
-  .popup-content.maximized {
-    width: 90vw;
-  }
-
-  .popup-content .text-content {
-    flex: 1;
-    max-width: 50%;
-  }
-
-  .popup-content .media-container {
-    flex: 1;
-    max-width: 50%;
-  }
-
-  .popup-content .media-container .grid {
-    display: grid;
+id;
     gap: 8px;
   }
 
