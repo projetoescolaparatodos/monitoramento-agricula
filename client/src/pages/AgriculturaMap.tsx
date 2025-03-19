@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../utils/firebase';
-import { GoogleMap, LoadScript, MarkerF, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, MarkerF, InfoWindow, Polygon } from '@react-google-maps/api';
 import { Loader2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -11,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 const AgriculturaMap = () => {
   const [loading, setLoading] = useState(true);
   const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
-  
+
   interface Trator {
     id: string;
     nome: string;
@@ -69,6 +68,109 @@ const AgriculturaMap = () => {
     lng: -52.0088
   };
 
+  // Example Vitória do Xingu boundary (replace with actual data)
+  const municipioBoundary = [
+    { lat: -8.6, lng: -51.7 },
+    { lat: -8.7, lng: -51.7 },
+    { lat: -8.7, lng: -51.6 },
+    { lat: -8.6, lng: -51.6 },
+    { lat: -8.6, lng: -51.7 },
+  ];
+
+  const municipioStyle = {
+    options: {
+      fillColor: 'rgba(0, 0, 255, 0.3)', // Example blue fill
+      fillOpacity: 0.5,
+      strokeOpacity: 1,
+      strokeWeight: 2,
+      strokeColor: 'blue',
+    },
+  };
+
+  const mapOptions = {
+    // Add any other map options here as needed
+    styles: [
+      {
+          "featureType": "all",
+          "elementType": "labels.text.fill",
+          "stylers": [
+              {
+                  "color": "#ffffff"
+              }
+          ]
+      },
+      {
+          "featureType": "landscape",
+          "elementType": "all",
+          "stylers": [
+              {
+                  "color": "#f2f2f2"
+              }
+          ]
+      },
+      {
+          "featureType": "poi",
+          "elementType": "all",
+          "stylers": [
+              {
+                  "visibility": "off"
+              }
+          ]
+      },
+      {
+          "featureType": "road",
+          "elementType": "all",
+          "stylers": [
+              {
+                  "saturation": -100
+              },
+              {
+                  "lightness": 45
+              }
+          ]
+      },
+      {
+          "featureType": "road.highway",
+          "elementType": "all",
+          "stylers": [
+              {
+                  "visibility": "simplified"
+              }
+          ]
+      },
+      {
+          "featureType": "road.arterial",
+          "elementType": "labels.icon",
+          "stylers": [
+              {
+                  "visibility": "off"
+              }
+          ]
+      },
+      {
+          "featureType": "transit",
+          "elementType": "all",
+          "stylers": [
+              {
+                  "visibility": "off"
+              }
+          ]
+      },
+      {
+          "featureType": "water",
+          "elementType": "all",
+          "stylers": [
+              {
+                  "color": "#46bcec"
+              },
+              {
+                  "visibility": "on"
+              }
+          ]
+      }
+  ]
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -101,14 +203,19 @@ const AgriculturaMap = () => {
           mapContainerStyle={mapContainerStyle}
           center={center}
           zoom={12}
+          options={mapOptions}
         >
+          <Polygon
+            paths={municipioBoundary}
+            options={municipioStyle.options}
+          />
           {filteredTratores.map((trator) => (
             <MarkerF
               key={trator.id}
               position={{ lat: trator.latitude, lng: trator.longitude }}
               onClick={() => setSelectedMarker(trator.id)}
               icon={{
-                url: trator.concluido 
+                url: trator.concluido
                   ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
                   : "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
               }}
