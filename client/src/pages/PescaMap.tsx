@@ -158,6 +158,7 @@ const PescaMap = () => {
               </div>
             </div>
           )}
+          </div>
         </div>
       </InfoWindow>
     );
