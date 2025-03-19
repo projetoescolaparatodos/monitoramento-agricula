@@ -5,14 +5,15 @@ import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'; //Example Icon - Replace with your preferred library and icon
-import ExpandLessIcon from '@mui/icons-material/ExpandLess'; //Example Icon - Replace with your preferred library and icon
-
+import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 const AgriculturaMap = () => {
   const [loading, setLoading] = useState(true);
+  const [selectedMarker, setSelectedMarker] = useState<Trator | null>(null);
+  const [center, setCenter] = useState({ lat: -3.7436, lng: -38.5229 }); // Fortaleza como exemplo
+
   interface Trator {
     id: string;
     nome: string;
@@ -33,6 +34,16 @@ const AgriculturaMap = () => {
 
   const [tratores, setTratores] = useState<Trator[]>([]);
   const [filtro, setFiltro] = useState("todos");
+
+  const mapContainerStyle = {
+    width: '100%',
+    height: '600px'
+  };
+
+  const options = {
+    disableDefaultUI: true,
+    zoomControl: true,
+  };
 
   useEffect(() => {
     const fetchTratores = async () => {
@@ -69,208 +80,73 @@ const AgriculturaMap = () => {
     fetchTratores();
   }, []);
 
-  useEffect(() => {
-    if (loading) return;
-
-    const map = L.map("map").setView([-2.87922, -52.0088], 12);
-
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(map);
-
-    // Criar ícone personalizado do trator
-    const tratorIcon = L.icon({
-      iconUrl: "trator-icon.png", 
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-      popupAnchor: [0, -32]
-    });
-
-    const tratoresFiltrados = tratores.filter((trator) => {
-      if (filtro === "todos") return true;
-      if (filtro === "em-servico") return !trator.concluido;
-      if (filtro === "concluidos") return trator.concluido;
-      return true;
-    });
-
-    tratoresFiltrados.forEach((trator) => {
-      const marker = L.marker([trator.latitude, trator.longitude], {
-        icon: tratorIcon
-      }).addTo(map);
-
-      const status = trator.concluido ? 
-        '<span class="text-green-600 font-medium">Concluído</span>' : 
-        '<span class="text-blue-600 font-medium">Em Serviço</span>';
-
-      const popupContent = `
-        <div class="p-4 max-w-md popup-content" id="popup-${trator.id}">
-          <div class="flex justify-between items-center mb-2">
-            <h3 class="font-bold text-lg">${trator.nome}</h3>
-            <button class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-2 rounded text-xs expand-popup" data-id="${trator.id}">
-              <ExpandMoreIcon/>
-            </button>
-          </div>
-          <div class="space-y-2">
-            <p><strong>Localidade:</strong> ${trator.localidade || '-'}</p>
-            <p><strong>Nome do Imóvel Rural:</strong> ${trator.fazenda}</p>
-            <p><strong>Nome do Proprietário:</strong> ${trator.proprietario || '-'}</p>
-            <p><strong>Operação:</strong> ${trator.atividade}</p>
-            <p><strong>Hora/máquina:</strong> ${trator.tempoAtividade || '-'}</p>
-            <p><strong>Área para mecanização:</strong> ${trator.areaTrabalhada || '-'}</p>
-            <p><strong>Operador:</strong> ${trator.piloto}</p>
-            <p><strong>Técnico Responsável:</strong> ${trator.tecnicoResponsavel || '-'}</p>
-            <p><strong>Data:</strong> ${new Date(trator.dataCadastro).toLocaleDateString()}</p>
-            <p><strong>Status:</strong> ${status}</p>
-          </div>
-          ${trator.midias && trator.midias.length > 0 ? `
-            <div class="mt-4 media-container">
-              <h4 class="font-semibold mb-2">Fotos/Vídeos:</h4>
-              <div class="grid grid-cols-2 gap-2">
-                ${trator.midias.map((url, index) => {
-                  // Verificar se é um vídeo (URLs do Cloudinary com /video/)
-                  if (url.includes('/video/') || url.includes('/video/upload/')) {
-                    return `
-                      <div class="relative">
-                        <video src="${url}" controls class="w-full h-24 object-cover rounded-lg popup-media" data-src="${url}" data-index="${index}" data-type="video"></video>
-                      </div>
-                    `;
-                  } else {
-                    return `
-                      <img src="${url}" alt="Mídia" class="w-full h-24 object-cover rounded-lg popup-media" data-src="${url}" data-index="${index}" data-type="image" />
-                    `;
-                  }
-                }).join('')}
-              </div>
-            </div>
-          ` : ''}
-        </div>
-      `;
-
-      // Adicionar listener para o botão de expandir após criar o popup
-      marker.on('popupopen', function() {
-        setTimeout(() => {
-          const expandButtons = document.querySelectorAll('.expand-popup');
-          expandButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-              e.stopPropagation();
-              const id = this.getAttribute('data-id');
-              const popupContent = document.getElementById(`popup-${id}`);
-
-              if (!popupContent.classList.contains('expanded-popup')) {
-                // Expandir popup
-                popupContent.classList.add('expanded-popup');
-                document.querySelectorAll('.popup-media').forEach(media => {
-                  if (media.closest(`#popup-${id}`)) {
-                    media.classList.remove('h-24');
-                    media.classList.add('h-40');
-                  }
-                });
-                this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-testid="ExpandLessIcon"><path d="M8 3v4h13"/><path d="M3 21h13v-4"/><path d="m21 7-5-5-5 5"/><path d="m3 17 5 5 5-5"/></svg>`;
-
-                // Adicionar estilo para expandir
-                const style = document.createElement('style');
-                style.id = 'expanded-popup-style';
-                style.textContent = `
-                  .expanded-popup {
-                    position: fixed !important;
-                    top: 50% !important;
-                    left: 50% !important;
-                    transform: translate(-50%, -50%) !important;
-                    width: 90vw !important;
-                    max-width: 800px !important;
-                    max-height: 90vh !important;
-                    overflow-y: auto !important;
-                    z-index: 10000 !important;
-                    background: white !important;
-                    border-radius: 8px !important;
-                    box-shadow: 0 0 20px rgba(0,0,0,0.3) !important;
-                  }
-                  .expanded-popup .media-container {
-                    margin-top: 20px !important;
-                  }
-                  .expanded-popup .media-container .grid {
-                    grid-template-columns: repeat(3, 1fr) !important;
-                    gap: 12px !important;
-                  }
-                  .expanded-popup .popup-media {
-                    height: 160px !important;
-                    width: 100% !important;
-                    object-fit: cover !important;
-                    border-radius: 8px !important;
-                    transition: all 0.3s ease !important;
-                  }
-                  .leaflet-popup-content {
-                    margin: 0 !important;
-                    width: auto !important;
-                    min-width: 320px !important;
-                  }
-                  .leaflet-popup {
-                    max-width: 90vw !important;
-                  }
-                `;
-                document.head.appendChild(style);
-              } else {
-                // Minimizar popup
-                popupContent.classList.remove('expanded-popup');
-                document.querySelectorAll('.popup-media').forEach(media => {
-                  if (media.closest(`#popup-${id}`)) {
-                    media.classList.add('h-24');
-                    media.classList.remove('h-40');
-                  }
-                });
-                this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-testid="ExpandMoreIcon"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/></svg>`;
-
-                // Remover o estilo
-                const expandedStyle = document.getElementById('expanded-popup-style');
-                if (expandedStyle) expandedStyle.remove();
-              }
-            });
-          });
-        }, 100);
-      });
-
-      marker.bindPopup(popupContent, {
-        maxWidth: 400,
-        className: 'rounded-lg shadow-lg'
-      });
-    });
-
-    return () => {
-      map.remove();
-    };
-  }, [tratores, filtro, loading]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
-    <div className="pt-16 relative h-screen">
-      <Card 
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 z-[1000] p-4 bg-white/95 shadow-lg"
-      >
-        <RadioGroup value={filtro} onValueChange={setFiltro}>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="todos" id="todos" />
-            <Label htmlFor="todos">Todos</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="em-servico" id="em-servico" />
-            <Label htmlFor="em-servico">Em Serviço</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="concluidos" id="concluidos" />
-            <Label htmlFor="concluidos">Concluídos</Label>
-          </div>
-        </RadioGroup>
-      </Card>
+    <LoadScript googleMapsApiKey={process.env.GOOGLE_MAPS_API_KEY || ''}>
+      <div className="p-4">
+        <Card className="mb-4 p-4">
+          <RadioGroup
+            value={filtro}
+            onValueChange={setFiltro}
+            className="flex space-x-4"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="todos" id="todos" />
+              <Label htmlFor="todos">Todos</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="concluidos" id="concluidos" />
+              <Label htmlFor="concluidos">Concluídos</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="pendentes" id="pendentes" />
+              <Label htmlFor="pendentes">Pendentes</Label>
+            </div>
+          </RadioGroup>
+        </Card>
 
-      <div id="map" className="h-full w-full" />
-    </div>
+        {loading ? (
+          <div className="flex justify-center items-center h-96">
+            <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
+        ) : (
+          <GoogleMap
+            mapContainerStyle={mapContainerStyle}
+            zoom={13}
+            center={center}
+            options={options}
+          >
+            {tratores.filter((trator) => {
+              if (filtro === "todos") return true;
+              if (filtro === "pendentes") return !trator.concluido;
+              if (filtro === "concluidos") return trator.concluido;
+              return true;
+            }).map((trator) => (
+              <Marker
+                key={trator.id}
+                position={{ lat: trator.latitude, lng: trator.longitude }}
+                onClick={() => setSelectedMarker(trator)}
+              />
+            ))}
+
+            {selectedMarker && (
+              <InfoWindow
+                position={{ lat: selectedMarker.latitude, lng: selectedMarker.longitude }}
+                onCloseClick={() => setSelectedMarker(null)}
+              >
+                <div>
+                  <h3 className="font-bold">{selectedMarker.nome}</h3>
+                  <p>Fazenda: {selectedMarker.fazenda}</p>
+                  <p>Atividade: {selectedMarker.atividade}</p>
+                  <p>Piloto: {selectedMarker.piloto}</p>
+                  <p>Status: {selectedMarker.concluido ? 'Concluído' : 'Pendente'}</p>
+                </div>
+              </InfoWindow>
+            )}
+          </GoogleMap>
+        )}
+      </div>
+    </LoadScript>
   );
 };
 
