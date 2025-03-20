@@ -83,6 +83,13 @@ const AgriculturaMap = () => {
     lat: -2.87922,
     lng: -52.0088,
   };
+  
+  const bounds = {
+    north: -2.5,
+    south: -3.5,
+    east: -51.5,
+    west: -52.5,
+  };
 
   const [isMaximized, setIsMaximized] = useState(false);
 
@@ -271,6 +278,12 @@ const AgriculturaMap = () => {
           center={center}
           zoom={12}
           options={{
+            minZoom: 10,
+            maxZoom: 16,
+            restriction: {
+              latLngBounds: bounds,
+              strictBounds: true,
+            },
             styles: [
               {
                 featureType: "all",
