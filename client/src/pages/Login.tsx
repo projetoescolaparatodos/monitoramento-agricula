@@ -21,6 +21,7 @@ const Login = () => {
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      await inicializarUsuarioAdmin(userCredential.user);
       const permissao = await verificarPermissaoUsuario(userCredential.user.uid);
       
       if (!permissao) {

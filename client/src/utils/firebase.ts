@@ -48,3 +48,12 @@ export const verificarPermissaoUsuario = async (uid: string): Promise<'admin' | 
     return null;
   }
 };
+
+// Função para inicializar o usuário admin após o primeiro login
+export const inicializarUsuarioAdmin = async (user: any) => {
+  const userDoc = await getDoc(doc(db, "usuarios", user.uid));
+  if (!userDoc.exists()) {
+    await criarUsuarioComPermissao(user.uid, user.email, 'admin');
+    console.log("Usuário admin inicializado com sucesso");
+  }
+};
