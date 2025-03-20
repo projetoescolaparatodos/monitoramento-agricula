@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { db } from "../utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
+import { useLoadScript } from "@react-google-maps/api";
 import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -17,6 +18,11 @@ import { useMapCache } from '../hooks/useMapCache';
 
 
 const PescaMap = () => {
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: "AIzaSyC3fPdcovy7a7nQLe9aGBMR2PFY_qZZVZc",
+  });
+
+  if (!isLoaded) return <div>Loading...</div>;
   const fetchPesqueiros = useCallback(async () => {
     const querySnapshot = await getDocs(collection(db, "pesca"));
     return querySnapshot.docs.map((doc) => {

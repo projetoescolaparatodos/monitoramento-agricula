@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../utils/firebase";
+import { useLoadScript } from "@react-google-maps/api";
 import {
   GoogleMap,
   LoadScript,
@@ -19,6 +20,11 @@ import { useMapCache } from '../hooks/useMapCache';
 
 
 const AgriculturaMap = () => {
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: "AIzaSyC3fPdcovy7a7nQLe9aGBMR2PFY_qZZVZc",
+  });
+
+  if (!isLoaded) return <div>Loading...</div>;
   const fetchTratores = async () => {
     const querySnapshot = await getDocs(collection(db, "tratores"));
     return querySnapshot.docs.map((doc) => {
