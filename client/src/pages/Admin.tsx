@@ -1288,63 +1288,102 @@ const PAAForm = () => {
 };
 
 const Admin = () => {
-  const [usuario, setUsuario] = useState<any>(null);
+  const [showDialog, setShowDialog] = useState(false);
+  const [showEditar, setShowEditar] = useState(false);
+  const [selectedLocal, setSelectedLocal] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [pescaLocaisCadastrados, setPescaLocaisCadastrados] = useState<any[]>([]);
   const [tratoresCadastrados, setTratoresCadastrados] = useState<any[]>([]);
   const [paaLocaisCadastrados, setPaaLocaisCadastrados] = useState<any[]>([]);
-  const [userPermission, setUserPermission] = useState<'admin' | 'usuario' | null>(null);
   const { toast } = useToast();
 
+  const verificarPermissaoUsuario = async (uid: string): Promise<'admin' | 'usuario'> => {
+    const docRef = doc(db, "usuarios", uid);
+    const docSnap = await getDoc(docRef);
+    return docSnap.exists() ? docSnap.data().permissao : 'usuario';
+  };
+
   useEffect(() => {
-    const carregarUsuario = async () => {
-      const usuarioAtual = auth.currentUser;
-      if (usuarioAtual) {
-        const docRef = doc(db, "usuarios", usuarioAtual.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setUsuario({ id: docSnap.id, ...docSnap.data() });
-          setUserPermission(docSnap.data().permissao as 'admin' | 'usuario');
-        }
+    const checkUserPermission = async () => {
+      if (auth.currentUser) {
+        const permission = await verificarPermissaoUsuario(auth.currentUser.uid);
+        setIsAdmin(permission === 'admin');
       }
     };
-    carregarUsuario();
+    checkUserPermission();
   }, []);
 
+  const handleAbrirDialog = (tipo: string) => {
+    setShowDialog(true);
+    setSelectedLocal(null); // Limpa o local selecionado ao abrir o diálogo
+  };
 
-  const atualizarStatus = async (colecao: string, id: string, novoStatus: boolean) => {
-    if (!userPermission || userPermission !== 'admin') {
-      toast({
-        title: "Erro",
-        description: "Você não tem permissão para realizar esta ação.",
-        variant: "destructive"
-      });
-      return;
+  const handleFecharDialog = () => {
+    setShowDialog(false);
+  };
+
+
+  const handleEditar = (local: any) => {
+    setShowDialog(true);
+    setSelectedLocal(local);
+  };
+
+  const handleExcluir = async (id: string, colecao: string) => {
+    if (window.confirm("Tem certeza que deseja excluir este item?")) {
+      try {
+        await deleteDoc(doc(db, colecao, id));
+        toast({
+          title: "Sucesso",
+          description: "Item excluído com sucesso!",
+        });
+        // Atualizar a lista correspondente
+        if (colecao === 'pesca') {
+          const novaLista = pescaLocaisCadastrados.filter(item => item.id !== id);
+          setPescaLocaisCadastrados(novaLista);
+        } else if (colecao === 'tratores') {
+          const novaLista = tratoresCadastrados.filter(item => item.id !== id);
+          setTratoresCadastrados(novaLista);
+        } else if (colecao === 'paa') {
+          const novaLista = paaLocaisCadastrados.filter(item => item.id !== id);
+          setPaaLocaisCadastrados(novaLista);
+        }
+      } catch (error) {
+        console.error("Erro ao excluir item:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível excluir o item.",
+          variant: "destructive",
+        });
+      }
     }
+  };
 
+
+
+  const handleToggleConcluido = async (local: any) => {
     try {
-      await updateDoc(doc(db, colecao, id), {
-        concluido: novoStatus
+      await updateDoc(doc(db, local.colecao, local.id), {
+        concluido: !local.concluido
       });
-
       toast({
         title: "Sucesso",
         description: "Status atualizado com sucesso!"
       });
 
       // Atualizar a lista correspondente
-      if (colecao === 'pesca') {
+      if (local.colecao === 'pesca') {
         const novaLista = pescaLocaisCadastrados.map(item =>
-          item.id === id ? { ...item, concluido: novoStatus } : item
+          item.id === local.id ? { ...item, concluido: !local.concluido } : item
         );
         setPescaLocaisCadastrados(novaLista);
-      } else if (colecao === 'tratores') {
+      } else if (local.colecao === 'tratores') {
         const novaLista = tratoresCadastrados.map(item =>
-          item.id === id ? { ...item, concluido: novoStatus } : item
+          item.id === local.id ? { ...item, concluido: !local.concluido } : item
         );
         setTratoresCadastrados(novaLista);
-      } else if (colecao === 'paa') {
+      } else if (local.colecao === 'paa') {
         const novaLista = paaLocaisCadastrados.map(item =>
-          item.id === id ? { ...item, concluido: novoStatus } : item
+          item.id === local.id ? { ...item, concluido: !local.concluido } : item
         );
         setPaaLocaisCadastrados(novaLista);
       }
@@ -1366,9 +1405,9 @@ const Admin = () => {
           getDocs(collection(db, "pesca")),
           getDocs(collection(db, "paa")),
         ]);
-        setTratoresCadastrados(tratoresSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-        setPescaLocaisCadastrados(pescaSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-        setPaaLocaisCadastrados(paaSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+        setTratoresCadastrados(tratoresSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data(), colecao: 'tratores' })));
+        setPescaLocaisCadastrados(pescaSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data(), colecao: 'pesca' })));
+        setPaaLocaisCadastrados(paaSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data(), colecao: 'paa' })));
       } catch (error) {
         console.error("Error fetching data:", error);
         toast({ title: "Erro", description: "Não foi possível carregar os dados.", variant: "destructive" });
@@ -1387,7 +1426,14 @@ const Admin = () => {
         <CardContent>
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold mb-4">Agricultura</h3>
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold">Agricultura</h2>
+                {isAdmin && (
+                  <Button onClick={() => handleAbrirDialog('agricultura')}>
+                    Adicionar Novo Local
+                  </Button>
+                )}
+              </div>
               <div className="space-y-4">
                 {tratoresCadastrados.map((trator) => (
                   <div key={trator.id} className="flex items-center justify-between p-4 border rounded-lg">
@@ -1396,21 +1442,47 @@ const Admin = () => {
                       <p className="text-sm text-gray-500">{trator.localidade || trator.fazenda}</p>
                       <p className="text-xs text-gray-400">Status: {trator.concluido ? 'Concluído' : 'Em Serviço'}</p>
                     </div>
-                    {userPermission === 'admin' && (
-                      <Button
-                        variant={trator.concluido ? "outline" : "default"}
-                        onClick={() => atualizarStatus("tratores", trator.id, !trator.concluido)}
-                      >
-                        {trator.concluido ? "Marcar Em Serviço" : "Marcar Concluído"}
-                      </Button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {isAdmin && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditar(trator)}
+                          >
+                            Editar
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleExcluir(trator.id, 'tratores')}
+                          >
+                            Excluir
+                          </Button>
+                          <Button
+                            variant={trator.concluido ? "outline" : "default"}
+                            size="sm"
+                            onClick={() => handleToggleConcluido(trator)}
+                          >
+                            {trator.concluido ? "Marcar Em Serviço" : "Marcar Concluído"}
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold mb-4">Pesca</h3>
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold">Pesca</h2>
+                {isAdmin && (
+                  <Button onClick={() => handleAbrirDialog('pesca')}>
+                    Adicionar Novo Local
+                  </Button>
+                )}
+              </div>
               <div className="space-y-4">
                 {pescaLocaisCadastrados.map((pesca) => (
                   <div key={pesca.id} className="flex items-center justify-between p-4 border rounded-lg">
@@ -1419,21 +1491,47 @@ const Admin = () => {
                       <p className="text-sm text-gray-500">{pesca.tipoTanque}</p>
                       <p className="text-xs text-gray-400">Status: {pesca.concluido ? 'Concluído' : 'Em Serviço'}</p>
                     </div>
-                    {userPermission === 'admin' && (
-                      <Button
-                        variant={pesca.concluido ? "outline" : "default"}
-                        onClick={() => atualizarStatus("pesca", pesca.id, !pesca.concluido)}
-                      >
-                        {pesca.concluido ? "Marcar Em Andamento" : "Marcar Concluído"}
-                      </Button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {isAdmin && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditar(pesca)}
+                          >
+                            Editar
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleExcluir(pesca.id, 'pesca')}
+                          >
+                            Excluir
+                          </Button>
+                          <Button
+                            variant={pesca.concluido ? "outline" : "default"}
+                            size="sm"
+                            onClick={() => handleToggleConcluido(pesca)}
+                          >
+                            {pesca.concluido ? "Marcar Em Andamento" : "Marcar Concluído"}
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold mb-4">PAA</h3>
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold">PAA</h2>
+                {isAdmin && (
+                  <Button onClick={() => handleAbrirDialog('paa')}>
+                    Adicionar Novo Local
+                  </Button>
+                )}
+              </div>
               <div className="space-y-4">
                 {paaLocaisCadastrados.map((paa) => (
                   <div key={paa.id} className="flex items-center justify-between p-4 border rounded-lg">
@@ -1442,14 +1540,33 @@ const Admin = () => {
                       <p className="text-sm text-gray-500">{paa.tipoAlimento}</p>
                       <p className="text-xs text-gray-400">Status: {paa.concluido ? 'Concluído' : 'Em Serviço'}</p>
                     </div>
-                    {userPermission === 'admin' && (
-                      <Button
-                        variant={paa.concluido ? "outline" : "default"}
-                        onClick={() => atualizarStatus("paa", paa.id, !paa.concluido)}
-                      >
-                        {paa.concluido ? "Marcar Em Andamento" : "Marcar Concluído"}
-                      </Button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {isAdmin && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditar(paa)}
+                          >
+                            Editar
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleExcluir(paa.id, 'paa')}
+                          >
+                            Excluir
+                          </Button>
+                          <Button
+                            variant={paa.concluido ? "outline" : "default"}
+                            size="sm"
+                            onClick={() => handleToggleConcluido(paa)}
+                          >
+                            {paa.concluido ? "Marcar Em Andamento" : "Marcar Concluído"}
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
