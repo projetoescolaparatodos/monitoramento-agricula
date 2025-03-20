@@ -39,20 +39,14 @@ export const criarUsuarioComPermissao = async (uid: string, email: string, permi
 
 export const verificarPermissaoUsuario = async (uid: string): Promise<'admin' | 'usuario' | null> => {
   try {
-    const userRef = doc(db, "usuarios", uid);
-    const userDoc = await getDoc(userRef);
-
+    const userDoc = await getDoc(doc(db, "usuarios", uid));
     if (userDoc.exists()) {
-      const userData = userDoc.data();
-      if (userData.permissao === 'admin' || userData.permissao === 'usuario') {
-        return userData.permissao;
-      }
-      return 'usuario'; // Define permissão padrão como usuário
+      return userDoc.data().permissao;
     }
-    return 'usuario'; // Se não existir documento, define como usuário
+    return null;
   } catch (error) {
     console.error("Erro ao verificar permissão:", error);
-    return 'usuario'; // Em caso de erro, define como usuário
+    return null;
   }
 };
 
