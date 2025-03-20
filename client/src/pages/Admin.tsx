@@ -402,6 +402,7 @@ const AgriculturaForm = () => {
         </CardContent>
       </Card>
 
+      {isAdmin && (
       <Card>
         <CardHeader>
           <CardTitle>Tratores Cadastrados</CardTitle>
@@ -462,6 +463,8 @@ const AgriculturaForm = () => {
               </div>
         </CardContent>
       </Card>
+      )}
+
     </div>
   );
 };
@@ -877,6 +880,7 @@ const PescaForm = () => {
         </CardContent>
       </Card>
 
+      {isAdmin && (
       <Card>
         <CardHeader>
           <CardTitle>Pesqueiros Cadastrados</CardTitle>
@@ -905,7 +909,7 @@ const PescaForm = () => {
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => handleExcluirPesqueiro(pesqueiro.id)}
+                    onClick={()=> handleExcluirPesqueiro(pesqueiro.id)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -914,7 +918,10 @@ const PescaForm = () => {
             ))}
           </div>
         </CardContent>
-      </Card>    </div>
+      </Card>
+      )}
+
+    </div>
   );
 };
 
@@ -1245,6 +1252,7 @@ const PAAForm = () => {
         </CardContent>
       </Card>
 
+      {isAdmin && (
       <Card>
         <CardHeader>
           <CardTitle>PAA Cadastrados</CardTitle>
@@ -1283,6 +1291,7 @@ const PAAForm = () => {
           </div>
         </CardContent>
       </Card>
+      )}
     </div>
   );
 };
