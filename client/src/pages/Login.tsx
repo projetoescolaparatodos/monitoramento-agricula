@@ -20,17 +20,24 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const permissao = await verificarPermissaoUsuario(userCredential.user.uid);
+      
+      if (!permissao) {
+        throw new Error("Usuário sem permissões definidas");
+      }
+
       toast({
         title: "Login realizado com sucesso!",
-        description: "Você será redirecionado para o painel administrativo.",
+        description: `Bem-vindo, ${permissao === 'admin' ? 'Administrador' : 'Usuário'}!`,
       });
+      
       setLocation("/admin");
     } catch (error) {
       console.error("Erro no login:", error);
       toast({
         title: "Erro no login",
-        description: "Verifique suas credenciais e tente novamente.",
+        description: error.message || "Verifique suas credenciais e tente novamente.",
         variant: "destructive",
       });
     } finally {

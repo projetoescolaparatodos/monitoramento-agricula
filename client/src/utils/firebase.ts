@@ -20,6 +20,8 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const auth = getAuth(app);
+import { setDoc, getDoc } from 'firebase/firestore';
+
 export const criarUsuarioComPermissao = async (uid: string, email: string, permissao: 'admin' | 'usuario') => {
   try {
     await setDoc(doc(db, "usuarios", uid), {
@@ -31,5 +33,18 @@ export const criarUsuarioComPermissao = async (uid: string, email: string, permi
   } catch (error) {
     console.error("Erro ao criar usuário:", error);
     return false;
+  }
+}
+
+export const verificarPermissaoUsuario = async (uid: string): Promise<'admin' | 'usuario' | null> => {
+  try {
+    const userDoc = await getDoc(doc(db, "usuarios", uid));
+    if (userDoc.exists()) {
+      return userDoc.data().permissao;
+    }
+    return null;
+  } catch (error) {
+    console.error("Erro ao verificar permissão:", error);
+    return null;
   }
 };
