@@ -279,34 +279,6 @@ const AgriculturaMap = () => {
               },
             ],
           }}
-          onLoad={(map) => {
-            // Coordenadas aproximadas de Vitória do Xingu (ajuste conforme necessário)
-            const vitoriaXinguCoords = [
-              { lat: -2.8000, lng: -52.1000 },
-              { lat: -2.9500, lng: -52.1000 },
-              { lat: -2.9500, lng: -51.9000 },
-              { lat: -2.8000, lng: -51.9000 },
-            ];
-
-            const outsideCoords = [
-              { lat: -90, lng: -180 },
-              { lat: -90, lng: 180 },
-              { lat: 90, lng: 180 },
-              { lat: 90, lng: -180 },
-              { lat: -90, lng: -180 }
-            ];
-
-            const mask = new google.maps.Polygon({
-              paths: [outsideCoords, vitoriaXinguCoords],
-              strokeColor: "#000000",
-              strokeOpacity: 0.8,
-              strokeWeight: 2,
-              fillColor: "#000000",
-              fillOpacity: 0.7,
-            });
-
-            mask.setMap(map);
-          }}
         >
           {tratoresFiltrados.map((trator) => (
             <MarkerF
