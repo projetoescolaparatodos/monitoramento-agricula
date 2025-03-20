@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { db } from "../utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { Card } from "@/components/ui/card";
@@ -12,9 +12,74 @@ import {
   InfoWindow,
 } from "@react-google-maps/api";
 
-const PescaMap = () => {
+// Custom caching hook
+function useMapCache(fetchFunction, { key, expirationTime }) {
+  const cacheKey = key;
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const cachedData = localStorage.getItem(cacheKey);
+      const cachedDataJSON = cachedData ? JSON.parse(cachedData) : null;
+      if (cachedDataJSON && cachedDataJSON.expiration > Date.now()) {
+        setData(cachedDataJSON.data);
+      } else {
+        const fetchedData = await fetchFunction();
+        const dataToCache = {
+          expiration: Date.now() + expirationTime * 60 * 1000,
+          data: fetchedData,
+        };
+        localStorage.setItem(cacheKey, JSON.stringify(dataToCache));
+        setData(fetchedData);
+      }
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchFunction, cacheKey, expirationTime]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  return { data, loading, error };
+}
+
+
+const PescaMap = () => {
+  const fetchPesqueiros = useCallback(async () => {
+    const querySnapshot = await getDocs(collection(db, "pesca"));
+    return querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        localidade: data.localidade,
+        tipoTanque: data.tipoTanque,
+        especiePeixe: data.especiePeixe,
+        quantidadeAlevinos: data.quantidadeAlevinos,
+        metodoAlimentacao: data.metodoAlimentacao,
+        operador: data.operador,
+        tecnicoResponsavel: data.tecnicoResponsavel,
+        dataCadastro: data.dataCadastro,
+        concluido: data.concluido,
+        latitude: data.latitude,
+        longitude: data.longitude,
+        midias: data.midias,
+      };
+    });
+  }, []);
+
+  const { data: pesqueiros, loading } = useMapCache(fetchPesqueiros, {
+    key: 'pesca_map_data',
+    expirationTime: 30 // 30 minutos
+  });
   const [selectedMarker, setSelectedMarker] = useState<any>(null);
+
   const updateReportData = async (pescaData: any) => {
     try {
       const docRef = doc(db, "pesca", pescaData.id);
@@ -32,6 +97,7 @@ const PescaMap = () => {
       console.error("Error updating report data:", error);
     }
   };
+
 
   interface Pesca {
     id: string;
@@ -54,41 +120,7 @@ const PescaMap = () => {
     midias?: string[];
   }
 
-  const [pesqueiros, setPesqueiros] = useState<Pesca[]>([]);
   const [filtro, setFiltro] = useState("todos");
-
-  useEffect(() => {
-    const fetchPesqueiros = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "pesca"));
-        const pescaData = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            localidade: data.localidade,
-            tipoTanque: data.tipoTanque,
-            especiePeixe: data.especiePeixe,
-            quantidadeAlevinos: data.quantidadeAlevinos,
-            metodoAlimentacao: data.metodoAlimentacao,
-            operador: data.operador,
-            tecnicoResponsavel: data.tecnicoResponsavel,
-            dataCadastro: data.dataCadastro,
-            concluido: data.concluido,
-            latitude: data.latitude,
-            longitude: data.longitude,
-            midias: data.midias,
-          };
-        });
-        setPesqueiros(pescaData);
-      } catch (error) {
-        console.error("Erro ao buscar dados de pesca:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPesqueiros();
-  }, []);
 
   const mapContainerStyle = {
     width: "100%",
@@ -99,7 +131,7 @@ const PescaMap = () => {
     lat: -2.87922,
     lng: -52.0088,
   };
-  
+
   const bounds = {
     north: -2.5,
     south: -3.5,

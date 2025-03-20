@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { db } from "../utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { Card } from "@/components/ui/card";
@@ -12,63 +12,78 @@ import {
   InfoWindow,
 } from "@react-google-maps/api";
 
-const PAAMap = () => {
+const useMapCache = (fetchFunction, options) => {
+  const { key, expirationTime } = options;
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedMarker, setSelectedMarker] = useState<any>(null);
+  const [error, setError] = useState(null);
 
-  interface PAA {
-    id: string;
-    localidade: string;
-    tipoAlimento: string;
-    quantidadeProduzida: number;
-    metodoColheita: string;
-    operador: string;
-    tecnicoResponsavel: string;
-    dataCadastro: string;
-    concluido: boolean;
-    latitude: number;
-    longitude: number;
-    midias?: string[];
-    proprietario?: string;
-    areaMecanizacao?: number;
-  }
+  const cachedData = localStorage.getItem(key);
+  const cachedDataExpiration = localStorage.getItem(key + '_expiration');
 
-  const [paaLocais, setPaaLocais] = useState<PAA[]>([]);
-  const [filtro, setFiltro] = useState("todos");
+  const isCachedDataValid = cachedData && cachedDataExpiration && (new Date(cachedDataExpiration) > new Date());
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      let result;
+      if (isCachedDataValid) {
+        result = JSON.parse(cachedData);
+      } else {
+        result = await fetchFunction();
+        localStorage.setItem(key, JSON.stringify(result));
+        localStorage.setItem(key + '_expiration', (new Date(Date.now() + expirationTime * 60 * 1000)).toString());
+      }
+      setData(result);
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchFunction, key, expirationTime, isCachedDataValid]);
+
 
   useEffect(() => {
-    const fetchPAA = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "paa"));
-        const paaData = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            localidade: data.localidade,
-            tipoAlimento: data.tipoAlimento,
-            quantidadeProduzida: data.quantidadeProduzida,
-            metodoColheita: data.metodoColheita,
-            operador: data.operador,
-            tecnicoResponsavel: data.tecnicoResponsavel,
-            dataCadastro: data.dataCadastro,
-            concluido: data.concluido,
-            latitude: data.latitude,
-            longitude: data.longitude,
-            midias: data.midias,
-            proprietario: data.proprietario,
-            areaMecanizacao: data.areaMecanizacao,
-          };
-        });
-        setPaaLocais(paaData);
-      } catch (error) {
-        console.error("Erro ao buscar dados do PAA:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchData();
+  }, [fetchData]);
 
-    fetchPAA();
-  }, []);
+  return { data, loading, error };
+};
+
+
+const PAAMap = () => {
+  const fetchPAA = async () => {
+    const querySnapshot = await getDocs(collection(db, "paa"));
+    return querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        localidade: data.localidade,
+        tipoAlimento: data.tipoAlimento,
+        quantidadeProduzida: data.quantidadeProduzida,
+        metodoColheita: data.metodoColheita,
+        operador: data.operador,
+        tecnicoResponsavel: data.tecnicoResponsavel,
+        dataCadastro: data.dataCadastro,
+        concluido: data.concluido,
+        latitude: data.latitude,
+        longitude: data.longitude,
+        midias: data.midias,
+        proprietario: data.proprietario,
+        areaMecanizacao: data.areaMecanizacao,
+      };
+    });
+  };
+
+  const { data: paaLocais, loading } = useMapCache(fetchPAA, {
+    key: 'paa_map_data',
+    expirationTime: 30 // 30 minutos
+  });
+
+  const [selectedMarker, setSelectedMarker] = useState<any>(null);
+  const [filtro, setFiltro] = useState("todos");
+  const [isMaximized, setIsMaximized] = useState(false);
 
   const mapContainerStyle = {
     width: "100%",
@@ -79,7 +94,7 @@ const PAAMap = () => {
     lat: -2.87922,
     lng: -52.0088,
   };
-  
+
   const bounds = {
     north: -2.5,
     south: -3.5,
@@ -87,9 +102,7 @@ const PAAMap = () => {
     west: -52.5,
   };
 
-  const [isMaximized, setIsMaximized] = useState(false);
-
-  const renderInfoWindow = (paa: PAA) => {
+  const renderInfoWindow = (paa: any) => {
     const status = paa.concluido
       ? '<span class="text-green-600 font-medium">Concluído</span>'
       : '<span class="text-blue-600 font-medium">Em Andamento</span>';

@@ -14,8 +14,74 @@ import { Label } from "@/components/ui/label";
 
 import styles from './AgriculturaMap.module.css';
 
-const AgriculturaMap = () => {
+// Placeholder for the missing useMapCache hook.  Replace with your actual implementation.
+const useMapCache = (fetchFunction, options) => {
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const cachedData = localStorage.getItem(options.key);
+    if (cachedData) {
+      try {
+        const parsedData = JSON.parse(cachedData);
+        if (Date.now() < parsedData.expiration) {
+          setData(parsedData.data);
+          setLoading(false);
+          return;
+        }
+      } catch (e) {
+        // Ignore errors parsing cached data
+      }
+    }
+
+    fetchFunction()
+      .then(data => {
+        const expiration = Date.now() + (options.expirationTime * 60 * 1000);
+        localStorage.setItem(options.key, JSON.stringify({data, expiration}));
+        setData(data);
+        setLoading(false);
+      })
+      .catch(error => {
+        setError(error);
+        setLoading(false);
+      });
+  }, [fetchFunction, options.key, options.expirationTime]);
+
+  return { data, loading, error };
+};
+
+
+const AgriculturaMap = () => {
+  const fetchTratores = async () => {
+    const querySnapshot = await getDocs(collection(db, "tratores"));
+    return querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        nome: data.nome,
+        fazenda: data.fazenda,
+        atividade: data.atividade,
+        piloto: data.piloto,
+        dataCadastro: data.dataCadastro,
+        concluido: data.concluido,
+        latitude: data.latitude,
+        longitude: data.longitude,
+        tempoAtividade: data.tempoAtividade,
+        areaTrabalhada: data.areaTrabalhada,
+        midias: data.midias,
+        localidade: data.localidade,
+        proprietario: data.proprietario,
+        tecnicoResponsavel: data.tecnicoResponsavel,
+      };
+    });
+  };
+
+  const { data: tratores, loading } = useMapCache(fetchTratores, {
+    key: 'agricultura_map_data',
+    expirationTime: 30 // 30 minutos
+  });
+
   const [selectedMarker, setSelectedMarker] = useState<any>(null);
 
   interface Trator {
@@ -36,43 +102,7 @@ const AgriculturaMap = () => {
     tecnicoResponsavel?: string;
   }
 
-  const [tratores, setTratores] = useState<Trator[]>([]);
   const [filtro, setFiltro] = useState("todos");
-
-  useEffect(() => {
-    const fetchTratores = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "tratores"));
-        const tratoresData = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            nome: data.nome,
-            fazenda: data.fazenda,
-            atividade: data.atividade,
-            piloto: data.piloto,
-            dataCadastro: data.dataCadastro,
-            concluido: data.concluido,
-            latitude: data.latitude,
-            longitude: data.longitude,
-            tempoAtividade: data.tempoAtividade,
-            areaTrabalhada: data.areaTrabalhada,
-            midias: data.midias,
-            localidade: data.localidade,
-            proprietario: data.proprietario,
-            tecnicoResponsavel: data.tecnicoResponsavel,
-          };
-        });
-        setTratores(tratoresData);
-        setLoading(false);
-      } catch (error) {
-        console.error("Erro ao buscar tratores:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchTratores();
-  }, []);
 
   const mapContainerStyle = {
     width: "100%",
@@ -83,7 +113,7 @@ const AgriculturaMap = () => {
     lat: -2.87922,
     lng: -52.0088,
   };
-  
+
   const bounds = {
     north: -2.5,
     south: -3.5,
