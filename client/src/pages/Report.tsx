@@ -107,7 +107,6 @@ const Report = () => {
     const metodosAlimentacao = [...new Set(pescaData.map(p => p.metodoAlimentacao).filter(Boolean))];
     const totalRacao = pescaData.reduce((sum, p) => sum + (p.quantidadeRacao || 0), 0);
     const totalProdutores = new Set(pescaData.map(p => p.nomePescador).filter(Boolean)).size;
-    const taxaCrescimento = pescaData.reduce((sum, p) => sum + (p.taxaCrescimento || 0), 0) / (pescaData.length || 1);
     const tiposTanques = [...new Set(pescaData.map(p => p.tipoTanque).filter(Boolean))];
 
 
@@ -123,7 +122,6 @@ const Report = () => {
       metodosAlimentacao,
       totalRacao,
       totalProdutores,
-      taxaCrescimento,
       tiposTanques
     };
   };
@@ -279,9 +277,6 @@ const Report = () => {
         doc.text(tiposPeixesText, 20, yPos);
         yPos += 6;
       }
-
-      doc.text(`Taxa de Crescimento dos Peixes: ${estPesca.taxaCrescimento.toFixed(2)} kg/período`, 20, yPos);
-      yPos += 6;
 
       // Tratando outras informações que podem ficar muito extensas
       const metodosAlimentacaoText = `Métodos de Alimentação: ${estPesca.metodosAlimentacao.join(', ') || 'Não informado'}`;
@@ -663,17 +658,6 @@ const Report = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BarChart2 className="h-5 w-5 text-orange-500" />
-                  Taxa de Crescimento (kg/período)
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold">{estatisticasPesca.taxaCrescimento.toFixed(2)} kg</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FilePieChart className="h-5 w-5 text-purple-500" />
                   Ração Utilizada
                 </CardTitle>
               </CardHeader>

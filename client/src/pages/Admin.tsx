@@ -484,6 +484,11 @@ const PescaForm = () => {
   const [pesqueirosCadastrados, setPesqueirosCadastrados] = useState<any[]>([]);
   const [pesqueiroEmEdicao, setPesqueiroEmEdicao] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
+  const [numeroRegistro, setNumeroRegistro] = useState("");
+  const [areaImovel, setAreaImovel] = useState(0);
+  const [areaAlagada, setAreaAlagada] = useState(0);
+  const [cicloProdução, setCicloProdução] = useState("");
+  const [sistemaCultivo, setSistemaCultivo] = useState("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -561,6 +566,11 @@ const PescaForm = () => {
         midias,
         dataCadastro: pesqueiroEmEdicao ? pesqueiroEmEdicao.dataCadastro : dataCadastro,
         concluido: false,
+        numeroRegistro,
+        areaImovel,
+        areaAlagada,
+        cicloProdução,
+        sistemaCultivo
       };
 
       if (pesqueiroEmEdicao) {
@@ -591,6 +601,11 @@ const PescaForm = () => {
       setLongitude(null);
       setMidias([]);
       setDataCadastro(new Date().toISOString().split("T")[0]);
+      setNumeroRegistro("");
+      setAreaImovel(0);
+      setAreaAlagada(0);
+      setCicloProdução("");
+      setSistemaCultivo("");
       setPesqueiroEmEdicao(null);
 
       // Atualiza a lista
@@ -631,6 +646,11 @@ const PescaForm = () => {
     setLongitude(pesqueiro.longitude);
     setMidias(pesqueiro.midias || []);
     setDataCadastro(pesqueiro.dataCadastro);
+    setNumeroRegistro(pesqueiro.numeroRegistro || "");
+    setAreaImovel(pesqueiro.areaImovel || 0);
+    setAreaAlagada(pesqueiro.areaAlagada || 0);
+    setCicloProdução(pesqueiro.cicloProdução || "");
+    setSistemaCultivo(pesqueiro.sistemaCultivo || "");
   };
 
   const handleExcluirPesqueiro = async (id: string) => {
@@ -700,23 +720,21 @@ const PescaForm = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="tipoTanque">Tipo de Tanque</Label>
+                <Label htmlFor="tipoTanque">Tipo de Ambiente de Cultivo</Label>
                 <Input
                   id="tipoTanque"
                   value={tipoTanque}
                   onChange={(e) => setTipoTanque(e.target.value)}
-                  placeholder="Ex: Tanque escavado, tanque rede, etc."
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="especiePeixe">Espécie de Peixe</Label>
+                <Label htmlFor="especiePeixe">Espécie</Label>
                 <Input
                   id="especiePeixe"
                   value={especiePeixe}
                   onChange={(e) => setEspeciePeixe(e.target.value)}
-                  placeholder="Ex: Tilápia, Tambaqui, etc."
                   required
                 />
               </div>
@@ -744,6 +762,57 @@ const PescaForm = () => {
                   required
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="numeroRegistro">N° de Registro</Label>
+                <Input
+                  id="numeroRegistro"
+                  value={numeroRegistro}
+                  onChange={(e) => setNumeroRegistro(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="areaImovel">Área do imóvel (ha)</Label>
+                <Input
+                  id="areaImovel"
+                  type="number"
+                  value={areaImovel}
+                  onChange={(e) => setAreaImovel(Number(e.target.value))}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="areaAlagada">Área Alagada (ha)</Label>
+                <Input
+                  id="areaAlagada"
+                  type="number"
+                  value={areaAlagada}
+                  onChange={(e) => setAreaAlagada(Number(e.target.value))}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="cicloProdução">Ciclo de produção</Label>
+                <Input
+                  id="cicloProdução"
+                  value={cicloProdução}
+                  onChange={(e) => setCicloProdução(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="sistemaCultivo">Sistema de cultivo</Label>
+                <Input
+                  id="sistemaCultivo"
+                  value={sistemaCultivo}
+                  onChange={(e) => setSistemaCultivo(e.target.value)}
+                  required
+                />
+              </div>
 
               <div className="space-y-2">
                 <Label htmlFor="operador">Operador</Label>
@@ -751,7 +820,6 @@ const PescaForm = () => {
                   id="operador"
                   value={operador}
                   onChange={(e) => setOperador(e.target.value)}
-                  required
                 />
               </div>
 
