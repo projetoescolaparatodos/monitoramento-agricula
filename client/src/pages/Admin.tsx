@@ -914,8 +914,7 @@ const PescaForm = () => {
             ))}
           </div>
         </CardContent>
-      </Card>
-    </div>
+      </Card>    </div>
   );
 };
 
@@ -1293,6 +1292,7 @@ const Admin = () => {
   const [pescaLocaisCadastrados, setPescaLocaisCadastrados] = useState<any[]>([]);
   const [tratoresCadastrados, setTratoresCadastrados] = useState<any[]>([]);
   const [paaLocaisCadastrados, setPaaLocaisCadastrados] = useState<any[]>([]);
+  const [userPermission, setUserPermission] = useState<'admin' | 'usuario' | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -1303,16 +1303,16 @@ const Admin = () => {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           setUsuario({ id: docSnap.id, ...docSnap.data() });
+          setUserPermission(docSnap.data().permissao as 'admin' | 'usuario');
         }
       }
     };
     carregarUsuario();
   }, []);
 
-  const isAdmin = usuario?.permissao === 'admin';
 
   const atualizarStatus = async (colecao: string, id: string, novoStatus: boolean) => {
-    if (!isAdmin) {
+    if (!userPermission || userPermission !== 'admin') {
       toast({
         title: "Erro",
         description: "Você não tem permissão para realizar esta ação.",
@@ -1396,7 +1396,7 @@ const Admin = () => {
                       <p className="text-sm text-gray-500">{trator.localidade || trator.fazenda}</p>
                       <p className="text-xs text-gray-400">Status: {trator.concluido ? 'Concluído' : 'Em Serviço'}</p>
                     </div>
-                    {isAdmin && (
+                    {userPermission === 'admin' && (
                       <Button
                         variant={trator.concluido ? "outline" : "default"}
                         onClick={() => atualizarStatus("tratores", trator.id, !trator.concluido)}
@@ -1419,7 +1419,7 @@ const Admin = () => {
                       <p className="text-sm text-gray-500">{pesca.tipoTanque}</p>
                       <p className="text-xs text-gray-400">Status: {pesca.concluido ? 'Concluído' : 'Em Serviço'}</p>
                     </div>
-                    {isAdmin && (
+                    {userPermission === 'admin' && (
                       <Button
                         variant={pesca.concluido ? "outline" : "default"}
                         onClick={() => atualizarStatus("pesca", pesca.id, !pesca.concluido)}
@@ -1442,7 +1442,7 @@ const Admin = () => {
                       <p className="text-sm text-gray-500">{paa.tipoAlimento}</p>
                       <p className="text-xs text-gray-400">Status: {paa.concluido ? 'Concluído' : 'Em Serviço'}</p>
                     </div>
-                    {isAdmin && (
+                    {userPermission === 'admin' && (
                       <Button
                         variant={paa.concluido ? "outline" : "default"}
                         onClick={() => atualizarStatus("paa", paa.id, !paa.concluido)}

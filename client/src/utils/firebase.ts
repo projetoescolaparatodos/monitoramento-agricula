@@ -39,15 +39,23 @@ export const criarUsuarioComPermissao = async (uid: string, email: string, permi
 
 export const verificarPermissaoUsuario = async (uid: string): Promise<'admin' | 'usuario' | null> => {
   try {
-    const userDoc = await getDoc(doc(db, "usuarios", uid));
+    const userRef = doc(db, "usuarios", uid);
+    const userDoc = await getDoc(userRef);
+
     if (userDoc.exists()) {
-      return userDoc.data().permissao;
+      const userData = userDoc.data();
+      return userData.permissao === 'admin' ? 'admin' : 'usuario';
     }
-    return null;
+    return 'usuario';
   } catch (error) {
     console.error("Erro ao verificar permissão:", error);
-    return null;
+    return 'usuario';
   }
+};
+
+export const isUserAdmin = async (uid: string): Promise<boolean> => {
+  const permission = await verificarPermissaoUsuario(uid);
+  return permission === 'admin';
 };
 
 // Função para inicializar o usuário admin após o primeiro login
