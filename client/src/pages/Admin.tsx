@@ -94,18 +94,17 @@ const AgriculturaForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!latitude || !longitude) {
-      toast({
-        title: "Erro",
-        description: "Por favor, selecione uma localização no mapa.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setLoading(true);
 
     try {
+      if (!isAdmin) {
+        toast({
+          title: "Permissão negada",
+          description: "Você não tem permissão para realizar esta ação.",
+        });
+        return;
+      }
+
       // Verificar campos obrigatórios
       if (!nome || !fazenda || !atividade || !piloto || !latitude || !longitude || !operacao || !areaTrabalhada || !horaMaquina) {
         toast({
@@ -113,11 +112,8 @@ const AgriculturaForm = () => {
           description: "Preencha todos os campos obrigatórios",
           variant: "destructive",
         });
-        setLoading(false);
         return;
       }
-      
-      setLoading(true);
 
       // Validar os valores numéricos
       const latitudeNum = parseFloat(String(latitude));
@@ -186,7 +182,6 @@ const AgriculturaForm = () => {
       setAreaTrabalhada(0);
       setDataCadastro(new Date().toISOString().split("T")[0]);
       setTratorEmEdicao(null);
-      setLoading(false); // added setLoading(false)
 
       // Atualiza a lista
       const querySnapshot = await getDocs(collection(db, "tratores"));
@@ -195,6 +190,13 @@ const AgriculturaForm = () => {
         ...doc.data(),
       }));
       setTratoresCadastrados(tratoresData);
+
+      toast({
+        title: "Sucesso",
+        description: tratorEmEdicao
+          ? "Trator atualizado com sucesso!"
+          : "Trator cadastrado com sucesso!",
+      });
     } catch (error) {
       console.error("Erro ao salvar trator:", error);
       toast({
