@@ -1,0 +1,159 @@
+Para incluir as informações adicionais (**Localidade**, **Operador**, **Técnico Responsável**, **Data**, **Status**) e garantir que elas sejam atualizadas tanto na área do administrador quanto reflitam no relatório do mapa de pesca, você precisará de uma abordagem mais abrangente. Vou te guiar passo a passo:
+
+---
+
+### 1. Atualização da Estrutura de Dados
+Primeiro, atualize a estrutura de dados para incluir os novos campos:
+
+```javascript
+const dadosPesca = [
+    {
+        "N° de Registro": "12345",
+        "Tipo de Ambiente de Cultivo": "Tanque Rede",
+        "Área do imóvel": "10 ha",
+        "Área Alagada ha": "5 ha",
+        "Ciclo de produção": "6 meses",
+        "Sistema de cultivo": "Intensivo",
+        "Espécie": "Tilápia",
+        "Localidade": "Lagoa Azul",
+        "Operador": "João Silva",
+        "Técnico Responsável": "Maria Souza",
+        "Data": "10/03/2025",
+        "Status": "Ativo"
+    },
+    {
+        "N° de Registro": "67890",
+        "Tipo de Ambiente de Cultivo": "Viveiro",
+        "Área do imóvel": "20 ha",
+        "Área Alagada ha": "10 ha",
+        "Ciclo de produção": "8 meses",
+        "Sistema de cultivo": "Semi-intensivo",
+        "Espécie": "Carpa",
+        "Localidade": "Rio Verde",
+        "Operador": "Pedro Almeida",
+        "Técnico Responsável": "Ana Lima",
+        "Data": "10/03/2025",
+        "Status": "Inativo"
+    }
+];
+```
+
+---
+
+### 2. Atualização dos Popups no Mapa
+Atualize o conteúdo dos popups para incluir as novas informações:
+
+```javascript
+dadosPesca.forEach(pesca => {
+    const popupContent = `
+        <b>Pesca</b><br>
+        N° de Registro: ${pesca["N° de Registro"]}<br>
+        Localidade: ${pesca["Localidade"]}<br>
+        Operador: ${pesca["Operador"]}<br>
+        Técnico Responsável: ${pesca["Técnico Responsável"]}<br>
+        Data: ${pesca["Data"]}<br>
+        Status: ${pesca["Status"]}<br>
+        Tipo de Ambiente de Cultivo: ${pesca["Tipo de Ambiente de Cultivo"]}<br>
+        Área do imóvel: ${pesca["Área do imóvel"]}<br>
+        Área Alagada ha: ${pesca["Área Alagada ha"]}<br>
+        Ciclo de produção: ${pesca["Ciclo de produção"]}<br>
+        Sistema de cultivo: ${pesca["Sistema de cultivo"]}<br>
+        Espécie: ${pesca["Espécie"]}
+    `;
+
+    // Adicionando um marcador com o popup
+    L.marker([-15.7801, -47.9292]) // Substitua pelas coordenadas reais
+        .addTo(map)
+        .bindPopup(popupContent);
+});
+```
+
+---
+
+### 3. Área do Administrador
+Para que as informações sejam atualizadas na área do administrador, você precisará de um backend para persistir os dados e um frontend para exibi-los. Aqui está um exemplo simplificado:
+
+#### Backend (Node.js + Express + Banco de Dados)
+- Crie uma API para atualizar e buscar os dados de pesca.
+- Exemplo de rota para atualizar dados:
+
+```javascript
+app.put('/api/pesca/:id', (req, res) => {
+    const id = req.params.id;
+    const novosDados = req.body;
+
+    // Atualize os dados no banco de dados
+    database.atualizarPesca(id, novosDados)
+        .then(() => res.send("Dados atualizados com sucesso!"))
+        .catch(err => res.status(500).send("Erro ao atualizar dados."));
+});
+```
+
+#### Frontend (Admin)
+- Crie um formulário para editar as informações de pesca.
+- Use JavaScript para enviar os dados atualizados para o backend.
+
+```html
+<form id="formPesca">
+    <input type="text" name="localidade" placeholder="Localidade">
+    <input type="text" name="operador" placeholder="Operador">
+    <input type="text" name="tecnico" placeholder="Técnico Responsável">
+    <input type="date" name="data" placeholder="Data">
+    <select name="status">
+        <option value="Ativo">Ativo</option>
+        <option value="Inativo">Inativo</option>
+    </select>
+    <button type="submit">Atualizar</button>
+</form>
+
+<script>
+    document.getElementById('formPesca').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        fetch('/api/pesca/12345', { // Substitua 12345 pelo ID correto
+            method: 'PUT',
+            body: JSON.stringify(Object.fromEntries(formData)),
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.text())
+        .then(message => alert(message))
+        .catch(error => console.error(error));
+    });
+</script>
+```
+
+---
+
+### 4. Relatório do Mapa de Pesca
+Para que as alterações reflitam no relatório, você pode:
+
+- **Atualizar o relatório dinamicamente**: Use os dados atualizados no backend para gerar o relatório em tempo real.
+- **Exportar dados**: Crie uma função para exportar os dados atualizados para um formato de relatório (PDF, Excel, etc.).
+
+Exemplo de exportação para JSON:
+
+```javascript
+function exportarRelatorio() {
+    const relatorio = JSON.stringify(dadosPesca, null, 2);
+    const blob = new Blob([relatorio], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'relatorio_pesca.json';
+    a.click();
+}
+```
+
+---
+
+### 5. Fluxo Completo
+1. **Atualização no Admin**: O administrador atualiza os dados no formulário.
+2. **Persistência no Backend**: Os dados são enviados para o backend e salvos no banco de dados.
+3. **Atualização no Mapa**: O mapa busca os dados atualizados do backend e exibe os popups com as novas informações.
+4. **Geração do Relatório**: O relatório é gerado com base nos dados atualizados.
+
+---
+
+Se precisar de mais detalhes ou ajuda com alguma parte específica, é só avisar! 😊
