@@ -23,8 +23,7 @@ const AgriculturaMap = () => {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: "AIzaSyC3fPdcovy7a7nQLe9aGBMR2PFY_qZZVZc",
   });
-
-  if (!isLoaded) return <div>Loading...</div>;
+  
   const fetchTratores = async () => {
     const querySnapshot = await getDocs(collection(db, "tratores"));
     return querySnapshot.docs.map((doc) => {
@@ -255,6 +254,8 @@ const AgriculturaMap = () => {
     return true;
   });
 
+  if (!isLoaded) return <div>Loading...</div>;
+  
   return (
     <div className="pt-16 relative h-screen">
       <Card className="absolute left-4 top-1/2 transform -translate-y-1/2 z-[1000] p-4 bg-white/95 shadow-lg">

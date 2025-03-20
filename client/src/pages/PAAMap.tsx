@@ -20,8 +20,7 @@ const PAAMap = () => {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: "AIzaSyC3fPdcovy7a7nQLe9aGBMR2PFY_qZZVZc",
   });
-
-  if (!isLoaded) return <div>Loading...</div>;
+  
   const fetchPAA = async () => {
     const querySnapshot = await getDocs(collection(db, "paa"));
     return querySnapshot.docs.map((doc) => {
