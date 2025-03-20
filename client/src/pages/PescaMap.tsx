@@ -5,7 +5,12 @@ import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
-import { GoogleMap, LoadScript, MarkerF, InfoWindow } from '@react-google-maps/api';
+import {
+  GoogleMap,
+  LoadScript,
+  MarkerF,
+  InfoWindow,
+} from "@react-google-maps/api";
 
 const PescaMap = () => {
   const [loading, setLoading] = useState(true);
@@ -64,13 +69,13 @@ const PescaMap = () => {
   }, []);
 
   const mapContainerStyle = {
-    width: '100%',
-    height: '100%'
+    width: "100%",
+    height: "100%",
   };
 
   const center = {
     lat: -2.87922,
-    lng: -52.0088
+    lng: -52.0088,
   };
 
   const [isMaximized, setIsMaximized] = useState(false);
@@ -88,56 +93,68 @@ const PescaMap = () => {
           setIsMaximized(false);
         }}
         options={{
-          maxWidth: isMaximized ? window.innerWidth * 0.9 : undefined
+          maxWidth: isMaximized ? window.innerWidth * 0.9 : undefined,
         }}
       >
-        <div className={`p-4 ${isMaximized ? 'w-[90vw] flex' : 'max-w-md'} popup-content`} id={`popup-${pesca.id}`}>
-          <div className={`${isMaximized ? 'w-1/2 pr-4' : 'w-full'}`}>
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="font-bold text-lg">{pesca.localidade}</h3>
+        <div
+          className={`p-4 ${isMaximized ? "maximized" : ""} popup-content`}
+          id={`popup-${pesca.id}`}
+        >
+          {/* Texto à esquerda */}
+          <div className="text-content">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-bold text-lg">{pesca.localidade}</h3>
+            </div>
+            <div className="space-y-2">
+              <p>
+                <strong>Localidade:</strong> {pesca.localidade}
+              </p>
+              <p>
+                <strong>Tipo de Tanque:</strong> {pesca.tipoTanque}
+              </p>
+              <p>
+                <strong>Espécie de Peixe:</strong> {pesca.especiePeixe}
+              </p>
+              <p>
+                <strong>Quantidade de Alevinos:</strong>{" "}
+                {pesca.quantidadeAlevinos} unidades
+              </p>
+              <p>
+                <strong>Método de Alimentação:</strong>{" "}
+                {pesca.metodoAlimentacao}
+              </p>
+              <p>
+                <strong>Operador:</strong> {pesca.operador}
+              </p>
+              <p>
+                <strong>Técnico Responsável:</strong>{" "}
+                {pesca.tecnicoResponsavel || "Não informado"}
+              </p>
+              <p>
+                <strong>Data:</strong>{" "}
+                {new Date(pesca.dataCadastro).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Status:</strong>{" "}
+                <span dangerouslySetInnerHTML={{ __html: status }} />
+              </p>
+            </div>
           </div>
-          <div className="space-y-2">
-            <p><strong>Localidade:</strong> {pesca.localidade}</p>
-            <p><strong>Tipo de Tanque:</strong> {pesca.tipoTanque}</p>
-            <p><strong>Espécie de Peixe:</strong> {pesca.especiePeixe}</p>
-            <p><strong>Quantidade de Alevinos:</strong> {pesca.quantidadeAlevinos} unidades</p>
-            <p><strong>Método de Alimentação:</strong> {pesca.metodoAlimentacao}</p>
-            <p><strong>Operador:</strong> {pesca.operador}</p>
-            <p><strong>Técnico Responsável:</strong> {pesca.tecnicoResponsavel || "Não informado"}</p>
-            <p><strong>Data:</strong> {new Date(pesca.dataCadastro).toLocaleDateString()}</p>
-            <p><strong>Status:</strong> <span dangerouslySetInnerHTML={{ __html: status }} /></p>
-          </div>
-          <button
-            onClick={() => setIsMaximized(!isMaximized)}
-            className="absolute top-2 right-2 bg-gray-100 hover:bg-gray-200 rounded-full p-2"
-          >
-            {isMaximized ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="4 14 10 14 10 20"></polyline>
-                <polyline points="20 10 14 10 14 4"></polyline>
-                <line x1="14" y1="10" x2="21" y2="3"></line>
-                <line x1="3" y1="21" x2="10" y2="14"></line>
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 3h6v6"></path>
-                <path d="M9 21H3v-6"></path>
-                <path d="M21 3l-7 7"></path>
-                <path d="M3 21l7-7"></path>
-              </svg>
-            )}
-          </button>
+
+          {/* Mídias à direita (apenas se houver mídias) */}
           {pesca.midias && pesca.midias.length > 0 && (
-            <div className={`${isMaximized ? 'w-1/2' : 'mt-4'} media-container`}>
+            <div className="media-container">
               <h4 className="font-semibold mb-2">Fotos/Vídeos:</h4>
-              <div className={`grid ${isMaximized ? 'grid-cols-3' : 'grid-cols-2'} gap-2`}>
-                {pesca.midias.map((url, index) => (
+              <div
+                className={`grid ${isMaximized ? "grid-cols-3" : "grid-cols-2"} gap-2`}
+              >
+                {pesca.midias.map((url, index) =>
                   url.includes("/video/") || url.includes("/video/upload/") ? (
                     <div key={index} className="relative">
                       <video
                         src={url}
                         controls
-                        className="w-full h-24 object-cover rounded-lg popup-media"
+                        className="w-full h-auto max-h-48 object-cover rounded-lg popup-media"
                         data-src={url}
                         data-index={index}
                         data-type="video"
@@ -148,17 +165,58 @@ const PescaMap = () => {
                       key={index}
                       src={url}
                       alt="Mídia"
-                      className="w-full h-24 object-cover rounded-lg popup-media"
+                      className="w-full h-auto max-h-48 object-cover rounded-lg popup-media"
                       data-src={url}
                       data-index={index}
                       data-type="image"
                     />
-                  )
-                ))}
+                  ),
+                )}
               </div>
             </div>
           )}
-          </div>
+
+          {/* Botão de Maximizar/Reduzir */}
+          <button
+            onClick={() => setIsMaximized(!isMaximized)}
+            className="absolute top-2 right-2 bg-gray-100 hover:bg-gray-200 rounded-full p-2"
+          >
+            {isMaximized ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="4 14 10 14 10 20"></polyline>
+                <polyline points="20 10 14 10 14 4"></polyline>
+                <line x1="14" y1="10" x2="21" y2="3"></line>
+                <line x1="3" y1="21" x2="10" y2="14"></line>
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M15 3h6v6"></path>
+                <path d="M9 21H3v-6"></path>
+                <path d="M21 3l-7 7"></path>
+                <path d="M3 21l7-7"></path>
+              </svg>
+            )}
+          </button>
         </div>
       </InfoWindow>
     );
@@ -208,9 +266,9 @@ const PescaMap = () => {
               {
                 featureType: "all",
                 elementType: "all",
-                stylers: [{ visibility: "on" }]
-              }
-            ]
+                stylers: [{ visibility: "on" }],
+              },
+            ],
           }}
         >
           {pesqueirosFiltrados.map((pesca) => (
@@ -221,12 +279,12 @@ const PescaMap = () => {
                 url: "pesca-icon.png",
                 scaledSize: {
                   width: 50,
-                  height: 50
+                  height: 50,
                 },
                 anchor: {
                   x: 25,
-                  y: 50
-                }
+                  y: 50,
+                },
               }}
               onClick={() => setSelectedMarker(pesca)}
             />
