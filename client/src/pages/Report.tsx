@@ -264,7 +264,7 @@ const Report = () => {
       doc.setFont('helvetica', 'normal');
       doc.text(`Total de Pescado Produzido: ${estPesca.totalQuantidadePescado.toFixed(2)} kg`, 20, yPos);
       yPos += 6;
-      doc.text(`Quantidade de Tanques Cadastrados: ${estPesca.totalTanques}`, 20, yPos);
+      doc.text(`Quantidade de Sistemas Cadastrados: ${estPesca.totalTanques}`, 20, yPos);
       yPos += 6;
       doc.text(`Área Total de Criação: ${(estPesca.totalAreaCriacao / 10000).toFixed(2)} ha`, 20, yPos); // Convertido para hectares
       yPos += 6;
@@ -567,7 +567,7 @@ const Report = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BarChart2 className="h-5 w-5 text-primary" />
-                  Tanques Cadastrados
+                  Sistemas Cadastrados
                 </CardTitle>
               </CardHeader>
               <CardContent>

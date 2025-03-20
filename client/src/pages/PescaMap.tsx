@@ -15,6 +15,23 @@ import {
 const PescaMap = () => {
   const [loading, setLoading] = useState(true);
   const [selectedMarker, setSelectedMarker] = useState<any>(null);
+  const updateReportData = async (pescaData: any) => {
+    try {
+      const docRef = doc(db, "pesca", pescaData.id);
+      await updateDoc(docRef, pescaData);
+      // Force report data refresh by updating collection
+      const querySnapshot = await getDocs(collection(db, "pesca"));
+      const pescaDataUpdated = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      // Update report statistics
+      const event = new CustomEvent('pescaDataUpdated', { detail: pescaDataUpdated });
+      window.dispatchEvent(event);
+    } catch (error) {
+      console.error("Error updating report data:", error);
+    }
+  };
 
   interface Pesca {
     id: string;
