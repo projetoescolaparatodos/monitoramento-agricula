@@ -1,0 +1,158 @@
+A ideia é que, quando um usuário comum (não administrador) fizer login, a página do admin não deve mostrar as opções de gerenciamento de status e edição/exclusão de atividades já cadastradas. Apenas a parte de cadastrar novas atividades deve ser exibida. Já quando um administrador fizer login, todas as funcionalidades (cadastrar, gerenciar status, editar/excluir) devem estar disponíveis.
+
+Vamos ajustar a implementação para garantir que isso funcione corretamente. Aqui está a solução:
+
+1. Backend: Retornar o Tipo de Usuário no Login
+Quando o usuário fizer login, o backend deve retornar o tipo de usuário (admin ou comum) para o frontend. Isso permitirá que o frontend ajuste a interface conforme as permissões.
+
+Exemplo de Resposta do Backend no Login:
+json
+Copy
+{
+    "id": 1,
+    "nome": "João",
+    "email": "joao@admin.com",
+    "permissao": "admin" // ou "usuario" para usuários comuns
+}
+2. Frontend: Ajustar a Interface com Base no Tipo de Usuário
+No frontend, ao receber a resposta do login, você deve verificar o tipo de usuário e mostrar/ocultar os elementos da interface conforme necessário.
+
+Exemplo de HTML:
+html
+Copy
+<div id="adminControls" style="display: none;">
+    <h3>Gerenciar Atividades</h3>
+    <button onclick="marcarConcluido()">Marcar como Concluído</button>
+    <button onclick="editarAtividade()">Editar Atividade</button>
+    <button onclick="excluirAtividade()">Excluir Atividade</button>
+</div>
+
+<div id="userControls" style="display: none;">
+    <h3>Cadastrar Nova Atividade</h3>
+    <button onclick="adicionarAtividade()">Adicionar Atividade</button>
+</div>
+Run HTML
+Exemplo de JavaScript:
+javascript
+Copy
+// Função chamada após o login
+function ajustarInterface(usuario) {
+    if (usuario.permissao === 'admin') {
+        // Mostra todas as funcionalidades para o admin
+        document.getElementById('adminControls').style.display = 'block';
+        document.getElementById('userControls').style.display = 'block';
+    } else if (usuario.permissao === 'usuario') {
+        // Mostra apenas a funcionalidade de adicionar atividade para usuários comuns
+        document.getElementById('userControls').style.display = 'block';
+    } else {
+        // Usuário não autenticado ou sem permissões
+        alert("Você não tem permissão para acessar esta página.");
+        window.location.href = '/login'; // Redireciona para a página de login
+    }
+}
+
+// Exemplo de uso após o login
+const usuarioLogado = {
+    id: 1,
+    nome: "João",
+    email: "joao@admin.com",
+    permissao: "admin" // ou "usuario"
+};
+ajustarInterface(usuarioLogado);
+3. Backend: Proteger Rotas com Base no Tipo de Usuário
+No backend, continue protegendo as rotas de gerenciamento de status e edição/exclusão de atividades para garantir que apenas administradores possam acessá-las.
+
+Exemplo de Middleware para Verificar Permissões:
+javascript
+Copy
+function isAdmin(req, res, next) {
+    const usuario = req.usuario; // Supondo que o usuário está autenticado e disponível no request
+    if (usuario && usuario.permissao === 'admin') {
+        next(); // Permite continuar
+    } else {
+        res.status(403).send("Acesso negado: você não tem permissão para esta ação.");
+    }
+}
+
+// Rota para marcar atividade como concluída ou em serviço (apenas admin)
+app.put('/api/atividades/:id/status', isAdmin, (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    // Atualiza o status no banco de dados
+    database.atualizarStatusAtividade(id, status)
+        .then(() => res.send("Status atualizado com sucesso!"))
+        .catch(err => res.status(500).send("Erro ao atualizar status."));
+});
+4. Página do Admin: Organização por Mapas
+Como você mencionou que há três mapas (Agricultura, Pesca e PAA), você pode organizar a interface para que cada mapa tenha suas próprias seções de cadastro e gerenciamento.
+
+Exemplo de HTML:
+html
+Copy
+<div id="agricultura">
+    <h2>Agricultura</h2>
+    <div id="adminControlsAgricultura" style="display: none;">
+        <button onclick="marcarConcluidoAgricultura()">Marcar como Concluído</button>
+        <button onclick="editarAtividadeAgricultura()">Editar Atividade</button>
+        <button onclick="excluirAtividadeAgricultura()">Excluir Atividade</button>
+    </div>
+    <div id="userControlsAgricultura" style="display: none;">
+        <button onclick="adicionarAtividadeAgricultura()">Adicionar Atividade</button>
+    </div>
+</div>
+
+<div id="pesca">
+    <h2>Pesca</h2>
+    <div id="adminControlsPesca" style="display: none;">
+        <button onclick="marcarConcluidoPesca()">Marcar como Concluído</button>
+        <button onclick="editarAtividadePesca()">Editar Atividade</button>
+        <button onclick="excluirAtividadePesca()">Excluir Atividade</button>
+    </div>
+    <div id="userControlsPesca" style="display: none;">
+        <button onclick="adicionarAtividadePesca()">Adicionar Atividade</button>
+    </div>
+</div>
+
+<div id="paa">
+    <h2>PAA</h2>
+    <div id="adminControlsPaa" style="display: none;">
+        <button onclick="marcarConcluidoPaa()">Marcar como Concluído</button>
+        <button onclick="editarAtividadePaa()">Editar Atividade</button>
+        <button onclick="excluirAtividadePaa()">Excluir Atividade</button>
+    </div>
+    <div id="userControlsPaa" style="display: none;">
+        <button onclick="adicionarAtividadePaa()">Adicionar Atividade</button>
+    </div>
+</div>
+Run HTML
+Exemplo de JavaScript para Ajustar a Interface por Mapa:
+javascript
+Copy
+function ajustarInterfacePorMapa(usuario) {
+    const mapas = ['agricultura', 'pesca', 'paa'];
+
+    mapas.forEach(mapa => {
+        if (usuario.permissao === 'admin') {
+            document.getElementById(`adminControls${mapa.charAt(0).toUpperCase() + mapa.slice(1)}`).style.display = 'block';
+            document.getElementById(`userControls${mapa.charAt(0).toUpperCase() + mapa.slice(1)}`).style.display = 'block';
+        } else if (usuario.permissao === 'usuario') {
+            document.getElementById(`userControls${mapa.charAt(0).toUpperCase() + mapa.slice(1)}`).style.display = 'block';
+        }
+    });
+}
+
+// Exemplo de uso após o login
+const usuarioLogado = {
+    id: 1,
+    nome: "João",
+    email: "joao@admin.com",
+    permissao: "admin" // ou "usuario"
+};
+ajustarInterfacePorMapa(usuarioLogado);
+5. Resumo
+Usuário Comum: Vê apenas a opção de cadastrar novas atividades em cada mapa.
+
+Administrador: Vê todas as opções (cadastrar, gerenciar status, editar/excluir) em cada mapa.
+
+Segurança: O backend garante que apenas administradores possam acessar rotas sensíveis.
