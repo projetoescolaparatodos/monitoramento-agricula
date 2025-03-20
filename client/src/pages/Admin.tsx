@@ -184,6 +184,7 @@ const AgriculturaForm = () => {
       setAreaTrabalhada(0);
       setDataCadastro(new Date().toISOString().split("T")[0]);
       setTratorEmEdicao(null);
+      setLoading(false); // added setLoading(false)
 
       // Atualiza a lista
       const querySnapshot = await getDocs(collection(db, "tratores"));
@@ -639,6 +640,7 @@ const PescaForm = () => {
       setCicloProdução("");
       setSistemaCultivo("");
       setPesqueiroEmEdicao(null);
+      setLoading(false); // added setLoading(false)
 
       // Atualiza a lista
       const querySnapshot = await getDocs(collection(db, "pesca"));
@@ -1094,6 +1096,7 @@ const PAAForm = () => {
       setMidias([]);
       setDataCadastro(new Date().toISOString().split("T")[0]);
       setPaaLocalEmEdicao(null);
+      setLoading(false); // added setLoading(false)
 
       // Atualiza a lista
       const querySnapshot = await getDocs(collection(db, "paa"));
