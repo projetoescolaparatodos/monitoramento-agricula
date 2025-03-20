@@ -18,13 +18,18 @@ const PescaMap = () => {
 
   interface Pesca {
     id: string;
+    numeroRegistro?: string;
     localidade: string;
     tipoTanque: string;
+    areaImovel?: number;
+    areaAlagada?: number;
+    cicloProdução?: string;
+    sistemaCultivo?: string;
     especiePeixe: string;
     quantidadeAlevinos: number;
     metodoAlimentacao: string;
-    operador: string;
-    tecnicoResponsavel: string;
+    operador?: string;
+    tecnicoResponsavel?: string;
     dataCadastro: string;
     concluido: boolean;
     latitude: number;
@@ -107,13 +112,28 @@ const PescaMap = () => {
             </div>
             <div className="space-y-2">
               <p>
+                <strong>N° de Registro:</strong> {pesca.numeroRegistro || "-"}
+              </p>
+              <p>
                 <strong>Localidade:</strong> {pesca.localidade}
               </p>
               <p>
-                <strong>Tipo de Tanque:</strong> {pesca.tipoTanque}
+                <strong>Tipo de Ambiente de Cultivo:</strong> {pesca.tipoTanque}
               </p>
               <p>
-                <strong>Espécie de Peixe:</strong> {pesca.especiePeixe}
+                <strong>Área do imóvel:</strong> {pesca.areaImovel ? `${pesca.areaImovel} ha` : "-"}
+              </p>
+              <p>
+                <strong>Área Alagada:</strong> {pesca.areaAlagada ? `${pesca.areaAlagada} ha` : "-"}
+              </p>
+              <p>
+                <strong>Ciclo de produção:</strong> {pesca.cicloProdução || "-"}
+              </p>
+              <p>
+                <strong>Sistema de cultivo:</strong> {pesca.sistemaCultivo || "-"}
+              </p>
+              <p>
+                <strong>Espécie:</strong> {pesca.especiePeixe}
               </p>
               <p>
                 <strong>Quantidade de Alevinos:</strong>{" "}
@@ -124,11 +144,11 @@ const PescaMap = () => {
                 {pesca.metodoAlimentacao}
               </p>
               <p>
-                <strong>Operador:</strong> {pesca.operador}
+                <strong>Operador:</strong> {pesca.operador || "-"}
               </p>
               <p>
                 <strong>Técnico Responsável:</strong>{" "}
-                {pesca.tecnicoResponsavel || "Não informado"}
+                {pesca.tecnicoResponsavel || "-"}
               </p>
               <p>
                 <strong>Data:</strong>{" "}

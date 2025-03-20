@@ -314,12 +314,16 @@ const Report = () => {
 
       // Tabela de Pesca
       const pescaTableData = pescaData.map(item => [
+        item.numeroRegistro || '',
         item.especiePeixe || '',
         item.tipoTanque || '',
         item.localidade || '',
-        item.nomePescador || '',
-        item.areaTanque ? `${(item.areaTanque / 10000).toFixed(2)} ha` : '0.00', // Convertido para hectares
+        item.areaImovel || '',
+        item.areaAlagada || '',
+        item.sistemaCultivo || '',
         item.metodoAlimentacao || '',
+        item.operador || '',
+        item.tecnicoResponsavel || '',
         item.quantidadeRacao ? item.quantidadeRacao.toFixed(2) : '0.00',
         item.quantidadePescado ? item.quantidadePescado.toFixed(2) : '0.00',
         item.concluido ? 'Concluído' : 'Em Andamento'
@@ -327,7 +331,7 @@ const Report = () => {
 
       autoTable(doc, {
         startY: yPos,
-        head: [['Espécie', 'Tanque', 'Localidade', 'Produtor', 'Área (ha)', 'Método Alimentação', 'Ração (kg)', 'Quantidade (kg)', 'Status']],
+        head: [['Número Registro', 'Espécie', 'Tipo Tanque', 'Localidade', 'Área Imóvel (ha)', 'Área Alagada (ha)', 'Sistema Cultivo', 'Método Alimentação', 'Operador', 'Técnico', 'Ração (kg)', 'Quantidade (kg)', 'Status']],
         body: pescaTableData,
       });
 
@@ -687,12 +691,16 @@ const Report = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>Número Registro</TableHead>
+                    <TableHead>Espécie</TableHead>
+                    <TableHead>Tipo Tanque</TableHead>
                     <TableHead>Localidade</TableHead>
-                    <TableHead>Produtor</TableHead>
-                    <TableHead>Tipo de Peixe</TableHead>
-                    <TableHead>ID Tanque</TableHead>
-                    <TableHead>Área (ha)</TableHead> {/* Changed to hectares */}
+                    <TableHead>Área Imóvel (ha)</TableHead>
+                    <TableHead>Área Alagada (ha)</TableHead>
+                    <TableHead>Sistema Cultivo</TableHead>
                     <TableHead>Método Alimentação</TableHead>
+                    <TableHead>Operador</TableHead>
+                    <TableHead>Técnico</TableHead>
                     <TableHead>Ração (kg)</TableHead>
                     <TableHead>Quantidade (kg)</TableHead>
                     <TableHead>Status</TableHead>                  </TableRow>
@@ -700,12 +708,16 @@ const Report = () => {
                 <TableBody>
                   {pescaData.map((pesca) => (
                     <TableRow key={pesca.id}>
+                      <TableCell>{pesca.numeroRegistro || "—"}</TableCell>
+                      <TableCell>{pesca.especiePeixe || "—"}</TableCell>
+                      <TableCell>{pesca.tipoTanque || "—"}</TableCell>
                       <TableCell>{pesca.localidade || "—"}</TableCell>
-                      <TableCell>{pesca.nomePescador || "—"}</TableCell>
-                      <TableCell>{pesca.tipoPescado || "—"}</TableCell>
-                      <TableCell>{pesca.idTanque || "—"}</TableCell>
-                      <TableCell>{pesca.areaTanque ? `${(pesca.areaTanque / 10000).toFixed(2)} ha` : "—"}</TableCell> {/* Convertido para hectares */}
+                      <TableCell>{pesca.areaImovel ? `${pesca.areaImovel} ha` : "—"}</TableCell>
+                      <TableCell>{pesca.areaAlagada ? `${pesca.areaAlagada} ha` : "—"}</TableCell>
+                      <TableCell>{pesca.sistemaCultivo || "—"}</TableCell>
                       <TableCell>{pesca.metodoAlimentacao || "—"}</TableCell>
+                      <TableCell>{pesca.operador || "—"}</TableCell>
+                      <TableCell>{pesca.tecnicoResponsavel || "—"}</TableCell>
                       <TableCell>{pesca.quantidadeRacao ? `${pesca.quantidadeRacao.toFixed(2)} kg` : "—"}</TableCell>
                       <TableCell>{pesca.quantidadePescado ? `${pesca.quantidadePescado.toFixed(2)} kg` : "—"}</TableCell>
                       <TableCell>
