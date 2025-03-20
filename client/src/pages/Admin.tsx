@@ -1308,6 +1308,9 @@ const Admin = () => {
       if (auth.currentUser) {
         const permission = await verificarPermissaoUsuario(auth.currentUser.uid);
         setIsAdmin(permission === 'admin');
+      } else {
+        // Redirect to login if not authenticated
+        window.location.href = "/login"; // Or use a router solution
       }
     };
     checkUserPermission();
@@ -1443,7 +1446,7 @@ const Admin = () => {
                       <p className="text-xs text-gray-400">Status: {trator.concluido ? 'Concluído' : 'Em Serviço'}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      {isAdmin && (
+                      {isAdmin ? (
                         <>
                           <Button
                             variant="outline"
@@ -1467,7 +1470,7 @@ const Admin = () => {
                             {trator.concluido ? "Marcar Em Serviço" : "Marcar Concluído"}
                           </Button>
                         </>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 ))}
@@ -1492,7 +1495,7 @@ const Admin = () => {
                       <p className="text-xs text-gray-400">Status: {pesca.concluido ? 'Concluído' : 'Em Serviço'}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      {isAdmin && (
+                      {isAdmin ? (
                         <>
                           <Button
                             variant="outline"
@@ -1516,7 +1519,7 @@ const Admin = () => {
                             {pesca.concluido ? "Marcar Em Andamento" : "Marcar Concluído"}
                           </Button>
                         </>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 ))}
@@ -1541,7 +1544,7 @@ const Admin = () => {
                       <p className="text-xs text-gray-400">Status: {paa.concluido ? 'Concluído' : 'Em Serviço'}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      {isAdmin && (
+                      {isAdmin ? (
                         <>
                           <Button
                             variant="outline"
@@ -1565,7 +1568,7 @@ const Admin = () => {
                             {paa.concluido ? "Marcar Em Andamento" : "Marcar Concluído"}
                           </Button>
                         </>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 ))}
