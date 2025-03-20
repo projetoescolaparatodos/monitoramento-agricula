@@ -44,12 +44,14 @@ export const verificarPermissaoUsuario = async (uid: string): Promise<'admin' | 
 
     if (userDoc.exists()) {
       const userData = userDoc.data();
-      return userData.permissao === 'admin' ? 'admin' : 'usuario';
+      if (userData.permissao === 'admin' || userData.permissao === 'usuario') {
+        return userData.permissao;
+      }
     }
-    return 'usuario';
+    return null;
   } catch (error) {
     console.error("Erro ao verificar permissão:", error);
-    return 'usuario';
+    return null;
   }
 };
 
