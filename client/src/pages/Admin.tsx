@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
 import { db, auth } from "../utils/firebase";
-import { collection, addDoc, getDocs, updateDoc, doc, getDoc, deleteDoc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  updateDoc,
+  doc,
+  getDoc,
+  deleteDoc,
+} from "firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -27,10 +35,12 @@ const AgriculturaForm = () => {
   const [midias, setMidias] = useState<string[]>([]);
   const [tempoAtividade, setTempoAtividade] = useState(0);
   const [areaTrabalhada, setAreaTrabalhada] = useState(0);
-  const [dataCadastro, setDataCadastro] = useState(new Date().toISOString().split("T")[0]);
+  const [dataCadastro, setDataCadastro] = useState(
+    new Date().toISOString().split("T")[0],
+  );
   const [tratoresCadastrados, setTratoresCadastrados] = useState<any[]>([]);
   const [tratorEmEdicao, setTratorEmEdicao] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Inicializado como false
   const [selectedMarker, setSelectedMarker] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const { toast } = useToast();
@@ -38,8 +48,10 @@ const AgriculturaForm = () => {
   useEffect(() => {
     const checkUserPermission = async () => {
       if (auth.currentUser) {
-        const permission = await verificarPermissaoUsuario(auth.currentUser.uid);
-        setIsAdmin(permission === 'admin');
+        const permission = await verificarPermissaoUsuario(
+          auth.currentUser.uid,
+        );
+        setIsAdmin(permission === "admin");
       }
     };
     checkUserPermission();
@@ -68,10 +80,14 @@ const AgriculturaForm = () => {
   }, []);
 
   useEffect(() => {
-    const map = L.map("admin-map-agricultura").setView([-2.87922, -52.0088], 12);
+    const map = L.map("admin-map-agricultura").setView(
+      [-2.87922, -52.0088],
+      12,
+    );
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
     map.on("click", (e) => {
@@ -106,7 +122,17 @@ const AgriculturaForm = () => {
       }
 
       // Verificar campos obrigatórios
-      if (!nome || !fazenda || !atividade || !piloto || !latitude || !longitude || !operacao || !areaTrabalhada || !horaMaquina) {
+      if (
+        !nome ||
+        !fazenda ||
+        !atividade ||
+        !piloto ||
+        !latitude ||
+        !longitude ||
+        !operacao ||
+        !areaTrabalhada ||
+        !horaMaquina
+      ) {
         toast({
           title: "Erro",
           description: "Preencha todos os campos obrigatórios",
@@ -118,13 +144,16 @@ const AgriculturaForm = () => {
       // Validar os valores numéricos
       const latitudeNum = parseFloat(String(latitude));
       const longitudeNum = parseFloat(String(longitude));
-      const tempoAtividadeNum = tempoAtividade ? parseFloat(String(tempoAtividade)) : null;
+      const tempoAtividadeNum = tempoAtividade
+        ? parseFloat(String(tempoAtividade))
+        : null;
       const horaMaquinaNum = parseFloat(String(horaMaquina));
       const areaTrabalhadaNum = parseFloat(String(areaTrabalhada));
 
-
       // Verificar se as mídias são válidas
-      const midiasValidas = midias.filter(url => url && typeof url === 'string' && url.trim() !== '');
+      const midiasValidas = midias.filter(
+        (url) => url && typeof url === "string" && url.trim() !== "",
+      );
 
       // Criar objeto com dados validados
       const tratorData = {
@@ -142,11 +171,11 @@ const AgriculturaForm = () => {
         localidade: localidade || null,
         tecnicoResponsavel: tecnicoResponsavel || null,
         horaMaquina: horaMaquinaNum,
-        operacao
+        operacao,
       };
 
       // Remover propriedades com valores null ou undefined
-      Object.keys(tratorData).forEach(key => {
+      Object.keys(tratorData).forEach((key) => {
         if (tratorData[key] === null || tratorData[key] === undefined) {
           delete tratorData[key];
         }
@@ -190,22 +219,17 @@ const AgriculturaForm = () => {
         ...doc.data(),
       }));
       setTratoresCadastrados(tratoresData);
-
-      toast({
-        title: "Sucesso",
-        description: tratorEmEdicao
-          ? "Trator atualizado com sucesso!"
-          : "Trator cadastrado com sucesso!",
-      });
     } catch (error) {
       console.error("Erro ao salvar trator:", error);
       toast({
         title: "Erro",
-        description: "Não foi possível salvar o trator: " + (error.message || "Verifique o formato do vídeo"),
+        description:
+          "Não foi possível salvar o trator: " +
+          (error.message || "Verifique o formato do vídeo"),
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setLoading(false); // Garante que o estado loading seja redefinido
     }
   };
 
@@ -256,10 +280,12 @@ const AgriculturaForm = () => {
     }
   };
 
-  const verificarPermissaoUsuario = async (uid: string): Promise<'admin' | 'usuario'> => {
+  const verificarPermissaoUsuario = async (
+    uid: string,
+  ): Promise<"admin" | "usuario"> => {
     const docRef = doc(db, "usuarios", uid);
     const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data().permissao : 'usuario';
+    return docSnap.exists() ? docSnap.data().permissao : "usuario";
   };
 
   return (
@@ -269,7 +295,10 @@ const AgriculturaForm = () => {
           <CardTitle>Gerenciar Agricultura</CardTitle>
         </CardHeader>
         <CardContent>
-          <div id="admin-map-agricultura" className="w-full h-[400px] mb-8 rounded-lg overflow-hidden" />
+          <div
+            id="admin-map-agricultura"
+            className="w-full h-[400px] mb-8 rounded-lg overflow-hidden"
+          />
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -359,7 +388,9 @@ const AgriculturaForm = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="tempoAtividade">Tempo de Atividade (minutos)</Label>
+                <Label htmlFor="tempoAtividade">
+                  Tempo de Atividade (minutos)
+                </Label>
                 <Input
                   id="tempoAtividade"
                   type="number"
@@ -370,7 +401,9 @@ const AgriculturaForm = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="areaTrabalhada">Área para mecanização (m²)</Label>
+                <Label htmlFor="areaTrabalhada">
+                  Área para mecanização (m²)
+                </Label>
                 <Input
                   id="areaTrabalhada"
                   type="number"
@@ -426,68 +459,69 @@ const AgriculturaForm = () => {
       </Card>
 
       {isAdmin && (
-      <Card>
-        <CardHeader>
-          <CardTitle>Tratores Cadastrados</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto mt-6">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="bg-gray-100">
-                      <th className="p-2 border">Nome</th>
-                      <th className="p-2 border">Imóvel Rural</th>
-                      <th className="p-2 border">Operação</th>
-                      <th className="p-2 border">Operador</th>
-                      <th className="p-2 border">H/Máquina</th>
-                      <th className="p-2 border">Área (m²)</th>
-                      <th className="p-2 border">Data</th>
-                      <th className="p-2 border">Status</th>
-                      <th className="p-2 border">Ações</th>
+        <Card>
+          <CardHeader>
+            <CardTitle>Tratores Cadastrados</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto mt-6">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="p-2 border">Nome</th>
+                    <th className="p-2 border">Imóvel Rural</th>
+                    <th className="p-2 border">Operação</th>
+                    <th className="p-2 border">Operador</th>
+                    <th className="p-2 border">H/Máquina</th>
+                    <th className="p-2 border">Área (m²)</th>
+                    <th className="p-2 border">Data</th>
+                    <th className="p-2 border">Status</th>
+                    <th className="p-2 border">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tratoresCadastrados.map((trator) => (
+                    <tr key={trator.id} className="hover:bg-gray-50">
+                      <td className="p-2 border">{trator.nome}</td>
+                      <td className="p-2 border">{trator.fazenda}</td>
+                      <td className="p-2 border">{trator.operacao}</td>
+                      <td className="p-2 border">{trator.piloto}</td>
+                      <td className="p-2 border">
+                        {trator.horaMaquina || "-"}
+                      </td>
+                      <td className="p-2 border">{trator.areaTrabalhada}</td>
+                      <td className="p-2 border">
+                        {new Date(trator.dataCadastro).toLocaleDateString()}
+                      </td>
+                      <td className="p-2 border">
+                        {trator.concluido ? "Concluído" : "Em Serviço"}
+                      </td>
+                      <td className="p-2 border">
+                        <div className="flex space-x-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditarTrator(trator)}
+                          >
+                            <Edit2 className="h-4 w-4 mr-1" /> Editar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleExcluirTrator(trator.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" /> Excluir
+                          </Button>
+                        </div>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {tratoresCadastrados.map((trator) => (
-                      <tr key={trator.id} className="hover:bg-gray-50">
-                        <td className="p-2 border">{trator.nome}</td>
-                        <td className="p-2 border">{trator.fazenda}</td>
-                        <td className="p-2 border">{trator.operacao}</td>
-                        <td className="p-2 border">{trator.piloto}</td>
-                        <td className="p-2 border">{trator.horaMaquina || "-"}</td>
-                        <td className="p-2 border">{trator.areaTrabalhada}</td>
-                        <td className="p-2 border">
-                          {new Date(trator.dataCadastro).toLocaleDateString()}
-                        </td>
-                        <td className="p-2 border">
-                          {trator.concluido ? "Concluído" : "Em Serviço"}
-                        </td>
-                        <td className="p-2 border">
-                          <div className="flex space-x-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleEditarTrator(trator)}
-                            >
-                              <Edit2 className="h-4 w-4 mr-1" /> Editar
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => handleExcluirTrator(trator.id)}
-                            >
-                              <Trash2 className="h-4 w-4 mr-1" /> Excluir
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-        </CardContent>
-      </Card>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       )}
-
     </div>
   );
 };
@@ -506,7 +540,9 @@ const PescaForm = () => {
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [midias, setMidias] = useState<string[]>([]);
-  const [dataCadastro, setDataCadastro] = useState(new Date().toISOString().split("T")[0]);
+  const [dataCadastro, setDataCadastro] = useState(
+    new Date().toISOString().split("T")[0],
+  );
   const [pesqueirosCadastrados, setPesqueirosCadastrados] = useState<any[]>([]);
   const [pesqueiroEmEdicao, setPesqueiroEmEdicao] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
@@ -521,8 +557,10 @@ const PescaForm = () => {
   useEffect(() => {
     const checkUserPermission = async () => {
       if (auth.currentUser) {
-        const permission = await verificarPermissaoUsuario(auth.currentUser.uid);
-        setIsAdmin(permission === 'admin');
+        const permission = await verificarPermissaoUsuario(
+          auth.currentUser.uid,
+        );
+        setIsAdmin(permission === "admin");
       }
     };
     checkUserPermission();
@@ -554,7 +592,8 @@ const PescaForm = () => {
     const map = L.map("admin-map-pesca").setView([-2.87922, -52.0088], 12);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
     map.on("click", (e) => {
@@ -601,13 +640,15 @@ const PescaForm = () => {
         latitude,
         longitude,
         midias,
-        dataCadastro: pesqueiroEmEdicao ? pesqueiroEmEdicao.dataCadastro : dataCadastro,
+        dataCadastro: pesqueiroEmEdicao
+          ? pesqueiroEmEdicao.dataCadastro
+          : dataCadastro,
         concluido: false,
         numeroRegistro,
         areaImovel,
         areaAlagada,
         cicloProdução,
-        sistemaCultivo
+        sistemaCultivo,
       };
 
       if (pesqueiroEmEdicao) {
@@ -692,7 +733,9 @@ const PescaForm = () => {
   };
 
   const handleExcluirPesqueiro = async (id: string) => {
-    if (window.confirm("Tem certeza que deseja excluir estes dados de pesca?")) {
+    if (
+      window.confirm("Tem certeza que deseja excluir estes dados de pesca?")
+    ) {
       try {
         await deleteDoc(doc(db, "pesca", id));
         toast({
@@ -716,10 +759,12 @@ const PescaForm = () => {
     }
   };
 
-  const verificarPermissaoUsuario = async (uid: string): Promise<'admin' | 'usuario'> => {
+  const verificarPermissaoUsuario = async (
+    uid: string,
+  ): Promise<"admin" | "usuario"> => {
     const docRef = doc(db, "usuarios", uid);
     const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data().permissao : 'usuario';
+    return docSnap.exists() ? docSnap.data().permissao : "usuario";
   };
 
   return (
@@ -729,7 +774,10 @@ const PescaForm = () => {
           <CardTitle>Gerenciar Pesca</CardTitle>
         </CardHeader>
         <CardContent>
-          <div id="admin-map-pesca" className="w-full h-[400px] mb-8 rounded-lg overflow-hidden" />
+          <div
+            id="admin-map-pesca"
+            className="w-full h-[400px] mb-8 rounded-lg overflow-hidden"
+          />
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -784,12 +832,16 @@ const PescaForm = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="quantidadeAlevinos">Quantidade de Alevinos</Label>
+                <Label htmlFor="quantidadeAlevinos">
+                  Quantidade de Alevinos
+                </Label>
                 <Input
                   id="quantidadeAlevinos"
                   type="number"
                   value={quantidadeAlevinos}
-                  onChange={(e) => setQuantidadeAlevinos(Number(e.target.value))}
+                  onChange={(e) =>
+                    setQuantidadeAlevinos(Number(e.target.value))
+                  }
                   placeholder="Número de alevinos no tanque"
                   required
                   min="0"
@@ -922,46 +974,46 @@ const PescaForm = () => {
       </Card>
 
       {isAdmin && (
-      <Card>
-        <CardHeader>
-          <CardTitle>Pesqueiros Cadastrados</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {pesqueirosCadastrados.map((pesqueiro) => (
-              <div
-                key={pesqueiro.id}
-                className="flex items-center justify-between p-4 border rounded-lg"
-              >
-                <div>
-                  <h3 className="font-semibold">{pesqueiro.localidade}</h3>
-                  <p className="text-sm text-gray-600">
-                    {pesqueiro.nomeImovel} - {pesqueiro.concluido ? "Concluído" : "Em Andamento"}
-                  </p>
+        <Card>
+          <CardHeader>
+            <CardTitle>Pesqueiros Cadastrados</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {pesqueirosCadastrados.map((pesqueiro) => (
+                <div
+                  key={pesqueiro.id}
+                  className="flex items-center justify-between p-4 border rounded-lg"
+                >
+                  <div>
+                    <h3 className="font-semibold">{pesqueiro.localidade}</h3>
+                    <p className="text-sm text-gray-600">
+                      {pesqueiro.nomeImovel} -{" "}
+                      {pesqueiro.concluido ? "Concluído" : "Em Andamento"}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditarPesqueiro(pesqueiro)}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleExcluirPesqueiro(pesqueiro.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEditarPesqueiro(pesqueiro)}
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={()=> handleExcluirPesqueiro(pesqueiro.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
-
     </div>
   );
 };
@@ -979,7 +1031,9 @@ const PAAForm = () => {
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [midias, setMidias] = useState<string[]>([]);
-  const [dataCadastro, setDataCadastro] = useState(new Date().toISOString().split("T")[0]);
+  const [dataCadastro, setDataCadastro] = useState(
+    new Date().toISOString().split("T")[0],
+  );
   const [paaLocaisCadastrados, setPaaLocaisCadastrados] = useState<any[]>([]);
   const [paaLocalEmEdicao, setPaaLocalEmEdicao] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
@@ -989,8 +1043,10 @@ const PAAForm = () => {
   useEffect(() => {
     const checkUserPermission = async () => {
       if (auth.currentUser) {
-        const permission = await verificarPermissaoUsuario(auth.currentUser.uid);
-        setIsAdmin(permission === 'admin');
+        const permission = await verificarPermissaoUsuario(
+          auth.currentUser.uid,
+        );
+        setIsAdmin(permission === "admin");
       }
     };
     checkUserPermission();
@@ -1022,7 +1078,8 @@ const PAAForm = () => {
     const map = L.map("admin-map-paa").setView([-2.87922, -52.0088], 12);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
     map.on("click", (e) => {
@@ -1068,7 +1125,9 @@ const PAAForm = () => {
         latitude,
         longitude,
         midias,
-        dataCadastro: paaLocalEmEdicao ? paaLocalEmEdicao.dataCadastro : dataCadastro,
+        dataCadastro: paaLocalEmEdicao
+          ? paaLocalEmEdicao.dataCadastro
+          : dataCadastro,
         concluido: false,
       };
 
@@ -1166,10 +1225,12 @@ const PAAForm = () => {
     }
   };
 
-  const verificarPermissaoUsuario = async (uid: string): Promise<'admin' | 'usuario'> => {
+  const verificarPermissaoUsuario = async (
+    uid: string,
+  ): Promise<"admin" | "usuario"> => {
     const docRef = doc(db, "usuarios", uid);
     const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data().permissao : 'usuario';
+    return docSnap.exists() ? docSnap.data().permissao : "usuario";
   };
 
   return (
@@ -1179,7 +1240,10 @@ const PAAForm = () => {
           <CardTitle>Gerenciar PAA</CardTitle>
         </CardHeader>
         <CardContent>
-          <div id="admin-map-paa" className="w-full h-[400px] mb-8 rounded-lg overflow-hidden" />
+          <div
+            id="admin-map-paa"
+            className="w-full h-[400px] mb-8 rounded-lg overflow-hidden"
+          />
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1225,12 +1289,16 @@ const PAAForm = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="quantidadeProduzida">Quantidade Produzida</Label>
+                <Label htmlFor="quantidadeProduzida">
+                  Quantidade Produzida
+                </Label>
                 <Input
                   id="quantidadeProduzida"
                   type="number"
                   value={quantidadeProduzida}
-                  onChange={(e) => setQuantidadeProduzida(Number(e.target.value))}
+                  onChange={(e) =>
+                    setQuantidadeProduzida(Number(e.target.value))
+                  }
                   required
                   min="0"
                 />
@@ -1312,44 +1380,45 @@ const PAAForm = () => {
       </Card>
 
       {isAdmin && (
-      <Card>
-        <CardHeader>
-          <CardTitle>PAA Cadastrados</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {paaLocaisCadastrados.map((paaLocal) => (
-              <div
-                key={paaLocal.id}
-                className="flex items-center justify-between p-4 border rounded-lg"
-              >
-                <div>
-                  <h3 className="font-semibold">{paaLocal.localidade}</h3>
-                  <p className="text-sm text-gray-600">
-                    {paaLocal.nomeImovel} - {paaLocal.concluido ? "Concluído" : "Em Andamento"}
-                  </p>
+        <Card>
+          <CardHeader>
+            <CardTitle>PAA Cadastrados</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {paaLocaisCadastrados.map((paaLocal) => (
+                <div
+                  key={paaLocal.id}
+                  className="flex items-center justify-between p-4 border rounded-lg"
+                >
+                  <div>
+                    <h3 className="font-semibold">{paaLocal.localidade}</h3>
+                    <p className="text-sm text-gray-600">
+                      {paaLocal.nomeImovel} -{" "}
+                      {paaLocal.concluido ? "Concluído" : "Em Andamento"}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditarPaaLocal(paaLocal)}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleExcluirPaaLocal(paaLocal.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEditarPaaLocal(paaLocal)}
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleExcluirPaaLocal(paaLocal.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
@@ -1360,22 +1429,28 @@ const Admin = () => {
   const [showEditar, setShowEditar] = useState(false);
   const [selectedLocal, setSelectedLocal] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [pescaLocaisCadastrados, setPescaLocaisCadastrados] = useState<any[]>([]);
+  const [pescaLocaisCadastrados, setPescaLocaisCadastrados] = useState<any[]>(
+    [],
+  );
   const [tratoresCadastrados, setTratoresCadastrados] = useState<any[]>([]);
   const [paaLocaisCadastrados, setPaaLocaisCadastrados] = useState<any[]>([]);
   const { toast } = useToast();
 
-  const verificarPermissaoUsuario = async (uid: string): Promise<'admin' | 'usuario'> => {
+  const verificarPermissaoUsuario = async (
+    uid: string,
+  ): Promise<"admin" | "usuario"> => {
     const docRef = doc(db, "usuarios", uid);
     const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data().permissao : 'usuario';
+    return docSnap.exists() ? docSnap.data().permissao : "usuario";
   };
 
   useEffect(() => {
     const checkUserPermission = async () => {
       if (auth.currentUser) {
-        const permission = await verificarPermissaoUsuario(auth.currentUser.uid);
-        setIsAdmin(permission === 'admin');
+        const permission = await verificarPermissaoUsuario(
+          auth.currentUser.uid,
+        );
+        setIsAdmin(permission === "admin");
       } else {
         // Redirect to login if not authenticated
         window.location.href = "/login"; // Or use a router solution
@@ -1393,7 +1468,6 @@ const Admin = () => {
     setShowDialog(false);
   };
 
-
   const handleEditar = (local: any) => {
     setShowDialog(true);
     setSelectedLocal(local);
@@ -1408,14 +1482,20 @@ const Admin = () => {
           description: "Item excluído com sucesso!",
         });
         // Atualizar a lista correspondente
-        if (colecao === 'pesca') {
-          const novaLista = pescaLocaisCadastrados.filter(item => item.id !== id);
+        if (colecao === "pesca") {
+          const novaLista = pescaLocaisCadastrados.filter(
+            (item) => item.id !== id,
+          );
           setPescaLocaisCadastrados(novaLista);
-        } else if (colecao === 'tratores') {
-          const novaLista = tratoresCadastrados.filter(item => item.id !== id);
+        } else if (colecao === "tratores") {
+          const novaLista = tratoresCadastrados.filter(
+            (item) => item.id !== id,
+          );
           setTratoresCadastrados(novaLista);
-        } else if (colecao === 'paa') {
-          const novaLista = paaLocaisCadastrados.filter(item => item.id !== id);
+        } else if (colecao === "paa") {
+          const novaLista = paaLocaisCadastrados.filter(
+            (item) => item.id !== id,
+          );
           setPaaLocaisCadastrados(novaLista);
         }
       } catch (error) {
@@ -1429,32 +1509,36 @@ const Admin = () => {
     }
   };
 
-
-
   const handleToggleConcluido = async (local: any) => {
     try {
       await updateDoc(doc(db, local.colecao, local.id), {
-        concluido: !local.concluido
+        concluido: !local.concluido,
       });
       toast({
         title: "Sucesso",
-        description: "Status atualizado com sucesso!"
+        description: "Status atualizado com sucesso!",
       });
 
       // Atualizar a lista correspondente
-      if (local.colecao === 'pesca') {
-        const novaLista = pescaLocaisCadastrados.map(item =>
-          item.id === local.id ? { ...item, concluido: !local.concluido } : item
+      if (local.colecao === "pesca") {
+        const novaLista = pescaLocaisCadastrados.map((item) =>
+          item.id === local.id
+            ? { ...item, concluido: !local.concluido }
+            : item,
         );
         setPescaLocaisCadastrados(novaLista);
-      } else if (local.colecao === 'tratores') {
-        const novaLista = tratoresCadastrados.map(item =>
-          item.id === local.id ? { ...item, concluido: !local.concluido } : item
+      } else if (local.colecao === "tratores") {
+        const novaLista = tratoresCadastrados.map((item) =>
+          item.id === local.id
+            ? { ...item, concluido: !local.concluido }
+            : item,
         );
         setTratoresCadastrados(novaLista);
-      } else if (local.colecao === 'paa') {
-        const novaLista = paaLocaisCadastrados.map(item =>
-          item.id === local.id ? { ...item, concluido: !local.concluido } : item
+      } else if (local.colecao === "paa") {
+        const novaLista = paaLocaisCadastrados.map((item) =>
+          item.id === local.id
+            ? { ...item, concluido: !local.concluido }
+            : item,
         );
         setPaaLocaisCadastrados(novaLista);
       }
@@ -1463,7 +1547,7 @@ const Admin = () => {
       toast({
         title: "Erro",
         description: "Não foi possível atualizar o status.",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -1471,17 +1555,40 @@ const Admin = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [tratoresSnapshot, pescaSnapshot, paaSnapshot] = await Promise.all([
-          getDocs(collection(db, "tratores")),
-          getDocs(collection(db, "pesca")),
-          getDocs(collection(db, "paa")),
-        ]);
-        setTratoresCadastrados(tratoresSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data(), colecao: 'tratores' })));
-        setPescaLocaisCadastrados(pescaSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data(), colecao: 'pesca' })));
-        setPaaLocaisCadastrados(paaSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data(), colecao: 'paa' })));
+        const [tratoresSnapshot, pescaSnapshot, paaSnapshot] =
+          await Promise.all([
+            getDocs(collection(db, "tratores")),
+            getDocs(collection(db, "pesca")),
+            getDocs(collection(db, "paa")),
+          ]);
+        setTratoresCadastrados(
+          tratoresSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+            colecao: "tratores",
+          })),
+        );
+        setPescaLocaisCadastrados(
+          pescaSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+            colecao: "pesca",
+          })),
+        );
+        setPaaLocaisCadastrados(
+          paaSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+            colecao: "paa",
+          })),
+        );
       } catch (error) {
         console.error("Error fetching data:", error);
-        toast({ title: "Erro", description: "Não foi possível carregar os dados.", variant: "destructive" });
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar os dados.",
+          variant: "destructive",
+        });
       }
     };
 
@@ -1500,18 +1607,25 @@ const Admin = () => {
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold">Agricultura</h2>
                 {isAdmin && (
-                  <Button onClick={() => handleAbrirDialog('agricultura')}>
+                  <Button onClick={() => handleAbrirDialog("agricultura")}>
                     Adicionar Novo Local
                   </Button>
                 )}
               </div>
               <div className="space-y-4">
                 {tratoresCadastrados.map((trator) => (
-                  <div key={trator.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div
+                    key={trator.id}
+                    className="flex items-center justify-between p-4 border rounded-lg"
+                  >
                     <div>
-                      <p className="font-medium">{trator.nome || 'Sem nome'}</p>
-                      <p className="text-sm text-gray-500">{trator.localidade || trator.fazenda}</p>
-                      <p className="text-xs text-gray-400">Status: {trator.concluido ? 'Concluído' : 'Em Serviço'}</p>
+                      <p className="font-medium">{trator.nome || "Sem nome"}</p>
+                      <p className="text-sm text-gray-500">
+                        {trator.localidade || trator.fazenda}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        Status: {trator.concluido ? "Concluído" : "Em Serviço"}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2">
                       {isAdmin ? (
@@ -1526,7 +1640,7 @@ const Admin = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleExcluir(trator.id, 'tratores')}
+                            onClick={() => handleExcluir(trator.id, "tratores")}
                           >
                             Excluir
                           </Button>
@@ -1535,7 +1649,9 @@ const Admin = () => {
                             size="sm"
                             onClick={() => handleToggleConcluido(trator)}
                           >
-                            {trator.concluido ? "Marcar Em Serviço" : "Marcar Concluído"}
+                            {trator.concluido
+                              ? "Marcar Em Serviço"
+                              : "Marcar Concluído"}
                           </Button>
                         </>
                       ) : null}
@@ -1549,18 +1665,27 @@ const Admin = () => {
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold">Pesca</h2>
                 {isAdmin && (
-                  <Button onClick={() => handleAbrirDialog('pesca')}>
+                  <Button onClick={() => handleAbrirDialog("pesca")}>
                     Adicionar Novo Local
                   </Button>
                 )}
               </div>
               <div className="space-y-4">
                 {pescaLocaisCadastrados.map((pesca) => (
-                  <div key={pesca.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div
+                    key={pesca.id}
+                    className="flex items-center justify-between p-4 border rounded-lg"
+                  >
                     <div>
-                      <p className="font-medium">{pesca.localidade || 'Sem nome'}</p>
-                      <p className="text-sm text-gray-500">{pesca.tipoTanque}</p>
-                      <p className="text-xs text-gray-400">Status: {pesca.concluido ? 'Concluído' : 'Em Serviço'}</p>
+                      <p className="font-medium">
+                        {pesca.localidade || "Sem nome"}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {pesca.tipoTanque}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        Status: {pesca.concluido ? "Concluído" : "Em Serviço"}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2">
                       {isAdmin ? (
@@ -1575,7 +1700,7 @@ const Admin = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleExcluir(pesca.id, 'pesca')}
+                            onClick={() => handleExcluir(pesca.id, "pesca")}
                           >
                             Excluir
                           </Button>
@@ -1584,7 +1709,9 @@ const Admin = () => {
                             size="sm"
                             onClick={() => handleToggleConcluido(pesca)}
                           >
-                            {pesca.concluido ? "Marcar Em Andamento" : "Marcar Concluído"}
+                            {pesca.concluido
+                              ? "Marcar Em Andamento"
+                              : "Marcar Concluído"}
                           </Button>
                         </>
                       ) : null}
@@ -1598,18 +1725,27 @@ const Admin = () => {
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold">PAA</h2>
                 {isAdmin && (
-                  <Button onClick={() => handleAbrirDialog('paa')}>
+                  <Button onClick={() => handleAbrirDialog("paa")}>
                     Adicionar Novo Local
                   </Button>
                 )}
               </div>
               <div className="space-y-4">
                 {paaLocaisCadastrados.map((paa) => (
-                  <div key={paa.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div
+                    key={paa.id}
+                    className="flex items-center justify-between p-4 border rounded-lg"
+                  >
                     <div>
-                      <p className="font-medium">{paa.localidade || 'Sem nome'}</p>
-                      <p className="text-sm text-gray-500">{paa.tipoAlimento}</p>
-                      <p className="text-xs text-gray-400">Status: {paa.concluido ? 'Concluído' : 'Em Serviço'}</p>
+                      <p className="font-medium">
+                        {paa.localidade || "Sem nome"}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {paa.tipoAlimento}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        Status: {paa.concluido ? "Concluído" : "Em Serviço"}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2">
                       {isAdmin ? (
@@ -1624,7 +1760,7 @@ const Admin = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleExcluir(paa.id, 'paa')}
+                            onClick={() => handleExcluir(paa.id, "paa")}
                           >
                             Excluir
                           </Button>
@@ -1633,7 +1769,9 @@ const Admin = () => {
                             size="sm"
                             onClick={() => handleToggleConcluido(paa)}
                           >
-                            {paa.concluido ? "Marcar Em Andamento" : "Marcar Concluído"}
+                            {paa.concluido
+                              ? "Marcar Em Andamento"
+                              : "Marcar Concluído"}
                           </Button>
                         </>
                       ) : null}
