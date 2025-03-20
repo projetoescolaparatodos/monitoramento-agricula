@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { db } from "../utils/firebase";
-import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore";
+import { db, auth } from "../utils/firebase";
+import { collection, addDoc, getDocs, updateDoc, doc, getDoc, deleteDoc } from "firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -909,6 +909,7 @@ const PescaForm = () => {
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -1292,6 +1293,7 @@ const Admin = () => {
   const [pescaLocaisCadastrados, setPescaLocaisCadastrados] = useState<any[]>([]);
   const [tratoresCadastrados, setTratoresCadastrados] = useState<any[]>([]);
   const [paaLocaisCadastrados, setPaaLocaisCadastrados] = useState<any[]>([]);
+  const { toast } = useToast();
 
   useEffect(() => {
     const carregarUsuario = async () => {
@@ -1308,7 +1310,53 @@ const Admin = () => {
   }, []);
 
   const isAdmin = usuario?.permissao === 'admin';
-  const { toast } = useToast();
+
+  const atualizarStatus = async (colecao: string, id: string, novoStatus: boolean) => {
+    if (!isAdmin) {
+      toast({
+        title: "Erro",
+        description: "Você não tem permissão para realizar esta ação.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, colecao, id), {
+        concluido: novoStatus
+      });
+
+      toast({
+        title: "Sucesso",
+        description: "Status atualizado com sucesso!"
+      });
+
+      // Atualizar a lista correspondente
+      if (colecao === 'pesca') {
+        const novaLista = pescaLocaisCadastrados.map(item =>
+          item.id === id ? { ...item, concluido: novoStatus } : item
+        );
+        setPescaLocaisCadastrados(novaLista);
+      } else if (colecao === 'tratores') {
+        const novaLista = tratoresCadastrados.map(item =>
+          item.id === id ? { ...item, concluido: novoStatus } : item
+        );
+        setTratoresCadastrados(novaLista);
+      } else if (colecao === 'paa') {
+        const novaLista = paaLocaisCadastrados.map(item =>
+          item.id === id ? { ...item, concluido: novoStatus } : item
+        );
+        setPaaLocaisCadastrados(novaLista);
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o status.",
+        variant: "destructive"
+      });
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -1330,52 +1378,6 @@ const Admin = () => {
     fetchData();
   }, []);
 
-
-  const handleStatusUpdate = async (collectionName: string, itemId: string, newStatus: boolean) => {
-    try {
-      const docRef = doc(db, collectionName, itemId);
-      await updateDoc(docRef, {
-        concluido: newStatus
-      });
-
-      // Refresh data after update
-      const querySnapshot = await getDocs(collection(db, collectionName));
-      const updatedData = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      // Update state based on collection
-      switch(collectionName) {
-        case "paa":
-          setPaaLocaisCadastrados(updatedData);
-          break;
-        case "pesca":
-          setPescaLocaisCadastrados(updatedData);
-          break;
-        case "tratores":
-          setTratoresCadastrados(updatedData);
-          break;
-      }
-
-      toast({
-        title: "Sucesso",
-        description: "Status atualizado com sucesso!",
-      });
-
-      // Dispatch event to update reports
-      const event = new CustomEvent(`${collectionName}DataUpdated`, { detail: updatedData });
-      window.dispatchEvent(event);
-    } catch (error) {
-      console.error("Erro ao atualizar status:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o status.",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <div className="container mx-auto px-4 py-20">
       <Card className="mb-8">
@@ -1386,22 +1388,21 @@ const Admin = () => {
           <div className="space-y-6">
             <div>
               <h3 className="text-lg font-semibold mb-4">Agricultura</h3>
-              <div className="grid gap-4">
+              <div className="space-y-4">
                 {tratoresCadastrados.map((trator) => (
                   <div key={trator.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div>
                       <p className="font-medium">{trator.nome || 'Sem nome'}</p>
                       <p className="text-sm text-gray-500">{trator.localidade || trator.fazenda}</p>
+                      <p className="text-xs text-gray-400">Status: {trator.concluido ? 'Concluído' : 'Em Serviço'}</p>
                     </div>
-                    {isAdmin ? (
+                    {isAdmin && (
                       <Button
                         variant={trator.concluido ? "outline" : "default"}
-                        onClick={() => handleStatusUpdate("tratores", trator.id, !trator.concluido)}
+                        onClick={() => atualizarStatus("tratores", trator.id, !trator.concluido)}
                       >
                         {trator.concluido ? "Marcar Em Serviço" : "Marcar Concluído"}
                       </Button>
-                    ) : (
-                      <p className="text-sm text-gray-500">Apenas administradores podem alterar o status</p>
                     )}
                   </div>
                 ))}
@@ -1410,19 +1411,22 @@ const Admin = () => {
 
             <div>
               <h3 className="text-lg font-semibold mb-4">Pesca</h3>
-              <div className="grid gap-4">
+              <div className="space-y-4">
                 {pescaLocaisCadastrados.map((pesca) => (
                   <div key={pesca.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div>
                       <p className="font-medium">{pesca.localidade || 'Sem nome'}</p>
                       <p className="text-sm text-gray-500">{pesca.tipoTanque}</p>
+                      <p className="text-xs text-gray-400">Status: {pesca.concluido ? 'Concluído' : 'Em Serviço'}</p>
                     </div>
-                    <Button
-                      variant={pesca.concluido ? "outline" : "default"}
-                      onClick={() => handleStatusUpdate("pesca", pesca.id, !pesca.concluido)}
-                    >
-                      {pesca.concluido ? "Marcar Em Andamento" : "Marcar Concluído"}
-                    </Button>
+                    {isAdmin && (
+                      <Button
+                        variant={pesca.concluido ? "outline" : "default"}
+                        onClick={() => atualizarStatus("pesca", pesca.id, !pesca.concluido)}
+                      >
+                        {pesca.concluido ? "Marcar Em Andamento" : "Marcar Concluído"}
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -1430,19 +1434,22 @@ const Admin = () => {
 
             <div>
               <h3 className="text-lg font-semibold mb-4">PAA</h3>
-              <div className="grid gap-4">
+              <div className="space-y-4">
                 {paaLocaisCadastrados.map((paa) => (
                   <div key={paa.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div>
                       <p className="font-medium">{paa.localidade || 'Sem nome'}</p>
                       <p className="text-sm text-gray-500">{paa.tipoAlimento}</p>
+                      <p className="text-xs text-gray-400">Status: {paa.concluido ? 'Concluído' : 'Em Serviço'}</p>
                     </div>
-                    <Button
-                      variant={paa.concluido ? "outline" : "default"}
-                      onClick={() => handleStatusUpdate("paa", paa.id, !paa.concluido)}
-                    >
-                      {paa.concluido ? "Marcar Em Andamento" : "Marcar Concluído"}
-                    </Button>
+                    {isAdmin && (
+                      <Button
+                        variant={paa.concluido ? "outline" : "default"}
+                        onClick={() => atualizarStatus("paa", paa.id, !paa.concluido)}
+                      >
+                        {paa.concluido ? "Marcar Em Andamento" : "Marcar Concluído"}
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>
