@@ -297,7 +297,7 @@ const PescaMap = () => {
         </RadioGroup>
       </Card>
 
-      <LoadScript googleMapsApiKey="AIzaSyC3fPdcovy7a7nQLe9aGBMR2PFY_qZZVZc">
+      <LoadScript googleMapsApiKey="AIzaSyC3fPdcovy7a7nQLe9aGBMR2PFY_qZZVZc" loadingElement={<div>Loading...</div>}>
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
           center={center}
