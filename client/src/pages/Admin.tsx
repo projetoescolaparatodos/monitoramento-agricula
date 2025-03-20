@@ -30,8 +30,20 @@ const AgriculturaForm = () => {
   const [dataCadastro, setDataCadastro] = useState(new Date().toISOString().split("T")[0]);
   const [tratoresCadastrados, setTratoresCadastrados] = useState<any[]>([]);
   const [tratorEmEdicao, setTratorEmEdicao] = useState<any | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [selectedMarker, setSelectedMarker] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const checkUserPermission = async () => {
+      if (auth.currentUser) {
+        const permission = await verificarPermissaoUsuario(auth.currentUser.uid);
+        setIsAdmin(permission === 'admin');
+      }
+    };
+    checkUserPermission();
+  }, []);
 
   useEffect(() => {
     const fetchTratores = async () => {
@@ -237,6 +249,12 @@ const AgriculturaForm = () => {
         });
       }
     }
+  };
+
+  const verificarPermissaoUsuario = async (uid: string): Promise<'admin' | 'usuario'> => {
+    const docRef = doc(db, "usuarios", uid);
+    const docSnap = await getDoc(docRef);
+    return docSnap.exists() ? docSnap.data().permissao : 'usuario';
   };
 
   return (
