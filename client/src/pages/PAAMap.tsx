@@ -12,44 +12,7 @@ import {
   InfoWindow,
 } from "@react-google-maps/api";
 
-const useMapCache = (fetchFunction, options) => {
-  const { key, expirationTime } = options;
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const cachedData = localStorage.getItem(key);
-  const cachedDataExpiration = localStorage.getItem(key + '_expiration');
-
-  const isCachedDataValid = cachedData && cachedDataExpiration && (new Date(cachedDataExpiration) > new Date());
-
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      let result;
-      if (isCachedDataValid) {
-        result = JSON.parse(cachedData);
-      } else {
-        result = await fetchFunction();
-        localStorage.setItem(key, JSON.stringify(result));
-        localStorage.setItem(key + '_expiration', (new Date(Date.now() + expirationTime * 60 * 1000)).toString());
-      }
-      setData(result);
-    } catch (error) {
-      setError(error);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchFunction, key, expirationTime, isCachedDataValid]);
-
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  return { data, loading, error };
-};
+import { useMapCache } from '../hooks/useMapCache';
 
 
 const PAAMap = () => {

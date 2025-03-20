@@ -13,42 +13,7 @@ import {
 } from "@react-google-maps/api";
 
 // Custom caching hook
-function useMapCache(fetchFunction, { key, expirationTime }) {
-  const cacheKey = key;
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const cachedData = localStorage.getItem(cacheKey);
-      const cachedDataJSON = cachedData ? JSON.parse(cachedData) : null;
-      if (cachedDataJSON && cachedDataJSON.expiration > Date.now()) {
-        setData(cachedDataJSON.data);
-      } else {
-        const fetchedData = await fetchFunction();
-        const dataToCache = {
-          expiration: Date.now() + expirationTime * 60 * 1000,
-          data: fetchedData,
-        };
-        localStorage.setItem(cacheKey, JSON.stringify(dataToCache));
-        setData(fetchedData);
-      }
-    } catch (error) {
-      setError(error);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchFunction, cacheKey, expirationTime]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  return { data, loading, error };
-}
+import { useMapCache } from '../hooks/useMapCache';
 
 
 const PescaMap = () => {

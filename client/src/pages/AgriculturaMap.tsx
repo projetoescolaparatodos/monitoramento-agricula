@@ -15,41 +15,7 @@ import { Label } from "@/components/ui/label";
 import styles from './AgriculturaMap.module.css';
 
 // Placeholder for the missing useMapCache hook.  Replace with your actual implementation.
-const useMapCache = (fetchFunction, options) => {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const cachedData = localStorage.getItem(options.key);
-    if (cachedData) {
-      try {
-        const parsedData = JSON.parse(cachedData);
-        if (Date.now() < parsedData.expiration) {
-          setData(parsedData.data);
-          setLoading(false);
-          return;
-        }
-      } catch (e) {
-        // Ignore errors parsing cached data
-      }
-    }
-
-    fetchFunction()
-      .then(data => {
-        const expiration = Date.now() + (options.expirationTime * 60 * 1000);
-        localStorage.setItem(options.key, JSON.stringify({data, expiration}));
-        setData(data);
-        setLoading(false);
-      })
-      .catch(error => {
-        setError(error);
-        setLoading(false);
-      });
-  }, [fetchFunction, options.key, options.expirationTime]);
-
-  return { data, loading, error };
-};
+import { useMapCache } from '../hooks/useMapCache';
 
 
 const AgriculturaMap = () => {
