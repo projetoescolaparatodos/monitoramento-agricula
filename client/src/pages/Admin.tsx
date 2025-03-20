@@ -912,8 +912,7 @@ const PescaForm = () => {
                 </div>
               </div>
             ))}
-          </div>
-        </CardContent>
+          </div>        </CardContent>
       </Card>
     </div>
   );
@@ -944,12 +943,13 @@ const PAAForm = () => {
         const querySnapshot = await getDocs(collection(db, "paa"));
         const paaData = querySnapshot.docs.map((doc) => ({
           id: doc.id,
-                    ...doc.data(),
+          ...doc.data(),
         }));
         setPaaLocaisCadastrados(paaData);
       } catch (error) {
         console.error("Erro ao buscar dados do PAA:", error);
-        toast({          title: "Erro",
+        toast({
+          title: "Erro",
           description: "Não foi possível carregar os dados do PAA.",
           variant: "destructive",
         });
@@ -1288,8 +1288,148 @@ const PAAForm = () => {
 };
 
 const Admin = () => {
+  const [pescaLocaisCadastrados, setPescaLocaisCadastrados] = useState<any[]>([]);
+  const [tratoresCadastrados, setTratoresCadastrados] = useState<any[]>([]);
+  const [paaLocaisCadastrados, setPaaLocaisCadastrados] = useState<any[]>([]);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [tratoresSnapshot, pescaSnapshot, paaSnapshot] = await Promise.all([
+          getDocs(collection(db, "tratores")),
+          getDocs(collection(db, "pesca")),
+          getDocs(collection(db, "paa")),
+        ]);
+        setTratoresCadastrados(tratoresSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+        setPescaLocaisCadastrados(pescaSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+        setPaaLocaisCadastrados(paaSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast({ title: "Erro", description: "Não foi possível carregar os dados.", variant: "destructive" });
+      }
+    };
+
+    fetchData();
+  }, []);
+
+
+  const handleStatusUpdate = async (collectionName: string, itemId: string, newStatus: boolean) => {
+    try {
+      const docRef = doc(db, collectionName, itemId);
+      await updateDoc(docRef, {
+        concluido: newStatus
+      });
+
+      // Refresh data after update
+      const querySnapshot = await getDocs(collection(db, collectionName));
+      const updatedData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      // Update state based on collection
+      switch(collectionName) {
+        case "paa":
+          setPaaLocaisCadastrados(updatedData);
+          break;
+        case "pesca":
+          setPescaLocaisCadastrados(updatedData);
+          break;
+        case "tratores":
+          setTratoresCadastrados(updatedData);
+          break;
+      }
+
+      toast({
+        title: "Sucesso",
+        description: "Status atualizado com sucesso!",
+      });
+
+      // Dispatch event to update reports
+      const event = new CustomEvent(`${collectionName}DataUpdated`, { detail: updatedData });
+      window.dispatchEvent(event);
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o status.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-20">
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Gerenciar Status das Atividades</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Agricultura</h3>
+              <div className="grid gap-4">
+                {tratoresCadastrados.map((trator) => (
+                  <div key={trator.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <p className="font-medium">{trator.nome || 'Sem nome'}</p>
+                      <p className="text-sm text-gray-500">{trator.localidade || trator.fazenda}</p>
+                    </div>
+                    <Button
+                      variant={trator.concluido ? "outline" : "default"}
+                      onClick={() => handleStatusUpdate("tratores", trator.id, !trator.concluido)}
+                    >
+                      {trator.concluido ? "Marcar Em Serviço" : "Marcar Concluído"}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Pesca</h3>
+              <div className="grid gap-4">
+                {pescaLocaisCadastrados.map((pesca) => (
+                  <div key={pesca.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <p className="font-medium">{pesca.localidade || 'Sem nome'}</p>
+                      <p className="text-sm text-gray-500">{pesca.tipoTanque}</p>
+                    </div>
+                    <Button
+                      variant={pesca.concluido ? "outline" : "default"}
+                      onClick={() => handleStatusUpdate("pesca", pesca.id, !pesca.concluido)}
+                    >
+                      {pesca.concluido ? "Marcar Em Andamento" : "Marcar Concluído"}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-4">PAA</h3>
+              <div className="grid gap-4">
+                {paaLocaisCadastrados.map((paa) => (
+                  <div key={paa.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <p className="font-medium">{paa.localidade || 'Sem nome'}</p>
+                      <p className="text-sm text-gray-500">{paa.tipoAlimento}</p>
+                    </div>
+                    <Button
+                      variant={paa.concluido ? "outline" : "default"}
+                      onClick={() => handleStatusUpdate("paa", paa.id, !paa.concluido)}
+                    >
+                      {paa.concluido ? "Marcar Em Andamento" : "Marcar Concluído"}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Tabs defaultValue="agricultura">
         <TabsList className="mb-8">
           <TabsTrigger value="agricultura">Agricultura</TabsTrigger>
