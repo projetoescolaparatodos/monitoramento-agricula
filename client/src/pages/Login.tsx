@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, verificarPermissaoUsuario } from "../utils/firebase";
+import { auth, verificarPermissaoUsuario, inicializarUsuarioAdmin } from "../utils/firebase";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
