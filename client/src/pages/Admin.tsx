@@ -510,7 +510,18 @@ const PescaForm = () => {
   const [areaAlagada, setAreaAlagada] = useState(0);
   const [cicloProdução, setCicloProdução] = useState("");
   const [sistemaCultivo, setSistemaCultivo] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false); // Added isAdmin state
   const { toast } = useToast();
+
+  useEffect(() => {
+    const checkUserPermission = async () => {
+      if (auth.currentUser) {
+        const permission = await verificarPermissaoUsuario(auth.currentUser.uid);
+        setIsAdmin(permission === 'admin');
+      }
+    };
+    checkUserPermission();
+  }, []); // Added useEffect hook for permission check
 
   useEffect(() => {
     const fetchPesqueiros = async () => {
@@ -697,6 +708,12 @@ const PescaForm = () => {
         });
       }
     }
+  };
+
+  const verificarPermissaoUsuario = async (uid: string): Promise<'admin' | 'usuario'> => {
+    const docRef = doc(db, "usuarios", uid);
+    const docSnap = await getDoc(docRef);
+    return docSnap.exists() ? docSnap.data().permissao : 'usuario';
   };
 
   return (
@@ -960,7 +977,18 @@ const PAAForm = () => {
   const [paaLocaisCadastrados, setPaaLocaisCadastrados] = useState<any[]>([]);
   const [paaLocalEmEdicao, setPaaLocalEmEdicao] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false); // Added isAdmin state
   const { toast } = useToast();
+
+  useEffect(() => {
+    const checkUserPermission = async () => {
+      if (auth.currentUser) {
+        const permission = await verificarPermissaoUsuario(auth.currentUser.uid);
+        setIsAdmin(permission === 'admin');
+      }
+    };
+    checkUserPermission();
+  }, []); // Added useEffect hook for permission check
 
   useEffect(() => {
     const fetchPaaLocais = async () => {
@@ -1129,6 +1157,12 @@ const PAAForm = () => {
         });
       }
     }
+  };
+
+  const verificarPermissaoUsuario = async (uid: string): Promise<'admin' | 'usuario'> => {
+    const docRef = doc(db, "usuarios", uid);
+    const docSnap = await getDoc(docRef);
+    return docSnap.exists() ? docSnap.data().permissao : 'usuario';
   };
 
   return (
