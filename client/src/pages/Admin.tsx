@@ -116,6 +116,8 @@ const AgriculturaForm = () => {
         setLoading(false);
         return;
       }
+      
+      setLoading(true);
 
       // Validar os valores numéricos
       const latitudeNum = parseFloat(String(latitude));
