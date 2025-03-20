@@ -9,6 +9,7 @@ interface CacheConfig {
 interface CacheItem<T> {
   data: T;
   timestamp: number;
+  key: string;
 }
 
 function openDB(dbName: string = 'MapCacheDB'): Promise<IDBDatabase> {
@@ -28,7 +29,7 @@ function openDB(dbName: string = 'MapCacheDB'): Promise<IDBDatabase> {
 }
 
 export function useMapCache<T>(fetchFunction: () => Promise<T>, config: CacheConfig) {
-  const [data, setData] = useState<T | null>(null);
+  const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -36,8 +37,9 @@ export function useMapCache<T>(fetchFunction: () => Promise<T>, config: CacheCon
     try {
       setLoading(true);
       const db = await openDB();
-      const tx = db.transaction('mapCache', 'readonly');
+      const tx = db.transaction('mapCache', 'readwrite');
       const store = tx.objectStore('mapCache');
+      
       const cachedResult = await new Promise<CacheItem<T> | undefined>((resolve) => {
         const request = store.get(config.key);
         request.onsuccess = () => resolve(request.result);
@@ -48,25 +50,22 @@ export function useMapCache<T>(fetchFunction: () => Promise<T>, config: CacheCon
       const isExpired = !cachedResult || 
         (now - cachedResult.timestamp > config.expirationTime * 60 * 1000);
 
-      if (!isExpired && cachedResult) {
-        setData(cachedResult.data);
+      if (isExpired) {
+        const freshData = await fetchFunction();
+        const cacheItem: CacheItem<T> = {
+          data: freshData,
+          timestamp: now,
+          key: config.key
+        };
+        
+        store.put(cacheItem);
+        setData(freshData as T[]);
       } else {
-        const newData = await fetchFunction();
-        const tx = db.transaction('mapCache', 'readwrite');
-        const store = tx.objectStore('mapCache');
-        await new Promise<void>((resolve, reject) => {
-          const request = store.put({
-            key: config.key,
-            data: newData,
-            timestamp: now
-          });
-          request.onsuccess = () => resolve();
-          request.onerror = () => reject(request.error);
-        });
-        setData(newData);
+        setData(cachedResult.data as T[]);
       }
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to fetch data'));
+      setError(err as Error);
+      console.error('Error fetching data:', err);
     } finally {
       setLoading(false);
     }
