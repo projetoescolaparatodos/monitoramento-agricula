@@ -1,0 +1,137 @@
+Para implementar um sistema de hierarquia de permissões na área do administrador, onde:
+
+Administradores têm permissão para marcar atividades como "Concluída" ou "Em Serviço", editar/excluir atividades.
+
+Usuários comuns só podem adicionar novas atividades, mas não podem alterar as existentes.
+
+Vamos seguir uma abordagem estruturada para implementar isso. Aqui está o passo a passo:
+
+1. Definição das Permissões
+Primeiro, defina os níveis de permissão:
+
+Admin: Pode marcar atividades como "Concluída" ou "Em Serviço", editar/excluir atividades.
+
+Usuário Comum: Pode apenas adicionar novas atividades.
+
+2. Estrutura do Banco de Dados
+No banco de dados, você precisa de uma tabela para usuários com um campo que define o nível de permissão. Por exemplo:
+
+Tabela usuarios:
+id	nome	email	permissao
+1	João Admin	joao@admin.com	admin
+2	Maria Comum	maria@usuario.com	usuario
+Tabela atividades:
+id	descricao	status	localidade	criado_por
+1	Pesca 1	Em Serviço	Lagoa Azul	2
+2	Pesca 2	Concluída	Rio Verde	1
+3. Backend: Verificação de Permissões
+No backend, crie middlewares ou funções para verificar as permissões antes de permitir ações como editar, excluir ou marcar atividades.
+
+Exemplo em Node.js (Express):
+javascript
+Copy
+// Middleware para verificar se o usuário é admin
+function isAdmin(req, res, next) {
+    const usuario = req.usuario; // Supondo que o usuário está autenticado e disponível no request
+    if (usuario && usuario.permissao === 'admin') {
+        next(); // Permite continuar
+    } else {
+        res.status(403).send("Acesso negado: você não tem permissão para esta ação.");
+    }
+}
+
+// Rota para marcar atividade como concluída ou em serviço (apenas admin)
+app.put('/api/atividades/:id/status', isAdmin, (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    // Atualiza o status no banco de dados
+    database.atualizarStatusAtividade(id, status)
+        .then(() => res.send("Status atualizado com sucesso!"))
+        .catch(err => res.status(500).send("Erro ao atualizar status."));
+});
+
+// Rota para adicionar nova atividade (qualquer usuário autenticado)
+app.post('/api/atividades', (req, res) => {
+    const { descricao, localidade } = req.body;
+    const criadoPor = req.usuario.id; // ID do usuário autenticado
+
+    // Adiciona a nova atividade no banco de dados
+    database.adicionarAtividade({ descricao, localidade, criadoPor })
+        .then(() => res.send("Atividade adicionada com sucesso!"))
+        .catch(err => res.status(500).send("Erro ao adicionar atividade."));
+});
+4. Frontend: Controle de Acesso
+No frontend, mostre ou oculte os botões e funcionalidades com base no nível de permissão do usuário.
+
+Exemplo de HTML/JavaScript:
+html
+Copy
+<div id="adminControls" style="display: none;">
+    <button onclick="marcarConcluido()">Marcar como Concluído</button>
+    <button onclick="editarAtividade()">Editar Atividade</button>
+    <button onclick="excluirAtividade()">Excluir Atividade</button>
+</div>
+
+<div id="userControls">
+    <button onclick="adicionarAtividade()">Adicionar Atividade</button>
+</div>
+
+<script>
+    // Verifica o nível de permissão do usuário
+    const usuario = { id: 1, permissao: 'admin' }; // Substitua pelos dados reais do usuário
+
+    if (usuario.permissao === 'admin') {
+        document.getElementById('adminControls').style.display = 'block';
+    }
+</script>
+Run HTML
+5. Funcionalidades Específicas
+Aqui estão as funcionalidades que você mencionou, implementadas com base nas permissões:
+
+a) Marcar como "Concluída" ou "Em Serviço" (apenas admin)
+No frontend, exiba os botões apenas para administradores.
+
+No backend, use o middleware isAdmin para garantir que apenas administradores possam acessar a rota.
+
+b) Editar/Excluir Atividades (apenas admin)
+No frontend, exiba os botões de editar/excluir apenas para administradores.
+
+No backend, use o middleware isAdmin para proteger as rotas de edição/exclusão.
+
+c) Adicionar Novas Atividades (todos os usuários autenticados)
+No frontend, exiba o botão de adicionar atividade para todos os usuários.
+
+No backend, permita que qualquer usuário autenticado acesse a rota de adicionar atividade.
+
+6. Exemplo Completo de Fluxo
+Login do Usuário:
+
+O usuário faz login, e o sistema verifica se ele é um administrador ou um usuário comum.
+
+O frontend recebe o nível de permissão e ajusta a interface conforme necessário.
+
+Adicionar Atividade:
+
+Um usuário comum clica em "Adicionar Atividade" e preenche o formulário.
+
+O frontend envia os dados para o backend, que salva a atividade no banco de dados.
+
+Editar/Excluir Atividade:
+
+Um administrador clica em "Editar" ou "Excluir".
+
+O frontend envia a solicitação para o backend, que verifica se o usuário é um administrador antes de processar a ação.
+
+Marcar Status:
+
+Um administrador seleciona "Concluída" ou "Em Serviço" e clica em "Atualizar Status".
+
+O frontend envia a solicitação para o backend, que verifica as permissões e atualiza o status no banco de dados.
+
+7. Considerações Finais
+Autenticação: Certifique-se de que o sistema de autenticação esteja funcionando corretamente para identificar o usuário e seu nível de permissão.
+
+Segurança: Nunca confie apenas nas verificações do frontend. Sempre valide as permissões no backend.
+
+Testes: Teste todas as funcionalidades com diferentes níveis de permissão para garantir que o sistema funcione conforme o esperado.
