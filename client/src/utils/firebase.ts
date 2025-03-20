@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCAHOYOjHyvoRXkVhuQc_Ld3VrJtmqO1XM",
@@ -20,7 +21,7 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const auth = getAuth(app);
-import { setDoc, getDoc } from 'firebase/firestore';
+
 
 export const criarUsuarioComPermissao = async (uid: string, email: string, permissao: 'admin' | 'usuario') => {
   try {
@@ -65,7 +66,5 @@ export const inicializarUsuarioAdmin = async (user: any) => {
   } catch (error) {
     console.error("Erro ao inicializar usuário admin:", error);
     return false;
-  }
-};;
   }
 };
