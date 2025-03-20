@@ -1288,9 +1288,26 @@ const PAAForm = () => {
 };
 
 const Admin = () => {
+  const [usuario, setUsuario] = useState<any>(null);
   const [pescaLocaisCadastrados, setPescaLocaisCadastrados] = useState<any[]>([]);
   const [tratoresCadastrados, setTratoresCadastrados] = useState<any[]>([]);
   const [paaLocaisCadastrados, setPaaLocaisCadastrados] = useState<any[]>([]);
+
+  useEffect(() => {
+    const carregarUsuario = async () => {
+      const usuarioAtual = auth.currentUser;
+      if (usuarioAtual) {
+        const docRef = doc(db, "usuarios", usuarioAtual.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setUsuario({ id: docSnap.id, ...docSnap.data() });
+        }
+      }
+    };
+    carregarUsuario();
+  }, []);
+
+  const isAdmin = usuario?.permissao === 'admin';
   const { toast } = useToast();
 
   useEffect(() => {
@@ -1376,12 +1393,16 @@ const Admin = () => {
                       <p className="font-medium">{trator.nome || 'Sem nome'}</p>
                       <p className="text-sm text-gray-500">{trator.localidade || trator.fazenda}</p>
                     </div>
-                    <Button
-                      variant={trator.concluido ? "outline" : "default"}
-                      onClick={() => handleStatusUpdate("tratores", trator.id, !trator.concluido)}
-                    >
-                      {trator.concluido ? "Marcar Em Serviço" : "Marcar Concluído"}
-                    </Button>
+                    {isAdmin ? (
+                      <Button
+                        variant={trator.concluido ? "outline" : "default"}
+                        onClick={() => handleStatusUpdate("tratores", trator.id, !trator.concluido)}
+                      >
+                        {trator.concluido ? "Marcar Em Serviço" : "Marcar Concluído"}
+                      </Button>
+                    ) : (
+                      <p className="text-sm text-gray-500">Apenas administradores podem alterar o status</p>
+                    )}
                   </div>
                 ))}
               </div>

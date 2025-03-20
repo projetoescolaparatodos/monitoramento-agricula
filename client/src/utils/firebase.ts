@@ -20,3 +20,16 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const auth = getAuth(app);
+export const criarUsuarioComPermissao = async (uid: string, email: string, permissao: 'admin' | 'usuario') => {
+  try {
+    await setDoc(doc(db, "usuarios", uid), {
+      email,
+      permissao,
+      dataCriacao: new Date().toISOString()
+    });
+    return true;
+  } catch (error) {
+    console.error("Erro ao criar usuário:", error);
+    return false;
+  }
+};
