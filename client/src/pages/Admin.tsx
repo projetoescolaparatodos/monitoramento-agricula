@@ -1358,107 +1358,6 @@ const Admin = () => {
     }
   };
 
-  const renderGerenciamento = () => {
-    if (isAdmin) {
-      return (
-        <>
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>Gerenciar Status das Atividades</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Agricultura</h3>
-                  <div className="space-y-4">
-                    {tratoresCadastrados.map((trator) => (
-                      <div key={trator.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div>
-                          <p className="font-medium">{trator.nome || 'Sem nome'}</p>
-                          <p className="text-sm text-gray-500">{trator.localidade || trator.fazenda}</p>
-                          <p className="text-xs text-gray-400">Status: {trator.concluido ? 'Concluído' : 'Em Serviço'}</p>
-                        </div>
-                        <Button
-                          variant={trator.concluido ? "outline" : "default"}
-                          onClick={() => atualizarStatus("tratores", trator.id, !trator.concluido)}
-                        >
-                          {trator.concluido ? "Marcar Em Serviço" : "Marcar Concluído"}
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Pesca</h3>
-                  <div className="space-y-4">
-                    {pescaLocaisCadastrados.map((pesca) => (
-                      <div key={pesca.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div>
-                          <p className="font-medium">{pesca.localidade || 'Sem nome'}</p>
-                          <p className="text-sm text-gray-500">{pesca.tipoTanque}</p>
-                          <p className="text-xs text-gray-400">Status: {pesca.concluido ? 'Concluído' : 'Em Serviço'}</p>
-                        </div>
-                        <Button
-                          variant={pesca.concluido ? "outline" : "default"}
-                          onClick={() => atualizarStatus("pesca", pesca.id, !pesca.concluido)}
-                        >
-                          {pesca.concluido ? "Marcar Em Andamento" : "Marcar Concluído"}
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">PAA</h3>
-                  <div className="space-y-4">
-                    {paaLocaisCadastrados.map((paa) => (
-                      <div key={paa.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div>
-                          <p className="font-medium">{paa.localidade || 'Sem nome'}</p>
-                          <p className="text-sm text-gray-500">{paa.tipoAlimento}</p>
-                          <p className="text-xs text-gray-400">Status: {paa.concluido ? 'Concluído' : 'Em Serviço'}</p>
-                        </div>
-                        <Button
-                          variant={paa.concluido ? "outline" : "default"}
-                          onClick={() => atualizarStatus("paa", paa.id, !paa.concluido)}
-                        >
-                          {paa.concluido ? "Marcar Em Andamento" : "Marcar Concluído"}
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </>
-      );
-    } else {
-      return (
-        <>
-          <Tabs defaultValue="agricultura">
-            <TabsList className="mb-8">
-              <TabsTrigger value="agricultura">Agricultura</TabsTrigger>
-              <TabsTrigger value="pesca">Pesca</TabsTrigger>
-              <TabsTrigger value="paa">PAA</TabsTrigger>
-            </TabsList>
-            <TabsContent value="agricultura">
-              <AgriculturaForm />
-            </TabsContent>
-            <TabsContent value="pesca">
-              <PescaForm />
-            </TabsContent>
-            <TabsContent value="paa">
-              <PAAForm />
-            </TabsContent>
-          </Tabs>
-        </>
-      );
-    }
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -1483,15 +1382,101 @@ const Admin = () => {
     <div className="container mx-auto px-4 py-20">
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>
-            {isAdmin ? "Painel Administrativo" : "Painel de Usuário"}
-          </CardTitle>
+          <CardTitle>Gerenciar Status das Atividades</CardTitle>
         </CardHeader>
         <CardContent>
-          {renderGerenciamento()}
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Agricultura</h3>
+              <div className="space-y-4">
+                {tratoresCadastrados.map((trator) => (
+                  <div key={trator.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <p className="font-medium">{trator.nome || 'Sem nome'}</p>
+                      <p className="text-sm text-gray-500">{trator.localidade || trator.fazenda}</p>
+                      <p className="text-xs text-gray-400">Status: {trator.concluido ? 'Concluído' : 'Em Serviço'}</p>
+                    </div>
+                    {isAdmin && (
+                      <Button
+                        variant={trator.concluido ? "outline" : "default"}
+                        onClick={() => atualizarStatus("tratores", trator.id, !trator.concluido)}
+                      >
+                        {trator.concluido ? "Marcar Em Serviço" : "Marcar Concluído"}
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Pesca</h3>
+              <div className="space-y-4">
+                {pescaLocaisCadastrados.map((pesca) => (
+                  <div key={pesca.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <p className="font-medium">{pesca.localidade || 'Sem nome'}</p>
+                      <p className="text-sm text-gray-500">{pesca.tipoTanque}</p>
+                      <p className="text-xs text-gray-400">Status: {pesca.concluido ? 'Concluído' : 'Em Serviço'}</p>
+                    </div>
+                    {isAdmin && (
+                      <Button
+                        variant={pesca.concluido ? "outline" : "default"}
+                        onClick={() => atualizarStatus("pesca", pesca.id, !pesca.concluido)}
+                      >
+                        {pesca.concluido ? "Marcar Em Andamento" : "Marcar Concluído"}
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-4">PAA</h3>
+              <div className="space-y-4">
+                {paaLocaisCadastrados.map((paa) => (
+                  <div key={paa.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <p className="font-medium">{paa.localidade || 'Sem nome'}</p>
+                      <p className="text-sm text-gray-500">{paa.tipoAlimento}</p>
+                      <p className="text-xs text-gray-400">Status: {paa.concluido ? 'Concluído' : 'Em Serviço'}</p>
+                    </div>
+                    {isAdmin && (
+                      <Button
+                        variant={paa.concluido ? "outline" : "default"}
+                        onClick={() => atualizarStatus("paa", paa.id, !paa.concluido)}
+                      >
+                        {paa.concluido ? "Marcar Em Andamento" : "Marcar Concluído"}
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
+      <Tabs defaultValue="agricultura">
+        <TabsList className="mb-8">
+          <TabsTrigger value="agricultura">Agricultura</TabsTrigger>
+          <TabsTrigger value="pesca">Pesca</TabsTrigger>
+          <TabsTrigger value="paa">PAA</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="agricultura">
+          <AgriculturaForm />
+        </TabsContent>
+
+        <TabsContent value="pesca">
+          <PescaForm />
+        </TabsContent>
+
+        <TabsContent value="paa">
+          <PAAForm />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
