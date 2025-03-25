@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, enableMultiTabIndexedDbPersistence } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 import { doc, setDoc, getDoc } from 'firebase/firestore';
@@ -18,7 +18,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Exporta as funcionalidades que vamos usar
-export const db = getFirestore(app);
+const db = getFirestore(app);
+enableMultiTabIndexedDbPersistence(db).catch((err) => {
+    if (err.code === 'failed-precondition') {
+        console.warn('Persistence failed - multiple tabs open');
+    } else if (err.code === 'unimplemented') {
+        console.warn('Persistence not available');
+    }
+});
+
+export { db };
 export const storage = getStorage(app);
 storage.cors = [
   {
