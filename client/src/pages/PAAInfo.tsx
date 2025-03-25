@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import ReactPlayer from 'react-player';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'wouter'; // Added useNavigate
+import { useLocation } from 'wouter'; // Added useNavigate
 
 
 const PAAInfo = () => {
-  const navigate = useNavigate(); // Added navigate hook
+  const [, setLocation] = useLocation(); // Added navigate hook
   return (
     <div className="container mx-auto p-4 pt-16">
       <h1 className="text-3xl font-bold mb-6">Programa de Aquisição de Alimentos (PAA)</h1>
@@ -50,7 +50,7 @@ const PAAInfo = () => {
         </Card>
       </div>
       <div className="mt-8 flex justify-center">
-        <Button onClick={() => navigate('/paa/mapa')} className="px-8 py-6 text-lg"> {/* Changed to useNavigate */}
+        <Button onClick={() => setLocation('/paa/mapa')} className="px-8 py-6 text-lg"> {/* Changed to useNavigate */}
           Acompanhar Serviços
         </Button>
       </div>

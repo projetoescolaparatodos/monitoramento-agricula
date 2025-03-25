@@ -1,9 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'wouter';
+import { useLocation } from 'wouter';
 
 const AgriculturaInfo = () => {
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
   return (
     <div className="container mx-auto p-4 pt-16">
       <h1 className="text-3xl font-bold mb-6">Agricultura em Vitória do Xingu</h1>
@@ -49,7 +49,7 @@ const AgriculturaInfo = () => {
         </Card>
       </div>
     <div className="mt-8 flex justify-center">
-        <Button onClick={() => navigate('/agricultura/mapa')} className="px-8 py-6 text-lg">
+        <Button onClick={() => setLocation('/agricultura/mapa')} className="px-8 py-6 text-lg">
           Acompanhar Serviços
         </Button>
       </div>
