@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { storage } from "@/utils/firebase";
@@ -8,22 +9,21 @@ interface UploadProps {
   onUploadComplete: (urls: string[]) => void;
 }
 
-export function Upload({ folder, onUploadComplete }: UploadProps) {
+const Upload = ({ folder, onUploadComplete }: UploadProps) => {
   const [uploading, setUploading] = useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
-
+    
     setUploading(true);
-    const files = e.target.files;
+    const files = Array.from(e.target.files);
+    const uploadPromises = files.map(async (file) => {
+      const storageRef = ref(storage, `${folder}/${file.name}`);
+      await uploadBytes(storageRef, file);
+      return getDownloadURL(storageRef);
+    });
 
     try {
-      const uploadPromises = Array.from(files).map(async (file) => {
-        const storageRef = ref(storage, `${folder}/${Date.now()}-${file.name}`);
-        await uploadBytes(storageRef, file);
-        return getDownloadURL(storageRef);
-      });
-
       const urls = await Promise.all(uploadPromises);
       onUploadComplete(urls);
     } catch (error) {
@@ -34,7 +34,7 @@ export function Upload({ folder, onUploadComplete }: UploadProps) {
   };
 
   return (
-    <div className="mt-2">
+    <div>
       <input
         type="file"
         multiple
@@ -46,13 +46,15 @@ export function Upload({ folder, onUploadComplete }: UploadProps) {
         <Button
           type="button"
           variant="outline"
-          className="cursor-pointer"
+          className="w-full"
           disabled={uploading}
           asChild
         >
-          <span>{uploading ? "Enviando..." : "Escolher Arquivos"}</span>
+          <span>{uploading ? "Enviando..." : "Selecionar Arquivos"}</span>
         </Button>
       </label>
     </div>
   );
-}
+};
+
+export default Upload;
