@@ -30,6 +30,8 @@ interface PAA {
   areaMecanization?: number;
 }
 
+import styles from "./PAAMap.module.css";
+
 const PAAMap = () => {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: "AIzaSyC3fPdcovy7a7nQLe9aGBMR2PFY_qZZVZc",
