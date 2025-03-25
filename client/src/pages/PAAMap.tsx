@@ -115,8 +115,7 @@ const PAAMap = () => {
             setIsMaximized(false);
           }}
           options={{
-            maxWidth: isMaximized ? window.innerWidth * 0.9 : 300,
-            pixelOffset: new window.google.maps.Size(0, -50)
+            maxWidth: isMaximized ? window.innerWidth * 0.9 : undefined,
           }}
         >
           <div
@@ -268,16 +267,10 @@ const PAAMap = () => {
             position={{ lat: paa.latitude, lng: paa.longitude }}
             icon={{
               url: "/paa-icon.png",
-              scaledSize: new window.google.maps.Size(50, 50),
-              anchor: new window.google.maps.Point(25, 50),
+              scaledSize: { width: 50, height: 50 },
+              anchor: { x: 25, y: 50 },
             }}
-            onClick={() => {
-              console.log("Marker clicked", paa);
-              setSelectedMarker(paa);
-            }}
-            onLoad={(marker) => {
-              console.log("Marker loaded", marker);
-            }}
+            onClick={() => setSelectedMarker(paa)}
           />
         ))}
         {selectedMarker && renderInfoWindow(selectedMarker)}
