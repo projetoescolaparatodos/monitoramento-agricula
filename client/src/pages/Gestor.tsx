@@ -1,7 +1,16 @@
-
 import { useState, useEffect } from "react";
-import { Label } from "@/components/ui/label";
 import { db } from "../utils/firebase";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
+import { Label } from "@/components/ui/label";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import Upload from "@/components/Upload";
 import { Input } from "@/components/ui/input";
+import { X } from 'lucide-react';
 
 function Gestor() {
   const { toast } = useToast();
@@ -59,7 +69,7 @@ function Gestor() {
           return acc;
         }, {})
       };
-      
+
       await updateDoc(doc(db, "setores", sector), updatedData);
       toast({
         title: "Sucesso",
@@ -161,7 +171,7 @@ function Gestor() {
                         value={chartData.chartTitle}
                         onChange={(e) => setChartData(prev => ({ ...prev, chartTitle: e.target.value }))}
                       />
-                      
+
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>
                           <Label>Rótulos</Label>
@@ -196,7 +206,7 @@ function Gestor() {
                           ))}
                         </div>
                       </div>
-                      
+
                       <Button 
                         variant="outline" 
                         onClick={addChartDataPoint}
