@@ -1,12 +1,15 @@
+
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, verificarPermissaoUsuario, inicializarUsuarioAdmin } from "../utils/firebase";
+import { auth } from "../utils/firebase";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Lock } from "lucide-react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../utils/firebase";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -14,6 +17,17 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+
+  const verificarPermissaoUsuario = async (uid: string) => {
+    try {
+      const docRef = doc(db, "usuarios", uid);
+      const docSnap = await getDoc(docRef);
+      return docSnap.exists() ? docSnap.data().permissao : "usuario";
+    } catch (error) {
+      console.error("Erro ao verificar permissão:", error);
+      return "usuario";
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,21 +37,25 @@ const Login = () => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const permissao = await verificarPermissaoUsuario(userCredential.user.uid);
       
-      if (!permissao) {
-        throw new Error("Usuário sem permissões definidas");
+      if (permissao === "admin") {
+        toast({
+          title: "Login realizado com sucesso!",
+          description: "Bem-vindo, Administrador!",
+        });
+        setLocation("/admin");
+      } else {
+        toast({
+          title: "Acesso Negado",
+          description: "Você não tem permissão de administrador.",
+          variant: "destructive",
+        });
+        await auth.signOut();
       }
-
-      toast({
-        title: "Login realizado com sucesso!",
-        description: `Bem-vindo, ${permissao === 'admin' ? 'Administrador' : 'Usuário'}!`,
-      });
-      
-      setLocation("/admin");
     } catch (error) {
       console.error("Erro no login:", error);
       toast({
         title: "Erro no login",
-        description: error.message || "Verifique suas credenciais e tente novamente.",
+        description: "Verifique suas credenciais e tente novamente.",
         variant: "destructive",
       });
     } finally {
