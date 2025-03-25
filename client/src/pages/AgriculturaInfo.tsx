@@ -1,11 +1,11 @@
 
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { db } from "../utils/firebase";
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Loader2, Map } from "lucide-react";
+import { db } from "../utils/firebase";
+import { doc, getDoc } from "firebase/firestore";
 import {
   BarChart,
   Bar,
@@ -20,7 +20,7 @@ import {
   Cell,
 } from "recharts";
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 const AgriculturaInfo = () => {
   const [, setLocation] = useLocation();
@@ -29,12 +29,11 @@ const AgriculturaInfo = () => {
     description: "",
     goals: "",
     achievements: "",
-    mediaUrls: []
+    mediaUrls: [] as string[],
   });
-  const [chartData, setChartData] = useState({
-    activities: [],
-    areas: []
-  });
+  const [chartData, setChartData] = useState([]);
+  const [chartTitle, setChartTitle] = useState("");
+  const [chartType, setChartType] = useState("bar");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,28 +41,23 @@ const AgriculturaInfo = () => {
         // Fetch sector info
         const sectorDoc = await getDoc(doc(db, "setores", "agricultura"));
         if (sectorDoc.exists()) {
-          setSectorInfo(sectorDoc.data());
+          const data = sectorDoc.data();
+          setSectorInfo({
+            description: data.description || "",
+            goals: data.goals || "",
+            achievements: data.achievements || "",
+            mediaUrls: data.mediaUrls || [],
+          });
         }
 
         // Fetch chart data
-        const querySnapshot = await getDocs(collection(db, "tratores"));
-        const data = querySnapshot.docs.map(doc => doc.data());
-        
-        // Process data for charts
-        const activityCount = data.reduce((acc, item) => {
-          acc[item.atividade] = (acc[item.atividade] || 0) + 1;
-          return acc;
-        }, {});
-
-        const areaData = data.reduce((acc, item) => {
-          acc[item.fazenda] = (acc[item.fazenda] || 0) + Number(item.areaTrabalhada || 0);
-          return acc;
-        }, {});
-
-        setChartData({
-          activities: Object.entries(activityCount).map(([name, value]) => ({ name, value })),
-          areas: Object.entries(areaData).map(([name, value]) => ({ name, value: Number(value.toFixed(2)) }))
-        });
+        const statsDoc = await getDoc(doc(db, "estatisticas", "agricultura"));
+        if (statsDoc.exists()) {
+          const data = statsDoc.data();
+          setChartData(data.chartData || []);
+          setChartTitle(data.chartTitle || "");
+          setChartType(data.chartType || "bar");
+        }
 
         setLoading(false);
       } catch (error) {
@@ -82,6 +76,54 @@ const AgriculturaInfo = () => {
       </div>
     );
   }
+
+  const renderChart = () => {
+    if (!chartData?.length) return null;
+
+    if (chartType === "pie") {
+      return (
+        <ResponsiveContainer width="100%" height={400}>
+          <PieChart>
+            <Pie
+              data={chartData}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              outerRadius={150}
+              fill="#8884d8"
+              dataKey="value"
+              nameKey="name"
+              label={({ name, percent }) =>
+                `${name} (${(percent * 100).toFixed(0)}%)`
+              }
+            >
+              {chartData.map((_, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      );
+    }
+
+    return (
+      <ResponsiveContainer width="100%" height={400}>
+        <BarChart data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="value" fill="#8884d8" />
+        </BarChart>
+      </ResponsiveContainer>
+    );
+  };
 
   return (
     <div className="container mx-auto p-4 pt-20">
@@ -107,53 +149,14 @@ const AgriculturaInfo = () => {
           </Button>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mb-6">
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="text-lg font-semibold mb-4">Distribuição de Atividades</h3>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={chartData.activities}
-                      labelLine={false}
-                      label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {chartData.activities.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
+        {chartData?.length > 0 && (
+          <Card className="p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-4">{chartTitle || "Estatísticas"}</h2>
+            {renderChart()}
           </Card>
+        )}
 
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="text-lg font-semibold mb-4">Área Trabalhada por Fazenda</h3>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData.areas}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="value" fill="#8884d8" name="Área (ha)" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {sectorInfo.mediaUrls && sectorInfo.mediaUrls.length > 0 && (
+        {sectorInfo.mediaUrls?.length > 0 && (
           <div className="bg-white rounded-lg p-6 shadow-sm">
             <h2 className="text-xl font-semibold mb-4">Galeria de Mídia</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
