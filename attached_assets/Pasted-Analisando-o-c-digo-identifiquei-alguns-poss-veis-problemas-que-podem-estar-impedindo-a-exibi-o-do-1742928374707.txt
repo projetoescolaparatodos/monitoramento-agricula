@@ -1,0 +1,161 @@
+Analisando o código, identifiquei alguns possíveis problemas que podem estar impedindo a exibição dos popups e ícones no mapa do PAA. Vamos corrigir passo a passo:
+
+### Problemas Encontrados e Soluções:
+
+1. **Ícone do Marcador Não Encontrado**:
+   - O caminho `/paa-icon.png` pode não estar acessível
+   - Solução: Verifique se o arquivo existe na pasta `public` do seu projeto
+
+2. **CSS Faltando**:
+   - As classes de estilo para o popup não estão definidas
+   - Solução: Adicionar o CSS necessário
+
+3. **Estrutura do Popup**:
+   - A organização do conteúdo pode estar afetando a exibição
+   - Solução: Reorganizar a estrutura do popup
+
+### Código Corrigido:
+
+```tsx
+// Adicione este CSS no final do arquivo (antes do export default)
+<style jsx>{`
+  .popup-content {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    position: relative;
+    min-width: 300px;
+  }
+
+  .popup-content.maximized {
+    width: 90vw;
+  }
+
+  .popup-content .text-content {
+    flex: 1;
+    max-width: 50%;
+  }
+
+  .popup-content .media-container {
+    flex: 1;
+    max-width: 50%;
+  }
+
+  .popup-content .media-container .grid {
+    display: grid;
+    gap: 8px;
+  }
+
+  .popup-content .media-container .grid img,
+  .popup-content .media-container .grid video {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+`}</style>
+```
+
+### Alterações Principais no Código:
+
+1. **Verificação do Ícone**:
+```tsx
+icon={{
+  url: "/paa-icon.png", // Certifique-se que este arquivo existe na pasta public
+  scaledSize: { width: 50, height: 50 },
+  anchor: { x: 25, y: 50 },
+}}
+```
+
+2. **Correção na Renderização do InfoWindow**:
+```tsx
+{selectedMarker && (
+  <InfoWindow
+    position={{ 
+      lat: selectedMarker.latitude, 
+      lng: selectedMarker.longitude 
+    }}
+    onCloseClick={() => {
+      setSelectedMarker(null);
+      setIsMaximized(false);
+    }}
+    options={{
+      maxWidth: isMaximized ? window.innerWidth * 0.9 : 300,
+      pixelOffset: new window.google.maps.Size(0, -50)
+    }}
+  >
+    {/* Conteúdo do popup */}
+  </InfoWindow>
+)}
+```
+
+3. **Melhor Organização do Popup**:
+```tsx
+<div className={`p-4 ${isMaximized ? 'maximized' : ''} popup-content`}>
+  {/* Conteúdo organizado em duas colunas quando maximizado */}
+  <div className="text-content">
+    {/* Informações textuais */}
+  </div>
+  
+  {selectedMarker.midias?.length > 0 && (
+    <div className="media-container">
+      {/* Galeria de mídias */}
+    </div>
+  )}
+</div>
+```
+
+### Verificações Adicionais:
+
+1. **Confirme que os dados estão sendo carregados**:
+   - Adicione um `console.log(paaFiltrados)` após o `useMemo` para verificar se os dados estão chegando corretamente
+
+2. **Verifique as coordenadas**:
+   - Assegure-se que `latitude` e `longitude` estão sendo corretamente extraídas do Firestore
+
+3. **Teste o ícone manualmente**:
+   - Acesse `http://localhost:3000/paa-icon.png` no navegador para verificar se o ícone está disponível
+
+4. **Adicione tratamento de erro para os marcadores**:
+```tsx
+<MarkerF
+  key={paa.id}
+  position={{ lat: paa.latitude, lng: paa.longitude }}
+  icon={{
+    url: "/paa-icon.png",
+    scaledSize: { width: 50, height: 50 },
+    anchor: { x: 25, y: 50 },
+  }}
+  onClick={() => {
+    console.log("Marker clicked", paa); // Debug
+    setSelectedMarker(paa);
+  }}
+  onLoad={(marker) => {
+    console.log("Marker loaded", marker); // Debug
+  }}
+  onError={(e) => {
+    console.error("Marker error", e); // Debug
+  }}
+/>
+```
+
+Se após essas alterações os popups ainda não aparecerem, sugiro:
+
+1. Verificar o console do navegador (F12) por erros
+2. Confirmar que o objeto `selectedMarker` está sendo definido corretamente
+3. Testar com coordenadas fixas para isolar o problema
+
+Você também pode tentar adicionar um marcador estático para teste:
+```tsx
+<MarkerF
+  position={{ lat: -2.87922, lng: -52.0088 }}
+  onClick={() => setSelectedMarker({
+    id: "test",
+    localidade: "Teste",
+    latitude: -2.87922,
+    longitude: -52.0088,
+    // ... outros campos obrigatórios
+  })}
+/>
+```
