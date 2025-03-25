@@ -1,68 +1,59 @@
+
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { storage } from "@/utils/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
 
 interface UploadProps {
   folder: string;
   onUploadComplete: (urls: string[]) => void;
 }
 
-export function Upload({ folder, onUploadComplete }: UploadProps) {
+export default function Upload({ folder, onUploadComplete }: UploadProps) {
   const [uploading, setUploading] = useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+    if (!e.target.files?.length) return;
 
     setUploading(true);
-    const uploadPromises = Array.from(files).map(async (file) => {
-      const metadata = {
-        contentType: file.type,
-        customMetadata: {
-          'Access-Control-Allow-Origin': '*'
-        }
-      };
-      const storageRef = ref(storage, `${folder}/${Date.now()}-${file.name}`);
-      await uploadBytes(storageRef, file, metadata);
-      return getDownloadURL(storageRef);
-    });
+    const files = e.target.files;
 
     try {
+      const uploadPromises = Array.from(files).map(async (file) => {
+        const storageRef = ref(storage, `${folder}/${Date.now()}-${file.name}`);
+        await uploadBytes(storageRef, file);
+        return getDownloadURL(storageRef);
+      });
+
       const urls = await Promise.all(uploadPromises);
       onUploadComplete(urls);
     } catch (error) {
       console.error("Error uploading files:", error);
-      alert("Erro ao fazer upload dos arquivos. Por favor, tente novamente.");
     } finally {
       setUploading(false);
     }
   };
 
   return (
-    <div className="flex items-center gap-4">
-      <Button
-        variant="outline"
-        className="relative"
-        disabled={uploading}
-      >
-        {uploading ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            Uploading...
-          </>
-        ) : (
-          "Escolher Arquivos"
-        )}
-        <input
-          type="file"
-          multiple
-          onChange={handleFileChange}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+    <div className="mt-2">
+      <input
+        type="file"
+        multiple
+        onChange={handleFileChange}
+        className="hidden"
+        id="file-upload"
+      />
+      <label htmlFor="file-upload">
+        <Button
+          type="button"
+          variant="outline"
+          className="cursor-pointer"
           disabled={uploading}
-        />
-      </Button>
+          asChild
+        >
+          <span>{uploading ? "Enviando..." : "Escolher Arquivos"}</span>
+        </Button>
+      </label>
     </div>
   );
 }
