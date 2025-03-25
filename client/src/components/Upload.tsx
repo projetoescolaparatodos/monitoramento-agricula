@@ -9,7 +9,7 @@ interface UploadProps {
   onUploadComplete: (urls: string[]) => void;
 }
 
-export default function Upload({ folder, onUploadComplete }: UploadProps) {
+export function Upload({ folder, onUploadComplete }: UploadProps) {
   const [uploading, setUploading] = useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
