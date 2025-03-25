@@ -289,7 +289,7 @@ const PescaMap = () => {
             key={pesca.id}
             position={{ lat: pesca.latitude, lng: pesca.longitude }}
             icon={{
-              url: "pesca-icon.png",
+              url: "/pesca-icon.png",
               scaledSize: { width: 50, height: 50 },
               anchor: { x: 25, y: 50 },
             }}

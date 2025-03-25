@@ -27,7 +27,7 @@ interface PAA {
   longitude: number;
   midias?: string[];
   proprietario?: string;
-  areaMecanizacao?: number;
+  areaMecanization?: number;
 }
 
 const PAAMap = () => {
@@ -76,7 +76,7 @@ const PAAMap = () => {
           longitude: data.longitude,
           midias: data.midias,
           proprietario: data.proprietario,
-          areaMecanizacao: data.areaMecanizacao,
+          areaMecanization: data.areaMecanization,
         };
       });
       setPaaLocais(paaLocaisData);
@@ -157,8 +157,8 @@ const PAAMap = () => {
                 </p>
                 <p>
                   <strong>Área de Mecanização:</strong>{" "}
-                  {paa.areaMecanizacao
-                    ? `${(paa.areaMecanizacao / 10000).toFixed(2)} ha`
+                  {paa.areaMecanization
+                    ? `${(paa.areaMecanization / 10000).toFixed(2)} ha`
                     : "0.00 ha"}
                 </p>
                 <p>
@@ -267,7 +267,7 @@ const PAAMap = () => {
             key={paa.id}
             position={{ lat: paa.latitude, lng: paa.longitude }}
             icon={{
-              url: "PAA-icon.png",
+              url: "/paa-icon.png",
               scaledSize: { width: 50, height: 50 },
               anchor: { x: 25, y: 50 },
             }}

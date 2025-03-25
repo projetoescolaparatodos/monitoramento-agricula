@@ -266,7 +266,7 @@ const AgriculturaMap = () => {
             key={trator.id}
             position={{ lat: trator.latitude, lng: trator.longitude }}
             icon={{
-              url: "trator-icon.png",
+              url: "/trator-icon.png",
               scaledSize: { width: 32, height: 32 },
               anchor: { x: 16, y: 32 },
             }}
