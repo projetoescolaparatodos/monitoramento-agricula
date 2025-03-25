@@ -1446,18 +1446,23 @@ const Admin = () => {
 
   useEffect(() => {
     const checkUserPermission = async () => {
-      if (auth.currentUser) {
-        const permission = await verificarPermissaoUsuario(
-          auth.currentUser.uid,
-        );
-        setIsAdmin(permission === "admin");
-      } else {
-        // Redirect to login if not authenticated
-        window.location.href = "/login"; // Or use a router solution
-      }
+      const unsubscribe = auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          const permission = await verificarPermissaoUsuario(user.uid);
+          if (permission === "admin") {
+            setIsAdmin(true);
+          } else {
+            setLocation("/login");
+          }
+        } else {
+          setLocation("/login");
+        }
+      });
+
+      return () => unsubscribe();
     };
     checkUserPermission();
-  }, []);
+  }, [setLocation]);
 
   const handleAbrirDialog = (tipo: string) => {
     setShowDialog(true);
