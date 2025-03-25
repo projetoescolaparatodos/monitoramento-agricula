@@ -35,9 +35,10 @@ const Login = () => {
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const permissao = await verificarPermissaoUsuario(userCredential.user.uid);
+      const userRef = doc(db, "usuarios", userCredential.user.uid);
+      const userDoc = await getDoc(userRef);
       
-      if (permissao === "admin") {
+      if (userDoc.exists() && userDoc.data().permissao === "admin") {
         toast({
           title: "Login realizado com sucesso!",
           description: "Bem-vindo, Administrador!",

@@ -1448,8 +1448,10 @@ const Admin = () => {
     const checkUserPermission = async () => {
       const unsubscribe = auth.onAuthStateChanged(async (user) => {
         if (user) {
-          const permission = await verificarPermissaoUsuario(user.uid);
-          if (permission === "admin") {
+          const userRef = doc(db, "usuarios", user.uid);
+          const userDoc = await getDoc(userRef);
+          
+          if (userDoc.exists() && userDoc.data().permissao === "admin") {
             setIsAdmin(true);
           } else {
             setLocation("/login");
