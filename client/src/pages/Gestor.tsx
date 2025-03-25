@@ -20,7 +20,8 @@ function Gestor() {
   const [selectedSector, setSelectedSector] = useState("agricultura");
   const [chartData, setChartData] = useState({
     labels: [],
-    values: []
+    values: [],
+    chartTitle: ""
   });
 
   useEffect(() => {
@@ -150,6 +151,75 @@ function Gestor() {
                       onChange={(e) => handleChange(sector, "achievements", e.target.value)}
                       rows={4}
                     />
+
+                    <div className="mt-6">
+                      <h3 className="text-lg font-medium mb-2">Editar Gráficos</h3>
+                      <Input
+                        className="mb-4"
+                        placeholder="Título do Gráfico"
+                        value={chartData.chartTitle}
+                        onChange={(e) => setChartData(prev => ({ ...prev, chartTitle: e.target.value }))}
+                      />
+                      
+                      <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <Label>Rótulos</Label>
+                          {chartData.labels.map((label, index) => (
+                            <div key={index} className="flex gap-2 mb-2">
+                              <Input
+                                value={label}
+                                onChange={(e) => handleChartDataChange(index, 'label', e.target.value)}
+                                placeholder={`Rótulo ${index + 1}`}
+                              />
+                              <Button
+                                variant="destructive"
+                                size="icon"
+                                onClick={() => removeChartDataPoint(index)}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                        <div>
+                          <Label>Valores</Label>
+                          {chartData.values.map((value, index) => (
+                            <div key={index} className="flex gap-2 mb-2">
+                              <Input
+                                type="number"
+                                value={value}
+                                onChange={(e) => handleChartDataChange(index, 'value', e.target.value)}
+                                placeholder={`Valor ${index + 1}`}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <Button 
+                        variant="outline" 
+                        onClick={addChartDataPoint}
+                        className="mb-4"
+                      >
+                        Adicionar Ponto
+                      </Button>
+
+                      <div className="h-64 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={chartData.labels.map((label, index) => ({
+                            name: label,
+                            value: chartData.values[index]
+                          }))}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
+                            <Bar dataKey="value" fill="#8884d8" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
                   </div>
 
                   <div>
