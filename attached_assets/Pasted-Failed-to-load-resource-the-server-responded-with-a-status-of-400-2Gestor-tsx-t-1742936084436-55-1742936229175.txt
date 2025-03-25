@@ -1,0 +1,81 @@
+Failed to load resource: the server responded with a status of 400 ()
+2Gestor.tsx?t=1742936084436:554  Uncaught ReferenceError: Upload is not defined
+    at Gestor (Gestor.tsx?t=1742936084436:554:38)
+    at renderWithHooks (react-dom.development.js:15486:18)
+    at updateFunctionComponent (react-dom.development.js:19617:20)
+    at beginWork (react-dom.development.js:21640:16)
+    at HTMLUnknownElement.callCallback2 (react-dom.development.js:4164:14)
+    at Object.invokeGuardedCallbackDev (react-dom.development.js:4213:16)
+    at invokeGuardedCallback (react-dom.development.js:4277:31)
+    at beginWork$1 (react-dom.development.js:27490:7)
+    at performUnitOfWork (react-dom.development.js:26596:12)
+    at workLoopSync (react-dom.development.js:26505:5)
+react-dom.development.js:18704  The above error occurred in the <Gestor> component:
+
+    at Gestor (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/pages/Gestor.tsx?t=1742936084436:46:21)
+    at Route (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4254d4c0:323:16)
+    at Switch (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4254d4c0:379:17)
+    at div
+    at Router
+    at QueryClientProvider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=4254d4c0:2805:3)
+    at App
+    at Router (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=4254d4c0:6387:13)
+    at BrowserRouter (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=4254d4c0:8614:3)
+    at QueryClientProvider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=4254d4c0:2805:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ react-dom.development.js:18704
+Gestor.tsx?t=1742936084436:554  Uncaught (in promise) ReferenceError: Upload is not defined
+    at Gestor (Gestor.tsx?t=1742936084436:554:38)
+    at renderWithHooks (react-dom.development.js:15486:18)
+    at updateFunctionComponent (react-dom.development.js:19617:20)
+    at beginWork (react-dom.development.js:21640:16)
+    at beginWork$1 (react-dom.development.js:27465:14)
+    at performUnitOfWork (react-dom.development.js:26596:12)
+    at workLoopSync (react-dom.development.js:26505:5)
+    at renderRootSync (react-dom.development.js:26473:7)
+    at recoverFromConcurrentError (react-dom.development.js:25889:20)
+    at performSyncWorkOnRoot (react-dom.development.js:26135:20)
+2src/pages/Gestor.tsx?t=1742936091318:609  Uncaught ReferenceError: Upload is not defined
+    at Gestor (src/pages/Gestor.tsx?t=1742936091318:609:17)
+    at renderWithHooks (react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (react-dom.development.js:20103:13)
+    at beginWork (react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback2 (react-dom.development.js:4164:14)
+    at Object.invokeGuardedCallbackDev (react-dom.development.js:4213:16)
+    at invokeGuardedCallback (react-dom.development.js:4277:31)
+    at beginWork$1 (react-dom.development.js:27490:7)
+    at performUnitOfWork (react-dom.development.js:26596:12)
+    at workLoopSync (react-dom.development.js:26505:5)
+react-dom.development.js:18704  The above error occurred in the <Gestor> component:
+
+    at Gestor (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/pages/Gestor.tsx?t=1742936091318:52:21)
+    at Route (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4254d4c0:323:16)
+    at Switch (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4254d4c0:379:17)
+    at div
+    at Router
+    at QueryClientProvider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=4254d4c0:2805:3)
+    at App
+    at Router (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=4254d4c0:6387:13)
+    at BrowserRouter (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=4254d4c0:8614:3)
+    at QueryClientProvider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=4254d4c0:2805:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ react-dom.development.js:18704
+src/pages/Gestor.tsx?t=1742936091318:609  Uncaught (in promise) ReferenceError: Upload is not defined
+    at Gestor (src/pages/Gestor.tsx?t=1742936091318:609:17)
+    at renderWithHooks (react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (react-dom.development.js:20103:13)
+    at beginWork (react-dom.development.js:21626:16)
+    at beginWork$1 (react-dom.development.js:27465:14)
+    at performUnitOfWork (react-dom.development.js:26596:12)
+    at workLoopSync (react-dom.development.js:26505:5)
+    at renderRootSync (react-dom.development.js:26473:7)
+    at recoverFromConcurrentError (react-dom.development.js:25889:20)
+    at performSyncWorkOnRoot (react-dom.development.js:26135:20)
+firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?VER=8&database=projects%2Ftransparencia-agricola%2Fdatabases%2F(default)&gsessionid=hefbnYqxVnUXWthdb7MexC4Ksf2895eZoIFKX5T1gqk&SID=yrbigoKrTjI5r7-adiIHgQ&RID=53322&TYPE=terminate&zx=wkyse2pbdpk8:1 
+            
+            
+            Failed to load resource: the server responded with a status of 400 ()
