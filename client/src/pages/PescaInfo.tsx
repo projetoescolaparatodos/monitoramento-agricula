@@ -1,56 +1,104 @@
+
+import { useEffect, useState } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../utils/firebase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { useLocation } from 'wouter';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  PieChart,
+  Pie,
+  ResponsiveContainer
+} from 'recharts';
+
+interface PescaData {
+  localidade: string;
+  tipoPesca: string;
+  quantidadeProduzida: number;
+}
 
 const PescaInfo = () => {
-  const [, setLocation] = useLocation();
+  const [pescaData, setPescaData] = useState<any[]>([]);
+  const [producaoData, setProducaoData] = useState<any[]>([]);
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      const querySnapshot = await getDocs(collection(db, "pesca"));
+      const data = querySnapshot.docs.map(doc => doc.data() as PescaData);
+      
+      // Processa dados para gráfico de tipos de pesca
+      const tiposCount = data.reduce((acc: any, curr) => {
+        acc[curr.tipoPesca] = (acc[curr.tipoPesca] || 0) + 1;
+        return acc;
+      }, {});
+      
+      const pescaChartData = Object.entries(tiposCount).map(([name, value]) => ({
+        name,
+        value
+      }));
+      
+      // Processa dados para gráfico de produção
+      const producaoChartData = data.map(item => ({
+        localidade: item.localidade,
+        quantidade: item.quantidadeProduzida
+      }));
+      
+      setPescaData(pescaChartData);
+      setProducaoData(producaoChartData);
+    };
+    
+    fetchData();
+  }, []);
+
   return (
-    <div className="container mx-auto p-4 pt-16">
-      <h1 className="text-3xl font-bold mb-6">Pesca em Vitória do Xingu</h1>
-
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Sobre a Pesca</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-lg">
-            A atividade pesqueira em Vitória do Xingu é uma importante fonte de subsistência
-            e renda para muitas famílias, além de contribuir para a segurança alimentar
-            da população local.
-          </p>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div className="container mx-auto p-4 pt-20">
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Dados do Setor</CardTitle>
+            <CardTitle>Tipos de Pesca</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="list-disc list-inside space-y-2">
-              <li>Pescadores registrados: Em atualização</li>
-              <li>Produção anual: Em atualização</li>
-              <li>Principais espécies: Em atualização</li>
-            </ul>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={pescaData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  fill="#8884d8"
+                  label
+                />
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Impacto Social</CardTitle>
+            <CardTitle>Produção por Localidade</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>
-              A pesca artesanal é parte fundamental da cultura local, proporcionando
-              sustento para as famílias e mantendo vivas as tradições pesqueiras da região.
-            </p>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={producaoData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="localidade" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="quantidade" fill="#82ca9d" name="Quantidade (kg)" />
+              </BarChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
-      </div>
-    <div className="mt-8 flex justify-center">
-        <Button onClick={() => setLocation('/pesca/mapa')} className="px-8 py-6 text-lg">
-          Acompanhar Serviços
-        </Button>
       </div>
     </div>
   );

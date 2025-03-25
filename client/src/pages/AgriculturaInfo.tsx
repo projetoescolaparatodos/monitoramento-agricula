@@ -1,57 +1,104 @@
+
+import { useEffect, useState } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../utils/firebase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { useLocation } from 'wouter';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  PieChart,
+  Pie,
+  ResponsiveContainer
+} from 'recharts';
+
+interface TratorData {
+  fazenda: string;
+  atividade: string;
+  areaTrabalhada: string;
+}
 
 const AgriculturaInfo = () => {
-  const [, setLocation] = useLocation();
+  const [atividadesData, setAtividadesData] = useState<any[]>([]);
+  const [areaData, setAreaData] = useState<any[]>([]);
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      const querySnapshot = await getDocs(collection(db, "tratores"));
+      const data = querySnapshot.docs.map(doc => doc.data() as TratorData);
+      
+      // Processa dados para gráfico de atividades
+      const atividadesCount = data.reduce((acc: any, curr) => {
+        acc[curr.atividade] = (acc[curr.atividade] || 0) + 1;
+        return acc;
+      }, {});
+      
+      const atividadesChartData = Object.entries(atividadesCount).map(([name, value]) => ({
+        name,
+        value
+      }));
+      
+      // Processa dados para gráfico de área trabalhada
+      const areaChartData = data.map(item => ({
+        fazenda: item.fazenda,
+        area: parseFloat(item.areaTrabalhada || '0')
+      }));
+      
+      setAtividadesData(atividadesChartData);
+      setAreaData(areaChartData);
+    };
+    
+    fetchData();
+  }, []);
+
   return (
-    <div className="container mx-auto p-4 pt-16">
-      <h1 className="text-3xl font-bold mb-6">Agricultura em Vitória do Xingu</h1>
-
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Sobre a Agricultura</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-lg">
-            A agricultura em Vitória do Xingu é uma atividade fundamental para o desenvolvimento
-            econômico e social do município, fornecendo alimentos e gerando renda para as
-            famílias locais.
-          </p>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div className="container mx-auto p-4 pt-20">
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Dados do Setor</CardTitle>
+            <CardTitle>Distribuição de Atividades Agrícolas</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="list-disc list-inside space-y-2">
-              <li>Produtores cadastrados: Em atualização</li>
-              <li>Área total cultivada: Em atualização</li>
-              <li>Principais culturas: Em atualização</li>
-            </ul>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={atividadesData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  fill="#8884d8"
+                  label
+                />
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Impacto Econômico</CardTitle>
+            <CardTitle>Área Trabalhada por Fazenda</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>
-              A agricultura local contribui significativamente para a economia do município,
-              gerando empregos e fomentando o comércio local através da produção e
-              comercialização de produtos agrícolas.
-            </p>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={areaData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="fazenda" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="area" fill="#82ca9d" name="Área (ha)" />
+              </BarChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
-      </div>
-    <div className="mt-8 flex justify-center">
-        <Button onClick={() => setLocation('/agricultura/mapa')} className="px-8 py-6 text-lg">
-          Acompanhar Serviços
-        </Button>
       </div>
     </div>
   );
