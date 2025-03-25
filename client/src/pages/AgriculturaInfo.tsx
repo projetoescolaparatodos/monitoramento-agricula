@@ -29,7 +29,9 @@ const AgriculturaInfo = () => {
     description: "",
     goals: "",
     achievements: "",
-    mediaUrls: [] as string[],
+    mediaItems: [] as MediaItem[],
+    methodology: "",
+    results: "",
   });
   const [chartData, setChartData] = useState([]);
   const [chartTitle, setChartTitle] = useState("");
@@ -130,6 +132,18 @@ const AgriculturaInfo = () => {
       <div className="prose max-w-none mb-8">
         <h1 className="text-3xl font-bold mb-6">Agricultura</h1>
         
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+          <div className="p-4 border rounded-lg">
+            <h3 className="font-semibold mb-2">Metodologia</h3>
+            <p>{sectorInfo.methodology}</p>
+          </div>
+          
+          <div className="p-4 border rounded-lg">
+            <h3 className="font-semibold mb-2">Resultados</h3>
+            <p>{sectorInfo.results}</p>
+          </div>
+        </div>
+        
         <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
           <h2 className="text-xl font-semibold mb-4">Sobre o Setor</h2>
           <p className="mb-4">{sectorInfo.description}</p>
@@ -156,11 +170,11 @@ const AgriculturaInfo = () => {
           </Card>
         )}
 
-        {sectorInfo.mediaUrls?.length > 0 && (
+        {sectorInfo.mediaItems?.length > 0 && (
           <div className="bg-white rounded-lg p-6 shadow-sm">
             <h2 className="text-xl font-semibold mb-4">Galeria de Mídia</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {sectorInfo.mediaUrls.map((url, index) => (
+              {sectorInfo.mediaItems.map((item, index) => (
                 url.includes('video') ? (
                   <video 
                     key={index}

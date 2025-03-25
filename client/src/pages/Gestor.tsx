@@ -220,6 +220,10 @@ function Gestor() {
       const sectorRef = doc(db, "setores", selectedSector);
       const statsRef = doc(db, "estatisticas", selectedSector);
 
+      const addChart = () => {
+        //This function is not used in the current implementation.  It would likely need to be integrated with state management to add new chart templates
+      };
+
       // Verifica se o documento existe
       const sectorSnap = await getDoc(sectorRef);
 
