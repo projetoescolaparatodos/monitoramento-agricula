@@ -1,0 +1,206 @@
+Para adicionar as funcionalidades solicitadas ao Gestor e AgriculturaInfo, vamos implementar:
+
+1. No Componente Gestor:
+Adicionar Botão para Novos Gráficos
+typescript
+Copy
+// Adicione este estado no início do componente
+const [chartTemplates, setChartTemplates] = useState<Array<{
+  title: string;
+  description: string;
+  data: ChartData[];
+  type: "bar" | "pie";
+}>>([]);
+
+// Adicione esta função para criar novos gráficos
+const addNewChart = () => {
+  setChartTemplates(prev => [...prev, {
+    title: "",
+    description: "",
+    data: [{ name: "", value: 0 }],
+    type: "bar"
+  }]);
+};
+Caixas de Texto Explicativas para Mídias
+typescript
+Copy
+// Modifique o estado do setor para incluir descrições de mídia
+interface MediaItem {
+  url: string;
+  description: string;
+  title: string;
+}
+
+interface SectorInfo {
+  // ... outros campos
+  mediaItems?: MediaItem[]; // Substitui mediaUrls
+}
+
+// Atualize a função de upload para incluir títulos e descrições
+const handleUpload = async (title: string, description: string) => {
+  // ... código de upload existente
+  // Após obter a URL:
+  setSectorInfo(prev => ({
+    ...prev,
+    [selectedSector]: {
+      ...prev[selectedSector],
+      mediaItems: [
+        ...(prev[selectedSector].mediaItems || []),
+        { url: downloadURL, title, description }
+      ]
+    }
+  }));
+};
+Interface do Usuário Adicional
+jsx
+Copy
+{/* Adicione este botão na seção de gráficos */}
+<Button onClick={addNewChart} variant="outline" className="mb-4">
+  Adicionar Novo Gráfico
+</Button>
+
+{/* Exiba os gráficos adicionais */}
+{chartTemplates.map((template, index) => (
+  <div key={index} className="mb-8">
+    <Input
+      value={template.title}
+      onChange={(e) => updateChartTemplate(index, 'title', e.target.value)}
+      placeholder="Título do Gráfico"
+      className="mb-2"
+    />
+    <Textarea
+      value={template.description}
+      onChange={(e) => updateChartTemplate(index, 'description', e.target.value)}
+      placeholder="Descrição do Gráfico"
+      className="mb-2"
+    />
+    {/* Interface do gráfico existente aqui */}
+  </div>
+))}
+
+{/* Formulário para upload com descrição */}
+<div className="mt-4 p-4 border rounded-lg">
+  <h4 className="font-medium mb-2">Adicionar Nova Mídia</h4>
+  <Input 
+    placeholder="Título da Mídia" 
+    className="mb-2"
+    value={newMediaTitle}
+    onChange={(e) => setNewMediaTitle(e.target.value)}
+  />
+  <Textarea
+    placeholder="Descrição da Mídia"
+    className="mb-2"
+    value={newMediaDescription}
+    onChange={(e) => setNewMediaDescription(e.target.value)}
+  />
+  {/* Seletor de arquivo existente */}
+  <Button 
+    onClick={() => handleUpload(newMediaTitle, newMediaDescription)}
+    disabled={isUploading}
+  >
+    Enviar Mídia com Descrição
+  </Button>
+</div>
+2. No Componente AgriculturaInfo:
+Seção para Exibir Mídias e Textos
+typescript
+Copy
+// Adicione esta seção no componente AgriculturaInfo
+<section className="my-8">
+  <h2 className="text-2xl font-bold mb-4">Mídias e Informações</h2>
+  
+  {agriculturaData.mediaItems?.map((item, index) => (
+    <div key={index} className="mb-6 p-4 border rounded-lg">
+      <h3 className="text-lg font-semibold">{item.title}</h3>
+      <p className="text-sm text-gray-600 mb-2">{item.description}</p>
+      {item.url.includes("/video/") ? (
+        <video src={item.url} controls className="w-full rounded-lg" />
+      ) : (
+        <img 
+          src={item.url} 
+          alt={item.title} 
+          className="w-full h-auto max-h-96 object-contain rounded-lg"
+        />
+      )}
+    </div>
+  ))}
+</section>
+Caixas de Texto Adicionais
+jsx
+Copy
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+  <div className="p-4 border rounded-lg">
+    <h3 className="font-semibold mb-2">Metodologia</h3>
+    <Textarea
+      value={methodologyText}
+      onChange={(e) => setMethodologyText(e.target.value)}
+      placeholder="Descreva a metodologia utilizada"
+    />
+  </div>
+  
+  <div className="p-4 border rounded-lg">
+    <h3 className="font-semibold mb-2">Resultados</h3>
+    <Textarea
+      value={resultsText}
+      onChange={(e) => setResultsText(e.target.value)}
+      placeholder="Descreva os principais resultados"
+    />
+  </div>
+</div>
+3. Dados no Firestore:
+Atualize a estrutura dos documentos no Firestore para incluir:
+
+javascript
+Copy
+{
+  // ... outros campos
+  mediaItems: [
+    {
+      url: "string",
+      title: "string",
+      description: "string"
+    }
+  ],
+  additionalCharts: [
+    {
+      title: "string",
+      description: "string",
+      data: [...],
+      type: "string"
+    }
+  ],
+  methodology: "string",
+  results: "string"
+}
+Implementação Passo a Passo:
+No Gestor:
+
+Adicione estados para novos gráficos e mídias descritivas
+
+Modifique o upload para salvar metadados
+
+Atualize a interface para incluir formulários adicionais
+
+No AgriculturaInfo:
+
+Crie seções para exibir os novos dados
+
+Adicione componentes para edição dos textos adicionais
+
+Implemente a exibição das mídias com seus metadados
+
+No Firestore:
+
+Atualize as regras de segurança para permitir os novos campos
+
+Modifique as funções de fetch para lidar com a nova estrutura
+
+Esta implementação permitirá:
+
+Criar múltiplos gráficos com títulos e descrições
+
+Adicionar mídias com informações contextuais
+
+Exibir tudo de forma organizada na página AgriculturaInfo
+
+Manter todos os dados sincronizados com o Firestore
