@@ -11,7 +11,6 @@ import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Loader2, X } from "lucide-react"; // Importando o ícone de fechar
-import styles from "./PAAMap.module.css";
 
 interface PAA {
   id: string;
@@ -29,8 +28,6 @@ interface PAA {
   proprietario?: string;
   areaMecanization?: number;
 }
-
-import styles from "./PAAMap.module.css";
 
 const PAAMap = () => {
   const { isLoaded } = useLoadScript({
