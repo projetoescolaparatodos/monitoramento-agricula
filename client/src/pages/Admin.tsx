@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
-import { db, auth } from "../utils/firebase";
+import { db } from "../utils/firebase";
 import {
   collection,
   addDoc,
   getDocs,
   updateDoc,
   doc,
-  getDoc,
   deleteDoc,
 } from "firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,22 +39,8 @@ const AgriculturaForm = () => {
   );
   const [tratoresCadastrados, setTratoresCadastrados] = useState<any[]>([]);
   const [tratorEmEdicao, setTratorEmEdicao] = useState<any | null>(null);
-  const [loading, setLoading] = useState(false); // Inicializado como false
-  const [selectedMarker, setSelectedMarker] = useState<any>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-
-  useEffect(() => {
-    const checkUserPermission = async () => {
-      if (auth.currentUser) {
-        const permission = await verificarPermissaoUsuario(
-          auth.currentUser.uid,
-        );
-        setIsAdmin(permission === "admin");
-      }
-    };
-    checkUserPermission();
-  }, []);
 
   useEffect(() => {
     const fetchTratores = async () => {
@@ -110,17 +95,18 @@ const AgriculturaForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!latitude || !longitude) {
+      toast({
+        title: "Erro",
+        description: "Por favor, selecione uma localização no mapa.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
-      if (!isAdmin) {
-        toast({
-          title: "Permissão negada",
-          description: "Você não tem permissão para realizar esta ação.",
-        });
-        return;
-      }
-
       // Verificar campos obrigatórios
       if (
         !nome ||
@@ -138,6 +124,7 @@ const AgriculturaForm = () => {
           description: "Preencha todos os campos obrigatórios",
           variant: "destructive",
         });
+        setLoading(false);
         return;
       }
 
@@ -229,7 +216,7 @@ const AgriculturaForm = () => {
         variant: "destructive",
       });
     } finally {
-      setLoading(false); // Garante que o estado loading seja redefinido
+      setLoading(false);
     }
   };
 
@@ -278,14 +265,6 @@ const AgriculturaForm = () => {
         });
       }
     }
-  };
-
-  const verificarPermissaoUsuario = async (
-    uid: string,
-  ): Promise<"admin" | "usuario"> => {
-    const docRef = doc(db, "usuarios", uid);
-    const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data().permissao : "usuario";
   };
 
   return (
@@ -458,70 +437,66 @@ const AgriculturaForm = () => {
         </CardContent>
       </Card>
 
-      {isAdmin && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Tratores Cadastrados</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto mt-6">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="p-2 border">Nome</th>
-                    <th className="p-2 border">Imóvel Rural</th>
-                    <th className="p-2 border">Operação</th>
-                    <th className="p-2 border">Operador</th>
-                    <th className="p-2 border">H/Máquina</th>
-                    <th className="p-2 border">Área (m²)</th>
-                    <th className="p-2 border">Data</th>
-                    <th className="p-2 border">Status</th>
-                    <th className="p-2 border">Ações</th>
+      <Card>
+        <CardHeader>
+          <CardTitle>Tratores Cadastrados</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto mt-6">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="p-2 border">Nome</th>
+                  <th className="p-2 border">Imóvel Rural</th>
+                  <th className="p-2 border">Operação</th>
+                  <th className="p-2 border">Operador</th>
+                  <th className="p-2 border">H/Máquina</th>
+                  <th className="p-2 border">Área (m²)</th>
+                  <th className="p-2 border">Data</th>
+                  <th className="p-2 border">Status</th>
+                  <th className="p-2 border">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tratoresCadastrados.map((trator) => (
+                  <tr key={trator.id} className="hover:bg-gray-50">
+                    <td className="p-2 border">{trator.nome}</td>
+                    <td className="p-2 border">{trator.fazenda}</td>
+                    <td className="p-2 border">{trator.operacao}</td>
+                    <td className="p-2 border">{trator.piloto}</td>
+                    <td className="p-2 border">{trator.horaMaquina || "-"}</td>
+                    <td className="p-2 border">{trator.areaTrabalhada}</td>
+                    <td className="p-2 border">
+                      {new Date(trator.dataCadastro).toLocaleDateString()}
+                    </td>
+                    <td className="p-2 border">
+                      {trator.concluido ? "Concluído" : "Em Serviço"}
+                    </td>
+                    <td className="p-2 border">
+                      <div className="flex space-x-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEditarTrator(trator)}
+                        >
+                          <Edit2 className="h-4 w-4 mr-1" /> Editar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleExcluirTrator(trator.id)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" /> Excluir
+                        </Button>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {tratoresCadastrados.map((trator) => (
-                    <tr key={trator.id} className="hover:bg-gray-50">
-                      <td className="p-2 border">{trator.nome}</td>
-                      <td className="p-2 border">{trator.fazenda}</td>
-                      <td className="p-2 border">{trator.operacao}</td>
-                      <td className="p-2 border">{trator.piloto}</td>
-                      <td className="p-2 border">
-                        {trator.horaMaquina || "-"}
-                      </td>
-                      <td className="p-2 border">{trator.areaTrabalhada}</td>
-                      <td className="p-2 border">
-                        {new Date(trator.dataCadastro).toLocaleDateString()}
-                      </td>
-                      <td className="p-2 border">
-                        {trator.concluido ? "Concluído" : "Em Serviço"}
-                      </td>
-                      <td className="p-2 border">
-                        <div className="flex space-x-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEditarTrator(trator)}
-                          >
-                            <Edit2 className="h-4 w-4 mr-1" /> Editar
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleExcluirTrator(trator.id)}
-                          >
-                            <Trash2 className="h-4 w-4 mr-1" /> Excluir
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
@@ -546,25 +521,7 @@ const PescaForm = () => {
   const [pesqueirosCadastrados, setPesqueirosCadastrados] = useState<any[]>([]);
   const [pesqueiroEmEdicao, setPesqueiroEmEdicao] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
-  const [numeroRegistro, setNumeroRegistro] = useState("");
-  const [areaImovel, setAreaImovel] = useState(0);
-  const [areaAlagada, setAreaAlagada] = useState(0);
-  const [cicloProdução, setCicloProdução] = useState("");
-  const [sistemaCultivo, setSistemaCultivo] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false); // Added isAdmin state
   const { toast } = useToast();
-
-  useEffect(() => {
-    const checkUserPermission = async () => {
-      if (auth.currentUser) {
-        const permission = await verificarPermissaoUsuario(
-          auth.currentUser.uid,
-        );
-        setIsAdmin(permission === "admin");
-      }
-    };
-    checkUserPermission();
-  }, []); // Added useEffect hook for permission check
 
   useEffect(() => {
     const fetchPesqueiros = async () => {
@@ -644,11 +601,6 @@ const PescaForm = () => {
           ? pesqueiroEmEdicao.dataCadastro
           : dataCadastro,
         concluido: false,
-        numeroRegistro,
-        areaImovel,
-        areaAlagada,
-        cicloProdução,
-        sistemaCultivo,
       };
 
       if (pesqueiroEmEdicao) {
@@ -679,13 +631,7 @@ const PescaForm = () => {
       setLongitude(null);
       setMidias([]);
       setDataCadastro(new Date().toISOString().split("T")[0]);
-      setNumeroRegistro("");
-      setAreaImovel(0);
-      setAreaAlagada(0);
-      setCicloProdução("");
-      setSistemaCultivo("");
       setPesqueiroEmEdicao(null);
-      setLoading(false); // added setLoading(false)
 
       // Atualiza a lista
       const querySnapshot = await getDocs(collection(db, "pesca"));
@@ -725,11 +671,6 @@ const PescaForm = () => {
     setLongitude(pesqueiro.longitude);
     setMidias(pesqueiro.midias || []);
     setDataCadastro(pesqueiro.dataCadastro);
-    setNumeroRegistro(pesqueiro.numeroRegistro || "");
-    setAreaImovel(pesqueiro.areaImovel || 0);
-    setAreaAlagada(pesqueiro.areaAlagada || 0);
-    setCicloProdução(pesqueiro.cicloProdução || "");
-    setSistemaCultivo(pesqueiro.sistemaCultivo || "");
   };
 
   const handleExcluirPesqueiro = async (id: string) => {
@@ -757,14 +698,6 @@ const PescaForm = () => {
         });
       }
     }
-  };
-
-  const verificarPermissaoUsuario = async (
-    uid: string,
-  ): Promise<"admin" | "usuario"> => {
-    const docRef = doc(db, "usuarios", uid);
-    const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data().permissao : "usuario";
   };
 
   return (
@@ -812,21 +745,23 @@ const PescaForm = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="tipoTanque">Tipo de Ambiente de Cultivo</Label>
+                <Label htmlFor="tipoTanque">Tipo de Tanque</Label>
                 <Input
                   id="tipoTanque"
                   value={tipoTanque}
                   onChange={(e) => setTipoTanque(e.target.value)}
+                  placeholder="Ex: Tanque escavado, tanque rede, etc."
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="especiePeixe">Espécie</Label>
+                <Label htmlFor="especiePeixe">Espécie de Peixe</Label>
                 <Input
                   id="especiePeixe"
                   value={especiePeixe}
                   onChange={(e) => setEspeciePeixe(e.target.value)}
+                  placeholder="Ex: Tilápia, Tambaqui, etc."
                   required
                 />
               </div>
@@ -858,57 +793,6 @@ const PescaForm = () => {
                   required
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="numeroRegistro">N° de Registro</Label>
-                <Input
-                  id="numeroRegistro"
-                  value={numeroRegistro}
-                  onChange={(e) => setNumeroRegistro(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="areaImovel">Área do imóvel (ha)</Label>
-                <Input
-                  id="areaImovel"
-                  type="number"
-                  value={areaImovel}
-                  onChange={(e) => setAreaImovel(Number(e.target.value))}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="areaAlagada">Área Alagada (ha)</Label>
-                <Input
-                  id="areaAlagada"
-                  type="number"
-                  value={areaAlagada}
-                  onChange={(e) => setAreaAlagada(Number(e.target.value))}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cicloProdução">Ciclo de produção</Label>
-                <Input
-                  id="cicloProdução"
-                  value={cicloProdução}
-                  onChange={(e) => setCicloProdução(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="sistemaCultivo">Sistema de cultivo</Label>
-                <Input
-                  id="sistemaCultivo"
-                  value={sistemaCultivo}
-                  onChange={(e) => setSistemaCultivo(e.target.value)}
-                  required
-                />
-              </div>
 
               <div className="space-y-2">
                 <Label htmlFor="operador">Operador</Label>
@@ -916,6 +800,7 @@ const PescaForm = () => {
                   id="operador"
                   value={operador}
                   onChange={(e) => setOperador(e.target.value)}
+                  required
                 />
               </div>
 
@@ -973,47 +858,45 @@ const PescaForm = () => {
         </CardContent>
       </Card>
 
-      {isAdmin && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Pesqueiros Cadastrados</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {pesqueirosCadastrados.map((pesqueiro) => (
-                <div
-                  key={pesqueiro.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
-                  <div>
-                    <h3 className="font-semibold">{pesqueiro.localidade}</h3>
-                    <p className="text-sm text-gray-600">
-                      {pesqueiro.nomeImovel} -{" "}
-                      {pesqueiro.concluido ? "Concluído" : "Em Andamento"}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEditarPesqueiro(pesqueiro)}
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleExcluirPesqueiro(pesqueiro.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Pesqueiros Cadastrados</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {pesqueirosCadastrados.map((pesqueiro) => (
+              <div
+                key={pesqueiro.id}
+                className="flex items-center justify-between p-4 border rounded-lg"
+              >
+                <div>
+                  <h3 className="font-semibold">{pesqueiro.localidade}</h3>
+                  <p className="text-sm text-gray-600">
+                    {pesqueiro.nomeImovel} -{" "}
+                    {pesqueiro.concluido ? "Concluído" : "Em Andamento"}
+                  </p>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEditarPesqueiro(pesqueiro)}
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleExcluirPesqueiro(pesqueiro.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
@@ -1037,20 +920,7 @@ const PAAForm = () => {
   const [paaLocaisCadastrados, setPaaLocaisCadastrados] = useState<any[]>([]);
   const [paaLocalEmEdicao, setPaaLocalEmEdicao] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false); // Added isAdmin state
   const { toast } = useToast();
-
-  useEffect(() => {
-    const checkUserPermission = async () => {
-      if (auth.currentUser) {
-        const permission = await verificarPermissaoUsuario(
-          auth.currentUser.uid,
-        );
-        setIsAdmin(permission === "admin");
-      }
-    };
-    checkUserPermission();
-  }, []); // Added useEffect hook for permission check
 
   useEffect(() => {
     const fetchPaaLocais = async () => {
@@ -1159,7 +1029,6 @@ const PAAForm = () => {
       setMidias([]);
       setDataCadastro(new Date().toISOString().split("T")[0]);
       setPaaLocalEmEdicao(null);
-      setLoading(false); // added setLoading(false)
 
       // Atualiza a lista
       const querySnapshot = await getDocs(collection(db, "paa"));
@@ -1223,14 +1092,6 @@ const PAAForm = () => {
         });
       }
     }
-  };
-
-  const verificarPermissaoUsuario = async (
-    uid: string,
-  ): Promise<"admin" | "usuario"> => {
-    const docRef = doc(db, "usuarios", uid);
-    const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data().permissao : "usuario";
   };
 
   return (
@@ -1379,418 +1240,52 @@ const PAAForm = () => {
         </CardContent>
       </Card>
 
-      {isAdmin && (
-        <Card>
-          <CardHeader>
-            <CardTitle>PAA Cadastrados</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {paaLocaisCadastrados.map((paaLocal) => (
-                <div
-                  key={paaLocal.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
-                  <div>
-                    <h3 className="font-semibold">{paaLocal.localidade}</h3>
-                    <p className="text-sm text-gray-600">
-                      {paaLocal.nomeImovel} -{" "}
-                      {paaLocal.concluido ? "Concluído" : "Em Andamento"}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEditarPaaLocal(paaLocal)}
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleExcluirPaaLocal(paaLocal.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>PAA Cadastrados</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {paaLocaisCadastrados.map((paaLocal) => (
+              <div
+                key={paaLocal.id}
+                className="flex items-center justify-between p-4 border rounded-lg"
+              >
+                <div>
+                  <h3 className="font-semibold">{paaLocal.localidade}</h3>
+                  <p className="text-sm text-gray-600">
+                    {paaLocal.nomeImovel} -{" "}
+                    {paaLocal.concluido ? "Concluído" : "Em Andamento"}
+                  </p>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEditarPaaLocal(paaLocal)}
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleExcluirPaaLocal(paaLocal.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
 
 const Admin = () => {
-  const [showDialog, setShowDialog] = useState(false);
-  const [showEditar, setShowEditar] = useState(false);
-  const [selectedLocal, setSelectedLocal] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [pescaLocaisCadastrados, setPescaLocaisCadastrados] = useState<any[]>(
-    [],
-  );
-  const [tratoresCadastrados, setTratoresCadastrados] = useState<any[]>([]);
-  const [paaLocaisCadastrados, setPaaLocaisCadastrados] = useState<any[]>([]);
-  const { toast } = useToast();
-
-  const verificarPermissaoUsuario = async (
-    uid: string,
-  ): Promise<"admin" | "usuario"> => {
-    const docRef = doc(db, "usuarios", uid);
-    const docSnap = await getDoc(docRef);
-    return docSnap.exists() ? docSnap.data().permissao : "usuario";
-  };
-
-  useEffect(() => {
-    const checkUserPermission = async () => {
-      const unsubscribe = auth.onAuthStateChanged(async (user) => {
-        if (user) {
-          const userRef = doc(db, "usuarios", user.uid);
-          const userDoc = await getDoc(userRef);
-          
-          if (userDoc.exists() && userDoc.data().permissao === "admin") {
-            setIsAdmin(true);
-          } else {
-            setLocation("/login");
-          }
-        } else {
-          setLocation("/login");
-        }
-      });
-
-      return () => unsubscribe();
-    };
-    checkUserPermission();
-  }, [setLocation]);
-
-  const handleAbrirDialog = (tipo: string) => {
-    setShowDialog(true);
-    setSelectedLocal(null); // Limpa o local selecionado ao abrir o diálogo
-  };
-
-  const handleFecharDialog = () => {
-    setShowDialog(false);
-  };
-
-  const handleEditar = (local: any) => {
-    setShowDialog(true);
-    setSelectedLocal(local);
-  };
-
-  const handleExcluir = async (id: string, colecao: string) => {
-    if (window.confirm("Tem certeza que deseja excluir este item?")) {
-      try {
-        await deleteDoc(doc(db, colecao, id));
-        toast({
-          title: "Sucesso",
-          description: "Item excluído com sucesso!",
-        });
-        // Atualizar a lista correspondente
-        if (colecao === "pesca") {
-          const novaLista = pescaLocaisCadastrados.filter(
-            (item) => item.id !== id,
-          );
-          setPescaLocaisCadastrados(novaLista);
-        } else if (colecao === "tratores") {
-          const novaLista = tratoresCadastrados.filter(
-            (item) => item.id !== id,
-          );
-          setTratoresCadastrados(novaLista);
-        } else if (colecao === "paa") {
-          const novaLista = paaLocaisCadastrados.filter(
-            (item) => item.id !== id,
-          );
-          setPaaLocaisCadastrados(novaLista);
-        }
-      } catch (error) {
-        console.error("Erro ao excluir item:", error);
-        toast({
-          title: "Erro",
-          description: "Não foi possível excluir o item.",
-          variant: "destructive",
-        });
-      }
-    }
-  };
-
-  const handleToggleConcluido = async (local: any) => {
-    try {
-      await updateDoc(doc(db, local.colecao, local.id), {
-        concluido: !local.concluido,
-      });
-      toast({
-        title: "Sucesso",
-        description: "Status atualizado com sucesso!",
-      });
-
-      // Atualizar a lista correspondente
-      if (local.colecao === "pesca") {
-        const novaLista = pescaLocaisCadastrados.map((item) =>
-          item.id === local.id
-            ? { ...item, concluido: !local.concluido }
-            : item,
-        );
-        setPescaLocaisCadastrados(novaLista);
-      } else if (local.colecao === "tratores") {
-        const novaLista = tratoresCadastrados.map((item) =>
-          item.id === local.id
-            ? { ...item, concluido: !local.concluido }
-            : item,
-        );
-        setTratoresCadastrados(novaLista);
-      } else if (local.colecao === "paa") {
-        const novaLista = paaLocaisCadastrados.map((item) =>
-          item.id === local.id
-            ? { ...item, concluido: !local.concluido }
-            : item,
-        );
-        setPaaLocaisCadastrados(novaLista);
-      }
-    } catch (error) {
-      console.error("Erro ao atualizar status:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o status.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [tratoresSnapshot, pescaSnapshot, paaSnapshot] =
-          await Promise.all([
-            getDocs(collection(db, "tratores")),
-            getDocs(collection(db, "pesca")),
-            getDocs(collection(db, "paa")),
-          ]);
-        setTratoresCadastrados(
-          tratoresSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-            colecao: "tratores",
-          })),
-        );
-        setPescaLocaisCadastrados(
-          pescaSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-            colecao: "pesca",
-          })),
-        );
-        setPaaLocaisCadastrados(
-          paaSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-            colecao: "paa",
-          })),
-        );
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        toast({
-          title: "Erro",
-          description: "Não foi possível carregar os dados.",
-          variant: "destructive",
-        });
-      }
-    };
-
-    fetchData();
-  }, []);
-
   return (
     <div className="container mx-auto px-4 py-20">
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Gerenciar Status das Atividades</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            <div>
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold">Agricultura</h2>
-                {isAdmin && (
-                  <Button onClick={() => handleAbrirDialog("agricultura")}>
-                    Adicionar Novo Local
-                  </Button>
-                )}
-              </div>
-              <div className="space-y-4">
-                {tratoresCadastrados.map((trator) => (
-                  <div
-                    key={trator.id}
-                    className="flex items-center justify-between p-4 border rounded-lg"
-                  >
-                    <div>
-                      <p className="font-medium">{trator.nome || "Sem nome"}</p>
-                      <p className="text-sm text-gray-500">
-                        {trator.localidade || trator.fazenda}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        Status: {trator.concluido ? "Concluído" : "Em Serviço"}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {isAdmin ? (
-                        <>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEditar(trator)}
-                          >
-                            Editar
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleExcluir(trator.id, "tratores")}
-                          >
-                            Excluir
-                          </Button>
-                          <Button
-                            variant={trator.concluido ? "outline" : "default"}
-                            size="sm"
-                            onClick={() => handleToggleConcluido(trator)}
-                          >
-                            {trator.concluido
-                              ? "Marcar Em Serviço"
-                              : "Marcar Concluído"}
-                          </Button>
-                        </>
-                      ) : null}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold">Pesca</h2>
-                {isAdmin && (
-                  <Button onClick={() => handleAbrirDialog("pesca")}>
-                    Adicionar Novo Local
-                  </Button>
-                )}
-              </div>
-              <div className="space-y-4">
-                {pescaLocaisCadastrados.map((pesca) => (
-                  <div
-                    key={pesca.id}
-                    className="flex items-center justify-between p-4 border rounded-lg"
-                  >
-                    <div>
-                      <p className="font-medium">
-                        {pesca.localidade || "Sem nome"}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {pesca.tipoTanque}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        Status: {pesca.concluido ? "Concluído" : "Em Serviço"}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {isAdmin ? (
-                        <>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEditar(pesca)}
-                          >
-                            Editar
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleExcluir(pesca.id, "pesca")}
-                          >
-                            Excluir
-                          </Button>
-                          <Button
-                            variant={pesca.concluido ? "outline" : "default"}
-                            size="sm"
-                            onClick={() => handleToggleConcluido(pesca)}
-                          >
-                            {pesca.concluido
-                              ? "Marcar Em Andamento"
-                              : "Marcar Concluído"}
-                          </Button>
-                        </>
-                      ) : null}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold">PAA</h2>
-                {isAdmin && (
-                  <Button onClick={() => handleAbrirDialog("paa")}>
-                    Adicionar Novo Local
-                  </Button>
-                )}
-              </div>
-              <div className="space-y-4">
-                {paaLocaisCadastrados.map((paa) => (
-                  <div
-                    key={paa.id}
-                    className="flex items-center justify-between p-4 border rounded-lg"
-                  >
-                    <div>
-                      <p className="font-medium">
-                        {paa.localidade || "Sem nome"}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {paa.tipoAlimento}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        Status: {paa.concluido ? "Concluído" : "Em Serviço"}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {isAdmin ? (
-                        <>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEditar(paa)}
-                          >
-                            Editar
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleExcluir(paa.id, "paa")}
-                          >
-                            Excluir
-                          </Button>
-                          <Button
-                            variant={paa.concluido ? "outline" : "default"}
-                            size="sm"
-                            onClick={() => handleToggleConcluido(paa)}
-                          >
-                            {paa.concluido
-                              ? "Marcar Em Andamento"
-                              : "Marcar Concluído"}
-                          </Button>
-                        </>
-                      ) : null}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       <Tabs defaultValue="agricultura">
         <TabsList className="mb-8">
           <TabsTrigger value="agricultura">Agricultura</TabsTrigger>
