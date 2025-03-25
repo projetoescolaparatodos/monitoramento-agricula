@@ -1,0 +1,32 @@
+Warning: validateDOMNesting(...): %s cannot appear as a child of <%s>.%s%s%s Whitespace text nodes tr  Make sure you don't have any extra whitespace between tags on each line of your source code.  
+    at tr
+    at _c9 (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/components/ui/table.tsx:102:12)
+    at thead
+    at _c3 (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/components/ui/table.tsx:46:12)
+    at table
+    at div
+    at _c (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/components/ui/table.tsx:20:11)
+    at div
+    at _c9 (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/components/ui/card.tsx:20:11)
+    at div
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RLTE5R7I.js?v=4254d4c0:41:13
+    at Presence (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-MJUUP555.js?v=4254d4c0:24:11)
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=4254d4c0:172:13
+    at _c5 (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/components/ui/tabs.tsx:72:12)
+    at div
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RLTE5R7I.js?v=4254d4c0:41:13
+    at Provider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NWOAO6WT.js?v=4254d4c0:32:15)
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=4254d4c0:50:7
+    at div
+    at Report (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/pages/Report.tsx:31:33)
+    at Route (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4254d4c0:323:16)
+    at Switch (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=4254d4c0:379:17)
+    at div
+    at Router
+    at QueryClientProvider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=4254d4c0:2805:3)
+    at App
+    at Router (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=4254d4c0:6387:13)
+    at BrowserRouter (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=4254d4c0:8614:3)
+    at QueryClientProvider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=4254d4c0:2805:3)
