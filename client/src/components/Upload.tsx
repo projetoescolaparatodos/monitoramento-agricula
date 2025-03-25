@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { storage } from "@/utils/firebase";
@@ -14,21 +13,23 @@ const Upload = ({ folder, onUploadComplete }: UploadProps) => {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
-    
+
     setUploading(true);
     const files = Array.from(e.target.files);
     const uploadPromises = files.map(async (file) => {
-      const storageRef = ref(storage, `${folder}/${file.name}`);
+      const fileName = `${Date.now()}-${file.name}`;
+      const storageRef = ref(storage, `${folder}/${fileName}`);
       await uploadBytes(storageRef, file);
-      return getDownloadURL(storageRef);
+      const url = await getDownloadURL(storageRef);
+      return url;
     });
 
     try {
       const urls = await Promise.all(uploadPromises);
       onUploadComplete(urls);
+      setUploading(false);
     } catch (error) {
-      console.error("Error uploading files:", error);
-    } finally {
+      console.error('Erro no upload:', error);
       setUploading(false);
     }
   };
