@@ -20,6 +20,13 @@ const app = initializeApp(firebaseConfig);
 // Exporta as funcionalidades que vamos usar
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+storage.cors = [
+  {
+    origin: ['*'],
+    method: ['GET', 'POST', 'PUT', 'DELETE', 'HEAD'],
+    maxAgeSeconds: 3600
+  }
+];
 export const auth = getAuth(app);
 
 

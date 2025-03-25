@@ -18,8 +18,14 @@ export default function Upload({ folder, onUploadComplete }: UploadProps) {
 
     setUploading(true);
     const uploadPromises = Array.from(files).map(async (file) => {
+      const metadata = {
+        contentType: file.type,
+        customMetadata: {
+          'Access-Control-Allow-Origin': '*'
+        }
+      };
       const storageRef = ref(storage, `${folder}/${Date.now()}-${file.name}`);
-      await uploadBytes(storageRef, file);
+      await uploadBytes(storageRef, file, metadata);
       return getDownloadURL(storageRef);
     });
 
@@ -28,6 +34,7 @@ export default function Upload({ folder, onUploadComplete }: UploadProps) {
       onUploadComplete(urls);
     } catch (error) {
       console.error("Error uploading files:", error);
+      alert("Erro ao fazer upload dos arquivos. Por favor, tente novamente.");
     } finally {
       setUploading(false);
     }
