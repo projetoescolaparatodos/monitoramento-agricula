@@ -15,6 +15,8 @@ import Admin from "@/pages/Admin";
 import NotFound from "@/pages/not-found";
 import NavBar from "@/components/NavBar";
 import { auth } from "./utils/firebase";
+import Gestor from "./pages/Gestor";
+import GestorLogin from "./pages/GestorLogin";
 
 function Router() {
   return (
@@ -52,6 +54,8 @@ function Router() {
             return <Admin />;
           }}
         </Route>
+        <Route path="/gestor" component={Gestor} />
+        <Route path="/gestor/login" component={GestorLogin} />
         <Route component={NotFound} />
       </Switch>
     </div>

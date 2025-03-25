@@ -271,7 +271,16 @@ const AgriculturaForm = () => {
     <div>
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>Gerenciar Agricultura</CardTitle>
+          <CardTitle className="flex justify-between items-center">
+            Gerenciar Agricultura
+            <Button 
+              variant="outline"
+              className="ml-2"
+              onClick={() => setLocation("/gestor/login")}
+            >
+              Área do Gestor
+            </Button>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div
