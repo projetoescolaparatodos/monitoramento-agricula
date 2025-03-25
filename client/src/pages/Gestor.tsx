@@ -1,16 +1,6 @@
 import { useState, useEffect } from "react";
-import { db } from "../utils/firebase";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer
-} from 'recharts';
 import { Label } from "@/components/ui/label";
+import { db } from "../utils/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,6 +10,19 @@ import { useToast } from "@/hooks/use-toast";
 import Upload from "@/components/Upload";
 import { Input } from "@/components/ui/input";
 import { X } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from "recharts";
 
 function Gestor() {
   const { toast } = useToast();
