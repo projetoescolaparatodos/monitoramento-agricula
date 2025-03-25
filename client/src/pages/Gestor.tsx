@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
-import { db } from "../utils/firebase";
+import { db, storage } from "../utils/firebase";
 import { doc, getDoc, updateDoc, setDoc, writeBatch } from "firebase/firestore";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X } from "lucide-react";
+import { X, UploadCloud } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -29,7 +30,6 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import Upload from "@/components/Upload";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
@@ -65,6 +65,8 @@ function Gestor() {
   const [chartDataState, setChartDataState] = useState<ChartData[]>([]);
   const [chartTitle, setChartTitle] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [files, setFiles] = useState<FileList | null>(null);
 
   useEffect(() => {
     const fetchSectorInfoAndChartData = async () => {
@@ -133,45 +135,129 @@ function Gestor() {
     setChartDataState((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleUpload = async () => {
+    if (!files || files.length === 0) {
+      toast({
+        title: "Erro",
+        description: "Selecione pelo menos um arquivo",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadProgress(0);
+    const uploadedUrls: string[] = [];
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const storageRef = ref(
+          storage,
+          `setores/${selectedSector}/media/${Date.now()}_${file.name}`,
+        );
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        await new Promise<void>((resolve, reject) => {
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              setUploadProgress(progress);
+            },
+            (error) => {
+              reject(error);
+            },
+            async () => {
+              try {
+                const downloadURL = await getDownloadURL(
+                  uploadTask.snapshot.ref,
+                );
+                uploadedUrls.push(downloadURL);
+                resolve();
+              } catch (error) {
+                reject(error);
+              }
+            },
+          );
+        });
+      }
+
+      // Atualiza os URLs de mídia no estado
+      setSectorInfo((prev) => ({
+        ...prev,
+        [selectedSector]: {
+          ...prev[selectedSector],
+          mediaUrls: [
+            ...(prev[selectedSector].mediaUrls || []),
+            ...uploadedUrls,
+          ],
+        },
+      }));
+
+      toast({
+        title: "Sucesso",
+        description: `${files.length} arquivo(s) enviado(s) com sucesso`,
+      });
+    } catch (error) {
+      console.error("Erro no upload:", error);
+      toast({
+        title: "Erro no upload",
+        description: error.message || "Falha ao enviar arquivos",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      setFiles(null);
+      setUploadProgress(0);
+    }
+  };
+
   const handleSave = async () => {
     try {
       const batch = writeBatch(db);
       const sectorRef = doc(db, "setores", selectedSector);
       const statsRef = doc(db, "estatisticas", selectedSector);
 
+      // Verifica se o documento existe
+      const sectorSnap = await getDoc(sectorRef);
+
       // Cria objeto apenas com campos que têm valores
-      const sectorUpdateData: Record<string, any> = {};
-      const statsUpdateData: Record<string, any> = {};
+      const sectorUpdateData: Record<string, any> = {
+        ...(sectorInfo[selectedSector].description !== undefined && {
+          description: sectorInfo[selectedSector].description,
+        }),
+        ...(sectorInfo[selectedSector].goals !== undefined && {
+          goals: sectorInfo[selectedSector].goals,
+        }),
+        ...(sectorInfo[selectedSector].achievements !== undefined && {
+          achievements: sectorInfo[selectedSector].achievements,
+        }),
+        ...(sectorInfo[selectedSector].mediaUrls !== undefined && {
+          mediaUrls: sectorInfo[selectedSector].mediaUrls,
+        }),
+        ...(chartDataState.length > 0 && { chartData: chartDataState }),
+      };
 
-      if (sectorInfo[selectedSector].description !== undefined) {
-        sectorUpdateData.description = sectorInfo[selectedSector].description;
+      const statsUpdateData = {
+        ...(chartDataState.length > 0 && { chartData: chartDataState }),
+        ...(chartTitle && { chartTitle }),
+        ...(chartType && { chartType }),
+      };
+
+      // Se o documento não existe, cria com os dados
+      if (!sectorSnap.exists()) {
+        batch.set(sectorRef, sectorUpdateData);
       }
-      if (sectorInfo[selectedSector].goals !== undefined) {
-        sectorUpdateData.goals = sectorInfo[selectedSector].goals;
-      }
-      if (sectorInfo[selectedSector].achievements !== undefined) {
-        sectorUpdateData.achievements = sectorInfo[selectedSector].achievements;
-      }
-      if (sectorInfo[selectedSector].mediaUrls !== undefined) {
-        sectorUpdateData.mediaUrls = sectorInfo[selectedSector].mediaUrls;
-      }
-      if (chartDataState.length > 0) {
-        sectorUpdateData.chartData = chartDataState;
-        statsUpdateData.chartData = chartDataState;
+      // Se existe, atualiza
+      else {
+        if (Object.keys(sectorUpdateData).length > 0) {
+          batch.update(sectorRef, sectorUpdateData);
+        }
       }
 
-      if (chartTitle) {
-        statsUpdateData.chartTitle = chartTitle;
-      }
-      if (chartType) {
-        statsUpdateData.chartType = chartType;
-      }
-
-      // Só atualiza se houver dados para atualizar
-      if (Object.keys(sectorUpdateData).length > 0) {
-        batch.update(sectorRef, sectorUpdateData);
-      }
-
+      // Para as estatísticas, usamos merge: true que cria se não existir
       if (Object.keys(statsUpdateData).length > 0) {
         batch.set(statsRef, statsUpdateData, { merge: true });
       }
@@ -420,36 +506,71 @@ function Gestor() {
                     <h3 className="text-lg font-medium mb-2">
                       Upload de Mídia
                     </h3>
-                    <Upload
-                      folder={`setores/${selectedSector}/media`}
-                      onUploadStart={() => setIsUploading(true)}
-                      onUploadComplete={(urls) => {
-                        setIsUploading(false);
-                        if (urls.length > 0) {
-                          handleChange(selectedSector, "mediaUrls", [
-                            ...(sectorInfo[selectedSector].mediaUrls || []),
-                            ...urls,
-                          ]);
-                          toast({
-                            title: "Upload concluído",
-                            description: `${urls.length} arquivo(s) enviado(s) com sucesso`,
-                          });
-                        }
-                      }}
-                      onError={(error) => {
-                        setIsUploading(false);
-                        toast({
-                          title: "Erro no upload",
-                          description:
-                            error.message || "Falha ao enviar arquivos",
-                          variant: "destructive",
-                        });
-                      }}
-                    />
-                    {isUploading && (
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Enviando arquivos...
-                      </p>
+                    <div className="border-2 border-dashed rounded-lg p-4">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <UploadCloud className="h-8 w-8 text-gray-500" />
+                        <input
+                          type="file"
+                          id="file-upload"
+                          multiple
+                          onChange={(e) => setFiles(e.target.files)}
+                          className="hidden"
+                        />
+                        <label
+                          htmlFor="file-upload"
+                          className="text-sm font-medium text-primary hover:underline cursor-pointer"
+                        >
+                          Selecione os arquivos
+                        </label>
+                        {files && (
+                          <div className="text-sm text-muted-foreground">
+                            {files.length} arquivo(s) selecionado(s)
+                          </div>
+                        )}
+                        <Button
+                          onClick={handleUpload}
+                          disabled={isUploading || !files || files.length === 0}
+                        >
+                          {isUploading ? "Enviando..." : "Enviar Arquivos"}
+                        </Button>
+                        {isUploading && (
+                          <div className="w-full bg-gray-200 rounded-full h-2.5">
+                            <div
+                              className="bg-blue-600 h-2.5 rounded-full"
+                              style={{ width: `${uploadProgress}%` }}
+                            ></div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    {sectorInfo[selectedSector].mediaUrls?.length > 0 && (
+                      <div className="mt-4">
+                        <h4 className="text-sm font-medium mb-2">
+                          Mídias existentes:
+                        </h4>
+                        <div className="grid grid-cols-3 gap-2">
+                          {sectorInfo[selectedSector].mediaUrls?.map(
+                            (url, index) => (
+                              <div key={index} className="relative">
+                                {url.includes("/video/") ||
+                                url.includes("/video/upload/") ? (
+                                  <video
+                                    src={url}
+                                    controls
+                                    className="w-full h-24 object-cover rounded-lg"
+                                  />
+                                ) : (
+                                  <img
+                                    src={url}
+                                    alt={`Mídia ${index}`}
+                                    className="w-full h-24 object-cover rounded-lg"
+                                  />
+                                )}
+                              </div>
+                            ),
+                          )}
+                        </div>
+                      </div>
                     )}
                   </div>
                 </div>
