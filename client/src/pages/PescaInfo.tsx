@@ -44,6 +44,11 @@ const PescaInfo = () => {
           </CardContent>
         </Card>
       </div>
+    <div className="mt-8 flex justify-center">
+        <Button onClick={() => window.location.href = '/pesca/mapa'} className="px-8 py-6 text-lg">
+          Acompanhar Serviços
+        </Button>
+      </div>
     </div>
   );
 };

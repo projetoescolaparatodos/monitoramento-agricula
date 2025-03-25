@@ -22,30 +22,12 @@ function Router() {
       <NavBar />
       <Switch>
         <Route path="/" component={Home} />
-        <Route path="/agricultura">
-          {() => (
-            <div>
-              <AgriculturaInfo />
-              <AgriculturaMap />
-            </div>
-          )}
-        </Route>
-        <Route path="/pesca">
-          {() => (
-            <div>
-              <PescaInfo />
-              <PescaMap />
-            </div>
-          )}
-        </Route>
-        <Route path="/paa">
-          {() => (
-            <div>
-              <PAAInfo />
-              <PAAMap />
-            </div>
-          )}
-        </Route>
+        <Route path="/agricultura" component={AgriculturaInfo} />
+        <Route path="/agricultura/mapa" component={AgriculturaMap} />
+        <Route path="/pesca" component={PescaInfo} />
+        <Route path="/pesca/mapa" component={PescaMap} />
+        <Route path="/paa" component={PAAInfo} />
+        <Route path="/paa/mapa" component={PAAMap} />
         <Route path="/report" component={Report} />
         <Route path="/login" component={Login} />
         <Route path="/admin">
