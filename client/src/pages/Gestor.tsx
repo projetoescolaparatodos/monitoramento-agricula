@@ -103,8 +103,6 @@ export default function Gestor() {
     setUploadProgress(0);
     
     try {
-      const uploadedUrls = [];
-      
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const storageRef = ref(
@@ -120,46 +118,26 @@ export default function Gestor() {
               const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
               setUploadProgress(progress);
             },
-            (error) => {
-              console.error("Upload error:", error);
-              reject(error);
-            },
-            async () => {
-              try {
-                const url = await getDownloadURL(uploadTask.snapshot.ref);
-                resolve(url);
-              } catch (error) {
-                console.error("Get URL error:", error);
-                reject(error);
-              }
-            }
+            reject,
+            async () => resolve(await getDownloadURL(uploadTask.snapshot.ref))
           );
         });
 
-        uploadedUrls.push({
-          url: downloadURL,
-          title: newMediaTitle,
-          description: newMediaDescription
-        });
+        setSectorInfo((prev) => ({
+          ...prev,
+          [selectedSector]: {
+            ...prev[selectedSector],
+            mediaItems: [
+              ...(prev[selectedSector].mediaItems || []),
+              {
+                url: downloadURL,
+                title: newMediaTitle,
+                description: newMediaDescription
+              }
+            ],
+          },
+        }));
       }
-
-      // Update state only after all uploads are complete
-      setSectorInfo((prev) => ({
-        ...prev,
-        [selectedSector]: {
-          ...prev[selectedSector],
-          mediaItems: [
-            ...(prev[selectedSector].mediaItems || []),
-            ...uploadedUrls
-          ],
-        },
-      }));
-
-      // Save to Firestore immediately after successful upload
-      const sectorRef = doc(db, "setores", selectedSector);
-      await updateDoc(sectorRef, {
-        mediaItems: arrayUnion(...uploadedUrls)
-      });
 
       toast({
         title: "Sucesso",

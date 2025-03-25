@@ -1,44 +1,26 @@
 
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { db } from "@/utils/firebase";
-import { doc, getDoc } from "firebase/firestore";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Map } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Loader2, Map } from "lucide-react";
+import { db } from "../utils/firebase";
+import { doc, getDoc } from "firebase/firestore";
 import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
   ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
-  BarChart,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  Bar
 } from "recharts";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
-
-interface MediaItem {
-  url: string;
-  title: string;
-  description: string;
-}
-
-interface ChartTemplate {
-  title: string;
-  description: string;
-  data: ChartData[];
-  type: "bar" | "pie";
-}
-
-interface ChartData {
-  name: string;
-  value: number;
-}
 
 const AgriculturaInfo = () => {
   const [, setLocation] = useLocation();
@@ -50,12 +32,15 @@ const AgriculturaInfo = () => {
     mediaItems: [] as MediaItem[],
     methodology: "",
     results: "",
-    additionalCharts: [] as ChartTemplate[]
   });
+  const [chartData, setChartData] = useState([]);
+  const [chartTitle, setChartTitle] = useState("");
+  const [chartType, setChartType] = useState("bar");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Fetch sector info
         const sectorDoc = await getDoc(doc(db, "setores", "agricultura"));
         if (sectorDoc.exists()) {
           const data = sectorDoc.data();
@@ -63,12 +48,19 @@ const AgriculturaInfo = () => {
             description: data.description || "",
             goals: data.goals || "",
             achievements: data.achievements || "",
-            mediaItems: data.mediaItems || [],
-            methodology: data.methodology || "",
-            results: data.results || "",
-            additionalCharts: data.additionalCharts || []
+            mediaUrls: data.mediaUrls || [],
           });
         }
+
+        // Fetch chart data
+        const statsDoc = await getDoc(doc(db, "estatisticas", "agricultura"));
+        if (statsDoc.exists()) {
+          const data = statsDoc.data();
+          setChartData(data.chartData || []);
+          setChartTitle(data.chartTitle || "");
+          setChartType(data.chartType || "bar");
+        }
+
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -79,24 +71,39 @@ const AgriculturaInfo = () => {
     fetchData();
   }, []);
 
-  const renderChart = (chart: ChartTemplate) => {
-    if (chart.type === "pie") {
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const renderChart = () => {
+    if (!chartData?.length) return null;
+
+    if (chartType === "pie") {
       return (
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={400}>
           <PieChart>
             <Pie
-              data={chart.data}
+              data={chartData}
               cx="50%"
               cy="50%"
               labelLine={false}
-              outerRadius={80}
+              outerRadius={150}
               fill="#8884d8"
               dataKey="value"
               nameKey="name"
-              label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+              label={({ name, percent }) =>
+                `${name} (${(percent * 100).toFixed(0)}%)`
+              }
             >
-              {chart.data.map((_, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              {chartData.map((_, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
               ))}
             </Pie>
             <Tooltip />
@@ -107,8 +114,8 @@ const AgriculturaInfo = () => {
     }
 
     return (
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={chart.data}>
+      <ResponsiveContainer width="100%" height={400}>
+        <BarChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
@@ -120,87 +127,72 @@ const AgriculturaInfo = () => {
     );
   };
 
-  if (loading) {
-    return <div className="container mx-auto p-4 pt-20">Carregando...</div>;
-  }
-
   return (
     <div className="container mx-auto p-4 pt-20">
-      <div className="prose max-w-none">
+      <div className="prose max-w-none mb-8">
         <h1 className="text-3xl font-bold mb-6">Agricultura</h1>
         
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Sobre o Setor</h2>
-            <p className="mb-4">{sectorInfo.description}</p>
-            
-            <h2 className="text-xl font-semibold mb-4">Objetivos</h2>
-            <p className="mb-4">{sectorInfo.goals}</p>
-            
-            <h2 className="text-xl font-semibold mb-4">Realizações</h2>
-            <p className="mb-4">{sectorInfo.achievements}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+          <div className="p-4 border rounded-lg">
+            <h3 className="font-semibold mb-2">Metodologia</h3>
+            <p>{sectorInfo.methodology}</p>
+          </div>
+          
+          <div className="p-4 border rounded-lg">
+            <h3 className="font-semibold mb-2">Resultados</h3>
+            <p>{sectorInfo.results}</p>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
+          <h2 className="text-xl font-semibold mb-4">Sobre o Setor</h2>
+          <p className="mb-4">{sectorInfo.description}</p>
+          
+          <h2 className="text-xl font-semibold mb-4">Objetivos</h2>
+          <p className="mb-4">{sectorInfo.goals}</p>
+          
+          <h2 className="text-xl font-semibold mb-4">Realizações</h2>
+          <p className="mb-4">{sectorInfo.achievements}</p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-              <div className="p-4 border rounded-lg">
-                <h3 className="font-semibold mb-2">Metodologia</h3>
-                <p>{sectorInfo.methodology}</p>
-              </div>
-              
-              <div className="p-4 border rounded-lg">
-                <h3 className="font-semibold mb-2">Resultados</h3>
-                <p>{sectorInfo.results}</p>
-              </div>
-            </div>
+          <Button 
+            className="flex items-center gap-2"
+            onClick={() => setLocation("/agricultura/mapa")}
+          >
+            <Map className="w-4 h-4" />
+            Ver no Mapa
+          </Button>
+        </div>
 
-            <Button 
-              className="flex items-center gap-2 mt-6"
-              onClick={() => setLocation("/agricultura/mapa")}
-            >
-              <Map className="w-4 h-4" />
-              Ver no Mapa
-            </Button>
-          </CardContent>
-        </Card>
-
-        {sectorInfo.additionalCharts?.map((chart, index) => (
-          <Card key={index} className="mb-6">
-            <CardContent className="p-6">
-              <h2 className="text-xl font-semibold mb-4">{chart.title}</h2>
-              <p className="mb-4">{chart.description}</p>
-              {renderChart(chart)}
-            </CardContent>
+        {chartData?.length > 0 && (
+          <Card className="p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-4">{chartTitle || "Estatísticas"}</h2>
+            {renderChart()}
           </Card>
-        ))}
+        )}
 
         {sectorInfo.mediaItems?.length > 0 && (
-          <Card className="mb-6">
-            <CardContent className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Galeria de Mídia</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {sectorInfo.mediaItems.map((item, index) => (
-                  <div key={index} className="border rounded-lg overflow-hidden">
-                    <div className="p-3 bg-gray-50">
-                      <h4 className="font-medium">{item.title}</h4>
-                      {item.description && (
-                        <p className="text-sm text-gray-600 mt-1">{item.description}</p>
-                      )}
-                    </div>
-                    <div className="p-2">
-                      {item.url.includes("/video/") || item.url.includes("/video/upload/") ? (
-                        <video src={item.url} controls className="w-full h-48 object-contain" />
-                      ) : (
-                        <img 
-                          src={item.url} 
-                          alt={item.title || `Mídia ${index + 1}`}
-                          className="w-full h-48 object-contain"
-                        />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="bg-white rounded-lg p-6 shadow-sm">
+            <h2 className="text-xl font-semibold mb-4">Galeria de Mídia</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {sectorInfo.mediaItems.map((item, index) => (
+                url.includes('video') ? (
+                  <video 
+                    key={index}
+                    src={url}
+                    controls
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                ) : (
+                  <img
+                    key={index}
+                    src={url}
+                    alt={`Mídia ${index + 1}`}
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                )
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </div>
