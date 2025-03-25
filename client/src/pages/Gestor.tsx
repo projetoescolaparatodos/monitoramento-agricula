@@ -1,73 +1,114 @@
-
-import { useEffect, useState } from "react";
-import { useLocation } from "wouter";
-import { auth } from "../utils/firebase";
+import { useState, useEffect } from "react";
+import { db } from "../utils/firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default function Gestor() {
-  const [, setLocation] = useLocation();
+function Gestor() {
+  const { toast } = useToast();
+  const [sectorInfo, setSectorInfo] = useState({
+    agricultura: { description: "", goals: "", achievements: "" },
+    pesca: { description: "", goals: "", achievements: "" },
+    paa: { description: "", goals: "", achievements: "" }
+  });
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (!user) {
-        setLocation("/gestor/login");
-      }
-    });
+    const fetchSectorInfo = async () => {
+      const sectors = ["agricultura", "pesca", "paa"];
+      const info = { ...sectorInfo };
 
-    return () => unsubscribe();
-  }, [setLocation]);
+      for (const sector of sectors) {
+        const docRef = doc(db, "setores", sector);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          info[sector] = docSnap.data();
+        }
+      }
+
+      setSectorInfo(info);
+    };
+
+    fetchSectorInfo();
+  }, []);
+
+  const handleSave = async (sector) => {
+    try {
+      await updateDoc(doc(db, "setores", sector), sectorInfo[sector]);
+      toast({
+        title: "Sucesso",
+        description: "Informações atualizadas com sucesso",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Erro ao atualizar informações",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleChange = (sector, field, value) => {
+    setSectorInfo(prev => ({
+      ...prev,
+      [sector]: {
+        ...prev[sector],
+        [field]: value
+      }
+    }));
+  };
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Painel do Gestor</h1>
-      
-      <ScrollArea className="h-[calc(100vh-200px)]">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Agricultura</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Button 
-                className="w-full"
-                onClick={() => setLocation("/gestor/agricultura")}
-              >
-                Gerenciar
-              </Button>
-            </CardContent>
-          </Card>
+    <div className="container mx-auto p-4 pt-20">
+      <h1 className="text-3xl font-bold mb-6">Área do Gestor</h1>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Pesca</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Button 
-                className="w-full"
-                onClick={() => setLocation("/gestor/pesca")}
-              >
-                Gerenciar
-              </Button>
-            </CardContent>
-          </Card>
+      <Tabs defaultValue="agricultura">
+        <TabsList>
+          <TabsTrigger value="agricultura">Agricultura</TabsTrigger>
+          <TabsTrigger value="pesca">Pesca</TabsTrigger>
+          <TabsTrigger value="paa">PAA</TabsTrigger>
+        </TabsList>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>PAA</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Button 
-                className="w-full"
-                onClick={() => setLocation("/gestor/paa")}
-              >
-                Gerenciar
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </ScrollArea>
+        {Object.keys(sectorInfo).map((sector) => (
+          <TabsContent key={sector} value={sector}>
+            <Card>
+              <CardHeader>
+                <CardTitle>Editar Informações - {sector.toUpperCase()}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Descrição</label>
+                  <Textarea
+                    value={sectorInfo[sector].description}
+                    onChange={(e) => handleChange(sector, "description", e.target.value)}
+                    rows={4}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Objetivos</label>
+                  <Textarea
+                    value={sectorInfo[sector].goals}
+                    onChange={(e) => handleChange(sector, "goals", e.target.value)}
+                    rows={4}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Realizações</label>
+                  <Textarea
+                    value={sectorInfo[sector].achievements}
+                    onChange={(e) => handleChange(sector, "achievements", e.target.value)}
+                    rows={4}
+                  />
+                </div>
+                <Button onClick={() => handleSave(sector)}>Salvar Alterações</Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        ))}
+      </Tabs>
     </div>
   );
 }
+export default Gestor;
