@@ -18,6 +18,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Upload from "@/components/Upload";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Link, useNavigate } from "wouter"; // Updated import
 
 // Agriculture Tab
 const AgriculturaForm = () => {
@@ -41,6 +42,7 @@ const AgriculturaForm = () => {
   const [tratorEmEdicao, setTratorEmEdicao] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate(); // Added useNavigate hook
 
   useEffect(() => {
     const fetchTratores = async () => {
@@ -273,10 +275,10 @@ const AgriculturaForm = () => {
         <CardHeader>
           <CardTitle className="flex justify-between items-center">
             Gerenciar Agricultura
-            <Button 
+            <Button
               variant="outline"
               className="ml-2"
-              onClick={() => setLocation("/gestor/login")}
+              onClick={() => navigate("/gestor/login")} // Changed to useNavigate
             >
               Área do Gestor
             </Button>
