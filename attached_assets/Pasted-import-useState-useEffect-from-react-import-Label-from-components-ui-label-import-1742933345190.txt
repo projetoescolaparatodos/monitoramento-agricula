@@ -1,0 +1,132 @@
+import { useState, useEffect } from "react";
+import { Label } from "@/components/ui/label";
+import { db } from "../utils/firebase";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import { X } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from "recharts";
+
+function Gestor() {
+  const { toast } = useToast();
+  const [selectedSector, setSelectedSector] = useState("agricultura");
+  const [chartData, setChartData] = useState([]);
+
+  useEffect(() => {
+    const fetchChartData = async () => {
+      const docRef = doc(db, "estatisticas", selectedSector);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setChartData(docSnap.data().chartData || []);
+      }
+    };
+    fetchChartData();
+  }, [selectedSector]);
+
+  const handleChartDataChange = (index, field, value) => {
+    setChartData(prev => prev.map((item, i) => i === index ? { ...item, [field]: value } : item));
+  };
+
+  const addChartDataPoint = () => {
+    setChartData(prev => [...prev, { name: "", value: 0 }]);
+  };
+
+  const removeChartDataPoint = (index) => {
+    setChartData(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSave = async () => {
+    try {
+      await updateDoc(doc(db, "estatisticas", selectedSector), { chartData });
+      toast({ title: "Sucesso", description: "Dados atualizados com sucesso" });
+    } catch (error) {
+      toast({ title: "Erro", description: "Erro ao atualizar dados", variant: "destructive" });
+    }
+  };
+
+  return (
+    <div className="container mx-auto p-4 pt-20">
+      <h1 className="text-3xl font-bold mb-6">Área do Gestor</h1>
+      <Tabs defaultValue="agricultura" onValueChange={setSelectedSector}>
+        <TabsList className="mb-4">
+          <TabsTrigger value="agricultura">Agricultura</TabsTrigger>
+          <TabsTrigger value="pesca">Pesca</TabsTrigger>
+          <TabsTrigger value="paa">PAA</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value={selectedSector}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Editar Estatísticas - {selectedSector.toUpperCase()}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <h3 className="text-lg font-medium mb-2">Editar Gráficos</h3>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <Label>Rótulos</Label>
+                  {chartData.map((data, index) => (
+                    <div key={index} className="flex gap-2 mb-2">
+                      <Input
+                        value={data.name}
+                        onChange={(e) => handleChartDataChange(index, 'name', e.target.value)}
+                        placeholder={`Rótulo ${index + 1}`}
+                      />
+                      <Button variant="destructive" size="icon" onClick={() => removeChartDataPoint(index)}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <Label>Valores</Label>
+                  {chartData.map((data, index) => (
+                    <div key={index} className="flex gap-2 mb-2">
+                      <Input
+                        type="number"
+                        value={data.value}
+                        onChange={(e) => handleChartDataChange(index, 'value', Number(e.target.value))}
+                        placeholder={`Valor ${index + 1}`}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Button variant="outline" onClick={addChartDataPoint} className="mb-4">Adicionar Ponto</Button>
+
+              <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="value" fill="#8884d8" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              
+              <Button onClick={handleSave} className="mt-4">Salvar Alterações</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+export default Gestor;
