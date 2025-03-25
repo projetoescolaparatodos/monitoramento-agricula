@@ -3,6 +3,8 @@
   display: flex;
   flex-direction: row;
   gap: 16px;
+  position: relative;
+  min-width: 300px;
 }
 
 .popup-content.maximized {
