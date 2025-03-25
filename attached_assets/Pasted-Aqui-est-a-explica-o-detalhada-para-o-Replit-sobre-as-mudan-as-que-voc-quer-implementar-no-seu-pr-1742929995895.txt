@@ -1,0 +1,43 @@
+Aqui está a explicação detalhada para o Replit sobre as mudanças que você quer implementar no seu projeto:
+________________________________________
+📌 Objetivo:
+O projeto precisa incluir gráficos interativos nas Páginas de Informações (Paginas Info) de cada setor, com um template visual semelhante ao de órgãos governamentais, como IBGE, garantindo uma estrutura organizada e profissional.
+________________________________________
+1️⃣ Estrutura das Páginas Info
+Cada setor (Agricultura, Pesca, PAA) terá uma página específica para exibir:
+✅ Texto descritivo sobre o setor.
+✅ Gráficos interativos com dados atualizados.
+✅ Feed de vídeos e imagens enviados pela Área do Gestor.
+________________________________________
+2️⃣ Design das Páginas Info
+•	O layout deve seguir o padrão de sites governamentais, como IBGE, com foco em organização, gráficos e dados visuais.
+•	Deve conter títulos bem definidos, barras laterais para filtros e categorias, e gráficos em destaque no centro da página.
+•	A paleta de cores deve ser institucional, com tons neutros e profissionais.
+•	O site precisa ser responsivo, funcionando bem em desktop e mobile.
+________________________________________
+3️⃣ Implementação dos Gráficos
+Os gráficos devem ser criados usando Chart.js ou Recharts, exibindo informações como:
+📊 Gráficos de pizza para mostrar a divisão dos agricultores por tipo de cultura (ex.: Cacau, Açaí, Citros).
+📈 Gráficos de barras e linhas para apresentar a evolução de cada setor.
+📉 Gráficos comparativos para mostrar crescimento e variação ao longo do tempo.
+➡️ Fonte de dados:
+•	Os gráficos devem puxar os dados diretamente do banco de dados Firebase ou de um arquivo JSON atualizado pela Área do Gestor.
+________________________________________
+4️⃣ Área do Gestor – Gerenciamento de Dados
+📌 Função: Permitir que os administradores insiram e atualizem os dados exibidos nas Páginas Info e na Página Inicial.
+✅ Recursos da Área do Gestor:
+•	Upload de gráficos e dados numéricos para alimentar as Páginas Info.
+•	Upload de vídeos e imagens para os feeds dos setores.
+•	Sistema de autenticação para garantir segurança (Admin pode editar, Funcionários só podem adicionar dados).
+•	Interface simplificada para preenchimento de dados em formato de tabelas.
+________________________________________
+5️⃣ Resumo Técnico para o Replit
+🔹 Criar editar paginas info
+🔹 Adotar um template governamental, como os do IBGE.
+🔹 Implementar gráficos interativos usando Chart.js ou Recharts.
+🔹 Integrar os dados diretamente da Área do Gestor via Firebase ou JSON.
+🔹 Criar Área do Gestor para gerenciar dados, gráficos, imagens e vídeos.
+________________________________________
+Isso garante um site profissional, dinâmico e gerenciável, adequado para um projeto oficial da Secretaria. 🚀
+Me avise se precisar de mais ajustes! 😊
+
