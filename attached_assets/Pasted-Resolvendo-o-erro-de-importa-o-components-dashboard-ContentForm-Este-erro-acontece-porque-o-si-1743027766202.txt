@@ -1,0 +1,272 @@
+Resolvendo o erro de importação "@/components/dashboard/ContentForm"
+Este erro acontece porque o sistema não consegue encontrar o arquivo de componente que está sendo importado usando a sintaxe de alias @/. Vamos resolver isso de três maneiras possíveis:
+
+Opção 1: Corrigir as importações usando caminhos relativos
+A solução mais direta é mudar a importação de aliases (@/) para caminhos relativos. No arquivo client/src/pages/Dashboard.tsx, você pode alterar:
+
+// De:
+import { ContentForm } from "@/components/dashboard/ContentForm";
+// Para:
+import { ContentForm } from "../components/dashboard/ContentForm";
+Esta abordagem não requer configuração adicional, mas você precisará ajustar os caminhos relativos em todas as importações no projeto.
+
+Opção 2: Verificar e corrigir a configuração de alias no tsconfig.json
+O alias @/ deve estar configurado corretamente no seu tsconfig.json. Verifique se existe a seguinte configuração:
+
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["client/src/*"]
+    }
+  }
+}
+Certifique-se também que o vite.config.ts tenha a configuração correspondente:
+
+import { defineConfig } from 'vite';
+import path from 'path';
+export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './client/src')
+    }
+  }
+});
+Opção 3: Criar o componente ContentForm
+Se o componente realmente não existe, você precisa criá-lo no local correto. Crie o arquivo client/src/components/dashboard/ContentForm.tsx com o conteúdo necessário:
+
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { ContentFormData } from "../../types"; // Ajuste o caminho conforme necessário
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { Textarea } from "../ui/textarea";
+import { Switch } from "../ui/switch";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { apiRequest, queryClient } from "../../lib/queryClient"; // Ajuste o caminho
+import { useToast } from "../../hooks/use-toast"; // Ajuste o caminho
+import { useQuery } from "@tanstack/react-query";
+// Form validation schema
+const formSchema = z.object({
+  pageType: z.string(),
+  sectionType: z.string(),
+  title: z.string().min(2, "Título deve ter pelo menos 2 caracteres"),
+  content: z.string().min(10, "Conteúdo deve ter pelo menos 10 caracteres"),
+  active: z.boolean().default(true),
+});
+interface ContentFormProps {
+  contentData?: ContentFormData;
+  isEdit?: boolean;
+  onSuccess?: () => void;
+}
+export const ContentForm = ({ contentData, isEdit = false, onSuccess }: ContentFormProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  // Fetch content data if in edit mode
+  const { data: fetchedContent, isLoading } = useQuery({
+    queryKey: ['/api/contents', contentData?.id],
+    queryFn: async () => {
+      if (isEdit && contentData?.id) {
+        const res = await fetch(`/api/contents/${contentData.id}`);
+        if (!res.ok) throw new Error('Failed to fetch content');
+        return res.json();
+      }
+      return null;
+    },
+    enabled: isEdit && !!contentData?.id,
+  });
+  const defaultValues: ContentFormData = {
+    pageType: "home",
+    sectionType: "info",
+    title: "",
+    content: "",
+    active: true,
+  };
+  const form = useForm<ContentFormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: fetchedContent || contentData || defaultValues,
+  });
+  // Update form when fetched data is available
+  if (isEdit && fetchedContent && !form.formState.isDirty) {
+    form.reset(fetchedContent);
+  }
+  const onSubmit = async (data: ContentFormData) => {
+    try {
+      setIsSubmitting(true);
+      if (isEdit && contentData?.id) {
+        await apiRequest("PUT", `/api/contents/${contentData.id}`, data);
+        toast({
+          title: "Conteúdo atualizado",
+          description: "O conteúdo foi atualizado com sucesso.",
+        });
+      } else {
+        await apiRequest("POST", "/api/contents", data);
+        form.reset(defaultValues);
+        toast({
+          title: "Conteúdo criado",
+          description: "O conteúdo foi criado com sucesso.",
+        });
+      }
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['/api/contents'] });
+      
+      if (onSuccess) {
+        onSuccess();
+      }
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao salvar o conteúdo.",
+        variant: "destructive",
+      });
+      console.error("Error submitting content:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  if (isEdit && isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Carregando Conteúdo...</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="h-10 bg-gray-100 animate-pulse rounded" />
+            <div className="h-10 bg-gray-100 animate-pulse rounded" />
+            <div className="h-10 bg-gray-100 animate-pulse rounded" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{isEdit ? "Editar Conteúdo" : "Novo Conteúdo"}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="pageType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Página</FormLabel>
+                    <FormControl>
+                      <select
+                        {...field}
+                        className="w-full p-2 border rounded-md"
+                      >
+                        <option value="home">Página Inicial</option>
+                        <option value="agriculture">Agricultura</option>
+                        <option value="fishing">Pesca</option>
+                        <option value="paa">PAA</option>
+                      </select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="sectionType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Seção</FormLabel>
+                    <FormControl>
+                      <select
+                        {...field}
+                        className="w-full p-2 border rounded-md"
+                      >
+                        <option value="hero">Hero</option>
+                        <option value="info">Informativo</option>
+                        <option value="about">Sobre</option>
+                        <option value="contact">Contato</option>
+                      </select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Título</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Título do conteúdo" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="content"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Conteúdo</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      placeholder="Escreva o conteúdo aqui..."
+                      className="min-h-[200px]"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="active"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Ativo</FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      O conteúdo será exibido no site quando ativo
+                    </p>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Salvando..." : isEdit ? "Atualizar" : "Criar"}
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  );
+};
+export default ContentForm;
+Recomendação para uma abordagem sistemática:
+Verifique todos os componentes necessários: Faça uma lista de todos os componentes referenciados em cada página e verifique se eles existem.
+
+Corrija primeiro as configurações de alias: Garanta que a configuração de alias @/ está correta no tsconfig.json e vite.config.ts.
+
+Crie uma estrutura de index.ts: Para cada pasta de componentes, crie um arquivo index.ts que exporte todos os componentes:
+
+// client/src/components/dashboard/index.ts
+export { default as ContentForm } from './ContentForm';
+export { default as ContentList } from './ContentList';
+// ... outros componentes
+Importe dos arquivos index: Nas páginas, importe dos arquivos index:
+// Em Dashboard.tsx
+import { ContentForm, ContentList } from "../components/dashboard";
+Essa abordagem torna seu código mais modular e facilita a manutenção das importações.
