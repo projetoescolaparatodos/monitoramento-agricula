@@ -16,6 +16,8 @@ import Admin from "@/pages/Admin";
 import NotFound from "@/pages/not-found";
 import NavBar from "@/components/NavBar";
 import { auth } from "./utils/firebase";
+// Added FishingInfo component
+import FishingInfo from "@/pages/FishingInfo";
 
 
 function Router() {
@@ -25,12 +27,12 @@ function Router() {
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/agriculture" component={Agriculture} />
-        <Route path="/agriculture/info" component={AgricultureInfo} />
+        <Route path="/agriculture/info" component={AgricultureInfo} /> {/*Assuming AgricultureInfo exists*/}
         <Route path="/agriculture/map" component={AgricultureMap} />
         <Route path="/fishing" component={Fishing} />
         <Route path="/fishing/info" component={FishingInfo} />
-        <Route path="/fishing/map" component={FishingMap} />
-        <Route path="/paa" component={PAA} />
+        <Route path="/fishing/map" component={FishingMap} /> {/*Assuming FishingMap exists*/}
+        <Route path="/paa" component={PAA} /> {/*Assuming PAA exists*/}
         <Route path="/paa/info" component={PAAInfo} />
         <Route path="/paa/map" component={PAAMap} />
         <Route path="/dashboard" component={Dashboard} />
