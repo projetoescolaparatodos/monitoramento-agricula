@@ -7,7 +7,6 @@ import Report from "@/pages/Report";
 import AgriculturaMap from "@/pages/AgriculturaMap";
 import PescaMap from "@/pages/PescaMap";
 import PAAMap from "@/pages/PAAMap";
-import Home from "@/pages/Home";
 import Agriculture from "@/pages/Agriculture";
 import Fishing from "@/pages/Fishing";
 import PAAInfo from "@/pages/PAAInfo";
@@ -27,15 +26,18 @@ function Router() {
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/agriculture" component={Agriculture} />
-        <Route path="/agricultura/mapa">
-          <AgriculturaMap />
-        </Route>
+        <Route path="/agricultura/mapa" component={AgriculturaMap} />
         <Route path="/fishing" component={Fishing} />
+        <Route path="/pesca/mapa" component={PescaMap} />
         <Route path="/paa" component={PAAInfo} />
+        <Route path="/paa/mapa" component={PAAMap} />
         <Route path="/dashboard" component={Dashboard} />
-        <Route path="/pesca/mapa">
-          <PescaMap />
-        </Route>
+        <Route path="/login" component={Login} />
+        <Route path="/admin" component={Admin} />
+        <Route path="/gestor" component={Gestor} />
+        <Route path="/gestor/login" component={GestorLogin} />
+        <Route path="/report" component={Report} />
+        <Route component={NotFound} />
         <Route path="/paa/mapa">
           <PAAMap />
         </Route>
