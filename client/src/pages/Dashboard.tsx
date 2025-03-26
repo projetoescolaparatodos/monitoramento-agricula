@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLocation, useParams } from "wouter";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import PageHeader from "@/components/ui/PageHeader";
+import { PageHeader } from "@/components/ui/PageHeader"; // This line is unchanged, but the file needs to be created
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
@@ -19,7 +19,7 @@ const Dashboard = () => {
   const params = useParams();
   const section = params?.page || "contents";
   const [, setLocation] = useLocation();
-  
+
   const [showForm, setShowForm] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
 
@@ -51,10 +51,10 @@ const Dashboard = () => {
           title="Área do Gestor" 
           description="Gerencie conteúdos, gráficos, mídias e estatísticas do InfoAgro"
         />
-        
+
         <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6">
           <DashboardSidebar activeSection={section} onSectionChange={handleSectionChange} />
-          
+
           <div className="space-y-6">
             {section === "contents" && (
               <>
