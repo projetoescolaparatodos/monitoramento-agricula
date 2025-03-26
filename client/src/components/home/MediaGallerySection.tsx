@@ -1,16 +1,68 @@
-
-import React from 'react';
+import { useQuery } from "@tanstack/react-query";
+import { MediaItem } from "@/types";
+import { Link } from "wouter";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const MediaGallerySection = () => {
+  const { data: mediaItems, isLoading } = useQuery<MediaItem[]>({
+    queryKey: ['/api/media-items'],
+  });
+
+  // Limit to 4 items for homepage display
+  const displayItems = mediaItems?.slice(0, 4);
+
   return (
-    <div className="py-12">
-      <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold mb-8 text-center">Mídia Recente</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Add media items here */}
-        </div>
+    <section className="mb-16">
+      <div className="text-center mb-10">
+        <h2 className="text-2xl md:text-3xl font-heading font-bold text-secondary mb-2">
+          Galeria de Mídia
+        </h2>
+        <p className="text-neutral max-w-3xl mx-auto">
+          Imagens e vídeos sobre atividades agrícolas no Brasil
+        </p>
       </div>
-    </div>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {isLoading ? (
+          // Loading skeletons
+          Array(4).fill(0).map((_, index) => (
+            <div key={index} className="relative overflow-hidden rounded-lg shadow h-48">
+              <Skeleton className="w-full h-full" />
+            </div>
+          ))
+        ) : displayItems?.length ? (
+          displayItems.map((item) => (
+            <div key={item.id} className="relative overflow-hidden rounded-lg shadow group h-48">
+              <img 
+                src={item.mediaUrl} 
+                alt={item.title} 
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
+                <div className="p-4 text-white">
+                  <h4 className="font-heading font-semibold">{item.title}</h4>
+                  {item.description && (
+                    <p className="text-xs opacity-80">{item.description}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="col-span-4 text-center py-12 bg-white rounded-lg shadow">
+            <p className="text-neutral-dark">Nenhuma mídia disponível no momento.</p>
+          </div>
+        )}
+      </div>
+      
+      <div className="text-center mt-8">
+        <Link href="/agriculture">
+          <a className="inline-block bg-secondary hover:bg-secondary/90 text-white font-semibold px-6 py-3 rounded-md transition-colors">
+            Ver galeria completa
+          </a>
+        </Link>
+      </div>
+    </section>
   );
 };
 
