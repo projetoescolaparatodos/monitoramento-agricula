@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore';
 import { db } from './storage';
 
 
@@ -36,10 +36,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/charts', async (req, res) => {
     try {
       const { pageType } = req.query;
-      const charts = await db.select().from(charts)
-        .where(pageType ? eq(charts.pageType, pageType as string) : undefined)
-        .where(eq(charts.active, true))
-        .orderBy(charts.order);
+      const chartsRef = collection(db, 'charts');
+      const q = pageType 
+        ? query(chartsRef, where('pageType', '==', pageType), where('active', '==', true))
+        : query(chartsRef, where('active', '==', true));
+      
+      const querySnapshot = await getDocs(q);
+      const charts = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
       res.json(charts);
     } catch (error) {
       console.error('Error fetching charts:', error);
@@ -47,18 +54,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/charts', async (req, res) => {
+    try {
+      const chartData = req.body;
+      const chartsRef = collection(db, 'charts');
+      const docRef = await addDoc(chartsRef, {
+        ...chartData,
+        createdAt: new Date().toISOString(),
+        active: true
+      });
+      
+      res.json({ id: docRef.id, ...chartData });
+    } catch (error) {
+      console.error('Error creating chart:', error);
+      res.status(500).json({ error: true, message: 'Erro ao criar gráfico' });
+    }
+  });
+
   // Media items routes
   app.get('/api/media-items', async (req, res) => {
     try {
       const { pageType } = req.query;
-      const mediaItems = await db.select().from(mediaItems)
-        .where(pageType ? eq(mediaItems.pageType, pageType as string) : undefined)
-        .where(eq(mediaItems.active, true))
-        .orderBy(mediaItems.createdAt, 'desc');
+      const mediaRef = collection(db, 'media');
+      const q = pageType 
+        ? query(mediaRef, where('pageType', '==', pageType), where('active', '==', true))
+        : query(mediaRef, where('active', '==', true));
+      
+      const querySnapshot = await getDocs(q);
+      const mediaItems = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
       res.json(mediaItems);
     } catch (error) {
       console.error('Error fetching media items:', error);
       res.status(500).json({ error: true, message: 'Erro ao buscar itens de mídia' });
+    }
+  });
+
+  app.post('/api/upload', upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: true, message: 'Nenhum arquivo enviado' });
+      }
+      
+      const path = `uploads/${Date.now()}-${req.file.originalname}`;
+      const downloadUrl = await uploadToFirebase(req.file, path);
+      
+      res.json({ url: downloadUrl });
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      res.status(500).json({ error: true, message: 'Erro ao fazer upload do arquivo' });
+    }
+  });
+
+  app.post('/api/media-items', async (req, res) => {
+    try {
+      const mediaData = req.body;
+      const mediaRef = collection(db, 'media');
+      const docRef = await addDoc(mediaRef, {
+        ...mediaData,
+        createdAt: new Date().toISOString(),
+        active: true
+      });
+      
+      res.json({ id: docRef.id, ...mediaData });
+    } catch (error) {
+      console.error('Error creating media item:', error);
+      res.status(500).json({ error: true, message: 'Erro ao criar item de mídia' });
     }
   });
 
