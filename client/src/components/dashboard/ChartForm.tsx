@@ -25,20 +25,20 @@ const formSchema = z.object({
 });
 
 interface ChartFormProps {
-  chartData?: ChartFormData;
+  initialData?: ChartFormData;
   isEdit?: boolean;
   onSuccess?: () => void;
 }
 
-export const ChartForm = ({ chartData, isEdit = false, onSuccess }: ChartFormProps) => {
+export const ChartForm = ({ initialData, isEdit = false, onSuccess }: ChartFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const { data: fetchedChart, isLoading } = useQuery({
-    queryKey: ['/api/charts', chartData?.id],
+    queryKey: ['/api/charts', initialData?.id],
     queryFn: async () => {
-      if (isEdit && chartData?.id) {
-        const res = await fetch(`/api/charts/${chartData.id}`);
+      if (isEdit && initialData?.id) {
+        const res = await fetch(`/api/charts/${initialData.id}`);
         if (!res.ok) throw new Error('Failed to fetch chart');
         return res.json();
       }
