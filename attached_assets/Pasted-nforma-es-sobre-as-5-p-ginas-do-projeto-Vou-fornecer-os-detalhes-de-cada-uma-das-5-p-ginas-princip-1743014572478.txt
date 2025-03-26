@@ -1,0 +1,79 @@
+nformações sobre as 5 páginas do projeto
+Vou fornecer os detalhes de cada uma das 5 páginas principais do projeto para que você possa integrá-las ao seu projeto existente.
+
+1. Página Inicial (Home)
+Arquivo: client/src/pages/Home.tsx
+Propósito: Página principal do site mostrando visão geral do setor agropecuário com elementos visuais.
+Rota: / (raiz)
+Funcionalidades:
+Seção de destaque (Hero) com título e descrição
+Painel de estatísticas principais (indicadores-chave)
+Galeria de visualizações de dados (gráficos)
+Exibição das principais áreas de atuação (cards para navegação)
+Seção de notícias/mídia recente
+Dependências:
+Componentes: HeroSection, StatisticsSection, DataVisualizationSection, AreasSection, MediaGallerySection
+Dados: Consome dados das APIs /api/contents, /api/statistics, /api/charts, /api/media-items
+2. Página de Agricultura
+Arquivo: client/src/pages/Agriculture.tsx
+Propósito: Apresentar informações específicas sobre o setor agrícola.
+Rota: /agriculture
+Funcionalidades:
+Conteúdo informativo sobre agricultura
+Estatísticas específicas do setor agrícola
+Gráficos relacionados à produção agrícola
+Galeria de imagens de atividades agrícolas
+Dependências:
+Componente: InfoPage (componente reutilizável para todas as páginas informativas)
+Dados: Filtra dados da API com pageType: "agriculture"
+3. Página de Pesca
+Arquivo: client/src/pages/Fishing.tsx
+Propósito: Apresentar informações específicas sobre o setor pesqueiro.
+Rota: /fishing
+Funcionalidades:
+Conteúdo informativo sobre atividades pesqueiras
+Estatísticas do setor de pesca
+Gráficos relacionados à produção pesqueira
+Galeria de imagens de atividades de pesca
+Dependências:
+Componente: InfoPage
+Dados: Filtra dados da API com pageType: "fishing"
+4. Página do PAA (Programa de Aquisição de Alimentos)
+Arquivo: client/src/pages/PAAinfo.tsx
+Propósito: Apresentar informações sobre o Programa de Aquisição de Alimentos.
+Rota: /paa
+Funcionalidades:
+Explicação sobre o programa
+Estatísticas de investimentos e beneficiários
+Gráficos relacionados a resultados do programa
+Galeria de imagens de ações do PAA
+Dependências:
+Componente: InfoPage
+Dados: Filtra dados da API com pageType: "paa"
+5. Painel Administrativo (Dashboard)
+Arquivo: client/src/pages/Dashboard.tsx
+Propósito: Interface para gestores atualizarem conteúdo do site.
+Rota: /dashboard
+Funcionalidades:
+Gerenciamento de conteúdos textuais (criar, editar, excluir)
+Gestão de gráficos interativos (dados e visualizações)
+Upload e gerenciamento de mídias (imagens e vídeos)
+Controle de estatísticas exibidas
+Dependências:
+Componentes: DashboardSidebar, ContentList, ContentForm, ChartList, ChartForm, MediaList, MediaUploader, StatisticList, StatisticForm
+Dados: Interage com todas as rotas da API (/api/contents, /api/charts, /api/statistics, /api/media-items) com operações CRUD completas
+Componente Principal Compartilhado
+O componente InfoPage (em client/src/components/common/InfoPage.tsx) é crucial e reutilizado por todas as páginas informativas (Agricultura, Pesca, PAA). Ele é responsável por:
+
+Carregar conteúdos específicos da página via pageType
+Exibir seções de texto com formatação adequada
+Renderizar gráficos relevantes para a página
+Mostrar galeria de mídias relacionadas
+Apresentar layout consistente em todas as páginas informativas
+Considerações para Integração
+O componente App.tsx contém a configuração de rotas usando o pacote wouter
+A navegação principal está no componente Navbar.tsx
+Os dados são buscados usando o TanStack Query para gerenciamento de estado
+Os formulários no Dashboard usam react-hook-form com validação Zod
+O projeto usa Tailwind CSS e componentes ShadCN UI para estilização
+Essas informações detalhadas devem ajudar você a integrar adequadamente estas páginas em seu projeto existente, mantendo todas as funcionalidades e garantindo que as conexões entre componentes e dados sejam preservadas.
