@@ -70,7 +70,7 @@ const Dashboard = () => {
                 }}
               />
             )}
-          </div>e} />
+          </div>
 
           <div className="space-y-6">
             {section === "contents" && (
