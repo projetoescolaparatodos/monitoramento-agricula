@@ -14,6 +14,7 @@ import MediaList from "@/components/dashboard/MediaList";
 import MediaUploader from "@/components/dashboard/MediaUploader";
 import StatisticList from "@/components/dashboard/StatisticList";
 import StatisticForm from "@/components/dashboard/StatisticForm";
+import { useQuery } from '@tanstack/react-query';
 
 const Dashboard = () => {
   const params = useParams();
