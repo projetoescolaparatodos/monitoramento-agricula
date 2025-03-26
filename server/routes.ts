@@ -1,7 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-// Add necessary imports for database interaction and routing (e.g., 'express', database driver)
-// import { db, contents, charts, eq } from './database'; // Example - replace with your actual imports
+import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from './storage';
+
+const firestore = getFirestore();
 
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -14,9 +16,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/contents', async (req, res) => {
     try {
       const { pageType } = req.query;
-      const contents = await db.select().from(contents)
-        .where(pageType ? eq(contents.pageType, pageType as string) : undefined)
-        .where(eq(contents.active, true));
+      const contentsRef = collection(firestore, 'contents');
+      const q = pageType 
+        ? query(contentsRef, where('pageType', '==', pageType), where('active', '==', true))
+        : query(contentsRef, where('active', '==', true));
+      
+      const querySnapshot = await getDocs(q);
+      const contents = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
       res.json(contents);
     } catch (error) {
       console.error('Error fetching contents:', error);
