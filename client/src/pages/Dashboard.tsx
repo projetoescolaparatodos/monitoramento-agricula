@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLocation, useParams } from "wouter";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { PageHeader } from "@/components/ui/PageHeader"; // This line is unchanged, but the file needs to be created
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";

@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -37,3 +36,9 @@ const FishingInfo = () => {
 };
 
 export default FishingInfo;
+
+// Added to address the original error message.  Path may need adjustment.
+//  This is a placeholder; replace with the actual component code.
+export const DashboardSidebar = () => {
+  return <div>Dashboard Sidebar</div>;
+}
