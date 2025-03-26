@@ -25,21 +25,15 @@ function Router() {
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/agriculture" component={Agriculture} />
-        <Route path="/agricultura/mapa" component={AgriculturaMap} />
+        <Route path="/agriculture/info" component={AgricultureInfo} />
+        <Route path="/agriculture/map" component={AgricultureMap} />
         <Route path="/fishing" component={Fishing} />
-        <Route path="/pesca/mapa" component={PescaMap} />
-        <Route path="/paa" component={PAAInfo} />
-        <Route path="/paa/mapa" component={PAAMap} />
+        <Route path="/fishing/info" component={FishingInfo} />
+        <Route path="/fishing/map" component={FishingMap} />
+        <Route path="/paa" component={PAA} />
+        <Route path="/paa/info" component={PAAInfo} />
+        <Route path="/paa/map" component={PAAMap} />
         <Route path="/dashboard" component={Dashboard} />
-        <Route path="/login" component={Login} />
-        <Route path="/admin" component={Admin} />
-        <Route path="/dashboard" component={Dashboard} />
-        <Route path="/report" component={Report} />
-        <Route component={NotFound} />
-        <Route path="/paa/mapa">
-          <PAAMap />
-        </Route>
-        <Route path="/report" component={Report} />
         <Route path="/login" component={Login} />
         <Route path="/admin">
           {() => {
@@ -51,6 +45,7 @@ function Router() {
             return <Admin />;
           }}
         </Route>
+        <Route path="/report" component={Report} />
         <Route component={NotFound} />
       </Switch>
     </div>
