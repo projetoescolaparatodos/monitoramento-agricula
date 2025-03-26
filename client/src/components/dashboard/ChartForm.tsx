@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -83,24 +82,24 @@ export const ChartForm = ({ initialData, isEdit = false, onSuccess }: ChartFormP
     const currentData = form.getValues('chartData');
     const updatedDatasets = [...currentData.datasets];
     updatedDatasets[index][key] = value;
-    
+
     const updatedChartData: ChartData = {
       ...currentData,
       datasets: updatedDatasets
     };
-    
+
     form.setValue('chartData', updatedChartData, { shouldValidate: true });
   };
 
   const handleLabelsChange = (labels: string) => {
     const labelArray = labels.split(',').map(label => label.trim());
     const currentData = form.getValues('chartData');
-    
+
     const updatedChartData: ChartData = {
       ...currentData,
       labels: labelArray
     };
-    
+
     form.setValue('chartData', updatedChartData, { shouldValidate: true });
   };
 
@@ -108,14 +107,14 @@ export const ChartForm = ({ initialData, isEdit = false, onSuccess }: ChartFormP
     const dataArray = data.split(',').map(value => Number(value.trim()));
     const currentData = form.getValues('chartData');
     const updatedDatasets = [...currentData.datasets];
-    
+
     updatedDatasets[index].data = dataArray;
-    
+
     const updatedChartData: ChartData = {
       ...currentData,
       datasets: updatedDatasets
     };
-    
+
     form.setValue('chartData', updatedChartData, { shouldValidate: true });
   };
 
@@ -137,7 +136,7 @@ export const ChartForm = ({ initialData, isEdit = false, onSuccess }: ChartFormP
         });
       }
       queryClient.invalidateQueries({ queryKey: ['/api/charts'] });
-      
+
       if (onSuccess) {
         onSuccess();
       }
@@ -256,7 +255,7 @@ export const ChartForm = ({ initialData, isEdit = false, onSuccess }: ChartFormP
             />
             <div className="border p-4 rounded-md">
               <h3 className="font-medium mb-4">Dados do Gráfico</h3>
-              
+
               <div className="space-y-4">
                 <div>
                   <FormLabel>Rótulos (separados por vírgula)</FormLabel>
@@ -269,7 +268,7 @@ export const ChartForm = ({ initialData, isEdit = false, onSuccess }: ChartFormP
                 {chartData?.datasets.map((dataset, index) => (
                   <div key={index} className="border p-3 rounded">
                     <h4 className="font-medium mb-2">Conjunto de Dados {index + 1}</h4>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                       <div>
                         <FormLabel>Rótulo</FormLabel>
@@ -279,7 +278,7 @@ export const ChartForm = ({ initialData, isEdit = false, onSuccess }: ChartFormP
                           placeholder="Nome da série de dados" 
                         />
                       </div>
-                      
+
                       <div>
                         <FormLabel>Cor</FormLabel>
                         <div className="flex space-x-2">
@@ -302,7 +301,7 @@ export const ChartForm = ({ initialData, isEdit = false, onSuccess }: ChartFormP
                         </div>
                       </div>
                     </div>
-                    
+
                     <div>
                       <FormLabel>Valores (separados por vírgula)</FormLabel>
                       <Input 

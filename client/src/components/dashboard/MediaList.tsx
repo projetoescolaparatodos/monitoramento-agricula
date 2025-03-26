@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MediaItem } from "../../types";
@@ -25,7 +24,7 @@ export const MediaList = ({ onEdit }: MediaListProps) => {
   const { data: mediaItems, isLoading } = useQuery<MediaItem[]>({
     queryKey: ['/api/media-items'],
   });
-  
+
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [mediaToDelete, setMediaToDelete] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -33,7 +32,7 @@ export const MediaList = ({ onEdit }: MediaListProps) => {
 
   const handleDelete = async () => {
     if (!mediaToDelete) return;
-    
+
     try {
       setIsDeleting(true);
       await apiRequest("DELETE", `/api/media-items/${mediaToDelete}`, undefined);
