@@ -16,8 +16,7 @@ import Admin from "@/pages/Admin";
 import NotFound from "@/pages/not-found";
 import NavBar from "@/components/NavBar";
 import { auth } from "./utils/firebase";
-import Gestor from "./pages/Gestor";
-import GestorLogin from "./pages/GestorLogin";
+
 
 function Router() {
   return (
@@ -34,8 +33,7 @@ function Router() {
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/login" component={Login} />
         <Route path="/admin" component={Admin} />
-        <Route path="/gestor" component={Gestor} />
-        <Route path="/gestor/login" component={GestorLogin} />
+        <Route path="/dashboard" component={Dashboard} />
         <Route path="/report" component={Report} />
         <Route component={NotFound} />
         <Route path="/paa/mapa">
