@@ -14,8 +14,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/contents', async (req, res) => {
     try {
       const { pageType } = req.query;
-      // TODO: Implement database query based on pageType
-      const contents = []; // Replace with actual database query
+      const contents = await db.select().from(contents)
+        .where(pageType ? eq(contents.pageType, pageType as string) : undefined)
+        .where(eq(contents.active, true));
       res.json(contents);
     } catch (error) {
       console.error('Error fetching contents:', error);
@@ -27,8 +28,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/charts', async (req, res) => {
     try {
       const { pageType } = req.query;
-      // TODO: Implement database query based on pageType
-      const charts = []; // Replace with actual database query
+      const charts = await db.select().from(charts)
+        .where(pageType ? eq(charts.pageType, pageType as string) : undefined)
+        .where(eq(charts.active, true))
+        .orderBy(charts.order);
       res.json(charts);
     } catch (error) {
       console.error('Error fetching charts:', error);
@@ -40,12 +43,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/media-items', async (req, res) => {
     try {
       const { pageType } = req.query;
-      // TODO: Implement database query based on pageType
-      const mediaItems = []; // Replace with actual database query
+      const mediaItems = await db.select().from(mediaItems)
+        .where(pageType ? eq(mediaItems.pageType, pageType as string) : undefined)
+        .where(eq(mediaItems.active, true))
+        .orderBy(mediaItems.createdAt, 'desc');
       res.json(mediaItems);
     } catch (error) {
       console.error('Error fetching media items:', error);
       res.status(500).json({ error: true, message: 'Erro ao buscar itens de mídia' });
+    }
+  });
+
+  // Statistics routes
+  app.get('/api/statistics', async (req, res) => {
+    try {
+      const { pageType } = req.query;
+      const statistics = await db.select().from(statistics)
+        .where(pageType ? eq(statistics.pageType, pageType as string) : undefined)
+        .where(eq(statistics.active, true))
+        .orderBy(statistics.order);
+      res.json(statistics);
+    } catch (error) {
+      console.error('Error fetching statistics:', error);
+      res.status(500).json({ error: true, message: 'Erro ao buscar estatísticas' });
     }
   });
 
