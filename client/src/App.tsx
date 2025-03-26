@@ -7,6 +7,11 @@ import Report from "@/pages/Report";
 import AgriculturaMap from "@/pages/AgriculturaMap";
 import PescaMap from "@/pages/PescaMap";
 import PAAMap from "@/pages/PAAMap";
+import Home from "@/pages/Home";
+import Agriculture from "@/pages/Agriculture";
+import Fishing from "@/pages/Fishing";
+import PAAInfo from "@/pages/PAAInfo";
+import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import Admin from "@/pages/Admin";
 import NotFound from "@/pages/not-found";
@@ -21,9 +26,13 @@ function Router() {
       <NavBar />
       <Switch>
         <Route path="/" component={Home} />
+        <Route path="/agriculture" component={Agriculture} />
         <Route path="/agricultura/mapa">
           <AgriculturaMap />
         </Route>
+        <Route path="/fishing" component={Fishing} />
+        <Route path="/paa" component={PAAInfo} />
+        <Route path="/dashboard" component={Dashboard} />
         <Route path="/pesca/mapa">
           <PescaMap />
         </Route>
