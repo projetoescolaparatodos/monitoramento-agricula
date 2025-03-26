@@ -23,6 +23,10 @@ const Dashboard = () => {
   const [showForm, setShowForm] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
 
+  const { data: contents, isLoading: isLoadingContents } = useQuery({
+    queryKey: ['/api/contents'],
+  });
+
   const handleAddItem = () => {
     setSelectedItemId(null);
     setShowForm(true);
@@ -54,6 +58,19 @@ const Dashboard = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6">
           <DashboardSidebar activeSection={section} onSectionChange={handleSectionChange} />
+          <div className="space-y-4">
+            {section === "contents" && (
+              <ContentList
+                contents={contents}
+                isLoading={isLoadingContents}
+                onEdit={handleEditItem}
+                onDelete={(id) => {
+                  // Implement delete logic
+                  console.log('Delete item:', id);
+                }}
+              />
+            )}
+          </div>e} />
 
           <div className="space-y-6">
             {section === "contents" && (
