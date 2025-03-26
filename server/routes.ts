@@ -10,33 +10,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(200).json({ status: 'ok', environment: process.env.NODE_ENV });
   });
 
-  // Add new API routes here.  Example based on provided changes:
-  // app.get('/api/contents', async (req, res) => {
-  //   const { pageType } = req.query;
-  //   try {
-  //     const contentsData = await db.select().from(contents)
-  //       .where(pageType ? eq(contents.pageType, pageType as string) : undefined)
-  //       .where(eq(contents.active, true));
-  //     res.json(contentsData);
-  //   } catch (error) {
-  //     console.error('Error fetching contents:', error);
-  //     res.status(500).json({ error: 'Failed to fetch contents' });
-  //   }
-  // });
+  // Contents routes
+  app.get('/api/contents', async (req, res) => {
+    try {
+      const { pageType } = req.query;
+      // TODO: Implement database query based on pageType
+      const contents = []; // Replace with actual database query
+      res.json(contents);
+    } catch (error) {
+      console.error('Error fetching contents:', error);
+      res.status(500).json({ error: true, message: 'Erro ao buscar conteúdos' });
+    }
+  });
 
-  // app.get('/api/charts', async (req, res) => {
-  //   const { pageType } = req.query;
-  //   try {
-  //     const chartsData = await db.select().from(charts)
-  //       .where(pageType ? eq(charts.pageType, pageType as string) : undefined)
-  //       .where(eq(charts.active, true))
-  //       .orderBy(charts.order);
-  //     res.json(chartsData);
-  //   } catch (error) {
-  //     console.error('Error fetching charts:', error);
-  //     res.status(500).json({ error: 'Failed to fetch charts' });
-  //   }
-  // });
+  // Charts routes
+  app.get('/api/charts', async (req, res) => {
+    try {
+      const { pageType } = req.query;
+      // TODO: Implement database query based on pageType
+      const charts = []; // Replace with actual database query
+      res.json(charts);
+    } catch (error) {
+      console.error('Error fetching charts:', error);
+      res.status(500).json({ error: true, message: 'Erro ao buscar gráficos' });
+    }
+  });
+
+  // Media items routes
+  app.get('/api/media-items', async (req, res) => {
+    try {
+      const { pageType } = req.query;
+      // TODO: Implement database query based on pageType
+      const mediaItems = []; // Replace with actual database query
+      res.json(mediaItems);
+    } catch (error) {
+      console.error('Error fetching media items:', error);
+      res.status(500).json({ error: true, message: 'Erro ao buscar itens de mídia' });
+    }
+  });
 
 
   // Middleware para capturar erros de rota não encontrada
