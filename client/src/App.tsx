@@ -18,6 +18,7 @@ import NavBar from "@/components/NavBar";
 import { auth } from "./utils/firebase";
 // Added FishingInfo component
 import FishingInfo from "@/pages/FishingInfo";
+import AgricultureMap from "@/pages/AgriculturaMap";
 import AgricultureInfo from "./pages/AgricultureInfo"; // Added import
 
 
