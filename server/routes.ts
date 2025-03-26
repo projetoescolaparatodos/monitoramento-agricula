@@ -1,9 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from './storage';
-
-const firestore = getFirestore();
 
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -16,7 +14,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/contents', async (req, res) => {
     try {
       const { pageType } = req.query;
-      const contentsRef = collection(firestore, 'contents');
+      const contentsRef = collection(db, 'contents');
       const q = pageType 
         ? query(contentsRef, where('pageType', '==', pageType), where('active', '==', true))
         : query(contentsRef, where('active', '==', true));

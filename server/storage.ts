@@ -1,9 +1,7 @@
-
 import { users, type User, type InsertUser } from "@shared/schema";
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, doc, getDoc, getDocs, addDoc, query, where } from "firebase/firestore";
 
-// Configuração do Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCAHOYOjHyvoRXkVhuQc_Ld3VrJtmqO1XM",
   authDomain: "transparencia-agricola.firebaseapp.com",
@@ -13,6 +11,9 @@ const firebaseConfig = {
   appId: "1:667594200798:web:77966c861af0943825944f",
   measurementId: "G-335VMCKSLN",
 };
+
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);
 
 // Interface para operações de storage
 export interface IStorage {
@@ -51,23 +52,11 @@ export class MemStorage implements IStorage {
 
 // Classe para ambiente de produção usando Firebase
 export class FirebaseStorage implements IStorage {
-  private db;
   private usersCollection;
 
   constructor() {
     try {
-      console.log("Configuração do Firebase:", {
-        ...firebaseConfig,
-        apiKey: firebaseConfig.apiKey ? "PRESENTE" : "AUSENTE",
-        authDomain: firebaseConfig.authDomain ? "PRESENTE" : "AUSENTE",
-        projectId: firebaseConfig.projectId ? "PRESENTE" : "AUSENTE",
-        storageBucket: firebaseConfig.storageBucket ? "PRESENTE" : "AUSENTE",
-        appId: firebaseConfig.appId ? "PRESENTE" : "AUSENTE"
-      });
-      
-      const app = initializeApp(firebaseConfig);
-      this.db = getFirestore(app);
-      this.usersCollection = collection(this.db, "users");
+      this.usersCollection = collection(db, "users");
       console.log("Firebase inicializado com sucesso");
     } catch (error) {
       console.error("Erro ao inicializar Firebase:", error);
@@ -79,9 +68,9 @@ export class FirebaseStorage implements IStorage {
     try {
       const q = query(this.usersCollection, where("id", "==", id));
       const querySnapshot = await getDocs(q);
-      
+
       if (querySnapshot.empty) return undefined;
-      
+
       const docData = querySnapshot.docs[0].data();
       return { id: docData.id, username: docData.username, password: docData.password };
     } catch (error) {
@@ -94,9 +83,9 @@ export class FirebaseStorage implements IStorage {
     try {
       const q = query(this.usersCollection, where("username", "==", username));
       const querySnapshot = await getDocs(q);
-      
+
       if (querySnapshot.empty) return undefined;
-      
+
       const docData = querySnapshot.docs[0].data();
       return { id: docData.id, username: docData.username, password: docData.password };
     } catch (error) {
@@ -110,17 +99,17 @@ export class FirebaseStorage implements IStorage {
       // Obter o maior ID atual para gerar um novo ID
       const querySnapshot = await getDocs(this.usersCollection);
       let maxId = 0;
-      
+
       querySnapshot.forEach((doc) => {
         const userData = doc.data();
         if (userData.id && userData.id > maxId) {
           maxId = userData.id;
         }
       });
-      
+
       const newId = maxId + 1;
       const newUser = { ...insertUser, id: newId };
-      
+
       await addDoc(this.usersCollection, newUser);
       return newUser;
     } catch (error) {
@@ -131,8 +120,8 @@ export class FirebaseStorage implements IStorage {
 }
 
 // Escolhe o storage apropriado dependendo do ambiente
-export const storage = process.env.NODE_ENV === "production" 
-  ? new FirebaseStorage() 
-  : process.env.NODE_ENV === "development" 
+export const storage = process.env.NODE_ENV === "production"
+  ? new FirebaseStorage()
+  : process.env.NODE_ENV === "development"
     ? new FirebaseStorage() // Você pode usar Firebase em desenvolvimento também
     : new MemStorage();
