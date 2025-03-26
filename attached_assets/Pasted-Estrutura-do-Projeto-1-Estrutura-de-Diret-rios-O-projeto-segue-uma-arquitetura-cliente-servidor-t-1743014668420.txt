@@ -1,0 +1,159 @@
+Estrutura do Projeto
+1. Estrutura de Diretórios
+O projeto segue uma arquitetura cliente-servidor típica:
+
+├── client/                  # Frontend da aplicação
+│   ├── src/
+│   │   ├── assets/          # Imagens e outros ativos
+│   │   ├── components/      # Componentes React reutilizáveis
+│   │   ├── hooks/           # Hooks React personalizados
+│   │   ├── lib/             # Utilitários e configurações
+│   │   ├── pages/           # Páginas principais da aplicação
+│   │   └── types/           # Definições de tipos TypeScript
+├── server/                  # Backend da aplicação
+│   ├── index.ts             # Ponto de entrada do servidor
+│   ├── routes.ts            # Definição de rotas da API
+│   ├── storage.ts           # Implementação de armazenamento de dados
+│   └── vite.ts              # Configuração do Vite para o servidor
+└── shared/                  # Código compartilhado entre cliente e servidor
+    └── schema.ts            # Definição do esquema de dados
+2. Esquema de Dados (shared/schema.ts)
+Este arquivo define todos os modelos de dados da aplicação:
+
+users: Usuários do sistema (administradores)
+contents: Conteúdos textuais para diferentes páginas e seções
+charts: Gráficos interativos
+mediaItems: Mídias (imagens e vídeos)
+statistics: Estatísticas exibidas na página inicial
+3. Backend (server/)
+routes.ts: Define todas as rotas da API REST para CRUD de cada entidade
+storage.ts: Implementa o armazenamento em memória (pode ser substituído por banco de dados)
+index.ts: Configura e inicia o servidor Express
+4. Frontend (client/src/)
+pages/: Contém as cinco páginas principais (Home, Agriculture, Fishing, PAA, Dashboard)
+components/: Divididos em categorias:
+ui/: Componentes de interface básicos (buttons, cards, etc.)
+layout/: Componentes estruturais (Navbar, Footer)
+home/, dashboard/, etc.: Componentes específicos de cada página
+Rotas e Endpoints da API
+1. Conteúdos (Contents)
+GET /api/contents: Lista todos os conteúdos (filtrável por pageType e sectionType)
+GET /api/contents/:id: Obtém um conteúdo específico
+POST /api/contents: Cria um novo conteúdo
+PUT /api/contents/:id: Atualiza um conteúdo existente
+DELETE /api/contents/:id: Remove um conteúdo
+2. Gráficos (Charts)
+GET /api/charts: Lista todos os gráficos (filtrável por pageType)
+GET /api/charts/:id: Obtém um gráfico específico
+POST /api/charts: Cria um novo gráfico
+PUT /api/charts/:id: Atualiza um gráfico existente
+DELETE /api/charts/:id: Remove um gráfico
+3. Estatísticas (Statistics)
+GET /api/statistics: Lista todas as estatísticas
+GET /api/statistics/:id: Obtém uma estatística específica
+POST /api/statistics: Cria uma nova estatística
+PUT /api/statistics/:id: Atualiza uma estatística existente
+DELETE /api/statistics/:id: Remove uma estatística
+4. Itens de Mídia (Media Items)
+GET /api/media-items: Lista todos os itens de mídia (filtrável por pageType)
+GET /api/media-items/:id: Obtém um item de mídia específico
+POST /api/media-items: Cria um novo item de mídia
+PUT /api/media-items/:id: Atualiza um item de mídia existente
+DELETE /api/media-items/:id: Remove um item de mídia
+Componentes e Funcionalidades Principais
+1. Páginas Informativas
+Cada página informativa (Agricultura, Pesca, PAA) usa o componente InfoPage que exibe:
+
+Conteúdos textuais específicos da página
+Gráficos relevantes
+Galeria de mídia relacionada
+2. Dashboard de Gestão
+O dashboard inclui:
+
+Formulários para criação/edição de conteúdos
+Gerenciamento de gráficos interativos
+Upload e gestão de mídias
+Controle de estatísticas
+3. Componentes de Visualização de Dados
+ChartComponent: Renderiza diferentes tipos de gráficos (barras, linhas, pizza)
+StatisticsSection: Exibe métricas-chave com tendências
+MediaGallerySection: Apresenta imagens e vídeos
+Como Integrar em Outro Projeto
+Para integrar este projeto em um projeto Replit existente, siga estas etapas:
+
+1. Dependências Necessárias
+Certifique-se de que seu projeto existente tem as dependências:
+
+React e React DOM
+TanStack Query (antigo React Query)
+Express
+Multer (para upload de arquivos)
+Zod (para validação)
+Drizzle (opcional, se usando banco de dados)
+ShadCN UI ou equivalente para componentes de interface
+2. Passos para Integração
+Copie os arquivos de esquema:
+
+Integre o arquivo shared/schema.ts no seu projeto
+Integre o backend:
+
+Adicione as rotas de server/routes.ts ao seu servidor Express existente
+Adapte server/storage.ts para usar seu sistema de armazenamento atual
+Integre o frontend:
+
+Copie as páginas de client/src/pages/ para o seu projeto
+Integre os componentes necessários de client/src/components/
+Atualize suas rotas no arquivo principal de roteamento
+Adapte os endpoints da API:
+
+Certifique-se de que os componentes frontend apontam para os endpoints corretos da API
+Atualize quaisquer URLs hardcoded para corresponder à estrutura do seu projeto
+3. Instruções para o Assistente Replit
+Quando você transferir estes arquivos para seu outro projeto no Replit, forneça ao assistente estas informações:
+
+Estrutura do seu projeto atual
+Onde você deseja integrar cada componente
+Qual sistema de armazenamento você está usando (banco de dados ou em memória)
+Quaisquer personalizações específicas que deseja fazer
+Diga ao assistente: "Quero integrar estas páginas governamentais (Home, Agricultura, Pesca, PAA e Dashboard) ao meu projeto existente. Aqui estão os arquivos e estrutura. Ajude-me a adaptá-los ao meu projeto mantendo todas as funcionalidades."
+
+4. Checklist de Integração
+ Copiar e adaptar esquemas de dados
+ Integrar rotas da API ao servidor existente
+ Ajustar o sistema de armazenamento conforme necessário
+ Adicionar as novas páginas ao sistema de roteamento
+ Copiar e adaptar componentes React necessários
+ Testar todas as funcionalidades após a integração
+Detalhes Específicos de Implementação
+Upload de Arquivos
+O projeto usa Multer para gerenciar uploads. Você precisará configurar:
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10 MB
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Somente imagens e vídeos são permitidos'));
+    }
+  }
+});
+Gestão de Estado Frontend
+O projeto usa TanStack Query para gerenciamento de estado e chamadas de API:
+
+// Exemplo de uma query para buscar conteúdos
+const { data: contents, isLoading } = useQuery<ContentItem[]>({
+  queryKey: ['/api/contents', pageType, sectionType],
+});
+// Exemplo de uma mutation para criar conteúdo
+const mutation = useMutation({
+  mutationFn: (data: ContentFormData) => 
+    apiRequest("POST", "/api/contents", data),
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['/api/contents'] });
+  }
+});
+Ao seguir estas instruções detalhadas, você deve conseguir integrar com sucesso todas as funcionalidades deste projeto governamental em seu projeto existente no Replit.
