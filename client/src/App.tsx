@@ -8,8 +8,6 @@ import AgriculturaMap from "@/pages/AgriculturaMap";
 import PescaMap from "@/pages/PescaMap";
 import PAAMap from "@/pages/PAAMap";
 import AgriculturaInfo from "@/pages/AgriculturaInfo";
-import PescaInfo from "@/pages/PescaInfo";
-import PAAInfo from "@/pages/PAAInfo";
 import Login from "@/pages/Login";
 import Admin from "@/pages/Admin";
 import NotFound from "@/pages/not-found";
@@ -30,14 +28,8 @@ function Router() {
         <Route path="/agricultura/mapa">
           <AgriculturaMap />
         </Route>
-        <Route path="/pesca">
-          <PescaInfo />
-        </Route>
         <Route path="/pesca/mapa">
           <PescaMap />
-        </Route>
-        <Route path="/paa">
-          <PAAInfo />
         </Route>
         <Route path="/paa/mapa">
           <PAAMap />
