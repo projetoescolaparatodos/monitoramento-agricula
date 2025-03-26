@@ -1,0 +1,108 @@
+Resolvendo o erro "AgricultureInfo is not defined"
+Este erro ocorre porque o App.tsx está tentando usar um componente chamado AgricultureInfo que não existe ou não foi importado. Vamos corrigir isso de forma adequada.
+
+Análise do problema
+No arquivo App.tsx, há rotas configuradas para componentes que aparentemente não estão importados:
+
+<Route path="/agriculture/info" component={AgricultureInfo} />
+Existem duas maneiras de resolver este problema:
+
+Opção 1: Remover as rotas para componentes inexistentes
+Se você não precisa dessas rotas adicionais neste momento, a solução mais simples é remover as referências a esses componentes do App.tsx:
+
+// client/src/App.tsx
+// Modificar de:
+<Route path="/" component={Home} />
+<Route path="/agriculture" component={Agriculture} />
+<Route path="/agriculture/info" component={AgricultureInfo} /> {/*Assuming AgricultureInfo exists*/}
+<Route path="/agriculture/map" component={AgricultureMap} />
+<Route path="/fishing" component={Fishing} />
+// Para:
+<Route path="/" component={Home} />
+<Route path="/agriculture" component={Agriculture} />
+<Route path="/fishing" component={Fishing} />
+Opção 2 (Recomendada): Criar o componente AgricultureInfo
+Se você precisa manter essa rota, crie o componente AgricultureInfo:
+
+Crie um arquivo client/src/pages/AgricultureInfo.tsx:
+// client/src/pages/AgricultureInfo.tsx
+import React from "react";
+import { InfoPage } from "../components/common/InfoPage";
+import { useQuery } from "@tanstack/react-query";
+import { ContentItem, ChartItem, MediaItem } from "../types";
+const AgricultureInfo = () => {
+  const { data: contents = [], isLoading: isLoadingContents } = useQuery<ContentItem[]>({
+    queryKey: ['/api/contents', 'agriculture', 'info'],
+  });
+  const { data: charts = [], isLoading: isLoadingCharts } = useQuery<ChartItem[]>({
+    queryKey: ['/api/charts', 'agriculture'],
+  });
+  const { data: mediaItems = [], isLoading: isLoadingMedia } = useQuery<MediaItem[]>({
+    queryKey: ['/api/media-items', 'agriculture'],
+  });
+  return (
+    <InfoPage
+      title="Informações Agrícolas"
+      subtitle="Detalhes e informações sobre o setor agrícola"
+      contents={contents}
+      charts={charts}
+      mediaItems={mediaItems}
+      isLoadingContents={isLoadingContents}
+      isLoadingCharts={isLoadingCharts}
+      isLoadingMedia={isLoadingMedia}
+    />
+  );
+};
+export default AgricultureInfo;
+Também será necessário criar o mesmo para AgricultureMap:
+// client/src/pages/AgricultureMap.tsx
+import React from "react";
+const AgricultureMap = () => {
+  return (
+    <div className="container mx-auto py-10">
+      <h1 className="text-3xl font-bold mb-6">Mapa Agrícola</h1>
+      <p className="text-lg mb-6">Visualização geográfica da distribuição agrícola.</p>
+      
+      {/* Placeholder para o componente de mapa - você pode substituir por um mapa real */}
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-10 text-center bg-gray-50">
+        <p className="text-gray-500">Componente de mapa a ser implementado</p>
+      </div>
+    </div>
+  );
+};
+export default AgricultureMap;
+Adicione os imports no App.tsx:
+// client/src/App.tsx
+// Adicione estas importações junto com as outras:
+import AgricultureInfo from "./pages/AgricultureInfo";
+import AgricultureMap from "./pages/AgricultureMap";
+Opção 3: Usar páginas existentes com parâmetros
+Uma terceira abordagem é modificar a rota para usar um componente existente com parâmetros:
+
+// client/src/App.tsx
+// Modificar de:
+<Route path="/agriculture/info" component={AgricultureInfo} />
+<Route path="/agriculture/map" component={AgricultureMap} />
+// Para:
+<Route path="/agriculture/:section" component={Agriculture} />
+E então, no componente Agriculture.tsx, você pode verificar o parâmetro section para renderizar o conteúdo apropriado:
+
+// client/src/pages/Agriculture.tsx (adicionando lógica de seção)
+import { useParams } from "wouter";
+const Agriculture = () => {
+  const params = useParams();
+  const section = params.section || "info"; // Padrão para 'info' se nenhum parâmetro for fornecido
+  if (section === "map") {
+    return (
+      <div className="container mx-auto py-10">
+        <h1 className="text-3xl font-bold mb-6">Mapa Agrícola</h1>
+        {/* Conteúdo do mapa aqui */}
+      </div>
+    );
+  }
+  // Renderiza a seção de informações padrão
+  return (
+    // Sua implementação atual do Agriculture
+  );
+};
+A opção recomendada depende de como você planeja organizar o projeto. A Opção 2 (criar os componentes) é geralmente a mais direta e mantém a estrutura de roteamento existente.
