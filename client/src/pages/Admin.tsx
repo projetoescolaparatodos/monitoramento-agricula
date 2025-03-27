@@ -936,7 +936,7 @@ const PAAForm = () => {
         }));
         setPaaLocaisCadastrados(paaData);
       } catch (error) {
-        console.error(""Erro ao buscar dados do PAA:", error);
+        console.error("Erro ao buscar dados do PAA:", error);
         toast({
           title: "Erro",
           description: "Não foi possível carregar os dados do PAA.",
