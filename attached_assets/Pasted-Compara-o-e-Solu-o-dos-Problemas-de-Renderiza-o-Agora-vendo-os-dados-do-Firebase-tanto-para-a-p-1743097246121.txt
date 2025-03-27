@@ -1,0 +1,208 @@
+Comparação e Solução dos Problemas de Renderização
+Agora, vendo os dados do Firebase tanto para a página home quanto para a página agriculture, fica mais claro o que está acontecendo. A estrutura de dados está praticamente idêntica entre os dois tipos de gráficos, o que sugere que o problema não está na estrutura dos dados no Firebase.
+
+Comparação dos dados
+✅ Gráfico na página Home (funcionando):
+
+pageType: "home"
+chartType: "pie"
+chartData com datasets e labels corretamente estruturados
+✅ Gráfico na página Agriculture (não funcionando):
+
+pageType: "agriculture"
+chartType: "pie"
+chartData com datasets e labels corretamente estruturados
+Como a estrutura é praticamente idêntica, o problema provavelmente está em outra parte do código.
+
+Possíveis causas e soluções
+1. Problema nas consultas no Firebase
+Comparando a consulta ao Firebase para os dois tipos de página, pode haver uma diferença sutil na forma como a consulta é feita ou como os resultados são processados.
+
+Solução:
+
+// Em Agriculture.tsx - modificar a consulta para garantir resultados exatos
+const { data: charts, isLoading: isLoadingCharts } = useQuery<ChartItem[]>({
+  queryKey: ["charts", "agriculture"],
+  queryFn: async () => {
+    // Certificando-se de que a consulta é exatamente "agriculture"
+    const chartsQuery = query(
+      collection(db, "charts"), 
+      where("pageType", "==", "agriculture")
+    );
+    
+    const snapshot = await getDocs(chartsQuery);
+    
+    // Log para fins de depuração
+    console.log("Query agriculture charts:", { 
+      collectionPath: "charts",
+      whereField: "pageType", 
+      whereValue: "agriculture",
+      documentsFound: snapshot.docs.length 
+    });
+    
+    if (snapshot.empty) {
+      console.log("Nenhum gráfico encontrado para pageType='agriculture'");
+      return [];
+    }
+    
+    // Transformação detalhada, garantindo a integridade da estrutura
+    return snapshot.docs.map(doc => {
+      const rawData = doc.data();
+      console.log(`Documento ${doc.id}:`, rawData);
+      
+      return {
+        id: doc.id,
+        ...rawData,
+        // Garantir a integridade da estrutura chartData
+        chartData: {
+          datasets: rawData.chartData?.datasets || [],
+          labels: rawData.chartData?.labels || []
+        }
+      };
+    });
+  },
+});
+2. Problemas de coleção ou estrutura do Firestore
+Você mostrou que tem várias coleções: charts, contents, estatisticas, media, etc. É possível que a página agriculture esteja tentando acessar a coleção errada ou que a estrutura no Firestore esteja diferente da esperada.
+
+Solução - Verificar a coleção correta:
+
+// Verificar se os gráficos da agricultura podem estar em outra coleção
+const alternativeCollections = ["charts", "graficos", "agricultura_charts"];
+// Testar cada coleção possível
+for (const collectionName of alternativeCollections) {
+  console.log(`Verificando coleção ${collectionName}...`);
+  const testSnapshot = await getDocs(
+    query(collection(db, collectionName), where("pageType", "==", "agriculture"))
+  );
+  console.log(`Resultados em ${collectionName}: ${testSnapshot.docs.length}`);
+}
+3. Problemas no componente InfoPage
+O componente InfoPage pode ter uma lógica que funciona para a página home, mas não para a agriculture.
+
+Solução - Adicionar verificações explícitas no InfoPage:
+
+// Dentro do InfoPage.tsx:
+useEffect(() => {
+  // Log detalhado dos props recebidos
+  console.log("InfoPage renderizado com props:", {
+    título: title,
+    subtítulo: subtitle,
+    conteúdos: { count: contents?.length || 0, firstItem: contents?.[0] },
+    gráficos: { 
+      count: charts?.length || 0, 
+      firstItem: charts?.[0],
+      chartDataFormat: charts?.[0]?.chartData ? Object.keys(charts[0].chartData) : null
+    },
+    mídias: { count: mediaItems?.length || 0, firstItem: mediaItems?.[0] }
+  });
+  
+  // Verificar especificamente os gráficos para a página Agriculture
+  if (charts && charts.some(chart => chart.pageType === "agriculture")) {
+    const agricultureCharts = charts.filter(chart => chart.pageType === "agriculture");
+    console.log("Gráficos para agricultura:", {
+      quantidade: agricultureCharts.length,
+      títulos: agricultureCharts.map(c => c.title)
+    });
+  }
+}, [title, subtitle, contents, charts, mediaItems]);
+4. Problemas de tipagem e validação de dados
+Pode haver validações explícitas ou implícitas que estão falhando.
+
+Solução - Implemente validações explícitas:
+
+const { data: charts, isLoading: isLoadingCharts } = useQuery<ChartItem[]>({
+  queryKey: ["charts", "agriculture"],
+  queryFn: async () => {
+    // ... código existente para buscar dados ...
+    
+    return snapshot.docs.map(doc => {
+      const data = doc.data();
+      
+      // Validações explícitas
+      if (!data.chartData || !data.chartType) {
+        console.warn(`Gráfico ${doc.id} não tem dados ou tipo válidos:`, data);
+      }
+      
+      if (data.chartData && (!data.chartData.datasets || !data.chartData.labels)) {
+        console.warn(`Gráfico ${doc.id} tem chartData incompleto:`, data.chartData);
+      }
+      
+      // Retorno com valores seguros
+      return {
+        id: doc.id,
+        pageType: data.pageType || "unknown",
+        title: data.title || "Sem título",
+        description: data.description || "",
+        chartType: data.chartType || "bar",
+        chartData: {
+          datasets: Array.isArray(data.chartData?.datasets) ? data.chartData.datasets : [],
+          labels: Array.isArray(data.chartData?.labels) ? data.chartData.labels : []
+        },
+        active: Boolean(data.active),
+        order: typeof data.order === 'number' ? data.order : 0,
+        createdAt: data.createdAt || new Date().toISOString(),
+        updatedAt: data.updatedAt || new Date().toISOString()
+      };
+    });
+  }
+});
+5. Transformação de dados completa
+Uma solução mais radical seria implementar uma transformação completa dos dados, para garantir que eles estejam exatamente no formato esperado pelo InfoPage:
+
+// Função auxiliar para transformar dados do Firestore
+function normalizeChartData(rawData: any): ChartItem {
+  // Garantir que chartData tenha a estrutura correta
+  let chartData = {
+    datasets: [],
+    labels: []
+  };
+  
+  if (rawData.chartData) {
+    if (Array.isArray(rawData.chartData.datasets)) {
+      chartData.datasets = rawData.chartData.datasets.map((dataset: any) => ({
+        label: dataset.label || "Dados",
+        data: Array.isArray(dataset.data) ? dataset.data : [],
+        backgroundColor: dataset.backgroundColor || "#4CAF50",
+        borderColor: dataset.borderColor || "#2196F3",
+        borderWidth: typeof dataset.borderWidth === 'number' ? dataset.borderWidth : 1
+      }));
+    }
+    
+    if (Array.isArray(rawData.chartData.labels)) {
+      chartData.labels = rawData.chartData.labels;
+    }
+  }
+  
+  return {
+    id: rawData.id,
+    pageType: rawData.pageType || "unknown",
+    title: rawData.title || "Sem título",
+    description: rawData.description || "",
+    chartType: rawData.chartType || "bar",
+    chartData: chartData,
+    active: rawData.active !== false,
+    order: typeof rawData.order === 'number' ? rawData.order : 0,
+    createdAt: rawData.createdAt || new Date().toISOString(),
+    updatedAt: rawData.updatedAt || new Date().toISOString()
+  };
+}
+// Uso na consulta
+const { data: charts } = useQuery({
+  // ...
+  queryFn: async () => {
+    // ...
+    return snapshot.docs.map(doc => normalizeChartData({
+      id: doc.id,
+      ...doc.data()
+    }));
+  }
+});
+Solução Final Recomendada
+Combinando as abordagens acima, a solução mais completa seria:
+
+Adicionar logs detalhados em vários pontos do ciclo de vida para diagnóstico
+Verificar se as consultas ao Firebase estão corretas
+Implementar normalização explícita dos dados para garantir a integridade da estrutura
+Verificar se o InfoPage está processando corretamente os dados para a página Agriculture
+Com esta abordagem, você deverá identificar e resolver o problema de renderização dos gráficos e mídias na página Agriculture.
