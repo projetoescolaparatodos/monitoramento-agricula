@@ -71,7 +71,7 @@ export const ChartForm = ({ initialData, isEdit = false, onSuccess }: ChartFormP
 
   const form = useForm<ChartFormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: fetchedChart || chartData || defaultValues,
+    defaultValues: fetchedChart || initialData || defaultValues,
   });
 
   if (isEdit && fetchedChart && !form.formState.isDirty) {
