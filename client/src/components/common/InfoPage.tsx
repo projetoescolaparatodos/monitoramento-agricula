@@ -51,14 +51,27 @@ const InfoPage = ({
         <div className="mb-12">
           <h2 className="text-2xl font-bold mb-6">Estatísticas e Gráficos</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {charts.map((chart) => (
+            {charts?.map((chart) => {
+            console.log("Rendering chart:", chart);
+            return (
               <Card key={chart.id}>
                 <CardContent className="p-6">
                   <h3 className="text-xl font-semibold mb-4">{chart.title}</h3>
-                  <Chart chartData={chart.chartData} chartType={chart.chartType} options={chart.options} />
+                  {chart.chartData && chart.chartType ? (
+                    <Chart 
+                      chartData={chart.chartData} 
+                      chartType={chart.chartType} 
+                      options={chart.options} 
+                    />
+                  ) : (
+                    <div className="text-center p-4 text-gray-500">
+                      Dados do gráfico incompletos
+                    </div>
+                  )}
                 </CardContent>
               </Card>
-            ))}
+            );
+          })}
           </div>
         </div>
       )}

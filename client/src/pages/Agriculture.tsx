@@ -26,12 +26,17 @@ const Agriculture = () => {
 
   const { data: charts, isLoading: isLoadingCharts } = useQuery<ChartItem[]>({
     queryKey: ["charts", "agriculture"],
-    queryFn: () =>
-      getDocs(
-        query(collection(db, "charts"), where("pageType", "==", "agriculture")),
-      ).then((snapshot) =>
-        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
-      ),
+    queryFn: async () => {
+      const snapshot = await getDocs(
+        query(collection(db, "charts"), where("pageType", "==", "agriculture"))
+      );
+      const data = snapshot.docs.map((doc) => ({ 
+        id: doc.id, 
+        ...doc.data() 
+      }));
+      console.log("Fetched agriculture charts:", data);
+      return data;
+    },
   });
 
   const { data: mediaItems, isLoading: isLoadingMedia } = useQuery<MediaItem[]>(
