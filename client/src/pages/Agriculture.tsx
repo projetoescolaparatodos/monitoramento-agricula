@@ -7,6 +7,7 @@ import InfoPage from "@/components/common/InfoPage";
 import { Button } from "@/components/ui/button";
 import { Map } from "lucide-react";
 import { useLocation } from "wouter";
+import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
 
 const Agriculture = () => {
   const { data: contents, isLoading: isLoadingContents } = useQuery<
