@@ -1,7 +1,5 @@
-
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/utils/firebase";
-
 import { useQuery } from "@tanstack/react-query";
 import Footer from "@/components/layout/Footer";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
@@ -11,33 +9,52 @@ import { Map } from "lucide-react";
 import { useLocation } from "wouter";
 
 const Agriculture = () => {
-  const { data: contents, isLoading: isLoadingContents } = useQuery<ContentItem[]>({
-    queryKey: ['contents', 'agriculture'],
-    queryFn: () => getDocs(query(collection(db, 'contents'), where('pageType', '==', 'agriculture'))).then(
-      snapshot => snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-    ),
+  const { data: contents, isLoading: isLoadingContents } = useQuery<
+    ContentItem[]
+  >({
+    queryKey: ["contents", "agriculture"],
+    queryFn: () =>
+      getDocs(
+        query(
+          collection(db, "contents"),
+          where("pageType", "==", "agriculture"),
+        ),
+      ).then((snapshot) =>
+        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
+      ),
   });
 
   const { data: charts, isLoading: isLoadingCharts } = useQuery<ChartItem[]>({
-    queryKey: ['charts', 'agriculture'],
-    queryFn: () => getDocs(query(collection(db, 'charts'), where('pageType', '==', 'agriculture'))).then(
-      snapshot => snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-    ),
+    queryKey: ["charts", "agriculture"],
+    queryFn: () =>
+      getDocs(
+        query(collection(db, "charts"), where("pageType", "==", "agriculture")),
+      ).then((snapshot) =>
+        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
+      ),
   });
 
-  const { data: mediaItems, isLoading: isLoadingMedia } = useQuery<MediaItem[]>({
-    queryKey: ['media', 'agriculture'],
-    queryFn: () => getDocs(query(collection(db, 'media'), where('pageType', '==', 'agriculture'))).then(
-      snapshot => snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-    ),
-  });
+  const { data: mediaItems, isLoading: isLoadingMedia } = useQuery<MediaItem[]>(
+    {
+      queryKey: ["media", "agriculture"],
+      queryFn: () =>
+        getDocs(
+          query(
+            collection(db, "media"),
+            where("pageType", "==", "agriculture"),
+          ),
+        ).then((snapshot) =>
+          snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
+        ),
+    },
+  );
   const [, setLocation] = useLocation();
 
   return (
     <>
       <main className="container mx-auto px-4 pt-28 pb-16">
         <div className="flex justify-end mb-6">
-          <Button 
+          <Button
             onClick={() => setLocation("/agriculture/map")}
             className="flex items-center gap-2"
           >
@@ -45,12 +62,12 @@ const Agriculture = () => {
             Acompanhar Serviços
           </Button>
         </div>
-        <InfoPage 
-          title="Agricultura" 
+        <InfoPage
+          title="Agricultura"
           subtitle="Informações e dados sobre a agricultura brasileira"
-          contents={contents || []} 
-          charts={charts || []} 
-          mediaItems={mediaItems || []} 
+          contents={contents || []}
+          charts={charts || []}
+          mediaItems={mediaItems || []}
           isLoadingContents={isLoadingContents}
           isLoadingCharts={isLoadingCharts}
           isLoadingMedia={isLoadingMedia}

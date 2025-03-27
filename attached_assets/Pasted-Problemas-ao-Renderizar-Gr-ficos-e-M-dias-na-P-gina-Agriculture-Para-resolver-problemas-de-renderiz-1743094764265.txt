@@ -1,0 +1,131 @@
+Problemas ao Renderizar Gráficos e Mídias na Página Agriculture
+Para resolver problemas de renderização de gráficos e mídias na página Agriculture, enquanto estes aparecem corretamente na página inicial, é necessária uma análise detalhada. Aqui está como o assistente Replit deve abordar o problema:
+
+Análise do Problema
+1. Verificar Consultas de API e Logs
+Primeiro, examine as requisições de API e logs do servidor para entender o que está acontecendo nos bastidores:
+
+// No componente Agriculture ou InfoPage usado por Agriculture
+console.log("PageType sendo enviado:", pageType);
+console.log("Dados de gráficos recebidos:", charts);
+console.log("Dados de mídia recebidos:", mediaItems);
+Depois verifique os logs do servidor para ver se a requisição está chegando com o filtro correto:
+
+// Adicionado temporariamente em server/routes.ts
+app.get("/api/charts", async (req: Request, res: Response) => {
+  try {
+    const { pageType } = req.query;
+    console.log("Consulta de gráficos - pageType:", pageType);
+    // ... resto do código
+2. Verificar Inconsistências de Dados
+Examine os dados no armazenamento para garantir que os gráficos e mídias estão salvos com o pageType correto:
+
+Verifique se os gráficos e mídias salvos via Dashboard têm exatamente pageType: "agriculture" (sem espaços extras, diferenças de maiúsculas/minúsculas)
+Compare com os itens da página inicial que estão funcionando (pageType: "home")
+3. Soluções Potenciais para Implementar
+Solução 1: Corrigir as Queries de Dados
+Modifique o componente Agriculture para garantir que está solicitando dados com o pageType correto:
+
+// client/src/pages/Agriculture.tsx ou equivalente
+const { data: charts = [], isLoading: isLoadingCharts } = useQuery<ChartItem[]>({
+  queryKey: ['/api/charts', 'agriculture'], // Garanta que está usando exatamente 'agriculture'
+});
+const { data: mediaItems = [], isLoading: isLoadingMedia } = useQuery<MediaItem[]>({
+  queryKey: ['/api/media-items', 'agriculture'], // Garanta que está usando exatamente 'agriculture'
+});
+Solução 2: Implementar Case-Insensitive na API
+Modifique as funções de busca no backend para serem case-insensitive:
+
+// server/storage.ts
+async getCharts(pageType?: string): Promise<Chart[]> {
+  if (!pageType) {
+    return Array.from(this.charts.values());
+  }
+  
+  // Busca case-insensitive
+  return Array.from(this.charts.values()).filter(chart => 
+    chart.pageType.toLowerCase() === pageType.toLowerCase()
+  );
+}
+// Faça o mesmo para getMediaItems
+Solução 3: Inspecionar e Corrigir o Componente InfoPage
+Se Agriculture está usando o componente InfoPage, verifique se ele está renderizando corretamente os dados:
+
+// client/src/components/common/InfoPage.tsx
+// Adicione logs para debugar
+console.log("Props recebidas em InfoPage:", {
+  title,
+  subtitle,
+  contents,
+  charts,
+  mediaItems,
+  isLoadingContents,
+  isLoadingCharts,
+  isLoadingMedia
+});
+// Verifique se a condição para renderizar gráficos é adequada
+// Por exemplo, se esta condição estiver muito restritiva:
+{charts && charts.length > 0 && (
+  <section className="py-12 bg-gray-50">
+    <div className="container mx-auto">
+      <h2 className="text-2xl font-semibold mb-6">Visualizações de Dados</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {charts.map((chart) => (
+          <Card key={chart.id}>
+            <CardContent className="p-6">
+              <h3 className="text-xl font-medium mb-4">{chart.title}</h3>
+              {chart.description && (
+                <p className="text-muted-foreground mb-4">{chart.description}</p>
+              )}
+              <ChartComponent 
+                chartType={chart.chartType} 
+                chartData={chart.chartData} 
+              />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+Solução 4: Verificar/Corrigir os Filtros no Armazenamento
+Certifique-se de que os filtros em storage.ts estão funcionando corretamente:
+
+// server/storage.ts
+// Por exemplo, verifique se este filtro está correto
+async getCharts(pageType?: string): Promise<Chart[]> {
+  // Se o filtro estiver implementado incorretamente
+  // Por exemplo, se tiver uma comparação === quando deveria ser includes()
+  // ou se tiver alguma transformação não esperada do pageType
+  console.log("Filtro pageType recebido:", pageType);
+  console.log("Gráficos disponíveis:", Array.from(this.charts.values()));
+  
+  if (!pageType) {
+    return Array.from(this.charts.values());
+  }
+  
+  return Array.from(this.charts.values()).filter(chart => chart.pageType === pageType);
+}
+Solução 5: Adicionar dados pelo Dashboard com pageType explícito
+Uma solução pragmática é criar novos gráficos e mídias através do Dashboard, explicitamente selecionando "Agriculture" no dropdown de página, garantindo que o pageType esteja correto.
+
+Implementação Passo a Passo
+Adicione logs estratégicos para identificar onde está o problema:
+
+Na página Agriculture para ver o que está sendo solicitado
+No backend para ver o que está sendo recebido e retornado
+No componente InfoPage para ver se os dados estão chegando lá
+Verifique os dados existentes:
+
+Use uma rota temporária ou console.log para imprimir todos os charts e mediaItems
+Confirme se eles têm o pageType correto
+Corrija qualquer inconsistência:
+
+Ajuste os filtros de API se necessário
+Corrija qualquer problema de casing ou whitespace nos valores pageType
+Verifique se o componente InfoPage está renderizando condicionalmente com a lógica correta
+Teste com novos dados:
+
+Crie novos gráficos e mídias para a página Agriculture
+Verifique se aparecem corretamente
+Este diagnóstico sistemático deve identificar e resolver os problemas de renderização específicos da página Agriculture, enquanto mantém o funcionamento correto da página inicial.
