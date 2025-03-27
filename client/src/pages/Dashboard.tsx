@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useLocation, useParams } from "wouter";
 import { useQuery } from '@tanstack/react-query';
-import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -44,8 +43,7 @@ const Dashboard = () => {
 
   return (
     <>
-      <Navbar />
-      <main className="container mx-auto px-4 pt-28 pb-16">
+      <main className="container mx-auto px-4 py-16">
         <div className="flex gap-6">
           <DashboardSidebar activeSection={section} onSectionChange={handleSectionChange} />
 
