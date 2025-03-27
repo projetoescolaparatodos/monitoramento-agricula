@@ -28,7 +28,7 @@ const NavBar = () => {
               Pesca
             </Button>
           </Link>
-          <Link href="/paainfo">
+          <Link href="/paa">
             <Button variant="ghost" className="flex gap-2">
               <Map className="h-4 w-4" />
               PAA
