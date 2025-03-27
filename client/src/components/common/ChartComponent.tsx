@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Chart as ChartJS,
@@ -12,7 +13,7 @@ import {
   BarElement,
 } from 'chart.js';
 import { Line, Bar, Pie } from 'react-chartjs-2';
-import { Card } from '@/components/ui/card'; // Assuming this import path is correct
+import { Card } from '@/components/ui/card';
 
 ChartJS.register(
   CategoryScale,
@@ -33,33 +34,94 @@ interface ChartComponentProps {
 
 const ChartComponent: React.FC<ChartComponentProps> = ({ chartType, chartData }) => {
   if (!chartData || !chartData.datasets || !chartData.labels) {
-    return <div>Dados do gráfico não disponíveis</div>;
+    console.warn('Dados do gráfico inválidos:', chartData);
+    return <div>Gráfico não disponível</div>;
   }
+
+  // Configuração de cores padrão caso não sejam fornecidas
+  const defaultColors = [
+    'rgba(75, 192, 192, 0.8)',
+    'rgba(255, 99, 132, 0.8)',
+    'rgba(54, 162, 235, 0.8)',
+    'rgba(255, 206, 86, 0.8)',
+    'rgba(153, 102, 255, 0.8)',
+    'rgba(255, 159, 64, 0.8)',
+  ];
+
+  // Garantir que cada dataset tenha uma cor
+  const enhancedData = {
+    ...chartData,
+    datasets: chartData.datasets.map((dataset: any, index: number) => ({
+      ...dataset,
+      backgroundColor: dataset.backgroundColor || defaultColors[index % defaultColors.length],
+      borderColor: dataset.borderColor || defaultColors[index % defaultColors.length],
+      borderWidth: dataset.borderWidth || 1,
+    })),
+  };
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top' as const,
+        display: true,
+        labels: {
+          padding: 20,
+          font: {
+            size: 12
+          }
+        }
       },
+      title: {
+        display: true,
+        text: chartData.title || '',
+        font: {
+          size: 16
+        }
+      },
+      tooltip: {
+        enabled: true,
+        mode: 'index' as const,
+        intersect: false,
+      }
     },
+    scales: chartType !== 'pie' ? {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          font: {
+            size: 12
+          }
+        }
+      },
+      x: {
+        ticks: {
+          font: {
+            size: 12
+          }
+        }
+      }
+    } : undefined
   };
 
   const renderChart = () => {
     switch (chartType.toLowerCase()) {
       case 'line':
-        return <Line data={chartData} options={options} />;
+        return <Line data={enhancedData} options={options} height={300} />;
       case 'pie':
-        return <Pie data={chartData} options={options} />;
+        return <Pie data={enhancedData} options={options} height={300} />;
       case 'bar':
       default:
-        return <Bar data={chartData} options={options} />;
+        return <Bar data={enhancedData} options={options} height={300} />;
     }
   };
 
   return (
-    <Card className="p-4">
-      {renderChart()}
+    <Card className="p-6">
+      <div style={{ height: '400px' }}>
+        {renderChart()}
+      </div>
     </Card>
   );
 };
