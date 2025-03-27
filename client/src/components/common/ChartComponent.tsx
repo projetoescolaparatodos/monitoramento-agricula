@@ -1,104 +1,128 @@
+
 import React from 'react';
 import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Title,
   Tooltip,
   Legend,
-} from 'recharts';
+  BarElement,
+} from 'chart.js';
+import { Line, Bar, Pie } from 'react-chartjs-2';
+import { Card } from '@/components/ui/card';
 
-interface ChartData {
-  labels: string[];
-  datasets: {
-    label?: string;
-    data: number[];
-    backgroundColor?: string;
-    borderColor?: string;
-    borderWidth?: number;
-  }[];
-}
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ArcElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface ChartComponentProps {
   chartType: string;
-  chartData: ChartData;
+  chartData: any;
 }
 
 const ChartComponent: React.FC<ChartComponentProps> = ({ chartType, chartData }) => {
-  if (!chartData || !chartData.labels || !chartData.datasets) {
-    return <div>Não há dados para exibir</div>;
+  if (!chartData || !chartData.datasets || !chartData.labels) {
+    console.warn('Dados do gráfico inválidos:', chartData);
+    return <div>Gráfico não disponível</div>;
   }
 
-  const colors = [
-    "#8BC34A",
-    "#2E7D32",
-    "#4DB6AC",
-    "#81C784",
-    "#A5D6A7",
-    "#C8E6C9"
+  // Configuração de cores padrão caso não sejam fornecidas
+  const defaultColors = [
+    'rgba(75, 192, 192, 0.8)',
+    'rgba(255, 99, 132, 0.8)',
+    'rgba(54, 162, 235, 0.8)',
+    'rgba(255, 206, 86, 0.8)',
+    'rgba(153, 102, 255, 0.8)',
+    'rgba(255, 159, 64, 0.8)',
   ];
 
-  const formattedData = chartData.labels.map((label, index) => {
-    const dataPoint: Record<string, any> = { name: label };
-    chartData.datasets.forEach((dataset, datasetIndex) => {
-      const dataKey = dataset.label || `data${datasetIndex}`;
-      dataPoint[dataKey] = dataset.data[index];
-    });
-    return dataPoint;
-  });
+  // Garantir que cada dataset tenha uma cor
+  const enhancedData = {
+    ...chartData,
+    datasets: chartData.datasets.map((dataset: any, index: number) => ({
+      ...dataset,
+      backgroundColor: dataset.backgroundColor || defaultColors[index % defaultColors.length],
+      borderColor: dataset.borderColor || defaultColors[index % defaultColors.length],
+      borderWidth: dataset.borderWidth || 1,
+    })),
+  };
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+        display: true,
+        labels: {
+          padding: 20,
+          font: {
+            size: 12
+          }
+        }
+      },
+      title: {
+        display: true,
+        text: chartData.title || '',
+        font: {
+          size: 16
+        }
+      },
+      tooltip: {
+        enabled: true,
+        mode: 'index' as const,
+        intersect: false,
+      }
+    },
+    scales: chartType !== 'pie' ? {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          font: {
+            size: 12
+          }
+        }
+      },
+      x: {
+        ticks: {
+          font: {
+            size: 12
+          }
+        }
+      }
+    } : undefined
+  };
 
   const renderChart = () => {
-    switch (chartType) {
-      case "line":
-        return (
-          <LineChart width={600} height={300} data={formattedData} margin={{ top: 5, right: 30, left: 20, bottom: 25 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 0, 0, 0.05)" />
-            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-            <YAxis tick={{ fontSize: 12 }} />
-            <Tooltip />
-            <Legend wrapperStyle={{ marginTop: "10px" }} />
-            {chartData.datasets.map((dataset, index) => (
-              <Line
-                key={index}
-                type="monotone"
-                dataKey={dataset.label || `data${index}`}
-                stroke={colors[index % colors.length]}
-                strokeWidth={2}
-                dot={{ r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-            ))}
-          </LineChart>
-        );
-      case "bar":
-        return (
-          <BarChart width={600} height={300} data={formattedData} margin={{ top: 5, right: 30, left: 20, bottom: 25 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 0, 0, 0.05)" />
-            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-            <YAxis tick={{ fontSize: 12 }} />
-            <Tooltip />
-            <Legend wrapperStyle={{ marginTop: "10px" }} />
-            {chartData.datasets.map((dataset, index) => (
-              <Bar
-                key={index}
-                dataKey={dataset.label || `data${index}`}
-                fill={colors[index % colors.length]}
-              />
-            ))}
-          </BarChart>
-        );
+    switch (chartType.toLowerCase()) {
+      case 'line':
+        return <Line data={enhancedData} options={options} height={300} />;
+      case 'pie':
+        return <Pie data={enhancedData} options={options} height={300} />;
+      case 'bar':
       default:
-        return <div>Tipo de gráfico não suportado</div>;
+        return <Bar data={enhancedData} options={options} height={300} />;
     }
   };
 
   return (
-    <div className="w-full overflow-x-auto">
-      {renderChart()}
-    </div>
+    <Card className="p-6">
+      <div style={{ height: '400px' }}>
+        {renderChart()}
+      </div>
+    </Card>
   );
 };
 
