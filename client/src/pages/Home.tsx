@@ -52,7 +52,10 @@ const Home = () => {
           <h2 className="text-3xl font-bold text-center mb-8 text-black">Estatísticas Principais</h2>
           <StatisticsSection />
         </section>
-        <AreasSection />
+        <section id="areas" className="py-12">
+          <h2 className="text-3xl font-bold text-center mb-8 text-black">Áreas de Atuação</h2>
+          <AreasSection />
+        </section>
         <section id="visualization" className="py-12">
           <h2 className="text-3xl font-bold text-center mb-8 text-black">Visualização de Dados</h2>
           <DataVisualizationSection />
