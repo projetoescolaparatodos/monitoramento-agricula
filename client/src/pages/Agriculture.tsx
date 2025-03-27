@@ -31,33 +31,37 @@ const Agriculture = () => {
         collection(db, "charts"),
         where("pageType", "==", "agriculture")
       );
-      
+
       const snapshot = await getDocs(chartsQuery);
-      
+
       console.log("Query agriculture charts:", {
         collectionPath: "charts",
         whereField: "pageType",
         whereValue: "agriculture",
         documentsFound: snapshot.docs.length
       });
-      
+
       if (snapshot.empty) {
         console.log("Nenhum gráfico encontrado para pageType='agriculture'");
         return [];
       }
-      
+
       return snapshot.docs.map((doc) => {
+        if (!doc.exists()) {
+          console.warn("Documento não existe:", doc.id);
+          return null;
+        }
         const data = doc.data();
         console.log(`Documento ${doc.id}:`, data);
-        
+
         if (!data.chartData || !data.chartType) {
           console.warn(`Gráfico ${doc.id} não tem dados ou tipo válidos:`, data);
         }
-        
+
         if (data.chartData && (!data.chartData.datasets || !data.chartData.labels)) {
           console.warn(`Gráfico ${doc.id} tem chartData incompleto:`, data.chartData);
         }
-        
+
         const chartData = {
           datasets: Array.isArray(data.chartData?.datasets) ? data.chartData.datasets.map(dataset => ({
             label: dataset.label || "Dados",
@@ -68,7 +72,7 @@ const Agriculture = () => {
           })) : [],
           labels: Array.isArray(data.chartData?.labels) ? data.chartData.labels : []
         };
-        
+
         return {
           id: doc.id,
           pageType: data.pageType,
@@ -81,7 +85,7 @@ const Agriculture = () => {
           createdAt: data.createdAt || new Date().toISOString(),
           updatedAt: data.updatedAt || new Date().toISOString()
         };
-      });
+      }).filter(Boolean);
     },
   });
 
@@ -94,18 +98,22 @@ const Agriculture = () => {
           where("pageType", "==", "agriculture"),
         ),
       );
-      
+
       console.log("Número de mídias encontradas:", snapshot.docs.length);
-      
+
       return snapshot.docs.map((doc) => {
+        if (!doc.exists()) {
+          console.warn("Documento não existe:", doc.id);
+          return null;
+        }
         const data = doc.data();
-        
+
         console.log("Processando mídia:", {
           id: doc.id,
           title: data.title,
           mediaType: data.mediaType
         });
-        
+
         return {
           id: doc.id,
           pageType: data.pageType,
@@ -118,7 +126,7 @@ const Agriculture = () => {
           order: data.order || 0,
           createdAt: data.createdAt || new Date().toISOString()
         };
-      });
+      }).filter(Boolean);
     },
   });
   const [, setLocation] = useLocation();
