@@ -1,105 +1,66 @@
 import React from 'react';
 import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Title,
   Tooltip,
   Legend,
-} from 'recharts';
+  BarElement,
+} from 'chart.js';
+import { Line, Bar, Pie } from 'react-chartjs-2';
+import { Card } from '@/components/ui/card'; // Assuming this import path is correct
 
-interface ChartData {
-  labels: string[];
-  datasets: {
-    label?: string;
-    data: number[];
-    backgroundColor?: string;
-    borderColor?: string;
-    borderWidth?: number;
-  }[];
-}
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ArcElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface ChartComponentProps {
   chartType: string;
-  chartData: ChartData;
+  chartData: any;
 }
 
-const ChartComponent: React.FC<ChartComponentProps> = ({ chartData, chartType }: { chartData: any, chartType: string }) => {
+const ChartComponent: React.FC<ChartComponentProps> = ({ chartType, chartData }) => {
   if (!chartData || !chartData.datasets || !chartData.labels) {
-    console.warn('Dados do gráfico inválidos:', chartData);
-    return <div>Gráfico não disponível</div>;
+    return <div>Dados do gráfico não disponíveis</div>;
   }
 
-  const colors = [
-    "#8BC34A",
-    "#2E7D32",
-    "#4DB6AC",
-    "#81C784",
-    "#A5D6A7",
-    "#C8E6C9"
-  ];
-
-  const formattedData = chartData.labels.map((label, index) => {
-    const dataPoint: Record<string, any> = { name: label };
-    chartData.datasets.forEach((dataset, datasetIndex) => {
-      const dataKey = dataset.label || `data${datasetIndex}`;
-      dataPoint[dataKey] = dataset.data[index];
-    });
-    return dataPoint;
-  });
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+    },
+  };
 
   const renderChart = () => {
-    switch (chartType) {
-      case "line":
-        return (
-          <LineChart width={600} height={300} data={formattedData} margin={{ top: 5, right: 30, left: 20, bottom: 25 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 0, 0, 0.05)" />
-            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-            <YAxis tick={{ fontSize: 12 }} />
-            <Tooltip />
-            <Legend wrapperStyle={{ marginTop: "10px" }} />
-            {chartData.datasets.map((dataset, index) => (
-              <Line
-                key={index}
-                type="monotone"
-                dataKey={dataset.label || `data${index}`}
-                stroke={colors[index % colors.length]}
-                strokeWidth={2}
-                dot={{ r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-            ))}
-          </LineChart>
-        );
-      case "bar":
-        return (
-          <BarChart width={600} height={300} data={formattedData} margin={{ top: 5, right: 30, left: 20, bottom: 25 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 0, 0, 0.05)" />
-            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-            <YAxis tick={{ fontSize: 12 }} />
-            <Tooltip />
-            <Legend wrapperStyle={{ marginTop: "10px" }} />
-            {chartData.datasets.map((dataset, index) => (
-              <Bar
-                key={index}
-                dataKey={dataset.label || `data${index}`}
-                fill={colors[index % colors.length]}
-              />
-            ))}
-          </BarChart>
-        );
+    switch (chartType.toLowerCase()) {
+      case 'line':
+        return <Line data={chartData} options={options} />;
+      case 'pie':
+        return <Pie data={chartData} options={options} />;
+      case 'bar':
       default:
-        return <div>Tipo de gráfico não suportado</div>;
+        return <Bar data={chartData} options={options} />;
     }
   };
 
   return (
-    <div className="w-full overflow-x-auto">
+    <Card className="p-4">
       {renderChart()}
-    </div>
+    </Card>
   );
 };
 
