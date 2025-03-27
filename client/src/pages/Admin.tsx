@@ -1370,12 +1370,12 @@ const Admin = () => {
     const fetchData = async () => {
       const agriculturaSnapshot = await getDocs(collection(db, "agricultura"));
       const pescaSnapshot = await getDocs(collection(db, "pesca"));
-      
+
       setAgriculturaData(agriculturaSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })));
-      
+
       setPescaData(pescaSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
