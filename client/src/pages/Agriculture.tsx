@@ -155,33 +155,50 @@ const Agriculture = () => {
             Acompanhar Serviços
           </Button>
         </div>
-        <InfoPage
-          title="Agricultura"
-          subtitle="Informações e dados sobre a agricultura brasileira"
-          contents={contents?.map(content => ({
-            ...content,
-            content: content.content || ''
-          })) || []}
-          charts={charts?.map(chart => ({
-            ...chart,
-            chartData: {
-              labels: chart.chartData?.labels || [],
-              datasets: chart.chartData?.datasets?.map(dataset => ({
-                ...dataset,
-                backgroundColor: dataset.backgroundColor || '#4CAF50',
-                borderColor: dataset.borderColor || '#2196F3',
-                borderWidth: dataset.borderWidth || 1
-              })) || []
-            }
-          })) || []}
-          mediaItems={mediaItems?.map(media => ({
-            ...media,
-            url: media.mediaUrl || '',
-            type: media.mediaType || 'image'
-          })) || []}
-          isLoadingContents={isLoadingContents}
-          isLoadingCharts={isLoadingCharts}
-          isLoadingMedia={isLoadingMedia}
+        <main className="space-y-12">
+          <div className="prose max-w-none">
+            <h1 className="text-4xl font-bold text-center mb-4">Agricultura</h1>
+            <p className="text-center text-lg text-muted-foreground">
+              Informações e dados sobre a agricultura brasileira
+            </p>
+          </div>
+          
+          {contents && contents.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {contents.map((content) => (
+                <Card key={content.id} className="p-6">
+                  <h3 className="text-xl font-semibold mb-4">{content.title}</h3>
+                  <p className="text-gray-600">{content.content}</p>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          <DataVisualizationSection 
+            charts={charts || []} 
+            isLoading={isLoadingCharts} 
+          />
+
+          {mediaItems && mediaItems.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {mediaItems.map((media) => (
+                <Card key={media.id} className="overflow-hidden">
+                  {media.mediaType === 'image' && (
+                    <img 
+                      src={media.mediaUrl} 
+                      alt={media.title}
+                      className="w-full h-48 object-cover"
+                    />
+                  )}
+                  <div className="p-4">
+                    <h3 className="font-semibold">{media.title}</h3>
+                    <p className="text-sm text-gray-600">{media.description}</p>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </main>
         />
       </main>
       <Footer />
