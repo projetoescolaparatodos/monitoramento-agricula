@@ -5,6 +5,7 @@ import Footer from "@/components/layout/Footer";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
 import InfoPage from "@/components/common/InfoPage";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Map } from "lucide-react";
 import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
