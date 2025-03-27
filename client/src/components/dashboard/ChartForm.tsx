@@ -77,6 +77,8 @@ const ChartForm: React.FC<ChartFormProps> = ({
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [previewData, setPreviewData] = useState<ChartFormData | null>(null);
+  const [useCustomColors, setUseCustomColors] = useState(false); // Added state for custom colors
+
 
   const defaultValues: ChartFormData = {
     pageType: chartData?.pageType || 'home',
@@ -141,9 +143,33 @@ const ChartForm: React.FC<ChartFormProps> = ({
     }
   });
 
+  const preparePreviewData = () => {
+    const data = form.getValues();
+    const isAreaChart = ['pie', 'doughnut', 'polarArea'].includes(data.chartType);
+
+    // Clone os dados para não modificar o formulário
+    const previewData = {...data};
+
+    // Para gráficos de pizza/rosca, garantir cores adequadas
+    if (isAreaChart) {
+      const dataset = {...previewData.chartData.datasets[0]};
+
+      // Se não estiver usando cores personalizadas ou não tiver um array de cores
+      if (!useCustomColors || !Array.isArray(dataset.backgroundColor)) {
+        // Aplicar cores automáticas
+        dataset.backgroundColor = data.chartData.labels.map((_, i) => 
+          colorPalette[i % colorPalette.length]
+        );
+      }
+
+      previewData.chartData.datasets = [dataset];
+    }
+
+    return previewData;
+  };
+
   const previewChart = () => {
-    const values = form.getValues();
-    setPreviewData(values);
+    setPreviewData(preparePreviewData());
   };
 
   const onSubmit = (data: ChartFormData) => {
@@ -165,6 +191,8 @@ const ChartForm: React.FC<ChartFormProps> = ({
   };
 
   const DEFAULT_COLORS = ['#4CAF50', '#FF9800', '#00BCD4', '#FF5722', '#673AB7', '#2196F3', '#009688', '#795548', '#E91E63', '#9C27B0'];
+  const colorPalette = ['#FF5722', '#FF9800', '#FFEB3B', '#4CAF50', '#00BCD4', '#2196F3', '#3F51B5', '#673AB7', '#9C27B0', '#E91E63']; //Exemplo de paleta de cores
+
 
   return (
     <Form {...form}>
@@ -419,18 +447,18 @@ const ChartForm: React.FC<ChartFormProps> = ({
                                 {useCustomColors ? "Usar cores automáticas" : "Personalizar cores"}
                               </Button>
                             </div>
-                            
+
                             {useCustomColors && (
                               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 p-2 border rounded-md">
                                 {labelFields.map((labelField, labelIndex) => {
                                   const labelValue = form.watch(`chartData.labels.${labelIndex}`) || `Item ${labelIndex + 1}`;
-                                  
+
                                   return (
                                     <div key={labelField.id} className="flex flex-col border rounded p-2">
                                       <span className="text-xs font-medium mb-2 truncate" title={labelValue}>
                                         {labelValue}
                                       </span>
-                                      
+
                                       <FormField
                                         control={form.control}
                                         name={`chartData.datasets.0.backgroundColor.${labelIndex}`}
