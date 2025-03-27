@@ -56,7 +56,7 @@ const InfoPage = ({
               <Card key={chart.id}>
                 <CardContent className="p-6">
                   <h3 className="text-xl font-semibold mb-4">{chart.title}</h3>
-                  <Chart data={chart.data} type={chart.type} options={chart.options} />
+                  <Chart data={chart.chartData} type={chart.chartType} options={chart.options} />
                 </CardContent>
               </Card>
             ))}
@@ -72,11 +72,17 @@ const InfoPage = ({
               <Card key={media.id}>
                 <CardContent className="p-6">
                   <h3 className="text-xl font-semibold mb-4">{media.title}</h3>
-                  <img 
-                    src={media.url} 
-                    alt={media.title} 
-                    className="w-full h-auto rounded-lg"
-                  />
+                  {media.url && (
+                    <img 
+                      src={media.url} 
+                      alt={media.title} 
+                      className="w-full h-auto rounded-lg"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/placeholder.png';
+                      }}
+                    />
+                  )}
                   {media.description && (
                     <p className="text-gray-600 mt-4">{media.description}</p>
                   )}

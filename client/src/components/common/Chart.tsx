@@ -22,6 +22,9 @@ interface ChartProps {
 }
 
 export const Chart: React.FC<ChartProps> = ({ data, type, options }) => {
+  if (!data || !type) {
+    return <div>Dados do gráfico não disponíveis</div>;
+  }
   const colors = ['#8884d8', '#82ca9d', '#ffc658'];
 
   switch (type) {
