@@ -25,7 +25,7 @@ const Agriculture = () => {
       <main className="container mx-auto px-4 pt-28 pb-16">
         <div className="flex justify-end mb-6">
           <Button 
-            onClick={() => setLocation("/agriculture-map")}
+            onClick={() => setLocation("/agriculture/map")}
             className="flex items-center gap-2"
           >
             <Map className="h-4 w-4" />
