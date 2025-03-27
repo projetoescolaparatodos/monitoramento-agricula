@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { ChartItem } from "@/types";
 import ChartComponent from "@/components/common/ChartComponent";
@@ -10,37 +9,35 @@ interface DataVisualizationSectionProps {
 }
 
 const DataVisualizationSection = ({ charts, isLoading }: DataVisualizationSectionProps) => {
+  // Ordenar os gráficos por ordem
+  const sortedCharts = [...charts].sort((a, b) => (a.order || 0) - (b.order || 0));
+
   return (
-    <section className="mb-16">
-      <div className="text-center mb-10">
-        <h2 className="text-2xl md:text-3xl font-heading font-bold text-secondary mb-2">
-          Dados Agrícolas
-        </h2>
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {isLoading ? (
-          Array(4).fill(0).map((_, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-md p-6">
-              <Skeleton className="h-6 w-2/3 mb-4" />
-              <div className="h-[300px] w-full bg-gray-100 rounded animate-pulse flex items-center justify-center">
-                <span className="text-gray-400">Carregando gráfico...</span>
-              </div>
+    <section className="space-y-6">
+      <h2 className="text-2xl font-bold text-center">Visualização de Dados</h2>
+      {isLoading ? (
+        <div className="text-center">Carregando gráficos...</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {sortedCharts.map((chart) => (
+            <div key={chart.id} className="space-y-2">
+              {chart.title && (
+                <h3 className="text-lg font-semibold text-center">{chart.title}</h3>
+              )}
+              {chart.description && (
+                <p className="text-sm text-gray-600 text-center">{chart.description}</p>
+              )}
+              <ChartComponent
+                chartType={chart.chartType}
+                chartData={{
+                  ...chart.chartData,
+                  title: chart.title,
+                }}
+              />
             </div>
-          ))
-        ) : (
-          charts?.map((chart) => (
-            <div key={chart.id} className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-heading font-semibold mb-4 text-secondary">
-                {chart.title}
-              </h3>
-              <div className="h-[300px] relative">
-                <ChartComponent chartData={chart.chartData} chartType={chart.chartType} />
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 };

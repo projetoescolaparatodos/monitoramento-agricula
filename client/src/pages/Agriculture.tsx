@@ -72,12 +72,26 @@ const Agriculture = () => {
         }
 
         const chartData = {
-          datasets: Array.isArray(data.chartData?.datasets) ? data.chartData.datasets.map(dataset => ({
-            label: dataset.label || "Dados",
+          datasets: Array.isArray(data.chartData?.datasets) ? data.chartData.datasets.map((dataset, index) => ({
+            label: dataset.label || `Série ${index + 1}`,
             data: Array.isArray(dataset.data) ? dataset.data : [],
-            backgroundColor: dataset.backgroundColor || "#4CAF50",
-            borderColor: dataset.borderColor || "#2196F3",
-            borderWidth: typeof dataset.borderWidth === 'number' ? dataset.borderWidth : 1
+            backgroundColor: dataset.backgroundColor || [
+              'rgba(75, 192, 192, 0.8)',
+              'rgba(255, 99, 132, 0.8)',
+              'rgba(54, 162, 235, 0.8)',
+              'rgba(255, 206, 86, 0.8)',
+              'rgba(153, 102, 255, 0.8)',
+              'rgba(255, 159, 64, 0.8)',
+            ][index % 6],
+            borderColor: dataset.borderColor || [
+              'rgba(75, 192, 192, 1)',
+              'rgba(255, 99, 132, 1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(153, 102, 255, 1)',
+              'rgba(255, 159, 64, 1)',
+            ][index % 6],
+            borderWidth: typeof dataset.borderWidth === 'number' ? dataset.borderWidth : 2
           })) : [],
           labels: Array.isArray(data.chartData?.labels) ? data.chartData.labels : []
         };
