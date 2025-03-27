@@ -16,19 +16,19 @@ const NavBar = () => {
         </Link>
 
         <div className="flex gap-4">
-          <Link href="/agricultura">
+          <Link href="/agriculture">
             <Button variant="ghost" className="flex gap-2">
               <Map className="h-4 w-4" />
               Agricultura
             </Button>
           </Link>
-          <Link href="/pesca">
+          <Link href="/fishing">
             <Button variant="ghost" className="flex gap-2">
               <Map className="h-4 w-4" />
               Pesca
             </Button>
           </Link>
-          <Link href="/paa">
+          <Link href="/paainfo">
             <Button variant="ghost" className="flex gap-2">
               <Map className="h-4 w-4" />
               PAA

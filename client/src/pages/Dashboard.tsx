@@ -43,7 +43,7 @@ const Dashboard = () => {
 
   return (
     <>
-      <main className="container mx-auto px-4 py-16">
+      <main className="container mx-auto px-4 pt-28 pb-16">
         <div className="flex gap-6">
           <DashboardSidebar activeSection={section} onSectionChange={handleSectionChange} />
 

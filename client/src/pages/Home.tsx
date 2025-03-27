@@ -8,7 +8,7 @@ import MediaGallerySection from "@/components/home/MediaGallerySection";
 const Home = () => {
   return (
     <>
-      <main className="container mx-auto px-4 py-16">
+      <main className="container mx-auto px-4 pt-28 pb-16">
         <HeroSection />
         <StatisticsSection />
         <AreasSection />
