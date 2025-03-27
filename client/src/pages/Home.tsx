@@ -1,4 +1,3 @@
-import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/home/HeroSection";
 import StatisticsSection from "@/components/home/StatisticsSection";
@@ -9,8 +8,7 @@ import MediaGallerySection from "@/components/home/MediaGallerySection";
 const Home = () => {
   return (
     <>
-      <Navbar />
-      <main className="container mx-auto px-4 pt-28 pb-16">
+      <main className="container mx-auto px-4 py-16">
         <HeroSection />
         <StatisticsSection />
         <AreasSection />
