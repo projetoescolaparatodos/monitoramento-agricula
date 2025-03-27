@@ -1362,6 +1362,75 @@ const PAAForm = () => {
 
 const Admin = () => {
   const [showManagerButton, setShowManagerButton] = useState(false);
+  const [agriculturaData, setAgriculturaData] = useState([]);
+  const [pescaData, setPescaData] = useState([]);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const agriculturaSnapshot = await getDocs(collection(db, "agricultura"));
+      const pescaSnapshot = await getDocs(collection(db, "pesca"));
+      
+      setAgriculturaData(agriculturaSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })));
+      
+      setPescaData(pescaSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })));
+    };
+    fetchData();
+  }, []);
+
+  const atualizarStatusAgricultura = async (id, statusAtual) => {
+    try {
+      await updateDoc(doc(db, "agricultura", id), {
+        concluido: !statusAtual
+      });
+      toast({
+        title: "Sucesso",
+        description: "Status atualizado com sucesso!",
+      });
+      const snapshot = await getDocs(collection(db, "agricultura"));
+      setAgriculturaData(snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })));
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o status.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const atualizarStatusPesca = async (id, statusAtual) => {
+    try {
+      await updateDoc(doc(db, "pesca", id), {
+        concluido: !statusAtual
+      });
+      toast({
+        title: "Sucesso",
+        description: "Status atualizado com sucesso!",
+      });
+      const snapshot = await getDocs(collection(db, "pesca"));
+      setPescaData(snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })));
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o status.",
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -1384,11 +1453,89 @@ const Admin = () => {
         </TabsList>
 
         <TabsContent value="agricultura">
-          <AgriculturaForm />
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Gerenciar Agricultura</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold mb-4">Lista de Atividades</h3>
+                <div className="space-y-4">
+                  {agriculturaData?.map((atividade) => (
+                    <Card key={atividade.id} className="p-4">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <h4 className="font-semibold">{atividade.localidade}</h4>
+                          <p className="text-sm text-gray-500">
+                            Operador: {atividade.operador || 'Não informado'}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            Data: {new Date(atividade.dataCadastro).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <Badge variant={atividade.concluido ? "success" : "default"}>
+                            {atividade.concluido ? "Concluído" : "Em Serviço"}
+                          </Badge>
+                          <Button
+                            onClick={() => atualizarStatusAgricultura(atividade.id, atividade.concluido)}
+                            variant="outline"
+                            size="sm"
+                          >
+                            Alterar Status
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+              <AgriculturaForm />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="pesca">
-          <PescaForm />
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Gerenciar Pesca</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold mb-4">Lista de Atividades</h3>
+                <div className="space-y-4">
+                  {pescaData?.map((atividade) => (
+                    <Card key={atividade.id} className="p-4">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <h4 className="font-semibold">{atividade.localidade}</h4>
+                          <p className="text-sm text-gray-500">
+                            Operador: {atividade.operador || 'Não informado'}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            Data: {new Date(atividade.dataCadastro).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <Badge variant={atividade.concluido ? "success" : "default"}>
+                            {atividade.concluido ? "Concluído" : "Em Serviço"}
+                          </Badge>
+                          <Button
+                            onClick={() => atualizarStatusPesca(atividade.id, atividade.concluido)}
+                            variant="outline"
+                            size="sm"
+                          >
+                            Alterar Status
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+              <PescaForm />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="paa">
