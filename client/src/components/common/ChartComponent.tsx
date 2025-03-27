@@ -163,3 +163,54 @@ const ChartComponent = ({ chartType, chartData }: ChartComponentProps) => {
 };
 
 export default ChartComponent;
+import React from 'react';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, BarElement } from 'chart.js';
+import { Bar, Line, Pie } from 'react-chartjs-2';
+
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, BarElement);
+
+interface ChartComponentProps {
+  chartType: string;
+  chartData: {
+    labels: string[];
+    datasets: {
+      label?: string;
+      data: number[];
+      backgroundColor?: string | string[];
+      borderColor?: string | string[];
+      borderWidth?: number;
+    }[];
+  };
+}
+
+const ChartComponent: React.FC<ChartComponentProps> = ({ chartType, chartData }) => {
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      tooltip: {
+        enabled: true,
+      },
+    },
+  };
+
+  switch (chartType.toLowerCase()) {
+    case 'bar':
+      return <div style={{ height: '300px' }}><Bar data={chartData} options={options} /></div>;
+    case 'line':
+      return <div style={{ height: '300px' }}><Line data={chartData} options={options} /></div>;
+    case 'pie':
+      return <div style={{ height: '300px' }}><Pie data={chartData} options={options} /></div>;
+    default:
+      return (
+        <div className="p-4 text-center bg-gray-100 rounded-lg">
+          <p>Tipo de gráfico não suportado: {chartType}</p>
+        </div>
+      );
+  }
+};
+
+export default ChartComponent;

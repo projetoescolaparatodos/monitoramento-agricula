@@ -74,9 +74,7 @@ const InfoPage = ({
         <div className="mb-12">
           <h2 className="text-2xl font-bold mb-6">Estatísticas e Gráficos</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {charts?.map((chart) => {
-            console.log("Rendering chart:", chart);
-            return (
+            {charts?.map((chart) => (
               <Card key={chart.id}>
                 <CardContent className="p-6">
                   <h3 className="text-xl font-semibold mb-4">{chart.title}</h3>
@@ -93,8 +91,7 @@ const InfoPage = ({
                   )}
                 </CardContent>
               </Card>
-            );
-          })}
+            ))}
           </div>
         </div>
       )}
