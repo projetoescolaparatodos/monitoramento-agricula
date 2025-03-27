@@ -1098,6 +1098,46 @@ const PAAForm = () => {
     }
   };
 
+  const [atividades, setAtividades] = useState([]);
+
+  useEffect(() => {
+    const fetchAtividades = async () => {
+      const querySnapshot = await getDocs(collection(db, "paa"));
+      const atividadesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setAtividades(atividadesData);
+    };
+    fetchAtividades();
+  }, []);
+
+  const atualizarStatus = async (id, statusAtual) => {
+    try {
+      await updateDoc(doc(db, "paa", id), {
+        concluido: !statusAtual
+      });
+      toast({
+        title: "Sucesso",
+        description: "Status atualizado com sucesso!",
+      });
+      // Atualizar a lista
+      const querySnapshot = await getDocs(collection(db, "paa"));
+      const atividadesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setAtividades(atividadesData);
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o status.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div>
       <Card className="mb-8">
@@ -1105,6 +1145,38 @@ const PAAForm = () => {
           <CardTitle>Gerenciar PAA</CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold mb-4">Lista de Atividades</h3>
+            <div className="space-y-4">
+              {atividades.map((atividade) => (
+                <Card key={atividade.id} className="p-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h4 className="font-semibold">{atividade.localidade}</h4>
+                      <p className="text-sm text-gray-500">
+                        Técnico: {atividade.tecnicoResponsavel || 'Não informado'}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Data: {new Date(atividade.dataCadastro).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Badge variant={atividade.concluido ? "success" : "default"}>
+                        {atividade.concluido ? "Concluído" : "Em Serviço"}
+                      </Badge>
+                      <Button
+                        onClick={() => atualizarStatus(atividade.id, atividade.concluido)}
+                        variant="outline"
+                        size="sm"
+                      >
+                        Alterar Status
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
           <div
             id="admin-map-paa"
             className="w-full h-[400px] mb-8 rounded-lg overflow-hidden"
