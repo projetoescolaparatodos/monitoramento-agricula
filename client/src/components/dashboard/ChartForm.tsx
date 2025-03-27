@@ -406,28 +406,94 @@ const ChartForm: React.FC<ChartFormProps> = ({
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name={`chartData.datasets.${datasetIndex}.backgroundColor`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Cor de Fundo</FormLabel>
-                              <div className="flex items-center gap-2">
-                                <FormControl>
-                                  <Input 
-                                    type="color" 
-                                    {...field} 
-                                    defaultValue={DEFAULT_COLORS[datasetIndex % DEFAULT_COLORS.length]}
-                                  />
-                                </FormControl>
-                                <div 
-                                  className="h-9 w-9 rounded-md border" 
-                                  style={{ backgroundColor: field.value || DEFAULT_COLORS[datasetIndex % DEFAULT_COLORS.length] }}
-                                />
+                        {isAreaChart ? (
+                          <div className="space-y-4 mt-4">
+                            <div className="flex items-center justify-between">
+                              <FormLabel>Cores das fatias</FormLabel>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setUseCustomColors(!useCustomColors)}
+                              >
+                                {useCustomColors ? "Usar cores automáticas" : "Personalizar cores"}
+                              </Button>
+                            </div>
+                            
+                            {useCustomColors && (
+                              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 p-2 border rounded-md">
+                                {labelFields.map((labelField, labelIndex) => {
+                                  const labelValue = form.watch(`chartData.labels.${labelIndex}`) || `Item ${labelIndex + 1}`;
+                                  
+                                  return (
+                                    <div key={labelField.id} className="flex flex-col border rounded p-2">
+                                      <span className="text-xs font-medium mb-2 truncate" title={labelValue}>
+                                        {labelValue}
+                                      </span>
+                                      
+                                      <FormField
+                                        control={form.control}
+                                        name={`chartData.datasets.0.backgroundColor.${labelIndex}`}
+                                        render={({ field }) => (
+                                          <FormItem className="mb-0">
+                                            <FormControl>
+                                              <div className="flex items-center gap-1">
+                                                <Input 
+                                                  type="color" 
+                                                  {...field} 
+                                                  value={field.value || colorPalette[labelIndex % colorPalette.length]}
+                                                  onChange={(e) => {
+                                                    if (!Array.isArray(form.getValues('chartData.datasets.0.backgroundColor'))) {
+                                                      const colors = labelFields.map((_, idx) => 
+                                                        colorPalette[idx % colorPalette.length]
+                                                      );
+                                                      form.setValue('chartData.datasets.0.backgroundColor', colors);
+                                                    }
+                                                    field.onChange(e.target.value);
+                                                  }}
+                                                  className="w-12 h-7"
+                                                />
+                                                <div 
+                                                  className="h-7 w-7 rounded border flex-shrink-0" 
+                                                  style={{ 
+                                                    backgroundColor: field.value || colorPalette[labelIndex % colorPalette.length] 
+                                                  }}
+                                                />
+                                              </div>
+                                            </FormControl>
+                                          </FormItem>
+                                        )}
+                                      />
+                                    </div>
+                                  );
+                                })}
                               </div>
-                            </FormItem>
-                          )}
-                        />
+                            )}
+                          </div>
+                        ) : (
+                          <FormField
+                            control={form.control}
+                            name={`chartData.datasets.${datasetIndex}.backgroundColor`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Cor de Fundo</FormLabel>
+                                <div className="flex items-center gap-2">
+                                  <FormControl>
+                                    <Input 
+                                      type="color" 
+                                      {...field} 
+                                      defaultValue={DEFAULT_COLORS[datasetIndex % DEFAULT_COLORS.length]}
+                                    />
+                                  </FormControl>
+                                  <div 
+                                    className="h-9 w-9 rounded-md border" 
+                                    style={{ backgroundColor: field.value || DEFAULT_COLORS[datasetIndex % DEFAULT_COLORS.length] }}
+                                  />
+                                </div>
+                              </FormItem>
+                            )}
+                          />
+                        )}
 
                         <FormField
                           control={form.control}
