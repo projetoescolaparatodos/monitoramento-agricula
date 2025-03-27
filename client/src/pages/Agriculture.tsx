@@ -163,7 +163,6 @@ const Agriculture = () => {
           </Button>
         </div>
         <main className="space-y-12">
-          <StatisticsSection /> {/* Added StatisticsSection */}
           <div className="prose max-w-none">
             <h1 className="text-4xl font-bold text-center mb-4">Agricultura</h1>
             <p className="text-center text-lg text-muted-foreground">
@@ -186,7 +185,26 @@ const Agriculture = () => {
             charts={charts || []} 
             isLoading={isLoadingCharts} 
           />
-          <MediaGallerySection /> {/* Added MediaGallerySection */}
+
+          {mediaItems && mediaItems.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {mediaItems.map((media) => (
+                <Card key={media.id} className="overflow-hidden">
+                  {media.mediaType === 'image' && (
+                    <img 
+                      src={media.mediaUrl} 
+                      alt={media.title}
+                      className="w-full h-48 object-cover"
+                    />
+                  )}
+                  <div className="p-4">
+                    <h3 className="font-semibold">{media.title}</h3>
+                    <p className="text-sm text-gray-600">{media.description}</p>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
         </main>
       </main>
       <Footer />
