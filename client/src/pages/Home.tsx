@@ -26,7 +26,7 @@ const AreasSection = () => {
           <div className="relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer group">
             <div className="absolute -top-4 -right-4 w-16 h-16 bg-primary/10 rounded-full transform group-hover:scale-110 transition-transform"></div>
             <div className="absolute -top-5 -right-5 w-16 h-16 flex items-center justify-center">
-              <img src="/fish-icon.png" alt="Pesca" className="w-12 h-12 transform group-hover:rotate-12 transition-transform" />
+              <img src="/fishing-icon.png" alt="Pesca" className="w-12 h-12 transform group-hover:rotate-12 transition-transform" />
             </div>
             <h3 className="text-xl font-semibold mb-3 text-primary">Pesca</h3>
             <p className="text-gray-600 mb-4">
