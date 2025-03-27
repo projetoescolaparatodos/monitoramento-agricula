@@ -12,7 +12,10 @@ const AreasSection = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <Link href="/agriculture">
           <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer">
-            <h3 className="text-xl font-semibold mb-3 text-primary">Agricultura</h3>
+            <div className="flex items-center gap-3 mb-3">
+              <img src="/trator-icon.png" alt="Agricultura" className="w-8 h-8" />
+              <h3 className="text-xl font-semibold text-primary">Agricultura</h3>
+            </div>
             <p className="text-gray-600 mb-4">
               Informações sobre a agricultura local, programas e iniciativas.
             </p>
@@ -20,7 +23,10 @@ const AreasSection = () => {
         </Link>
         <Link href="/fishing">
           <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer">
-            <h3 className="text-xl font-semibold mb-3 text-primary">Pesca</h3>
+            <div className="flex items-center gap-3 mb-3">
+              <img src="/fishing-icon.png" alt="Pesca" className="w-8 h-8" />
+              <h3 className="text-xl font-semibold text-primary">Pesca</h3>
+            </div>
             <p className="text-gray-600 mb-4">
               Dados sobre a atividade pesqueira e projetos relacionados.
             </p>
@@ -28,7 +34,10 @@ const AreasSection = () => {
         </Link>
         <Link href="/paa-info">
           <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer">
-            <h3 className="text-xl font-semibold mb-3 text-primary">PAA</h3>
+            <div className="flex items-center gap-3 mb-3">
+              <img src="/paa-icon.png" alt="PAA" className="w-8 h-8" />
+              <h3 className="text-xl font-semibold text-primary">PAA</h3>
+            </div>
             <p className="text-gray-600 mb-4">
               Programa de Aquisição de Alimentos e seus benefícios.
             </p>
