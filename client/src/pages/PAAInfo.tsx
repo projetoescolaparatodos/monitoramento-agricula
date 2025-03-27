@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
 import InfoPage from "@/components/common/InfoPage";
+import { Button } from "@/components/ui/button";
+import { Map } from "lucide-react";
+import { useLocation } from "wouter";
 
 const PAA = () => {
   const { data: contents, isLoading: isLoadingContents } = useQuery<ContentItem[]>({
@@ -16,20 +18,31 @@ const PAA = () => {
   const { data: mediaItems, isLoading: isLoadingMedia } = useQuery<MediaItem[]>({
     queryKey: ['/api/media-items?pageType=paa'],
   });
+  const [, setLocation] = useLocation();
 
   return (
     <>
-      <Navbar />
-      <InfoPage 
-        title="Programa de Aquisição de Alimentos (PAA)" 
-        subtitle="Informações e dados sobre o PAA - política pública de fortalecimento da agricultura familiar"
-        contents={contents || []} 
-        charts={charts || []} 
-        mediaItems={mediaItems || []} 
-        isLoadingContents={isLoadingContents}
-        isLoadingCharts={isLoadingCharts}
-        isLoadingMedia={isLoadingMedia}
-      />
+      <main className="container mx-auto px-4 pt-28 pb-16">
+        <div className="flex justify-end mb-6">
+          <Button 
+            onClick={() => setLocation("/paa-map")}
+            className="flex items-center gap-2"
+          >
+            <Map className="h-4 w-4" />
+            Acompanhar Serviços
+          </Button>
+        </div>
+        <InfoPage 
+          title="Programa de Aquisição de Alimentos (PAA)" 
+          subtitle="Informações e dados sobre o PAA - política pública de fortalecimento da agricultura familiar"
+          contents={contents || []} 
+          charts={charts || []} 
+          mediaItems={mediaItems || []} 
+          isLoadingContents={isLoadingContents}
+          isLoadingCharts={isLoadingCharts}
+          isLoadingMedia={isLoadingMedia}
+        />
+      </main>
       <Footer />
     </>
   );

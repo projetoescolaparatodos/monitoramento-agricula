@@ -1,10 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
 import InfoPage from "@/components/common/InfoPage";
+import { Button } from "@/components/ui/button";
+import { Map } from "lucide-react";
+import { useLocation } from "wouter";
 
 const Fishing = () => {
+  const [, setLocation] = useLocation();
   const { data: contents, isLoading: isLoadingContents } = useQuery<ContentItem[]>({
     queryKey: ['/api/contents?pageType=fishing'],
   });
@@ -19,17 +22,27 @@ const Fishing = () => {
 
   return (
     <>
-      <Navbar />
-      <InfoPage 
-        title="Pesca" 
-        subtitle="Informações e dados sobre a atividade pesqueira no Brasil"
-        contents={contents || []} 
-        charts={charts || []} 
-        mediaItems={mediaItems || []} 
-        isLoadingContents={isLoadingContents}
-        isLoadingCharts={isLoadingCharts}
-        isLoadingMedia={isLoadingMedia}
-      />
+      <main className="container mx-auto px-4 pt-28 pb-16">
+        <div className="flex justify-end mb-6">
+          <Button 
+            onClick={() => setLocation("/pesca-map")}
+            className="flex items-center gap-2"
+          >
+            <Map className="h-4 w-4" />
+            Acompanhar Serviços
+          </Button>
+        </div>
+        <InfoPage 
+          title="Pesca" 
+          subtitle="Informações e dados sobre a atividade pesqueira no Brasil"
+          contents={contents || []} 
+          charts={charts || []} 
+          mediaItems={mediaItems || []} 
+          isLoadingContents={isLoadingContents}
+          isLoadingCharts={isLoadingCharts}
+          isLoadingMedia={isLoadingMedia}
+        />
+      </main>
       <Footer />
     </>
   );
