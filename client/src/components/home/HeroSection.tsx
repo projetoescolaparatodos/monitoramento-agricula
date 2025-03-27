@@ -11,7 +11,7 @@ const HeroSection = () => {
 
   return (
     <section className="mb-16">
-      <div className="bg-gradient-to-r from-secondary to-primary rounded-lg overflow-hidden shadow-lg">
+      <div className="bg-green-700 rounded-lg overflow-hidden shadow-lg"> {/* Changed background color to a darker green */}
         <div className="md:flex">
           <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
             {isLoading ? (
