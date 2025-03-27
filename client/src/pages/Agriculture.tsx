@@ -158,9 +158,27 @@ const Agriculture = () => {
         <InfoPage
           title="Agricultura"
           subtitle="Informações e dados sobre a agricultura brasileira"
-          contents={contents || []}
-          charts={charts || []}
-          mediaItems={mediaItems || []}
+          contents={contents?.map(content => ({
+            ...content,
+            content: content.content || ''
+          })) || []}
+          charts={charts?.map(chart => ({
+            ...chart,
+            chartData: {
+              labels: chart.chartData?.labels || [],
+              datasets: chart.chartData?.datasets?.map(dataset => ({
+                ...dataset,
+                backgroundColor: dataset.backgroundColor || '#4CAF50',
+                borderColor: dataset.borderColor || '#2196F3',
+                borderWidth: dataset.borderWidth || 1
+              })) || []
+            }
+          })) || []}
+          mediaItems={mediaItems?.map(media => ({
+            ...media,
+            url: media.mediaUrl || '',
+            type: media.mediaType || 'image'
+          })) || []}
           isLoadingContents={isLoadingContents}
           isLoadingCharts={isLoadingCharts}
           isLoadingMedia={isLoadingMedia}
