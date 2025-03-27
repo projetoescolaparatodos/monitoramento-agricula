@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Map } from "lucide-react";
 import { useLocation } from "wouter";
@@ -12,13 +11,6 @@ const HeroSection = () => {
       <p className="text-lg text-muted-foreground mb-8">
         Informações e dados sobre a produção agrícola no município
       </p>
-      <Button
-        onClick={() => setLocation("/agriculture/map")}
-        className="flex items-center gap-2"
-      >
-        <Map className="h-4 w-4" />
-        Acompanhar Produção
-      </Button>
     </section>
   );
 };

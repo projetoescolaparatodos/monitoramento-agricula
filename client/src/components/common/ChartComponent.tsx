@@ -27,9 +27,10 @@ interface ChartComponentProps {
   chartData: ChartData;
 }
 
-const ChartComponent: React.FC<ChartComponentProps> = ({ chartType, chartData }) => {
-  if (!chartData || !chartData.labels || !chartData.datasets) {
-    return <div>Não há dados para exibir</div>;
+const ChartComponent: React.FC<ChartComponentProps> = ({ chartData, chartType }: { chartData: any, chartType: string }) => {
+  if (!chartData || !chartData.datasets || !chartData.labels) {
+    console.warn('Dados do gráfico inválidos:', chartData);
+    return <div>Gráfico não disponível</div>;
   }
 
   const colors = [
