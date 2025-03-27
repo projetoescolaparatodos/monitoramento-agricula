@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -107,14 +106,14 @@ const ChartForm: React.FC<ChartFormProps> = ({
 
   const { fields: labelFields, append: appendLabel, remove: removeLabel } = 
     useFieldArray({ control: form.control, name: "chartData.labels" });
-    
+
   const { fields: datasetFields, append: appendDataset, remove: removeDataset } = 
     useFieldArray({ control: form.control, name: "chartData.datasets" });
 
   const mutation = useMutation({
     mutationFn: (data: ChartFormData) => {
       console.log("Enviando dados para API:", data);
-      
+
       if (isEdit && chartData?.id) {
         return apiRequest('PUT', `/api/charts/${chartData.id}`, data);
       }
@@ -125,9 +124,9 @@ const ChartForm: React.FC<ChartFormProps> = ({
         title: isEdit ? "Gráfico atualizado" : "Gráfico criado",
         description: isEdit ? "O gráfico foi atualizado com sucesso." : "O gráfico foi criado com sucesso."
       });
-      
+
       queryClient.invalidateQueries({ queryKey: ['/api/charts'] });
-      
+
       if (onSuccess) {
         onSuccess();
       }
@@ -161,9 +160,11 @@ const ChartForm: React.FC<ChartFormProps> = ({
         }))
       }
     };
-    
+
     mutation.mutate(preparedData);
   };
+
+  const DEFAULT_COLORS = ['#4CAF50', '#FF9800', '#00BCD4', '#FF5722', '#673AB7', '#2196F3', '#009688', '#795548', '#E91E63', '#9C27B0'];
 
   return (
     <Form {...form}>
@@ -329,7 +330,7 @@ const ChartForm: React.FC<ChartFormProps> = ({
                   Adicionar
                 </Button>
               </div>
-              
+
               <div className="space-y-2 max-h-40 overflow-y-auto p-2 border rounded-md">
                 {labelFields.map((field, index) => (
                   <div key={field.id} className="flex items-center gap-2">
@@ -375,7 +376,7 @@ const ChartForm: React.FC<ChartFormProps> = ({
                   Adicionar Série
                 </Button>
               </div>
-              
+
               <div className="space-y-4 max-h-80 overflow-y-auto p-2 border rounded-md">
                 {datasetFields.map((dataset, datasetIndex) => (
                   <Card key={dataset.id} className="overflow-hidden">
@@ -403,7 +404,7 @@ const ChartForm: React.FC<ChartFormProps> = ({
                           Remover
                         </Button>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-4">
                         <FormField
                           control={form.control}
@@ -416,18 +417,18 @@ const ChartForm: React.FC<ChartFormProps> = ({
                                   <Input 
                                     type="color" 
                                     {...field} 
-                                    value={field.value || '#4CAF50'}
+                                    defaultValue={DEFAULT_COLORS[datasetIndex % DEFAULT_COLORS.length]}
                                   />
                                 </FormControl>
                                 <div 
                                   className="h-9 w-9 rounded-md border" 
-                                  style={{ backgroundColor: field.value || '#4CAF50' }}
+                                  style={{ backgroundColor: field.value || DEFAULT_COLORS[datasetIndex % DEFAULT_COLORS.length] }}
                                 />
                               </div>
                             </FormItem>
                           )}
                         />
-                        
+
                         <FormField
                           control={form.control}
                           name={`chartData.datasets.${datasetIndex}.borderColor`}
@@ -439,19 +440,19 @@ const ChartForm: React.FC<ChartFormProps> = ({
                                   <Input 
                                     type="color" 
                                     {...field} 
-                                    value={field.value || '#388E3C'}
+                                    defaultValue={DEFAULT_COLORS[datasetIndex % DEFAULT_COLORS.length]}
                                   />
                                 </FormControl>
                                 <div 
                                   className="h-9 w-9 rounded-md border" 
-                                  style={{ backgroundColor: field.value || '#388E3C' }}
+                                  style={{ backgroundColor: field.value || DEFAULT_COLORS[datasetIndex % DEFAULT_COLORS.length] }}
                                 />
                               </div>
                             </FormItem>
                           )}
                         />
                       </div>
-                      
+
                       <div>
                         <FormLabel>Valores para cada rótulo</FormLabel>
                         <div className="grid grid-cols-2 gap-2 mt-2">
@@ -472,7 +473,7 @@ const ChartForm: React.FC<ChartFormProps> = ({
                                         step="0.01"
                                         {...field}
                                         onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                                        value={field.value !== undefined ? field.value : 0}
+                                        defaultValue={field.value !== undefined ? field.value : 0}
                                       />
                                     </FormControl>
                                   </div>
@@ -497,7 +498,7 @@ const ChartForm: React.FC<ChartFormProps> = ({
           >
             Pré-visualizar Gráfico
           </Button>
-          
+
           <Button 
             type="submit"
             disabled={mutation.isPending}
@@ -505,7 +506,7 @@ const ChartForm: React.FC<ChartFormProps> = ({
             {mutation.isPending ? 'Salvando...' : isEdit ? 'Atualizar Gráfico' : 'Criar Gráfico'}
           </Button>
         </div>
-        
+
         {previewData && (
           <Card className="mt-6">
             <CardContent className="p-6">
