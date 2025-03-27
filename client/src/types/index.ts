@@ -12,8 +12,8 @@ export interface ContentItem {
 export interface ChartItem {
   id: string;
   title: string;
-  type: 'bar' | 'line' | 'pie';
-  data: any;
+  chartType: 'bar' | 'line' | 'pie';
+  chartData: any;
   pageType: 'home' | 'agriculture' | 'fishing' | 'paa';
   createdAt: Date;
   updatedAt: Date;

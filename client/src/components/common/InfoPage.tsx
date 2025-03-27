@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
 import Chart from "./Chart";
@@ -56,7 +55,7 @@ const InfoPage = ({
               <Card key={chart.id}>
                 <CardContent className="p-6">
                   <h3 className="text-xl font-semibold mb-4">{chart.title}</h3>
-                  <Chart data={chart.chartData} type={chart.chartType} options={chart.options} />
+                  <Chart chartData={chart.chartData} chartType={chart.chartType} options={chart.options} />
                 </CardContent>
               </Card>
             ))}

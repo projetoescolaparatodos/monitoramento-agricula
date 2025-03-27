@@ -16,12 +16,12 @@ import {
 } from 'recharts';
 
 interface ChartProps {
-  data: any[];
-  type: string;
+  chartData: any[];
+  chartType: string;
   options?: any;
 }
 
-export const Chart: React.FC<ChartProps> = ({ data, type, options }) => {
+export const Chart: React.FC<ChartProps> = ({ chartData: data, chartType: type, options }) => {
   if (!data || !type) {
     return <div>Dados do gráfico não disponíveis</div>;
   }
