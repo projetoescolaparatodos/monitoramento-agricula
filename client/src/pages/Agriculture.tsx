@@ -27,25 +27,47 @@ const Agriculture = () => {
   const { data: charts, isLoading: isLoadingCharts } = useQuery<ChartItem[]>({
     queryKey: ["charts", "agriculture"],
     queryFn: async () => {
-      const snapshot = await getDocs(
-        query(collection(db, "charts"), where("pageType", "==", "agriculture"))
+      const chartsQuery = query(
+        collection(db, "charts"),
+        where("pageType", "==", "agriculture")
       );
       
-      console.log("Número de documentos encontrados:", snapshot.docs.length);
+      const snapshot = await getDocs(chartsQuery);
+      
+      console.log("Query agriculture charts:", {
+        collectionPath: "charts",
+        whereField: "pageType",
+        whereValue: "agriculture",
+        documentsFound: snapshot.docs.length
+      });
+      
+      if (snapshot.empty) {
+        console.log("Nenhum gráfico encontrado para pageType='agriculture'");
+        return [];
+      }
       
       return snapshot.docs.map((doc) => {
         const data = doc.data();
+        console.log(`Documento ${doc.id}:`, data);
+        
+        if (!data.chartData || !data.chartType) {
+          console.warn(`Gráfico ${doc.id} não tem dados ou tipo válidos:`, data);
+        }
+        
+        if (data.chartData && (!data.chartData.datasets || !data.chartData.labels)) {
+          console.warn(`Gráfico ${doc.id} tem chartData incompleto:`, data.chartData);
+        }
         
         const chartData = {
-          datasets: data.chartData?.datasets || [],
-          labels: data.chartData?.labels || []
+          datasets: Array.isArray(data.chartData?.datasets) ? data.chartData.datasets.map(dataset => ({
+            label: dataset.label || "Dados",
+            data: Array.isArray(dataset.data) ? dataset.data : [],
+            backgroundColor: dataset.backgroundColor || "#4CAF50",
+            borderColor: dataset.borderColor || "#2196F3",
+            borderWidth: typeof dataset.borderWidth === 'number' ? dataset.borderWidth : 1
+          })) : [],
+          labels: Array.isArray(data.chartData?.labels) ? data.chartData.labels : []
         };
-        
-        console.log("Processando gráfico:", {
-          id: doc.id,
-          title: data.title,
-          chartType: data.chartType
-        });
         
         return {
           id: doc.id,

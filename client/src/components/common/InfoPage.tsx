@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
 import Chart from "./Chart";
+import {useEffect} from "react";
 
 interface InfoPageProps {
   title: string;
@@ -16,13 +17,35 @@ interface InfoPageProps {
 const InfoPage = ({
   title,
   subtitle,
-  contents,
-  charts,
-  mediaItems,
+  contents = [],
+  charts = [],
+  mediaItems = [],
   isLoadingContents,
   isLoadingCharts,
-  isLoadingMedia
+  isLoadingMedia,
 }: InfoPageProps) => {
+  useEffect(() => {
+    console.log("InfoPage renderizado com props:", {
+      título: title,
+      subtítulo: subtitle,
+      conteúdos: { count: contents?.length || 0, firstItem: contents?.[0] },
+      gráficos: {
+        count: charts?.length || 0,
+        firstItem: charts?.[0],
+        chartDataFormat: charts?.[0]?.chartData ? Object.keys(charts[0].chartData) : null
+      },
+      mídias: { count: mediaItems?.length || 0, firstItem: mediaItems?.[0] }
+    });
+
+    if (charts && charts.some(chart => chart.pageType === "agriculture")) {
+      const agricultureCharts = charts.filter(chart => chart.pageType === "agriculture");
+      console.log("Gráficos para agricultura:", {
+        quantidade: agricultureCharts.length,
+        títulos: agricultureCharts.map(c => c.title)
+      });
+    }
+  }, [title, subtitle, contents, charts, mediaItems]);
+
   if (isLoadingContents || isLoadingCharts || isLoadingMedia) {
     return <div>Carregando...</div>;
   }
