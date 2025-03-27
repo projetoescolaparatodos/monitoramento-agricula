@@ -109,10 +109,30 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
 
   const processedData = React.useMemo(() => {
     const isAreaChart = ['pie', 'doughnut', 'polarArea'].includes(chartType.toLowerCase());
+    const isBarChart = chartType.toLowerCase() === 'bar';
 
     return {
       labels: chartData.labels,
       datasets: chartData.datasets.map((dataset, datasetIndex) => {
+        if (isBarChart) {
+          const hasCustomColors = Array.isArray(dataset.backgroundColor) && dataset.backgroundColor.length === dataset.data.length;
+          
+          if (hasCustomColors) {
+            return {
+              ...dataset,
+              borderColor: dataset.borderColor || dataset.data.map((_, i) => borderPalette[i % borderPalette.length]),
+              borderWidth: dataset.borderWidth || 1
+            };
+          }
+
+          return {
+            ...dataset,
+            backgroundColor: dataset.data.map((_, i) => colorPalette[i % colorPalette.length]),
+            borderColor: dataset.data.map((_, i) => borderPalette[i % borderPalette.length]),
+            borderWidth: dataset.borderWidth || 1
+          };
+        }
+
         if (isAreaChart) {
           const hasCustomColors = Array.isArray(dataset.backgroundColor) && dataset.backgroundColor.length === chartData.labels.length;
 
