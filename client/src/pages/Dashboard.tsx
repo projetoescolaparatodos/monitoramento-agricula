@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useLocation, useParams } from "wouter";
+import { useQuery } from '@tanstack/react-query';
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import ContentList from "@/components/dashboard/ContentList";
@@ -14,26 +14,20 @@ import MediaList from "@/components/dashboard/MediaList";
 import MediaUploader from "@/components/dashboard/MediaUploader";
 import StatisticList from "@/components/dashboard/StatisticList";
 import StatisticForm from "@/components/dashboard/StatisticForm";
-import { useQuery } from '@tanstack/react-query';
 
 const Dashboard = () => {
-  const params = useParams();
-  const section = params?.page || "contents";
   const [, setLocation] = useLocation();
-
   const [showForm, setShowForm] = useState(false);
-  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
-
-  const { data: contents, isLoading: isLoadingContents } = useQuery({
-    queryKey: ['/api/contents'],
-  });
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const params = useParams();
+  const section = params?.section || "contents";
 
   const handleAddItem = () => {
     setSelectedItemId(null);
     setShowForm(true);
   };
 
-  const handleEditItem = (id: number) => {
+  const handleEditItem = (id: string) => {
     setSelectedItemId(id);
     setShowForm(true);
   };
@@ -52,28 +46,15 @@ const Dashboard = () => {
     <>
       <Navbar />
       <main className="container mx-auto px-4 pt-28 pb-16">
-        <PageHeader 
-          title="Área do Gestor" 
-          description="Gerencie conteúdos, gráficos, mídias e estatísticas do InfoAgro"
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6">
+        <div className="flex gap-6">
           <DashboardSidebar activeSection={section} onSectionChange={handleSectionChange} />
-          <div className="space-y-4">
-            {section === "contents" && (
-              <ContentList
-                contents={contents}
-                isLoading={isLoadingContents}
-                onEdit={handleEditItem}
-                onDelete={(id) => {
-                  // Implement delete logic
-                  console.log('Delete item:', id);
-                }}
-              />
-            )}
-          </div>
 
-          <div className="space-y-6">
+          <div className="flex-1 space-y-6">
+            <PageHeader 
+              title="Área do Gestor" 
+              description="Gerencie conteúdos, gráficos, mídias e estatísticas"
+            />
+
             {section === "contents" && (
               <>
                 {showForm ? (

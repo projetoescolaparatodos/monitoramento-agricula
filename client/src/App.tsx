@@ -37,7 +37,7 @@ function Router() {
         <Route path="/paa" component={PAAInfo} /> 
         <Route path="/paa/info" component={PAAInfo} />
         <Route path="/paa/map" component={PAAMap} />
-        <Route path="/dashboard" component={Dashboard} />
+        <Route path="/dashboard/:section?" component={Dashboard} />
         <Route path="/login" component={Login} />
         <Route path="/admin">
           {() => {
