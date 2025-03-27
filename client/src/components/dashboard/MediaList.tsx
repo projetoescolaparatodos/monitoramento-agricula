@@ -15,6 +15,9 @@ import {
 } from "../ui/dialog";
 import { apiRequest, queryClient } from "../../lib/queryClient";
 import { useToast } from "../../hooks/use-toast";
+import { db } from '../../lib/firebase';
+import { doc, deleteDoc } from "firebase/firestore";
+
 
 interface MediaListProps {
   onEdit: (id: number) => void;
@@ -35,17 +38,20 @@ export const MediaList = ({ onEdit }: MediaListProps) => {
 
     try {
       setIsDeleting(true);
-      await apiRequest("DELETE", `/api/media-items/${mediaToDelete}`, undefined);
-      queryClient.invalidateQueries({ queryKey: ['/api/media-items'] });
+      const docRef = doc(db, 'media', mediaToDelete);
+      await deleteDoc(docRef);
+
+      queryClient.invalidateQueries({ queryKey: ['media'] });
       toast({
         title: "Mídia excluída",
-        description: "O item de mídia foi excluído com sucesso.",
+        description: "A mídia foi excluída com sucesso.",
       });
       setIsDeleteDialogOpen(false);
     } catch (error) {
+      console.error('Erro ao excluir:', error);
       toast({
         title: "Erro ao excluir",
-        description: "Ocorreu um erro ao excluir o item de mídia.",
+        description: "Ocorreu um erro ao excluir a mídia.",
         variant: "destructive",
       });
     } finally {

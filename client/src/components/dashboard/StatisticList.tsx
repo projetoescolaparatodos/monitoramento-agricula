@@ -44,14 +44,17 @@ export const StatisticList = ({ onEdit }: StatisticListProps) => {
     
     try {
       setIsDeleting(true);
-      await apiRequest("DELETE", `/api/statistics/${statisticToDelete}`, undefined);
-      queryClient.invalidateQueries({ queryKey: ['/api/statistics'] });
+      const docRef = doc(db, 'statistics', statisticToDelete);
+      await deleteDoc(docRef);
+      
+      queryClient.invalidateQueries({ queryKey: ['statistics'] });
       toast({
         title: "Estatística excluída",
         description: "A estatística foi excluída com sucesso.",
       });
       setIsDeleteDialogOpen(false);
     } catch (error) {
+      console.error('Erro ao excluir:', error);
       toast({
         title: "Erro ao excluir",
         description: "Ocorreu um erro ao excluir a estatística.",

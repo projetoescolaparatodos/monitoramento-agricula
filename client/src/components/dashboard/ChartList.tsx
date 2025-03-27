@@ -44,14 +44,17 @@ export const ChartList = ({ onEdit }: ChartListProps) => {
     
     try {
       setIsDeleting(true);
-      await apiRequest("DELETE", `/api/charts/${chartToDelete}`, undefined);
-      queryClient.invalidateQueries({ queryKey: ['/api/charts'] });
+      const docRef = doc(db, 'charts', chartToDelete);
+      await deleteDoc(docRef);
+      
+      queryClient.invalidateQueries({ queryKey: ['charts'] });
       toast({
         title: "Gráfico excluído",
         description: "O gráfico foi excluído com sucesso.",
       });
       setIsDeleteDialogOpen(false);
     } catch (error) {
+      console.error('Erro ao excluir:', error);
       toast({
         title: "Erro ao excluir",
         description: "Ocorreu um erro ao excluir o gráfico.",
