@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Chart as ChartJS,
@@ -107,36 +106,36 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
   height = 300
 }) => {
   console.log(`Renderizando gráfico tipo ${chartType}:`, chartData);
-  
+
   const processedData = React.useMemo(() => {
-    const hasCompleteColors = chartData.datasets.every(
-      dataset => dataset.backgroundColor && dataset.borderColor
-    );
-    
-    if (hasCompleteColors) {
-      return chartData;
-    }
-    
     const isAreaChart = ['pie', 'doughnut', 'polarArea'].includes(chartType.toLowerCase());
-    
+
     return {
       labels: chartData.labels,
       datasets: chartData.datasets.map((dataset, datasetIndex) => {
         if (isAreaChart) {
+          const hasCustomColors = Array.isArray(dataset.backgroundColor) && dataset.backgroundColor.length === chartData.labels.length;
+
+          if (hasCustomColors) {
+            return {
+              ...dataset,
+              borderColor: dataset.borderColor || chartData.labels.map((_, i) => borderPalette[i % borderPalette.length]),
+              borderWidth: dataset.borderWidth || 1
+            };
+          }
+
           return {
             ...dataset,
-            backgroundColor: dataset.backgroundColor || 
-              chartData.labels.map((_, i) => colorPalette[i % colorPalette.length]),
-            borderColor: dataset.borderColor || 
-              chartData.labels.map((_, i) => borderPalette[i % borderPalette.length]),
+            backgroundColor: chartData.labels.map((_, i) => colorPalette[i % colorPalette.length]),
+            borderColor: chartData.labels.map((_, i) => borderPalette[i % borderPalette.length]),
             borderWidth: dataset.borderWidth || 1
           };
         }
-        
+
         if (chartType.toLowerCase() === 'line') {
           const color = dataset.backgroundColor || colorPalette[datasetIndex % colorPalette.length];
           const borderColor = dataset.borderColor || borderPalette[datasetIndex % borderPalette.length];
-          
+
           return {
             ...dataset,
             backgroundColor: color,
@@ -150,7 +149,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
             pointRadius: dataset.pointRadius || 4
           };
         }
-        
+
         return {
           ...dataset,
           backgroundColor: dataset.backgroundColor || colorPalette[datasetIndex % colorPalette.length],
@@ -227,7 +226,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
             }
           }
         };
-        
+
       case 'line':
         return {
           ...baseOptions,
@@ -245,7 +244,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
             }
           }
         };
-        
+
       case 'pie':
       case 'doughnut':
         return {
@@ -259,7 +258,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
             }
           }
         };
-        
+
       case 'polarArea':
         return {
           ...baseOptions,
@@ -271,7 +270,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
             }
           }
         };
-        
+
       case 'radar':
         return {
           ...baseOptions,
@@ -295,7 +294,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
             }
           }
         };
-        
+
       case 'bubble':
       case 'scatter':
         return {
@@ -313,7 +312,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
             }
           }
         };
-        
+
       default:
         return baseOptions;
     }
@@ -321,7 +320,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
 
   const renderChart = () => {
     const options = getOptions();
-    
+
     switch (chartType.toLowerCase()) {
       case 'bar':
         return <Bar data={processedData} options={options} />;
