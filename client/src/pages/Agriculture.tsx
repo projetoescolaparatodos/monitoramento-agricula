@@ -199,7 +199,6 @@ const Agriculture = () => {
             </div>
           )}
         </main>
-        />
       </main>
       <Footer />
     </>
