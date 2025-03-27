@@ -9,8 +9,6 @@ import { Card } from "@/components/ui/card";
 import { Map } from "lucide-react";
 import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
-import HeroSection from "@/components/agriculture/HeroSection";
-import AreaSection from "@/components/agriculture/AreaSection";
 
 // Placeholder components -  These need to be implemented separately.
 const StatisticsSection = () => <div>Statistics Section Placeholder</div>;
@@ -155,7 +153,6 @@ const Agriculture = () => {
   return (
     <>
       <main className="container mx-auto px-4 pt-28 pb-16">
-        <HeroSection /> {/* Added HeroSection */}
         <div className="flex justify-end mb-6">
           <Button
             onClick={() => setLocation("/agriculture/map")}
@@ -166,7 +163,6 @@ const Agriculture = () => {
           </Button>
         </div>
         <main className="space-y-12">
-          <AreaSection /> {/* Added AreaSection */}
           <div className="prose max-w-none">
             <h1 className="text-4xl font-bold text-center mb-4">Agricultura</h1>
             <p className="text-center text-lg text-muted-foreground">
