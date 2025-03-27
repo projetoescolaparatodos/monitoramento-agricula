@@ -3,7 +3,7 @@ import HeroSection from "@/components/home/HeroSection";
 import StatisticsSection from "@/components/home/StatisticsSection";
 import DataVisualizationSection from "@/components/home/DataVisualizationSection";
 import MediaGallerySection from "@/components/home/MediaGallerySection";
-import Link from 'next/link';
+import { Link } from "wouter";
 
 const AreasSection = () => {
   return (
