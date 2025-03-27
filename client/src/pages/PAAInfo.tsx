@@ -1,3 +1,7 @@
+
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "@/utils/firebase";
+
 import { useQuery } from "@tanstack/react-query";
 import Footer from "@/components/layout/Footer";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
@@ -8,15 +12,24 @@ import { useLocation } from "wouter";
 
 const PAA = () => {
   const { data: contents, isLoading: isLoadingContents } = useQuery<ContentItem[]>({
-    queryKey: ['/api/contents?pageType=paa'],
+    queryKey: ['contents', 'paa'],
+    queryFn: () => getDocs(query(collection(db, 'contents'), where('pageType', '==', 'paa'))).then(
+      snapshot => snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+    ),
   });
 
   const { data: charts, isLoading: isLoadingCharts } = useQuery<ChartItem[]>({
-    queryKey: ['/api/charts?pageType=paa'],
+    queryKey: ['charts', 'paa'],
+    queryFn: () => getDocs(query(collection(db, 'charts'), where('pageType', '==', 'paa'))).then(
+      snapshot => snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+    ),
   });
 
   const { data: mediaItems, isLoading: isLoadingMedia } = useQuery<MediaItem[]>({
-    queryKey: ['/api/media-items?pageType=paa'],
+    queryKey: ['media', 'paa'],
+    queryFn: () => getDocs(query(collection(db, 'media'), where('pageType', '==', 'paa'))).then(
+      snapshot => snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+    ),
   });
   const [, setLocation] = useLocation();
 
