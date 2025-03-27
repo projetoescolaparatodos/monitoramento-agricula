@@ -9,8 +9,6 @@ import { Card } from "@/components/ui/card";
 import { Map } from "lucide-react";
 import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
-import HeroSection from "@/components/agriculture/HeroSection";
-import AreaSection from "@/components/agriculture/AreaSection";
 
 // Placeholder components -  These need to be implemented separately.
 const StatisticsSection = () => <div>Statistics Section Placeholder</div>;
@@ -72,26 +70,12 @@ const Agriculture = () => {
         }
 
         const chartData = {
-          datasets: Array.isArray(data.chartData?.datasets) ? data.chartData.datasets.map((dataset, index) => ({
-            label: dataset.label || `Série ${index + 1}`,
+          datasets: Array.isArray(data.chartData?.datasets) ? data.chartData.datasets.map(dataset => ({
+            label: dataset.label || "Dados",
             data: Array.isArray(dataset.data) ? dataset.data : [],
-            backgroundColor: dataset.backgroundColor || [
-              'rgba(75, 192, 192, 0.8)',
-              'rgba(255, 99, 132, 0.8)',
-              'rgba(54, 162, 235, 0.8)',
-              'rgba(255, 206, 86, 0.8)',
-              'rgba(153, 102, 255, 0.8)',
-              'rgba(255, 159, 64, 0.8)',
-            ][index % 6],
-            borderColor: dataset.borderColor || [
-              'rgba(75, 192, 192, 1)',
-              'rgba(255, 99, 132, 1)',
-              'rgba(54, 162, 235, 1)',
-              'rgba(255, 206, 86, 1)',
-              'rgba(153, 102, 255, 1)',
-              'rgba(255, 159, 64, 1)',
-            ][index % 6],
-            borderWidth: typeof dataset.borderWidth === 'number' ? dataset.borderWidth : 2
+            backgroundColor: dataset.backgroundColor || "#4CAF50",
+            borderColor: dataset.borderColor || "#2196F3",
+            borderWidth: typeof dataset.borderWidth === 'number' ? dataset.borderWidth : 1
           })) : [],
           labels: Array.isArray(data.chartData?.labels) ? data.chartData.labels : []
         };
@@ -169,7 +153,6 @@ const Agriculture = () => {
   return (
     <>
       <main className="container mx-auto px-4 pt-28 pb-16">
-        <HeroSection /> {/* Added HeroSection */}
         <div className="flex justify-end mb-6">
           <Button
             onClick={() => setLocation("/agriculture/map")}
@@ -180,7 +163,6 @@ const Agriculture = () => {
           </Button>
         </div>
         <main className="space-y-12">
-          <AreaSection /> {/* Added AreaSection */}
           <div className="prose max-w-none">
             <h1 className="text-4xl font-bold text-center mb-4">Agricultura</h1>
             <p className="text-center text-lg text-muted-foreground">

@@ -1,74 +1,105 @@
-import { Line, Bar, Pie, Doughnut } from 'react-chartjs-2';
+import React from 'react';
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Title,
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
   Tooltip,
   Legend,
-} from 'chart.js';
+} from 'recharts';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend
-);
+interface ChartData {
+  labels: string[];
+  datasets: {
+    label?: string;
+    data: number[];
+    backgroundColor?: string;
+    borderColor?: string;
+    borderWidth?: number;
+  }[];
+}
 
 interface ChartComponentProps {
   chartType: string;
-  chartData: any;
+  chartData: ChartData;
 }
 
-const ChartComponent = ({ chartType, chartData }: ChartComponentProps) => {
-  if (!chartData || !chartData.datasets) {
-    return <div>Dados do gráfico não disponíveis</div>;
+const ChartComponent: React.FC<ChartComponentProps> = ({ chartType, chartData }) => {
+  if (!chartData || !chartData.labels || !chartData.datasets) {
+    return <div>Não há dados para exibir</div>;
   }
 
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-        display: true,
-      },
-      title: {
-        display: !!chartData.title,
-        text: chartData.title || '',
-      },
-    },
-    scales: chartType.toLowerCase() !== 'pie' ? {
-      y: {
-        beginAtZero: true,
-      },
-      x: {
-        display: true,
-      }
-    } : undefined
+  const colors = [
+    "#8BC34A",
+    "#2E7D32",
+    "#4DB6AC",
+    "#81C784",
+    "#A5D6A7",
+    "#C8E6C9"
+  ];
+
+  const formattedData = chartData.labels.map((label, index) => {
+    const dataPoint: Record<string, any> = { name: label };
+    chartData.datasets.forEach((dataset, datasetIndex) => {
+      const dataKey = dataset.label || `data${datasetIndex}`;
+      dataPoint[dataKey] = dataset.data[index];
+    });
+    return dataPoint;
+  });
+
+  const renderChart = () => {
+    switch (chartType) {
+      case "line":
+        return (
+          <LineChart width={600} height={300} data={formattedData} margin={{ top: 5, right: 30, left: 20, bottom: 25 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 0, 0, 0.05)" />
+            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+            <YAxis tick={{ fontSize: 12 }} />
+            <Tooltip />
+            <Legend wrapperStyle={{ marginTop: "10px" }} />
+            {chartData.datasets.map((dataset, index) => (
+              <Line
+                key={index}
+                type="monotone"
+                dataKey={dataset.label || `data${index}`}
+                stroke={colors[index % colors.length]}
+                strokeWidth={2}
+                dot={{ r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            ))}
+          </LineChart>
+        );
+      case "bar":
+        return (
+          <BarChart width={600} height={300} data={formattedData} margin={{ top: 5, right: 30, left: 20, bottom: 25 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 0, 0, 0.05)" />
+            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+            <YAxis tick={{ fontSize: 12 }} />
+            <Tooltip />
+            <Legend wrapperStyle={{ marginTop: "10px" }} />
+            {chartData.datasets.map((dataset, index) => (
+              <Bar
+                key={index}
+                dataKey={dataset.label || `data${index}`}
+                fill={colors[index % colors.length]}
+              />
+            ))}
+          </BarChart>
+        );
+      default:
+        return <div>Tipo de gráfico não suportado</div>;
+    }
   };
 
-  switch (chartType.toLowerCase()) {
-    case 'line':
-      return <Line data={chartData} options={options} />;
-    case 'bar':
-      return <Bar data={chartData} options={options} />;
-    case 'pie':
-      return <Pie data={chartData} options={options} />;
-    case 'doughnut':
-      return <Doughnut data={chartData} options={options} />;
-    default:
-      return <div>Tipo de gráfico não suportado</div>;
-  }
+  return (
+    <div className="w-full overflow-x-auto">
+      {renderChart()}
+    </div>
+  );
 };
 
 export default ChartComponent;
