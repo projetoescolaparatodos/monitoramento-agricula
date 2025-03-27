@@ -1,7 +1,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
-import { Chart } from "@/components/common/Chart";
+import Chart from "./Chart";
 
 interface InfoPageProps {
   title: string;
