@@ -1,236 +1,183 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { ChartFormData, ChartData, PageType } from "../../types";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
-import { Switch } from "../ui/switch";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { apiRequest, queryClient } from "../../lib/queryClient";
-import { useToast } from "../../hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
 
-const formSchema = z.object({
-  pageType: z.string(),
-  title: z.string().min(2, "Título deve ter pelo menos 2 caracteres"),
+import React, { useState } from 'react';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { ChartFormData } from '@/types';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { BarChart4, LineChart, PieChart, Radar, CircleDashed, Activity, Circle } from 'lucide-react';
+import ChartComponent from '@/components/common/ChartComponent';
+
+const chartFormSchema = z.object({
+  pageType: z.string({
+    required_error: "Selecione o tipo de página"
+  }),
+  title: z.string().min(2, {
+    message: "O título deve ter pelo menos 2 caracteres."
+  }),
   description: z.string().optional(),
-  chartType: z.string(),
-  chartData: z.any(),
+  chartType: z.string({
+    required_error: "Selecione o tipo de gráfico"
+  }),
   active: z.boolean().default(true),
-  order: z.number().int().min(0)
+  order: z.number().int().min(0).default(0),
+  chartData: z.object({
+    labels: z.array(z.string()).min(1, {
+      message: "Adicione pelo menos um rótulo"
+    }),
+    datasets: z.array(z.object({
+      label: z.string().min(1, {
+        message: "O rótulo da série deve ter pelo menos 1 caractere"
+      }),
+      data: z.array(z.number()).min(1, {
+        message: "Adicione pelo menos um valor"
+      }),
+      backgroundColor: z.string().optional(),
+      borderColor: z.string().optional(),
+      borderWidth: z.number().optional()
+    })).min(1, {
+      message: "Adicione pelo menos uma série de dados"
+    })
+  })
 });
 
 interface ChartFormProps {
-  initialData?: ChartFormData;
+  chartData?: Partial<ChartFormData>;
   isEdit?: boolean;
   onSuccess?: () => void;
 }
 
-export const ChartForm = ({ initialData, isEdit = false, onSuccess }: ChartFormProps) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const ChartForm: React.FC<ChartFormProps> = ({ 
+  chartData,
+  isEdit = false,
+  onSuccess
+}) => {
   const { toast } = useToast();
-
-  const { data: fetchedChart, isLoading } = useQuery({
-    queryKey: ['/api/charts', initialData?.id],
-    queryFn: async () => {
-      if (isEdit && initialData?.id) {
-        const res = await fetch(`/api/charts/${initialData.id}`);
-        if (!res.ok) throw new Error('Failed to fetch chart');
-        return res.json();
-      }
-      return null;
-    },
-    enabled: isEdit && !!chartData?.id,
-  });
-
-  const defaultChartData: ChartData = {
-    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-    datasets: [
-      {
-        label: 'Dados',
-        data: [12, 19, 3, 5, 2, 3],
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 1
-      }
-    ]
-  };
+  const queryClient = useQueryClient();
+  const [previewData, setPreviewData] = useState<ChartFormData | null>(null);
 
   const defaultValues: ChartFormData = {
-    pageType: "home" as PageType,
-    title: "",
-    description: "",
-    chartType: "bar",
-    chartData: defaultChartData,
-    active: true,
-    order: 0
-  };
-
-  const form = useForm<ChartFormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: fetchedChart || initialData || defaultValues,
-  });
-
-  if (isEdit && fetchedChart && !form.formState.isDirty) {
-    form.reset(fetchedChart);
-  }
-
-  const handleDatasetChange = (index: number, key: string, value: any) => {
-    const currentData = form.getValues('chartData');
-    const updatedDatasets = [...currentData.datasets];
-    updatedDatasets[index][key] = value;
-
-    const updatedChartData: ChartData = {
-      ...currentData,
-      datasets: updatedDatasets
-    };
-
-    form.setValue('chartData', updatedChartData, { shouldValidate: true });
-  };
-
-  const handleLabelsChange = (labels: string) => {
-    const labelArray = labels.split(',').map(label => label.trim());
-    const currentData = form.getValues('chartData');
-
-    const updatedChartData: ChartData = {
-      ...currentData,
-      labels: labelArray
-    };
-
-    form.setValue('chartData', updatedChartData, { shouldValidate: true });
-  };
-
-  const handleDataChange = (index: number, data: string) => {
-    const dataArray = data.split(',').map(value => Number(value.trim()));
-    const currentData = form.getValues('chartData');
-    const updatedDatasets = [...currentData.datasets];
-
-    updatedDatasets[index].data = dataArray;
-
-    const updatedChartData: ChartData = {
-      ...currentData,
-      datasets: updatedDatasets
-    };
-
-    form.setValue('chartData', updatedChartData, { shouldValidate: true });
-  };
-
-  const onSubmit = async (data: ChartFormData) => {
-    try {
-      setIsSubmitting(true);
-      if (isEdit && chartData?.id) {
-        await apiRequest("PUT", `/api/charts/${chartData.id}`, data);
-        toast({
-          title: "Gráfico atualizado",
-          description: "O gráfico foi atualizado com sucesso.",
-        });
-      } else {
-        await apiRequest("POST", "/api/charts", data);
-        form.reset(defaultValues);
-        toast({
-          title: "Gráfico criado",
-          description: "O gráfico foi criado com sucesso.",
-        });
-      }
-      queryClient.invalidateQueries({ queryKey: ['/api/charts'] });
-
-      if (onSuccess) {
-        onSuccess();
-      }
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Ocorreu um erro ao salvar o gráfico.",
-        variant: "destructive",
-      });
-      console.error("Error submitting chart:", error);
-    } finally {
-      setIsSubmitting(false);
+    pageType: chartData?.pageType || 'home',
+    title: chartData?.title || '',
+    description: chartData?.description || '',
+    chartType: chartData?.chartType || 'bar',
+    active: chartData?.active !== undefined ? chartData.active : true,
+    order: chartData?.order || 0,
+    chartData: chartData?.chartData || {
+      labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+      datasets: [
+        {
+          label: 'Valores',
+          data: [12, 19, 3, 5, 2, 3],
+          backgroundColor: '#4CAF50',
+          borderColor: '#388E3C',
+          borderWidth: 1
+        }
+      ]
     }
   };
 
-  if (isEdit && isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Carregando Gráfico...</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="h-10 bg-gray-100 animate-pulse rounded" />
-            <div className="h-10 bg-gray-100 animate-pulse rounded" />
-            <div className="h-10 bg-gray-100 animate-pulse rounded" />
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  const form = useForm<ChartFormData>({
+    resolver: zodResolver(chartFormSchema),
+    defaultValues
+  });
 
-  const chartData = form.watch('chartData');
+  const { fields: labelFields, append: appendLabel, remove: removeLabel } = 
+    useFieldArray({ control: form.control, name: "chartData.labels" });
+    
+  const { fields: datasetFields, append: appendDataset, remove: removeDataset } = 
+    useFieldArray({ control: form.control, name: "chartData.datasets" });
+
+  const mutation = useMutation({
+    mutationFn: (data: ChartFormData) => {
+      console.log("Enviando dados para API:", data);
+      
+      if (isEdit && chartData?.id) {
+        return apiRequest('PUT', `/api/charts/${chartData.id}`, data);
+      }
+      return apiRequest('POST', '/api/charts', data);
+    },
+    onSuccess: () => {
+      toast({
+        title: isEdit ? "Gráfico atualizado" : "Gráfico criado",
+        description: isEdit ? "O gráfico foi atualizado com sucesso." : "O gráfico foi criado com sucesso."
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ['/api/charts'] });
+      
+      if (onSuccess) {
+        onSuccess();
+      }
+    },
+    onError: (error) => {
+      console.error("Erro ao salvar gráfico:", error);
+      toast({
+        title: "Erro ao salvar",
+        description: "Ocorreu um erro ao salvar o gráfico. Tente novamente.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const previewChart = () => {
+    const values = form.getValues();
+    setPreviewData(values);
+  };
+
+  const onSubmit = (data: ChartFormData) => {
+    const preparedData = {
+      ...data,
+      chartData: {
+        labels: data.chartData.labels,
+        datasets: data.chartData.datasets.map(dataset => ({
+          label: dataset.label || 'Dados',
+          data: dataset.data,
+          backgroundColor: dataset.backgroundColor || '#4CAF50',
+          borderColor: dataset.borderColor || '#388E3C',
+          borderWidth: dataset.borderWidth || 1
+        }))
+      }
+    };
+    
+    mutation.mutate(preparedData);
+  };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{isEdit ? "Editar Gráfico" : "Novo Gráfico"}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="pageType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Página</FormLabel>
-                    <FormControl>
-                      <select
-                        {...field}
-                        className="w-full p-2 border rounded-md"
-                      >
-                        <option value="home">Página Inicial</option>
-                        <option value="agriculture">Agricultura</option>
-                        <option value="fishing">Pesca</option>
-                        <option value="paa">PAA</option>
-                      </select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="chartType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tipo de Gráfico</FormLabel>
-                    <FormControl>
-                      <select
-                        {...field}
-                        className="w-full p-2 border rounded-md"
-                      >
-                        <option value="bar">Barras</option>
-                        <option value="horizontalBar">Barras Horizontais</option>
-                        <option value="line">Linha</option>
-                        <option value="pie">Pizza</option>
-                      </select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-6">
             <FormField
               control={form.control}
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Título</FormLabel>
+                  <FormLabel>Título do Gráfico</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Título do gráfico" />
+                    <Input placeholder="Ex: Produção Agrícola 2024" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -243,78 +190,42 @@ export const ChartForm = ({ initialData, isEdit = false, onSuccess }: ChartFormP
                 <FormItem>
                   <FormLabel>Descrição (opcional)</FormLabel>
                   <FormControl>
-                    <Textarea
-                      {...field}
-                      placeholder="Descrição do gráfico..."
-                      value={field.value || ""}
+                    <Textarea 
+                      placeholder="Uma breve descrição dos dados apresentados"
+                      {...field} 
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <div className="border p-4 rounded-md">
-              <h3 className="font-medium mb-4">Dados do Gráfico</h3>
-
-              <div className="space-y-4">
-                <div>
-                  <FormLabel>Rótulos (separados por vírgula)</FormLabel>
-                  <Input 
-                    value={chartData?.labels.join(', ')} 
-                    onChange={(e) => handleLabelsChange(e.target.value)}
-                    placeholder="Ex: Jan, Fev, Mar, Abr, Mai, Jun" 
-                  />
-                </div>
-                {chartData?.datasets.map((dataset, index) => (
-                  <div key={index} className="border p-3 rounded">
-                    <h4 className="font-medium mb-2">Conjunto de Dados {index + 1}</h4>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-                      <div>
-                        <FormLabel>Rótulo</FormLabel>
-                        <Input 
-                          value={dataset.label || ''} 
-                          onChange={(e) => handleDatasetChange(index, 'label', e.target.value)}
-                          placeholder="Nome da série de dados" 
-                        />
-                      </div>
-
-                      <div>
-                        <FormLabel>Cor</FormLabel>
-                        <div className="flex space-x-2">
-                          <Input 
-                            type="color"
-                            value={Array.isArray(dataset.backgroundColor) 
-                              ? dataset.backgroundColor[0] 
-                              : (dataset.backgroundColor || '#4F46E5')} 
-                            onChange={(e) => handleDatasetChange(index, 'backgroundColor', e.target.value)}
-                            className="w-20" 
-                          />
-                          <Input 
-                            type="color"
-                            value={Array.isArray(dataset.borderColor) 
-                              ? dataset.borderColor[0] 
-                              : (dataset.borderColor || '#4338CA')} 
-                            onChange={(e) => handleDatasetChange(index, 'borderColor', e.target.value)}
-                            className="w-20" 
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <FormLabel>Valores (separados por vírgula)</FormLabel>
-                      <Input 
-                        value={dataset.data.join(', ')} 
-                        onChange={(e) => handleDataChange(index, e.target.value)}
-                        placeholder="Ex: 12, 19, 3, 5, 2, 3" 
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="pageType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Página</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione a página" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="home">Página Inicial</SelectItem>
+                        <SelectItem value="agriculture">Agricultura</SelectItem>
+                        <SelectItem value="fishing">Pesca</SelectItem>
+                        <SelectItem value="paa">PAA</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="order"
@@ -326,42 +237,290 @@ export const ChartForm = ({ initialData, isEdit = false, onSuccess }: ChartFormP
                         type="number" 
                         min="0"
                         {...field}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                        value={field.value}
+                        onChange={(e) => field.onChange(parseInt(e.target.value))} 
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="active"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Ativo</FormLabel>
-                      <p className="text-sm text-muted-foreground">
-                        O gráfico será exibido no site quando ativo
-                      </p>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
             </div>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Salvando..." : isEdit ? "Atualizar" : "Criar"}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+            <FormField
+              control={form.control}
+              name="active"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between p-4 border rounded-md">
+                  <div className="space-y-0.5">
+                    <FormLabel>Ativo</FormLabel>
+                    <div className="text-sm text-muted-foreground">
+                      Determina se o gráfico será exibido no site
+                    </div>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="space-y-6">
+            <FormField
+              control={form.control}
+              name="chartType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tipo de Gráfico</FormLabel>
+                  <FormControl>
+                    <Tabs 
+                      defaultValue={field.value} 
+                      onValueChange={field.onChange}
+                      className="w-full"
+                    >
+                      <TabsList className="grid grid-cols-4 mb-2">
+                        <TabsTrigger value="bar" className="flex flex-col items-center py-3">
+                          <BarChart4 className="h-5 w-5 mb-1" />
+                          <span className="text-xs">Barras</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="line" className="flex flex-col items-center py-3">
+                          <LineChart className="h-5 w-5 mb-1" />
+                          <span className="text-xs">Linhas</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="pie" className="flex flex-col items-center py-3">
+                          <PieChart className="h-5 w-5 mb-1" />
+                          <span className="text-xs">Pizza</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="doughnut" className="flex flex-col items-center py-3">
+                          <CircleDashed className="h-5 w-5 mb-1" />
+                          <span className="text-xs">Rosca</span>
+                        </TabsTrigger>
+                      </TabsList>
+                      <TabsList className="grid grid-cols-3 mb-2">
+                        <TabsTrigger value="radar" className="flex flex-col items-center py-3">
+                          <Radar className="h-5 w-5 mb-1" />
+                          <span className="text-xs">Radar</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="polarArea" className="flex flex-col items-center py-3">
+                          <Circle className="h-5 w-5 mb-1" />
+                          <span className="text-xs">Área Polar</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="scatter" className="flex flex-col items-center py-3">
+                          <Activity className="h-5 w-5 mb-1" />
+                          <span className="text-xs">Dispersão</span>
+                        </TabsTrigger>
+                      </TabsList>
+                    </Tabs>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <FormLabel>Rótulos (Eixo X)</FormLabel>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => appendLabel("")}
+                >
+                  Adicionar
+                </Button>
+              </div>
+              
+              <div className="space-y-2 max-h-40 overflow-y-auto p-2 border rounded-md">
+                {labelFields.map((field, index) => (
+                  <div key={field.id} className="flex items-center gap-2">
+                    <FormField
+                      control={form.control}
+                      name={`chartData.labels.${index}`}
+                      render={({ field }) => (
+                        <FormItem className="flex-1 m-0">
+                          <FormControl>
+                            <Input placeholder={`Rótulo ${index + 1}`} {...field} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeLabel(index)}
+                      disabled={labelFields.length <= 1}
+                    >
+                      ✕
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <FormLabel>Séries de Dados</FormLabel>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => appendDataset({
+                    label: `Série ${datasetFields.length + 1}`,
+                    data: Array(labelFields.length).fill(0),
+                    backgroundColor: '',
+                    borderColor: '',
+                    borderWidth: 1
+                  })}
+                >
+                  Adicionar Série
+                </Button>
+              </div>
+              
+              <div className="space-y-4 max-h-80 overflow-y-auto p-2 border rounded-md">
+                {datasetFields.map((dataset, datasetIndex) => (
+                  <Card key={dataset.id} className="overflow-hidden">
+                    <CardContent className="p-4 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <FormField
+                          control={form.control}
+                          name={`chartData.datasets.${datasetIndex}.label`}
+                          render={({ field }) => (
+                            <FormItem className="flex-1 m-0">
+                              <FormControl>
+                                <Input placeholder="Nome da série" {...field} />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeDataset(datasetIndex)}
+                          disabled={datasetFields.length <= 1}
+                          className="ml-2"
+                        >
+                          Remover
+                        </Button>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name={`chartData.datasets.${datasetIndex}.backgroundColor`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Cor de Fundo</FormLabel>
+                              <div className="flex items-center gap-2">
+                                <FormControl>
+                                  <Input 
+                                    type="color" 
+                                    {...field} 
+                                    value={field.value || '#4CAF50'}
+                                  />
+                                </FormControl>
+                                <div 
+                                  className="h-9 w-9 rounded-md border" 
+                                  style={{ backgroundColor: field.value || '#4CAF50' }}
+                                />
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name={`chartData.datasets.${datasetIndex}.borderColor`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Cor da Borda</FormLabel>
+                              <div className="flex items-center gap-2">
+                                <FormControl>
+                                  <Input 
+                                    type="color" 
+                                    {...field} 
+                                    value={field.value || '#388E3C'}
+                                  />
+                                </FormControl>
+                                <div 
+                                  className="h-9 w-9 rounded-md border" 
+                                  style={{ backgroundColor: field.value || '#388E3C' }}
+                                />
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      
+                      <div>
+                        <FormLabel>Valores para cada rótulo</FormLabel>
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                          {labelFields.map((label, labelIndex) => (
+                            <FormField
+                              key={label.id}
+                              control={form.control}
+                              name={`chartData.datasets.${datasetIndex}.data.${labelIndex}`}
+                              render={({ field }) => (
+                                <FormItem className="m-0">
+                                  <div className="flex items-center">
+                                    <span className="w-16 text-sm truncate pr-2">
+                                      {form.watch(`chartData.labels.${labelIndex}`) || `Rótulo ${labelIndex + 1}`}:
+                                    </span>
+                                    <FormControl>
+                                      <Input 
+                                        type="number" 
+                                        step="0.01"
+                                        {...field}
+                                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                                        value={field.value !== undefined ? field.value : 0}
+                                      />
+                                    </FormControl>
+                                  </div>
+                                </FormItem>
+                              )}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col md:flex-row gap-4 justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={previewChart}
+          >
+            Pré-visualizar Gráfico
+          </Button>
+          
+          <Button 
+            type="submit"
+            disabled={mutation.isPending}
+          >
+            {mutation.isPending ? 'Salvando...' : isEdit ? 'Atualizar Gráfico' : 'Criar Gráfico'}
+          </Button>
+        </div>
+        
+        {previewData && (
+          <Card className="mt-6">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-medium mb-2">Pré-visualização</h3>
+              <div className="h-[350px] w-full">
+                {React.createElement(ChartComponent, {
+                  chartType: previewData.chartType,
+                  chartData: previewData.chartData
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </form>
+    </Form>
   );
 };
 
