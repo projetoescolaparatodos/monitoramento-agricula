@@ -24,6 +24,8 @@ import {
 } from "../ui/dialog";
 import { apiRequest, queryClient } from "../../lib/queryClient";
 import { useToast } from "../../hooks/use-toast";
+import { db } from '../../utils/firebase';
+import { doc, deleteDoc } from "firebase/firestore";
 
 interface ChartListProps {
   onEdit: (id: number) => void;
