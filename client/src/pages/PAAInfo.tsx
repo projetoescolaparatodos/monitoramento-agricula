@@ -2,13 +2,13 @@
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/utils/firebase";
 import { useQuery } from "@tanstack/react-query";
-import { useLocation } from "wouter";
 import Footer from "@/components/layout/Footer";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Map } from "lucide-react";
-import DataVisualizationSection from "@/components/paa/DataVisualizationSection";
+import { useLocation } from "wouter";
+import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
 
 const PAAInfo = () => {
   const [, setLocation] = useLocation();
@@ -24,12 +24,17 @@ const PAAInfo = () => {
 
   const { data: charts, isLoading: isLoadingCharts } = useQuery<ChartItem[]>({
     queryKey: ["charts", "paa"],
-    queryFn: () =>
-      getDocs(
-        query(collection(db, "charts"), where("pageType", "==", "paa")),
-      ).then((snapshot) =>
-        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
-      ),
+    queryFn: async () => {
+      const chartsQuery = query(
+        collection(db, "charts"),
+        where("pageType", "==", "paa")
+      );
+      const snapshot = await getDocs(chartsQuery);
+      return snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    },
   });
 
   const { data: mediaItems, isLoading: isLoadingMedia } = useQuery<MediaItem[]>({
@@ -56,9 +61,9 @@ const PAAInfo = () => {
         </div>
         <main className="space-y-12">
           <div className="prose max-w-none">
-            <h1 className="text-4xl font-bold text-center mb-4">Programa de Aquisição de Alimentos (PAA)</h1>
+            <h1 className="text-4xl font-bold text-center mb-4">PAA</h1>
             <p className="text-center text-lg text-muted-foreground">
-              Informações e dados sobre o PAA
+              Informações e dados sobre o Programa de Aquisição de Alimentos
             </p>
           </div>
 

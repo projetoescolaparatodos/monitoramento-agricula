@@ -2,13 +2,13 @@
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/utils/firebase";
 import { useQuery } from "@tanstack/react-query";
-import { useLocation } from "wouter";
 import Footer from "@/components/layout/Footer";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Map } from "lucide-react";
-import DataVisualizationSection from "@/components/fishing/DataVisualizationSection";
+import { useLocation } from "wouter";
+import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
 
 const Fishing = () => {
   const [, setLocation] = useLocation();
@@ -24,12 +24,17 @@ const Fishing = () => {
 
   const { data: charts, isLoading: isLoadingCharts } = useQuery<ChartItem[]>({
     queryKey: ["charts", "fishing"],
-    queryFn: () =>
-      getDocs(
-        query(collection(db, "charts"), where("pageType", "==", "fishing")),
-      ).then((snapshot) =>
-        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
-      ),
+    queryFn: async () => {
+      const chartsQuery = query(
+        collection(db, "charts"),
+        where("pageType", "==", "fishing")
+      );
+      const snapshot = await getDocs(chartsQuery);
+      return snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    },
   });
 
   const { data: mediaItems, isLoading: isLoadingMedia } = useQuery<MediaItem[]>({
@@ -58,7 +63,7 @@ const Fishing = () => {
           <div className="prose max-w-none">
             <h1 className="text-4xl font-bold text-center mb-4">Pesca</h1>
             <p className="text-center text-lg text-muted-foreground">
-              Informações e dados sobre a atividade pesqueira
+              Informações e dados sobre a pesca local
             </p>
           </div>
 
