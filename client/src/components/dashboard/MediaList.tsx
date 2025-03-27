@@ -15,7 +15,7 @@ import {
 } from "../ui/dialog";
 import { apiRequest, queryClient } from "../../lib/queryClient";
 import { useToast } from "../../hooks/use-toast";
-import { db } from '../../lib/firebase';
+import { db } from '../../utils/firebase';
 import { doc, deleteDoc } from "firebase/firestore";
 
 
