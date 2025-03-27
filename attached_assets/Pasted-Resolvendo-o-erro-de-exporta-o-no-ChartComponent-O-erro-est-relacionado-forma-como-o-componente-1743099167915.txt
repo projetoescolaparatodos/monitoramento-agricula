@@ -1,0 +1,122 @@
+Resolvendo o erro de exportação no ChartComponent
+O erro está relacionado à forma como o componente ChartComponent está sendo exportado na linha 165 do arquivo client/src/components/common/ChartComponent.tsx. Parece haver um problema de conflito entre diferentes tipos de exportação.
+
+Possíveis problemas e soluções:
+1. Conflito entre exportações padrão e nomeadas
+Se o arquivo já está exportando o componente usando uma exportação nomeada (export const ChartComponent), você não pode também ter uma exportação padrão (export default) do mesmo componente.
+
+Solução:
+
+Primeiro, verifique como o componente está sendo exportado no arquivo:
+
+Se já existir uma exportação nomeada:
+// client/src/components/common/ChartComponent.tsx
+export const ChartComponent: React.FC<ChartComponentProps> = ({ chartType, chartData }) => {
+  // ...implementação
+};
+// Remova a linha com o erro:
+// export default ChartComponent; ← REMOVER ESTA LINHA
+Se preferir usar exportação padrão:
+// client/src/components/common/ChartComponent.tsx
+const ChartComponent: React.FC<ChartComponentProps> = ({ chartType, chartData }) => {
+  // ...implementação
+};
+export default ChartComponent;
+2. Importações incorretas em outros componentes
+Verifique como o componente está sendo importado em outros arquivos:
+
+Se estiver usando exportação nomeada:
+// Em outros arquivos que usam o componente
+import { ChartComponent } from "@/components/common/ChartComponent";
+Se estiver usando exportação padrão:
+// Em outros arquivos que usam o componente
+import ChartComponent from "@/components/common/ChartComponent";
+3. Solução "Dois em um" (suporta ambos os tipos de importação)
+Uma solução versátil é usar uma abordagem que permite ambos os tipos de importação:
+
+// client/src/components/common/ChartComponent.tsx
+// Definir o componente sem export inicialmente
+const ChartComponent: React.FC<ChartComponentProps> = ({ chartType, chartData }) => {
+  // ...implementação
+};
+// Exportar como nomeada
+export { ChartComponent };
+// E também como padrão
+export default ChartComponent;
+Implementação prática:
+Aqui está uma versão completa corrigida do ChartComponent:
+
+// client/src/components/common/ChartComponent.tsx
+import React from 'react';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, BarElement } from 'chart.js';
+import { Bar, Line, Pie } from 'react-chartjs-2';
+// Registrar os componentes necessários do Chart.js
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, BarElement);
+interface ChartComponentProps {
+  chartType: string;
+  chartData: {
+    labels: string[];
+    datasets: {
+      label?: string;
+      data: number[];
+      backgroundColor?: string | string[];
+      borderColor?: string | string[];
+      borderWidth?: number;
+    }[];
+  };
+}
+// Definir o componente sem 'export' inicialmente
+const ChartComponent: React.FC<ChartComponentProps> = ({ chartType, chartData }) => {
+  // Log para debug
+  console.log(`Renderizando gráfico tipo ${chartType} com dados:`, chartData);
+  
+  // Opções padrão
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      tooltip: {
+        enabled: true,
+      },
+    },
+  };
+  // Renderizar diferentes tipos de gráficos
+  switch (chartType.toLowerCase()) {
+    case 'bar':
+      return <div style={{ height: '300px' }}><Bar data={chartData} options={options} /></div>;
+    case 'line':
+      return <div style={{ height: '300px' }}><Line data={chartData} options={options} /></div>;
+    case 'pie':
+      return <div style={{ height: '300px' }}><Pie data={chartData} options={options} /></div>;
+    default:
+      console.warn(`Tipo de gráfico não suportado: ${chartType}`);
+      return (
+        <div className="p-4 text-center bg-gray-100 rounded-lg">
+          <p>Tipo de gráfico não suportado: {chartType}</p>
+        </div>
+      );
+  }
+};
+// Exportar como nomeada para suportar: import { ChartComponent } from "..."
+export { ChartComponent };
+// Também exportar como padrão para suportar: import ChartComponent from "..."
+export default ChartComponent;
+Verificação Adicional
+Se o problema persistir, verifique também:
+
+Se o componente está sendo usado corretamente no InfoPage:
+// client/src/components/common/InfoPage.tsx
+// Certifique-se de importar com o método certo:
+import { ChartComponent } from "@/components/common/ChartComponent";
+// OU
+import ChartComponent from "@/components/common/ChartComponent";
+Se há conflitos de nomes ou tipos entre as diferentes versões:
+// Se estiver declarado duas vezes de formas diferentes:
+export const ChartComponent = (...) => { ... }
+// E em outro lugar:
+const ChartComponent = (...) => { ... }
+export default ChartComponent;
+Esta abordagem deve resolver o problema de exportação e permitir que seu ChartComponent seja importado corretamente em todos os lugares onde é necessário.
