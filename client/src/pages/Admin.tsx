@@ -275,13 +275,6 @@ const AgriculturaForm = () => {
         <CardHeader>
           <CardTitle className="flex justify-between items-center">
             Gerenciar Agricultura
-            <Button
-              variant="outline"
-              className="ml-2"
-              onClick={() => setLocation("/gestor/login")}
-            >
-              Área do Gestor
-            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -943,7 +936,7 @@ const PAAForm = () => {
         }));
         setPaaLocaisCadastrados(paaData);
       } catch (error) {
-        console.error("Erro ao buscar dados do PAA:", error);
+        console.error(""Erro ao buscar dados do PAA:", error);
         toast({
           title: "Erro",
           description: "Não foi possível carregar os dados do PAA.",
@@ -1295,6 +1288,19 @@ const PAAForm = () => {
 };
 
 const Admin = () => {
+  const [showManagerButton, setShowManagerButton] = useState(false);
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.key === "m") {
+        setShowManagerButton(true);
+        setTimeout(() => setShowManagerButton(false), 5000); // Hide after 5 seconds
+      }
+    };
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, []);
+
   return (
     <div className="container mx-auto px-4 py-20">
       <Tabs defaultValue="agricultura">
@@ -1316,6 +1322,9 @@ const Admin = () => {
           <PAAForm />
         </TabsContent>
       </Tabs>
+      {showManagerButton && (
+        <Button onClick={() => window.location.href = "/gestor/login"}>Área do Gestor</Button>
+      )}
     </div>
   );
 };
