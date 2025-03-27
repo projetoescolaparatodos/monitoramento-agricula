@@ -434,7 +434,7 @@ const ChartForm: React.FC<ChartFormProps> = ({
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
-                        {isAreaChart ? (
+                        {(['pie', 'doughnut', 'polarArea'].includes(form.watch('chartType'))) ? (
                           <div className="space-y-4 mt-4">
                             <div className="flex items-center justify-between">
                               <FormLabel>Cores das fatias</FormLabel>
