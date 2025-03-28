@@ -14,9 +14,7 @@ const MediaGallerySection = () => {
   return (
     <section className="mb-16">
       <div className="text-center mb-10">
-        <h2 className="text-2xl md:text-3xl font-heading font-bold text-secondary mb-2">
-          Galeria de Mídia
-        </h2>
+        {/* Removed duplicate title */}
         <p className="text-neutral max-w-3xl mx-auto">
           Imagens e vídeos sobre atividades agrícolas no Brasil
         </p>
