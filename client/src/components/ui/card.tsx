@@ -8,8 +8,8 @@ const cardVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-white border-gray-200",
-        transparent: "bg-green-50/70 backdrop-blur-sm border-green-100/50",
+        default: "bg-white/90 backdrop-blur-sm border-gray-200",
+        transparent: "bg-green-50/85 backdrop-blur-sm border-green-100/50",
       },
     },
     defaultVariants: {
