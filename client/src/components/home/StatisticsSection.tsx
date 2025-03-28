@@ -9,10 +9,10 @@ const StatisticsSection = () => {
   return (
     <section id="estatisticas" className="mb-16">
       <div className="text-center mb-10">
-        <h2 className="text-2xl md:text-3xl font-heading font-bold text-secondary mb-2">Estatísticas Principais</h2>
+        {/* Removed duplicate title */}
         <p className="text-neutral max-w-3xl mx-auto">Dados atualizados sobre a produção no Brasil</p>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {isLoading ? (
           // Loading skeleton
