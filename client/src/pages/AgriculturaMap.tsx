@@ -265,7 +265,7 @@ const AgriculturaMap = () => {
             key={trator.id}
             position={{ lat: trator.latitude, lng: trator.longitude }}
             icon={{
-              url: trator.concluido ? "/marker-done.png" : "/trator-icon.png",
+              url: trator.concluido ? "/trator-icon.png" : "/trator-service-icon.png",
               scaledSize: new window.google.maps.Size(40, 40),
               anchor: new window.google.maps.Point(20, 40),
             }}
