@@ -47,7 +47,7 @@ const AreasSection = () => {
 const Home = () => {
   return (
     <>
-      <BackgroundVideo videoPath="/videos/background.mp4" opacity={0.2} />
+      <BackgroundVideo videoPath="/videos/BackgroundVideo.mp4" opacity={0.2} />
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
         <HeroSection />
         <section id="estatisticas" className="py-12 bg-gray-50">

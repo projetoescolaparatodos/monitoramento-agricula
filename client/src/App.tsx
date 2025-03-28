@@ -60,7 +60,6 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BackgroundVideo /> {/* Added BackgroundVideo component */}
       <Router />
       <Toaster />
     </QueryClientProvider>
