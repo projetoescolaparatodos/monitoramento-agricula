@@ -1,13 +1,31 @@
-import { useQuery } from "@tanstack/react-query";
-import { ChartItem } from "@/types";
-import { Link } from "wouter";
-import ChartComponent from "@/components/common/ChartComponent";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ChartComponent } from "@/components/common/ChartComponent";
+import { ChartItem } from "@/types";
 
-const DataVisualizationSection = () => {
-  const { data: charts, isLoading } = useQuery<ChartItem[]>({
-    queryKey: ['/api/charts?pageType=home'],
-  });
+export const DataVisualizationSection = () => {
+  const [charts, setCharts] = useState<ChartItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCharts = async () => {
+      try {
+        const response = await fetch('/api/charts?pageType=home');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setCharts(data);
+      } catch (error) {
+        console.error("Error fetching charts:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCharts();
+  }, []);
 
   return (
     <section className="mb-16">
@@ -19,10 +37,9 @@ const DataVisualizationSection = () => {
           Gráficos interativos sobre agricultura, pesca e PAA
         </p>
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {isLoading ? (
-          // Loading skeletons
           Array(4).fill(0).map((_, index) => (
             <div key={index} className="bg-white rounded-lg shadow-md p-6">
               <Skeleton className="h-6 w-2/3 mb-4" />
@@ -44,16 +61,6 @@ const DataVisualizationSection = () => {
           ))
         )}
       </div>
-      
-      <div className="text-center mt-8">
-        <Link href="/agriculture">
-          <a className="inline-block bg-secondary hover:bg-secondary/90 text-white font-semibold px-6 py-3 rounded-md transition-colors">
-            Ver mais análises e gráficos
-          </a>
-        </Link>
-      </div>
     </section>
   );
 };
-
-export default DataVisualizationSection;

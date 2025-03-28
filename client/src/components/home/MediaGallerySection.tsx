@@ -1,15 +1,30 @@
-import { useQuery } from "@tanstack/react-query";
-import { MediaItem } from "@/types";
-import { Link } from "wouter";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useState, useEffect } from 'react';
+import { Link } from "react-router-dom";
 
-const MediaGallerySection = () => {
-  const { data: mediaItems, isLoading } = useQuery<MediaItem[]>({
-    queryKey: ['/api/media-items'],
-  });
+export const MediaGallerySection = () => {
+  const [mediaItems, setMediaItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Limit to 4 items for homepage display
-  const displayItems = mediaItems?.slice(0, 4);
+  useEffect(() => {
+    // Fetch media items here.  This is a placeholder; replace with your actual API call.
+    const fetchMediaItems = async () => {
+      try {
+        const response = await fetch('/api/media-items');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setMediaItems(data);
+      } catch (error) {
+        console.error("Error fetching media items:", error);
+        // Handle error appropriately, e.g., display an error message
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMediaItems();
+  }, []);
 
   return (
     <section className="mb-16">
@@ -18,33 +33,25 @@ const MediaGallerySection = () => {
           Galeria de Mídia
         </h2>
         <p className="text-neutral max-w-3xl mx-auto">
-          Imagens e vídeos sobre atividades agrícolas no Brasil
+          Fotos e vídeos dos projetos em andamento
         </p>
       </div>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {isLoading ? (
-          // Loading skeletons
-          Array(4).fill(0).map((_, index) => (
-            <div key={index} className="relative overflow-hidden rounded-lg shadow h-48">
-              <Skeleton className="w-full h-full" />
-            </div>
-          ))
-        ) : displayItems?.length ? (
-          displayItems.map((item) => (
-            <div key={item.id} className="relative overflow-hidden rounded-lg shadow group h-48">
-              <img 
-                src={item.mediaUrl} 
-                alt={item.title} 
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
-                <div className="p-4 text-white">
-                  <h4 className="font-heading font-semibold">{item.title}</h4>
-                  {item.description && (
-                    <p className="text-xs opacity-80">{item.description}</p>
-                  )}
-                </div>
+          <div className="col-span-4 text-center py-12 bg-white rounded-lg shadow">
+            <p className="text-neutral-dark">Carregando...</p>
+          </div>
+        ) : mediaItems.length > 0 ? (
+          mediaItems.map((item) => (
+            <div key={item.id} className="bg-white rounded-lg shadow overflow-hidden">
+              {item.type === 'video' ? (
+                <video src={item.url} controls className="w-full h-48 object-cover" />
+              ) : (
+                <img src={item.url} alt={item.description} className="w-full h-48 object-cover" />
+              )}
+              <div className="p-4">
+                <p className="text-sm text-gray-600">{item.description}</p>
               </div>
             </div>
           ))
@@ -54,16 +61,6 @@ const MediaGallerySection = () => {
           </div>
         )}
       </div>
-      
-      <div className="text-center mt-8">
-        <Link href="/agriculture">
-          <a className="inline-block bg-secondary hover:bg-secondary/90 text-white font-semibold px-6 py-3 rounded-md transition-colors">
-            Ver galeria completa
-          </a>
-        </Link>
-      </div>
     </section>
   );
 };
-
-export default MediaGallerySection;
