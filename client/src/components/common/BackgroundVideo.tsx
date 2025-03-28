@@ -1,5 +1,6 @@
 
 import React, { useEffect, useRef } from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface BackgroundVideoProps {
   videoPath?: string;
@@ -11,31 +12,34 @@ const BackgroundVideo: React.FC<BackgroundVideoProps> = ({
   opacity = 0.3 
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    // Recupera o tempo salvo ou inicia do zero
     const savedTime = localStorage.getItem('backgroundVideoTime');
     if (savedTime) {
       video.currentTime = parseFloat(savedTime);
     }
 
-    // Função para salvar o tempo
     const saveTime = () => {
       localStorage.setItem('backgroundVideoTime', video.currentTime.toString());
     };
 
-    // Salva o tempo periodicamente
     const interval = setInterval(saveTime, 1000);
     
-    // Salva o tempo também quando o componente é desmontado
     return () => {
       clearInterval(interval);
       saveTime();
     };
   }, []);
+
+  if (isMobile) {
+    return (
+      <div className="fixed top-0 left-0 w-full h-full z-[-1] bg-gradient-to-b from-green-900/20 to-black/20"></div>
+    );
+  }
 
   return (
     <div className="fixed top-0 left-0 w-full h-full overflow-hidden z-[-1]">
@@ -51,7 +55,6 @@ const BackgroundVideo: React.FC<BackgroundVideoProps> = ({
         <source src={videoPath} type="video/mp4" />
         Seu navegador não suporta vídeos HTML5.
       </video>
-      {/* Overlay para controlar melhor a opacidade e garantir visibilidade do conteúdo */}
       <div className="absolute top-0 left-0 w-full h-full bg-black opacity-30"></div>
     </div>
   );

@@ -11,3 +11,7 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+.content-over-video {
+  position: relative;
+  z-index: 10;
+}
