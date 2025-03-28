@@ -11,7 +11,14 @@ const DataVisualizationSection = () => {
 
   return (
     <section className="mb-16">
-      
+      <div className="text-center mb-10">
+        <h2 className="text-2xl md:text-3xl font-heading font-bold text-secondary mb-2">
+          Visualização de Dados
+        </h2>
+        <p className="text-neutral max-w-3xl mx-auto">
+          Gráficos interativos sobre agricultura, pesca e PAA
+        </p>
+      </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {isLoading ? (

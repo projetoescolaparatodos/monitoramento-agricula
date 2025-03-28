@@ -9,7 +9,7 @@ const StatisticsSection = () => {
   return (
     <section id="estatisticas" className="mb-16">
       <div className="text-center mb-10">
-        {/* Removed duplicate title */}
+        <h2 className="text-2xl md:text-3xl font-heading font-bold text-secondary mb-2">Estatísticas Principais</h2>
         <p className="text-neutral max-w-3xl mx-auto">Dados atualizados sobre a produção no Brasil</p>
       </div>
 
