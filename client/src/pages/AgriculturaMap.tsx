@@ -265,28 +265,11 @@ const AgriculturaMap = () => {
             key={trator.id}
             position={{ lat: trator.latitude, lng: trator.longitude }}
             onClick={() => setSelectedMarker(trator)}
-          >
-            {!trator.concluido && (
-              <div style={{ position: 'absolute', transform: 'translate(-50%, -50%)' }}>
-                <dotlottie-player
-                  src="https://lottie.host/5c7f4a19-672d-43f3-a52a-346f5c20b648/VHbbGD0Olb.lottie"
-                  background="transparent"
-                  speed="1"
-                  style={{ width: '60px', height: '60px' }}
-                  loop
-                  autoplay
-                />
-              </div>
-            )}
-            {trator.concluido && (
-              <div style={{ position: 'absolute', transform: 'translate(-50%, -50%)' }}>
-                <img 
-                  src="/trator-icon.png" 
-                  alt="Trator" 
-                  style={{ width: '40px', height: '40px' }} 
-                />
-              </div>
-            )}
+            icon={{
+              url: trator.concluido ? "/trator-icon.png" : "/trator-service-icon.gif",
+              scaledSize: new window.google.maps.Size(40, 40),
+              anchor: new window.google.maps.Point(20, 20),
+            }}
           />
         ))}
         {selectedMarker && renderInfoWindow(selectedMarker)}
