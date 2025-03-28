@@ -20,6 +20,7 @@ import { auth } from "./utils/firebase";
 import FishingInfo from "@/pages/FishingInfo";
 import AgricultureMap from "@/pages/AgriculturaMap";
 import AgricultureInfo from "./pages/AgricultureInfo"; // Added import
+import BackgroundVideo from "./components/ui/BackgroundVideo"; // Added import
 
 
 function Router() {
@@ -59,6 +60,7 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <BackgroundVideo /> {/* Added BackgroundVideo component */}
       <Router />
       <Toaster />
     </QueryClientProvider>
