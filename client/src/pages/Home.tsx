@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "wouter";
 import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/home/HeroSection";
 import StatisticsSection from "@/components/home/StatisticsSection";
