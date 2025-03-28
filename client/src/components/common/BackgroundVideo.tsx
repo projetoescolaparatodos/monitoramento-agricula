@@ -49,7 +49,7 @@ const BackgroundVideo: React.FC<BackgroundVideoProps> = ({
         muted
         loop
         playsInline
-        className="absolute top-0 left-0 min-w-full min-h-full w-auto h-auto object-cover"
+        className="absolute top-0 left-0 w-full h-full object-cover"
         style={{ opacity }}
       >
         <source src={videoPath} type="video/mp4" />
