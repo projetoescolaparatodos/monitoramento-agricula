@@ -265,9 +265,9 @@ const AgriculturaMap = () => {
             key={trator.id}
             position={{ lat: trator.latitude, lng: trator.longitude }}
             icon={{
-              url: trator.concluido ? "/marker-done.png" : "https://lottie.host/5c7f4a19-672d-43f3-a52a-346f5c20b648/VHbbGD0Olb.lottie",
-              scaledSize: { width: 40, height: 40 },
-              //anchor: { x: 20, y: 40 }, //Consider adjusting anchor for Lottie
+              url: trator.concluido ? "/marker-done.png" : "/trator-icon.png",
+              scaledSize: new window.google.maps.Size(40, 40),
+              anchor: new window.google.maps.Point(20, 40),
             }}
             onClick={() => setSelectedMarker(trator)}
           />
