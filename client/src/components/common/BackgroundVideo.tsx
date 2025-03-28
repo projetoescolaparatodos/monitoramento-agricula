@@ -15,8 +15,18 @@ const BackgroundVideo: React.FC<BackgroundVideoProps> = ({
   const isMobile = useIsMobile();
 
   useEffect(() => {
+    console.log("Tentando carregar vídeo de:", videoPath);
+    
     const video = videoRef.current;
     if (!video) return;
+
+    video.addEventListener('error', (e) => {
+      console.error("Erro ao carregar vídeo:", e);
+    });
+    
+    video.addEventListener('loadeddata', () => {
+      console.log("Vídeo carregado com sucesso!");
+    });
 
     const savedTime = localStorage.getItem('backgroundVideoTime');
     if (savedTime) {
@@ -33,16 +43,16 @@ const BackgroundVideo: React.FC<BackgroundVideoProps> = ({
       clearInterval(interval);
       saveTime();
     };
-  }, []);
+  }, [videoPath]);
 
   if (isMobile) {
     return (
-      <div className="fixed top-0 left-0 w-full h-full z-[-1] bg-gradient-to-b from-green-900/20 to-black/20"></div>
+      <div className="fixed top-0 left-0 w-full h-full z-0 bg-gradient-to-b from-green-900/20 to-black/20" />
     );
   }
 
   return (
-    <div className="fixed top-0 left-0 w-full h-full overflow-hidden z-[-1]">
+    <div className="fixed top-0 left-0 w-full h-full overflow-hidden" style={{ zIndex: 0 }}>
       <video
         ref={videoRef}
         autoPlay
@@ -55,7 +65,7 @@ const BackgroundVideo: React.FC<BackgroundVideoProps> = ({
         <source src={videoPath} type="video/mp4" />
         Seu navegador não suporta vídeos HTML5.
       </video>
-      <div className="absolute top-0 left-0 w-full h-full bg-black opacity-30"></div>
+      <div className="absolute top-0 left-0 w-full h-full bg-black" style={{ opacity: 0.3 }} />
     </div>
   );
 };
