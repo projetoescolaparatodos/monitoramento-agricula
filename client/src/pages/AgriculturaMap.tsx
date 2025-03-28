@@ -7,7 +7,7 @@ import {
   MarkerF,
   InfoWindow,
 } from "@react-google-maps/api";
-import { Loader2, X } from "lucide-react"; // Importando o ícone de fechar
+import { Loader2, X } from "lucide-react"; 
 import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -124,7 +124,6 @@ const AgriculturaMap = () => {
           <div
             className={`p-4 ${isMaximized ? "maximized" : ""} popup-content`}
           >
-            {/* Botão de Fechar */}
             <button
               onClick={() => {
                 setSelectedMarker(null);
@@ -132,7 +131,7 @@ const AgriculturaMap = () => {
               }}
               className="absolute top-2 right-2 bg-gray-100 hover:bg-gray-200 rounded-full p-2"
             >
-              <X className="h-4 w-4" /> {/* Ícone de fechar */}
+              <X className="h-4 w-4" /> 
             </button>
 
             <div className="text-content">
@@ -266,9 +265,9 @@ const AgriculturaMap = () => {
             key={trator.id}
             position={{ lat: trator.latitude, lng: trator.longitude }}
             icon={{
-              url: "/trator-icon.png",
-              scaledSize: { width: 32, height: 32 },
-              anchor: { x: 16, y: 32 },
+              url: trator.concluido ? "/marker-done.png" : "https://lottie.host/5c7f4a19-672d-43f3-a52a-346f5c20b648/VHbbGD0Olb.lottie",
+              scaledSize: { width: 40, height: 40 },
+              //anchor: { x: 20, y: 40 }, //Consider adjusting anchor for Lottie
             }}
             onClick={() => setSelectedMarker(trator)}
           />
