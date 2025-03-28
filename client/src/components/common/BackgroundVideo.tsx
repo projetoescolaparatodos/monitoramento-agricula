@@ -2,12 +2,12 @@
 import React, { useEffect, useRef } from 'react';
 
 interface BackgroundVideoProps {
-  videoPath: string;
+  videoPath?: string;
   opacity?: number;
 }
 
 const BackgroundVideo: React.FC<BackgroundVideoProps> = ({ 
-  videoPath, 
+  videoPath = "/videos/BackgroundVideo.mp4",
   opacity = 0.3 
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);

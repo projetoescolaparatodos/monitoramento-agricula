@@ -20,7 +20,7 @@ const BackgroundVideo = () => {
         playsInline
         className="absolute min-w-full min-h-full object-cover opacity-20"
       >
-        <source src="/videos/background.mp4" type="video/mp4" />
+        <source src="/videos/BackgroundVideo.mp4" type="video/mp4" />
       </video>
     </div>
   );
