@@ -1,4 +1,3 @@
-
 import "@dotlottie/player-component";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
