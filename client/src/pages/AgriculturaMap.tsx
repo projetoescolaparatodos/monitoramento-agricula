@@ -270,12 +270,12 @@ const AgriculturaMap = () => {
             icon={{
               url: trator.concluido ? "/trator-icon.png" : "/giftrator.gif",
               scaledSize: new window.google.maps.Size(
-                trator.concluido ? 55 : 70,
-                trator.concluido ? 55 : 70
+                trator.concluido ? 40 : 80,
+                trator.concluido ? 40 : 80
               ),
               anchor: new window.google.maps.Point(
-                trator.concluido ? 27.5 : 35,
-                trator.concluido ? 27.5 : 35
+                trator.concluido ? 20 : 40,
+                trator.concluido ? 20 : 40
               ),
             }}
           />
