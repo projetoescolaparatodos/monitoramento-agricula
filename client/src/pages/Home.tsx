@@ -50,21 +50,21 @@ const Home = () => {
       <BackgroundVideo videoPath="/videos/BackgroundVideo.mp4" opacity={0.2} />
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
         <HeroSection />
-        <section id="estatisticas" className="py-12 bg-gray-50">
-          <h2 className="text-3xl font-bold text-center mb-8 text-black">Estatísticas Principais</h2>
-          <StatisticsSection />
+        <section id="estatisticas" className="py-12">
+          <h2 className="text-3xl font-bold text-center mb-8 text-white">Estatísticas Principais</h2>
+          <StatisticsSection variant="transparent" />
         </section>
         <section id="areas" className="py-12">
-          <h2 className="text-3xl font-bold text-center mb-8 text-black">Áreas de Atuação</h2>
-          <AreasSection />
+          <h2 className="text-3xl font-bold text-center mb-8 text-white">Áreas de Atuação</h2>
+          <AreasSection variant="transparent" />
         </section>
         <section id="visualization" className="py-12">
-          <h2 className="text-3xl font-bold text-center mb-8 text-black">Visualização de Dados</h2>
-          <DataVisualizationSection />
+          <h2 className="text-3xl font-bold text-center mb-8 text-white">Visualização de Dados</h2>
+          <DataVisualizationSection variant="transparent" />
         </section>
-        <section id="media" className="py-12 bg-gray-50">
-          <h2 className="text-3xl font-bold text-center mb-8 text-black">Galeria de Mídia</h2>
-          <MediaGallerySection />
+        <section id="media" className="py-12">
+          <h2 className="text-3xl font-bold text-center mb-8 text-white">Galeria de Mídia</h2>
+          <MediaGallerySection variant="transparent" />
         </section>
       </main>
       <Footer />
