@@ -1,8 +1,9 @@
-
+import React from "react";
+import Footer from "@/components/layout/Footer";
+import BackgroundVideo from "@/components/common/BackgroundVideo";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/utils/firebase";
 import { useQuery } from "@tanstack/react-query";
-import Footer from "@/components/layout/Footer";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -49,7 +50,8 @@ const Fishing = () => {
 
   return (
     <>
-      <main className="container mx-auto px-4 pt-28 pb-16">
+      <BackgroundVideo videoPath="/videos/fundo-pesca.mp4" opacity={0.2} />
+      <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
         <div className="flex justify-end mb-6">
           <Button
             onClick={() => setLocation("/fishing/map")}

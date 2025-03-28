@@ -1,4 +1,4 @@
-
+import React from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/utils/firebase";
 import { useQuery } from "@tanstack/react-query";
@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Map } from "lucide-react";
 import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
+import BackgroundVideo from "@/components/common/BackgroundVideo";
 
 const PAAInfo = () => {
   const [, setLocation] = useLocation();
@@ -49,7 +50,8 @@ const PAAInfo = () => {
 
   return (
     <>
-      <main className="container mx-auto px-4 pt-28 pb-16">
+      <BackgroundVideo videoPath="/videos/fundo-paa.mp4" opacity={0.2} />
+      <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
         <div className="flex justify-end mb-6">
           <Button
             onClick={() => setLocation("/paa/map")}

@@ -1,19 +1,15 @@
+import React from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/utils/firebase";
 import { useQuery } from "@tanstack/react-query";
 import Footer from "@/components/layout/Footer";
+import BackgroundVideo from "@/components/common/BackgroundVideo";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
-import InfoPage from "@/components/common/InfoPage";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Map } from "lucide-react";
 import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
-
-// Placeholder components -  These need to be implemented separately.
-const StatisticsSection = () => <div>Statistics Section Placeholder</div>;
-const MediaGallerySection = () => <div>Media Gallery Section Placeholder</div>;
-
 
 const Agriculture = () => {
   const { data: contents, isLoading: isLoadingContents } = useQuery<
@@ -152,7 +148,8 @@ const Agriculture = () => {
 
   return (
     <>
-      <main className="container mx-auto px-4 pt-28 pb-16">
+      <BackgroundVideo videoPath="/videos/fundo-agricultura.mp4" opacity={0.2} />
+      <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
         <div className="flex justify-end mb-6">
           <Button
             onClick={() => setLocation("/agriculture/map")}

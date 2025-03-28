@@ -1,10 +1,10 @@
-
+import React from "react";
 import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/home/HeroSection";
 import StatisticsSection from "@/components/home/StatisticsSection";
 import DataVisualizationSection from "@/components/home/DataVisualizationSection";
 import MediaGallerySection from "@/components/home/MediaGallerySection";
-import { Link } from "wouter";
+import BackgroundVideo from "@/components/common/BackgroundVideo";
 
 const AreasSection = () => {
   return (
@@ -46,7 +46,8 @@ const AreasSection = () => {
 const Home = () => {
   return (
     <>
-      <main className="container mx-auto px-4 pt-28 pb-16">
+      <BackgroundVideo videoPath="/videos/background.mp4" opacity={0.2} />
+      <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
         <HeroSection />
         <section id="estatisticas" className="py-12 bg-gray-50">
           <h2 className="text-3xl font-bold text-center mb-8 text-black">Estatísticas Principais</h2>
