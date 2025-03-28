@@ -46,12 +46,7 @@ const DataVisualizationSection = () => {
       </div>
       
       <div className="text-center mt-8">
-        <Link href="/agriculture">
-          <a className="inline-block bg-secondary hover:bg-secondary/90 text-white font-semibold px-6 py-3 rounded-md transition-colors">
-            Ver mais análises e gráficos
-          </a>
-        </Link>
-      </div>
+        </div>
     </section>
   );
 };
