@@ -7,7 +7,7 @@ import Fishing from '@/pages/Fishing';
 import PAAInfo from '@/pages/PAAInfo';
 import AgricultureMap from '@/pages/AgriculturaMap';
 import Admin from '@/pages/Admin';
-import Gestor from '@/pages/Gestor';
+import Gestor from './pages/Gestor';
 
 function App() {
   const [location] = useLocation();
