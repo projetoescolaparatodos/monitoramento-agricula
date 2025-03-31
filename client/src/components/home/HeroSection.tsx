@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { ContentItem } from "@/types";
 import { Link } from "wouter";
@@ -14,14 +15,12 @@ const HeroSection = () => {
       <div className="bg-green-700 rounded-lg overflow-hidden shadow-lg h-[800px]">
         <div className="md:flex h-full">
           <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative">
-            <div className="absolute inset-0 flex items-center justify-center opacity-30">
-              {content?.iconUrl && (
-                <img
-                  src={content.iconUrl}
-                  alt="Ícone"
-                  className="w-full h-full object-contain"
-                />
-              )}
+            <div className="absolute inset-0 flex items-center justify-center opacity-10">
+              <img
+                src="/logo.png"
+                alt="SEMAPA Logo"
+                className="w-[80%] h-[80%] object-contain"
+              />
             </div>
             <div className="relative z-10 flex flex-col justify-center items-center h-full px-8">
               {isLoading ? (
@@ -36,14 +35,14 @@ const HeroSection = () => {
                   </p>
                   <div className="flex flex-wrap gap-3 justify-center">
                     <Link href="#areas">
-                      <a className="bg-white text-secondary font-semibold px-6 py-3 rounded-md hover:bg-neutral-light transition-colors">
+                      <button className="bg-white text-secondary font-semibold px-6 py-3 rounded-md hover:bg-neutral-light transition-colors">
                         Explorar áreas
-                      </a>
+                      </button>
                     </Link>
                     <Link href="#estatisticas">
-                      <a className="bg-white/20 text-white font-semibold px-6 py-3 rounded-md hover:bg-white/30 transition-colors">
+                      <button className="bg-white/20 text-white font-semibold px-6 py-3 rounded-md hover:bg-white/30 transition-colors">
                         Ver estatísticas
-                      </a>
+                      </button>
                     </Link>
                   </div>
                 </>
