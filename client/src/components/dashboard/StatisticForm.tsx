@@ -1,11 +1,4 @@
-import React from 'react';
-import { StatisticFormProps } from './StatisticForm.types';
 
-export const StatisticForm = ({ statisticData, isEdit = false, onSuccess }: StatisticFormProps) => {
-  // ... rest of component implementation
-};
-
-export default StatisticForm;
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -133,7 +126,7 @@ const StatisticForm = ({ statisticData, isEdit = false, onSuccess }: StatisticFo
               id="value"
               {...form.register("value")}
               className="mt-1"
-              placeholder="Ex: 1.500"
+              placeholder="Ex: 1500"
             />
             {form.formState.errors.value && (
               <p className="text-sm text-red-500 mt-1">{form.formState.errors.value.message}</p>
@@ -141,7 +134,7 @@ const StatisticForm = ({ statisticData, isEdit = false, onSuccess }: StatisticFo
           </div>
 
           <div>
-            <Label htmlFor="trend">Tendência (opcional)</Label>
+            <Label htmlFor="trend">Tendência</Label>
             <Input
               id="trend"
               {...form.register("trend")}
@@ -151,7 +144,7 @@ const StatisticForm = ({ statisticData, isEdit = false, onSuccess }: StatisticFo
           </div>
 
           <div>
-            <Label htmlFor="trendValue">Valor da Tendência (opcional)</Label>
+            <Label htmlFor="trendValue">Valor da Tendência</Label>
             <Input
               id="trendValue"
               {...form.register("trendValue")}
@@ -161,12 +154,13 @@ const StatisticForm = ({ statisticData, isEdit = false, onSuccess }: StatisticFo
           </div>
 
           <div>
-            <Label htmlFor="order">Ordem de Exibição</Label>
+            <Label htmlFor="order">Ordem</Label>
             <Input
               id="order"
               type="number"
               {...form.register("order", { valueAsNumber: true })}
               className="mt-1"
+              placeholder="Ex: 1"
             />
           </div>
 
