@@ -143,6 +143,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Statistics endpoints
+  app.get('/api/statistics', async (req, res) => {
+    try {
+      const { pageType } = req.query;
+      const statsRef = collection(db, 'statistics');
+      const q = pageType 
+        ? query(statsRef, where('pageType', '==', pageType), where('active', '==', true))
+        : query(statsRef, where('active', '==', true));
+      
+      const querySnapshot = await getDocs(q);
+      const statistics = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      console.log('Fetched statistics:', statistics);
+      res.json(statistics);
+    } catch (error) {
+      console.error('Error fetching statistics:', error);
+      res.status(500).json({ error: true, message: 'Erro ao buscar estatísticas' });
+    }
+  });
+
+  app.post('/api/statistics', async (req, res) => {
+    try {
+      const statData = req.body;
+      const statsRef = collection(db, 'statistics');
+      const docRef = await addDoc(statsRef, {
+        ...statData,
+        createdAt: new Date().toISOString(),
+        active: true
+      });
+      
+      console.log('Created statistic:', { id: docRef.id, ...statData });
+      res.json({ id: docRef.id, ...statData });
+    } catch (error) {
+      console.error('Error creating statistic:', error);
+      res.status(500).json({ error: true, message: 'Erro ao criar estatística' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

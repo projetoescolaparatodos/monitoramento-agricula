@@ -35,6 +35,9 @@ interface StatisticListProps {
 export const StatisticList = ({ onEdit }: StatisticListProps) => {
   const { data: statistics, isLoading } = useQuery<StatisticItem[]>({
     queryKey: ['/api/statistics'],
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    staleTime: 0
   });
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
