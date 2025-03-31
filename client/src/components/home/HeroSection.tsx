@@ -53,11 +53,11 @@ const HeroSection = () => {
             </div>
           </div>
           <div className="md:w-1/2 relative">
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center">
               <img 
                 src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&h=800&q=80" 
                 alt="Campos agrícolas brasileiros" 
-                className="w-[70%] h-full object-cover"
+                className="w-full h-full object-cover pr-4"
               />
             </div>
           </div>
