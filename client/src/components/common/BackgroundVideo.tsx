@@ -1,29 +1,49 @@
+
 import React, { useEffect, useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface BackgroundVideoProps {
-  videoUrl: string;
+  videoPath?: string;
+  opacity?: number;
 }
 
-const BackgroundVideo: React.FC<BackgroundVideoProps> = ({ videoUrl = "/videos/BackgroundVideo.mp4" }) => {
+const BackgroundVideo: React.FC<BackgroundVideoProps> = ({ 
+  videoPath = "/videos/BackgroundVideo.mp4",
+  opacity = 0.3 
+}) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    const loadVideo = async () => {
-      try {
-        console.log("Tentando carregar vídeo de:", videoUrl);
-        if (videoRef.current) {
-          await videoRef.current.play();
-          console.log("Vídeo carregado com sucesso!");
-        }
-      } catch (error) {
-        console.error("Erro ao carregar o vídeo:", error);
-      }
+    console.log("Tentando carregar vídeo de:", videoPath);
+    
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.addEventListener('error', (e) => {
+      console.error("Erro ao carregar vídeo:", e);
+    });
+    
+    video.addEventListener('loadeddata', () => {
+      console.log("Vídeo carregado com sucesso!");
+    });
+
+    const savedTime = localStorage.getItem('backgroundVideoTime');
+    if (savedTime) {
+      video.currentTime = parseFloat(savedTime);
+    }
+
+    const saveTime = () => {
+      localStorage.setItem('backgroundVideoTime', video.currentTime.toString());
     };
 
-    loadVideo();
-  }, [videoUrl]);
+    const interval = setInterval(saveTime, 1000);
+    
+    return () => {
+      clearInterval(interval);
+      saveTime();
+    };
+  }, [videoPath]);
 
   if (isMobile) {
     return (
@@ -32,18 +52,20 @@ const BackgroundVideo: React.FC<BackgroundVideoProps> = ({ videoUrl = "/videos/B
   }
 
   return (
-    <div className="fixed inset-0 -z-10 h-full w-full">
+    <div className="fixed top-0 left-0 w-full h-full overflow-hidden" style={{ zIndex: 0 }}>
       <video
         ref={videoRef}
-        className="h-full w-full object-cover"
         autoPlay
-        loop
         muted
+        loop
         playsInline
+        className="absolute top-0 left-0 w-full h-full object-cover"
+        style={{ opacity }}
       >
-        <source src={videoUrl} type="video/mp4" />
-        Seu navegador não suporta vídeos.
+        <source src={videoPath} type="video/mp4" />
+        Seu navegador não suporta vídeos HTML5.
       </video>
+      <div className="absolute top-0 left-0 w-full h-full bg-black" style={{ opacity: 0.3 }} />
     </div>
   );
 };
