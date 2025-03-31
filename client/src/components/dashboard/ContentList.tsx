@@ -14,8 +14,17 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash } from "lucide-react";
 import { ContentItem } from '@/types';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/utils/firebase';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useToast } from "@/components/ui/use-toast";
 
 interface ContentListProps {
   onEdit: (id: string) => void;
@@ -23,7 +32,7 @@ interface ContentListProps {
 }
 
 const ContentList = ({ onEdit, onDelete }: ContentListProps) => {
-  const { data: contents, isLoading } = useQuery<ContentItem[]>({
+  const { data: contents, isLoading, refetch } = useQuery<ContentItem[]>({
     queryKey: ['contents'],
     queryFn: async () => {
       const querySnapshot = await getDocs(collection(db, 'contents'));
@@ -34,6 +43,10 @@ const ContentList = ({ onEdit, onDelete }: ContentListProps) => {
     }
   });
 
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [contentToDelete, setContentToDelete] = useState<string | null>(null);
+  const { toast } = useToast();
+
   const getPageTypeName = (pageType: string) => {
     const types = {
       home: 'Página Inicial',
@@ -42,6 +55,32 @@ const ContentList = ({ onEdit, onDelete }: ContentListProps) => {
       paa: 'PAA'
     };
     return types[pageType as keyof typeof types] || pageType;
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setContentToDelete(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!contentToDelete) return;
+
+    try {
+      await deleteDoc(doc(db, 'contents', contentToDelete));
+      await refetch();
+      toast({
+        title: "Conteúdo excluído",
+        description: "O conteúdo foi excluído com sucesso.",
+      });
+      setIsDeleteDialogOpen(false);
+      onDelete(contentToDelete);
+    } catch (error) {
+      toast({
+        title: "Erro ao excluir",
+        description: "Ocorreu um erro ao excluir o conteúdo.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (isLoading) {
@@ -82,7 +121,7 @@ const ContentList = ({ onEdit, onDelete }: ContentListProps) => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => onDelete(content.id)}
+                  onClick={() => handleDeleteClick(content.id)}
                 >
                   <Trash className="h-4 w-4" />
                 </Button>
@@ -91,6 +130,31 @@ const ContentList = ({ onEdit, onDelete }: ContentListProps) => {
           ))}
         </TableBody>
       </Table>
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar exclusão</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja excluir este conteúdo? Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+            >
+              Excluir
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
