@@ -15,28 +15,26 @@ const HeroSection = () => {
         <div className="md:flex h-full">
           <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative">
             <div className="absolute inset-0 flex items-center justify-center opacity-30">
-              <img src="/logo.png" alt="Logo" className="w-auto h-3/4" />
+              {content?.iconUrl && (
+                <img
+                  src={content.iconUrl}
+                  alt="Ícone"
+                  className="w-full h-full object-contain"
+                />
+              )}
             </div>
-            <div className="relative z-10">
+            <div className="relative z-10 text-center md:text-left md:pr-8">
               {isLoading ? (
-                <div className="animate-pulse">
-                  <div className="h-8 bg-white/20 rounded w-3/4 mb-4"></div>
-                  <div className="h-4 bg-white/20 rounded w-full mb-2"></div>
-                  <div className="h-4 bg-white/20 rounded w-5/6 mb-6"></div>
-                  <div className="flex gap-3">
-                    <div className="h-10 bg-white/20 rounded w-32"></div>
-                    <div className="h-10 bg-white/20 rounded w-32"></div>
-                  </div>
-                </div>
+                <div>Carregando...</div>
               ) : (
                 <>
-                  <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-4">
-                    {content?.title || "Informações e dados sobre produção agrícola brasileira"}
-                  </h2>
-                  <p className="text-white/90 mb-6">
-                    {content?.content || "Acesse estatísticas atualizadas, análises e informações detalhadas sobre agricultura, pesca e o Programa de Aquisição de Alimentos (PAA)."}
+                  <h1 className="text-5xl font-extrabold text-white mb-6 leading-tight font-heading tracking-tight">
+                    {content?.title || "Secretaria Municipal de Agricultura, Pesca e Abastecimento"}
+                  </h1>
+                  <p className="text-xl text-white/90 mb-8 leading-relaxed font-body max-w-xl">
+                    {content?.content || "Promovendo o desenvolvimento sustentável do setor primário em Vitória do Xingu"}
                   </p>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-3 justify-center md:justify-start">
                     <Link href="#areas">
                       <a className="bg-white text-secondary font-semibold px-6 py-3 rounded-md hover:bg-neutral-light transition-colors">
                         Explorar áreas
