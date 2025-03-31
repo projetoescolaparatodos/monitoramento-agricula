@@ -55,9 +55,9 @@ const HeroSection = () => {
                 className="h-24 w-auto"
               />
               <img 
-                src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&h=800&q=80" 
+                src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&h=800&q=80" 
                 alt="Campos agrícolas brasileiros" 
-                className="w-[1000px] h-[800px] object-cover"
+                className="w-[800px] h-[800px] object-cover"
               />
             </div>
           </div>
