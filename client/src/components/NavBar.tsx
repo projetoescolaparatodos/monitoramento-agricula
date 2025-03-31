@@ -9,11 +9,11 @@ const NavBar = () => {
         {" "}
         {/* Ajustei o padding (py-3) para controlar a altura */}
         <Link href="/">
-          <div className="flex items-center gap-2 text-primary h-full">
+          <div className="flex items-center gap-2 text-primary">
             <img
               src="/logo.png"
               alt="SEMAPA"
-              className="h-full w-auto py-1" // Altura total com padding vertical
+              className="h-12 w-auto" // Tamanho equilibrado (ajuste conforme necessidade)
             />
             <span className="font-semibold text-lg">
               SEMAPA - Vitória do Xingu
