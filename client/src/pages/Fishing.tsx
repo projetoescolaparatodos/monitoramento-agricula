@@ -12,6 +12,23 @@ import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
 
 const Fishing = () => {
+  const backgroundStyle = {
+    backgroundImage: 'url("/fundo estatico.jpg")',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100vw',
+    height: '100vh',
+    zIndex: 0,
+    opacity: 0.8,
+    pointerEvents: 'none',
+  } as React.CSSProperties;
+
   const [, setLocation] = useLocation();
   const { data: contents, isLoading: isLoadingContents } = useQuery<ContentItem[]>({
     queryKey: ["contents", "fishing"],
@@ -50,6 +67,7 @@ const Fishing = () => {
 
   return (
     <>
+      <div style={backgroundStyle} /> {/* Added background image */}
       <BackgroundVideo videoPath="/videos/fundo-pesca.mp4" opacity={0.2} />
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
         <div className="flex justify-end mb-6">
