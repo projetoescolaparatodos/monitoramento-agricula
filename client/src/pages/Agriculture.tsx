@@ -24,8 +24,9 @@ const Agriculture = () => {
     bottom: 0,
     width: '100vw',
     height: '100vh',
-    zIndex: -2,
-    opacity: 0.2,
+    zIndex: 0,
+    opacity: 0.8,
+    pointerEvents: 'none',
   } as React.CSSProperties;
 
   const { data: contents, isLoading: isLoadingContents } = useQuery<
