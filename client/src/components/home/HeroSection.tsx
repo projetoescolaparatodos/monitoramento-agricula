@@ -47,12 +47,19 @@ const HeroSection = () => {
               </>
             )}
           </div>
-          <div className="md:w-1/2 flex items-center justify-center bg-white/10 backdrop-blur-sm rounded-lg p-8">
-            <img 
-              src="/logo.png" 
-              alt="SEMAPA" 
-              className="w-auto h-[400px] object-contain"
-            />
+          <div className="md:w-1/2 flex items-center">
+            <div className="flex items-center gap-4">
+              <img 
+                src="/logo.png" 
+                alt="SEMAPA" 
+                className="h-24 w-auto"
+              />
+              <img 
+                src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&h=1000&q=80" 
+                alt="Campos agrícolas brasileiros" 
+                className="w-[800px] h-[1000px] object-cover"
+              />
+            </div>
           </div>
         </div>
       </div>
