@@ -220,35 +220,6 @@ const Agriculture = () => {
               ))}
             </div>
           )}
-
-          {/* Report Section */}
-          <section className="mt-16 bg-white/30 backdrop-blur-sm rounded-lg p-8">
-            <h2 className="text-3xl font-bold text-center mb-8">Relatório da Agricultura</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <h3 className="text-xl font-semibold">Informações Gerais</h3>
-                <div className="space-y-2">
-                  {contents?.map((content) => (
-                    <div key={content.id} className="p-4 bg-white/50 rounded-lg">
-                      <h4 className="font-medium">{content.title}</h4>
-                      <p>{content.content}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="space-y-4">
-                <h3 className="text-xl font-semibold">Estatísticas</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  {charts?.map((chart) => (
-                    <div key={chart.id} className="p-4 bg-white/50 rounded-lg">
-                      <h4 className="font-medium mb-2">{chart.title}</h4>
-                      <DataVisualizationSection charts={[chart]} isLoading={false} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </section>
         </main>
       </main>
       <Footer />
