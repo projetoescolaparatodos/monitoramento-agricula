@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Map, BarChart2, FilePieChart, Fish, Users } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/utils/firebase";
 import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
@@ -136,13 +135,13 @@ const Fishing = () => {
 
           {/* Fishing Report Section */}
           <section className="mt-16 bg-white/30 backdrop-blur-sm rounded-lg p-8">
-            <h2 className="text-3xl font-bold text-center mb-8">Relatório da Pesca em Tanques Criadouros</h2>
+            <h2 className="text-3xl font-bold text-center mb-8">Fish Farming Report</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 w-full">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Fish className="h-5 w-5 text-blue-500" />
-                    Total de Pescado
+                    Total Fish Production
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -153,7 +152,7 @@ const Fishing = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <BarChart2 className="h-5 w-5 text-primary" />
-                    Sistemas Cadastrados
+                    Registered Systems
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -164,7 +163,7 @@ const Fishing = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <FilePieChart className="h-5 w-5 text-green-500" />
-                    Área de Criação
+                    Breeding Area
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -175,7 +174,7 @@ const Fishing = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Users className="h-5 w-5 text-indigo-500" />
-                    Produtores
+                    Producers
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
