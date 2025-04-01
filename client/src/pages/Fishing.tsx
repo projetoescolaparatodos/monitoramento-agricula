@@ -6,10 +6,12 @@ import { db } from "@/utils/firebase";
 import { useQuery } from "@tanstack/react-query";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Map } from "lucide-react";
+import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import { Map, BarChart2, FilePieChart, Fish, Users, Shrub } from "lucide-react";
 import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 const Fishing = () => {
   const backgroundStyle = {
@@ -64,6 +66,19 @@ const Fishing = () => {
         snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
       ),
   });
+
+  // Placeholder for fishing report section.  Replace with actual implementation.
+  const fishingReport = (
+    <Card>
+      <CardHeader>
+        <CardTitle>Fishing Report</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {/* Add your fishing report data here */}
+        <p>This section needs to be implemented to display the fishing report.</p>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <>
@@ -122,6 +137,7 @@ const Fishing = () => {
               ))}
             </div>
           )}
+          {fishingReport}
         </main>
       </main>
       <Footer />
