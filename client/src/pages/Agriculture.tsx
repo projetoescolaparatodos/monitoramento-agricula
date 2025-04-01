@@ -269,7 +269,7 @@ const Agriculture = () => {
               </Card>
             </div>
 
-            <Card>
+            <Card className="bg-white/30 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle>Detalhes</CardTitle>
               </CardHeader>
