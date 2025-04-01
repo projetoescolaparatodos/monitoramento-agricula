@@ -6,12 +6,23 @@ import { db } from "@/utils/firebase";
 import { useQuery } from "@tanstack/react-query";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Map } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Map, BarChart2, FilePieChart, Fish, Users } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/utils/firebase";
 import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
 
 const Fishing = () => {
+  const { data: pescaData } = useQuery({
+    queryKey: ["pesca"],
+    queryFn: () =>
+      getDocs(collection(db, "pesca")).then((snapshot) =>
+        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      ),
+  });
+
   const backgroundStyle = {
     backgroundImage: 'url("/fundo estatico.jpg")',
     backgroundSize: 'cover',
@@ -122,6 +133,107 @@ const Fishing = () => {
               ))}
             </div>
           )}
+
+          {/* Fishing Report Section */}
+          <section className="mt-16 bg-white/30 backdrop-blur-sm rounded-lg p-8">
+            <h2 className="text-3xl font-bold text-center mb-8">Relatório da Pesca em Tanques Criadouros</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 w-full">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Fish className="h-5 w-5 text-blue-500" />
+                    Total de Pescado
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold">{pescaData?.reduce((sum, p) => sum + (p.quantidadePescado || 0), 0).toFixed(2)} kg</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart2 className="h-5 w-5 text-primary" />
+                    Sistemas Cadastrados
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold">{new Set(pescaData?.map(p => p.idTanque).filter(Boolean)).size}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FilePieChart className="h-5 w-5 text-green-500" />
+                    Área de Criação
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold">{(pescaData?.reduce((sum, p) => sum + (p.areaTanque || 0), 0) / 10000).toFixed(2)} ha</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5 text-indigo-500" />
+                    Produtores
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold">{new Set(pescaData?.map(p => p.nomePescador).filter(Boolean)).size}</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Detalhes dos Tanques de Criação</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Número Registro</TableHead>
+                      <TableHead>Espécie</TableHead>
+                      <TableHead>Tipo Tanque</TableHead>
+                      <TableHead>Localidade</TableHead>
+                      <TableHead>Área Imóvel (ha)</TableHead>
+                      <TableHead>Área Alagada (ha)</TableHead>
+                      <TableHead>Sistema Cultivo</TableHead>
+                      <TableHead>Método Alimentação</TableHead>
+                      <TableHead>Operador</TableHead>
+                      <TableHead>Técnico</TableHead>
+                      <TableHead>Ração (kg)</TableHead>
+                      <TableHead>Quantidade (kg)</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {pescaData?.map((pesca) => (
+                      <TableRow key={pesca.id}>
+                        <TableCell>{pesca.numeroRegistro || "—"}</TableCell>
+                        <TableCell>{pesca.especiePeixe || "—"}</TableCell>
+                        <TableCell>{pesca.tipoTanque || "—"}</TableCell>
+                        <TableCell>{pesca.localidade || "—"}</TableCell>
+                        <TableCell>{pesca.areaImovel ? `${pesca.areaImovel} ha` : "—"}</TableCell>
+                        <TableCell>{pesca.areaAlagada ? `${pesca.areaAlagada} ha` : "—"}</TableCell>
+                        <TableCell>{pesca.sistemaCultivo || "—"}</TableCell>
+                        <TableCell>{pesca.metodoAlimentacao || "—"}</TableCell>
+                        <TableCell>{pesca.operador || "—"}</TableCell>
+                        <TableCell>{pesca.tecnicoResponsavel || "—"}</TableCell>
+                        <TableCell>{pesca.quantidadeRacao ? `${pesca.quantidadeRacao.toFixed(2)} kg` : "—"}</TableCell>
+                        <TableCell>{pesca.quantidadePescado ? `${pesca.quantidadePescado.toFixed(2)} kg` : "—"}</TableCell>
+                        <TableCell>
+                          <span className={pesca.concluido ? 'text-green-600 font-medium' : 'text-blue-600 font-medium'}>
+                            {pesca.concluido ? 'Concluído' : 'Em Andamento'}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </section>
         </main>
       </main>
       <Footer />
