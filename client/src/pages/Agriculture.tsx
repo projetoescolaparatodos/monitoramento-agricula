@@ -232,7 +232,7 @@ const Agriculture = () => {
 
           {/* Agriculture Report Section */}
           <section className="mt-16 bg-white/30 backdrop-blur-sm rounded-lg p-8">
-            <h2 className="text-3xl font-bold text-center mb-8">Relatório da Agricultura</h2>
+            <h2 className="text-3xl font-bold text-center mb-8">Atividades da Agricultura</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <Card>
                 <CardHeader>
@@ -271,7 +271,7 @@ const Agriculture = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>Detalhes dos Maquinários</CardTitle>
+                <CardTitle>Detalhes</CardTitle>
               </CardHeader>
               <CardContent>
                 <Table>
