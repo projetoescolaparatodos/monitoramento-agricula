@@ -182,7 +182,7 @@ const Fishing = () => {
               </Card>
             </div>
 
-            <Card className="bg-white/30 backdrop-blur-sm">
+            <Card className="bg-white/70 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle>Detalhes</CardTitle>
               </CardHeader>
