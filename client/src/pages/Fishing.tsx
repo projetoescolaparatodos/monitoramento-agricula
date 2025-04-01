@@ -134,13 +134,13 @@ const Fishing = () => {
 
           {/* Fishing Report Section */}
           <section className="mt-16 bg-white/30 backdrop-blur-sm rounded-lg p-8">
-            <h2 className="text-3xl font-bold text-center mb-8">Fish Farming Report</h2>
+            <h2 className="text-3xl font-bold text-center mb-8">Atividades da Pesca</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 w-full">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Fish className="h-5 w-5 text-blue-500" />
-                    Total Fish Production
+                    Produção Total de Pescado
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -151,7 +151,7 @@ const Fishing = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <BarChart2 className="h-5 w-5 text-primary" />
-                    Registered Systems
+                    Sistemas Registrados
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -162,7 +162,7 @@ const Fishing = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <FilePieChart className="h-5 w-5 text-green-500" />
-                    Breeding Area
+                    Área de Criação
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -173,7 +173,7 @@ const Fishing = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Users className="h-5 w-5 text-indigo-500" />
-                    Producers
+                    Produtores
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -184,7 +184,7 @@ const Fishing = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>Detalhes dos Tanques de Criação</CardTitle>
+                <CardTitle>Detalhes</CardTitle>
               </CardHeader>
               <CardContent>
                 <Table>
