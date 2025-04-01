@@ -6,12 +6,21 @@ import Footer from "@/components/layout/Footer";
 import BackgroundVideo from "@/components/common/BackgroundVideo";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Map } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Map, BarChart2, FilePieChart } from "lucide-react";
 import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const Agriculture = () => {
+  const { data: tratoresData } = useQuery({
+    queryKey: ['tratores'],
+    queryFn: async () => {
+      const snapshot = await getDocs(collection(db, 'tratores'));
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+  });
+
   const backgroundStyle = {
     backgroundImage: 'url("/fundo estatico.jpg")',
     backgroundSize: 'cover',
@@ -220,6 +229,86 @@ const Agriculture = () => {
               ))}
             </div>
           )}
+
+          {/* Agriculture Report Section */}
+          <section className="mt-16 bg-white/30 backdrop-blur-sm rounded-lg p-8">
+            <h2 className="text-3xl font-bold text-center mb-8">Relatório da Agricultura</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart2 className="h-5 w-5 text-primary" />
+                    Total de Maquinários
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold">{tratoresData?.length || 0}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FilePieChart className="h-5 w-5 text-blue-500" />
+                    Hora/Máquina
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold">{tratoresData?.reduce((sum, t) => sum + ((t.tempoAtividade || 0) / 60), 0).toFixed(2)} horas</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FilePieChart className="h-5 w-5 text-green-500" />
+                    Área Trabalhada
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold">{(tratoresData?.reduce((sum, t) => sum + (t.areaTrabalhada || 0), 0) / 10000).toFixed(2)} ha</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Detalhes dos Maquinários</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>Fazenda</TableHead>
+                      <TableHead>Atividade</TableHead>
+                      <TableHead>Operador</TableHead>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Hora/Máquina</TableHead>
+                      <TableHead>Área (ha)</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {tratoresData?.map((trator) => (
+                      <TableRow key={trator.id}>
+                        <TableCell>{trator.nome}</TableCell>
+                        <TableCell>{trator.fazenda}</TableCell>
+                        <TableCell>{trator.atividade}</TableCell>
+                        <TableCell>{trator.piloto}</TableCell>
+                        <TableCell>{new Date(trator.dataCadastro).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          <span className={trator.concluido ? 'text-green-600 font-medium' : 'text-blue-600 font-medium'}>
+                            {trator.concluido ? 'Concluído' : 'Em Serviço'}
+                          </span>
+                        </TableCell>
+                        <TableCell>{(trator.tempoAtividade / 60).toFixed(2)}</TableCell>
+                        <TableCell>{(trator.areaTrabalhada / 10000).toFixed(2)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </section>
         </main>
       </main>
       <Footer />
