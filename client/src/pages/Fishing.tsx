@@ -65,6 +65,14 @@ const Fishing = () => {
       ),
   });
 
+  const { data: pescaData } = useQuery({
+    queryKey: ["pesca"],
+    queryFn: () =>
+      getDocs(collection(db, "pesca")).then((snapshot) =>
+        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      ),
+  });
+
   return (
     <>
       <div style={backgroundStyle} /> {/* Added background image */}
@@ -118,6 +126,17 @@ const Fishing = () => {
                     <h3 className="font-semibold">{media.title}</h3>
                     <p className="text-sm text-gray-600">{media.description}</p>
                   </div>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          {pescaData && pescaData.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {pescaData.map((item) => (
+                <Card key={item.id} className="p-6">
+                  <h3 className="text-xl font-semibold mb-4">{item.title || 'Dados de Pesca'}</h3> {/*Added default title*/}
+                  <p className="text-gray-600">{item.content || 'Sem dados disponíveis'}</p> {/*Added default content*/}
                 </Card>
               ))}
             </div>
