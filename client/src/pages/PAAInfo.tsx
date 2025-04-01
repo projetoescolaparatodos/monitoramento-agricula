@@ -5,8 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import Footer from "@/components/layout/Footer";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Map } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Map, BarChart2, FilePieChart, Users } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
 import BackgroundVideo from "@/components/common/BackgroundVideo";
@@ -62,6 +63,14 @@ const PAAInfo = () => {
         query(collection(db, "media"), where("pageType", "==", "paa")),
       ).then((snapshot) =>
         snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
+      ),
+  });
+
+  const { data: paaData } = useQuery({
+    queryKey: ["paa"],
+    queryFn: () =>
+      getDocs(collection(db, "paa")).then((snapshot) =>
+        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
       ),
   });
 
@@ -122,6 +131,87 @@ const PAAInfo = () => {
               ))}
             </div>
           )}
+
+          {/* Seção de Estatísticas do PAA */}
+          <div className="mt-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 w-full">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart2 className="h-5 w-5 text-primary" />
+                    Total de Alimentos Adquiridos
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold">{paaData?.reduce((total, paa) => total + (paa.quantidadeProduzida || 0), 0).toFixed(2)} kg</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5 text-green-500" />
+                    Produtores Participantes
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold">{new Set(paaData?.map(p => p.proprietario)).size}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FilePieChart className="h-5 w-5 text-blue-500" />
+                    Área Total Cultivada
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold">{(paaData?.reduce((total, paa) => total + (paa.areaMecanizacao || 0), 0) / 10000).toFixed(2)} ha</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Detalhes</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Localidade</TableHead>
+                      <TableHead>Produtor</TableHead>
+                      <TableHead>Tipo de Alimento</TableHead>
+                      <TableHead>Quantidade (kg)</TableHead>
+                      <TableHead>Método de Colheita</TableHead>
+                      <TableHead>Técnico Responsável</TableHead>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Área (ha)</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paaData?.map((paa) => (
+                      <TableRow key={paa.id}>
+                        <TableCell>{paa.localidade || '-'}</TableCell>
+                        <TableCell>{paa.proprietario || '-'}</TableCell>
+                        <TableCell>{paa.tipoAlimento || '-'}</TableCell>
+                        <TableCell>{paa.quantidadeProduzida ? paa.quantidadeProduzida.toFixed(2) : '0.00'}</TableCell>
+                        <TableCell>{paa.metodoColheita || '-'}</TableCell>
+                        <TableCell>{paa.tecnicoResponsavel || '-'}</TableCell>
+                        <TableCell>{new Date(paa.dataCadastro).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          <span className={paa.concluido ? 'text-green-600 font-medium' : 'text-blue-600 font-medium'}>
+                            {paa.concluido ? 'Concluído' : 'Em Andamento'}
+                          </span>
+                        </TableCell>
+                        <TableCell>{paa.areaMecanizacao ? (paa.areaMecanizacao / 10000).toFixed(2) : '0.00'}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </div>
         </main>
       </main>
       <Footer />
