@@ -47,7 +47,7 @@ const DataVisualizationSection: React.FC<DataVisualizationSectionProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {charts.map((chart) => (
-            <Card key={chart.id} className="bg-white/30 backdrop-blur-sm rounded-lg shadow-md">
+            <Card key={chart.id} className="bg-white/70 rounded-lg shadow-md">
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-4">{chart.title}</h3>
                 <div className="h-[300px] relative">
