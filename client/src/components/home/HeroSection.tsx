@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { ContentItem } from "@/types";
 import { Link } from "wouter";
@@ -13,28 +14,21 @@ const HeroSection = () => {
     <section className="mb-16">
       <div className="bg-green-700 rounded-lg overflow-hidden shadow-lg h-[800px]">
         <div className="md:flex h-full">
-          <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative">
-            <div className="absolute inset-0 flex items-center justify-center opacity-45">
-              <img
-                src="/logo.png"
-                alt="SEMAPA Logo"
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div className="relative z-10 flex flex-col justify-center items-center h-full px-8">
+          <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+            <div className="relative z-10 flex flex-col justify-center h-full">
               {isLoading ? (
                 <div>Carregando...</div>
               ) : (
                 <>
-                  <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-6 leading-tight font-heading tracking-tight text-center max-w-2xl mx-auto">
+                  <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-6 leading-tight font-heading tracking-tight">
                     {content?.title || "Secretaria Municipal de Agricultura, Pesca e Abastecimento"}
                   </h1>
-                  <p className="text-xl md:text-2xl text-white font-medium tracking-wide max-w-xl text-center mx-auto mb-8">
+                  <p className="text-xl md:text-2xl text-white/90 font-medium tracking-wide mb-8 max-w-xl">
                     {content?.content || "Dados Sobre a produção em Vitória do Xingu"}
                   </p>
-                  <div className="flex flex-wrap gap-3 justify-center">
+                  <div className="flex flex-wrap gap-3">
                     <Link href="#areas">
-                      <button className="bg-white text-secondary font-semibold px-6 py-3 rounded-md hover:bg-neutral-light transition-colors">
+                      <button className="bg-white text-green-700 font-semibold px-6 py-3 rounded-md hover:bg-neutral-100 transition-colors">
                         Explorar áreas
                       </button>
                     </Link>
@@ -49,7 +43,7 @@ const HeroSection = () => {
             </div>
           </div>
           <div className="md:w-1/2 relative">
-            <div className="absolute inset-0 flex items-center" style={{ left: '-10%', right: '-5%' }}>
+            <div className="absolute inset-0" style={{ left: '-5%', right: '-5%' }}>
               <img 
                 src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&h=800&q=80" 
                 alt="Campos agrícolas brasileiros" 
