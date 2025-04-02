@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { ContentItem } from "@/types";
 import { Link } from "wouter";
@@ -30,8 +29,8 @@ const HeroSection = () => {
                   <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-6 leading-tight font-heading tracking-tight text-center max-w-2xl mx-auto">
                     {content?.title || "Secretaria Municipal de Agricultura, Pesca e Abastecimento"}
                   </h1>
-                  <p className="text-lg md:text-xl text-white/90 mb-8 leading-relaxed font-body max-w-xl text-center mx-auto">
-                    {content?.content || "Promovendo o desenvolvimento sustentável do setor primário em Vitória do Xingu"}
+                  <p className="text-xl md:text-2xl text-white font-medium tracking-wide max-w-xl text-center mx-auto mb-8">
+                    {content?.content || "Dados Sobre a produção em Vitória do Xingu"}
                   </p>
                   <div className="flex flex-wrap gap-3 justify-center">
                     <Link href="#areas">
