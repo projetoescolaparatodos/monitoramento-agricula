@@ -12,14 +12,14 @@ const HeroSection = () => {
 
   return (
     <section className="mb-16">
-      <div className="bg-green-700 rounded-lg overflow-hidden shadow-lg h-[800px]">
-        <div className="md:flex h-full">
-          <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative">
+      <div className="bg-green-700 rounded-lg overflow-hidden shadow-lg min-h-[500px] md:h-[800px]">
+        <div className="flex flex-col md:flex-row h-full">
+          <div className="w-full md:w-1/2 p-4 md:p-12 flex flex-col justify-center relative">
             <div className="absolute inset-0 flex items-center justify-center opacity-46">
               <img
                 src="/logo.png"
                 alt="SEMAPA Logo"
-                className="w-[95%] h-[95%] object-contain"
+                className="w-[80%] md:w-[95%] h-[80%] md:h-[95%] object-contain"
               />
             </div>
             <div className="relative z-10 flex flex-col justify-center h-full">
@@ -27,13 +27,13 @@ const HeroSection = () => {
                 <div>Carregando...</div>
               ) : (
                 <>
-                  <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-6 leading-tight font-heading tracking-tight">
+                  <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 md:mb-6 leading-tight font-heading tracking-tight">
                     {content?.title || "Secretaria Municipal de Agricultura, Pesca e Abastecimento"}
                   </h1>
-                  <p className="text-xl md:text-2xl text-white/90 font-medium tracking-wide mb-8 max-w-xl">
+                  <p className="text-lg md:text-2xl text-white/90 font-medium tracking-wide mb-6 md:mb-8 max-w-xl">
                     {content?.content || "Dados Sobre a produção em Vitória do Xingu"}
                   </p>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <Link href="#areas">
                       <button className="bg-white text-green-700 font-semibold px-6 py-3 rounded-md hover:bg-neutral-100 transition-colors">
                         Explorar áreas
