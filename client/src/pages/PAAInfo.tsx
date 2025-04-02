@@ -212,7 +212,7 @@ const PAAInfo = () => {
                 </Table>
               </CardContent>
             </Card>
-          </div>
+          </section>
         </main>
       </main>
       <Footer />
