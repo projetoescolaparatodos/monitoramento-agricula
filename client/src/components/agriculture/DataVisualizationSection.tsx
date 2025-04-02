@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ChartItem } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,7 +15,7 @@ const DataVisualizationSection: React.FC<DataVisualizationSectionProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <section className="py-16 bg-green-50">
+      <section className="py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold mb-8 text-center">Visualização de Dados</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -38,7 +39,7 @@ const DataVisualizationSection: React.FC<DataVisualizationSectionProps> = ({
   }
 
   return (
-    <section className="py-16 bg-black/40 backdrop-blur-sm">
+    <section className="py-16">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold mb-3 text-center text-white">Visualização de Dados</h2>
         <p className="text-white/80 mb-10 text-center max-w-2xl mx-auto text-lg">
