@@ -90,9 +90,9 @@ const Fishing = () => {
           </Button>
         </div>
         <main className="space-y-12">
-          <div className="max-w-4xl mx-auto bg-white/10 backdrop-blur-sm p-8 rounded-lg">
-            <h1 className="text-5xl font-extrabold text-center mb-6 text-white drop-shadow-lg">Pesca</h1>
-            <p className="text-center text-xl text-white font-medium max-w-2xl mx-auto leading-relaxed">
+          <div className="prose max-w-none">
+            <h1 className="text-4xl font-bold text-center mb-4 text-white">Pesca</h1>
+            <p className="text-center text-lg text-white/80">
               Informações e dados sobre a pesca em Vitória do Xingu
             </p>
           </div>
