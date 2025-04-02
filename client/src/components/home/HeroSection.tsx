@@ -14,7 +14,14 @@ const HeroSection = () => {
     <section className="mb-16">
       <div className="bg-green-700 rounded-lg overflow-hidden shadow-lg h-[800px]">
         <div className="md:flex h-full">
-          <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+          <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative">
+            <div className="absolute inset-0 flex items-center justify-center opacity-25">
+              <img
+                src="/logo.png"
+                alt="SEMAPA Logo"
+                className="w-3/4 h-3/4 object-contain"
+              />
+            </div>
             <div className="relative z-10 flex flex-col justify-center h-full">
               {isLoading ? (
                 <div>Carregando...</div>
