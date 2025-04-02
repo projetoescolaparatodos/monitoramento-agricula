@@ -90,18 +90,18 @@ const PAAInfo = () => {
         </div>
         <main className="space-y-12">
           <div className="prose max-w-none">
-            <h1 className="text-4xl font-bold text-center mb-4">PAA</h1>
-            <p className="text-center text-lg text-muted-foreground">
-              Informações e dados sobre o Programa de Aquisição de Alimentos
+            <h1 className="text-4xl font-bold text-center mb-4 text-white">PAA</h1>
+            <p className="text-center text-lg text-white/80">
+              Informações e dados sobre o Programa de Aquisição de Alimentos em Vitória do Xingu
             </p>
           </div>
 
           {contents && contents.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {contents.map((content) => (
-                <Card key={content.id} className="p-6">
-                  <h3 className="text-xl font-semibold mb-4">{content.title}</h3>
-                  <p className="text-gray-600">{content.content}</p>
+                <Card key={content.id} className="p-6 bg-black/40 backdrop-blur-sm border-0">
+                  <h3 className="text-xl font-semibold mb-4 text-white">{content.title}</h3>
+                  <p className="text-white/80">{content.content}</p>
                 </Card>
               ))}
             </div>
@@ -133,7 +133,8 @@ const PAAInfo = () => {
           )}
 
           {/* Seção de Estatísticas do PAA */}
-          <div className="mt-12">
+          <section className="mt-16 bg-black/40 backdrop-blur-sm rounded-lg p-8">
+            <h2 className="text-3xl font-bold text-center mb-8 text-white">Atividades do PAA</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 w-full">
               <Card>
                 <CardHeader>
