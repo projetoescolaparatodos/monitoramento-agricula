@@ -11,7 +11,7 @@ const NavBar = () => {
     <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-sm border-b z-50">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          <Link to="/">
+          <Link to="/" className="flex-1 flex justify-center md:justify-start">
             <div className="flex items-center gap-2 text-primary">
               <img
                 src="/logo.png"
