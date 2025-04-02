@@ -272,10 +272,10 @@ const Agriculture = () => {
 
             <Card className="bg-white/80 backdrop-blur-sm hidden md:block shadow-lg">
               <CardHeader className="border-b border-gray-200">
-                <CardTitle className="text-2xl font-bold text-green-800">Detalhes das Atividades</CardTitle>
+                <CardTitle className="text-2xl font-bold text-black">Detalhes das Atividades</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <Table className="w-full [&_th]:text-green-900 [&_td]:text-gray-700 [&_tr:hover]:bg-green-50/50">
+                <Table className="w-full [&_th]:text-black [&_td]:text-gray-700 [&_tr:hover]:bg-gray-50/50">
                   <TableHeader>
                     <TableRow>
                       <TableHead>Nome</TableHead>
