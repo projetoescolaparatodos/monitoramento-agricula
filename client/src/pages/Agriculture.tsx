@@ -176,6 +176,7 @@ const Agriculture = () => {
     <>
       <div style={backgroundStyle}></div>
       <BackgroundVideo videoPath="/videos/fundo-agricultura.mp4" opacity={0.2} />
+      <div className="absolute inset-0 bg-black/60 z-[1]"></div>
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
         <div className="flex justify-end mb-6">
           <Button
@@ -197,7 +198,7 @@ const Agriculture = () => {
           {contents && contents.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {contents.map((content) => (
-                <Card key={content.id} className="p-6 bg-black/40 backdrop-blur-sm border-0">
+                <Card key={content.id} className="p-6 backdrop-blur-sm border-0">
                   <h3 className="text-xl font-semibold mb-4 text-white">{content.title}</h3>
                   <p className="text-white/80">{content.content}</p>
                 </Card>
