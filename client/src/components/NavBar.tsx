@@ -1,56 +1,70 @@
-import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
-import { BarChart3, Map, Settings } from "lucide-react";
+
+import { Link } from "react-router-dom";
+import { Button } from "./ui/button";
+import { Map, BarChart3, Settings } from "lucide-react";
+import { useState } from "react";
 
 const NavBar = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
     <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-sm border-b z-50">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        {" "}
-        {/* Ajustei o padding (py-3) para controlar a altura */}
-        <Link href="/">
-          <div className="flex items-center gap-2 text-primary">
-            <img
-              src="/logo.png"
-              alt="SEMAPA"
-              className="h-12 w-auto" // Tamanho equilibrado (ajuste conforme necessidade)
-            />
-            <span className="font-semibold text-lg">
-              SEMAPA - Vitória do Xingu
-            </span>
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between">
+          <Link to="/">
+            <div className="flex items-center gap-2 text-primary">
+              <img
+                src="/logo.png"
+                alt="SEMAPA"
+                className="h-12 w-auto"
+              />
+              <span className="font-semibold text-lg hidden sm:inline">
+                SEMAPA - Vitória do Xingu
+              </span>
+            </div>
+          </Link>
+
+          {/* Menu Hamburguer para Mobile */}
+          <button 
+            className="md:hidden text-primary"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            ☰
+          </button>
+
+          {/* Menu de Navegação */}
+          <div className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row absolute md:relative top-full left-0 w-full md:w-auto bg-white/80 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none gap-2 md:gap-4 p-4 md:p-0 border-b md:border-0`}>
+            <Link to="/agriculture">
+              <Button variant="ghost" className="w-full md:w-auto justify-start">
+                <Map className="h-4 w-4 mr-2" />
+                Agricultura
+              </Button>
+            </Link>
+            <Link to="/fishing">
+              <Button variant="ghost" className="w-full md:w-auto justify-start">
+                <Map className="h-4 w-4 mr-2" />
+                Pesca
+              </Button>
+            </Link>
+            <Link to="/paa">
+              <Button variant="ghost" className="w-full md:w-auto justify-start">
+                <Map className="h-4 w-4 mr-2" />
+                PAA
+              </Button>
+            </Link>
+            <Link to="/report">
+              <Button variant="ghost" className="w-full md:w-auto justify-start">
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Relatórios
+              </Button>
+            </Link>
+            <Link to="/admin">
+              <Button variant="ghost" className="w-full md:w-auto justify-start">
+                <Settings className="h-4 w-4 mr-2" />
+                Administração
+              </Button>
+            </Link>
           </div>
-        </Link>
-        <div className="flex gap-4">
-          <Link href="/agriculture">
-            <Button variant="ghost" className="flex gap-2">
-              <Map className="h-4 w-4" />
-              Agricultura
-            </Button>
-          </Link>
-          <Link href="/fishing">
-            <Button variant="ghost" className="flex gap-2">
-              <Map className="h-4 w-4" />
-              Pesca
-            </Button>
-          </Link>
-          <Link href="/paa">
-            <Button variant="ghost" className="flex gap-2">
-              <Map className="h-4 w-4" />
-              PAA
-            </Button>
-          </Link>
-          <Link href="/report">
-            <Button variant="ghost" className="flex gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Relatórios
-            </Button>
-          </Link>
-          <Link href="/admin">
-            <Button variant="ghost" className="flex gap-2">
-              <Settings className="h-4 w-4" />
-              Administração
-            </Button>
-          </Link>
         </div>
       </div>
     </nav>
