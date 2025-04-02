@@ -26,7 +26,7 @@ const NavBar = () => {
 
           {/* Menu Hamburguer para Mobile */}
           <button 
-            className="md:hidden text-primary absolute right-1/2 transform translate-x-1/2 top-1/2 -translate-y-1/2"
+            className="md:hidden text-primary"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             ☰
