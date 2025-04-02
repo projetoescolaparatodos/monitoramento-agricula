@@ -47,7 +47,14 @@ const BackgroundVideo: React.FC<BackgroundVideoProps> = ({
 
   if (isMobile) {
     return (
-      <div className="fixed top-0 left-0 w-full h-full z-0 bg-gradient-to-b from-green-900/20 to-black/20" />
+      <div 
+        className="fixed top-0 left-0 w-full h-full z-0 bg-cover bg-center"
+        style={{ 
+          backgroundImage: 'url("/fundo estatico.jpg")',
+          backgroundBlendMode: 'overlay',
+          backgroundColor: 'rgba(0, 0, 0, 0.4)'
+        }}
+      />
     );
   }
 
