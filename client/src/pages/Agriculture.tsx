@@ -198,7 +198,7 @@ const Agriculture = () => {
           {contents && contents.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {contents.map((content) => (
-                <Card key={content.id} className="p-6 backdrop-blur-sm border-0">
+                <Card key={content.id} className="p-6 border-0">
                   <h3 className="text-xl font-semibold mb-4 text-white">{content.title}</h3>
                   <p className="text-white/80">{content.content}</p>
                 </Card>
@@ -232,7 +232,7 @@ const Agriculture = () => {
           )}
 
           {/* Agriculture Report Section */}
-          <section className="mt-16 bg-black/40 backdrop-blur-sm rounded-lg p-8">
+          <section className="mt-16 rounded-lg p-8">
             <h2 className="text-3xl font-bold text-center mb-8 text-white">Atividades da Agricultura</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <Card>
