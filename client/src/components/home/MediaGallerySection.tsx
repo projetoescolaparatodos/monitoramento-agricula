@@ -15,8 +15,8 @@ const MediaGallerySection = () => {
     <section className="mb-16">
       <div className="text-center mb-10">
         {/* Removed duplicate title */}
-        <p className="text-neutral max-w-3xl mx-auto">
-          Imagens e vídeos sobre atividades agrícolas no Brasil
+        <p className="text-white text-xl md:text-2xl font-medium tracking-wide max-w-3xl mx-auto">
+          Imagens e vídeos sobre atividades agrícolas em Vitória do Xingu
         </p>
       </div>
 
