@@ -100,9 +100,9 @@ const Fishing = () => {
           {contents && contents.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {contents.map((content) => (
-                <Card key={content.id} className="p-6 border-0">
-                  <h3 className="text-xl font-semibold mb-4 text-white">{content.title}</h3>
-                  <p className="text-white/80">{content.content}</p>
+                <Card key={content.id} className="p-6 border-0 bg-white/10 backdrop-blur-sm">
+                  <h3 className="text-2xl font-bold mb-4 text-white drop-shadow-sm">{content.title}</h3>
+                  <p className="text-white text-lg leading-relaxed">{content.content}</p>
                 </Card>
               ))}
             </div>
