@@ -72,7 +72,7 @@ const BackgroundVideo: React.FC<BackgroundVideoProps> = ({
         <source src={videoPath} type="video/mp4" />
         Seu navegador não suporta vídeos HTML5.
       </video>
-      <div className="absolute top-0 left-0 w-full h-full bg-black" style={{ opacity: 0.3 }} />
+      <div className="absolute top-0 left-0 w-full h-full bg-black" style={{ opacity: 0.6 }} />
     </div>
   );
 };
