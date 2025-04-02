@@ -16,7 +16,7 @@ const MediaGallerySection = () => {
       <div className="text-center mb-10">
         {/* Removed duplicate title */}
         <p className="text-white text-xl md:text-2xl font-medium tracking-wide max-w-3xl mx-auto">
-          Imagens e vídeos sobre atividades agrícolas em Vitória do Xingu
+          Acompanhe o dia a dia das atividades agrícolas e pesqueiras, com fotos e vídeos das ações da SEMAPA e conteúdos informativos.
         </p>
       </div>
 
