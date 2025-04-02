@@ -15,7 +15,7 @@ const HeroSection = () => {
       <div className="bg-green-700 rounded-lg overflow-hidden shadow-lg min-h-[500px] md:h-[800px]">
         <div className="flex flex-col md:flex-row h-full">
           <div className="w-full md:w-1/2 p-4 md:p-12 flex flex-col justify-center relative">
-            <div className="absolute inset-0 flex items-center justify-center opacity-46">
+            <div className="absolute inset-0 flex items-center justify-center opacity-43">
               <img
                 src="/logo.png"
                 alt="SEMAPA Logo"
