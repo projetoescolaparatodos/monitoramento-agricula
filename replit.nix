@@ -1,7 +1,8 @@
 
 { pkgs }: {
   deps = [
-    pkgs.python311
+    pkgs.python311Full
+    pkgs.python311Packages.pip
     pkgs.nodejs-20_x
     pkgs.freetype
     pkgs.pkg-config
