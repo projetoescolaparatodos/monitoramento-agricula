@@ -22,39 +22,44 @@ import FishingInfo from "@/pages/FishingInfo";
 import AgricultureMap from "@/pages/AgriculturaMap";
 import AgricultureInfo from "./pages/AgricultureInfo"; // Added import
 import BackgroundVideo from "./components/ui/BackgroundVideo"; // Added import
+import ChatbotWidget from "@/components/chat/ChatbotWidget"; // Added import
 
 
 function Router() {
   return (
-    <div className="min-h-screen bg-background">
-      <NavBar />
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/agriculture" component={Agriculture} />
-        <Route path="/agriculture/info" component={AgricultureInfo} />
-        <Route path="/agriculture/map" component={AgricultureMap} />
-        <Route path="/fishing" component={Fishing} />
-        <Route path="/fishing/info" component={FishingInfo} />
-        <Route path="/fishing/map" component={PescaMap} /> 
-        <Route path="/paa" component={PAAInfo} /> 
-        <Route path="/paa/info" component={PAAInfo} />
-        <Route path="/paa/map" component={PAAMap} />
-        <Route path="/dashboard/:section?" component={Dashboard} />
-        <Route path="/login" component={Login} />
-        <Route path="/admin">
-          {() => {
-            const user = auth.currentUser;
-            if (!user) {
-              window.location.href = "/login";
-              return null;
-            }
-            return <Admin />;
-          }}
-        </Route>
-        <Route path="/report" component={Report} />
-        <Route component={NotFound} />
-      </Switch>
-    </div>
+    <>
+      <BackgroundVideo videoPath="/videos/BackgroundVideo.mp4" opacity={0.3} />
+      <div className="relative z-10">
+        <ChatbotWidget />
+        <NavBar />
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/agriculture" component={Agriculture} />
+          <Route path="/agriculture/info" component={AgricultureInfo} />
+          <Route path="/agriculture/map" component={AgricultureMap} />
+          <Route path="/fishing" component={Fishing} />
+          <Route path="/fishing/info" component={FishingInfo} />
+          <Route path="/fishing/map" component={PescaMap} /> 
+          <Route path="/paa" component={PAAInfo} /> 
+          <Route path="/paa/info" component={PAAInfo} />
+          <Route path="/paa/map" component={PAAMap} />
+          <Route path="/dashboard/:section?" component={Dashboard} />
+          <Route path="/login" component={Login} />
+          <Route path="/admin">
+            {() => {
+              const user = auth.currentUser;
+              if (!user) {
+                window.location.href = "/login";
+                return null;
+              }
+              return <Admin />;
+            }}
+          </Route>
+          <Route path="/report" component={Report} />
+          <Route component={NotFound} />
+        </Switch>
+      </div>
+    </>
   );
 }
 
