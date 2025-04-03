@@ -1,27 +1,54 @@
-# This files contains your custom actions which can be used to run
-# custom Python code.
-#
-# See this guide on how to implement these action:
-# https://rasa.com/docs/rasa/custom-actions
 
+from typing import Any, Text, Dict, List
+from rasa_sdk import Action, Tracker
+from rasa_sdk.executor import CollectingDispatcher
+import firebase_admin
+from firebase_admin import credentials, firestore
 
-# This is a simple example for a custom action which utters "Hello World!"
+class ActionCadastroInfo(Action):
+    def name(self) -> Text:
+        return "action_cadastro_info"
 
-# from typing import Any, Text, Dict, List
-#
-# from rasa_sdk import Action, Tracker
-# from rasa_sdk.executor import CollectingDispatcher
-#
-#
-# class ActionHelloWorld(Action):
-#
-#     def name(self) -> Text:
-#         return "action_hello_world"
-#
-#     def run(self, dispatcher: CollectingDispatcher,
-#             tracker: Tracker,
-#             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-#
-#         dispatcher.utter_message(text="Hello World!")
-#
-#         return []
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        
+        dispatcher.utter_message(text="Para se cadastrar, siga estes passos:\n"
+                               "1. Clique no botão 'Cadastro' no menu principal\n"
+                               "2. Preencha seus dados pessoais\n"
+                               "3. Adicione informações sobre sua propriedade\n"
+                               "4. Envie os documentos necessários")
+        return []
+
+class ActionSalvarFormulario(Action):
+    def name(self) -> Text:
+        return "action_salvar_formulario"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        
+        try:
+            # Initialize Firebase if not already initialized
+            if not firebase_admin._apps:
+                cred = credentials.Certificate("path/to/serviceAccountKey.json")
+                firebase_admin.initialize_app(cred)
+            
+            db = firestore.client()
+            
+            # Get form data from tracker
+            form_data = {
+                "nome": tracker.get_slot("nome"),
+                "area": tracker.get_slot("area"),
+                "tipo_servico": tracker.get_slot("tipo_servico"),
+                "data_solicitacao": tracker.get_slot("data")
+            }
+            
+            # Save to Firestore
+            db.collection("formularios").add(form_data)
+            
+            dispatcher.utter_message(text="Seu formulário foi salvo com sucesso!")
+        except Exception as e:
+            dispatcher.utter_message(text="Desculpe, houve um erro ao salvar seu formulário.")
+        
+        return []

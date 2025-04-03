@@ -89,3 +89,28 @@ nlu:
     - are you a human?
     - am I talking to a bot?
     - am I talking to a human?
+
+- intent: cadastro_info
+  examples: |
+    - como faço para me cadastrar?
+    - quero me cadastrar
+    - preciso fazer cadastro
+    - qual o processo de cadastro?
+    - como inicio meu cadastro?
+    - pode me ajudar com o cadastro?
+
+- intent: area_rural
+  examples: |
+    - como registro minha área rural?
+    - quero cadastrar minha propriedade
+    - como adiciono uma nova fazenda?
+    - preciso registrar minhas terras
+    - cadastro de área rural
+
+- intent: maquinario
+  examples: |
+    - como solicito maquinário?
+    - preciso de um trator
+    - quando posso usar o maquinário?
+    - qual equipamento está disponível?
+    - processo para solicitar máquinas
