@@ -7,6 +7,7 @@ dependencies = [
     "dask>=2025.3.0",
     "matplotlib>=3.5.3",
     "rasa-sdk>=3.6.2",
-    "rasa>=3.6.21",
+    "rasa<=3.6.21",
     "sqlalchemy<2.0",
+    "packaging>=20.0,<21.0",
 ]
