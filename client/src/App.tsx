@@ -65,7 +65,6 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router />
-      <ChatButton />
       <ChatbotWidget />
       <Toaster />
     </QueryClientProvider>
