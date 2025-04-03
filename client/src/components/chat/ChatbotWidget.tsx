@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { MessageCircle, Send, X } from 'lucide-react';
+import { db } from '@/utils/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
 interface Message {
   text: string;
@@ -138,10 +140,60 @@ const ChatbotWidget: React.FC = () => {
       if (novaEtapa >= cadastroFluxo.length) {
         botResponse = cadastroFluxo[cadastroFluxo.length - 1];
         setCadastroEtapa(-1);
-        setCadastroRespostas([]);
 
-        // Aqui você pode implementar o envio das respostas para o backend
-        console.log('Respostas do cadastro:', novasRespostas);
+        // Criar objeto com as respostas organizadas
+        const dadosCadastro = {
+          propriedade: {
+            nome: novasRespostas[0],
+            tipoPessoa: novasRespostas[1],
+            endereco: novasRespostas[2],
+            tamanho: novasRespostas[3],
+            escriturada: novasRespostas[4],
+            dapCaf: novasRespostas[5],
+            car: novasRespostas[6],
+            financiamentoRural: novasRespostas[7],
+            coordenadaS: novasRespostas[8],
+            coordenadaW: novasRespostas[9]
+          },
+          proprietario: {
+            nome: novasRespostas[10],
+            cpf: novasRespostas[11],
+            rg: novasRespostas[12],
+            emissorUf: novasRespostas[13],
+            sexo: novasRespostas[14],
+            dataNascimento: novasRespostas[15],
+            naturalidade: novasRespostas[16],
+            nomeMae: novasRespostas[17],
+            escolaridade: novasRespostas[18],
+            telefone: novasRespostas[19],
+            instituicaoAssociada: novasRespostas[20]
+          },
+          agropecuaria: {
+            cultivaCacau: novasRespostas[21],
+            frutPerenes: novasRespostas[22],
+            lavouraAnual: novasRespostas[23],
+            mandioca: novasRespostas[24],
+            arrozFeijao: novasRespostas[25],
+            olericolas: novasRespostas[26],
+            tuberosas: novasRespostas[27],
+            bovinos: novasRespostas[28],
+            caprinosOvinos: novasRespostas[29],
+            suinos: novasRespostas[30],
+            aves: novasRespostas[31]
+          },
+          dataCadastro: new Date().toISOString()
+        };
+
+        try {
+          // Salvar no Firebase
+          const cadastroRef = collection(db, "cadastros_rurais");
+          await addDoc(cadastroRef, dadosCadastro);
+          console.log('Cadastro salvo com sucesso!');
+        } catch (error) {
+          console.error('Erro ao salvar cadastro:', error);
+        }
+
+        setCadastroRespostas([]);
       } else {
         botResponse = cadastroFluxo[novaEtapa];
 
