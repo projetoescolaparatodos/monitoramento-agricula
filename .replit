@@ -15,7 +15,7 @@ localPort = 5000
 externalPort = 80
 
 [workflows]
-runButton = "Rasa Optimized"
+runButton = "Run"
 
 [[workflows.workflow]]
 name = "Project"
@@ -125,3 +125,12 @@ args = "rasa run --enable-api --cors \"*\" --port 5005 --endpoints endpoints.yml
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "rasa run actions --port 5055"
+
+[[workflows.workflow]]
+name = "Run"
+author = 40255565
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
