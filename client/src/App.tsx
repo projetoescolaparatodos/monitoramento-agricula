@@ -1,6 +1,8 @@
+
 import { Switch, Route } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ChatButton } from "@/components/chat/ChatButton";
+import ChatbotWidget from "@/components/chat/ChatbotWidget";
 import { Toaster } from "@/components/ui/toaster";
 import { queryClient } from "./lib/queryClient";
 import Home from "@/pages/Home";
@@ -17,13 +19,10 @@ import Admin from "@/pages/Admin";
 import NotFound from "@/pages/not-found";
 import NavBar from "@/components/NavBar";
 import { auth } from "./utils/firebase";
-// Added FishingInfo component
 import FishingInfo from "@/pages/FishingInfo";
 import AgricultureMap from "@/pages/AgriculturaMap";
-import AgricultureInfo from "./pages/AgricultureInfo"; // Added import
-import BackgroundVideo from "./components/ui/BackgroundVideo"; // Added import
-import ChatbotWidget from "@/components/chat/ChatbotWidget"; // Added import
-
+import AgricultureInfo from "./pages/AgricultureInfo";
+import BackgroundVideo from "./components/ui/BackgroundVideo";
 
 function Router() {
   return (
