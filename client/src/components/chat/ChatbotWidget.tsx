@@ -333,7 +333,7 @@ const ChatbotWidget: React.FC = () => {
           <MessageCircle size={24} />
         </Button>
       ) : (
-        <Card className="w-80 sm:w-96 h-[500px] shadow-xl flex flex-col">
+        <Card className="w-80 sm:w-96 shadow-xl flex flex-col">
           <div className="bg-green-600 text-white p-3 flex justify-between items-center rounded-t-lg">
             <h3 className="font-medium">Assistente Virtual</h3>
             <Button
@@ -346,8 +346,8 @@ const ChatbotWidget: React.FC = () => {
             </Button>
           </div>
 
-          <CardContent className="p-0 flex flex-col h-full relative">
-            <div className="flex-1 overflow-y-auto p-4">
+          <CardContent className="p-0 flex flex-col h-[600px] relative">
+            <div className="absolute top-0 left-0 right-0 bottom-[120px] overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
               {messages.map((msg, idx) => (
                 <div
                   key={idx}
