@@ -1,6 +1,7 @@
 
 { pkgs }: {
   deps = [
+    pkgs.arrow-cpp
     pkgs.python311Full
     pkgs.python311Packages.pip
     pkgs.freetype
