@@ -8,5 +8,6 @@
     pkgs.fontconfig
     pkgs.libpng
     pkgs.zlib
+    pkgs.python311Packages.matplotlib
   ];
 }
