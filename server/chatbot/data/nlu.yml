@@ -1,0 +1,25 @@
+
+version: "3.1"
+nlu:
+  - intent: cumprimentar
+    examples: |
+      - olá
+      - oi
+      - bom dia
+      - boa tarde
+      - boa noite
+      - como vai
+      
+  - intent: cadastro_agricultura
+    examples: |
+      - quero me cadastrar na agricultura
+      - preciso registrar minha propriedade
+      - como faço para solicitar serviços agrícolas
+      - cadastro de agricultor
+      
+  - intent: cadastro_pesca
+    examples: |
+      - quero me cadastrar como pescador
+      - preciso de licença de pesca
+      - como faço para registrar minha embarcação
+      - cadastro de pescador
