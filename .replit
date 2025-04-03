@@ -52,7 +52,7 @@ args = "rasa train"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "rasa run --enable-api --cors \"*\" --port 5005 --credentials server/chatbot/credentials.yml"
+args = "rasa run --enable-api --cors \"*\" --port 5005"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"

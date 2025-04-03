@@ -52,3 +52,50 @@ export default router;
 export function setupChatbotRoutes(app: express.Express) {
     app.use('/api', router);
 }
+import express from 'express';
+import { db } from '../firebase';
+
+const router = express.Router();
+
+// Endpoint para salvar respostas do chatbot
+router.post('/save-response', async (req, res) => {
+  try {
+    const { userId, conversation, timestamp, respostas } = req.body;
+    
+    if (!respostas) {
+      return res.status(400).json({ error: 'Dados inválidos' });
+    }
+    
+    await db.collection('chatbot_respostas').add({
+      userId,
+      conversation,
+      timestamp: timestamp || new Date().toISOString(),
+      respostas,
+      status: 'pendente'
+    });
+    
+    res.json({ success: true, message: 'Dados salvos com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao salvar respostas:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Endpoint para obter perguntas do questionário
+router.get('/questionarios/:setor', async (req, res) => {
+  try {
+    const { setor } = req.params;
+    const doc = await db.collection('questionarios').doc(setor).get();
+    
+    if (!doc.exists) {
+      return res.status(404).json({ success: false, error: 'Questionário não encontrado' });
+    }
+    
+    res.json({ success: true, data: doc.data() });
+  } catch (error) {
+    console.error('Erro ao buscar questionário:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+export default router;

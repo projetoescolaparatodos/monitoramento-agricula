@@ -1,7 +1,7 @@
-
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import chatbotRoutes from './chatbot/api'; // Added import for chatbot routes
 
 // Create Express application
 const app = express();
@@ -52,10 +52,10 @@ app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
   if (res.headersSent) {
     return next(err);
   }
-  
+
   const status = err.status || err.statusCode || 500;
   const message = err.message || "Internal Server Error";
-  
+
   res.status(status).json({
     error: true,
     message: message,
@@ -71,7 +71,7 @@ const setupServer = async () => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
     console.error(`Erro: ${status} - ${message}`);
-    
+
     // Evita lançar o erro novamente, apenas envia a resposta
     res.status(status).json({ message });
   });
