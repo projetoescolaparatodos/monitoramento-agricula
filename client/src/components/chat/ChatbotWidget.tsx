@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { MessageCircle, Send, X } from 'lucide-react';
-import { db } from '@/utils/firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import React, { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { MessageCircle, Send, X } from "lucide-react";
+import { db } from "@/utils/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 interface Message {
   text: string;
@@ -12,337 +12,371 @@ interface Message {
   timestamp: Date;
 }
 
-const botResponses = [
-  {
-    keywords: ['olá', 'oi', 'hey', 'bom dia', 'boa tarde', 'boa noite'],
-    response: 'Olá! Sou o assistente virtual da Secretaria de Agricultura. Como posso ajudar você hoje?'
-  },
-  {
-    keywords: ['agricultura', 'plantar', 'plantação', 'cultivo'],
-    response: 'Nossa Secretaria oferece diversos serviços como assistência técnica e mecanização agrícola. Gostaria de fazer um cadastro?'
-  },
-  {
-    keywords: ['pesca', 'pescador', 'peixe'],
-    response: 'O setor de Pesca oferece apoio aos pescadores locais. Posso ajudar você a iniciar um cadastro?'
-  },
-  {
-    keywords: ['paa', 'programa', 'alimentos'],
-    response: 'O PAA permite que agricultores familiares vendam seus produtos. Gostaria de informações sobre como participar?'
-  }
-];
-
-const cadastroFluxo = [
-  // Dados da Propriedade
-  'Qual o nome da propriedade?',
-  'A propriedade é pessoa Física ou Jurídica?',
-  'Qual o endereço da propriedade?',
-  'Qual o tamanho da propriedade em hectares (ha)?',
-  'A propriedade é escriturada? (Sim/Não)',
-  'Possui DAP/CAF? (Sim/Não)',
-  'Possui CAR? (Sim/Não)',
-  'Possui Financiamento Rural? (Sim/Não)',
-  'Qual a coordenada S da propriedade?',
-  'Qual a coordenada W da propriedade?',
-
-  // Dados do Proprietário
-  'Qual seu nome completo?',
-  'Qual seu CPF?',
-  'Qual seu RG?',
-  'Qual o órgão emissor e UF do RG?',
-  'Qual seu sexo?',
-  'Qual sua data de nascimento?',
-  'Qual sua naturalidade?',
-  'Qual o nome da sua mãe?',
-  'Qual sua escolaridade? (Analfabeto/Fundamental Incompleto/Fundamental completo/Médio Incompleto/Médio completo/Superior Incompleto/Superior completo/Pós Graduação)',
-  'Qual seu telefone para contato?',
-  'É associado a alguma instituição? Se sim, qual?',
-
-  // Dados Agropecuários
-  'Você cultiva cacau? (Sim/Não)',
-  'Cultiva frutíferas perenes? (Sim/Não)',
-  'Possui cultivo de lavouras anuais? (Sim/Não)',
-  'Produz mandioca/macaxeira? (Sim/Não)',
-  'Produz arroz ou feijão? (Sim/Não)',
-  'Produz olerícolas? (Sim/Não)',
-  'Produz tuberosas? (Sim/Não)',
-  'Possui criação de bovinos? (Sim/Não)',
-  'Possui criação de caprinos/ovinos? (Sim/Não)',
-  'Possui criação de suínos? (Sim/Não)',
-  'Possui criação de aves? (Sim/Não)',
-
-  'Obrigado por fornecer todas as informações! Um técnico entrará em contato em breve para dar continuidade ao seu cadastro.'
-];
-
 interface SuggestionButton {
   text: string;
   action: string;
 }
 
+// Fluxos de conversa
+const botResponses = [
+  {
+    keywords: ["olá", "oi", "hey", "bom dia", "boa tarde", "boa noite"],
+    response:
+      "Olá! Sou o assistente virtual da Secretaria de Agricultura. Como posso ajudar você hoje?",
+  },
+  {
+    keywords: ["agricultura", "plantar", "plantação", "cultivo"],
+    response:
+      "Nossa Secretaria oferece diversos serviços como assistência técnica e mecanização agrícola. Gostaria de fazer um cadastro?",
+  },
+  {
+    keywords: ["pesca", "pescador", "peixe"],
+    response:
+      "O setor de Pesca oferece apoio aos pescadores locais. Posso ajudar você a iniciar um cadastro?",
+  },
+  {
+    keywords: ["paa", "programa", "alimentos"],
+    response:
+      "O PAA permite que agricultores familiares vendam seus produtos. Gostaria de informações sobre como participar?",
+  },
+];
+
+const cadastroFluxo = [
+  // Dados da Propriedade
+  "Qual o nome da propriedade?",
+  "A propriedade é pessoa Física ou Jurídica?",
+  "Qual o endereço da propriedade?",
+  "Qual o tamanho da propriedade em hectares (ha)?",
+  "A propriedade é escriturada? (Sim/Não)",
+  "Possui DAP/CAF? (Sim/Não)",
+  "Possui CAR? (Sim/Não)",
+  "Possui Financiamento Rural? (Sim/Não)",
+  "Qual a coordenada S da propriedade?",
+  "Qual a coordenada W da propriedade?",
+
+  // Dados do Proprietário
+  "Qual seu nome completo?",
+  "Qual seu CPF?",
+  "Qual seu RG?",
+  "Qual o órgão emissor e UF do RG?",
+  "Qual seu sexo?",
+  "Qual sua data de nascimento?",
+  "Qual sua naturalidade?",
+  "Qual o nome da sua mãe?",
+  "Qual sua escolaridade?",
+  "Qual seu telefone para contato?",
+  "É associado a alguma instituição? Se sim, qual?",
+
+  // Dados Agropecuários
+  "Você cultiva cacau? (Sim/Não)",
+  // ... outros itens agrícolas
+];
+
+// Perguntas específicas para cacau
+const cacauQuestions = [
+  "Quantos pés de cacau você cultiva?",
+  "É safreiro? (Sim/Não)",
+  "Qual a idade do plantio?",
+  "Utiliza sementes CEPLAC? (Sim/Não)",
+  "Qual a produção anual em KG?",
+  "Possui plantio de cacau clonado? (Sim/Não)",
+];
+
 const initialSuggestions: SuggestionButton[] = [
   { text: "Quero fazer um cadastro", action: "cadastro" },
   { text: "Informações sobre Agricultura", action: "agricultura" },
   { text: "Informações sobre Pesca", action: "pesca" },
-  { text: "Sobre o PAA", action: "paa" }
+  { text: "Sobre o PAA", action: "paa" },
 ];
 
 const ChatbotWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [cadastroEtapa, setCadastroEtapa] = useState(-1);
   const [cadastroRespostas, setCadastroRespostas] = useState<string[]>([]);
-  const [suggestions, setSuggestions] = useState<SuggestionButton[]>(initialSuggestions);
+  const [suggestions, setSuggestions] =
+    useState<SuggestionButton[]>(initialSuggestions);
+  const [subFluxo, setSubFluxo] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Efeitos
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      setMessages([{
-        text: 'Olá! Como posso ajudar você hoje? Selecione uma das opções abaixo ou digite sua mensagem.',
-        isUser: false,
-        timestamp: new Date()
-      }]);
-      setSuggestions(initialSuggestions);
+      setMessages([
+        {
+          text: "Olá! Como posso ajudar você hoje? Selecione uma das opções abaixo ou digite sua mensagem.",
+          isUser: false,
+          timestamp: new Date(),
+        },
+      ]);
     }
   }, [isOpen]);
 
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    scrollToBottom();
   }, [messages]);
 
-  const findResponse = (userMessage: string): string => {
-    const lowercaseMsg = userMessage.toLowerCase();
+  useEffect(() => {
+    if (cadastroEtapa >= 0) {
+      setSuggestions(getContextualSuggestions(cadastroEtapa));
+    }
+  }, [cadastroEtapa]);
 
-    for (const item of botResponses) {
-      if (item.keywords.some(keyword => lowercaseMsg.includes(keyword))) {
-        return item.response;
+  // Funções auxiliares
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const getContextualSuggestions = (etapa: number): SuggestionButton[] => {
+    if (subFluxo === "cacau") {
+      const currentCacauQuestion = cadastroEtapa - cadastroFluxo.length;
+      if (currentCacauQuestion === 0) return []; // Quantidade de pés (campo numérico)
+      if (currentCacauQuestion === 1 || currentCacauQuestion === 2) {
+        return [
+          { text: "Sim", action: "sim" },
+          { text: "Não", action: "nao" },
+        ];
       }
     }
 
-    return 'Desculpe, não entendi. Você pode escolher um destes tópicos:\n- Agricultura\n- Pesca\n- PAA';
+    switch (etapa) {
+      case 1:
+        return [
+          { text: "Física", action: "fisica" },
+          { text: "Jurídica", action: "juridica" },
+        ];
+      case 4:
+      case 5:
+      case 6:
+      case 7:
+      case 21:
+        return [
+          { text: "Sim", action: "sim" },
+          { text: "Não", action: "nao" },
+        ];
+      case 14:
+        return [
+          { text: "Masculino", action: "masculino" },
+          { text: "Feminino", action: "feminino" },
+        ];
+      case 18:
+        return [
+          { text: "Analfabeto", action: "analfabeto" },
+          { text: "Fundamental", action: "fundamental" },
+          { text: "Médio", action: "medio" },
+          { text: "Superior", action: "superior" },
+        ];
+      default:
+        return [];
+    }
+  };
+
+  const validateField = (etapa: number, resposta: string): boolean => {
+    const numericFields = [3, 8, 9]; // Campos que devem ser numéricos
+    if (numericFields.includes(etapa)) {
+      return !isNaN(Number(resposta));
+    }
+    return true;
+  };
+
+  const findResponse = (userMessage: string): string => {
+    const lowercaseMsg = userMessage.toLowerCase();
+    for (const item of botResponses) {
+      if (item.keywords.some((keyword) => lowercaseMsg.includes(keyword))) {
+        return item.response;
+      }
+    }
+    return "Desculpe, não entendi. Você pode escolher um destes tópicos:\n- Agricultura\n- Pesca\n- PAA";
+  };
+
+  const addMessage = (text: string, isUser: boolean) => {
+    setMessages((prev) => [
+      ...prev,
+      {
+        text,
+        isUser,
+        timestamp: new Date(),
+      },
+    ]);
+  };
+
+  const saveCadastroToFirebase = async () => {
+    const dadosCadastro = {
+      propriedade: {
+        nome: cadastroRespostas[0],
+        tipo: cadastroRespostas[1],
+        endereco: cadastroRespostas[2],
+        tamanho: parseFloat(cadastroRespostas[3]),
+        escriturada: cadastroRespostas[4],
+        dapCaf: cadastroRespostas[5],
+        car: cadastroRespostas[6],
+        financiamento: cadastroRespostas[7],
+        coordenadas: {
+          s: cadastroRespostas[8],
+          w: cadastroRespostas[9],
+        },
+      },
+      proprietario: {
+        nome: cadastroRespostas[10],
+        cpf: cadastroRespostas[11],
+        rg: cadastroRespostas[12],
+        emissor: cadastroRespostas[13],
+        sexo: cadastroRespostas[14],
+        nascimento: cadastroRespostas[15],
+        naturalidade: cadastroRespostas[16],
+        mae: cadastroRespostas[17],
+        escolaridade: cadastroRespostas[18],
+        telefone: cadastroRespostas[19],
+        associacao: cadastroRespostas[20],
+      },
+      agricultura: {
+        cacau:
+          cadastroRespostas[21] === "sim"
+            ? {
+                quantidade:
+                  subFluxo === "cacau" ? parseInt(cadastroRespostas[22]) : 0,
+                safreiro:
+                  subFluxo === "cacau"
+                    ? cadastroRespostas[23] === "sim"
+                    : false,
+                idade: subFluxo === "cacau" ? cadastroRespostas[24] : "",
+              }
+            : null,
+      },
+      timestamp: serverTimestamp(),
+    };
+
+    try {
+      await addDoc(collection(db, "cadastros_agricolas"), dadosCadastro);
+    } catch (error) {
+      console.error("Erro ao salvar cadastro:", error);
+    }
   };
 
   const processUserMessage = async (userMessage: string) => {
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 800));
 
-    let botResponse: string;
+    // Adiciona mensagem do usuário
+    addMessage(userMessage, true);
 
-    if (cadastroEtapa >= 0) {
-      const novasRespostas = [...cadastroRespostas, userMessage];
-      setCadastroRespostas(novasRespostas);
+    // Processa resposta
+    let botResponse = "";
 
-      const novaEtapa = cadastroEtapa + 1;
-      setCadastroEtapa(novaEtapa);
+    if (subFluxo === "cacau") {
+      const respostasCacau = [...cadastroRespostas, userMessage];
+      setCadastroRespostas(respostasCacau);
 
-      if (novaEtapa >= cadastroFluxo.length) {
-        botResponse = cadastroFluxo[cadastroFluxo.length - 1];
-        setCadastroEtapa(-1);
-
-        // Criar objeto com as respostas organizadas
-        const dadosCadastro = {
-          propriedade: {
-            nome: novasRespostas[0],
-            tipoPessoa: novasRespostas[1],
-            endereco: novasRespostas[2],
-            tamanho: novasRespostas[3],
-            escriturada: novasRespostas[4],
-            dapCaf: novasRespostas[5],
-            car: novasRespostas[6],
-            financiamentoRural: novasRespostas[7],
-            coordenadaS: novasRespostas[8],
-            coordenadaW: novasRespostas[9]
-          },
-          proprietario: {
-            nome: novasRespostas[10],
-            cpf: novasRespostas[11],
-            rg: novasRespostas[12],
-            emissorUf: novasRespostas[13],
-            sexo: novasRespostas[14],
-            dataNascimento: novasRespostas[15],
-            naturalidade: novasRespostas[16],
-            nomeMae: novasRespostas[17],
-            escolaridade: novasRespostas[18],
-            telefone: novasRespostas[19],
-            instituicaoAssociada: novasRespostas[20]
-          },
-          agropecuaria: {
-            cultivaCacau: novasRespostas[21],
-            frutPerenes: novasRespostas[22],
-            lavouraAnual: novasRespostas[23],
-            mandioca: novasRespostas[24],
-            arrozFeijao: novasRespostas[25],
-            olericolas: novasRespostas[26],
-            tuberosas: novasRespostas[27],
-            bovinos: novasRespostas[28],
-            caprinosOvinos: novasRespostas[29],
-            suinos: novasRespostas[30],
-            aves: novasRespostas[31]
-          },
-          dataCadastro: new Date().toISOString()
-        };
-
-        try {
-          // Salvar no Firebase
-          const cadastroRef = collection(db, "cadastros_rurais");
-          await addDoc(cadastroRef, dadosCadastro);
-          console.log('Cadastro salvo com sucesso!');
-        } catch (error) {
-          console.error('Erro ao salvar cadastro:', error);
-        }
-
-        setCadastroRespostas([]);
+      const nextQuestionIndex =
+        cadastroFluxo.length + respostasCacau.length - 22;
+      if (nextQuestionIndex < cacauQuestions.length) {
+        botResponse = cacauQuestions[nextQuestionIndex];
       } else {
-        botResponse = cadastroFluxo[novaEtapa];
+        setSubFluxo(null);
+        botResponse =
+          "Obrigado pelas informações sobre cacau! Vamos continuar...";
+      }
+    } else if (cadastroEtapa >= 0) {
+      if (!validateField(cadastroEtapa, userMessage)) {
+        botResponse = "Por favor, insira um valor válido.";
+      } else {
+        const novasRespostas = [...cadastroRespostas, userMessage];
+        setCadastroRespostas(novasRespostas);
 
-        // Adicionar sugestões baseadas na etapa atual
-        // Reseta sugestões para perguntas que exigem entrada livre
-        const perguntasLivres = [
-          0,  // Nome da propriedade
-          2,  // Endereço
-          3,  // Tamanho da propriedade
-          8,  // Coordenada S
-          9,  // Coordenada W
-          10, // Nome completo
-          11, // CPF
-          12, // RG
-          13, // Emissor/UF
-          15, // Data de nascimento
-          16, // Naturalidade
-          17, // Nome da mãe
-          19, // Telefone
-          20  // Instituição associada
-        ];
-
-        if (perguntasLivres.includes(novaEtapa)) {
-          setSuggestions([]);
-        } 
-        // Tipo de pessoa
-        else if (novaEtapa === 1) {
-          setSuggestions([
-            { text: "Física", action: "fisica" },
-            { text: "Jurídica", action: "juridica" }
-          ]);
+        // Verifica se iniciou subfluxo de cacau
+        if (cadastroEtapa === 21 && userMessage.toLowerCase() === "sim") {
+          setSubFluxo("cacau");
+          botResponse = cacauQuestions[0];
         }
-        // Perguntas Sim/Não
-        else if ([4, 5, 6, 7, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30].includes(novaEtapa)) {
-          setSuggestions([
-            { text: "Sim", action: "sim" },
-            { text: "Não", action: "nao" }
-          ]);
+        // Final do cadastro
+        else if (cadastroEtapa >= cadastroFluxo.length - 1) {
+          await saveCadastroToFirebase();
+          botResponse =
+            "Cadastro concluído! Um técnico entrará em contato em breve.";
+          setCadastroEtapa(-1);
+          setCadastroRespostas([]);
         }
-        // Sexo
-        else if (novaEtapa === 14) {
-          setSuggestions([
-            { text: "Masculino", action: "masculino" },
-            { text: "Feminino", action: "feminino" }
-          ]);
-        }
-        // Escolaridade
-        else if (novaEtapa === 18) {
-          setSuggestions([
-            { text: "Analfabeto", action: "analfabeto" },
-            { text: "Fundamental Incompleto", action: "fundamental_incompleto" },
-            { text: "Fundamental Completo", action: "fundamental_completo" },
-            { text: "Médio Incompleto", action: "medio_incompleto" },
-            { text: "Médio Completo", action: "medio_completo" },
-            { text: "Superior Incompleto", action: "superior_incompleto" },
-            { text: "Superior Completo", action: "superior_completo" },
-            { text: "Pós Graduação", action: "pos_graduacao" }
-          ]);
+        // Próxima pergunta normal
+        else {
+          setCadastroEtapa((prev) => prev + 1);
+          botResponse = cadastroFluxo[cadastroEtapa + 1];
         }
       }
     } else {
-      if (userMessage.toLowerCase().includes('cadastro') || 
-          userMessage.toLowerCase().includes('sim')) {
-        botResponse = cadastroFluxo[0];
+      botResponse = findResponse(userMessage);
+      if (userMessage.toLowerCase().includes("cadastro")) {
         setCadastroEtapa(0);
-      } else {
-        botResponse = findResponse(userMessage);
+        botResponse = cadastroFluxo[0];
       }
     }
 
-    setMessages(prev => [...prev, {
-      text: botResponse,
-      isUser: false,
-      timestamp: new Date()
-    }]);
-
+    // Adiciona resposta do bot
+    addMessage(botResponse, false);
     setIsLoading(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
-
-    setMessages(prev => [...prev, {
-      text: input,
-      isUser: true,
-      timestamp: new Date()
-    }]);
-
     processUserMessage(input);
-    setInput('');
+    setInput("");
   };
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
       {!isOpen ? (
-        <Button 
-          onClick={() => setIsOpen(true)} 
-          className="rounded-full w-14 h-14 bg-green-600 hover:bg-green-700 text-white shadow-lg flex items-center justify-center"
+        <Button
+          onClick={() => setIsOpen(true)}
+          className="rounded-full w-14 h-14 bg-green-600 hover:bg-green-700 text-white shadow-lg"
         >
           <MessageCircle size={24} />
         </Button>
       ) : (
-        <Card className="w-80 sm:w-96 h-[500px] shadow-xl flex flex-col bg-white">
+        <Card className="w-80 sm:w-96 h-[500px] shadow-xl flex flex-col">
           <div className="bg-green-600 text-white p-3 flex justify-between items-center rounded-t-lg">
             <h3 className="font-medium">Assistente Virtual</h3>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => setIsOpen(false)} 
-              className="text-white hover:bg-green-700 h-8 w-8 p-0"
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsOpen(false)}
+              className="text-white hover:bg-green-700"
             >
               <X size={20} />
             </Button>
           </div>
 
-          <CardContent className="p-0 flex flex-col h-[500px] relative">
-            <div className="absolute top-0 left-0 right-0 bottom-[60px] overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
+          <CardContent className="p-0 flex flex-col h-full relative">
+            <div className="flex-1 overflow-y-auto p-4">
               {messages.map((msg, idx) => (
-                <div 
-                  key={idx} 
-                  className={`mb-4 flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}
+                <div
+                  key={idx}
+                  className={`mb-4 flex ${msg.isUser ? "justify-end" : "justify-start"}`}
                 >
-                  <div 
-                    className={`p-3 rounded-lg max-w-[80%] break-words ${
-                      msg.isUser 
-                        ? 'bg-green-600 text-white rounded-tr-none' 
-                        : 'bg-gray-100 text-gray-800 rounded-tl-none'
+                  <div
+                    className={`p-3 rounded-lg max-w-[80%] ${
+                      msg.isUser
+                        ? "bg-green-600 text-white rounded-tr-none"
+                        : "bg-gray-100 text-gray-800 rounded-tl-none"
                     }`}
                   >
-                    {msg.text.split('\n').map((line, i) => (
-                      <React.Fragment key={i}>
-                        {line}
-                        {i < msg.text.split('\n').length - 1 && <br />}
-                      </React.Fragment>
-                    ))}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    {msg.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                    {msg.text}
                   </div>
                 </div>
               ))}
               {isLoading && (
-                <div className="text-left mb-4">
-                  <div className="inline-block p-3 rounded-lg bg-gray-100 text-gray-800 rounded-tl-none">
+                <div className="flex justify-start">
+                  <div className="p-3 rounded-lg bg-gray-100 text-gray-800 rounded-tl-none">
                     <div className="flex space-x-2">
                       <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"></div>
-                      <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                      <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+                      <div
+                        className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.2s" }}
+                      ></div>
+                      <div
+                        className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.4s" }}
+                      ></div>
                     </div>
                   </div>
                 </div>
@@ -351,17 +385,18 @@ const ChatbotWidget: React.FC = () => {
             </div>
 
             {suggestions.length > 0 && (
-              <div className="p-2 border-t flex flex-wrap gap-2">
+              <div className="p-2 border-t flex flex-wrap gap-2 bg-gray-50">
                 {suggestions.map((suggestion, index) => (
                   <Button
                     key={index}
                     variant="outline"
                     size="sm"
-                    className="text-sm bg-green-50 hover:bg-green-100 border-green-200"
+                    className="text-xs bg-white hover:bg-green-50 border-green-200 text-green-800"
                     onClick={() => {
-                      setInput(suggestion.text);
-                      handleSubmit(new Event('submit') as unknown as React.FormEvent);
-                      setSuggestions([]);
+                      setInput(suggestion.action);
+                      handleSubmit({
+                        preventDefault: () => {},
+                      } as React.FormEvent);
                     }}
                   >
                     {suggestion.text}
@@ -370,22 +405,24 @@ const ChatbotWidget: React.FC = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="p-3 border-t flex items-center absolute bottom-0 left-0 right-0 bg-white z-10">
+            <form
+              onSubmit={handleSubmit}
+              className="p-3 border-t flex items-center"
+            >
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Digite sua mensagem..."
-                className="flex-1 focus-visible:ring-green-600 text-base md:text-lg h-12"
-                style={{ fontSize: 'inherit' }}
+                className="flex-1"
                 disabled={isLoading}
               />
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 size="icon"
+                className="ml-2 bg-green-600 hover:bg-green-700"
                 disabled={isLoading || !input.trim()}
-                className="ml-2 bg-green-600 hover:bg-green-700 h-12 w-12"
               >
-                <Send size={24} />
+                <Send size={20} />
               </Button>
             </form>
           </CardContent>
