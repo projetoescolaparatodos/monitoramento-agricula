@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -27,16 +28,23 @@ const ChatbotWidget: React.FC = () => {
   const handleSend = () => {
     if (!input.trim()) return;
 
-    setMessages([...messages, { text: input, isUser: true, timestamp: new Date() }]);
+    const userMessage = {
+      text: input,
+      isUser: true,
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
     setInput('');
 
-    // Simples resposta automática
+    // Simple automated response
     setTimeout(() => {
-      setMessages(prev => [...prev, {
-        text: "Por favor, entre em contato com a secretaria para mais informações.",
+      const botMessage = {
+        text: "Olá! Por favor, entre em contato com a secretaria para mais informações sobre seu pedido.",
         isUser: false,
         timestamp: new Date()
-      }]);
+      };
+      setMessages(prev => [...prev, botMessage]);
     }, 1000);
   };
 
