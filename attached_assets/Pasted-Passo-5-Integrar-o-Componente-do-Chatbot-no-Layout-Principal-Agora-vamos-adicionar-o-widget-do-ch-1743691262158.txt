@@ -1,0 +1,68 @@
+Passo 5: Integrar o Componente do Chatbot no Layout Principal
+
+Agora, vamos adicionar o widget do chatbot ao layout principal para que ele apareça em todas as páginas:
+
+// client/src/App.tsx
+import React from 'react';
+import { Route } from 'wouter';
+import BackgroundVideo from './components/common/BackgroundVideo';
+import ChatbotWidget from './components/common/ChatbotWidget'; // Importe o widget
+import Home from './pages/Home';
+import Agriculture from './pages/Agriculture';
+import Fishing from './pages/Fishing';
+import PAA from './pages/PAA';
+import Dashboard from './pages/Dashboard';
+import NotFound from './pages/not-found';
+
+function Router() {
+  return (
+    <>
+      {/* Vídeo de fundo */}
+      <BackgroundVideo videoPath="/videos/fundo-agricultura.mp4" opacity={0.3} />
+      
+      {/* Rotas do aplicativo */}
+      <div className="relative z-10">
+        <Route path="/" component={Home} />
+        <Route path="/agriculture" component={Agriculture} />
+        <Route path="/fishing" component={Fishing} />
+        <Route path="/paa" component={PAA} />
+        <Route path="/dashboard" component={Dashboard} />
+        <Route component={NotFound} />
+      </div>
+      
+      {/* Widget do chatbot - aparecerá em todas as páginas */}
+      <ChatbotWidget />
+    </>
+  );
+}
+
+function App() {
+  return (
+    <div className="app">
+      <Router />
+    </div>
+  );
+}
+
+export default App;
+
+Passo 6: Configurar o Script de Execução para o Projeto Completo
+
+Vamos modificar ou criar um script para iniciar todos os serviços necessários. Como o Replit tem limitações, vamos usar um único script para iniciar o servidor principal (que já existe) e fazer referência ao chatbot:
+
+# .replit
+# Modificar o script de execução para incluir o servidor do chatbot
+run = "npm run dev"
+
+No package.json principal:
+
+{
+  "scripts": {
+    "dev": "node server/index.js",
+    "dev:chatbot": "node chatbot/backend/server.js",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:chatbot\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
