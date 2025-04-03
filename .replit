@@ -40,3 +40,16 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Run Rasa"
+author = 40255565
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "rasa run --enable-api --cors \"*\" --port 5005 --credentials server/chatbot/credentials.yml"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "rasa run actions --port 5055"

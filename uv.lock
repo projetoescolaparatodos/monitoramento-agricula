@@ -1941,14 +1941,18 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "dask" },
+    { name = "matplotlib" },
     { name = "rasa" },
+    { name = "rasa-sdk" },
     { name = "sqlalchemy" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "dask", specifier = ">=2025.3.0" },
+    { name = "matplotlib", specifier = ">=3.5.3" },
     { name = "rasa", specifier = ">=3.6.21" },
+    { name = "rasa-sdk", specifier = ">=3.6.2" },
     { name = "sqlalchemy", specifier = "<2.0" },
 ]
 
