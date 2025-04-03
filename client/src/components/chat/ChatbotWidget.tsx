@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -42,7 +41,7 @@ const cadastroFluxo = [
   'Possui Financiamento Rural? (Sim/Não)',
   'Qual a coordenada S da propriedade?',
   'Qual a coordenada W da propriedade?',
-  
+
   // Dados do Proprietário
   'Qual seu nome completo?',
   'Qual seu CPF?',
@@ -55,7 +54,7 @@ const cadastroFluxo = [
   'Qual sua escolaridade? (Analfabeto/Fundamental Incompleto/Fundamental completo/Médio Incompleto/Médio completo/Superior Incompleto/Superior completo/Pós Graduação)',
   'Qual seu telefone para contato?',
   'É associado a alguma instituição? Se sim, qual?',
-  
+
   // Dados Agropecuários
   'Você cultiva cacau? (Sim/Não)',
   'Cultiva frutíferas perenes? (Sim/Não)',
@@ -68,15 +67,8 @@ const cadastroFluxo = [
   'Possui criação de caprinos/ovinos? (Sim/Não)',
   'Possui criação de suínos? (Sim/Não)',
   'Possui criação de aves? (Sim/Não)',
-  
-  'Obrigado por fornecer todas as informações! Um técnico entrará em contato em breve para dar continuidade ao seu cadastro.'
-];
 
-const initialSuggestions: SuggestionButton[] = [
-  { text: "Fazer cadastro rural", action: "cadastro" },
-  { text: "Informações sobre Agricultura", action: "agricultura" },
-  { text: "Solicitar visita técnica", action: "visita" },
-  { text: "Dúvidas frequentes", action: "duvidas" }
+  'Obrigado por fornecer todas as informações! Um técnico entrará em contato em breve para dar continuidade ao seu cadastro.'
 ];
 
 interface SuggestionButton {
@@ -120,39 +112,39 @@ const ChatbotWidget: React.FC = () => {
 
   const findResponse = (userMessage: string): string => {
     const lowercaseMsg = userMessage.toLowerCase();
-    
+
     for (const item of botResponses) {
       if (item.keywords.some(keyword => lowercaseMsg.includes(keyword))) {
         return item.response;
       }
     }
-    
+
     return 'Desculpe, não entendi. Você pode escolher um destes tópicos:\n- Agricultura\n- Pesca\n- PAA';
   };
 
   const processUserMessage = async (userMessage: string) => {
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 800));
-    
+
     let botResponse: string;
-    
+
     if (cadastroEtapa >= 0) {
       const novasRespostas = [...cadastroRespostas, userMessage];
       setCadastroRespostas(novasRespostas);
-      
+
       const novaEtapa = cadastroEtapa + 1;
       setCadastroEtapa(novaEtapa);
-      
+
       if (novaEtapa >= cadastroFluxo.length) {
         botResponse = cadastroFluxo[cadastroFluxo.length - 1];
         setCadastroEtapa(-1);
         setCadastroRespostas([]);
-        
+
         // Aqui você pode implementar o envio das respostas para o backend
         console.log('Respostas do cadastro:', novasRespostas);
       } else {
         botResponse = cadastroFluxo[novaEtapa];
-        
+
         // Adicionar sugestões baseadas na etapa atual
         // Reseta sugestões para perguntas que exigem entrada livre
         const perguntasLivres = [
@@ -219,26 +211,26 @@ const ChatbotWidget: React.FC = () => {
         botResponse = findResponse(userMessage);
       }
     }
-    
+
     setMessages(prev => [...prev, {
       text: botResponse,
       isUser: false,
       timestamp: new Date()
     }]);
-    
+
     setIsLoading(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
-    
+
     setMessages(prev => [...prev, {
       text: input,
       isUser: true,
       timestamp: new Date()
     }]);
-    
+
     processUserMessage(input);
     setInput('');
   };
@@ -265,7 +257,7 @@ const ChatbotWidget: React.FC = () => {
               <X size={20} />
             </Button>
           </div>
-          
+
           <CardContent className="p-0 flex flex-col h-[500px]">
             <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent mb-[60px]">
               {messages.map((msg, idx) => (
@@ -305,7 +297,7 @@ const ChatbotWidget: React.FC = () => {
               )}
               <div ref={messagesEndRef} />
             </div>
-            
+
             {suggestions.length > 0 && (
               <div className="p-2 border-t flex flex-wrap gap-2">
                 {suggestions.map((suggestion, index) => (
@@ -325,7 +317,7 @@ const ChatbotWidget: React.FC = () => {
                 ))}
               </div>
             )}
-            
+
             <form onSubmit={handleSubmit} className="p-3 border-t flex items-center absolute bottom-0 left-0 right-0 bg-white">
               <Input
                 value={input}
