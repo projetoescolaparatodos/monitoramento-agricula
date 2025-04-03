@@ -31,11 +31,52 @@ const botResponses = [
 ];
 
 const cadastroFluxo = [
-  'Por favor, informe seu nome completo:',
-  'Agora, preciso do seu CPF:',
-  'Qual é o seu endereço?',
-  'Qual serviço específico você procura?',
-  'Obrigado! Um técnico entrará em contato em breve.'
+  // Dados da Propriedade
+  'Qual o nome da propriedade?',
+  'A propriedade é pessoa Física ou Jurídica?',
+  'Qual o endereço da propriedade?',
+  'Qual o tamanho da propriedade em hectares (ha)?',
+  'A propriedade é escriturada? (Sim/Não)',
+  'Possui DAP/CAF? (Sim/Não)',
+  'Possui CAR? (Sim/Não)',
+  'Possui Financiamento Rural? (Sim/Não)',
+  'Qual a coordenada S da propriedade?',
+  'Qual a coordenada W da propriedade?',
+  
+  // Dados do Proprietário
+  'Qual seu nome completo?',
+  'Qual seu CPF?',
+  'Qual seu RG?',
+  'Qual o órgão emissor e UF do RG?',
+  'Qual seu sexo?',
+  'Qual sua data de nascimento?',
+  'Qual sua naturalidade?',
+  'Qual o nome da sua mãe?',
+  'Qual sua escolaridade? (Analfabeto/Fundamental Incompleto/Fundamental completo/Médio Incompleto/Médio completo/Superior Incompleto/Superior completo/Pós Graduação)',
+  'Qual seu telefone para contato?',
+  'É associado a alguma instituição? Se sim, qual?',
+  
+  // Dados Agropecuários
+  'Você cultiva cacau? (Sim/Não)',
+  'Cultiva frutíferas perenes? (Sim/Não)',
+  'Possui cultivo de lavouras anuais? (Sim/Não)',
+  'Produz mandioca/macaxeira? (Sim/Não)',
+  'Produz arroz ou feijão? (Sim/Não)',
+  'Produz olerícolas? (Sim/Não)',
+  'Produz tuberosas? (Sim/Não)',
+  'Possui criação de bovinos? (Sim/Não)',
+  'Possui criação de caprinos/ovinos? (Sim/Não)',
+  'Possui criação de suínos? (Sim/Não)',
+  'Possui criação de aves? (Sim/Não)',
+  
+  'Obrigado por fornecer todas as informações! Um técnico entrará em contato em breve para dar continuidade ao seu cadastro.'
+];
+
+const initialSuggestions: SuggestionButton[] = [
+  { text: "Fazer cadastro rural", action: "cadastro" },
+  { text: "Informações sobre Agricultura", action: "agricultura" },
+  { text: "Solicitar visita técnica", action: "visita" },
+  { text: "Dúvidas frequentes", action: "duvidas" }
 ];
 
 interface SuggestionButton {
@@ -106,8 +147,26 @@ const ChatbotWidget: React.FC = () => {
         botResponse = cadastroFluxo[cadastroFluxo.length - 1];
         setCadastroEtapa(-1);
         setCadastroRespostas([]);
+        
+        // Aqui você pode implementar o envio das respostas para o backend
+        console.log('Respostas do cadastro:', novasRespostas);
       } else {
         botResponse = cadastroFluxo[novaEtapa];
+        
+        // Adicionar sugestões baseadas na etapa atual
+        if (novaEtapa === 1) { // Tipo de pessoa
+          setSuggestions([
+            { text: "Física", action: "fisica" },
+            { text: "Jurídica", action: "juridica" }
+          ]);
+        } else if (novaEtapa === 4 || novaEtapa === 5 || novaEtapa === 6 || novaEtapa === 7) { // Perguntas Sim/Não
+          setSuggestions([
+            { text: "Sim", action: "sim" },
+            { text: "Não", action: "nao" }
+          ]);
+        } else {
+          setSuggestions([]);
+        }
       }
     } else {
       if (userMessage.toLowerCase().includes('cadastro') || 
