@@ -165,8 +165,8 @@ const ChatbotWidget: React.FC = () => {
             </Button>
           </div>
           
-          <CardContent className="p-0 flex-1 flex flex-col h-full max-h-[500px]">
-            <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
+          <CardContent className="p-0 flex flex-col h-[500px]">
+            <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent mb-[60px]">
               {messages.map((msg, idx) => (
                 <div 
                   key={idx} 
@@ -225,7 +225,7 @@ const ChatbotWidget: React.FC = () => {
               </div>
             )}
             
-            <form onSubmit={handleSubmit} className="p-3 border-t flex items-center">
+            <form onSubmit={handleSubmit} className="p-3 border-t flex items-center absolute bottom-0 left-0 right-0 bg-white">
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
