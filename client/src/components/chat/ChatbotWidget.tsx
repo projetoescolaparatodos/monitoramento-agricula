@@ -154,18 +154,60 @@ const ChatbotWidget: React.FC = () => {
         botResponse = cadastroFluxo[novaEtapa];
         
         // Adicionar sugestões baseadas na etapa atual
-        if (novaEtapa === 1) { // Tipo de pessoa
+        // Reseta sugestões para perguntas que exigem entrada livre
+        const perguntasLivres = [
+          0,  // Nome da propriedade
+          2,  // Endereço
+          3,  // Tamanho da propriedade
+          8,  // Coordenada S
+          9,  // Coordenada W
+          10, // Nome completo
+          11, // CPF
+          12, // RG
+          13, // Emissor/UF
+          15, // Data de nascimento
+          16, // Naturalidade
+          17, // Nome da mãe
+          19, // Telefone
+          20  // Instituição associada
+        ];
+
+        if (perguntasLivres.includes(novaEtapa)) {
+          setSuggestions([]);
+        } 
+        // Tipo de pessoa
+        else if (novaEtapa === 1) {
           setSuggestions([
             { text: "Física", action: "fisica" },
             { text: "Jurídica", action: "juridica" }
           ]);
-        } else if (novaEtapa === 4 || novaEtapa === 5 || novaEtapa === 6 || novaEtapa === 7) { // Perguntas Sim/Não
+        }
+        // Perguntas Sim/Não
+        else if ([4, 5, 6, 7, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30].includes(novaEtapa)) {
           setSuggestions([
             { text: "Sim", action: "sim" },
             { text: "Não", action: "nao" }
           ]);
-        } else {
-          setSuggestions([]);
+        }
+        // Sexo
+        else if (novaEtapa === 14) {
+          setSuggestions([
+            { text: "Masculino", action: "masculino" },
+            { text: "Feminino", action: "feminino" }
+          ]);
+        }
+        // Escolaridade
+        else if (novaEtapa === 18) {
+          setSuggestions([
+            { text: "Analfabeto", action: "analfabeto" },
+            { text: "Fundamental Incompleto", action: "fundamental_incompleto" },
+            { text: "Fundamental Completo", action: "fundamental_completo" },
+            { text: "Médio Incompleto", action: "medio_incompleto" },
+            { text: "Médio Completo", action: "medio_completo" },
+            { text: "Superior Incompleto", action: "superior_incompleto" },
+            { text: "Superior Completo", action: "superior_completo" },
+            { text: "Pós Graduação", action: "pos_graduacao" }
+          ]);
         }
       }
     } else {
