@@ -5,12 +5,11 @@ import { collection, query, where, getDocs, addDoc, updateDoc, doc } from 'fireb
 import { db } from './storage';
 import { upload, uploadToFirebase } from './upload';
 
-import { setupChatbotRoutes, initializeRasa } from './chatbot/api';
+import chatbotRoutes from './chatbot/api';
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Initialize Rasa
-  initializeRasa();
-  setupChatbotRoutes(app);
+  // Initialize chatbot routes
+  app.use('/api', chatbotRoutes);
   app.get('/api/health', (req, res) => {
     res.status(200).json({ status: 'ok', environment: process.env.NODE_ENV });
   });
