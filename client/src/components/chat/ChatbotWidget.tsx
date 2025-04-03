@@ -225,21 +225,22 @@ const ChatbotWidget: React.FC = () => {
               </div>
             )}
             
-            <form onSubmit={handleSubmit} className="p-3 border-t flex">
+            <form onSubmit={handleSubmit} className="p-3 border-t flex items-center">
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Digite sua mensagem..."
-                className="flex-1 focus-visible:ring-green-600"
+                className="flex-1 focus-visible:ring-green-600 text-base md:text-lg h-12"
+                style={{ fontSize: 'inherit' }}
                 disabled={isLoading}
               />
               <Button 
                 type="submit" 
-                size="icon" 
+                size="icon"
                 disabled={isLoading || !input.trim()}
-                className="ml-2 bg-green-600 hover:bg-green-700"
+                className="ml-2 bg-green-600 hover:bg-green-700 h-12 w-12"
               >
-                <Send size={18} />
+                <Send size={24} />
               </Button>
             </form>
           </CardContent>
