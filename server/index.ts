@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import chatbotRoutes from './chatbot/api'; // Added import for chatbot routes
+
 
 // Create Express application
 const app = express();
