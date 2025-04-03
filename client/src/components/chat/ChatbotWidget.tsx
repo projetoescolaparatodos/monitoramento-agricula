@@ -38,6 +38,18 @@ const cadastroFluxo = [
   'Obrigado! Um técnico entrará em contato em breve.'
 ];
 
+interface SuggestionButton {
+  text: string;
+  action: string;
+}
+
+const initialSuggestions: SuggestionButton[] = [
+  { text: "Quero fazer um cadastro", action: "cadastro" },
+  { text: "Informações sobre Agricultura", action: "agricultura" },
+  { text: "Informações sobre Pesca", action: "pesca" },
+  { text: "Sobre o PAA", action: "paa" }
+];
+
 const ChatbotWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
@@ -45,15 +57,17 @@ const ChatbotWidget: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [cadastroEtapa, setCadastroEtapa] = useState(-1);
   const [cadastroRespostas, setCadastroRespostas] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<SuggestionButton[]>(initialSuggestions);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       setMessages([{
-        text: 'Olá! Como posso ajudar você hoje?',
+        text: 'Olá! Como posso ajudar você hoje? Selecione uma das opções abaixo ou digite sua mensagem.',
         isUser: false,
         timestamp: new Date()
       }]);
+      setSuggestions(initialSuggestions);
     }
   }, [isOpen]);
 
@@ -190,6 +204,26 @@ const ChatbotWidget: React.FC = () => {
               )}
               <div ref={messagesEndRef} />
             </div>
+            
+            {suggestions.length > 0 && (
+              <div className="p-2 border-t flex flex-wrap gap-2">
+                {suggestions.map((suggestion, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    size="sm"
+                    className="text-sm bg-green-50 hover:bg-green-100 border-green-200"
+                    onClick={() => {
+                      setInput(suggestion.text);
+                      handleSubmit(new Event('submit') as unknown as React.FormEvent);
+                      setSuggestions([]);
+                    }}
+                  >
+                    {suggestion.text}
+                  </Button>
+                ))}
+              </div>
+            )}
             
             <form onSubmit={handleSubmit} className="p-3 border-t flex">
               <Input
