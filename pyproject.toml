@@ -9,5 +9,5 @@ dependencies = [
     "rasa-sdk>=3.6.2",
     "rasa<=3.6.21",
     "sqlalchemy<2.0",
-    "packaging>=20.0,<21.0",
+    "packaging<=21.3",
 ]

@@ -1952,7 +1952,7 @@ dependencies = [
 requires-dist = [
     { name = "dask", specifier = ">=2025.3.0" },
     { name = "matplotlib", specifier = ">=3.5.3" },
-    { name = "packaging", specifier = ">=20.0,<21.0" },
+    { name = "packaging", specifier = "<=21.3" },
     { name = "rasa", specifier = "<=3.6.21" },
     { name = "rasa-sdk", specifier = ">=3.6.2" },
     { name = "sqlalchemy", specifier = "<2.0" },
