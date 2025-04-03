@@ -1942,12 +1942,14 @@ source = { virtual = "." }
 dependencies = [
     { name = "dask" },
     { name = "rasa" },
+    { name = "sqlalchemy" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "dask", specifier = ">=2025.3.0" },
     { name = "rasa", specifier = ">=3.6.21" },
+    { name = "sqlalchemy", specifier = "<2.0" },
 ]
 
 [[package]]
