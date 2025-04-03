@@ -165,15 +165,15 @@ const ChatbotWidget: React.FC = () => {
             </Button>
           </div>
           
-          <CardContent className="p-0 flex-1 flex flex-col">
-            <div className="flex-1 overflow-y-auto p-4">
+          <CardContent className="p-0 flex-1 flex flex-col h-full max-h-[500px]">
+            <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
               {messages.map((msg, idx) => (
                 <div 
                   key={idx} 
-                  className={`mb-4 ${msg.isUser ? 'text-right' : 'text-left'}`}
+                  className={`mb-4 flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}
                 >
                   <div 
-                    className={`inline-block p-3 rounded-lg max-w-[80%] ${
+                    className={`p-3 rounded-lg max-w-[80%] break-words ${
                       msg.isUser 
                         ? 'bg-green-600 text-white rounded-tr-none' 
                         : 'bg-gray-100 text-gray-800 rounded-tl-none'
