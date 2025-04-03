@@ -1,4 +1,3 @@
-
 import { Switch, Route } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ChatButton } from "@/components/chat/ChatButton";
@@ -67,6 +66,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router />
       <ChatButton />
+      <ChatbotWidget />
       <Toaster />
     </QueryClientProvider>
   );
