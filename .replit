@@ -57,3 +57,16 @@ args = "rasa run --enable-api --cors \"*\" --port 5005"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "rasa run actions --port 5055"
+
+[[workflows.workflow]]
+name = "Rasa Server"
+author = 40255565
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "rasa run --enable-api --cors \"*\" --port 5005"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "rasa run actions --port 5055"
