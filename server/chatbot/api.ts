@@ -3,11 +3,12 @@ import { spawn } from 'child_process';
 import type { Express } from 'express';
 import { db } from '../storage';
 import { collection, addDoc } from 'firebase/firestore';
+import axios from 'axios';
 
 let rasaProcess: any = null;
 
 export function initializeRasa() {
-  rasaProcess = spawn('rasa', ['run', '--enable-api'], {
+  rasaProcess = spawn('rasa', ['run', '--enable-api', '--cors', '"*"'], {
     cwd: './server/chatbot'
   });
 
