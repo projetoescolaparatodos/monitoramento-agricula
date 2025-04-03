@@ -114,3 +114,27 @@ nlu:
     - quando posso usar o maquinário?
     - qual equipamento está disponível?
     - processo para solicitar máquinas
+
+- intent: clima
+  examples: |
+    - qual a previsão do tempo?
+    - vai chover hoje?
+    - quando devo plantar?
+    - melhor época para colheita
+    - clima para os próximos dias
+
+- intent: pragas_doencas
+  examples: |
+    - como identificar pragas?
+    - minha plantação está doente
+    - tratamento para fungos
+    - controle de pragas
+    - prevenção de doenças
+
+- intent: irrigacao
+  examples: |
+    - quando devo irrigar?
+    - quanto de água usar?
+    - melhor horário para irrigação
+    - sistema de irrigação
+    - problemas com irrigação

@@ -13,11 +13,27 @@ class ActionCadastroInfo(Action):
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         
-        dispatcher.utter_message(text="Para se cadastrar, siga estes passos:\n"
-                               "1. Clique no botão 'Cadastro' no menu principal\n"
-                               "2. Preencha seus dados pessoais\n"
-                               "3. Adicione informações sobre sua propriedade\n"
-                               "4. Envie os documentos necessários")
+        # Initialize Firebase
+        if not firebase_admin._apps:
+            cred = credentials.Certificate("path/to/serviceAccountKey.json")
+            firebase_admin.initialize_app(cred)
+        
+        db = firestore.client()
+        
+        # Get response from Firestore
+        responses_ref = db.collection('chatbot_responses')
+        query = responses_ref.where('intent', '==', 'cadastro_info').limit(1)
+        response_docs = query.get()
+        
+        if response_docs:
+            response = response_docs[0].to_dict().get('response')
+            dispatcher.utter_message(text=response)
+        else:
+            dispatcher.utter_message(text="Para se cadastrar, siga estes passos:\n"
+                                   "1. Clique no botão 'Cadastro' no menu principal\n"
+                                   "2. Preencha seus dados pessoais\n"
+                                   "3. Adicione informações sobre sua propriedade\n"
+                                   "4. Envie os documentos necessários")
         return []
 
 class ActionSalvarFormulario(Action):
