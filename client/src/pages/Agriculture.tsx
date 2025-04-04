@@ -3,7 +3,7 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/utils/firebase";
 import { useQuery } from "@tanstack/react-query";
 import Footer from "@/components/layout/Footer";
-import BackgroundVideo from "@/components/common/BackgroundVideo";
+import BackgroundVideo from "@/components/ui/BackgroundVideo";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

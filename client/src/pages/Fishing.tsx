@@ -1,6 +1,6 @@
 import React from "react";
 import Footer from "@/components/layout/Footer";
-import BackgroundVideo from "@/components/common/BackgroundVideo";
+import BackgroundVideo from "@/components/ui/BackgroundVideo";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/utils/firebase";
 import { useQuery } from "@tanstack/react-query";
