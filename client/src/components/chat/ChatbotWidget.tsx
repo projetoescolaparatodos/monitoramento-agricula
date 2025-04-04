@@ -1121,30 +1121,6 @@ const ChatbotWidget: React.FC = () => {
       await addDoc(collection(db, "cadastros"), cadastroCompleto);
       console.log("Cadastro salvo com sucesso!");
       return true;
-        sexo: cadastroRespostas[14] || "",
-        nascimento: cadastroRespostas[15] || "",
-        naturalidade: cadastroRespostas[16] || "",
-        mae: cadastroRespostas[17] || "",
-        escolaridade: cadastroRespostas[18] || "",
-        telefone: cadastroRespostas[19] || "",
-        associacao: cadastroRespostas[20] || "",
-      };
-
-      // Combinar todos os dados
-      const dadosCompletos = {
-        propriedade: dadosPropriedade,
-        proprietario: dadosProprietario,
-        dadosAgropecuarios: dadosAgropecuarios,
-        solicitacao: solicitacao,
-        timestamp: serverTimestamp(),
-        status: "pendente",
-        origem: "chatbot",
-      };
-
-      // Salvar no Firebase
-      await addDoc(collection(db, "cadastros_produtores"), dadosCompletos);
-      console.log("Cadastro do produtor salvo com sucesso!");
-      return true;
     } catch (error) {
       console.error("Erro ao salvar cadastro:", error);
       return false;
