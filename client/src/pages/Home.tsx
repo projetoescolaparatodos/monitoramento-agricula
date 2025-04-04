@@ -48,7 +48,20 @@ const AreasSection = () => {
 const Home = () => {
   return (
     <>
-      <BackgroundVideo videoPath="/videos/BackgroundVideo.mp4" opacity={0.4} />
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute min-w-full min-h-full object-cover"
+          style={{ opacity: 0.4 }}
+        >
+          <source src="/videos/BackgroundVideo.mp4" type="video/mp4" />
+          Seu navegador não suporta vídeos HTML5.
+        </video>
+        <div className="absolute top-0 left-0 w-full h-full bg-black opacity-60" />
+      </div>
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
         <HeroSection />
         <section id="estatisticas" className="py-12">
