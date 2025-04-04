@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "wouter";
 import Footer from "@/components/layout/Footer";
@@ -47,7 +48,7 @@ const AreasSection = () => {
 const Home = () => {
   return (
     <>
-      <BackgroundVideo />
+      <BackgroundVideo videoPath="/videos/BackgroundVideo.mp4" opacity={0.4} />
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
         <HeroSection />
         <section id="estatisticas" className="py-12">
@@ -56,7 +57,7 @@ const Home = () => {
         </section>
         <section id="areas" className="py-12">
           <h2 className="text-3xl font-bold text-center mb-8 text-white">Áreas de Atuação</h2>
-          <AreasSection variant="transparent" />
+          <AreasSection />
         </section>
         <section id="visualization" className="py-12">
           <h2 className="text-3xl font-bold text-center mb-8 text-white">Visualização de Dados</h2>
