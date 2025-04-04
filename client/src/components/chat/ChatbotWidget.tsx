@@ -1082,27 +1082,45 @@ const ChatbotWidget: React.FC = () => {
   // Salvar todos os dados no Firebase
   const salvarCadastroNoFirebase = async () => {
     try {
-      // Montar objeto com dados da propriedade e proprietário
-      const dadosPropriedade = {
-        nome: cadastroRespostas[0] || "",
-        tipo: cadastroRespostas[1] || "",
-        endereco: cadastroRespostas[2] || "",
-        tamanho: parseFloat(cadastroRespostas[3]) || 0,
-        escriturada: cadastroRespostas[4] || "",
-        dapCaf: cadastroRespostas[5] || "",
-        car: cadastroRespostas[6] || "",
-        financiamento: cadastroRespostas[7] || "",
-        coordenadas: {
-          s: cadastroRespostas[8] || "",
-          w: cadastroRespostas[9] || "",
+      const cadastroCompleto = {
+        propriedade: {
+          nome: cadastroRespostas[0] || "",
+          tipo: cadastroRespostas[1] || "",
+          endereco: cadastroRespostas[2] || "",
+          tamanho: parseFloat(cadastroRespostas[3]) || 0,
+          escriturada: cadastroRespostas[4] || "",
+          dapCaf: cadastroRespostas[5] || "",
+          car: cadastroRespostas[6] || "",
+          financiamento: cadastroRespostas[7] || "",
+          coordenadas: {
+            s: cadastroRespostas[8] || "",
+            w: cadastroRespostas[9] || "",
+          }
         },
+        proprietario: {
+          nome: cadastroRespostas[10] || "",
+          cpf: cadastroRespostas[11] || "",
+          rg: cadastroRespostas[12] || "",
+          emissor: cadastroRespostas[13] || "",
+          sexo: cadastroRespostas[14] || "",
+          nascimento: cadastroRespostas[15] || "",
+          naturalidade: cadastroRespostas[16] || "",
+          mae: cadastroRespostas[17] || "",
+          escolaridade: cadastroRespostas[18] || "",
+          telefone: cadastroRespostas[19] || "",
+          associacao: cadastroRespostas[20] || ""
+        },
+        dadosAgropecuarios: dadosAgropecuarios,
+        solicitacao: solicitacao,
+        dataRegistro: new Date().toISOString(),
+        status: "pendente",
+        origem: "chatbot"
       };
 
-      const dadosProprietario = {
-        nome: cadastroRespostas[10] || "",
-        cpf: cadastroRespostas[11] || "",
-        rg: cadastroRespostas[12] || "",
-        emissor: cadastroRespostas[13] || "",
+      // Salvar todos os dados em um único documento
+      await addDoc(collection(db, "cadastros"), cadastroCompleto);
+      console.log("Cadastro salvo com sucesso!");
+      return true;
         sexo: cadastroRespostas[14] || "",
         nascimento: cadastroRespostas[15] || "",
         naturalidade: cadastroRespostas[16] || "",
