@@ -252,6 +252,16 @@ const initialSuggestions: SuggestionButton[] = [
   { text: "Programa PAA", action: "paa" },
 ];
 
+// Lista de opções de serviços para solicitação
+const servicosSugestoes: SuggestionButton[] = [
+  { text: "Assistência técnica", action: "Assistência técnica" },
+  { text: "Mecanização agrícola", action: "Mecanização agrícola" },
+  { text: "Análise de solo", action: "Análise de solo" },
+  { text: "Distribuição de mudas", action: "Distribuição de mudas" },
+  { text: "Capacitação", action: "Capacitação" },
+  { text: "Outro serviço", action: "Outro serviço" },
+];
+
 const ChatbotWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -265,7 +275,12 @@ const ChatbotWidget: React.FC = () => {
   const [subFluxoEtapa, setSubFluxoEtapa] = useState<number>(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [modo, setModo] = useState<
-    "inicio" | "cadastro" | "servico" | "resumo" | "agropecuaria"
+    | "inicio"
+    | "cadastro"
+    | "servico"
+    | "resumo"
+    | "agropecuaria"
+    | "solicitacao"
   >("inicio");
   const [servicoAtual, setServicoAtual] = useState<string>("");
   const [usuarioCadastrado, setUsuarioCadastrado] = useState<boolean | null>(
@@ -273,6 +288,7 @@ const ChatbotWidget: React.FC = () => {
   );
   const [indexQuestaoAgropecuaria, setIndexQuestaoAgropecuaria] =
     useState<number>(0);
+  const [solicitacao, setSolicitacao] = useState<string>("");
   const [dadosAgropecuarios, setDadosAgropecuarios] =
     useState<DadosAgropecuarios>({
       cacau: { cultiva: false },
@@ -298,6 +314,7 @@ const ChatbotWidget: React.FC = () => {
           timestamp: new Date(),
         },
       ]);
+      setSuggestions(initialSuggestions);
     }
   }, [isOpen]);
 
@@ -305,14 +322,23 @@ const ChatbotWidget: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    // Atualizar sugestões imediatamente após mudar de modo ou etapa
+    setSuggestions(getContextualSuggestions());
+  }, [modo, cadastroEtapa, subFluxo, subFluxoEtapa, usuarioCadastrado]);
+
   // Funções auxiliares
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   const getContextualSuggestions = (): SuggestionButton[] => {
+    // Modo solicitação
+    if (modo === "solicitacao") {
+      return servicosSugestoes;
+    }
     // Modo agropecuária - sugestões específicas para cada seção
-    if (modo === "agropecuaria") {
+    else if (modo === "agropecuaria") {
       if (subFluxo === "cacau") {
         // Verifica se está nas perguntas do cacau clonado
         if (
@@ -321,8 +347,8 @@ const ChatbotWidget: React.FC = () => {
         ) {
           const etapaClonado = subFluxoEtapa - cacauQuestions.length;
 
-          if (etapaClonado === 1 || etapaClonado === 4) {
-            // Safreiro ou Material Clonal
+          if (etapaClonado === 1 || etapaClonado === 3) {
+            // Safreiro ou confirmação
             return [
               { text: "Sim", action: "sim" },
               { text: "Não", action: "não" },
@@ -466,16 +492,22 @@ const ChatbotWidget: React.FC = () => {
         { text: "Cancelar", action: "cancelar" },
       ];
     } else if (modo === "servico") {
-      if (
-        servicoAtual.toLowerCase().includes("agricultura") ||
-        servicoAtual.toLowerCase().includes("pesca") ||
-        servicoAtual.toLowerCase().includes("paa")
-      ) {
+      if (usuarioCadastrado === null) {
         return [
-          { text: "Fazer cadastro", action: "cadastro" },
-          { text: "Mais informações", action: "mais" },
-          { text: "Voltar", action: "voltar" },
+          { text: "Sim", action: "sim" },
+          { text: "Não", action: "não" },
         ];
+      } else if (usuarioCadastrado === true) {
+        if (cadastroRespostas.length < 3) {
+          // Ainda coletando dados básicos do usuário cadastrado
+          return [];
+        } else {
+          // Usuário já identificado
+          return servicosSugestoes;
+        }
+      } else {
+        // Usuário não cadastrado, começando cadastro
+        return [];
       }
     }
 
@@ -911,7 +943,6 @@ const ChatbotWidget: React.FC = () => {
       }
     }
 
-    setSuggestions(getContextualSuggestions());
     return proximaPergunta;
   };
 
@@ -1086,6 +1117,7 @@ const ChatbotWidget: React.FC = () => {
         propriedade: dadosPropriedade,
         proprietario: dadosProprietario,
         dadosAgropecuarios: dadosAgropecuarios,
+        solicitacao: solicitacao,
         timestamp: serverTimestamp(),
         status: "pendente",
         origem: "chatbot",
@@ -1111,33 +1143,61 @@ const ChatbotWidget: React.FC = () => {
     // Processa resposta
     let botResponse = "";
 
+    // Modo solicitação - recebe a solicitação final e finaliza o processo
+    if (modo === "solicitacao") {
+      setSolicitacao(userMessage);
+      await salvarCadastroNoFirebase();
+      botResponse =
+        "Sua solicitação de " +
+        userMessage +
+        " foi registrada com sucesso! Um técnico responsável pelo setor entrará em contato em breve para atender sua solicitação. Obrigado por utilizar nosso serviço!";
+      // Reiniciar para o estado inicial
+      setCadastroEtapa(-1);
+      setCadastroRespostas([]);
+      setModo("inicio");
+      setSuggestions(initialSuggestions);
+      setDadosAgropecuarios({
+        cacau: { cultiva: false },
+        frutiferas: { cultiva: false },
+        lavourasAnuais: { cultiva: false },
+        mandioca: { produz: false },
+        arrozFeijao: { produz: false },
+        hortalicas: { produz: false },
+        tuberosas: { produz: false },
+        bovinos: { cria: false },
+        caprinosOvinos: { cria: false },
+        suinos: { cria: false },
+        aves: { cria: false },
+      });
+    }
     // Modo agropecuária - processamento específico
-    if (modo === "agropecuaria") {
+    else if (modo === "agropecuaria") {
       botResponse = processarRespostaAgropecuaria(userMessage);
     }
     // Modo resumo para confirmação final
     else if (modo === "resumo") {
-      if (userMessage.toLowerCase().includes("confirmar")) {
-        await salvarCadastroNoFirebase();
+      // Palavras que indicam confirmação
+      const palavrasConfirmacao = [
+        "confirmar",
+        "confirmo",
+        "sim",
+        "ok",
+        "certo",
+        "correto",
+        "está correto",
+        "confirma",
+      ];
+
+      if (
+        palavrasConfirmacao.some((palavra) =>
+          userMessage.toLowerCase().includes(palavra),
+        )
+      ) {
+        // Passar para o modo de solicitação
+        setModo("solicitacao");
         botResponse =
-          "Cadastro finalizado com sucesso! Em breve um técnico entrará em contato para dar continuidade ao seu atendimento. Obrigado por utilizar nosso serviço!";
-        setCadastroEtapa(-1);
-        setCadastroRespostas([]);
-        setModo("inicio");
-        setSuggestions(initialSuggestions);
-        setDadosAgropecuarios({
-          cacau: { cultiva: false },
-          frutiferas: { cultiva: false },
-          lavourasAnuais: { cultiva: false },
-          mandioca: { produz: false },
-          arrozFeijao: { produz: false },
-          hortalicas: { produz: false },
-          tuberosas: { produz: false },
-          bovinos: { cria: false },
-          caprinosOvinos: { cria: false },
-          suinos: { cria: false },
-          aves: { cria: false },
-        });
+          "Agora, por favor, descreva qual serviço ou assistência você está buscando da Secretaria de Agricultura:";
+        setSuggestions(servicosSugestoes);
       } else if (userMessage.toLowerCase().includes("editar")) {
         botResponse = "Qual informação você gostaria de editar?";
         // Aqui implementaríamos a lógica de edição
@@ -1149,56 +1209,82 @@ const ChatbotWidget: React.FC = () => {
         setCadastroRespostas([]);
         setModo("inicio");
         setSuggestions(initialSuggestions);
+      } else {
+        // Se a resposta não for reconhecida, pedir novamente
+        botResponse =
+          "Por favor, confirme se os dados estão corretos digitando 'Confirmar', ou 'Cancelar' para recomeçar.";
       }
     }
     // Modo serviço para informações sobre serviços
     else if (modo === "servico") {
-      // Lógica para o fluxo de serviço
-      if (servicoAtual.toLowerCase().includes("agricultura")) {
-        botResponse =
-          "A Secretaria de Agricultura oferece os seguintes serviços:\n- Assistência técnica em produção vegetal\n- Mecanização agrícola\n- Análise de solo\n- Distribuição de mudas e sementes\n- Capacitação e treinamento\n\nGostaria de fazer um cadastro para solicitar algum desses serviços?";
-        setSuggestions([
-          { text: "Sim, fazer cadastro", action: "cadastro" },
-          { text: "Não, obrigado", action: "voltar" },
-        ]);
-      } else if (servicoAtual.toLowerCase().includes("pesca")) {
-        botResponse =
-          "No setor de Pesca oferecemos:\n- Licença de pesca artesanal\n- Auxílio para aquisição de equipamentos\n- Programas de capacitação\n- Apoio para comercialização\n\nGostaria de fazer um cadastro para acessar esses serviços?";
-        setSuggestions([
-          { text: "Sim, fazer cadastro", action: "cadastro" },
-          { text: "Não, obrigado", action: "voltar" },
-        ]);
-      } else if (servicoAtual.toLowerCase().includes("paa")) {
-        botResponse =
-          "O Programa de Aquisição de Alimentos (PAA) permite a compra de produtos da agricultura familiar para doação. Benefícios:\n- Preços justos\n- Garantia de compra\n- Fortalecimento da agricultura familiar\n\nPara participar é necessário ter DAP ou CAF e fazer cadastro.";
-        setSuggestions([
-          { text: "Fazer cadastro", action: "cadastro" },
-          { text: "Voltar", action: "voltar" },
-        ]);
-      } else {
-        botResponse = `Você selecionou o serviço: ${servicoAtual}. Gostaria de fazer um cadastro para usar este serviço?`;
-        setSuggestions([
-          { text: "Sim", action: "cadastro" },
-          { text: "Não", action: "voltar" },
-        ]);
-      }
+      // Se ainda não verificamos se o usuário já é cadastrado
+      if (usuarioCadastrado === null) {
+        // Verificar se usuário já tem cadastro
+        setUsuarioCadastrado(userMessage.toLowerCase().includes("sim"));
 
-      // Verificar se usuário quer fazer cadastro
-      if (
-        userMessage.toLowerCase().includes("cadastro") ||
-        userMessage.toLowerCase().includes("sim")
-      ) {
-        setModo("cadastro");
-        botResponse = "Ok, vamos iniciar seu cadastro.";
-        setCadastroEtapa(0);
-        botResponse = cadastroFluxo[0];
-      } else if (
-        userMessage.toLowerCase().includes("voltar") ||
-        userMessage.toLowerCase().includes("não")
-      ) {
-        setModo("inicio");
-        botResponse = "Como posso ajudar você hoje?";
-        setSuggestions(initialSuggestions);
+        if (userMessage.toLowerCase().includes("sim")) {
+          botResponse = "Por favor, informe seu nome completo:";
+        } else {
+          // Usuário não tem cadastro, iniciar processo completo
+          setModo("cadastro");
+          setCadastroEtapa(0);
+          botResponse = cadastroFluxo[0];
+        }
+      }
+      // Se o usuário é cadastrado, coletar informações básicas
+      else if (usuarioCadastrado) {
+        if (cadastroRespostas.length === 0) {
+          // Coletar nome
+          setCadastroRespostas([...cadastroRespostas, userMessage]);
+          botResponse = "Agora, por favor, digite seu CPF:";
+        } else if (cadastroRespostas.length === 1) {
+          // Coletar CPF
+          setCadastroRespostas([...cadastroRespostas, userMessage]);
+          botResponse = "Qual o nome da sua propriedade?";
+        } else if (cadastroRespostas.length === 2) {
+          // Coletar nome da propriedade
+          setCadastroRespostas([...cadastroRespostas, userMessage]);
+          // Simular busca no banco (em uma versão real, verificaríamos o cadastro)
+          botResponse =
+            "Encontramos seu cadastro no sistema. Qual serviço você precisa hoje?";
+          setSuggestions(servicosSugestoes);
+        } else {
+          // Já coletamos as informações básicas, considerar como uma solicitação
+          setSolicitacao(userMessage);
+          // Criar dados mínimos necessários para registro
+          const dadosProprietario = {
+            nome: cadastroRespostas[0] || "",
+            cpf: cadastroRespostas[1] || "",
+          };
+          const dadosPropriedade = {
+            nome: cadastroRespostas[2] || "",
+          };
+
+          // Salvar solicitação no Firebase
+          try {
+            await addDoc(collection(db, "solicitacoes_servicos"), {
+              proprietario: dadosProprietario,
+              propriedade: dadosPropriedade,
+              solicitacao: userMessage,
+              timestamp: serverTimestamp(),
+              status: "pendente",
+              origem: "chatbot",
+            });
+            botResponse =
+              "Sua solicitação de " +
+              userMessage +
+              " foi registrada com sucesso! Um técnico responsável pelo setor entrará em contato em breve para atender sua solicitação. Obrigado por utilizar nosso serviço!";
+          } catch (error) {
+            console.error("Erro ao salvar solicitação:", error);
+            botResponse =
+              "Desculpe, houve um problema ao processar sua solicitação. Por favor, tente novamente mais tarde ou entre em contato diretamente com a Secretaria.";
+          }
+
+          // Reiniciar para o estado inicial
+          setModo("inicio");
+          setCadastroRespostas([]);
+          setSuggestions(initialSuggestions);
+        }
       }
     }
     // Modo cadastro principal
@@ -1220,8 +1306,6 @@ const ChatbotWidget: React.FC = () => {
           setCadastroEtapa((prev) => prev + 1);
           botResponse = cadastroFluxo[cadastroEtapa + 1];
         }
-
-        setSuggestions(getContextualSuggestions());
       }
     }
     // Modo cadastro inicial (verificando se já está cadastrado)
@@ -1229,12 +1313,10 @@ const ChatbotWidget: React.FC = () => {
       if (usuarioCadastrado === null) {
         setUsuarioCadastrado(userMessage.toLowerCase().includes("sim"));
         if (userMessage.toLowerCase().includes("sim")) {
-          botResponse =
-            "Por favor, informe seu CPF para que possamos localizar seu cadastro:";
+          botResponse = "Por favor, informe seu nome completo:";
         } else {
           setCadastroEtapa(0);
           botResponse = cadastroFluxo[0];
-          setSuggestions(getContextualSuggestions());
         }
       } else if (usuarioCadastrado) {
         if (cadastroRespostas.length === 0) {
@@ -1243,20 +1325,13 @@ const ChatbotWidget: React.FC = () => {
         } else if (cadastroRespostas.length === 1) {
           const cpf = userMessage;
           setCadastroRespostas([...cadastroRespostas, cpf]);
-          // Aqui poderíamos buscar o cadastro pelo CPF
+          botResponse = "Qual o nome da sua propriedade?";
+        } else if (cadastroRespostas.length === 2) {
+          setCadastroRespostas([...cadastroRespostas, userMessage]);
+          setModo("solicitacao");
           botResponse =
-            "Encontramos seu cadastro no sistema. Qual serviço você precisa hoje?";
-          setSuggestions([
-            { text: "Assistência técnica", action: "assistencia" },
-            { text: "Mecanização", action: "mecanizacao" },
-            { text: "Análise de solo", action: "analise" },
-            { text: "Outros", action: "outros" },
-          ]);
-        } else {
-          botResponse = `Solicitação de ${userMessage} registrada com sucesso! Um técnico entrará em contato em breve.`;
-          setModo("inicio");
-          setCadastroRespostas([]);
-          setSuggestions(initialSuggestions);
+            "Encontramos seu cadastro. Qual serviço você precisa hoje?";
+          setSuggestions(servicosSugestoes);
         }
       }
     }
@@ -1268,7 +1343,7 @@ const ChatbotWidget: React.FC = () => {
         botResponse = "Você já possui cadastro em nossa secretaria? (sim/não)";
         setSuggestions([
           { text: "Sim", action: "sim" },
-          { text: "Não", action: "nao" },
+          { text: "Não", action: "não" },
         ]);
       } else if (
         userMessage.toLowerCase().includes("agricultura") ||
@@ -1278,27 +1353,15 @@ const ChatbotWidget: React.FC = () => {
         setModo("servico");
         setServicoAtual(userMessage);
 
-        if (userMessage.toLowerCase().includes("agricultura")) {
-          botResponse =
-            "A Secretaria de Agricultura oferece os seguintes serviços:\n- Assistência técnica em produção vegetal\n- Mecanização agrícola\n- Análise de solo\n- Distribuição de mudas e sementes\n- Capacitação e treinamento\n\nGostaria de fazer um cadastro para solicitar algum desses serviços?";
-        } else if (userMessage.toLowerCase().includes("pesca")) {
-          botResponse =
-            "No setor de Pesca oferecemos:\n- Licença de pesca artesanal\n- Auxílio para aquisição de equipamentos\n- Programas de capacitação\n- Apoio para comercialização\n\nGostaria de fazer um cadastro para acessar esses serviços?";
-        } else if (userMessage.toLowerCase().includes("paa")) {
-          botResponse =
-            "O Programa de Aquisição de Alimentos (PAA) permite a compra de produtos da agricultura familiar para doação. Benefícios:\n- Preços justos\n- Garantia de compra\n- Fortalecimento da agricultura familiar\n\nPara participar é necessário ter DAP ou CAF e fazer cadastro.";
-        }
-
+        botResponse = "Você já possui cadastro em nossa secretaria? (sim/não)";
         setSuggestions([
-          { text: "Fazer cadastro", action: "cadastro" },
-          { text: "Mais informações", action: "mais" },
-          { text: "Voltar", action: "voltar" },
+          { text: "Sim", action: "sim" },
+          { text: "Não", action: "não" },
         ]);
       } else {
         // Resposta genérica para outras mensagens
         botResponse =
           "Como posso ajudar você? Você pode escolher uma das opções abaixo ou perguntar sobre agricultura, pesca ou o Programa de Aquisição de Alimentos (PAA).";
-        setSuggestions(initialSuggestions);
       }
     }
 
@@ -1315,8 +1378,9 @@ const ChatbotWidget: React.FC = () => {
   };
 
   const handleSuggestionClick = (suggestion: SuggestionButton) => {
-    setInput(suggestion.text);
-    processUserMessage(suggestion.text);
+    const text = suggestion.text;
+    processUserMessage(text);
+    setInput(""); // Limpar o campo de input após clicar no botão de sugestão
   };
 
   const voltarAoInicio = () => {
