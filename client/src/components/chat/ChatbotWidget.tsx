@@ -96,10 +96,13 @@ const ChatbotWidget: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [cadastroEtapa, setCadastroEtapa] = useState(-1);
   const [cadastroRespostas, setCadastroRespostas] = useState<string[]>([]);
-  const [suggestions, setSuggestions] =
-    useState<SuggestionButton[]>(initialSuggestions);
+  const [suggestions, setSuggestions] = useState<SuggestionButton[]>(initialSuggestions);
   const [subFluxo, setSubFluxo] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [modo, setModo] = useState<'inicio' | 'cadastro' | 'servico'>('inicio');
+  const [servicoAtual, setServicoAtual] = useState<string>('');
+  const [usuarioCadastrado, setUsuarioCadastrado] = useState<boolean | null>(null);
+
 
   // Efeitos
   useEffect(() => {
@@ -264,7 +267,10 @@ const ChatbotWidget: React.FC = () => {
     // Processa resposta
     let botResponse = "";
 
-    if (subFluxo === "cacau") {
+    if (modo === 'servico') {
+        // Lógica para o fluxo de serviço
+        botResponse = "Você escolheu o serviço: " + servicoAtual;
+    } else if (subFluxo === "cacau") {
       const respostasCacau = [...cadastroRespostas, userMessage];
       setCadastroRespostas(respostasCacau);
 
@@ -296,6 +302,7 @@ const ChatbotWidget: React.FC = () => {
             "Cadastro concluído! Um técnico entrará em contato em breve.";
           setCadastroEtapa(-1);
           setCadastroRespostas([]);
+          setModo('inicio');
         }
         // Próxima pergunta normal
         else {
@@ -303,11 +310,34 @@ const ChatbotWidget: React.FC = () => {
           botResponse = cadastroFluxo[cadastroEtapa + 1];
         }
       }
+    } else if (modo === 'cadastro') {
+        if (usuarioCadastrado === null) {
+            botResponse = "Você já possui cadastro? (sim/não)";
+        } else if (usuarioCadastrado) {
+            if (cadastroRespostas.length === 0) {
+                botResponse = "Qual seu nome?";
+            } else if (cadastroRespostas.length === 1) {
+                botResponse = "Qual seu CPF?";
+            } else if (cadastroRespostas.length === 2) {
+                botResponse = "Qual o nome da propriedade?";
+                setCadastroEtapa(0); // inicia o cadastro pulando as etapas
+            } else {
+                botResponse = "Dados inseridos com sucesso!";
+            }
+        } else {
+            setCadastroEtapa(0);
+            botResponse = cadastroFluxo[0];
+        }
+
     } else {
       botResponse = findResponse(userMessage);
       if (userMessage.toLowerCase().includes("cadastro")) {
-        setCadastroEtapa(0);
-        botResponse = cadastroFluxo[0];
+          setModo('cadastro');
+          botResponse = "Ok, vamos verificar seu cadastro.";
+      } else if (userMessage.toLowerCase().includes("agricultura") || userMessage.toLowerCase().includes("pesca") || userMessage.toLowerCase().includes("paa")) {
+          setModo('servico');
+          setServicoAtual(userMessage);
+          botResponse = "Você selecionou o serviço: " + userMessage;
       }
     }
 
@@ -321,6 +351,10 @@ const ChatbotWidget: React.FC = () => {
     if (!input.trim()) return;
     processUserMessage(input);
     setInput("");
+  };
+
+  const handleUsuarioCadastrado = (value: boolean) => {
+      setUsuarioCadastrado(value);
   };
 
   return (
