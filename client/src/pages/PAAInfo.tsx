@@ -10,7 +10,7 @@ import { Map, BarChart2, FilePieChart, Users } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
-import BackgroundVideo from "@/components/common/BackgroundVideo";
+import BackgroundVideo from "@/components/ui/BackgroundVideo";
 
 const PAAInfo = () => {
   const backgroundStyle = {
