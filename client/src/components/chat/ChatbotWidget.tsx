@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, Send, X, ArrowLeft } from "lucide-react";
+import { MessageCircle, Send, X, ArrowLeft, MapPin } from "lucide-react";
 import { db } from "@/utils/firebase";
 import {
   collection,
@@ -262,6 +262,11 @@ const servicosSugestoes: SuggestionButton[] = [
   { text: "Outro serviço", action: "Outro serviço" },
 ];
 
+interface UserLocation {
+  latitude: number;
+  longitude: number;
+}
+
 const ChatbotWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -281,6 +286,7 @@ const ChatbotWidget: React.FC = () => {
     | "resumo"
     | "agropecuaria"
     | "solicitacao"
+    | "localizacao"
   >("inicio");
   const [servicoAtual, setServicoAtual] = useState<string>("");
   const [usuarioCadastrado, setUsuarioCadastrado] = useState<boolean | null>(
@@ -303,6 +309,9 @@ const ChatbotWidget: React.FC = () => {
       suinos: { cria: false },
       aves: { cria: false },
     });
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+  const [isAskingLocation, setIsAskingLocation] = useState<boolean>(false);
+  const [skipLocationQuestions, setSkipLocationQuestions] = useState<boolean>(false);
 
   // Efeitos
   useEffect(() => {
@@ -331,6 +340,31 @@ const ChatbotWidget: React.FC = () => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  const getUserLocation = () => {
+    setIsAskingLocation(true);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+          setIsAskingLocation(false);
+        },
+        (error) => {
+          console.error("Erro ao obter localização:", error);
+          setIsAskingLocation(false);
+          addMessage("Não foi possível obter sua localização.", false);
+        },
+      );
+    } else {
+      console.error("Geolocation não suportado.");
+      setIsAskingLocation(false);
+      addMessage("Geolocation não suportado.", false);
+    }
+  };
+
 
   const getContextualSuggestions = (): SuggestionButton[] => {
     // Modo solicitação
@@ -791,6 +825,50 @@ const ChatbotWidget: React.FC = () => {
               setModo("resumo");
               proximaPergunta = gerarResumoDosCadastro();
             }
+                    }
+        }
+        // Perguntas regulares de cacau
+        else {
+          switch (subFluxoEtapa) {
+            case 0: // Quantidade de pés
+              novosDados.cacau.quantidade = parseInt(resposta);
+              break;
+            case 1: // Safreiro
+              novosDados.cacau.safreiro = resposta.toLowerCase() === "sim";
+              break;
+            case 2: // Idade
+              novosDados.cacau.idade = resposta;
+              break;
+            case 3: // Sementes CEPLAC
+              novosDados.cacau.sementeCeplac = resposta.toLowerCase() === "sim";
+              break;
+            case 4: // Produção Anual
+              novosDados.cacau.producaoAnual = parseInt(resposta);
+              break;
+            case 5: // Possui plantio clonado
+              novosDados.cacau.clonado = resposta.toLowerCase() === "sim";
+              break;
+          }
+
+          // Avançar para próxima pergunta ou subfluxo de clonado
+          if (subFluxoEtapa === 5 && resposta.toLowerCase() === "sim") {
+            // Iniciar subfluxo de cacau clonado
+            setSubFluxoEtapa(cacauQuestions.length); // Pular para primeira pergunta de clonado
+            proximaPergunta = cacauClonadoQuestions[0];
+          } else if (subFluxoEtapa + 1 < cacauQuestions.length) {
+            setSubFluxoEtapa(subFluxoEtapa + 1);
+            proximaPergunta = cacauQuestions[subFluxoEtapa + 1];
+          } else {
+            // Finalizar subfluxo de cacau e ir para próxima questão principal
+            setSubFluxo(null);
+            const proxima = indexQuestaoAgropecuaria + 1;
+            setIndexQuestaoAgropecuaria(proxima);
+            if (proxima < principaisQuestoesAgropecuarias.length) {
+              proximaPergunta = principaisQuestoesAgropecuarias[proxima];
+            } else {
+              setModo("resumo");
+              proximaPergunta = gerarResumoDosCadastro();
+            }
           }
         }
 
@@ -1095,7 +1173,8 @@ const ChatbotWidget: React.FC = () => {
           coordenadas: {
             s: cadastroRespostas[8] || "",
             w: cadastroRespostas[9] || "",
-          }
+          },
+          localizacao: userLocation
         },
         proprietario: {
           nome: cadastroRespostas[10] || "",
@@ -1469,47 +1548,60 @@ const ChatbotWidget: React.FC = () => {
               <div ref={messagesEndRef} />
             </div>
 
-            {suggestions.length > 0 && (
-              <div className="sticky bottom-[60px] p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10">
-                {suggestions.map((suggestion, index) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs bg-white hover:bg-green-50 border-green-200 text-green-800"
-                    onClick={() => handleSuggestionClick(suggestion)}
-                  >
-                    {suggestion.text}
-                  </Button>
-                ))}
-              </div>
-            )}
-
-            <form
-              onSubmit={handleSubmit}
-              className="p-3 border-t flex items-center"
-            >
-              <Input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Digite sua mensagem..."
-                className="flex-1"
-                disabled={isLoading}
-              />
+          {modo === "localizacao" && userLocation === null && !isAskingLocation && (
+            <div className="sticky bottom-[110px] flex justify-center">
               <Button
-                type="submit"
-                size="icon"
-                className="ml-2 bg-green-600 hover:bg-green-700"
-                disabled={isLoading || !input.trim()}
+                onClick={getUserLocation}
+                className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
+                disabled={isLoading}
               >
-                <Send size={20} />
+                <MapPin size={16} />
+                Obter localização atual
               </Button>
-            </form>
-          </CardContent>
-        </Card>
-      )}
-    </div>
-  );
+            </div>
+          )}
+
+          {suggestions.length > 0 && (
+            <div className="sticky bottom-[60px] p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10">
+              {suggestions.map((suggestion, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs bg-white hover:bg-green-50 border-green-200 text-green-800"
+                  onClick={() => handleSuggestionClick(suggestion)}
+                >
+                  {suggestion.text}
+                </Button>
+              ))}
+            </div>
+          )}
+
+          <form
+            onSubmit={handleSubmit}
+            className="p-3 border-t flex items-center"
+          >
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Digite sua mensagem..."
+              className="flex-1"
+              disabled={isLoading}
+            />
+            <Button
+              type="submit"
+              size="icon"
+              className="ml-2 bg-green-600 hover:bg-green-700"
+              disabled={isLoading || !input.trim()}
+            >
+              <Send size={20} />
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    )}
+  </div>
+);
 };
 
 export default ChatbotWidget;
