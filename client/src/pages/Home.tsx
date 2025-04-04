@@ -5,7 +5,7 @@ import HeroSection from "@/components/home/HeroSection";
 import StatisticsSection from "@/components/home/StatisticsSection";
 import DataVisualizationSection from "@/components/home/DataVisualizationSection";
 import MediaGallerySection from "@/components/home/MediaGallerySection";
-import BackgroundVideo from "@/components/common/BackgroundVideo";
+import BackgroundVideo from "@/components/ui/BackgroundVideo";
 
 const AreasSection = () => {
   return (
@@ -47,7 +47,7 @@ const AreasSection = () => {
 const Home = () => {
   return (
     <>
-      <BackgroundVideo videoPath="/videos/BackgroundVideo.mp4" opacity={0.4} />
+      <BackgroundVideo />
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
         <HeroSection />
         <section id="estatisticas" className="py-12">
