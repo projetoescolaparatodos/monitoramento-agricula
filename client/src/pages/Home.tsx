@@ -68,7 +68,6 @@ const Home = () => {
           <MediaGallerySection variant="transparent" />
         </section>
       </main>
-      <Footer />
     </>
   );
 };
