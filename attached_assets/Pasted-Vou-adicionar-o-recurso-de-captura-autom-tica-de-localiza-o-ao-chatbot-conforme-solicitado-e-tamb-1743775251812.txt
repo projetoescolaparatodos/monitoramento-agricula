@@ -1,0 +1,699 @@
+Vou adicionar o recurso de captura automática de localização ao chatbot, conforme solicitado, e também ajustar o fluxo para permitir que o usuário possa pular as perguntas de coordenadas geográficas caso não esteja no imóvel ou não tenha os dados.
+
+// client/src/components/common/ChatbotWidget.tsx
+// Adicionando a funcionalidade de geolocalização
+
+import React, { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { MessageCircle, Send, X, ArrowLeft, MapPin } from "lucide-react";
+import { db } from "@/utils/firebase"; 
+import { collection, addDoc, serverTimestamp, query, where, getDocs } from "firebase/firestore";
+
+interface Message {
+  text: string;
+  isUser: boolean;
+  timestamp: Date;
+}
+
+interface SuggestionButton {
+  text: string;
+  action: string;
+}
+
+interface UserLocation {
+  latitude: number;
+  longitude: number;
+}
+
+// Estrutura completa para dados agropecuários
+interface DadosAgropecuarios {
+  // (mantendo a interface existente)
+  // ...
+}
+
+// Fluxos de perguntas (mantendo os arrays existentes)
+// ...
+
+// Botões de sugestão iniciais
+const initialSuggestions: SuggestionButton[] = [
+  { text: "Fazer cadastro rural", action: "cadastro" },
+  { text: "Informações de Agricultura", action: "agricultura" },
+  { text: "Serviços de Pesca", action: "pesca" },
+  { text: "Programa PAA", action: "paa" },
+];
+
+// Lista de opções de serviços para solicitação
+const servicosSugestoes: SuggestionButton[] = [
+  { text: "Assistência técnica", action: "Assistência técnica" },
+  { text: "Mecanização agrícola", action: "Mecanização agrícola" },
+  { text: "Análise de solo", action: "Análise de solo" },
+  { text: "Distribuição de mudas", action: "Distribuição de mudas" },
+  { text: "Capacitação", action: "Capacitação" },
+  { text: "Outro serviço", action: "Outro serviço" }
+];
+
+const ChatbotWidget: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [cadastroEtapa, setCadastroEtapa] = useState(-1);
+  const [cadastroRespostas, setCadastroRespostas] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<SuggestionButton[]>(initialSuggestions);
+  const [subFluxo, setSubFluxo] = useState<string | null>(null);
+  const [subFluxoEtapa, setSubFluxoEtapa] = useState<number>(0);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [modo, setModo] = useState<'inicio' | 'cadastro' | 'servico' | 'resumo' | 'agropecuaria' | 'solicitacao' | 'localizacao'>('inicio');
+  const [servicoAtual, setServicoAtual] = useState<string>('');
+  const [usuarioCadastrado, setUsuarioCadastrado] = useState<boolean | null>(null);
+  const [indexQuestaoAgropecuaria, setIndexQuestaoAgropecuaria] = useState<number>(0);
+  const [solicitacao, setSolicitacao] = useState<string>('');
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+  const [isAskingLocation, setIsAskingLocation] = useState<boolean>(false);
+  const [skipLocationQuestions, setSkipLocationQuestions] = useState<boolean>(false);
+  const [dadosAgropecuarios, setDadosAgropecuarios] = useState<DadosAgropecuarios>({
+    // mantendo o estado inicial existente
+    cacau: { cultiva: false },
+    frutiferas: { cultiva: false },
+    lavourasAnuais: { cultiva: false },
+    mandioca: { produz: false },
+    arrozFeijao: { produz: false },
+    hortalicas: { produz: false },
+    tuberosas: { produz: false },
+    bovinos: { cria: false },
+    caprinosOvinos: { cria: false },
+    suinos: { cria: false },
+    aves: { cria: false }
+  });
+  
+  // Efeitos
+  useEffect(() => {
+    if (isOpen && messages.length === 0) {
+      setMessages([
+        {
+          text: "Olá! Sou o assistente da Secretaria de Agricultura. Como posso ajudar você hoje? Selecione uma opção ou digite sua mensagem.",
+          isUser: false,
+          timestamp: new Date(),
+        },
+      ]);
+      setSuggestions(initialSuggestions);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    // Atualizar sugestões imediatamente após mudar de modo ou etapa
+    setSuggestions(getContextualSuggestions());
+  }, [modo, cadastroEtapa, subFluxo, subFluxoEtapa, usuarioCadastrado, isAskingLocation]);
+
+  // Função para obter a localização do usuário
+  const getUserLocation = () => {
+    if (navigator.geolocation) {
+      setIsLoading(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation({ latitude, longitude });
+          addMessage(
+            `Localização capturada com sucesso:\nLatitude: ${latitude.toFixed(6)}\nLongitude: ${longitude.toFixed(6)}\n\nEstas coordenadas estão corretas?`,
+            false
+          );
+          setSuggestions([
+            { text: "Sim, confirmar", action: "confirmar" },
+            { text: "Não, inserir manualmente", action: "manual" }
+          ]);
+          setIsLoading(false);
+        },
+        (error) => {
+          let errorMessage = "Não foi possível obter a localização automaticamente.";
+          
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage += " Você negou a permissão para acessar sua localização.";
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage += " Informações de localização indisponíveis.";
+              break;
+            case error.TIMEOUT:
+              errorMessage += " A solicitação de localização expirou.";
+              break;
+            default:
+              errorMessage += " Erro desconhecido.";
+          }
+          
+          addMessage(errorMessage + " Por favor, insira as coordenadas manualmente ou prossiga sem elas.", false);
+          setSuggestions([
+            { text: "Inserir coordenadas", action: "manual" },
+            { text: "Pular esta etapa", action: "pular" }
+          ]);
+          setIsLoading(false);
+        },
+        { 
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    } else {
+      addMessage("Seu navegador não suporta geolocalização. Por favor, insira as coordenadas manualmente ou prossiga sem elas.", false);
+      setSuggestions([
+        { text: "Inserir coordenadas", action: "manual" },
+        { text: "Pular esta etapa", action: "pular" }
+      ]);
+    }
+  };
+
+  // Funções auxiliares
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const getContextualSuggestions = (): SuggestionButton[] => {
+    // Modo localização
+    if (modo === 'localizacao') {
+      if (isAskingLocation) {
+        return [
+          { text: "Sim, estou no imóvel", action: "sim" },
+          { text: "Não, não estou", action: "nao" }
+        ];
+      } else if (userLocation !== null) {
+        return [
+          { text: "Confirmar localização", action: "confirmar" },
+          { text: "Inserir manualmente", action: "manual" }
+        ];
+      } else {
+        return [
+          { text: "Inserir coordenadas", action: "manual" },
+          { text: "Pular esta etapa", action: "pular" }
+        ];
+      }
+    }
+    
+    // Sugestões para os demais modos (mantido o código existente)
+    else if (modo === 'solicitacao') {
+      return servicosSugestoes;
+    }
+    // Modo agropecuária - sugestões específicas para cada seção
+    else if (modo === 'agropecuaria') {
+      // ... código existente
+    } 
+    // ... restante do código de sugestões
+    
+    return [];
+  };
+
+  // Função para processar respostas relacionadas à localização
+  const processarRespostaLocalizacao = (resposta: string): string => {
+    const respostaLower = resposta.toLowerCase();
+    
+    if (isAskingLocation) {
+      setIsAskingLocation(false);
+      
+      if (respostaLower === "sim") {
+        // Usuário está no imóvel, tentar capturar localização
+        getUserLocation();
+        return "Solicitando acesso à sua localização...";
+      } else {
+        // Usuário não está no imóvel
+        addMessage("Você tem as coordenadas geográficas do imóvel (latitude/longitude)?", false);
+        setSuggestions([
+          { text: "Sim, tenho", action: "sim" },
+          { text: "Não tenho", action: "nao" }
+        ]);
+        return "";
+      }
+    } else if (userLocation !== null) {
+      // Já temos a localização, verificando se o usuário confirma
+      if (respostaLower.includes("confirmar") || respostaLower === "sim") {
+        // Usuário confirmou a localização capturada
+        const { latitude, longitude } = userLocation;
+        
+        // Substituir as perguntas de coordenadas com os valores obtidos
+        let novasRespostas = [...cadastroRespostas];
+        if (novasRespostas.length >= 9) {
+          novasRespostas[8] = latitude.toString(); // Coordenada S
+        }
+        if (novasRespostas.length >= 10) {
+          novasRespostas[9] = longitude.toString(); // Coordenada W
+        }
+        setCadastroRespostas(novasRespostas);
+        
+        // Avançar para a próxima pergunta após as coordenadas
+        setCadastroEtapa(10);
+        setModo('cadastro');
+        return cadastroFluxo[10];
+      } else {
+        // Usuário quer inserir manualmente
+        setUserLocation(null);
+        return "Por favor, informe a coordenada S (latitude) do imóvel:";
+      }
+    } else {
+      // Não temos localização, verificar se o usuário quer inserir ou pular
+      if (respostaLower.includes("manual") || respostaLower === "sim") {
+        // Usuário quer inserir manualmente
+        setModo('cadastro');
+        return "Por favor, informe a coordenada S (latitude) do imóvel:";
+      } else if (respostaLower.includes("pular") || respostaLower === "nao") {
+        // Usuário quer pular as perguntas de coordenadas
+        setSkipLocationQuestions(true);
+        
+        // Adicionar valores vazios para as coordenadas
+        let novasRespostas = [...cadastroRespostas];
+        if (novasRespostas.length <= 8) {
+          novasRespostas.push(""); // Coordenada S
+        }
+        if (novasRespostas.length <= 9) {
+          novasRespostas.push(""); // Coordenada W
+        }
+        setCadastroRespostas(novasRespostas);
+        
+        // Avançar para a próxima pergunta após as coordenadas
+        setCadastroEtapa(10);
+        setModo('cadastro');
+        return cadastroFluxo[10];
+      } else {
+        // Resposta não reconhecida
+        return "Por favor, escolha se deseja inserir as coordenadas manualmente ou pular esta etapa.";
+      }
+    }
+  };
+
+  // Processar mensagem do usuário
+  const processUserMessage = async (userMessage: string) => {
+    setIsLoading(true);
+
+    // Adiciona mensagem do usuário
+    addMessage(userMessage, true);
+
+    // Processa resposta
+    let botResponse = "";
+
+    // Modo localização - captura ou inserção manual de coordenadas
+    if (modo === 'localizacao') {
+      botResponse = processarRespostaLocalizacao(userMessage);
+      
+      // Se a função retornou string vazia, é porque já enviou uma mensagem
+      if (!botResponse) {
+        setIsLoading(false);
+        return;
+      }
+    }
+    // Modo solicitação - recebe a solicitação final e finaliza o processo
+    else if (modo === 'solicitacao') {
+      setSolicitacao(userMessage);
+      await salvarCadastroNoFirebase();
+      botResponse = "Sua solicitação de " + userMessage + " foi registrada com sucesso! Um técnico responsável pelo setor entrará em contato em breve para atender sua solicitação. Obrigado por utilizar nosso serviço!";
+      // Reiniciar para o estado inicial
+      setCadastroEtapa(-1);
+      setCadastroRespostas([]);
+      setModo('inicio');
+      setSuggestions(initialSuggestions);
+      setDadosAgropecuarios({
+        cacau: { cultiva: false },
+        frutiferas: { cultiva: false },
+        lavourasAnuais: { cultiva: false },
+        mandioca: { produz: false },
+        arrozFeijao: { produz: false },
+        hortalicas: { produz: false },
+        tuberosas: { produz: false },
+        bovinos: { cria: false },
+        caprinosOvinos: { cria: false },
+        suinos: { cria: false },
+        aves: { cria: false }
+      });
+    }
+    // Modo agropecuária - processamento específico
+    else if (modo === 'agropecuaria') {
+      botResponse = processarRespostaAgropecuaria(userMessage);
+    }
+    // Modo resumo para confirmação final
+    else if (modo === 'resumo') {
+      // Palavras que indicam confirmação
+      const palavrasConfirmacao = ["confirmar", "confirmo", "sim", "ok", "certo", "correto", "está correto", "confirma"];
+      
+      if (palavrasConfirmacao.some(palavra => userMessage.toLowerCase().includes(palavra))) {
+        // Passar para o modo de solicitação
+        setModo('solicitacao');
+        botResponse = "Agora, por favor, descreva qual serviço ou assistência você está buscando da Secretaria de Agricultura:";
+        setSuggestions(servicosSugestoes);
+      } else if (userMessage.toLowerCase().includes("editar")) {
+        botResponse = "Qual informação você gostaria de editar?";
+        // Aqui implementaríamos a lógica de edição
+        botResponse = "Recurso de edição em desenvolvimento. Por favor, reinicie o cadastro se precisar corrigir informações.";
+      } else if (userMessage.toLowerCase().includes("cancelar")) {
+        botResponse = "Cadastro cancelado. Como posso ajudar você hoje?";
+        setCadastroEtapa(-1);
+        setCadastroRespostas([]);
+        setModo('inicio');
+        setSuggestions(initialSuggestions);
+      } else {
+        // Se a resposta não for reconhecida, pedir novamente
+        botResponse = "Por favor, confirme se os dados estão corretos digitando 'Confirmar', ou 'Cancelar' para recomeçar.";
+      }
+    }
+    // Modo serviço para informações sobre serviços
+    else if (modo === 'servico') {
+      // Se ainda não verificamos se o usuário já é cadastrado
+      if (usuarioCadastrado === null) {
+        // Verificar se usuário já tem cadastro
+        setUsuarioCadastrado(userMessage.toLowerCase().includes("sim"));
+        
+        if (userMessage.toLowerCase().includes("sim")) {
+          botResponse = "Por favor, informe seu nome completo:";
+        } else {
+          // Usuário não tem cadastro, iniciar processo completo
+          setModo('cadastro');
+          setCadastroEtapa(0);
+          botResponse = cadastroFluxo[0];
+        }
+      } 
+      // Se o usuário é cadastrado, coletar informações básicas
+      else if (usuarioCadastrado) {
+        if (cadastroRespostas.length === 0) {
+          // Coletar nome
+          setCadastroRespostas([...cadastroRespostas, userMessage]);
+          botResponse = "Agora, por favor, digite seu CPF:";
+        } else if (cadastroRespostas.length === 1) {
+          // Coletar CPF
+          setCadastroRespostas([...cadastroRespostas, userMessage]);
+          botResponse = "Qual o nome da sua propriedade?";
+        } else if (cadastroRespostas.length === 2) {
+          // Coletar nome da propriedade
+          setCadastroRespostas([...cadastroRespostas, userMessage]);
+          // Simular busca no banco (em uma versão real, verificaríamos o cadastro)
+          botResponse = "Encontramos seu cadastro no sistema. Qual serviço você precisa hoje?";
+          setSuggestions(servicosSugestoes);
+        } else {
+          // Já coletamos as informações básicas, considerar como uma solicitação
+          setSolicitacao(userMessage);
+          // Criar dados mínimos necessários para registro
+          const dadosProprietario = {
+            nome: cadastroRespostas[0] || "",
+            cpf: cadastroRespostas[1] || "",
+          };
+          const dadosPropriedade = {
+            nome: cadastroRespostas[2] || "",
+          };
+          
+          // Salvar solicitação no Firebase
+          try {
+            await addDoc(collection(db, "solicitacoes_servicos"), {
+              proprietario: dadosProprietario,
+              propriedade: dadosPropriedade,
+              solicitacao: userMessage,
+              timestamp: serverTimestamp(),
+              status: "pendente",
+              origem: "chatbot"
+            });
+            botResponse = "Sua solicitação de " + userMessage + " foi registrada com sucesso! Um técnico responsável pelo setor entrará em contato em breve para atender sua solicitação. Obrigado por utilizar nosso serviço!";
+          } catch (error) {
+            console.error("Erro ao salvar solicitação:", error);
+            botResponse = "Desculpe, houve um problema ao processar sua solicitação. Por favor, tente novamente mais tarde ou entre em contato diretamente com a Secretaria.";
+          }
+          
+          // Reiniciar para o estado inicial
+          setModo('inicio');
+          setCadastroRespostas([]);
+          setSuggestions(initialSuggestions);
+        }
+      }
+    }
+    // Modo cadastro principal
+    else if (cadastroEtapa >= 0) {
+      if (!validateField(cadastroEtapa, userMessage)) {
+        botResponse = "Por favor, insira um valor válido.";
+      } else {
+        const novasRespostas = [...cadastroRespostas, userMessage];
+        setCadastroRespostas(novasRespostas);
+
+        // Verificar se estamos no ponto de perguntar sobre localização
+        if (cadastroEtapa === 7) { // Após a pergunta de financiamento
+          setModo('localizacao');
+          setIsAskingLocation(true);
+          botResponse = "Você está na propriedade rural neste momento?";
+        }
+        // Verificar se devemos pular as perguntas de coordenadas
+        else if (skipLocationQuestions && (cadastroEtapa === 8 || cadastroEtapa === 9)) {
+          // Pular perguntas de coordenadas
+          setCadastroEtapa(10);
+          botResponse = cadastroFluxo[10];
+        }
+        // Próxima etapa ou finalizar cadastro principal
+        else if (cadastroEtapa + 1 >= cadastroFluxo.length) {
+          // Passar para o módulo de dados agropecuários
+          setModo('agropecuaria');
+          setIndexQuestaoAgropecuaria(0);
+          botResponse = principaisQuestoesAgropecuarias[0];
+        } else {
+          // Próxima pergunta normal do cadastro principal
+          setCadastroEtapa((prev) => prev + 1);
+          botResponse = cadastroFluxo[cadastroEtapa + 1];
+        }
+      }
+    } 
+    // Modo cadastro inicial (verificando se já está cadastrado)
+    else if (modo === 'cadastro') {
+      if (usuarioCadastrado === null) {
+        setUsuarioCadastrado(userMessage.toLowerCase().includes("sim"));
+        if (userMessage.toLowerCase().includes("sim")) {
+          botResponse = "Por favor, informe seu nome completo:";
+        } else {
+          setCadastroEtapa(0);
+          botResponse = cadastroFluxo[0];
+        }
+      } else if (usuarioCadastrado) {
+        if (cadastroRespostas.length === 0) {
+          setCadastroRespostas([...cadastroRespostas, userMessage]);
+          botResponse = "Agora, por favor, digite seu CPF:";
+        } else if (cadastroRespostas.length === 1) {
+          const cpf = userMessage;
+          setCadastroRespostas([...cadastroRespostas, cpf]);
+          botResponse = "Qual o nome da sua propriedade?";
+        } else if (cadastroRespostas.length === 2) {
+          setCadastroRespostas([...cadastroRespostas, userMessage]);
+          setModo('solicitacao');
+          botResponse = "Encontramos seu cadastro. Qual serviço você precisa hoje?";
+          setSuggestions(servicosSugestoes);
+        }
+      }
+    } 
+    // Modo início (menu principal)
+    else {
+      if (userMessage.toLowerCase().includes("cadastro")) {
+        setModo('cadastro');
+        setUsuarioCadastrado(null);
+        botResponse = "Você já possui cadastro em nossa secretaria? (sim/não)";
+        setSuggestions([
+          { text: "Sim", action: "sim" },
+          { text: "Não", action: "não" }
+        ]);
+      } else if (
+        userMessage.toLowerCase().includes("agricultura") || 
+        userMessage.toLowerCase().includes("pesca") || 
+        userMessage.toLowerCase().includes("paa")
+      ) {
+        setModo('servico');
+        setServicoAtual(userMessage);
+        
+        botResponse = "Você já possui cadastro em nossa secretaria? (sim/não)";
+        setSuggestions([
+          { text: "Sim", action: "sim" },
+          { text: "Não", action: "não" }
+        ]);
+      } else {
+        // Resposta genérica para outras mensagens
+        botResponse = "Como posso ajudar você? Você pode escolher uma das opções abaixo ou perguntar sobre agricultura, pesca ou o Programa de Aquisição de Alimentos (PAA).";
+      }
+    }
+
+    // Adiciona resposta do bot
+    addMessage(botResponse, false);
+    setIsLoading(false);
+  };
+
+  // Resto do código (handleSubmit, handleSuggestionClick, voltarAoInicio, etc.)
+  // ...
+
+  return (
+    <div className="fixed bottom-4 right-4 z-50">
+      {!isOpen ? (
+        <Button
+          onClick={() => setIsOpen(true)}
+          className="rounded-full w-14 h-14 bg-green-600 hover:bg-green-700 text-white shadow-lg"
+        >
+          <MessageCircle size={24} />
+        </Button>
+      ) : (
+        <Card className="w-80 sm:w-96 shadow-xl flex flex-col" style={{maxHeight: '80vh'}}>
+          <div className="bg-green-600 text-white p-3 flex justify-between items-center rounded-t-lg">
+            <div className="flex items-center gap-2">
+              {(modo !== 'inicio' || subFluxo) && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={voltarAoInicio}
+                  className="h-8 w-8 p-0 text-white hover:bg-green-700"
+                >
+                  <ArrowLeft size={16} />
+                </Button>
+              )}
+              <h3 className="font-medium">Assistente Virtual</h3>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsOpen(false)}
+              className="text-white hover:bg-green-700"
+            >
+              <X size={20} />
+            </Button>
+          </div>
+
+          <CardContent className="p-0 flex flex-col h-[500px] relative">
+            <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
+              {messages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`mb-4 flex ${msg.isUser ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`p-3 rounded-lg max-w-[85%] ${
+                      msg.isUser
+                        ? "bg-green-600 text-white rounded-tr-none"
+                        : "bg-gray-100 text-gray-800 rounded-tl-none"
+                    }`}
+                  >
+                    {msg.text.split('\n').map((line, i) => (
+                      <React.Fragment key={i}>
+                        {line}
+                        {i < msg.text.split('\n').length - 1 && <br />}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="p-3 rounded-lg bg-gray-100 text-gray-800 rounded-tl-none">
+                    <div className="flex space-x-2">
+                      <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"></div>
+                      <div
+                        className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.2s" }}
+                      ></div>
+                      <div
+                        className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.4s" }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Botão de geolocalização (aparece apenas no modo de localização) */}
+            {modo === 'localizacao' && userLocation === null && !isAskingLocation && (
+              <div className="sticky bottom-[110px] flex justify-center">
+                <Button
+                  onClick={getUserLocation}
+                  className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
+                  disabled={isLoading}
+                >
+                  <MapPin size={16} />
+                  Obter localização atual
+                </Button>
+              </div>
+            )}
+
+            {suggestions.length > 0 && (
+              <div className="sticky bottom-[60px] p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10">
+                {suggestions.map((suggestion, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs bg-white hover:bg-green-50 border-green-200 text-green-800"
+                    onClick={() => handleSuggestionClick(suggestion)}
+                  >
+                    {suggestion.text}
+                  </Button>
+                ))}
+              </div>
+            )}
+
+            <form
+              onSubmit={handleSubmit}
+              className="p-3 border-t flex items-center"
+            >
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Digite sua mensagem..."
+                className="flex-1"
+                disabled={isLoading}
+              />
+              <Button
+                type="submit"
+                size="icon"
+                className="ml-2 bg-green-600 hover:bg-green-700"
+                disabled={isLoading || !input.trim()}
+              >
+                <Send size={20} />
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+};
+
+export default ChatbotWidget;
+
+Mudanças Implementadas
+
+    Novo Modo "Localização":
+        Adicionei um novo modo localizacao para gerenciar o fluxo específico de captura de coordenadas
+        Implementei a interface UserLocation para armazenar latitude e longitude
+
+    Captura de Localização Automática:
+        Implementei a função getUserLocation() que utiliza a API de Geolocalização do navegador
+        Adicionei tratamento de erros detalhado para diferentes problemas de geolocalização
+        Criei um botão dedicado para capturar a localização, que aparece apenas durante este fluxo
+
+    Fluxo de Perguntas sobre Localização:
+        Após as perguntas sobre a propriedade, o bot pergunta se o usuário está no imóvel
+        Se sim, tenta capturar a localização automaticamente
+        Se não, pergunta se o usuário tem os dados geográficos
+        Se não tiver, oferece a opção de pular essa etapa
+
+    Opção de Pular Coordenadas:
+        Adicionei um estado skipLocationQuestions para controlar quando as perguntas sobre coordenadas devem ser puladas
+        Quando o usuário escolhe pular, preenchemos valores vazios para as coordenadas e seguimos o fluxo
+
+    Confirmação da Localização Capturada:
+        Após capturar a localização, mostramos as coordenadas para o usuário confirmar
+        Se confirmado, usamos esses dados diretamente e pulamos as perguntas manuais de coordenadas
+        Se o usuário quiser corrigir, voltamos para a entrada manual
+
+    Integração com o Fluxo Existente:
+        Modifiquei o fluxo do cadastro para inserir a pergunta sobre localização após a pergunta sobre financiamento
+        Garanti que todos os dados sejam armazenados corretamente no mesmo formato, independentemente do método de obtenção
+
+    UX Melhorado:
+        Adicionei sugestões específicas para cada parte do fluxo de localização
+        Forneci mensagens claras sobre o que está acontecendo durante o processo
+
+Estas implementações permitem que o agricultor tenha três caminhos para informar a localização:
+
+    Captura automática (se estiver na propriedade)
+    Inserção manual (se tiver as coordenadas)
+    Pular as perguntas (se não tiver essa informação)
+
+O resultado é um fluxo mais flexível e adaptado às diferentes situações que o usuário possa enfrentar durante o cadastro.

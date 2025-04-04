@@ -1,0 +1,41 @@
+Mudanças Implementadas
+
+    Novo Modo "Localização":
+        Adicionei um novo modo localizacao para gerenciar o fluxo específico de captura de coordenadas
+        Implementei a interface UserLocation para armazenar latitude e longitude
+
+    Captura de Localização Automática:
+        Implementei a função getUserLocation() que utiliza a API de Geolocalização do navegador
+        Adicionei tratamento de erros detalhado para diferentes problemas de geolocalização
+        Criei um botão dedicado para capturar a localização, que aparece apenas durante este fluxo
+
+    Fluxo de Perguntas sobre Localização:
+        Após as perguntas sobre a propriedade, o bot pergunta se o usuário está no imóvel
+        Se sim, tenta capturar a localização automaticamente
+        Se não, pergunta se o usuário tem os dados geográficos
+        Se não tiver, oferece a opção de pular essa etapa
+
+    Opção de Pular Coordenadas:
+        Adicionei um estado skipLocationQuestions para controlar quando as perguntas sobre coordenadas devem ser puladas
+        Quando o usuário escolhe pular, preenchemos valores vazios para as coordenadas e seguimos o fluxo
+
+    Confirmação da Localização Capturada:
+        Após capturar a localização, mostramos as coordenadas para o usuário confirmar
+        Se confirmado, usamos esses dados diretamente e pulamos as perguntas manuais de coordenadas
+        Se o usuário quiser corrigir, voltamos para a entrada manual
+
+    Integração com o Fluxo Existente:
+        Modifiquei o fluxo do cadastro para inserir a pergunta sobre localização após a pergunta sobre financiamento
+        Garanti que todos os dados sejam armazenados corretamente no mesmo formato, independentemente do método de obtenção
+
+    UX Melhorado:
+        Adicionei sugestões específicas para cada parte do fluxo de localização
+        Forneci mensagens claras sobre o que está acontecendo durante o processo
+
+Estas implementações permitem que o agricultor tenha três caminhos para informar a localização:
+
+    Captura automática (se estiver na propriedade)
+    Inserção manual (se tiver as coordenadas)
+    Pular as perguntas (se não tiver essa informação)
+
+O resultado é um fluxo mais flexível e adaptado às diferentes situações que o usuário possa enfrentar durante o cadastro.
