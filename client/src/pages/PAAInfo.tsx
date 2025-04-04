@@ -76,8 +76,7 @@ const PAAInfo = () => {
 
   return (
     <>
-      <div style={backgroundStyle} /> {/* Added background image */}
-      <BackgroundVideo videoPath="/videos/fundo-paa.mp4" opacity={0.2} />
+      <div style={backgroundStyle} />
       <div className="fixed inset-0 w-full min-h-screen bg-black/40 z-[1]"></div>
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
         <div className="flex justify-end mb-6">
