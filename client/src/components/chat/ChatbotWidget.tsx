@@ -534,40 +534,8 @@ const ChatbotWidget: React.FC = () => {
     setSuggestions(getContextualSuggestions());
   }, [modo, cadastroEtapa, subFluxo, subFluxoEtapa, usuarioCadastrado]);
 
-  // Novo useEffect para monitorar mudanças na geolocalização
-  useEffect(() => {
-    // Se estamos em modo de localização e acabamos de obter as coordenadas
-    if (modo === "localizacao" && userLocation !== null && !isAskingLocation) {
-      if (pisciculturaSecao === "atividade") {
-        // Salvar a localização nos dados de piscicultura
-        const novosDados = { ...dadosPiscicultura };
-        novosDados.atividade.coordenadas = {
-          latitude: userLocation.latitude,
-          longitude: userLocation.longitude,
-        };
-        setDadosPiscicultura(novosDados);
-
-        // Mostrar as coordenadas obtidas
-        const locationMsg = `Obtive sua localização: Latitude ${userLocation.latitude.toFixed(6)}, Longitude ${userLocation.longitude.toFixed(6)}. Continuando com o cadastro...`;
-        addMessage(locationMsg, false);
-
-        // Continuar o fluxo para a próxima seção
-        setTimeout(() => {
-          setModo("piscicultura");
-          setPisciculturaSecao("estrutura");
-          setPisciculturaEtapa(0);
-          addMessage(pisciculturaEstruturaQuestions[0], false);
-          setSuggestions([
-            { text: "Viveiro", action: "Viveiro" },
-            { text: "Tanque-rede", action: "Tanque-rede" },
-            { text: "Barragem", action: "Barragem" },
-            { text: "Canal", action: "Canal" },
-            { text: "Represa", action: "Represa" },
-          ]);
-        }, 1000); // Pequeno atraso para melhor experiência do usuário
-      }
-    }
-  }, [userLocation, isAskingLocation, modo, pisciculturaSecao]);
+  // Removemos o useEffect que monitorava mudanças na geolocalização
+  // pois agora pulamos diretamente para a próxima seção após o endereço
 
   // Funções auxiliares
   const scrollToBottom = () => {
@@ -660,21 +628,7 @@ const ChatbotWidget: React.FC = () => {
     if (modo === "solicitacao") {
       return servicosSugestoes;
     }
-    // Modo localização
-    else if (modo === "localizacao") {
-      if (!isAskingLocation && userLocation === null) {
-        return [
-          { text: "Sim, estou", action: "sim" },
-          { text: "Não, não estou", action: "nao" },
-        ];
-      } else if (userLocation !== null) {
-        return [
-          { text: "Confirmar localização", action: "confirmar" },
-          { text: "Ajustar no mapa", action: "ajustar" },
-          { text: "Inserir manualmente", action: "manual" },
-        ];
-      }
-    }
+    // Removemos o modo localização das sugestões contextuais
     // Modo piscicultura - sugestões específicas para cada seção
     else if (modo === "piscicultura") {
       if (pisciculturaSecao === "empreendedor") {
@@ -1154,69 +1108,7 @@ const ChatbotWidget: React.FC = () => {
         return principaisQuestoesAgropecuarias[proxima];
       }
     }
-    // Se estamos no modo de localização
-    else if (modo === "localizacao") {
-      // Verificar se o usuário respondeu se está na propriedade ou não
-      if (!isAskingLocation && userLocation === null) {
-        if (userMessage.toLowerCase().includes("sim")) {
-          // Usuário está na propriedade, obter localização automaticamente
-          getUserLocation();
-          botResponse =
-            "Obtendo sua localização atual... Por favor, aguarde um momento.";
-          // Não mudar o modo ainda, vamos manter no modo 'localizacao' até obtermos as coordenadas
-          addMessage(botResponse, false);
-          setIsLoading(false);
-          return;
-        } else {
-          // Usuário não está na propriedade, pular obtenção de localização
-          setSkipLocationQuestions(true);
-
-          // Se viemos do fluxo de piscicultura, voltar para ele
-          if (pisciculturaSecao === "atividade") {
-            setModo("piscicultura");
-            setPisciculturaSecao("estrutura");
-            setPisciculturaEtapa(0);
-            botResponse = pisciculturaEstruturaQuestions[0];
-            setSuggestions([
-              { text: "Viveiro", action: "Viveiro" },
-              { text: "Tanque-rede", action: "Tanque-rede" },
-              { text: "Barragem", action: "Barragem" },
-              { text: "Canal", action: "Canal" },
-              { text: "Represa", action: "Represa" },
-            ]);
-          }
-        }
-      }
-      // Verificar se já temos a localização do usuário
-      else if (userLocation !== null) {
-        if (pisciculturaSecao === "atividade") {
-          // Salvar a localização nos dados de piscicultura
-          const novosDados = { ...dadosPiscicultura };
-          novosDados.atividade.coordenadas = {
-            latitude: userLocation.latitude,
-            longitude: userLocation.longitude,
-          };
-          setDadosPiscicultura(novosDados);
-
-          // Mostrar para o usuário as coordenadas obtidas
-          botResponse = `Obtive sua localização: Latitude ${userLocation.latitude.toFixed(6)}, Longitude ${userLocation.longitude.toFixed(6)}. Continuando com o cadastro...`;
-          addMessage(botResponse, false);
-
-          // Voltar para o fluxo de piscicultura
-          setModo("piscicultura");
-          setPisciculturaSecao("estrutura");
-          setPisciculturaEtapa(0);
-          botResponse = pisciculturaEstruturaQuestions[0];
-          setSuggestions([
-            { text: "Viveiro", action: "Viveiro" },
-            { text: "Tanque-rede", action: "Tanque-rede" },
-            { text: "Barragem", action: "Barragem" },
-            { text: "Canal", action: "Canal" },
-            { text: "Represa", action: "Represa" },
-          ]);
-        }
-      }
-    }
+    // Omitimos o tratamento do modo de localização, pois não usamos mais
     // Se há subfluxo, processamos perguntas específicas do módulo
     else {
       // Atualizar dados de acordo com o subfluxo atual
@@ -2010,13 +1902,16 @@ const ChatbotWidget: React.FC = () => {
           pisciculturaEtapa ===
           pisciculturaAtividadeQuestions.length - 1
         ) {
-          // Após endereço, perguntar sobre localização
-          setModo("localizacao");
-          setIsAskingLocation(true);
-          botResponse = "Você está na propriedade rural neste momento?";
+          // Após endereço, pular diretamente para estrutura (sem perguntar sobre localização)
+          setPisciculturaSecao("estrutura");
+          setPisciculturaEtapa(0);
+          botResponse = pisciculturaEstruturaQuestions[0];
           setSuggestions([
-            { text: "Sim, estou", action: "sim" },
-            { text: "Não, não estou", action: "nao" },
+            { text: "Viveiro", action: "Viveiro" },
+            { text: "Tanque-rede", action: "Tanque-rede" },
+            { text: "Barragem", action: "Barragem" },
+            { text: "Canal", action: "Canal" },
+            { text: "Represa", action: "Represa" },
           ]);
         }
       } else if (pisciculturaSecao === "estrutura") {
