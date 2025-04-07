@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { MessageCircle, Send, X, ArrowLeft, MapPin } from "lucide-react";
 import { db } from "@/utils/firebase";
+import LocationMap from "./LocationMap";
 import {
   collection,
   addDoc,
