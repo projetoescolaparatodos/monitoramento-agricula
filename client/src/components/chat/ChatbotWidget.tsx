@@ -825,53 +825,8 @@ const ChatbotWidget: React.FC = () => {
               setModo("resumo");
               proximaPergunta = gerarResumoDosCadastro();
             }
-                    }
-        }
-        // Perguntas regulares de cacau
-        else {
-          switch (subFluxoEtapa) {
-            case 0: // Quantidade de pés
-              novosDados.cacau.quantidade = parseInt(resposta);
-              break;
-            case 1: // Safreiro
-              novosDados.cacau.safreiro = resposta.toLowerCase() === "sim";
-              break;
-            case 2: // Idade
-              novosDados.cacau.idade = resposta;
-              break;
-            case 3: // Sementes CEPLAC
-              novosDados.cacau.sementeCeplac = resposta.toLowerCase() === "sim";
-              break;
-            case 4: // Produção Anual
-              novosDados.cacau.producaoAnual = parseInt(resposta);
-              break;
-            case 5: // Possui plantio clonado
-              novosDados.cacau.clonado = resposta.toLowerCase() === "sim";
-              break;
-          }
-
-          // Avançar para próxima pergunta ou subfluxo de clonado
-          if (subFluxoEtapa === 5 && resposta.toLowerCase() === "sim") {
-            // Iniciar subfluxo de cacau clonado
-            setSubFluxoEtapa(cacauQuestions.length); // Pular para primeira pergunta de clonado
-            proximaPergunta = cacauClonadoQuestions[0];
-          } else if (subFluxoEtapa + 1 < cacauQuestions.length) {
-            setSubFluxoEtapa(subFluxoEtapa + 1);
-            proximaPergunta = cacauQuestions[subFluxoEtapa + 1];
-          } else {
-            // Finalizar subfluxo de cacau e ir para próxima questão principal
-            setSubFluxo(null);
-            const proxima = indexQuestaoAgropecuaria + 1;
-            setIndexQuestaoAgropecuaria(proxima);
-            if (proxima < principaisQuestoesAgropecuarias.length) {
-              proximaPergunta = principaisQuestoesAgropecuarias[proxima];
-            } else {
-              setModo("resumo");
-              proximaPergunta = gerarResumoDosCadastro();
-            }
           }
         }
-
         setDadosAgropecuarios(novosDados);
       }
       // Processamento de frutíferas

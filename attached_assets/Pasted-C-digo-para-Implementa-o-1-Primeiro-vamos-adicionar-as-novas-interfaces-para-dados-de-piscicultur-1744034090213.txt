@@ -1,0 +1,469 @@
+Código para Implementação
+1. Primeiro, vamos adicionar as novas interfaces para dados de piscicultura:
+
+// Adicionar acima das outras interfaces
+interface DadosPiscicultura {
+  empreendedor: {
+    nome: string;
+    endereco: string;
+    travessao: string;
+    cpf: string;
+    rg: string;
+    orgaoEmissor: string;
+    sexo: string;
+    celular: string;
+  };
+  atividade: {
+    descricao: string;
+    endereco: string;
+    coordenadas?: {
+      latitude: number;
+      longitude: number;
+    };
+    estruturaAquicola: string[];
+  };
+  obras: {
+    canalIgarape?: {
+      area: number;
+      situacao: string;
+    };
+    viveiroEscavado?: {
+      area: number;
+      situacao: string;
+    };
+    barragem?: {
+      area: number;
+      situacao: string;
+    };
+    viveiroSuspenso?: {
+      area: number;
+      situacao: string;
+    };
+  };
+  especies: {
+    tambaqui?: number;
+    tambatinga?: number;
+    matrinxa?: number;
+    curimata?: number;
+    pirarucu?: number;
+    tilapia?: number;
+  };
+  detalhamento: {
+    distanciaSede: number;
+    referencia: string;
+    situacaoLegal: string;
+    outraSituacao?: string;
+    areaTotal: number;
+    recursosHidricos: {
+      tipo: string[];
+      nomes: Record<string, string>;
+    };
+    usosAgua: string[];
+  };
+  recursos: {
+    numEmpregados: number;
+    numFamiliares: number;
+    recursosFinanceiros: string;
+    fonteFinanciamento?: string;
+    assistenciaTecnica: string;
+  };
+  observacoes?: string;
+}
+
+2. Agora, vamos adicionar os arrays de perguntas para o fluxo de piscicultura:
+
+// Arrays de perguntas para piscicultura
+const pisciculturaEmpreendedorQuestions = [
+  "Qual o seu nome completo?",
+  "Qual o seu endereço?",
+  "Qual o nome do travessão?",
+  "Qual o seu CPF? (formato: 000.000.000-00)",
+  "Qual o seu RG?",
+  "Qual o Órgão Emissor/UF do RG?",
+  "Qual o seu sexo?",
+  "Qual o seu número de celular para contato? (formato: (00) 00000-0000)"
+];
+
+const pisciculturaAtividadeQuestions = [
+  "Qual atividade é desenvolvida na propriedade?",
+  "Qual o endereço do local da atividade?"
+  // A pergunta de localização será tratada separadamente
+];
+
+const pisciculturaEstruturaQuestions = [
+  "Quais estruturas aquícolas existem na propriedade? (selecione todas aplicáveis)"
+];
+
+const pisciculturaObrasQuestions = {
+  canalIgarape: [
+    "Qual a área em m² do Canal de Igarapé?",
+    "Qual a situação da obra do Canal de Igarapé?"
+  ],
+  viveiroEscavado: [
+    "Qual a área em ha do Viveiro Escavado?",
+    "Qual a situação da obra do Viveiro Escavado?"
+  ],
+  barragem: [
+    "Qual a área em m² da Barragem?",
+    "Qual a situação da obra da Barragem?"
+  ],
+  viveiroSuspenso: [
+    "Qual a área em m² do Viveiro Suspenso?",
+    "Qual a situação da obra do Viveiro Suspenso?"
+  ]
+};
+
+const pisciculturaEspeciesQuestions = [
+  "Quais espécies são confinadas na propriedade? (selecione todas aplicáveis)"
+];
+
+const pisciculturaEspeciesQuantidadeQuestions = {
+  tambaqui: "Qual a quantidade de Tambaqui?",
+  tambatinga: "Qual a quantidade de Tambatinga?",
+  matrinxa: "Qual a quantidade de Matrinxã?",
+  curimata: "Qual a quantidade de Curimatã?",
+  pirarucu: "Qual a quantidade de Pirarucu?",
+  tilapia: "Qual a quantidade de Tilápia?"
+};
+
+const pisciculturaDetalhamentoQuestions = [
+  "Qual a distância da sede municipal (em Km)?",
+  "Qual a referência de localização?",
+  "Qual a situação legal da propriedade?",
+  "Qual a área total da propriedade (em ha)?",
+  "Quais recursos hídricos existem na propriedade? (selecione todos aplicáveis)",
+  "Quais são os usos múltiplos da água na propriedade? (selecione todos aplicáveis)"
+];
+
+const pisciculturaRecursosQuestions = [
+  "Qual o número de empregados?",
+  "Qual o número de pessoas da família que trabalham na propriedade?",
+  "Quais os recursos financeiros utilizados?",
+  "Há assistência técnica por profissional habilitado?"
+];
+
+3. Adicionar opções e estados relacionados à piscicultura:
+
+// Adicionar ao enum de modos
+const [modo, setModo] = useState<'inicio' | 'cadastro' | 'servico' | 'resumo' | 'agropecuaria' | 'solicitacao' | 'localizacao' | 'piscicultura'>('inicio');
+
+// Adicionar novos estados para piscicultura
+const [pisciculturaEtapa, setPisciculturaEtapa] = useState<number>(0);
+const [pisciculturaSecao, setPisciculturaSecao] = useState<'empreendedor' | 'atividade' | 'estrutura' | 'obras' | 'especies' | 'detalhamento' | 'recursos' | 'observacoes'>('empreendedor');
+const [obrasSelecionadas, setObrasSelecionadas] = useState<string[]>([]);
+const [especiesSelecionadas, setEspeciesSelecionadas] = useState<string[]>([]);
+const [recursosHidricosSelecionados, setRecursosHidricosSelecionados] = useState<string[]>([]);
+const [dadosPiscicultura, setDadosPiscicultura] = useState<DadosPiscicultura>({
+  empreendedor: {
+    nome: '',
+    endereco: '',
+    travessao: '',
+    cpf: '',
+    rg: '',
+    orgaoEmissor: '',
+    sexo: '',
+    celular: ''
+  },
+  atividade: {
+    descricao: '',
+    endereco: '',
+    estruturaAquicola: []
+  },
+  obras: {},
+  especies: {},
+  detalhamento: {
+    distanciaSede: 0,
+    referencia: '',
+    situacaoLegal: '',
+    areaTotal: 0,
+    recursosHidricos: {
+      tipo: [],
+      nomes: {}
+    },
+    usosAgua: []
+  },
+  recursos: {
+    numEmpregados: 0,
+    numFamiliares: 0,
+    recursosFinanceiros: '',
+    assistenciaTecnica: ''
+  }
+});
+
+4. Atualizar a função processUserMessage para lidar com o fluxo de piscicultura:
+
+// Adicionar este trecho ao início da função processUserMessage
+// No bloco do modo 'inicio'
+else {
+  if (userMessage.toLowerCase().includes("cadastro")) {
+    setModo('cadastro');
+    setUsuarioCadastrado(null);
+    botResponse = "Você já possui cadastro em nossa secretaria? (sim/não)";
+    setSuggestions([
+      { text: "Sim", action: "sim" },
+      { text: "Não", action: "não" }
+    ]);
+  } else if (
+    userMessage.toLowerCase().includes("agricultura") || 
+    userMessage.toLowerCase().includes("pesca") || 
+    userMessage.toLowerCase().includes("paa")
+  ) {
+    setModo('servico');
+    setServicoAtual(userMessage);
+    
+    botResponse = "Você já possui cadastro em nossa secretaria? (sim/não)";
+    setSuggestions([
+      { text: "Sim", action: "sim" },
+      { text: "Não", action: "não" }
+    ]);
+  } 
+  // Adicionar essa verificação para identificar quando o usuário quer iniciar o cadastro de piscicultura
+  else if (userMessage.toLowerCase().includes("piscicultura") || 
+           userMessage.toLowerCase().includes("peixes") || 
+           userMessage.toLowerCase().includes("aquicultura")) {
+    setModo('piscicultura');
+    setPisciculturaEtapa(0);
+    setPisciculturaSecao('empreendedor');
+    botResponse = "Vamos iniciar seu cadastro para o setor de Piscicultura. " + 
+                  pisciculturaEmpreendedorQuestions[0];
+    setSuggestions([]);
+  }
+  else {
+    // Resposta genérica para outras mensagens
+    botResponse = "Como posso ajudar você? Você pode escolher uma das opções abaixo ou perguntar sobre agricultura, pesca, piscicultura ou o Programa de Aquisição de Alimentos (PAA).";
+    setSuggestions([
+      ...initialSuggestions,
+      { text: "Cadastro de Piscicultura", action: "piscicultura" }
+    ]);
+  }
+}
+
+5. Adicionar a lógica para processar o fluxo de piscicultura:
+
+// Adicionar como novo trecho dentro da função processUserMessage,
+// no nível dos outros blocos condicionais de modo
+
+// Modo piscicultura - processamento do cadastro de piscicultura
+else if (modo === 'piscicultura') {
+  // Processar as respostas de acordo com a seção atual
+  if (pisciculturaSecao === 'empreendedor') {
+    // Atualizar dados do empreendedor
+    const novosDados = { ...dadosPiscicultura };
+    
+    switch(pisciculturaEtapa) {
+      case 0: // Nome
+        novosDados.empreendedor.nome = userMessage;
+        break;
+      case 1: // Endereço
+        novosDados.empreendedor.endereco = userMessage;
+        break;
+      case 2: // Travessão
+        novosDados.empreendedor.travessao = userMessage;
+        break;
+      case 3: // CPF
+        // Validar formato do CPF
+        const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+        if (!cpfRegex.test(userMessage)) {
+          botResponse = "CPF em formato inválido. Por favor, use o formato 000.000.000-00";
+          break;
+        }
+        novosDados.empreendedor.cpf = userMessage;
+        break;
+      case 4: // RG
+        novosDados.empreendedor.rg = userMessage;
+        break;
+      case 5: // Órgão Emissor
+        novosDados.empreendedor.orgaoEmissor = userMessage;
+        break;
+      case 6: // Sexo
+        novosDados.empreendedor.sexo = userMessage;
+        break;
+      case 7: // Celular
+        // Validar formato do celular
+        const celularRegex = /^\(\d{2}\)\s\d{5}-\d{4}$/;
+        if (!celularRegex.test(userMessage)) {
+          botResponse = "Número de celular em formato inválido. Por favor, use o formato (00) 00000-0000";
+          break;
+        }
+        novosDados.empreendedor.celular = userMessage;
+        break;
+    }
+
+    setDadosPiscicultura(novosDados);
+    
+    // Avançar para a próxima etapa ou seção
+    if (botResponse === "") { // Se não houve erro de validação
+      if (pisciculturaEtapa < pisciculturaEmpreendedorQuestions.length - 1) {
+        // Próxima pergunta na mesma seção
+        setPisciculturaEtapa(pisciculturaEtapa + 1);
+        botResponse = pisciculturaEmpreendedorQuestions[pisciculturaEtapa + 1];
+        
+        // Definir sugestões para perguntas específicas
+        if (pisciculturaEtapa + 1 === 6) { // Pergunta sobre sexo
+          setSuggestions([
+            { text: "Masculino", action: "Masculino" },
+            { text: "Feminino", action: "Feminino" },
+            { text: "Prefiro não informar", action: "Prefiro não informar" }
+          ]);
+        } else {
+          setSuggestions([]);
+        }
+      } else {
+        // Avançar para a próxima seção
+        setPisciculturaEtapa(0);
+        setPisciculturaSecao('atividade');
+        botResponse = pisciculturaAtividadeQuestions[0];
+        setSuggestions([]);
+      }
+    }
+  }
+  else if (pisciculturaSecao === 'atividade') {
+    // Atualizar dados da atividade
+    const novosDados = { ...dadosPiscicultura };
+    
+    if (pisciculturaEtapa === 0) {
+      novosDados.atividade.descricao = userMessage;
+    } else if (pisciculturaEtapa === 1) {
+      novosDados.atividade.endereco = userMessage;
+    }
+    
+    setDadosPiscicultura(novosDados);
+    
+    // Avançar para a próxima etapa
+    if (pisciculturaEtapa < pisciculturaAtividadeQuestions.length - 1) {
+      setPisciculturaEtapa(pisciculturaEtapa + 1);
+      botResponse = pisciculturaAtividadeQuestions[pisciculturaEtapa + 1];
+    } else if (pisciculturaEtapa === pisciculturaAtividadeQuestions.length - 1) {
+      // Após endereço, perguntar sobre localização
+      setModo('localizacao');
+      setIsAskingLocation(true);
+      botResponse = "Você está na propriedade rural neste momento?";
+      setSuggestions([
+        { text: "Sim, estou", action: "sim" },
+        { text: "Não, não estou", action: "nao" }
+      ]);
+    }
+  }
+  // Continuar com as demais seções da piscicultura...
+  
+  // Exemplo para a seção de estrutura aquícola
+  else if (pisciculturaSecao === 'estrutura') {
+    if (pisciculturaEtapa === 0) {
+      // Processar seleção de estruturas
+      const estruturasSelecionadas = userMessage.split(',').map(s => s.trim());
+      const novosDados = { ...dadosPiscicultura };
+      novosDados.atividade.estruturaAquicola = estruturasSelecionadas;
+      setDadosPiscicultura(novosDados);
+      
+      // Avançar para a seção de obras
+      setPisciculturaSecao('obras');
+      setPisciculturaEtapa(0);
+      botResponse = "Quais tipos de obras existem na propriedade? (selecione todas aplicáveis)";
+      setSuggestions([
+        { text: "Canal de Igarapé", action: "Canal de Igarapé" },
+        { text: "Viveiro Escavado", action: "Viveiro Escavado" },
+        { text: "Barragem", action: "Barragem" },
+        { text: "Viveiro Suspenso", action: "Viveiro Suspenso" },
+        { text: "Nenhuma das anteriores", action: "Nenhuma" }
+      ]);
+    }
+  }
+  
+  // Implementação das demais seções...
+}
+
+// E também adicionar um caso no bloco de processamento da localização
+// Dentro da função processarRespostaLocalizacao, no fim do if para userLocation !== null:
+if (modo === 'piscicultura') {
+  // Salvar a localização nos dados de piscicultura
+  const novosDados = { ...dadosPiscicultura };
+  novosDados.atividade.coordenadas = {
+    latitude,
+    longitude
+  };
+  setDadosPiscicultura(novosDados);
+  
+  // Voltar para o fluxo de piscicultura
+  setModo('piscicultura');
+  setPisciculturaSecao('estrutura');
+  setPisciculturaEtapa(0);
+  return pisciculturaEstruturaQuestions[0];
+}
+
+6. Implementar a função para gerar resumo dos dados de piscicultura:
+
+// Adicionar esta função
+const gerarResumoPiscicultura = (): string => {
+  const dados = dadosPiscicultura;
+  
+  let resumo = `RESUMO DO CADASTRO DE PISCICULTURA\n\n`;
+  
+  resumo += `DADOS DO EMPREENDEDOR:\n`;
+  resumo += `- Nome: ${dados.empreendedor.nome}\n`;
+  resumo += `- CPF: ${dados.empreendedor.cpf}\n`;
+  resumo += `- Telefone: ${dados.empreendedor.celular}\n`;
+  
+  resumo += `\nDADOS DA ATIVIDADE:\n`;
+  resumo += `- Atividade: ${dados.atividade.descricao}\n`;
+  resumo += `- Endereço: ${dados.atividade.endereco}\n`;
+  
+  if (dados.atividade.coordenadas) {
+    resumo += `- Localização: Lat ${dados.atividade.coordenadas.latitude.toFixed(6)}, Long ${dados.atividade.coordenadas.longitude.toFixed(6)}\n`;
+  }
+  
+  if (dados.atividade.estruturaAquicola.length > 0) {
+    resumo += `- Estruturas aquícolas: ${dados.atividade.estruturaAquicola.join(", ")}\n`;
+  }
+  
+  // Adicionar outras seções conforme necessário...
+  
+  resumo += `\nPor favor, confirme se as informações estão corretas.`;
+  
+  return resumo;
+};
+
+7. Implementar a função para salvar dados de piscicultura no Firebase:
+
+// Adicionar esta função
+const salvarPisciculturaNoFirebase = async () => {
+  try {
+    // Salvar no Firebase
+    await addDoc(collection(db, "cadastros_piscicultura"), {
+      ...dadosPiscicultura,
+      solicitacao: solicitacao,
+      timestamp: serverTimestamp(),
+      status: "pendente",
+      origem: "chatbot"
+    });
+    console.log("Cadastro de piscicultura salvo com sucesso!");
+    return true;
+  } catch (error) {
+    console.error("Erro ao salvar cadastro de piscicultura:", error);
+    return false;
+  }
+};
+
+8. Atualizar a UI do chatbot para incluir o indicador de progresso:
+
+{/* Adicionar abaixo do cabeçalho do chat */}
+{modo === 'piscicultura' && (
+  <div className="px-3 py-1 bg-green-100 text-green-800 text-xs border-b border-green-200">
+    {pisciculturaSecao === 'empreendedor' && `Empreendedor - Pergunta ${pisciculturaEtapa + 1} de ${pisciculturaEmpreendedorQuestions.length}`}
+    {pisciculturaSecao === 'atividade' && `Atividade - Pergunta ${pisciculturaEtapa + 1} de ${pisciculturaAtividadeQuestions.length}`}
+    {/* Adicionar outras seções aqui */}
+  </div>
+)}
+
+Sugestões de Integração
+
+Para uma integração completa do fluxo de piscicultura, recomendo:
+
+    Expandir o menu inicial:
+
+const initialSuggestions: SuggestionButton[] = [
+  { text: "Cadastro rural (Agricultura)", action: "cadastro" },
+  { text: "Cadastro de Piscicultura", action: "piscicultura" },
+  { text: "Informações de Agricultura", action: "agricultura" },
+  { text: "Serviços de Pesca", action: "pesca" },
+  { text: "Programa PAA", action: "paa" },
+];
