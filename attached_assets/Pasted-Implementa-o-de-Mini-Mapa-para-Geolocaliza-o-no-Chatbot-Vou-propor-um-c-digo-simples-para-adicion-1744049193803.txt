@@ -1,0 +1,264 @@
+Implementação de Mini Mapa para Geolocalização no Chatbot
+
+Vou propor um código simples para adicionar um mini mapa ao chatbot quando o usuário estiver respondendo sobre sua localização. Vamos utilizar a API gratuita do OpenStreetMap com a biblioteca Leaflet, que é leve e fácil de usar.
+Instalação das Bibliotecas Necessárias
+
+Primeiro, precisamos instalar as dependências:
+
+// Instale usando o packager_tool
+// react-leaflet: Para exibir o mapa
+// leaflet: Biblioteca base para mapas interativos
+
+Componente de Mini Mapa
+
+Vamos criar um componente separado para o mini mapa:
+
+// client/src/components/common/LocationMap.tsx
+import React, { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+import { MapPin } from 'lucide-react';
+
+// Fix for default marker icon in Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+});
+
+interface LocationMapProps {
+  latitude: number;
+  longitude: number;
+  onLocationChange?: (lat: number, lng: number) => void;
+  editable?: boolean;
+}
+
+// Este componente atualiza a visualização do mapa quando as coordenadas mudam
+function ChangeView({ center }: { center: [number, number] }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, 15);
+  }, [center, map]);
+  return null;
+}
+
+const LocationMap: React.FC<LocationMapProps> = ({ 
+  latitude, 
+  longitude, 
+  onLocationChange,
+  editable = false
+}) => {
+  const [position, setPosition] = useState<[number, number]>([latitude, longitude]);
+  
+  useEffect(() => {
+    setPosition([latitude, longitude]);
+  }, [latitude, longitude]);
+  
+  const handleMarkerDrag = (e: L.LeafletEvent) => {
+    if (!editable) return;
+    
+    const marker = e.target;
+    const newPosition = marker.getLatLng();
+    setPosition([newPosition.lat, newPosition.lng]);
+    
+    if (onLocationChange) {
+      onLocationChange(newPosition.lat, newPosition.lng);
+    }
+  };
+
+  return (
+    <div className="w-full h-64 rounded-lg overflow-hidden border border-green-300 mt-2 mb-4">
+      <MapContainer 
+        center={position} 
+        zoom={15} 
+        style={{ height: '100%', width: '100%' }}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <Marker 
+          position={position}
+          draggable={editable}
+          eventHandlers={{
+            dragend: handleMarkerDrag
+          }}
+        />
+        <ChangeView center={position} />
+      </MapContainer>
+    </div>
+  );
+};
+
+export default LocationMap;
+
+Integração no ChatbotWidget
+
+Agora vamos modificar o componente ChatbotWidget para usar este mapa:
+
+// Importar o componente
+import LocationMap from './LocationMap';
+
+// Adicionar ao componente ChatbotWidget
+const ChatbotWidget: React.FC = () => {
+  // ... estados existentes
+  const [showMap, setShowMap] = useState<boolean>(false);
+  
+  // Função para obter a localização com mapa
+  const getUserLocationWithMap = () => {
+    if (navigator.geolocation) {
+      setIsLoading(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation({ latitude, longitude });
+          setShowMap(true); // Mostrar mapa após obter localização
+          addMessage(
+            `Localização capturada com sucesso:\nLatitude: ${latitude.toFixed(6)}\nLongitude: ${longitude.toFixed(6)}\n\nVerifique no mapa abaixo se a localização está correta:`,
+            false
+          );
+          setSuggestions([
+            { text: "Confirmar localização", action: "confirmar" },
+            { text: "Ajustar no mapa", action: "ajustar" },
+            { text: "Inserir manualmente", action: "manual" }
+          ]);
+          setIsLoading(false);
+        },
+        (error) => {
+          // Código de tratamento de erro existente
+          setIsLoading(false);
+        },
+        { 
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    } else {
+      // Código existente para navegadores sem suporte
+    }
+  };
+  
+  // Função para atualizar a localização quando o usuário arrasta o marcador
+  const handleLocationChange = (lat: number, lng: number) => {
+    setUserLocation({ latitude: lat, longitude: lng });
+    addMessage(
+      `Localização atualizada:\nLatitude: ${lat.toFixed(6)}\nLongitude: ${lng.toFixed(6)}\n\nEsta localização está correta?`,
+      false
+    );
+  };
+  
+  // Modificar o processamento de respostas relacionadas à localização
+  const processarRespostaLocalizacao = (resposta: string): string => {
+    const respostaLower = resposta.toLowerCase();
+    
+    if (isAskingLocation) {
+      setIsAskingLocation(false);
+      
+      if (respostaLower === "sim") {
+        // Usuário está no imóvel, tentar capturar localização
+        getUserLocationWithMap(); // Usar a nova função com mapa
+        return "Solicitando acesso à sua localização...";
+      } else {
+        // Usuário não está no imóvel
+        addMessage("Você tem as coordenadas geográficas do imóvel (latitude/longitude)?", false);
+        setSuggestions([
+          { text: "Sim, tenho", action: "sim" },
+          { text: "Não tenho", action: "nao" }
+        ]);
+        return "";
+      }
+    } else if (userLocation !== null) {
+      // Verificar se o usuário quer ajustar a localização
+      if (respostaLower === "ajustar") {
+        setShowMap(true);
+        return "Arraste o marcador no mapa para ajustar a localização precisa da propriedade.";
+      }
+      
+      // Já temos a localização, verificando se o usuário confirma
+      if (respostaLower.includes("confirmar") || respostaLower === "sim") {
+        // Usuário confirmou a localização capturada
+        const { latitude, longitude } = userLocation;
+        setShowMap(false); // Esconder o mapa após confirmação
+        
+        // O resto do código existente...
+      } else if (respostaLower.includes("manual")) {
+        // Usuário quer inserir manualmente
+        setUserLocation(null);
+        setShowMap(false); // Esconder o mapa
+        return "Por favor, informe a coordenada S (latitude) do imóvel:";
+      }
+    }
+    
+    // Resto do código existente...
+  };
+  
+  // No render, adicionar o mapa quando showMap for true
+  return (
+    <div className="fixed bottom-4 right-4 z-50">
+      {/* Código existente */}
+      
+      {/* No CardContent, antes do form */}
+      <CardContent className="p-0 flex flex-col h-[500px] relative">
+        <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
+          {messages.map((msg, idx) => (
+            <div key={idx} className={`mb-4 flex ${msg.isUser ? "justify-end" : "justify-start"}`}>
+              {/* Código existente das mensagens */}
+            </div>
+          ))}
+          
+          {/* Adicionar o mapa após a última mensagem se showMap for true */}
+          {showMap && userLocation && (
+            <div className="w-full my-2">
+              <LocationMap 
+                latitude={userLocation.latitude} 
+                longitude={userLocation.longitude}
+                onLocationChange={handleLocationChange}
+                editable={true}
+              />
+            </div>
+          )}
+          
+          {/* Resto do código existente */}
+        </div>
+        
+        {/* Resto do código existente */}
+      </CardContent>
+    </div>
+  );
+};
+
+Ajustes no index.html para as dependências do Leaflet
+
+<!-- Adicionar no <head> do arquivo index.html -->
+<link 
+  rel="stylesheet" 
+  href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+  integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+  crossorigin=""
+/>
+
+Instalação das Dependências
+
+Para que o código funcione, você precisará instalar as seguintes dependências:
+
+npm install react-leaflet leaflet @types/leaflet
+
+Características do Mini Mapa
+
+    Visual Intuitivo: Exibe um mapa interativo dentro do chatbot
+    Marcador Arrastável: Permite ao usuário ajustar a localização arrastando o marcador
+    Feedback Imediato: Mostra as coordenadas atualizadas quando o marcador é movido
+    Integração Perfeita: Se encaixa no fluxo conversacional existente
+    Confirmação Visual: O usuário pode confirmar visualmente que a localização está correta
+
+Benefícios
+
+    Melhora a UX: Oferece feedback visual imediato sobre a localização
+    Aumenta a Precisão: Permite ajustes finos na posição
+    Reduz Erros: Minimiza erros de digitação manual de coordenadas
+    Confiança: Dá mais confiança ao usuário sobre os dados que está fornecendo
+
+O código proposto é simples, eficiente e não depende de API keys pagas, utilizando o OpenStreetMap que é gratuito para uso. O componente LocationMap também é reutilizável em outras partes do sistema se necessário.
