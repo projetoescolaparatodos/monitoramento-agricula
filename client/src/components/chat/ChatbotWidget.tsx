@@ -842,8 +842,8 @@ const ChatbotWidget: React.FC = () => {
         if (subFluxoEtapa === 1) {
           return [
             { text: "Consumo", action: "Consumo" },
-            { text: "Venda` action: "Venda" },
-            { text: "Doação", action: "Doação"},
+            { text: "Venda", action: "Venda" },
+            { text: "Doação", action: "Doação" },
             { text: "Consumo e Venda", action: "Consumo, Venda" },
           ];
         }
