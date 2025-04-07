@@ -534,9 +534,6 @@ const ChatbotWidget: React.FC = () => {
     setSuggestions(getContextualSuggestions());
   }, [modo, cadastroEtapa, subFluxo, subFluxoEtapa, usuarioCadastrado]);
 
-  // Removemos o useEffect que monitorava mudanças na geolocalização
-  // pois agora pulamos diretamente para a próxima seção após o endereço
-
   // Funções auxiliares
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -628,7 +625,6 @@ const ChatbotWidget: React.FC = () => {
     if (modo === "solicitacao") {
       return servicosSugestoes;
     }
-    // Removemos o modo localização das sugestões contextuais
     // Modo piscicultura - sugestões específicas para cada seção
     else if (modo === "piscicultura") {
       if (pisciculturaSecao === "empreendedor") {
@@ -845,7 +841,7 @@ const ChatbotWidget: React.FC = () => {
             { text: "Confinamento", action: "Confinamento" },
             { text: "Rotacionado", action: "Rotacionado" },
           ];
-        } else if (subFluxoEtapa === 4) {
+} else if (subFluxoEtapa === 4) {
           return [
             { text: "Cooperado", action: "Cooperado" },
             { text: "Independente", action: "Independente" },
@@ -1108,7 +1104,6 @@ const ChatbotWidget: React.FC = () => {
         return principaisQuestoesAgropecuarias[proxima];
       }
     }
-    // Omitimos o tratamento do modo de localização, pois não usamos mais
     // Se há subfluxo, processamos perguntas específicas do módulo
     else {
       // Atualizar dados de acordo com o subfluxo atual
@@ -1602,8 +1597,40 @@ const ChatbotWidget: React.FC = () => {
     // Processa resposta
     let botResponse = "";
 
+    // Verificar se está respondendo sobre localização
+    if (isAskingLocation && (userMessage.toLowerCase().includes("tentar novamente") || 
+                            userMessage.toLowerCase().includes("prosseguir"))) {
+
+      if (userMessage.toLowerCase().includes("tentar novamente")) {
+        // Tentar obter a localização novamente
+        getUserLocation();
+        return;
+      } else if (userMessage.toLowerCase().includes("prosseguir")) {
+        // Prosseguir sem localização
+        setIsAskingLocation(false);
+
+        if (modo === "piscicultura" && pisciculturaSecao === "atividade") {
+          // Continuar o fluxo de piscicultura
+          setPisciculturaSecao("estrutura");
+          setPisciculturaEtapa(0);
+          botResponse = pisciculturaEstruturaQuestions[0];
+          setSuggestions([
+            { text: "Viveiro", action: "Viveiro" },
+            { text: "Tanque-rede", action: "Tanque-rede" },
+            { text: "Barragem", action: "Barragem" },
+            { text: "Canal", action: "Canal" },
+            { text: "Represa", action: "Represa" },
+          ]);
+          addMessage(botResponse, false);
+          setIsLoading(false);
+          return;
+        }
+      }
+    }
+
     // Modo solicitação - recebe a solicitação final e finaliza o processo
-    if (modo === "solicitacao") {
+    if```javascript
+    (modo === "solicitacao") {
       setSolicitacao(userMessage);
       await salvarCadastroNoFirebase();
       botResponse =
@@ -2439,7 +2466,7 @@ const ChatbotWidget: React.FC = () => {
         setPisciculturaSecao("resumo");
         setPisciculturaEtapa(0);
         botResponse = gerarResumoPiscicultura();
-        setSuggestions([
+setSuggestions([
           { text: "Confirmar", action: "confirmar" },
           { text: "Cancelar", action: "cancelar" },
         ]);
