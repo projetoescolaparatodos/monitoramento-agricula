@@ -842,7 +842,7 @@ const ChatbotWidget: React.FC = () => {
           return [
             { text: "Consumo", action: "Consumo" },
             { text: "Venda", action: "Venda" },
-            { text: "Doação", action: "Doação" },
+            { text: "Doação", action: "Doação"},
             { text: "Consumo e Venda", action: "Consumo, Venda" },
           ];
         }
@@ -1610,7 +1610,7 @@ const ChatbotWidget: React.FC = () => {
     resumo += `DADOS DO EMPREENDEDOR:\n`;
     resumo += `- Nome: ${dados.empreendedor.nome}\n`;
     resumo += `- CPF: ${dados.empreendedor.cpf}\n`;
-    resumo += `- Telefone: ${dados.empreendedor.celular}\n`;
+    resumo += `-Telefone: ${dados.empreendedor.celular}\n`;
 
     resumo += `\nDADOS DA ATIVIDADE:\n`;
     resumo += `- Atividade: ${dados.atividade.descricao}\n`;
