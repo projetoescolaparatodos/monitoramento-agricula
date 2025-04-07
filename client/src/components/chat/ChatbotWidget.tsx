@@ -809,7 +809,8 @@ const ChatbotWidget: React.FC = () => {
         if (subFluxoEtapa === 0) {
           return [
             { text: "Brava", action: "Brava" },
-            { text: "Mansa", action: "Mansa" },
+            { text: "Mansa", action```javascript
+"Mansa" },
           ];
         } else if (subFluxoEtapa === 1) {
           return [
@@ -2525,6 +2526,55 @@ const ChatbotWidget: React.FC = () => {
     addMessage("Como posso ajudar você hoje?", false);
   };
 
+  const processarRespostaLocalizacao = (userMessage: string): string => {
+    if (!isAskingLocation && userLocation === null) {
+      if (userMessage.toLowerCase().includes("sim")) {
+        getUserLocation();
+        return "Obtendo sua localização atual... Por favor, aguarde um momento.";
+      } else {
+        setSkipLocationQuestions(true);
+        if (pisciculturaSecao === 'atividade') {
+          setModo('piscicultura');
+          setPisciculturaSecao('estrutura');
+          setPisciculturaEtapa(0);
+          addMessage(pisciculturaEstruturaQuestions[0], false);
+          setSuggestions([
+            { text: "Viveiro", action: "Viveiro" },
+            { text: "Tanque-rede", action: "Tanque-rede" },
+            { text: "Barragem", action: "Barragem" },
+            { text: "Canal", action: "Canal" },
+            { text: "Represa", action: "Represa" },
+          ]);
+          return "";
+        }
+      }
+    } else if (userLocation !== null) {
+      if (pisciculturaSecao === 'atividade') {
+        const novosDados = { ...dadosPiscicultura };
+        novosDados.atividade.coordenadas = {
+          latitude: userLocation.latitude,
+          longitude: userLocation.longitude
+        };
+        setDadosPiscicultura(novosDados);
+        const locationMsg = `Obtive sua localização: Latitude ${userLocation.latitude.toFixed(6)}, Longitude ${userLocation.longitude.toFixed(6)}. Continuando com o cadastro...`;
+        addMessage(locationMsg, false);
+        setModo('piscicultura');
+        setPisciculturaSecao('estrutura');
+        setPisciculturaEtapa(0);
+        addMessage(pisciculturaEstruturaQuestions[0], false);
+        setSuggestions([
+          { text: "Viveiro", action: "Viveiro" },
+          { text: "Tanque-rede", action: "Tanque-rede" },
+          { text: "Barragem", action: "Barragem" },
+          { text: "Canal", action: "Canal" },
+          { text: "Represa", action: "Represa" },
+        ]);
+        return "";
+      }
+    }
+    return "Ainda não foi possível obter sua localização.";
+  };
+
   return (
     <div className="fixed bottom-4 right-4 z-50">
       {!isOpen ? (
@@ -2563,14 +2613,17 @@ const ChatbotWidget: React.FC = () => {
             </Button>
           </div>
 
-          {modo === 'piscicultura' && (
+          {/* Indicador de progresso */}
+          {(modo === 'piscicultura' || (modo === 'localizacao' && pisciculturaSecao === 'atividade')) && (
             <div className="px-3 py-1 bg-green-100 text-green-800 text-xs border-b border-green-200">
               {pisciculturaSecao === 'empreendedor' && `Empreendedor - Pergunta ${pisciculturaEtapa + 1} de ${pisciculturaEmpreendedorQuestions.length}`}
               {pisciculturaSecao === 'atividade' && `Atividade - Pergunta ${pisciculturaEtapa + 1} de ${pisciculturaAtividadeQuestions.length}`}
               {pisciculturaSecao === 'estrutura' && `Estrutura Aquícola`}
               {pisciculturaSecao === 'obras' && `Obras`}
               {pisciculturaSecao === 'especies' && `Espécies`}
-              {pisciculturaSecao === 'detalhamento' && `Detalhamento da Propriedade`}
+              {pisciculturaSecao === 'detalhamento' && `Detalhamento - Pergunta ${pisciculturaEtapa + 1} de ${pisciculturaDetalhamentoQuestions.length}`}
+              {modo === 'localizacao' && pisciculturaSecao === 'atividade' && 
+                `Localização - Captura de coordenadas`}
               {pisciculturaSecao === 'recursos' && `Recursos`}
               {pisciculturaSecao === 'observacoes' && `Observações`}
             </div>
