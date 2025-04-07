@@ -553,6 +553,13 @@ const ChatbotWidget: React.FC = () => {
     if (modo === "solicitacao") {
       return servicosSugestoes;
     }
+    // Modo localização
+    else if (modo === "localizacao" && !isAskingLocation && userLocation === null) {
+      return [
+        { text: "Sim, estou", action: "sim" },
+        { text: "Não, não estou", action: "nao" }
+      ];
+    }
     // Modo piscicultura - sugestões específicas para cada seção
     else if (modo === "piscicultura") {
       if (pisciculturaSecao === 'empreendedor') {
@@ -572,42 +579,88 @@ const ChatbotWidget: React.FC = () => {
           { text: "Represa", action: "Represa" },
         ];
       } else if (pisciculturaSecao === 'obras') {
-        return [
-          { text: "Canal de Igarapé", action: "Canal de Igarapé" },
-          { text: "Viveiro Escavado", action: "Viveiro Escavado" },
-          { text: "Barragem", action: "Barragem" },
-          { text: "Viveiro Suspenso", action: "Viveiro Suspenso" },
-          { text: "Nenhuma das anteriores", action: "Nenhuma" }
-        ];
+        if (pisciculturaEtapa === 0) {
+          return [
+            { text: "Canal de Igarapé", action: "Canal de Igarapé" },
+            { text: "Viveiro Escavado", action: "Viveiro Escavado" },
+            { text: "Barragem", action: "Barragem" },
+            { text: "Viveiro Suspenso", action: "Viveiro Suspenso" },
+            { text: "Nenhuma das anteriores", action: "Nenhuma" }
+          ];
+        } else if (pisciculturaEtapa % 2 === 0) { // Perguntas sobre situação da obra
+          return [
+            { text: "Construído", action: "Construído" },
+            { text: "Em construção", action: "Em construção" },
+            { text: "Planejado", action: "Planejado" }
+          ];
+        }
       } else if (pisciculturaSecao === 'especies') {
+        if (pisciculturaEtapa === 0) {
+          return [
+            { text: "Tambaqui", action: "Tambaqui" },
+            { text: "Tambatinga", action: "Tambatinga" },
+            { text: "Matrinxã", action: "Matrinxã" },
+            { text: "Curimatã", action: "Curimatã" },
+            { text: "Pirarucu", action: "Pirarucu" },
+            { text: "Tilápia", action: "Tilápia" }
+          ];
+        }
+      } else if (pisciculturaSecao === 'detalhamento') {
+        if (pisciculturaEtapa === 2) { // Situação legal
+          return [
+            { text: "Regularizada", action: "Regularizada" },
+            { text: "Arrendada", action: "Arrendada" },
+            { text: "Cedida", action: "Cedida" },
+            { text: "Posse", action: "Posse" },
+            { text: "Outra", action: "Outra" }
+          ];
+        } else if (pisciculturaEtapa === 4) { // Recursos hídricos
+          return [
+            { text: "Igarapé", action: "Igarapé" },
+            { text: "Rio", action: "Rio" },
+            { text: "Lago", action: "Lago" },
+            { text: "Poço", action: "Poço" },
+            { text: "Nascente", action: "Nascente" },
+            { text: "Nenhum", action: "Nenhum" }
+          ];
+        } else if (pisciculturaEtapa === 5 && recursosHidricosSelecionados.length === 0) { // Usos da água
+          return [
+            { text: "Aquicultura", action: "Aquicultura" },
+            { text: "Irrigação", action: "Irrigação" },
+            { text: "Abastecimento Público", action: "Abastecimento Público" },
+            { text: "Lazer", action: "Lazer" },
+            { text: "Dessedentação Animal", action: "Dessedentação Animal" }
+          ];
+        }
+      } else if (pisciculturaSecao === 'recursos') {
+        if (pisciculturaEtapa === 2) { // Recursos financeiros
+          return [
+            { text: "Próprios", action: "Próprios" },
+            { text: "Financiamento", action: "Financiamento" },
+            { text: "Misto", action: "Próprios e Financiamento" }
+          ];
+        } else if (pisciculturaEtapa === 3 && dadosPiscicultura.recursos.recursosFinanceiros.toLowerCase().includes("financiamento")) {
+          return [
+            { text: "Banco da Amazônia", action: "Banco da Amazônia" },
+            { text: "Banco do Brasil", action: "Banco do Brasil" },
+            { text: "Caixa Econômica", action: "Caixa Econômica" },
+            { text: "Outro", action: "Outro" }
+          ];
+        } else if ((pisciculturaEtapa === 3 && !dadosPiscicultura.recursos.recursosFinanceiros.toLowerCase().includes("financiamento")) || pisciculturaEtapa === 4) {
+          return [
+            { text: "Sim", action: "Sim" },
+            { text: "Não", action: "Não" },
+            { text: "Eventual", action: "Eventual" }
+          ];
+        }
+      } else if (pisciculturaSecao === 'observacoes') {
         return [
-          { text: "Tambaqui", action: "Tambaqui" },
-          { text: "Tambatinga", action: "Tambatinga" },
-          { text: "Matrinxã", action: "Matrinxã" },
-          { text: "Curimatã", action: "Curimatã" },
-          { text: "Pirarucu", action: "Pirarucu" },
-          { text: "Tilápia", action: "Tilápia" }
-        ];
-      } else if (pisciculturaSecao === 'detalhamento' && pisciculturaEtapa === 2) {
-        return [
-          { text: "Regularizada", action: "Regularizada" },
-          { text: "Arrendada", action: "Arrendada" },
-          { text: "Cedida", action: "Cedida" },
-          { text: "Posse", action: "Posse" },
-          { text: "Outra", action: "Outra" }
-        ];
-      } else if (pisciculturaSecao === 'detalhamento' && pisciculturaEtapa === 4) {
-        return [
-          { text: "Igarapé", action: "Igarapé" },
-          { text: "Rio", action: "Rio" },
-          { text: "Lago", action: "Lago" },
-          { text: "Poço", action: "Poço" },
-          { text: "Nascente", action: "Nascente" }
-        ];
-      } else if (pisciculturaSecao === 'recursos' && pisciculturaEtapa === 3) {
-        return [
-          { text: "Sim", action: "Sim" },
           { text: "Não", action: "Não" }
+        ];
+      } else if (pisciculturaSecao === 'resumo') {
+        return [
+          { text: "Confirmar", action: "confirmar" },
+          { text: "Cancelar", action: "cancelar" }
         ];
       }
       return [];
@@ -968,22 +1021,58 @@ const ChatbotWidget: React.FC = () => {
         return principaisQuestoesAgropecuarias[proxima];
       }
     }
-    // Se estamos no modo de localização e viemos do fluxo de piscicultura
-    else if (modo === 'localizacao' && userLocation !== null) {
-      if (pisciculturaSecao === 'atividade') {
-        // Salvar a localização nos dados de piscicultura
-        const novosDados = { ...dadosPiscicultura };
-        novosDados.atividade.coordenadas = {
-          latitude: userLocation.latitude,
-          longitude: userLocation.longitude
-        };
-        setDadosPiscicultura(novosDados);
-        
-        // Voltar para o fluxo de piscicultura
-        setModo('piscicultura');
-        setPisciculturaSecao('estrutura');
-        setPisciculturaEtapa(0);
-        return pisciculturaEstruturaQuestions[0];
+    // Se estamos no modo de localização
+    else if (modo === 'localizacao') {
+      // Verificar se o usuário respondeu se está na propriedade ou não
+      if (!isAskingLocation && userLocation === null) {
+        if (userMessage.toLowerCase().includes("sim")) {
+          // Usuário está na propriedade, obter localização
+          getUserLocation();
+          botResponse = "Obtendo sua localização atual...";
+        } else {
+          // Usuário não está na propriedade, pular obtenção de localização
+          setSkipLocationQuestions(true);
+          
+          // Se viemos do fluxo de piscicultura, voltar para ele
+          if (pisciculturaSecao === 'atividade') {
+            setModo('piscicultura');
+            setPisciculturaSecao('estrutura');
+            setPisciculturaEtapa(0);
+            botResponse = pisciculturaEstruturaQuestions[0];
+            setSuggestions([
+              { text: "Viveiro", action: "Viveiro" },
+              { text: "Tanque-rede", action: "Tanque-rede" },
+              { text: "Barragem", action: "Barragem" },
+              { text: "Canal", action: "Canal" },
+              { text: "Represa", action: "Represa" },
+            ]);
+          }
+        }
+      } 
+      // Verificar se já temos a localização do usuário
+      else if (userLocation !== null) {
+        if (pisciculturaSecao === 'atividade') {
+          // Salvar a localização nos dados de piscicultura
+          const novosDados = { ...dadosPiscicultura };
+          novosDados.atividade.coordenadas = {
+            latitude: userLocation.latitude,
+            longitude: userLocation.longitude
+          };
+          setDadosPiscicultura(novosDados);
+          
+          // Voltar para o fluxo de piscicultura
+          setModo('piscicultura');
+          setPisciculturaSecao('estrutura');
+          setPisciculturaEtapa(0);
+          botResponse = pisciculturaEstruturaQuestions[0];
+          setSuggestions([
+            { text: "Viveiro", action: "Viveiro" },
+            { text: "Tanque-rede", action: "Tanque-rede" },
+            { text: "Barragem", action: "Barragem" },
+            { text: "Canal", action: "Canal" },
+            { text: "Represa", action: "Represa" },
+          ]);
+        }
       }
     }
     // Se há subfluxo, processamos perguntas específicas do módulo
@@ -1798,6 +1887,8 @@ const ChatbotWidget: React.FC = () => {
         }
       }
       else if (pisciculturaSecao === 'obras') {
+        const novosDados = { ...dadosPiscicultura };
+        
         if (pisciculturaEtapa === 0) {
           // Processar seleção de obras
           const obrasList = userMessage.split(',').map(s => s.trim());
@@ -1823,9 +1914,76 @@ const ChatbotWidget: React.FC = () => {
                          pisciculturaObrasQuestions[obrasList[0].toLowerCase().replace(/\s+/g, '') as keyof typeof pisciculturaObrasQuestions][0];
             setPisciculturaEtapa(1);
           }
+        } else {
+          // Estamos processando os detalhes de uma obra específica
+          const obraAtual = obrasSelecionadas[Math.floor((pisciculturaEtapa - 1) / 2)];
+          const obraKey = obraAtual.toLowerCase().replace(/\s+/g, '') as keyof typeof pisciculturaObrasQuestions;
+          const isAreaQuestion = (pisciculturaEtapa - 1) % 2 === 0;
+          
+          if (isAreaQuestion) {
+            // Pergunta sobre área
+            const area = parseFloat(userMessage);
+            if (isNaN(area)) {
+              botResponse = "Por favor, informe um valor numérico válido para a área.";
+              addMessage(botResponse, false);
+              setIsLoading(false);
+              return;
+            }
+            
+            // Inicializar a obra se ainda não existir
+            if (!novosDados.obras[obraKey]) {
+              novosDados.obras[obraKey] = {} as any;
+            }
+            
+            // Salvar a área
+            (novosDados.obras[obraKey] as any).area = area;
+            setDadosPiscicultura(novosDados);
+            
+            // Próxima pergunta (situação da obra)
+            botResponse = pisciculturaObrasQuestions[obraKey][1];
+            setPisciculturaEtapa(pisciculturaEtapa + 1);
+            setSuggestions([
+              { text: "Construído", action: "Construído" },
+              { text: "Em construção", action: "Em construção" },
+              { text: "Planejado", action: "Planejado" }
+            ]);
+          } else {
+            // Pergunta sobre situação
+            if (!novosDados.obras[obraKey]) {
+              novosDados.obras[obraKey] = {} as any;
+            }
+            (novosDados.obras[obraKey] as any).situacao = userMessage;
+            setDadosPiscicultura(novosDados);
+            
+            // Verificar se há mais obras para processar
+            const nextObraIndex = Math.floor(pisciculturaEtapa / 2);
+            if (nextObraIndex < obrasSelecionadas.length) {
+              // Ainda há obras para processar
+              const proximaObra = obrasSelecionadas[nextObraIndex];
+              const proximaObraKey = proximaObra.toLowerCase().replace(/\s+/g, '') as keyof typeof pisciculturaObrasQuestions;
+              botResponse = pisciculturaObrasQuestions[proximaObraKey][0];
+              setPisciculturaEtapa(pisciculturaEtapa + 1);
+              setSuggestions([]);
+            } else {
+              // Concluímos todas as obras, vamos para a próxima seção
+              setPisciculturaSecao('especies');
+              setPisciculturaEtapa(0);
+              botResponse = pisciculturaEspeciesQuestions[0];
+              setSuggestions([
+                { text: "Tambaqui", action: "Tambaqui" },
+                { text: "Tambatinga", action: "Tambatinga" },
+                { text: "Matrinxã", action: "Matrinxã" },
+                { text: "Curimatã", action: "Curimatã" },
+                { text: "Pirarucu", action: "Pirarucu" },
+                { text: "Tilápia", action: "Tilápia" }
+              ]);
+            }
+          }
         }
       }
       else if (pisciculturaSecao === 'especies') {
+        const novosDados = { ...dadosPiscicultura };
+        
         if (pisciculturaEtapa === 0) {
           // Processar seleção de espécies
           const especiesList = userMessage.split(',').map(s => s.trim());
@@ -1836,13 +1994,338 @@ const ChatbotWidget: React.FC = () => {
             setPisciculturaSecao('detalhamento');
             setPisciculturaEtapa(0);
             botResponse = pisciculturaDetalhamentoQuestions[0];
+            setSuggestions([]);
           } else {
             // Fazer perguntas sobre a primeira espécie
             botResponse = "Agora vamos detalhar as espécies selecionadas. " + 
                          pisciculturaEspeciesQuantidadeQuestions[especiesList[0].toLowerCase() as keyof typeof pisciculturaEspeciesQuantidadeQuestions];
             setPisciculturaEtapa(1);
+            setSuggestions([]);
+          }
+        } else {
+          // Processando detalhes de uma espécie específica
+          const especieIndex = pisciculturaEtapa - 1;
+          if (especieIndex < especiesSelecionadas.length) {
+            const especie = especiesSelecionadas[especieIndex].toLowerCase() as keyof typeof novosDados.especies;
+            
+            // Validar quantidade
+            const quantidade = parseInt(userMessage);
+            if (isNaN(quantidade)) {
+              botResponse = "Por favor, informe um valor numérico válido para a quantidade.";
+              addMessage(botResponse, false);
+              setIsLoading(false);
+              return;
+            }
+            
+            // Salvar quantidade
+            novosDados.especies[especie] = quantidade;
+            setDadosPiscicultura(novosDados);
+            
+            // Verificar se há mais espécies para processar
+            if (especieIndex + 1 < especiesSelecionadas.length) {
+              // Próxima espécie
+              const proximaEspecie = especiesSelecionadas[especieIndex + 1];
+              botResponse = pisciculturaEspeciesQuantidadeQuestions[proximaEspecie.toLowerCase() as keyof typeof pisciculturaEspeciesQuantidadeQuestions];
+              setPisciculturaEtapa(pisciculturaEtapa + 1);
+            } else {
+              // Concluímos todas as espécies, vamos para a próxima seção
+              setPisciculturaSecao('detalhamento');
+              setPisciculturaEtapa(0);
+              botResponse = pisciculturaDetalhamentoQuestions[0];
+              setSuggestions([]);
+            }
           }
         }
+      }
+      else if (pisciculturaSecao === 'detalhamento') {
+        const novosDados = { ...dadosPiscicultura };
+        
+        switch(pisciculturaEtapa) {
+          case 0: // Distância da sede municipal
+            const distancia = parseFloat(userMessage);
+            if (isNaN(distancia)) {
+              botResponse = "Por favor, informe um valor numérico válido para a distância em Km.";
+              addMessage(botResponse, false);
+              setIsLoading(false);
+              return;
+            }
+            novosDados.detalhamento.distanciaSede = distancia;
+            break;
+            
+          case 1: // Referência de localização
+            novosDados.detalhamento.referencia = userMessage;
+            break;
+            
+          case 2: // Situação legal da propriedade
+            novosDados.detalhamento.situacaoLegal = userMessage;
+            
+            // Se selecionou "Outra", precisamos perguntar qual
+            if (userMessage.toLowerCase() === "outra") {
+              setPisciculturaEtapa(pisciculturaEtapa + 1);
+              botResponse = "Qual a situação legal da propriedade?";
+              setDadosPiscicultura(novosDados);
+              setIsLoading(false);
+              addMessage(botResponse, false);
+              return;
+            } else if (userMessage.toLowerCase() !== "regularizada" && 
+                       userMessage.toLowerCase() !== "arrendada" && 
+                       userMessage.toLowerCase() !== "cedida" && 
+                       userMessage.toLowerCase() !== "posse") {
+              // Se não é uma das opções padrão, salvar como outra situação
+              novosDados.detalhamento.outraSituacao = userMessage;
+            }
+            break;
+            
+          case 3: // Outra situação (caso tenha selecionado "Outra")
+            if (novosDados.detalhamento.situacaoLegal.toLowerCase() === "outra") {
+              novosDados.detalhamento.outraSituacao = userMessage;
+              // Avançar para a próxima pergunta normal
+              pisciculturaEtapa++;
+            } 
+            // Se não entrou no if, essa pergunta é a área total 
+            else {
+              const area = parseFloat(userMessage);
+              if (isNaN(area)) {
+                botResponse = "Por favor, informe um valor numérico válido para a área em ha.";
+                addMessage(botResponse, false);
+                setIsLoading(false);
+                return;
+              }
+              novosDados.detalhamento.areaTotal = area;
+            }
+            break;
+            
+          case 4: // Área total (se veio da pergunta de outra situação) ou Recursos Hídricos
+            if (novosDados.detalhamento.outraSituacao && pisciculturaEtapa === 4) {
+              // Neste caso, essa pergunta é sobre a área total
+              const area = parseFloat(userMessage);
+              if (isNaN(area)) {
+                botResponse = "Por favor, informe um valor numérico válido para a área em ha.";
+                addMessage(botResponse, false);
+                setIsLoading(false);
+                return;
+              }
+              novosDados.detalhamento.areaTotal = area;
+            } else {
+              // Neste caso, essa pergunta é sobre recursos hídricos
+              const recursos = userMessage.split(',').map(r => r.trim());
+              novosDados.detalhamento.recursosHidricos.tipo = recursos;
+              setRecursosHidricosSelecionados(recursos);
+              
+              // Se selecionou algum recurso, perguntar os nomes
+              if (recursos.length > 0 && recursos[0] !== "Nenhum") {
+                setPisciculturaEtapa(pisciculturaEtapa + 1);
+                botResponse = `Qual o nome do(s) ${recursos[0]}(s) na propriedade?`;
+                setDadosPiscicultura(novosDados);
+                setSuggestions([]);
+                setIsLoading(false);
+                addMessage(botResponse, false);
+                return;
+              }
+            }
+            break;
+            
+          case 5: // Nome dos recursos hídricos ou Usos múltiplos da água
+            if (recursosHidricosSelecionados.length > 0 && 
+                !novosDados.detalhamento.recursosHidricos.nomes[recursosHidricosSelecionados[0]]) {
+              // Estamos processando o nome do primeiro recurso hídrico
+              novosDados.detalhamento.recursosHidricos.nomes[recursosHidricosSelecionados[0]] = userMessage;
+              
+              // Verificar se há mais recursos para perguntar
+              if (recursosHidricosSelecionados.length > 1) {
+                const proximoRecurso = recursosHidricosSelecionados[1];
+                botResponse = `Qual o nome do(s) ${proximoRecurso}(s) na propriedade?`;
+                
+                // Remover o primeiro item da lista
+                setRecursosHidricosSelecionados(recursosHidricosSelecionados.slice(1));
+                
+                setDadosPiscicultura(novosDados);
+                setIsLoading(false);
+                addMessage(botResponse, false);
+                return;
+              }
+              // Caso contrário, seguir para a próxima pergunta (usos da água)
+            } else {
+              // Neste caso, estamos processando os usos múltiplos da água
+              const usos = userMessage.split(',').map(u => u.trim());
+              novosDados.detalhamento.usosAgua = usos;
+            }
+            break;
+        }
+        
+        setDadosPiscicultura(novosDados);
+        
+        // Avançar para a próxima pergunta ou seção
+        if (pisciculturaEtapa < pisciculturaDetalhamentoQuestions.length - 1) {
+          setPisciculturaEtapa(pisciculturaEtapa + 1);
+          
+          // Verificar se devemos pular a pergunta de "outra situação"
+          if (pisciculturaEtapa + 1 === 3 && 
+              novosDados.detalhamento.situacaoLegal && 
+              novosDados.detalhamento.situacaoLegal.toLowerCase() !== "outra") {
+            setPisciculturaEtapa(pisciculturaEtapa + 2);
+            botResponse = "Qual a área total da propriedade (em ha)?";
+          } else {
+            botResponse = pisciculturaDetalhamentoQuestions[pisciculturaEtapa + 1];
+            
+            // Configurar sugestões para perguntas específicas
+            if (pisciculturaEtapa + 1 === 2) { // Situação legal
+              setSuggestions([
+                { text: "Regularizada", action: "Regularizada" },
+                { text: "Arrendada", action: "Arrendada" },
+                { text: "Cedida", action: "Cedida" },
+                { text: "Posse", action: "Posse" },
+                { text: "Outra", action: "Outra" }
+              ]);
+            } else if (pisciculturaEtapa + 1 === 4) { // Recursos hídricos
+              setSuggestions([
+                { text: "Igarapé", action: "Igarapé" },
+                { text: "Rio", action: "Rio" },
+                { text: "Lago", action: "Lago" },
+                { text: "Poço", action: "Poço" },
+                { text: "Nascente", action: "Nascente" },
+                { text: "Nenhum", action: "Nenhum" }
+              ]);
+            } else if (pisciculturaEtapa + 1 === 5) { // Usos da água
+              setSuggestions([
+                { text: "Aquicultura", action: "Aquicultura" },
+                { text: "Irrigação", action: "Irrigação" },
+                { text: "Abastecimento Público", action: "Abastecimento Público" },
+                { text: "Lazer", action: "Lazer" },
+                { text: "Dessedentação Animal", action: "Dessedentação Animal" }
+              ]);
+            } else {
+              setSuggestions([]);
+            }
+          }
+        } else {
+          // Avançar para a próxima seção (recursos)
+          setPisciculturaSecao('recursos');
+          setPisciculturaEtapa(0);
+          botResponse = pisciculturaRecursosQuestions[0];
+          setSuggestions([]);
+        }
+      }
+      else if (pisciculturaSecao === 'recursos') {
+        const novosDados = { ...dadosPiscicultura };
+        
+        switch(pisciculturaEtapa) {
+          case 0: // Número de empregados
+            const numEmpregados = parseInt(userMessage);
+            if (isNaN(numEmpregados)) {
+              botResponse = "Por favor, informe um valor numérico válido para o número de empregados.";
+              addMessage(botResponse, false);
+              setIsLoading(false);
+              return;
+            }
+            novosDados.recursos.numEmpregados = numEmpregados;
+            break;
+            
+          case 1: // Número de familiares
+            const numFamiliares = parseInt(userMessage);
+            if (isNaN(numFamiliares)) {
+              botResponse = "Por favor, informe um valor numérico válido para o número de familiares.";
+              addMessage(botResponse, false);
+              setIsLoading(false);
+              return;
+            }
+            novosDados.recursos.numFamiliares = numFamiliares;
+            break;
+            
+          case 2: // Recursos financeiros
+            novosDados.recursos.recursosFinanceiros = userMessage;
+            
+            // Se selecionou financiamento, perguntar a fonte
+            if (userMessage.toLowerCase().includes("financiamento")) {
+              setPisciculturaEtapa(pisciculturaEtapa + 1);
+              botResponse = "Qual a fonte do financiamento?";
+              setDadosPiscicultura(novosDados);
+              setSuggestions([
+                { text: "Banco da Amazônia", action: "Banco da Amazônia" },
+                { text: "Banco do Brasil", action: "Banco do Brasil" },
+                { text: "Caixa Econômica", action: "Caixa Econômica" },
+                { text: "Outro", action: "Outro" }
+              ]);
+              setIsLoading(false);
+              addMessage(botResponse, false);
+              return;
+            }
+            break;
+            
+          case 3: // Fonte do financiamento ou Assistência técnica
+            if (novosDados.recursos.recursosFinanceiros.toLowerCase().includes("financiamento")) {
+              novosDados.recursos.fonteFinanciamento = userMessage;
+              // Avançar para a pergunta normal
+              pisciculturaEtapa++;
+            } else {
+              // Esta é a pergunta sobre assistência técnica
+              novosDados.recursos.assistenciaTecnica = userMessage;
+            }
+            break;
+            
+          case 4: // Assistência técnica
+            novosDados.recursos.assistenciaTecnica = userMessage;
+            break;
+        }
+        
+        setDadosPiscicultura(novosDados);
+        
+        // Avançar para a próxima pergunta ou seção
+        if (pisciculturaEtapa < pisciculturaRecursosQuestions.length - 1) {
+          setPisciculturaEtapa(pisciculturaEtapa + 1);
+          
+          // Verificar se devemos pular a pergunta de fonte de financiamento
+          if (pisciculturaEtapa + 1 === 3 && 
+              novosDados.recursos.recursosFinanceiros && 
+              !novosDados.recursos.recursosFinanceiros.toLowerCase().includes("financiamento")) {
+            setPisciculturaEtapa(pisciculturaEtapa + 2);
+            botResponse = pisciculturaRecursosQuestions[3]; // Pergunta sobre assistência técnica
+          } else {
+            botResponse = pisciculturaRecursosQuestions[pisciculturaEtapa + 1];
+            
+            // Configurar sugestões para perguntas específicas
+            if (pisciculturaEtapa + 1 === 2) { // Recursos financeiros
+              setSuggestions([
+                { text: "Próprios", action: "Próprios" },
+                { text: "Financiamento", action: "Financiamento" },
+                { text: "Misto", action: "Próprios e Financiamento" }
+              ]);
+            } else if (pisciculturaEtapa + 1 === 3 || pisciculturaEtapa + 1 === 4) { // Assistência técnica
+              setSuggestions([
+                { text: "Sim", action: "Sim" },
+                { text: "Não", action: "Não" },
+                { text: "Eventual", action: "Eventual" }
+              ]);
+            } else {
+              setSuggestions([]);
+            }
+          }
+        } else {
+          // Avançar para a seção de observações
+          setPisciculturaSecao('observacoes');
+          setPisciculturaEtapa(0);
+          botResponse = "Você tem alguma observação adicional sobre o empreendimento? (Opcional, digite 'Não' para pular)";
+          setSuggestions([
+            { text: "Não", action: "Não" }
+          ]);
+        }
+      }
+      else if (pisciculturaSecao === 'observacoes') {
+        // Processar observações
+        if (userMessage.toLowerCase() !== "não" && userMessage.toLowerCase() !== "nao") {
+          const novosDados = { ...dadosPiscicultura };
+          novosDados.observacoes = userMessage;
+          setDadosPiscicultura(novosDados);
+        }
+        
+        // Gerar resumo e ir para tela de confirmação
+        setPisciculturaSecao('resumo');
+        setPisciculturaEtapa(0);
+        botResponse = gerarResumoPiscicultura();
+        setSuggestions([
+          { text: "Confirmar", action: "confirmar" },
+          { text: "Cancelar", action: "cancelar" }
+        ]);
       }
       else if (pisciculturaSecao === 'resumo') {
         // Processar confirmação de dados
@@ -1851,12 +2334,18 @@ const ChatbotWidget: React.FC = () => {
             userMessage.toLowerCase().includes("correto")) {
           
           // Finalizar cadastro e salvar no Firebase
-          await salvarPisciculturaNoFirebase();
+          const success = await salvarPisciculturaNoFirebase();
           
-          // Avançar para solicitação de serviço
-          setModo('solicitacao');
-          botResponse = "Seu cadastro de piscicultura foi salvo com sucesso! Agora, diga qual serviço você deseja solicitar:";
-          setSuggestions(servicosSugestoes);
+          if (success) {
+            // Avançar para solicitação de serviço
+            setModo('solicitacao');
+            botResponse = "Seu cadastro de piscicultura foi salvo com sucesso! Agora, diga qual serviço você deseja solicitar:";
+            setSuggestions(servicosSugestoes);
+          } else {
+            botResponse = "Houve um erro ao salvar seu cadastro. Por favor, tente novamente mais tarde.";
+            setModo('inicio');
+            setSuggestions(initialSuggestions);
+          }
         } else if (userMessage.toLowerCase().includes("editar")) {
           botResponse = "Funcionalidade de edição em desenvolvimento. Por favor, recomece o cadastro se precisar corrigir informações.";
         } else if (userMessage.toLowerCase().includes("cancelar")) {
