@@ -808,7 +808,7 @@ const ChatbotWidget: React.FC = () => {
       } else if (subFluxo === "mandioca") {
         if (subFluxoEtapa === 0) {
           return [
-            { text: "Brava", action: "Brava},
+            { text: "Brava", action: "Brava" },
             { text: "Mansa", action: "Mansa" },
           ];
         } else if (subFluxoEtapa === 1) {
