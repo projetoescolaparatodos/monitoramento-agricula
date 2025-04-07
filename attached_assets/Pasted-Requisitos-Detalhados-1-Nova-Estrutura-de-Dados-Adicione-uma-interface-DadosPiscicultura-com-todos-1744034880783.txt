@@ -1,0 +1,117 @@
+Requisitos Detalhados
+1. Nova Estrutura de Dados
+
+Adicione uma interface DadosPiscicultura com todos os campos do formulário organizados em seções:
+
+    Empreendedor (dados pessoais)
+    Atividade (descrição e localização)
+    Estrutura aquícola (tipos)
+    Obras (com áreas e situações)
+    Espécies confinadas (com quantidades)
+    Detalhamento (propriedade, recursos hídricos)
+    Recursos (empregados, financiamento)
+    Observações
+
+2. Fluxo de Perguntas
+
+Divida o formulário em 6 seções sequenciais implementadas como "subfluxos" no chatbot:
+Seção 1: Identificação do Empreendedor
+
+    Nome completo
+    Endereço
+    Nome do travessão
+    CPF (com validação de formato ###.###.###-##)
+    RG
+    Órgão Emissor/UF
+    Sexo (opções: Masculino/Feminino/Prefiro não informar)
+    Número de celular (com validação de formato (##) #####-####)
+
+Seção 2: Identificação da Atividade
+
+    Atividade desenvolvida
+    Endereço do local da atividade
+    Localização geográfica (reutilizar o componente existente)
+        Se estiver na propriedade: capturar coordenadas automaticamente
+        Se não estiver: permitir inserção manual ou pular
+    Estrutura Aquícola (múltipla escolha):
+        Viveiros escavados
+        Açudes
+        Tanques
+        Estruturas flutuantes
+
+Seção 3: Classificação
+
+    Obras (múltipla escolha):
+        Canal de Igarapé (área em m², situação da obra)
+        Viveiro Escavado (área em ha, situação da obra)
+        Barragem (área em m², situação da obra)
+        Viveiro Suspenso (área em m², situação da obra)
+    Espécies Confinadas (múltipla escolha com quantidades):
+        Tambaqui
+        Tambatinga
+        Matrinxã
+        Curimatã
+        Pirarucu
+        Tilápia
+
+Seção 4: Detalhamento
+
+    Distância da sede municipal (em Km)
+    Referência de localização
+    Situação legal da propriedade (Proprietário/Arrendatário/Parceiro/Outros)
+        Se "Outros", perguntar qual
+    Área total da propriedade (em ha)
+    Recursos Hídricos existentes (múltipla escolha com nomes):
+        Rio/Nascente/Grota
+        Barragem/Açude
+        Outros
+    Usos múltiplos da água (múltipla escolha):
+        Aquicultura
+        Irrigação
+        Abastecimento Público
+        Lazer
+
+Seção 5: Recursos
+
+    Número de empregados
+    Número de pessoas da família que trabalham na propriedade
+    Recursos financeiros (Próprios/Financiamento)
+        Se "Financiamento", perguntar a fonte
+    Assistência Técnica (Permanente/Eventual/Não tem)
+
+Seção 6: Observações Finais
+
+    Campo opcional para observações adicionais sobre o empreendimento
+
+3. UI/UX Aprimorada
+
+    Indicador de progresso ("Pergunta X de Y" ou "Seção X/6")
+    Botões de resposta rápida para opções predefinidas
+    Suporte para múltipla seleção (usando vírgulas ou botões toggle)
+    Botão "Voltar" para corrigir respostas
+    Resumo final com possibilidade de confirmação ou edição
+
+4. Implementação Técnica
+
+    Adicionar um novo modo 'piscicultura' ao chatbot
+    Implementar validação para CPF e telefone
+    Reutilizar o componente de geolocalização já implementado
+    Salvar dados no Firebase em uma coleção separada "cadastros_piscicultura"
+    Criar um resumo final formatado antes do envio
+
+5. Integração com o Chatbot Existente
+
+    Adicionar opção "Cadastro de Piscicultura" no menu inicial
+    Manter o fluxo de agricultura existente intacto
+    Adicionar detecção de palavras-chave relacionadas à piscicultura nas mensagens do usuário
+
+Exemplo de Funcionamento Esperado
+
+    Usuário menciona "piscicultura" ou clica no botão "Cadastro de Piscicultura"
+    Chatbot inicia o fluxo específico de cadastro de piscicultura
+    O usuário responde cada pergunta sequencialmente
+    Para perguntas com opções predefinidas, são mostrados botões de resposta rápida
+    Ao chegar na parte de localização, é reutilizado o fluxo existente de geolocalização
+    Para estruturas, obras e espécies, é implementada lógica condicional
+    Ao final, é mostrado um resumo completo para confirmação
+    Após confirmação, os dados são salvos no Firebase e o usuário recebe uma mensagem de sucesso
