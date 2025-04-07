@@ -1,0 +1,2315 @@
+import React, { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { MessageCircle, Send, X, ArrowLeft, MapPin } from "lucide-react";
+import { db } from "@/utils/firebase";
+import LocationMap from "./LocationMap";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
+
+interface Message {
+  text: string;
+  isUser: boolean;
+  timestamp: Date;
+}
+
+interface SuggestionButton {
+  text: string;
+  action: string;
+}
+
+interface UserLocation {
+  latitude: number;
+  longitude: number;
+}
+
+// Interface para dados de piscicultura
+interface DadosPiscicultura {
+  empreendedor: {
+    nome: string;
+    endereco: string;
+    travessao: string;
+    cpf: string;
+    rg: string;
+    orgaoEmissor: string;
+    sexo: string;
+    celular: string;
+  };
+  atividade: {
+    descricao: string;
+    endereco: string;
+    coordenadas?: {
+      latitude: number;
+      longitude: number;
+    };
+    estruturaAquicola: string[];
+  };
+  obras: {
+    canalIgarape?: {
+      area: number;
+      situacao: string;
+    };
+    viveiroEscavado?: {
+      area: number;
+      situacao: string;
+    };
+    barragem?: {
+      area: number;
+      situacao: string;
+    };
+    viveiroSuspenso?: {
+      area: number;
+      situacao: string;
+    };
+  };
+  especies: {
+    tambaqui?: number;
+    tambatinga?: number;
+    matrinxa?: number;
+    curimata?: number;
+    pirarucu?: number;
+    tilapia?: number;
+  };
+  detalhamento: {
+    distanciaSede: number;
+    referencia: string;
+    situacaoLegal: string;
+    outraSituacao?: string;
+    areaTotal: number;
+    recursosHidricos: {
+      tipo: string[];
+      nomes: Record<string, string>;
+    };
+    usosAgua: string[];
+  };
+  recursos: {
+    numEmpregados: number;
+    numFamiliares: number;
+    recursosFinanceiros: string;
+    fonteFinanciamento?: string;
+    assistenciaTecnica: string;
+  };
+  observacoes?: string;
+}
+
+// Estrutura completa para dados agropecuários
+interface DadosAgropecuarios {
+  cacau: {
+    cultiva: boolean;
+    quantidade?: number;
+    safreiro?: boolean;
+    idade?: string;
+    sementeCeplac?: boolean;
+    producaoAnual?: number;
+    clonado?: boolean;
+    detalhesClonado?: {
+      quantidade?: number;
+      safreiro?: boolean;
+      idade?: string;
+      producaoAnual?: number;
+      materialClonal?: string[];
+    };
+  };
+  frutiferas: {
+    cultiva: boolean;
+    tipos?: string[];
+    destino?: string[];
+    producaoKg?: number;
+    precoMedio?: number;
+  };
+  lavourasAnuais: {
+    cultiva: boolean;
+    milho?: {
+      produz: boolean;
+      finalidade?: string[];
+      destino?: string[];
+      producaoKg?: number;
+      areaPlantada?: number;
+    };
+  };
+  mandioca: {
+    produz: boolean;
+    tipo?: string;
+    finalidade?: string[];
+    subprodutos?: string[];
+    areaCultivada?: number;
+    plantioMecanizado?: boolean;
+  };
+  arrozFeijao: {
+    produz: boolean;
+    culturas?: string[];
+    producaoAnual?: number;
+    areaPlantada?: number;
+    destino?: string[];
+  };
+  hortalicas: {
+    produz: boolean;
+    cultivos?: string[];
+    producaoAnual?: number;
+    destino?: string[];
+  };
+  tuberosas: {
+    produz: boolean;
+    cultivos?: string[];
+    producaoAnual?: number;
+    destino?: string[];
+  };
+  bovinos: {
+    cria: boolean;
+    quantidade?: number;
+    gadoLeite?: boolean;
+    fasePredominante?: string;
+    sistemaManejo?: string;
+    acessoMercado?: string;
+  };
+  caprinosOvinos: {
+    cria: boolean;
+    quantidade?: number;
+    finalidade?: string[];
+    destino?: string[];
+  };
+  suinos: {
+    cria: boolean;
+    quantidade?: number;
+    finalidade?: string[];
+    destino?: string[];
+  };
+  aves: {
+    cria: boolean;
+    tipoCriacao?: string[];
+    quantidade?: number;
+    destino?: string[];
+  };
+}
+
+// Fluxos de perguntas para cada seção agropecuária
+const cacauQuestions = [
+  "Quantos pés de cacau você cultiva?",
+  "É safreiro? (Sim/Não)",
+  "Qual a idade do plantio?",
+  "Utiliza sementes CEPLAC? (Sim/Não)",
+  "Qual a produção anual em KG?",
+  "Possui plantio de cacau clonado? (Sim/Não)",
+];
+
+const cacauClonadoQuestions = [
+  "Qual a quantidade de pés clonados?",
+  "É safreiro? (Sim/Não)",
+  "Qual a idade do plantio clonado?",
+  "Qual a produção anual dos clonados em KG?",
+  "Qual o Material Clonal da Lavoura? (CCN51, 8N34, CEPEC 2002, PS1319, PH16, CASCA FINA, PARAZINHO, OUTROS)",
+];
+
+const frutiferasQuestions = [
+  "Quais frutas você cultiva? (Digite os nomes separados por vírgula: laranja, limão, tangerina, cupuaçu, maracujá, mamão, açaí, goiaba, graviola, acerola)",
+  "Qual o destino da produção? (Consumo/Venda/Doação - pode escolher mais de um, separados por vírgula)",
+  "Qual a produção total em KG por ano?",
+  "Qual o preço médio por KG (R$)?",
+];
+
+const lavourasAnuaisQuestions = [
+  "Produz milho? (Sim/Não)",
+  "Qual a finalidade? (Milho Verde/Grão/Silagem - pode escolher mais de um, separados por vírgula)",
+  "Qual o destino da produção? (Venda/Uso na Propriedade - pode escolher mais de um, separados por vírgula)",
+  "Qual a produção em KG?",
+  "Qual a área plantada em hectares (ha)?",
+];
+
+const mandiocaQuestions = [
+  "Qual o tipo de mandioca? (Brava/Mansa)",
+  "Qual a finalidade? (Consumo/Ração Animal - pode escolher mais de um, separados por vírgula)",
+  "Produz subprodutos? (Goma/Tucupi/Farinha - pode escolher mais de um, separados por vírgula)",
+  "Qual a área cultivada em hectares (ha)?",
+  "A área de plantio é mecanizada? (Sim/Não)",
+];
+
+const arrozFeijaoQuestions = [
+  "Qual cultura você produz? (Arroz/Feijão/Ambos)",
+  "Qual a produção anual em KG?",
+  "Qual a área plantada em hectares (ha)?",
+  "Qual o destino da produção? (Consumo próprio/Comercialização - pode escolher mais de um, separados por vírgula)",
+];
+
+const hortalicasQuestions = [
+  "Quais hortaliças você cultiva? (Digite separadas por vírgula: alface, tomate, cebola, cenoura, beterraba, etc.)",
+  "Qual a produção anual em KG?",
+  "Qual o destino da produção? (Consumo próprio/Comercialização - pode escolher mais de um, separados por vírgula)",
+];
+
+const tuberosasQuestions = [
+  "Quais tuberosas você cultiva? (Digite separadas por vírgula: batata doce, mandioquinha, cará-roxo, etc.)",
+  "Qual a produção anual em KG?",
+  "Qual o destino da produção? (Consumo próprio/Comercialização - pode escolher mais de um, separados por vírgula)",
+];
+
+const bovinoQuestions = [
+  "Quantos animais tem no rebanho?",
+  "É gado de leite? (Sim/Não)",
+  "Qual a fase predominante? (Cria/Recria/Engorda)",
+  "Qual o sistema de manejo? (Pastejo Contínuo/Confinamento/Rotacionado)",
+  "Como acessa o mercado? (Cooperado/Independente)",
+];
+
+const caprinosOvinosQuestions = [
+  "Qual a quantidade de animais?",
+  "Qual a finalidade? (Leite/Carne - pode escolher mais de um, separados por vírgula)",
+  "Qual o destino da produção? (Consumo próprio/Venda - pode escolher mais de um, separados por vírgula)",
+];
+
+const suinosQuestions = [
+  "Qual a quantidade de animais?",
+  "Qual a finalidade? (Engorda/Reprodução - pode escolher mais de um, separados por vírgula)",
+  "Qual o destino da produção? (Consumo próprio/Venda - pode escolher mais de um, separados por vírgula)",
+];
+
+const avesQuestions = [
+  "Qual o tipo de criação? (Poedeira/Corte - pode escolher mais de um, separados por vírgula)",
+  "Qual a quantidade de aves?",
+  "Qual o destino da produção? (Consumo próprio/Venda - pode escolher mais de um, separados por vírgula)",
+];
+
+// Fluxo de perguntas principais que levam aos subfluxos
+const principaisQuestoesAgropecuarias = [
+  "Você cultiva cacau? (Sim/Não)",
+  "Você cultiva frutíferas perenes (laranja, açaí, cupuaçu, etc.)? (Sim/Não)",
+  "Você cultiva lavouras anuais (milho, etc.)? (Sim/Não)",
+  "Você produz mandioca/macaxeira? (Sim/Não)",
+  "Você produz arroz ou feijão? (Sim/Não)",
+  "Você produz oleícolas (hortaliças)? (Sim/Não)",
+  "Você produz tuberosas (batata doce, mandioquinha, cará-roxo)? (Sim/Não)",
+  "Você cria bovinos? (Sim/Não)",
+  "Você cria caprinos ou ovinos? (Sim/Não)",
+  "Você cria suínos? (Sim/Não)",
+  "Você cria aves? (Sim/Não)",
+];
+
+// Fluxo completo de cadastro principal (outras perguntas do formulário)
+const cadastroFluxo = [
+  // Dados da Propriedade
+  "Qual o nome da propriedade?",
+  "A propriedade é pessoa Física ou Jurídica?",
+  "Qual o endereço da propriedade?",
+  "Qual o tamanho da propriedade em hectares (ha)?",
+  "A propriedade é escriturada? (Sim/Não)",
+  "Possui DAP/CAF? (Sim/Não)",
+  "Possui CAR? (Sim/Não)",
+  "Possui Financiamento Rural? (Sim/Não)",
+  "Qual a coordenada S da propriedade? (aproximada)",
+  "Qual a coordenada W da propriedade? (aproximada)",
+
+  // Dados do Proprietário
+  "Qual seu nome completo?",
+  "Qual seu CPF?",
+  "Qual seu RG?",
+  "Qual o órgão emissor e UF do RG?",
+  "Qual seu sexo?",
+  "Qual sua data de nascimento?",
+  "Qual sua naturalidade?",
+  "Qual o nome da sua mãe?",
+  "Qual sua escolaridade?",
+  "Qual seu telefone para contato?",
+  "É associado a alguma instituição? Se sim, qual?",
+];
+
+// Arrays de perguntas para piscicultura
+const pisciculturaEmpreendedorQuestions = [
+  "Qual o seu nome completo?",
+  "Qual o seu endereço?",
+  "Qual o nome do travessão?",
+  "Qual o seu CPF? (formato: 000.000.000-00)",
+  "Qual o seu RG?",
+  "Qual o Órgão Emissor/UF do RG?",
+  "Qual o seu sexo?",
+  "Qual o seu número de celular para contato? (formato: (00) 00000-0000)",
+];
+
+const pisciculturaAtividadeQuestions = [
+  "Qual atividade é desenvolvida na propriedade?",
+  "Qual o endereço do local da atividade?",
+  // A pergunta de localização será tratada separadamente
+];
+
+const pisciculturaEstruturaQuestions = [
+  "Quais estruturas aquícolas existem na propriedade? (selecione todas aplicáveis)",
+];
+
+const pisciculturaObrasQuestions = {
+  canalIgarape: [
+    "Qual a área em m² do Canal de Igarapé?",
+    "Qual a situação da obra do Canal de Igarapé?",
+  ],
+  viveiroEscavado: [
+    "Qual a área em ha do Viveiro Escavado?",
+    "Qual a situação da obra do Viveiro Escavado?",
+  ],
+  barragem: [
+    "Qual a área em m² da Barragem?",
+    "Qual a situação da obra da Barragem?",
+  ],
+  viveiroSuspenso: [
+    "Qual a área em m² do Viveiro Suspenso?",
+    "Qual a situação da obra do Viveiro Suspenso?",
+  ],
+};
+
+const pisciculturaEspeciesQuestions = [
+  "Quais espécies são confinadas na propriedade? (selecione todas aplicáveis)",
+];
+
+const pisciculturaEspeciesQuantidadeQuestions = {
+  tambaqui: "Qual a quantidade de Tambaqui?",
+  tambatinga: "Qual a quantidade de Tambatinga?",
+  matrinxa: "Qual a quantidade de Matrinxã?",
+  curimata: "Qual a quantidade de Curimatã?",
+  pirarucu: "Qual a quantidade de Pirarucu?",
+  tilapia: "Qual a quantidade de Tilápia?",
+};
+
+const pisciculturaDetalhamentoQuestions = [
+  "Qual a distância da sede municipal (em Km)?",
+  "Qual a referência de localização?",
+  "Qual a situação legal da propriedade?",
+  "Qual a área total da propriedade (em ha)?",
+  "Quais recursos hídricos existem na propriedade? (selecione todos aplicáveis)",
+  "Quais são os usos múltiplos da água na propriedade? (selecione todos aplicáveis)",
+];
+
+const pisciculturaRecursosQuestions = [
+  "Qual o número de empregados?",
+  "Qual o número de pessoas da família que trabalham na propriedade?",
+  "Quais os recursos financeiros utilizados?",
+  "Há assistência técnica por profissional habilitado?",
+];
+
+// Botões de sugestão iniciais
+const initialSuggestions: SuggestionButton[] = [
+  { text: "Fazer cadastro rural", action: "cadastro" },
+  { text: "Cadastro de Piscicultura", action: "piscicultura" },
+  { text: "Informações de Agricultura", action: "agricultura" },
+  { text: "Serviços de Pesca", action: "pesca" },
+  { text: "Programa PAA", action: "paa" },
+];
+
+// Lista de opções de serviços para solicitação
+const servicosSugestoes: SuggestionButton[] = [
+  { text: "Assistência técnica", action: "Assistência técnica" },
+  { text: "Mecanização agrícola", action: "Mecanização agrícola" },
+  { text: "Análise de solo", action: "Análise de solo" },
+  { text: "Distribuição de mudas", action: "Distribuição de mudas" },
+  { text: "Capacitação", action: "Capacitação" },
+  { text: "Outro serviço", action: "Outro serviço" },
+];
+
+const ChatbotWidget: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [cadastroEtapa, setCadastroEtapa] = useState(-1);
+  const [cadastroRespostas, setCadastroRespostas] = useState<string[]>([]);
+  const [suggestions, setSuggestions] =
+    useState<SuggestionButton[]>(initialSuggestions);
+  const [subFluxo, setSubFluxo] = useState<string | null>(null);
+  const [subFluxoEtapa, setSubFluxoEtapa] = useState<number>(0);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [modo, setModo] = useState<
+    | "inicio"
+    | "cadastro"
+    | "servico"
+    | "resumo"
+    | "agropecuaria"
+    | "solicitacao"
+    | "localizacao"
+    | "piscicultura"
+  >("inicio");
+  const [servicoAtual, setServicoAtual] = useState<string>("");
+  const [usuarioCadastrado, setUsuarioCadastrado] = useState<boolean | null>(
+    null
+  );
+  const [indexQuestaoAgropecuaria, setIndexQuestaoAgropecuaria] =
+    useState<number>(0);
+  const [solicitacao, setSolicitacao] = useState<string>("");
+  const [pisciculturaEtapa, setPisciculturaEtapa] = useState<number>(0);
+  const [pisciculturaSecao, setPisciculturaSecao] = useState<
+    | "empreendedor"
+    | "atividade"
+    | "estrutura"
+    | "obras"
+    | "especies"
+    | "detalhamento"
+    | "recursos"
+    | "observacoes"
+  >("empreendedor");
+  const [obrasSelecionadas, setObrasSelecionadas] = useState<string[]>([]);
+  const [especiesSelecionadas, setEspeciesSelecionadas] = useState<string[]>([]);
+  const [recursosHidricosSelecionados, setRecursosHidricosSelecionados] =
+    useState<string[]>([]);
+  const [dadosPiscicultura, setDadosPiscicultura] =
+    useState<DadosPiscicultura>({
+      empreendedor: {
+        nome: "",
+        endereco: "",
+        travessao: "",
+        cpf: "",
+        rg: "",
+        orgaoEmissor: "",
+        sexo: "",
+        celular: "",
+      },
+      atividade: {
+        descricao: "",
+        endereco: "",
+        estruturaAquicola: [],
+      },
+      obras: {},
+      especies: {},
+      detalhamento: {
+        distanciaSede: 0,
+        referencia: "",
+        situacaoLegal: "",
+        areaTotal: 0,
+        recursosHidricos: {
+          tipo: [],
+          nomes: {},
+        },
+        usosAgua: [],
+      },
+      recursos: {
+        numEmpregados: 0,
+        numFamiliares: 0,
+        recursosFinanceiros: "",
+        assistenciaTecnica: "",
+      },
+    });
+  const [dadosAgropecuarios, setDadosAgropecuarios] =
+    useState<DadosAgropecuarios>({
+      cacau: { cultiva: false },
+      frutiferas: { cultiva: false },
+      lavourasAnuais: { cultiva: false },
+      mandioca: { produz: false },
+      arrozFeijao: { produz: false },
+      hortalicas: { produz: false },
+      tuberosas: { produz: false },
+      bovinos: { cria: false },
+      caprinosOvinos: { cria: false },
+      suinos: { cria: false },
+      aves: { cria: false },
+    });
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+  const [isAskingLocation, setIsAskingLocation] = useState<boolean>(false);
+  const [skipLocationQuestions, setSkipLocationQuestions] =
+    useState<boolean>(false);
+  const [showMap, setShowMap] = useState<boolean>(false);
+
+  // Efeitos
+  useEffect(() => {
+    if (isOpen && messages.length === 0) {
+      setMessages([
+        {
+          text: "Olá! Sou o assistente da Secretaria de Agricultura. Como posso ajudar você hoje? Selecione uma opção ou digite sua mensagem.",
+          isUser: false,
+          timestamp: new Date(),
+        },
+      ]);
+      setSuggestions(initialSuggestions);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    // Atualizar sugestões imediatamente após mudar de modo ou etapa
+    setSuggestions(getContextualSuggestions());
+  }, [
+    modo,
+    cadastroEtapa,
+    subFluxo,
+    subFluxoEtapa,
+    usuarioCadastrado,
+    pisciculturaSecao,
+    pisciculturaEtapa,
+    isAskingLocation,
+    showMap,
+  ]);
+
+  // Função para obter a localização do usuário com mapa
+  const getUserLocationWithMap = () => {
+    setIsLoading(true);
+    setShowMap(false); // Esconder o mapa enquanto obtemos a localização
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation({ latitude, longitude });
+          setShowMap(true); // Mostrar o mapa após obter a localização
+          
+          // Adicionar mensagem informando que a localização foi capturada
+          addMessage(
+            `Localização capturada com sucesso:\nLatitude: ${latitude.toFixed(6)}\nLongitude: ${longitude.toFixed(6)}\n\nVerifique no mapa abaixo se a localização está correta:`,
+            false
+          );
+          
+          // Atualizar sugestões
+          setSuggestions([
+            { text: "Confirmar localização", action: "confirmar" },
+            { text: "Ajustar no mapa", action: "ajustar" },
+            { text: "Inserir manualmente", action: "manual" }
+          ]);
+          
+          setIsLoading(false);
+        },
+        (error) => {
+          setIsLoading(false);
+          
+          let errorMessage = "Não foi possível obter sua localização.";
+          
+          // Mensagens de erro mais específicas baseadas no código de erro
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = "Permissão para obter localização foi negada. Por favor, permita o acesso à sua localização e tente novamente.";
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = "As informações de localização não estão disponíveis no momento.";
+              break;
+            case error.TIMEOUT:
+              errorMessage = "A solicitação para obter sua localização expirou.";
+              break;
+          }
+          
+          addMessage(errorMessage, false);
+          
+          // Perguntar se quer tentar novamente ou prosseguir sem localização
+          addMessage("Deseja tentar novamente ou prosseguir sem informações de localização?", false);
+          setSuggestions([
+            { text: "Tentar novamente", action: "tentar novamente" },
+            { text: "Prosseguir sem localização", action: "prosseguir" }
+          ]);
+        },
+        // Opções para a API de geolocalização
+        { 
+          enableHighAccuracy: true, // Alta precisão
+          timeout: 10000,           // 10 segundos de timeout
+          maximumAge: 0             // Não usar cache
+        }
+      );
+    } else {
+      setIsLoading(false);
+      addMessage("Seu navegador não suporta geolocalização. Vamos prosseguir sem informações de localização.", false);
+      
+      // Continuar o fluxo sem localização
+      if (modo === 'piscicultura' && pisciculturaSecao === 'atividade') {
+        // Continuar para a próxima seção de piscicultura
+        setPisciculturaSecao('estrutura');
+        setPisciculturaEtapa(0);
+        addMessage(pisciculturaEstruturaQuestions[0], false);
+      } else {
+        // Para outros modos (como cadastro), pular perguntas de localização
+        setSkipLocationQuestions(true);
+        // Implementar lógica específica para outros fluxos aqui
+      }
+    }
+  };
+
+  // Função para atualizar a localização quando o marcador é arrastado
+  const handleLocationChange = (lat: number, lng: number) => {
+    setUserLocation({ latitude: lat, longitude: lng });
+    addMessage(
+      `Localização atualizada:\nLatitude: ${lat.toFixed(6)}\nLongitude: ${lng.toFixed(6)}\n\nEsta localização está correta?`,
+      false
+    );
+  };
+
+  // Funções auxiliares
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const getContextualSuggestions = (): SuggestionButton[] => {
+    // Modo solicitação
+    if (modo === "solicitacao") {
+      return servicosSugestoes;
+    }
+    // Modo localização
+    else if (modo === "localizacao") {
+      if (isAskingLocation) {
+        return [
+          { text: "Sim, estou na propriedade", action: "sim" },
+          { text: "Não, não estou", action: "nao" }
+        ];
+      } else if (showMap && userLocation) {
+        return [
+          { text: "Confirmar localização", action: "confirmar" },
+          { text: "Ajustar no mapa", action: "ajustar" },
+          { text: "Inserir manualmente", action: "manual" }
+        ];
+      } else {
+        return [
+          { text: "Obter minha localização", action: "obter" },
+          { text: "Inserir manualmente", action: "manual" },
+          { text: "Pular essa etapa", action: "pular" }
+        ];
+      }
+    }
+    // Modo piscicultura - sugestões específicas para cada seção
+    else if (modo === "piscicultura") {
+      if (pisciculturaSecao === 'empreendedor') {
+        if (pisciculturaEtapa === 6) { // Pergunta sobre sexo
+          return [
+            { text: "Masculino", action: "Masculino" },
+            { text: "Feminino", action: "Feminino" },
+            { text: "Prefiro não informar", action: "Prefiro não informar" }
+          ];
+        }
+      } else if (pisciculturaSecao === 'estrutura') {
+        return [
+          { text: "Viveiros escavados", action: "Viveiros escavados" },
+          { text: "Açudes", action: "Açudes" },
+          { text: "Tanques", action: "Tanques" },
+          { text: "Estruturas flutuantes", action: "Estruturas flutuantes" }
+        ];
+      } else if (pisciculturaSecao === 'obras') {
+        if (pisciculturaEtapa === 0) {
+          return [
+            { text: "Canal de Igarapé", action: "Canal de Igarapé" },
+            { text: "Viveiro Escavado", action: "Viveiro Escavado" },
+            { text: "Barragem", action: "Barragem" },
+            { text: "Viveiro Suspenso", action: "Viveiro Suspenso" },
+            { text: "Nenhuma das anteriores", action: "Nenhuma" }
+          ];
+        } else if (pisciculturaEtapa % 2 === 0) { // Perguntas sobre situação da obra
+          return [
+            { text: "Obras não iniciadas", action: "Obras não iniciadas" },
+            { text: "Em construção", action: "Em construção" },
+            { text: "Construído", action: "Construído" },
+            { text: "Em manutenção", action: "Em manutenção" }
+          ];
+        }
+      } else if (pisciculturaSecao === 'especies') {
+        if (pisciculturaEtapa === 0) {
+          return [
+            { text: "Tambaqui", action: "Tambaqui" },
+            { text: "Tambatinga", action: "Tambatinga" },
+            { text: "Matrinxã", action: "Matrinxã" },
+            { text: "Curimatã", action: "Curimatã" },
+            { text: "Pirarucu", action: "Pirarucu" },
+            { text: "Tilápia", action: "Tilápia" },
+            { text: "Nenhuma das anteriores", action: "Nenhuma" }
+          ];
+        }
+      } else if (pisciculturaSecao === 'detalhamento') {
+        if (pisciculturaEtapa === 2) { // Situação legal
+          return [
+            { text: "Proprietário", action: "Proprietário" },
+            { text: "Arrendatário", action: "Arrendatário" },
+            { text: "Parceiro", action: "Parceiro" },
+            { text: "Outros", action: "Outros" }
+          ];
+        } else if (pisciculturaEtapa === 4) { // Recursos hídricos
+          return [
+            { text: "Rio", action: "Rio" },
+            { text: "Nascente", action: "Nascente" },
+            { text: "Grota", action: "Grota" },
+            { text: "Barragem", action: "Barragem" },
+            { text: "Açude", action: "Açude" },
+            { text: "Outros", action: "Outros" }
+          ];
+        } else if (pisciculturaEtapa === 5) { // Usos da água
+          return [
+            { text: "Aquicultura", action: "Aquicultura" },
+            { text: "Irrigação", action: "Irrigação" },
+            { text: "Abastecimento Público", action: "Abastecimento Público" },
+            { text: "Lazer", action: "Lazer" }
+          ];
+        }
+      } else if (pisciculturaSecao === 'recursos') {
+        if (pisciculturaEtapa === 2) { // Recursos financeiros
+          return [
+            { text: "Próprios", action: "Próprios" },
+            { text: "Financiamento", action: "Financiamento" }
+          ];
+        } else if (pisciculturaEtapa === 3) { // Assistência técnica
+          return [
+            { text: "Permanente", action: "Permanente" },
+            { text: "Eventual", action: "Eventual" },
+            { text: "Não tem", action: "Não tem" }
+          ];
+        }
+      }
+    }
+    // Modo agropecuária - sugestões específicas para cada seção
+    else if (modo === "agropecuaria") {
+      if (subFluxo === "cacau") {
+        // Verifica se está nas perguntas do cacau clonado
+        if (
+          dadosAgropecuarios.cacau.clonado &&
+          subFluxoEtapa >= cacauQuestions.length
+        ) {
+          const etapaClonado = subFluxoEtapa - cacauQuestions.length;
+
+          if (etapaClonado === 1 || etapaClonado === 3) {
+            // Safreiro ou confirmação
+            return [
+              { text: "Sim", action: "sim" },
+              { text: "Não", action: "não" },
+            ];
+          } else if (etapaClonado === 4) {
+            // Material Clonal
+            return [
+              { text: "CCN51", action: "CCN51" },
+              { text: "8N34", action: "8N34" },
+              { text: "CEPEC 2002", action: "CEPEC 2002" },
+              { text: "PS1319", action: "PS1319" },
+              { text: "PH16", action: "PH16" },
+              { text: "CASCA FINA", action: "CASCA FINA" },
+              { text: "PARAZINHO", action: "PARAZINHO" },
+              { text: "OUTROS", action: "OUTROS" },
+            ];
+          }
+        } else if (
+          subFluxoEtapa === 1 ||
+          subFluxoEtapa === 3 ||
+          subFluxoEtapa === 5
+        ) {
+          // Questões de sim/não no fluxo principal do cacau
+          return [
+            { text: "Sim", action: "sim" },
+            { text: "Não", action: "não" },
+          ];
+        }
+      } else if (subFluxo === "frutiferas") {
+        if (subFluxoEtapa === 1) {
+          return [
+            { text: "Consumo", action: "Consumo" },
+            { text: "Venda", action: "Venda" },
+            { text: "Doação", action: "Doação" },
+            { text: "Consumo e Venda", action: "Consumo, Venda" },
+          ];
+        }
+      } else if (subFluxo === "mandioca") {
+        if (subFluxoEtapa === 0) {
+          return [
+            { text: "Brava", action: "Brava" },
+            { text: "Mansa", action: "Mansa" },
+          ];
+        } else if (subFluxoEtapa === 1) {
+          return [
+            { text: "Consumo", action: "Consumo" },
+            { text: "Ração Animal", action: "Ração Animal" },
+            { text: "Ambos", action: "Consumo, Ração Animal" },
+          ];
+        } else if (subFluxoEtapa === 2) {
+          return [
+            { text: "Goma", action: "Goma" },
+            { text: "Tucupi", action: "Tucupi" },
+            { text: "Farinha", action: "Farinha" },
+            { text: "Goma e Farinha", action: "Goma, Farinha" },
+            { text: "Nenhum", action: "Nenhum" },
+          ];
+        } else if (subFluxoEtapa === 4) {
+          return [
+            { text: "Sim", action: "sim" },
+            { text: "Não", action: "não" },
+          ];
+        }
+      } else if (subFluxo === "bovinos") {
+        if (subFluxoEtapa === 1) {
+          return [
+            { text: "Sim", action: "sim" },
+            { text: "Não", action: "não" },
+          ];
+        } else if (subFluxoEtapa === 2) {
+          return [
+            { text: "Cria", action: "Cria" },
+            { text: "Recria", action: "Recria" },
+            { text: "Engorda", action: "Engorda" },
+          ];
+        } else if (subFluxoEtapa === 3) {
+          return [
+            { text: "Pastejo Contínuo", action: "Pastejo Contínuo" },
+            { text: "Confinamento", action: "Confinamento" },
+            { text: "Rotacionado", action: "Rotacionado" },
+          ];
+        } else if (subFluxoEtapa === 4) {
+          return [
+            { text: "Cooperado", action: "Cooperado" },
+            { text: "Independente", action: "Independente" },
+          ];
+        }
+      } else if (subFluxo === null) {
+        // Questões principais de agropecuária (sim/não)
+        return [
+          { text: "Sim", action: "sim" },
+          { text: "Não", action: "não" },
+        ];
+      }
+
+      // Default para subfluxos sem opções específicas
+      return [];
+    }
+    // Sugestões para o fluxo principal de cadastro
+    else if (modo === "cadastro" && cadastroEtapa >= 0) {
+      switch (cadastroEtapa) {
+        case 1:
+          return [
+            { text: "Física", action: "Física" },
+            { text: "Jurídica", action: "Jurídica" },
+          ];
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+          return [
+            { text: "Sim", action: "sim" },
+            { text: "Não", action: "não" },
+          ];
+        case 14:
+          return [
+            { text: "Masculino", action: "masculino" },
+            { text: "Feminino", action: "feminino" },
+          ];
+        case 18:
+          return [
+            { text: "Analfabeto", action: "analfabeto" },
+            { text: "Fundamental Incompleto", action: "fundamental incompleto" },
+            { text: "Fundamental Completo", action: "fundamental completo" },
+            { text: "Médio Incompleto", action: "médio incompleto" },
+            { text: "Médio Completo", action: "médio completo" },
+            { text: "Superior", action: "superior" },
+          ];
+        default:
+          return [];
+      }
+    } else if (modo === "inicio") {
+      return initialSuggestions;
+    } else if (modo === "resumo") {
+      return [
+        { text: "Confirmar cadastro", action: "confirmar" },
+        { text: "Editar informações", action: "editar" },
+        { text: "Cancelar", action: "cancelar" },
+      ];
+    } else if (modo === "servico") {
+      if (usuarioCadastrado === null) {
+        return [
+          { text: "Sim", action: "sim" },
+          { text: "Não", action: "não" },
+        ];
+      } else if (usuarioCadastrado === true) {
+        if (cadastroRespostas.length < 3) {
+          // Ainda coletando dados básicos do usuário cadastrado
+          return [];
+        } else {
+          // Usuário já identificado
+          return servicosSugestoes;
+        }
+      } else {
+        // Usuário não cadastrado, começando cadastro
+        return [];
+      }
+    }
+
+    return [];
+  };
+
+  const validateField = (etapa: number, resposta: string): boolean => {
+    // Campos que devem ser numéricos no cadastro principal
+    const numericFields = [3, 8, 9];
+    if (numericFields.includes(etapa)) {
+      return !isNaN(Number(resposta));
+    }
+    return true;
+  };
+
+  const addMessage = (text: string, isUser: boolean) => {
+    setMessages((prev) => [
+      ...prev,
+      {
+        text,
+        isUser,
+        timestamp: new Date(),
+      },
+    ]);
+  };
+
+  // Função para processar perguntas específicas de piscicultura
+  const processarRespostaPiscicultura = (resposta: string): string => {
+    const respostaLower = resposta.toLowerCase();
+    let botResponse = "";
+
+    switch (pisciculturaSecao) {
+      case 'empreendedor':
+        // Processar respostas da seção de empreendedor
+        const dadosEmpUpdated = { ...dadosPiscicultura };
+        
+        switch (pisciculturaEtapa) {
+          case 0: // Nome
+            dadosEmpUpdated.empreendedor.nome = resposta;
+            break;
+          case 1: // Endereço
+            dadosEmpUpdated.empreendedor.endereco = resposta;
+            break;
+          case 2: // Travessão
+            dadosEmpUpdated.empreendedor.travessao = resposta;
+            break;
+          case 3: // CPF
+            // Validar CPF
+            const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+            if (!cpfRegex.test(resposta)) {
+              return "CPF em formato inválido. Por favor, use o formato 000.000.000-00";
+            }
+            dadosEmpUpdated.empreendedor.cpf = resposta;
+            break;
+          case 4: // RG
+            dadosEmpUpdated.empreendedor.rg = resposta;
+            break;
+          case 5: // Órgão Emissor
+            dadosEmpUpdated.empreendedor.orgaoEmissor = resposta;
+            break;
+          case 6: // Sexo
+            dadosEmpUpdated.empreendedor.sexo = resposta;
+            break;
+          case 7: // Celular
+            // Validar formato de celular
+            const celularRegex = /^\(\d{2}\)\s\d{5}-\d{4}$/;
+            if (!celularRegex.test(resposta)) {
+              return "Celular em formato inválido. Por favor, use o formato (00) 00000-0000";
+            }
+            dadosEmpUpdated.empreendedor.celular = resposta;
+            break;
+        }
+        
+        setDadosPiscicultura(dadosEmpUpdated);
+        
+        // Avançar para a próxima pergunta ou seção
+        if (pisciculturaEtapa < pisciculturaEmpreendedorQuestions.length - 1) {
+          setPisciculturaEtapa(pisciculturaEtapa + 1);
+          return pisciculturaEmpreendedorQuestions[pisciculturaEtapa + 1];
+        } else {
+          // Avançar para a próxima seção
+          setPisciculturaEtapa(0);
+          setPisciculturaSecao('atividade');
+          return pisciculturaAtividadeQuestions[0];
+        }
+        
+      case 'atividade':
+        // Processar respostas da seção de atividade
+        const dadosAtivUpdated = { ...dadosPiscicultura };
+        
+        switch (pisciculturaEtapa) {
+          case 0: // Atividade desenvolvida
+            dadosAtivUpdated.atividade.descricao = resposta;
+            break;
+          case 1: // Endereço da atividade
+            dadosAtivUpdated.atividade.endereco = resposta;
+            break;
+        }
+        
+        setDadosPiscicultura(dadosAtivUpdated);
+        
+        // Avançar para a próxima pergunta ou passar para a localização
+        if (pisciculturaEtapa < pisciculturaAtividadeQuestions.length - 1) {
+          setPisciculturaEtapa(pisciculturaEtapa + 1);
+          return pisciculturaAtividadeQuestions[pisciculturaEtapa + 1];
+        } else {
+          // Passar para a captura de localização
+          setModo('localizacao');
+          setIsAskingLocation(true);
+          return "Você está na propriedade rural neste momento?";
+        }
+        
+      case 'estrutura':
+        // Processar resposta da estrutura aquícola
+        const dadosEstruturaUpdated = { ...dadosPiscicultura };
+        
+        // Separar as seleções múltiplas por vírgula
+        const estruturas = resposta.split(',').map(e => e.trim());
+        dadosEstruturaUpdated.atividade.estruturaAquicola = estruturas;
+        
+        setDadosPiscicultura(dadosEstruturaUpdated);
+        
+        // Avançar para a seção de obras
+        setPisciculturaSecao('obras');
+        setPisciculturaEtapa(0);
+        return "Quais tipos de obras existem na propriedade? (selecione todas aplicáveis)";
+        
+      case 'obras':
+        // Processar respostas da seção de obras
+        if (pisciculturaEtapa === 0) {
+          // Seleção de tipos de obras
+          if (resposta.toLowerCase() === "nenhuma") {
+            // Se não há obras, pular para a próxima seção (espécies)
+            setPisciculturaSecao('especies');
+            setPisciculturaEtapa(0);
+            return pisciculturaEspeciesQuestions[0];
+          }
+          
+          // Separar as seleções múltiplas por vírgula
+          setObrasSelecionadas(resposta.split(',').map(o => o.trim()));
+          setPisciculturaEtapa(1);
+          
+          // Perguntar detalhes da primeira obra selecionada
+          if (resposta.includes("Canal de Igarapé")) {
+            return pisciculturaObrasQuestions.canalIgarape[0];
+          } else if (resposta.includes("Viveiro Escavado")) {
+            return pisciculturaObrasQuestions.viveiroEscavado[0];
+          } else if (resposta.includes("Barragem")) {
+            return pisciculturaObrasQuestions.barragem[0];
+          } else if (resposta.includes("Viveiro Suspenso")) {
+            return pisciculturaObrasQuestions.viveiroSuspenso[0];
+          }
+        } else {
+          // Processar detalhes das obras conforme o tipo
+          const dadosObrasUpdated = { ...dadosPiscicultura };
+          
+          const obraAtual = obrasSelecionadas[Math.floor((pisciculturaEtapa - 1) / 2)];
+          const isPerguntaArea = (pisciculturaEtapa - 1) % 2 === 0;
+          
+          if (obraAtual.includes("Canal de Igarapé")) {
+            if (!dadosObrasUpdated.obras.canalIgarape) {
+              dadosObrasUpdated.obras.canalIgarape = { area: 0, situacao: "" };
+            }
+            
+            if (isPerguntaArea) {
+              const area = parseFloat(resposta);
+              if (isNaN(area)) {
+                return "Por favor, informe um valor numérico para a área.";
+              }
+              dadosObrasUpdated.obras.canalIgarape.area = area;
+            } else {
+              dadosObrasUpdated.obras.canalIgarape.situacao = resposta;
+            }
+          } else if (obraAtual.includes("Viveiro Escavado")) {
+            if (!dadosObrasUpdated.obras.viveiroEscavado) {
+              dadosObrasUpdated.obras.viveiroEscavado = { area: 0, situacao: "" };
+            }
+            
+            if (isPerguntaArea) {
+              const area = parseFloat(resposta);
+              if (isNaN(area)) {
+                return "Por favor, informe um valor numérico para a área.";
+              }
+              dadosObrasUpdated.obras.viveiroEscavado.area = area;
+            } else {
+              dadosObrasUpdated.obras.viveiroEscavado.situacao = resposta;
+            }
+          } else if (obraAtual.includes("Barragem")) {
+            if (!dadosObrasUpdated.obras.barragem) {
+              dadosObrasUpdated.obras.barragem = { area: 0, situacao: "" };
+            }
+            
+            if (isPerguntaArea) {
+              const area = parseFloat(resposta);
+              if (isNaN(area)) {
+                return "Por favor, informe um valor numérico para a área.";
+              }
+              dadosObrasUpdated.obras.barragem.area = area;
+            } else {
+              dadosObrasUpdated.obras.barragem.situacao = resposta;
+            }
+          } else if (obraAtual.includes("Viveiro Suspenso")) {
+            if (!dadosObrasUpdated.obras.viveiroSuspenso) {
+              dadosObrasUpdated.obras.viveiroSuspenso = { area: 0, situacao: "" };
+            }
+            
+            if (isPerguntaArea) {
+              const area = parseFloat(resposta);
+              if (isNaN(area)) {
+                return "Por favor, informe um valor numérico para a área.";
+              }
+              dadosObrasUpdated.obras.viveiroSuspenso.area = area;
+            } else {
+              dadosObrasUpdated.obras.viveiroSuspenso.situacao = resposta;
+            }
+          }
+          
+          setDadosPiscicultura(dadosObrasUpdated);
+          
+          // Verificar se já processamos todas as obras selecionadas
+          const totalPerguntas = obrasSelecionadas.length * 2;
+          
+          if (pisciculturaEtapa - 1 < totalPerguntas - 1) {
+            // Ainda temos mais perguntas sobre obras
+            setPisciculturaEtapa(pisciculturaEtapa + 1);
+            
+            // Determinar a próxima pergunta
+            const proximaObra = obrasSelecionadas[Math.floor(pisciculturaEtapa / 2)];
+            const proximaPerguntaIndex = pisciculturaEtapa % 2;
+            
+            if (proximaObra.includes("Canal de Igarapé")) {
+              return pisciculturaObrasQuestions.canalIgarape[proximaPerguntaIndex];
+            } else if (proximaObra.includes("Viveiro Escavado")) {
+              return pisciculturaObrasQuestions.viveiroEscavado[proximaPerguntaIndex];
+            } else if (proximaObra.includes("Barragem")) {
+              return pisciculturaObrasQuestions.barragem[proximaPerguntaIndex];
+            } else if (proximaObra.includes("Viveiro Suspenso")) {
+              return pisciculturaObrasQuestions.viveiroSuspenso[proximaPerguntaIndex];
+            }
+          } else {
+            // Avançar para a próxima seção
+            setPisciculturaSecao('especies');
+            setPisciculturaEtapa(0);
+            return pisciculturaEspeciesQuestions[0];
+          }
+        }
+        break;
+        
+      case 'especies':
+        // Processar resposta da seção de espécies
+        if (pisciculturaEtapa === 0) {
+          // Seleção de espécies
+          if (resposta.toLowerCase() === "nenhuma") {
+            // Se não há espécies, pular para a próxima seção
+            setPisciculturaSecao('detalhamento');
+            setPisciculturaEtapa(0);
+            return pisciculturaDetalhamentoQuestions[0];
+          }
+          
+          // Separar as seleções múltiplas por vírgula
+          setEspeciesSelecionadas(resposta.split(',').map(e => e.trim()));
+          setPisciculturaEtapa(1);
+          
+          // Perguntar quantidade da primeira espécie selecionada
+          const primeiraEspecie = resposta.split(',')[0].trim().toLowerCase();
+          if (primeiraEspecie.includes("tambaqui")) {
+            return pisciculturaEspeciesQuantidadeQuestions.tambaqui;
+          } else if (primeiraEspecie.includes("tambatinga")) {
+            return pisciculturaEspeciesQuantidadeQuestions.tambatinga;
+          } else if (primeiraEspecie.includes("matrinxã") || primeiraEspecie.includes("matrinxa")) {
+            return pisciculturaEspeciesQuantidadeQuestions.matrinxa;
+          } else if (primeiraEspecie.includes("curimatã") || primeiraEspecie.includes("curimata")) {
+            return pisciculturaEspeciesQuantidadeQuestions.curimata;
+          } else if (primeiraEspecie.includes("pirarucu")) {
+            return pisciculturaEspeciesQuantidadeQuestions.pirarucu;
+          } else if (primeiraEspecie.includes("tilápia") || primeiraEspecie.includes("tilapia")) {
+            return pisciculturaEspeciesQuantidadeQuestions.tilapia;
+          }
+        } else {
+          // Processar quantidade das espécies
+          const dadosEspeciesUpdated = { ...dadosPiscicultura };
+          
+          const especieAtual = especiesSelecionadas[pisciculturaEtapa - 1].toLowerCase();
+          const quantidade = parseInt(resposta);
+          
+          if (isNaN(quantidade)) {
+            return "Por favor, informe um valor numérico para a quantidade.";
+          }
+          
+          if (especieAtual.includes("tambaqui")) {
+            dadosEspeciesUpdated.especies.tambaqui = quantidade;
+          } else if (especieAtual.includes("tambatinga")) {
+            dadosEspeciesUpdated.especies.tambatinga = quantidade;
+          } else if (especieAtual.includes("matrinxã") || especieAtual.includes("matrinxa")) {
+            dadosEspeciesUpdated.especies.matrinxa = quantidade;
+          } else if (especieAtual.includes("curimatã") || especieAtual.includes("curimata")) {
+            dadosEspeciesUpdated.especies.curimata = quantidade;
+          } else if (especieAtual.includes("pirarucu")) {
+            dadosEspeciesUpdated.especies.pirarucu = quantidade;
+          } else if (especieAtual.includes("tilápia") || especieAtual.includes("tilapia")) {
+            dadosEspeciesUpdated.especies.tilapia = quantidade;
+          }
+          
+          setDadosPiscicultura(dadosEspeciesUpdated);
+          
+          // Verificar se já processamos todas as espécies selecionadas
+          if (pisciculturaEtapa < especiesSelecionadas.length) {
+            // Ainda temos mais perguntas sobre espécies
+            setPisciculturaEtapa(pisciculturaEtapa + 1);
+            
+            // Determinar a próxima pergunta
+            const proximaEspecie = especiesSelecionadas[pisciculturaEtapa].toLowerCase();
+            
+            if (proximaEspecie.includes("tambaqui")) {
+              return pisciculturaEspeciesQuantidadeQuestions.tambaqui;
+            } else if (proximaEspecie.includes("tambatinga")) {
+              return pisciculturaEspeciesQuantidadeQuestions.tambatinga;
+            } else if (proximaEspecie.includes("matrinxã") || proximaEspecie.includes("matrinxa")) {
+              return pisciculturaEspeciesQuantidadeQuestions.matrinxa;
+            } else if (proximaEspecie.includes("curimatã") || proximaEspecie.includes("curimata")) {
+              return pisciculturaEspeciesQuantidadeQuestions.curimata;
+            } else if (proximaEspecie.includes("pirarucu")) {
+              return pisciculturaEspeciesQuantidadeQuestions.pirarucu;
+            } else if (proximaEspecie.includes("tilápia") || proximaEspecie.includes("tilapia")) {
+              return pisciculturaEspeciesQuantidadeQuestions.tilapia;
+            }
+          } else {
+            // Avançar para a próxima seção
+            setPisciculturaSecao('detalhamento');
+            setPisciculturaEtapa(0);
+            return pisciculturaDetalhamentoQuestions[0];
+          }
+        }
+        break;
+        
+      case 'detalhamento':
+        // Processar respostas da seção de detalhamento
+        const dadosDetalheUpdated = { ...dadosPiscicultura };
+        
+        switch (pisciculturaEtapa) {
+          case 0: // Distância da sede
+            const distancia = parseFloat(resposta);
+            if (isNaN(distancia)) {
+              return "Por favor, informe um valor numérico para a distância.";
+            }
+            dadosDetalheUpdated.detalhamento.distanciaSede = distancia;
+            break;
+          case 1: // Referência
+            dadosDetalheUpdated.detalhamento.referencia = resposta;
+            break;
+          case 2: // Situação legal
+            dadosDetalheUpdated.detalhamento.situacaoLegal = resposta;
+            // Se escolheu "Outros", será necessário especificar
+            if (resposta.toLowerCase() === "outros" || resposta.toLowerCase() === "outra") {
+              setPisciculturaEtapa(pisciculturaEtapa + 1);
+              setDadosPiscicultura(dadosDetalheUpdated);
+              return "Por favor, especifique qual a situação legal:";
+            }
+            break;
+          case 3: // Especificação da situação legal (ou área total)
+            if (dadosDetalheUpdated.detalhamento.situacaoLegal.toLowerCase() === "outros" || 
+                dadosDetalheUpdated.detalhamento.situacaoLegal.toLowerCase() === "outra") {
+              // Estamos perguntando sobre a especificação
+              dadosDetalheUpdated.detalhamento.outraSituacao = resposta;
+              break;
+            } else {
+              // Estamos perguntando sobre a área total
+              const area = parseFloat(resposta);
+              if (isNaN(area)) {
+                return "Por favor, informe um valor numérico para a área total.";
+              }
+              dadosDetalheUpdated.detalhamento.areaTotal = area;
+              break;
+            }
+          case 4: // Recursos hídricos ou área total
+            if (dadosDetalheUpdated.detalhamento.situacaoLegal.toLowerCase() === "outros" || 
+                dadosDetalheUpdated.detalhamento.situacaoLegal.toLowerCase() === "outra") {
+              // Estamos perguntando sobre a área total
+              const area = parseFloat(resposta);
+              if (isNaN(area)) {
+                return "Por favor, informe um valor numérico para a área total.";
+              }
+              dadosDetalheUpdated.detalhamento.areaTotal = area;
+            } else {
+              // Estamos perguntando sobre recursos hídricos
+              setRecursosHidricosSelecionados(resposta.split(',').map(r => r.trim()));
+              dadosDetalheUpdated.detalhamento.recursosHidricos.tipo = resposta.split(',').map(r => r.trim());
+              
+              // Se selecionou algum recurso hídrico, perguntar o nome
+              if (resposta.split(',').length > 0 && resposta.toLowerCase() !== "nenhum") {
+                setPisciculturaEtapa(pisciculturaEtapa + 1);
+                setDadosPiscicultura(dadosDetalheUpdated);
+                return "Qual o nome do recurso hídrico? (ex: nome do rio, da nascente, etc.)";
+              }
+            }
+            break;
+          case 5: // Nome do recurso hídrico ou usos múltiplos
+            if (recursosHidricosSelecionados.length > 0 && 
+                !dadosDetalheUpdated.detalhamento.recursosHidricos.nomes[recursosHidricosSelecionados[0]]) {
+              // Estamos perguntando sobre o nome do recurso hídrico
+              dadosDetalheUpdated.detalhamento.recursosHidricos.nomes[recursosHidricosSelecionados[0]] = resposta;
+              
+              // Se houver mais recursos hídricos, perguntar sobre o próximo
+              const recursosProcessados = Object.keys(dadosDetalheUpdated.detalhamento.recursosHidricos.nomes).length;
+              if (recursosProcessados < recursosHidricosSelecionados.length) {
+                setDadosPiscicultura(dadosDetalheUpdated);
+                return `Qual o nome do ${recursosHidricosSelecionados[recursosProcessados]}?`;
+              }
+            } else {
+              // Estamos perguntando sobre usos múltiplos
+              dadosDetalheUpdated.detalhamento.usosAgua = resposta.split(',').map(u => u.trim());
+            }
+            break;
+        }
+        
+        setDadosPiscicultura(dadosDetalheUpdated);
+        
+        // Avançar para a próxima pergunta ou seção
+        if (pisciculturaEtapa < pisciculturaDetalhamentoQuestions.length - 1) {
+          // Verificar se precisamos pular alguma pergunta (por exemplo, se já preenchemos a outra situação)
+          if (pisciculturaEtapa === 2 && 
+              !(resposta.toLowerCase() === "outros" || resposta.toLowerCase() === "outra")) {
+            // Não precisa especificar, pular para área total
+            setPisciculturaEtapa(3);
+          } else {
+            setPisciculturaEtapa(pisciculturaEtapa + 1);
+          }
+          
+          // Se já processamos todos os recursos hídricos, perguntar sobre usos múltiplos
+          if (pisciculturaEtapa === 4 && 
+              Object.keys(dadosDetalheUpdated.detalhamento.recursosHidricos.nomes).length >= recursosHidricosSelecionados.length) {
+            return pisciculturaDetalhamentoQuestions[5];
+          }
+          
+          return pisciculturaDetalhamentoQuestions[pisciculturaEtapa + 1];
+        } else {
+          // Avançar para a próxima seção
+          setPisciculturaSecao('recursos');
+          setPisciculturaEtapa(0);
+          return pisciculturaRecursosQuestions[0];
+        }
+        
+      case 'recursos':
+        // Processar respostas da seção de recursos
+        const dadosRecursosUpdated = { ...dadosPiscicultura };
+        
+        switch (pisciculturaEtapa) {
+          case 0: // Número de empregados
+            const numEmpregados = parseInt(resposta);
+            if (isNaN(numEmpregados)) {
+              return "Por favor, informe um valor numérico para o número de empregados.";
+            }
+            dadosRecursosUpdated.recursos.numEmpregados = numEmpregados;
+            break;
+          case 1: // Número de familiares
+            const numFamiliares = parseInt(resposta);
+            if (isNaN(numFamiliares)) {
+              return "Por favor, informe um valor numérico para o número de familiares.";
+            }
+            dadosRecursosUpdated.recursos.numFamiliares = numFamiliares;
+            break;
+          case 2: // Recursos financeiros
+            dadosRecursosUpdated.recursos.recursosFinanceiros = resposta;
+            // Se escolheu "Financiamento", será necessário especificar a fonte
+            if (resposta.toLowerCase().includes("financiamento")) {
+              setPisciculturaEtapa(pisciculturaEtapa + 1);
+              setDadosPiscicultura(dadosRecursosUpdated);
+              return "Qual a fonte do financiamento?";
+            }
+            break;
+          case 3: // Fonte de financiamento ou assistência técnica
+            if (dadosRecursosUpdated.recursos.recursosFinanceiros.toLowerCase().includes("financiamento")) {
+              // Estamos perguntando sobre a fonte de financiamento
+              dadosRecursosUpdated.recursos.fonteFinanciamento = resposta;
+              break;
+            } else {
+              // Estamos perguntando sobre assistência técnica
+              dadosRecursosUpdated.recursos.assistenciaTecnica = resposta;
+              break;
+            }
+        }
+        
+        setDadosPiscicultura(dadosRecursosUpdated);
+        
+        // Avançar para a próxima pergunta ou seção
+        if (pisciculturaEtapa < pisciculturaRecursosQuestions.length - 1) {
+          // Verificar se precisamos pular alguma pergunta
+          if (pisciculturaEtapa === 2 && 
+              !dadosRecursosUpdated.recursos.recursosFinanceiros.toLowerCase().includes("financiamento")) {
+            // Não tem financiamento, pular para assistência técnica
+            setPisciculturaEtapa(3);
+          } else {
+            setPisciculturaEtapa(pisciculturaEtapa + 1);
+          }
+          
+          return pisciculturaRecursosQuestions[pisciculturaEtapa + 1];
+        } else {
+          // Avançar para a seção de observações
+          setPisciculturaSecao('observacoes');
+          setPisciculturaEtapa(0);
+          return "Deseja adicionar alguma observação sobre seu empreendimento? (opcional)";
+        }
+        
+      case 'observacoes':
+        // Processar observações finais
+        const dadosObservacoesUpdated = { ...dadosPiscicultura };
+        dadosObservacoesUpdated.observacoes = resposta;
+        setDadosPiscicultura(dadosObservacoesUpdated);
+        
+        // Finalizar o cadastro e mostrar resumo
+        setModo('resumo');
+        return gerarResumoPiscicultura();
+    }
+    
+    return botResponse || "Desculpe, houve um erro ao processar sua resposta.";
+  };
+
+  // Função para gerar resumo dos dados de piscicultura
+  const gerarResumoPiscicultura = (): string => {
+    const dados = dadosPiscicultura;
+    
+    let resumo = `RESUMO DO CADASTRO DE PISCICULTURA\n\n`;
+    
+    resumo += `DADOS DO EMPREENDEDOR:\n`;
+    resumo += `- Nome: ${dados.empreendedor.nome}\n`;
+    resumo += `- CPF: ${dados.empreendedor.cpf}\n`;
+    resumo += `- RG: ${dados.empreendedor.rg} ${dados.empreendedor.orgaoEmissor}\n`;
+    resumo += `- Telefone: ${dados.empreendedor.celular}\n`;
+    resumo += `- Endereço: ${dados.empreendedor.endereco}\n`;
+    
+    resumo += `\nDADOS DA ATIVIDADE:\n`;
+    resumo += `- Atividade: ${dados.atividade.descricao}\n`;
+    resumo += `- Endereço: ${dados.atividade.endereco}\n`;
+    
+    if (dados.atividade.coordenadas) {
+      resumo += `- Localização: Lat ${dados.atividade.coordenadas.latitude.toFixed(6)}, Long ${dados.atividade.coordenadas.longitude.toFixed(6)}\n`;
+    }
+    
+    if (dados.atividade.estruturaAquicola.length > 0) {
+      resumo += `- Estruturas aquícolas: ${dados.atividade.estruturaAquicola.join(", ")}\n`;
+    }
+    
+    // Adicionar informações sobre obras
+    resumo += `\nOBRAS:\n`;
+    if (dados.obras.canalIgarape) {
+      resumo += `- Canal de Igarapé: ${dados.obras.canalIgarape.area} m², ${dados.obras.canalIgarape.situacao}\n`;
+    }
+    if (dados.obras.viveiroEscavado) {
+      resumo += `- Viveiro Escavado: ${dados.obras.viveiroEscavado.area} ha, ${dados.obras.viveiroEscavado.situacao}\n`;
+    }
+    if (dados.obras.barragem) {
+      resumo += `- Barragem: ${dados.obras.barragem.area} m², ${dados.obras.barragem.situacao}\n`;
+    }
+    if (dados.obras.viveiroSuspenso) {
+      resumo += `- Viveiro Suspenso: ${dados.obras.viveiroSuspenso.area} m², ${dados.obras.viveiroSuspenso.situacao}\n`;
+    }
+    if (!dados.obras.canalIgarape && !dados.obras.viveiroEscavado && 
+        !dados.obras.barragem && !dados.obras.viveiroSuspenso) {
+      resumo += `- Nenhuma obra registrada\n`;
+    }
+    
+    // Adicionar informações sobre espécies
+    resumo += `\nESPÉCIES:\n`;
+    if (dados.especies.tambaqui) resumo += `- Tambaqui: ${dados.especies.tambaqui} unidades\n`;
+    if (dados.especies.tambatinga) resumo += `- Tambatinga: ${dados.especies.tambatinga} unidades\n`;
+    if (dados.especies.matrinxa) resumo += `- Matrinxã: ${dados.especies.matrinxa} unidades\n`;
+    if (dados.especies.curimata) resumo += `- Curimatã: ${dados.especies.curimata} unidades\n`;
+    if (dados.especies.pirarucu) resumo += `- Pirarucu: ${dados.especies.pirarucu} unidades\n`;
+    if (dados.especies.tilapia) resumo += `- Tilápia: ${dados.especies.tilapia} unidades\n`;
+    if (!dados.especies.tambaqui && !dados.especies.tambatinga && 
+        !dados.especies.matrinxa && !dados.especies.curimata && 
+        !dados.especies.pirarucu && !dados.especies.tilapia) {
+      resumo += `- Nenhuma espécie registrada\n`;
+    }
+    
+    // Adicionar informações de detalhamento
+    resumo += `\nDETALHAMENTO:\n`;
+    resumo += `- Distância da sede: ${dados.detalhamento.distanciaSede} Km\n`;
+    resumo += `- Área total: ${dados.detalhamento.areaTotal} ha\n`;
+    resumo += `- Situação legal: ${dados.detalhamento.situacaoLegal}`;
+    if (dados.detalhamento.outraSituacao) {
+      resumo += ` (${dados.detalhamento.outraSituacao})`;
+    }
+    resumo += `\n`;
+    
+    if (dados.detalhamento.recursosHidricos.tipo.length > 0) {
+      resumo += `- Recursos hídricos: ${dados.detalhamento.recursosHidricos.tipo.join(", ")}\n`;
+    }
+    
+    if (dados.detalhamento.usosAgua.length > 0) {
+      resumo += `- Usos da água: ${dados.detalhamento.usosAgua.join(", ")}\n`;
+    }
+    
+    // Adicionar informações de recursos
+    resumo += `\nRECURSOS:\n`;
+    resumo += `- Empregados: ${dados.recursos.numEmpregados}\n`;
+    resumo += `- Familiares trabalhando: ${dados.recursos.numFamiliares}\n`;
+    resumo += `- Recursos financeiros: ${dados.recursos.recursosFinanceiros}`;
+    if (dados.recursos.fonteFinanciamento) {
+      resumo += ` (${dados.recursos.fonteFinanciamento})`;
+    }
+    resumo += `\n`;
+    resumo += `- Assistência técnica: ${dados.recursos.assistenciaTecnica}\n`;
+    
+    // Adicionar observações
+    if (dados.observacoes) {
+      resumo += `\nOBSERVAÇÕES:\n${dados.observacoes}\n`;
+    }
+    
+    resumo += "\nPor favor, confirme se as informações estão corretas.";
+    
+    return resumo;
+  };
+
+  // Função para processar resposta relacionada à localização
+  const processarRespostaLocalizacao = (resposta: string): string => {
+    const respostaLower = resposta.toLowerCase();
+    
+    if (isAskingLocation) {
+      setIsAskingLocation(false);
+      
+      if (respostaLower === "sim") {
+        // Usuário está na propriedade, capturar localização com mapa
+        getUserLocationWithMap();
+        return "Solicitando acesso à sua localização...";
+      } else {
+        // Usuário não está na propriedade
+        addMessage("Você tem as coordenadas geográficas do imóvel (latitude/longitude)?", false);
+        setSuggestions([
+          { text: "Sim, tenho", action: "sim" },
+          { text: "Não tenho", action: "nao" }
+        ]);
+        return "";
+      }
+    } else if (respostaLower === "obter") {
+      // Usuário quer obter localização atual
+      getUserLocationWithMap();
+      return "Solicitando acesso à sua localização...";
+    } else if (respostaLower === "ajustar") {
+      // Usuário quer ajustar localização no mapa
+      setShowMap(true);
+      return "Arraste o marcador no mapa para ajustar a localização precisa da propriedade.";
+    } else if (userLocation !== null) {
+      // Já temos a localização, verificando se o usuário confirma
+      if (respostaLower.includes("confirmar") || respostaLower === "sim") {
+        // Usuário confirmou a localização capturada
+        const { latitude, longitude } = userLocation;
+        setShowMap(false); // Esconder o mapa após confirmação
+        
+        // Determinar próxima ação com base no modo atual
+        if (modo === 'piscicultura') {
+          // Salvar a localização nos dados de piscicultura
+          const novosDados = { ...dadosPiscicultura };
+          novosDados.atividade.coordenadas = {
+            latitude,
+            longitude
+          };
+          setDadosPiscicultura(novosDados);
+          
+          // Continuar para a próxima seção de piscicultura
+          setModo('piscicultura');
+          setPisciculturaSecao('estrutura');
+          setPisciculturaEtapa(0);
+          return pisciculturaEstruturaQuestions[0];
+        } else {
+          // Para o fluxo de cadastro regular
+          let novasRespostas = [...cadastroRespostas];
+          if (novasRespostas.length <= 8) {
+            novasRespostas.push(latitude.toString()); // Coordenada S
+          } else {
+            novasRespostas[8] = latitude.toString();
+          }
+          if (novasRespostas.length <= 9) {
+            novasRespostas.push(longitude.toString()); // Coordenada W
+          } else {
+            novasRespostas[9] = longitude.toString();
+          }
+          setCadastroRespostas(novasRespostas);
+          
+          // Avançar para a próxima pergunta após as coordenadas
+          setCadastroEtapa(10);
+          setModo('cadastro');
+          return cadastroFluxo[10];
+        }
+      } else if (respostaLower.includes("manual")) {
+        // Usuário quer inserir manualmente
+        setUserLocation(null);
+        setShowMap(false);
+        
+        // Redirecionar com base no modo atual
+        if (modo === 'piscicultura') {
+          addMessage("Por favor, informe a coordenada de latitude (S):", false);
+        } else {
+          return "Por favor, informe a coordenada S (latitude) do imóvel:";
+        }
+      }
+    } else if (respostaLower.includes("pular") || respostaLower === "nao") {
+      // Usuário quer pular as perguntas de coordenadas
+      setShowMap(false);
+      
+      // Determinar o próximo passo com base no modo atual
+      if (modo === 'piscicultura') {
+        // Continuar para a próxima seção sem coordenadas
+        setModo('piscicultura');
+        setPisciculturaSecao('estrutura');
+        setPisciculturaEtapa(0);
+        return pisciculturaEstruturaQuestions[0];
+      } else {
+        // Para o fluxo de cadastro regular
+        setSkipLocationQuestions(true);
+        
+        // Adicionar valores vazios para as coordenadas
+        let novasRespostas = [...cadastroRespostas];
+        if (novasRespostas.length <= 8) {
+          novasRespostas.push(""); // Coordenada S
+        }
+        if (novasRespostas.length <= 9) {
+          novasRespostas.push(""); // Coordenada W
+        }
+        setCadastroRespostas(novasRespostas);
+        
+        // Avançar para a próxima pergunta após as coordenadas
+        setCadastroEtapa(10);
+        setModo('cadastro');
+        return cadastroFluxo[10];
+      }
+    } else if (respostaLower === "tentar novamente") {
+      // Usuário quer tentar novamente a geolocalização
+      getUserLocationWithMap();
+      return "Tentando obter sua localização novamente...";
+    } else if (respostaLower === "prosseguir") {
+      // Usuário quer prosseguir sem localização após erro
+      setShowMap(false);
+      
+      // Determinar o próximo passo com base no modo atual
+      if (modo === 'piscicultura') {
+        // Continuar para a próxima seção sem coordenadas
+        setModo('piscicultura');
+        setPisciculturaSecao('estrutura');
+        setPisciculturaEtapa(0);
+        return pisciculturaEstruturaQuestions[0];
+      } else {
+        // Para o fluxo de cadastro regular
+        setSkipLocationQuestions(true);
+        
+        // Adicionar valores vazios para as coordenadas
+        let novasRespostas = [...cadastroRespostas];
+        if (novasRespostas.length <= 8) {
+          novasRespostas.push(""); // Coordenada S
+        }
+        if (novasRespostas.length <= 9) {
+          novasRespostas.push(""); // Coordenada W
+        }
+        setCadastroRespostas(novasRespostas);
+        
+        // Avançar para a próxima pergunta após as coordenadas
+        setCadastroEtapa(10);
+        setModo('cadastro');
+        return cadastroFluxo[10];
+      }
+    } 
+    // Coordenada manual de latitude (S)
+    else if (userLocation === null && !isAskingLocation) {
+      const latitude = parseFloat(resposta);
+      if (isNaN(latitude)) {
+        return "Por favor, informe um valor numérico válido para a latitude.";
+      }
+      
+      setUserLocation({ latitude, longitude: 0 });
+      
+      if (modo === 'piscicultura') {
+        addMessage("Agora, informe a coordenada de longitude (W):", false);
+      } else {
+        return "Agora, informe a coordenada W (longitude) do imóvel:";
+      }
+    } 
+    // Coordenada manual de longitude (W)
+    else if (userLocation !== null && userLocation.longitude === 0) {
+      const longitude = parseFloat(resposta);
+      if (isNaN(longitude)) {
+        return "Por favor, informe um valor numérico válido para a longitude.";
+      }
+      
+      const updatedLocation = { ...userLocation, longitude };
+      setUserLocation(updatedLocation);
+      setShowMap(true); // Mostrar o mapa com as coordenadas informadas
+      
+      return `Coordenadas registradas: Latitude ${updatedLocation.latitude.toFixed(6)}, Longitude ${longitude.toFixed(6)}. Verifique no mapa se a localização está correta.`;
+    }
+    
+    return "Por favor, escolha se deseja obter sua localização atual, inserir manualmente ou pular esta etapa.";
+  };
+
+  // Processar respostas para módulo específico de agropecuária
+  const processarRespostaAgropecuaria = (resposta: string): string => {
+    // ... código anterior
+    return "Módulo agropecuário está sendo processado";
+  };
+
+  // Salvar dados no Firebase
+  const salvarCadastroNoFirebase = async () => {
+    try {
+      // Montar objeto com dados da propriedade e proprietário
+      const dadosPropriedade = {
+        nome: cadastroRespostas[0] || "",
+        tipo: cadastroRespostas[1] || "",
+        endereco: cadastroRespostas[2] || "",
+        tamanho: parseFloat(cadastroRespostas[3]) || 0,
+        escriturada: cadastroRespostas[4] || "",
+        dapCaf: cadastroRespostas[5] || "",
+        car: cadastroRespostas[6] || "",
+        financiamento: cadastroRespostas[7] || "",
+        coordenadas: {
+          s: cadastroRespostas[8] || "",
+          w: cadastroRespostas[9] || "",
+        },
+      };
+
+      const dadosProprietario = {
+        nome: cadastroRespostas[10] || "",
+        cpf: cadastroRespostas[11] || "",
+        rg: cadastroRespostas[12] || "",
+        emissor: cadastroRespostas[13] || "",
+        sexo: cadastroRespostas[14] || "",
+        nascimento: cadastroRespostas[15] || "",
+        naturalidade: cadastroRespostas[16] || "",
+        mae: cadastroRespostas[17] || "",
+        escolaridade: cadastroRespostas[18] || "",
+        telefone: cadastroRespostas[19] || "",
+        associacao: cadastroRespostas[20] || "",
+      };
+
+      // Combinar todos os dados
+      const dadosCompletos = {
+        propriedade: dadosPropriedade,
+        proprietario: dadosProprietario,
+        dadosAgropecuarios: dadosAgropecuarios,
+        solicitacao: solicitacao,
+        timestamp: serverTimestamp(),
+        status: "pendente",
+        origem: "chatbot",
+      };
+
+      // Salvar no Firebase
+      await addDoc(collection(db, "cadastros_produtores"), dadosCompletos);
+      console.log("Cadastro do produtor salvo com sucesso!");
+      return true;
+    } catch (error) {
+      console.error("Erro ao salvar cadastro:", error);
+      return false;
+    }
+  };
+
+  // Salvar cadastro de piscicultura no Firebase
+  const salvarPisciculturaNoFirebase = async () => {
+    try {
+      // Salvar no Firebase
+      await addDoc(collection(db, "cadastros_piscicultura"), {
+        ...dadosPiscicultura,
+        solicitacao: solicitacao,
+        timestamp: serverTimestamp(),
+        status: "pendente",
+        origem: "chatbot"
+      });
+      console.log("Cadastro de piscicultura salvo com sucesso!");
+      return true;
+    } catch (error) {
+      console.error("Erro ao salvar cadastro de piscicultura:", error);
+      return false;
+    }
+  };
+
+  // Processar mensagem do usuário
+  const processUserMessage = async (userMessage: string) => {
+    setIsLoading(true);
+
+    // Adiciona mensagem do usuário
+    addMessage(userMessage, true);
+
+    // Processa resposta
+    let botResponse = "";
+
+    // Modo solicitação - recebe a solicitação final e finaliza o processo
+    if (modo === "solicitacao") {
+      setSolicitacao(userMessage);
+      
+      // Determinar o tipo de cadastro para salvar
+      if (pisciculturaSecao !== 'empreendedor') {
+        // Se estávamos no modo piscicultura, salvar dados de piscicultura
+        await salvarPisciculturaNoFirebase();
+      } else {
+        // Caso contrário, salvar cadastro regular
+        await salvarCadastroNoFirebase();
+      }
+      
+      botResponse = "Sua solicitação de " + userMessage + " foi registrada com sucesso! Um técnico responsável pelo setor entrará em contato em breve para atender sua solicitação. Obrigado por utilizar nosso serviço!";
+      
+      // Reiniciar para o estado inicial
+      setCadastroEtapa(-1);
+      setCadastroRespostas([]);
+      setModo("inicio");
+      setSuggestions(initialSuggestions);
+      setPisciculturaEtapa(0);
+      setPisciculturaSecao('empreendedor');
+      setUserLocation(null);
+      setShowMap(false);
+      setDadosAgropecuarios({
+        cacau: { cultiva: false },
+        frutiferas: { cultiva: false },
+        lavourasAnuais: { cultiva: false },
+        mandioca: { produz: false },
+        arrozFeijao: { produz: false },
+        hortalicas: { produz: false },
+        tuberosas: { produz: false },
+        bovinos: { cria: false },
+        caprinosOvinos: { cria: false },
+        suinos: { cria: false },
+        aves: { cria: false },
+      });
+      setDadosPiscicultura({
+        empreendedor: {
+          nome: "",
+          endereco: "",
+          travessao: "",
+          cpf: "",
+          rg: "",
+          orgaoEmissor: "",
+          sexo: "",
+          celular: "",
+        },
+        atividade: {
+          descricao: "",
+          endereco: "",
+          estruturaAquicola: [],
+        },
+        obras: {},
+        especies: {},
+        detalhamento: {
+          distanciaSede: 0,
+          referencia: "",
+          situacaoLegal: "",
+          areaTotal: 0,
+          recursosHidricos: {
+            tipo: [],
+            nomes: {},
+          },
+          usosAgua: [],
+        },
+        recursos: {
+          numEmpregados: 0,
+          numFamiliares: 0,
+          recursosFinanceiros: "",
+          assistenciaTecnica: "",
+        },
+      });
+    }
+    // Modo localização - processamento específico para a geolocalização
+    else if (modo === "localizacao") {
+      botResponse = processarRespostaLocalizacao(userMessage);
+      
+      // Se já enviou uma mensagem no processamento, não enviar outra
+      if (!botResponse) {
+        setIsLoading(false);
+        return;
+      }
+    }
+    // Modo piscicultura - processamento do cadastro de piscicultura
+    else if (modo === "piscicultura") {
+      botResponse = processarRespostaPiscicultura(userMessage);
+    }
+    // Modo agropecuária - processamento específico
+    else if (modo === "agropecuaria") {
+      botResponse = processarRespostaAgropecuaria(userMessage);
+    }
+    // Modo resumo para confirmação final
+    else if (modo === "resumo") {
+      // Palavras que indicam confirmação
+      const palavrasConfirmacao = [
+        "confirmar",
+        "confirmo",
+        "sim",
+        "ok",
+        "certo",
+        "correto",
+        "está correto",
+        "confirma",
+      ];
+
+      if (
+        palavrasConfirmacao.some((palavra) =>
+          userMessage.toLowerCase().includes(palavra)
+        )
+      ) {
+        // Passar para o modo de solicitação
+        setModo("solicitacao");
+        botResponse =
+          "Agora, por favor, descreva qual serviço ou assistência você está buscando da Secretaria de Agricultura:";
+        setSuggestions(servicosSugestoes);
+      } else if (userMessage.toLowerCase().includes("editar")) {
+        botResponse = "Qual informação você gostaria de editar?";
+        // Aqui implementaríamos a lógica de edição
+        botResponse =
+          "Recurso de edição em desenvolvimento. Por favor, reinicie o cadastro se precisar corrigir informações.";
+      } else if (userMessage.toLowerCase().includes("cancelar")) {
+        botResponse = "Cadastro cancelado. Como posso ajudar você hoje?";
+        setCadastroEtapa(-1);
+        setCadastroRespostas([]);
+        setModo("inicio");
+        setPisciculturaEtapa(0);
+        setPisciculturaSecao('empreendedor');
+        setUserLocation(null);
+        setShowMap(false);
+        setSuggestions(initialSuggestions);
+      } else {
+        // Se a resposta não for reconhecida, pedir novamente
+        botResponse =
+          "Por favor, confirme se os dados estão corretos digitando 'Confirmar', ou 'Cancelar' para recomeçar.";
+      }
+    }
+    // Modo serviço para informações sobre serviços
+    else if (modo === "servico") {
+      // Se ainda não verificamos se o usuário já é cadastrado
+      if (usuarioCadastrado === null) {
+        // Verificar se usuário já tem cadastro
+        setUsuarioCadastrado(userMessage.toLowerCase().includes("sim"));
+
+        if (userMessage.toLowerCase().includes("sim")) {
+          botResponse = "Por favor, informe seu nome completo:";
+        } else {
+          // Usuário não tem cadastro, iniciar processo completo
+          setModo("cadastro");
+          setCadastroEtapa(0);
+          botResponse = cadastroFluxo[0];
+        }
+      }
+      // Se o usuário é cadastrado, coletar informações básicas
+      else if (usuarioCadastrado) {
+        if (cadastroRespostas.length === 0) {
+          // Coletar nome
+          setCadastroRespostas([...cadastroRespostas, userMessage]);
+          botResponse = "Agora, por favor, digite seu CPF:";
+        } else if (cadastroRespostas.length === 1) {
+          // Coletar CPF
+          setCadastroRespostas([...cadastroRespostas, userMessage]);
+          botResponse = "Qual o nome da sua propriedade?";
+        } else if (cadastroRespostas.length === 2) {
+          // Coletar nome da propriedade
+          setCadastroRespostas([...cadastroRespostas, userMessage]);
+          // Simular busca no banco (em uma versão real, verificaríamos o cadastro)
+          botResponse =
+            "Encontramos seu cadastro no sistema. Qual serviço você precisa hoje?";
+          setSuggestions(servicosSugestoes);
+        } else {
+          // Já coletamos as informações básicas, considerar como uma solicitação
+          setSolicitacao(userMessage);
+          // Criar dados mínimos necessários para registro
+          const dadosProprietario = {
+            nome: cadastroRespostas[0] || "",
+            cpf: cadastroRespostas[1] || "",
+          };
+          const dadosPropriedade = {
+            nome: cadastroRespostas[2] || "",
+          };
+
+          // Salvar solicitação no Firebase
+          try {
+            await addDoc(collection(db, "solicitacoes_servicos"), {
+              proprietario: dadosProprietario,
+              propriedade: dadosPropriedade,
+              solicitacao: userMessage,
+              timestamp: serverTimestamp(),
+              status: "pendente",
+              origem: "chatbot",
+            });
+            botResponse =
+              "Sua solicitação de " +
+              userMessage +
+              " foi registrada com sucesso! Um técnico responsável pelo setor entrará em contato em breve para atender sua solicitação. Obrigado por utilizar nosso serviço!";
+          } catch (error) {
+            console.error("Erro ao salvar solicitação:", error);
+            botResponse =
+              "Desculpe, houve um problema ao processar sua solicitação. Por favor, tente novamente mais tarde ou entre em contato diretamente com a Secretaria.";
+          }
+
+          // Reiniciar para o estado inicial
+          setModo("inicio");
+          setCadastroRespostas([]);
+          setSuggestions(initialSuggestions);
+        }
+      }
+    }
+    // Modo cadastro principal
+    else if (cadastroEtapa >= 0) {
+      if (!validateField(cadastroEtapa, userMessage)) {
+        botResponse = "Por favor, insira um valor válido.";
+      } else {
+        const novasRespostas = [...cadastroRespostas, userMessage];
+        setCadastroRespostas(novasRespostas);
+
+        // Verificar se estamos no ponto de perguntar sobre localização
+        if (cadastroEtapa === 7) {
+          // Após a pergunta de financiamento
+          setModo("localizacao");
+          setIsAskingLocation(true);
+          botResponse = "Você está na propriedade rural neste momento?";
+        }
+        // Verificar se devemos pular as perguntas de coordenadas
+        else if (
+          skipLocationQuestions &&
+          (cadastroEtapa === 8 || cadastroEtapa === 9)
+        ) {
+          // Pular perguntas de coordenadas
+          setCadastroEtapa(10);
+          botResponse = cadastroFluxo[10];
+        }
+        // Próxima etapa ou finalizar cadastro principal
+        else if (cadastroEtapa + 1 >= cadastroFluxo.length) {
+          // Passar para o módulo de dados agropecuários
+          setModo("agropecuaria");
+          setIndexQuestaoAgropecuaria(0);
+          botResponse = principaisQuestoesAgropecuarias[0];
+        } else {
+          // Próxima pergunta normal do cadastro principal
+          setCadastroEtapa((prev) => prev + 1);
+          botResponse = cadastroFluxo[cadastroEtapa + 1];
+        }
+      }
+    }
+    // Modo cadastro inicial (verificando se já está cadastrado)
+    else if (modo === "cadastro") {
+      if (usuarioCadastrado === null) {
+        setUsuarioCadastrado(userMessage.toLowerCase().includes("sim"));
+        if (userMessage.toLowerCase().includes("sim")) {
+          botResponse = "Por favor, informe seu nome completo:";
+        } else {
+          setCadastroEtapa(0);
+          botResponse = cadastroFluxo[0];
+        }
+      } else if (usuarioCadastrado) {
+        if (cadastroRespostas.length === 0) {
+          setCadastroRespostas([...cadastroRespostas, userMessage]);
+          botResponse = "Agora, por favor, digite seu CPF:";
+        } else if (cadastroRespostas.length === 1) {
+          const cpf = userMessage;
+          setCadastroRespostas([...cadastroRespostas, cpf]);
+          botResponse = "Qual o nome da sua propriedade?";
+        } else if (cadastroRespostas.length === 2) {
+          setCadastroRespostas([...cadastroRespostas, userMessage]);
+          setModo("solicitacao");
+          botResponse = "Encontramos seu cadastro. Qual serviço você precisa hoje?";
+          setSuggestions(servicosSugestoes);
+        }
+      }
+    }
+    // Modo início (menu principal)
+    else {
+      if (userMessage.toLowerCase().includes("cadastro") && 
+          !userMessage.toLowerCase().includes("piscicultura")) {
+        setModo("cadastro");
+        setUsuarioCadastrado(null);
+        botResponse = "Você já possui cadastro em nossa secretaria? (sim/não)";
+        setSuggestions([
+          { text: "Sim", action: "sim" },
+          { text: "Não", action: "não" },
+        ]);
+      } else if (
+        userMessage.toLowerCase().includes("piscicultura") || 
+        userMessage.toLowerCase().includes("pesca") ||
+        userMessage.toLowerCase().includes("aquicultura")
+      ) {
+        setModo("piscicultura");
+        setPisciculturaEtapa(0);
+        setPisciculturaSecao('empreendedor');
+        botResponse = "Vamos iniciar seu cadastro para o setor de Piscicultura. " + 
+                      pisciculturaEmpreendedorQuestions[0];
+      } else if (
+        userMessage.toLowerCase().includes("agricultura") ||
+        userMessage.toLowerCase().includes("paa")
+      ) {
+        setModo("servico");
+        setServicoAtual(userMessage);
+
+        botResponse = "Você já possui cadastro em nossa secretaria? (sim/não)";
+        setSuggestions([
+          { text: "Sim", action: "sim" },
+          { text: "Não", action: "não" },
+        ]);
+      } else {
+        // Resposta genérica para outras mensagens
+        botResponse = "Como posso ajudar você? Você pode escolher uma das opções abaixo ou perguntar sobre agricultura, pesca, piscicultura ou o Programa de Aquisição de Alimentos (PAA).";
+      }
+    }
+
+    // Adiciona resposta do bot
+    addMessage(botResponse, false);
+    setIsLoading(false);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    processUserMessage(input);
+    setInput("");
+  };
+
+  const handleSuggestionClick = (suggestion: SuggestionButton) => {
+    const text = suggestion.text;
+    processUserMessage(text);
+    setInput(""); // Limpar o campo de input após clicar no botão de sugestão
+  };
+
+  const voltarAoInicio = () => {
+    setModo("inicio");
+    setCadastroEtapa(-1);
+    setCadastroRespostas([]);
+    setSubFluxo(null);
+    setSubFluxoEtapa(0);
+    setIndexQuestaoAgropecuaria(0);
+    setPisciculturaEtapa(0);
+    setPisciculturaSecao('empreendedor');
+    setUserLocation(null);
+    setShowMap(false);
+    setSuggestions(initialSuggestions);
+    addMessage("Como posso ajudar você hoje?", false);
+  };
+
+  return (
+    <div className="fixed bottom-4 right-4 z-50">
+      {!isOpen ? (
+        <Button
+          onClick={() => setIsOpen(true)}
+          className="rounded-full w-14 h-14 bg-green-600 hover:bg-green-700 text-white shadow-lg"
+        >
+          <MessageCircle size={24} />
+        </Button>
+      ) : (
+        <Card className="w-80 sm:w-96 shadow-xl flex flex-col" style={{maxHeight: '80vh'}}>
+          <div className="bg-green-600 text-white p-3 flex justify-between items-center rounded-t-lg">
+            <div className="flex items-center gap-2">
+              {(modo !== "inicio" || subFluxo) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={voltarAoInicio}
+                  className="h-8 w-8 p-0 text-white hover:bg-green-700"
+                >
+                  <ArrowLeft size={16} />
+                </Button>
+              )}
+              <h3 className="font-medium">Assistente Virtual</h3>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsOpen(false)}
+              className="text-white hover:bg-green-700"
+            >
+              <X size={20} />
+            </Button>
+          </div>
+
+          {/* Indicador de progresso */}
+          {modo === 'piscicultura' && (
+            <div className="px-3 py-1 bg-green-100 text-green-800 text-xs border-b border-green-200">
+              {pisciculturaSecao === 'empreendedor' && 
+                `Empreendedor - Pergunta ${pisciculturaEtapa + 1} de ${pisciculturaEmpreendedorQuestions.length}`}
+              {pisciculturaSecao === 'atividade' && 
+                `Atividade - Pergunta ${pisciculturaEtapa + 1} de ${pisciculturaAtividadeQuestions.length}`}
+              {pisciculturaSecao === 'estrutura' && 
+                `Estrutura - Pergunta 1 de 1`}
+              {pisciculturaSecao === 'obras' && 
+                `Obras - Detalhes`}
+              {pisciculturaSecao === 'especies' && 
+                `Espécies`}
+              {pisciculturaSecao === 'detalhamento' && 
+                `Detalhamento - Pergunta ${pisciculturaEtapa + 1} de ${pisciculturaDetalhamentoQuestions.length}`}
+              {pisciculturaSecao === 'recursos' && 
+                `Recursos - Pergunta ${pisciculturaEtapa + 1} de ${pisciculturaRecursosQuestions.length}`}
+              {pisciculturaSecao === 'observacoes' && 
+                `Observações`}
+            </div>
+          )}
+
+          <CardContent className="p-0 flex flex-col h-[500px] relative">
+            <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
+              {messages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`mb-4 flex ${
+                    msg.isUser ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  <div
+                    className={`p-3 rounded-lg max-w-[85%] ${
+                      msg.isUser
+                        ? "bg-green-600 text-white rounded-tr-none"
+                        : "bg-gray-100 text-gray-800 rounded-tl-none"
+                    }`}
+                  >
+                    {msg.text.split("\n").map((line, i) => (
+                      <React.Fragment key={i}>
+                        {line}
+                        {i < msg.text.split("\n").length - 1 && <br />}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              {/* Exibir o mapa quando showMap for true e userLocation existir */}
+              {showMap && userLocation && (
+                <div className="w-full my-2">
+                  <LocationMap
+                    latitude={userLocation.latitude}
+                    longitude={userLocation.longitude}
+                    onLocationChange={handleLocationChange}
+                    editable={true}
+                  />
+                </div>
+              )}
+
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="p-3 rounded-lg bg-gray-100 text-gray-800 rounded-tl-none">
+                    <div className="flex space-x-2">
+                      <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"></div>
+                      <div
+                        className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.2s" }}
+                      ></div>
+                      <div
+                        className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.4s" }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Botão de geolocalização */}
+            {modo === "localizacao" && !isAskingLocation && !showMap && (
+              <div className="sticky bottom-[110px] flex justify-center">
+                <Button
+                  onClick={getUserLocationWithMap}
+                  className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
+                  disabled={isLoading}
+                >
+                  <MapPin size={16} />
+                  Obter minha localização
+                </Button>
+              </div>
+            )}
+
+            {suggestions.length > 0 && (
+              <div className="sticky bottom-[60px] p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10">
+                {suggestions.map((suggestion, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs bg-white hover:bg-green-50 border-green-200 text-green-800"
+                    onClick={() => handleSuggestionClick(suggestion)}
+                  >
+                    {suggestion.text}
+                  </Button>
+                ))}
+              </div>
+            )}
+
+            <form
+              onSubmit={handleSubmit}
+              className="p-3 border-t flex items-center"
+            >
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Digite sua mensagem..."
+                className="flex-1"
+                disabled={isLoading}
+              />
+              <Button
+                type="submit"
+                size="icon"
+                className="ml-2 bg-green-600 hover:bg-green-700"
+                disabled={isLoading || !input.trim()}
+              >
+                <Send size={20} />
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+};
+
+export default ChatbotWidget;
