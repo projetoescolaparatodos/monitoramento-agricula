@@ -517,6 +517,41 @@ const ChatbotWidget: React.FC = () => {
     // Atualizar sugestões imediatamente após mudar de modo ou etapa
     setSuggestions(getContextualSuggestions());
   }, [modo, cadastroEtapa, subFluxo, subFluxoEtapa, usuarioCadastrado]);
+  
+  // Novo useEffect para monitorar mudanças na geolocalização
+  useEffect(() => {
+    // Se estamos em modo de localização e acabamos de obter as coordenadas
+    if (modo === 'localizacao' && userLocation !== null && !isAskingLocation) {
+      if (pisciculturaSecao === 'atividade') {
+        // Salvar a localização nos dados de piscicultura
+        const novosDados = { ...dadosPiscicultura };
+        novosDados.atividade.coordenadas = {
+          latitude: userLocation.latitude,
+          longitude: userLocation.longitude
+        };
+        setDadosPiscicultura(novosDados);
+        
+        // Mostrar as coordenadas obtidas
+        const locationMsg = `Obtive sua localização: Latitude ${userLocation.latitude.toFixed(6)}, Longitude ${userLocation.longitude.toFixed(6)}. Continuando com o cadastro...`;
+        addMessage(locationMsg, false);
+        
+        // Continuar o fluxo para a próxima seção
+        setTimeout(() => {
+          setModo('piscicultura');
+          setPisciculturaSecao('estrutura');
+          setPisciculturaEtapa(0);
+          addMessage(pisciculturaEstruturaQuestions[0], false);
+          setSuggestions([
+            { text: "Viveiro", action: "Viveiro" },
+            { text: "Tanque-rede", action: "Tanque-rede" },
+            { text: "Barragem", action: "Barragem" },
+            { text: "Canal", action: "Canal" },
+            { text: "Represa", action: "Represa" },
+          ]);
+        }, 1000); // Pequeno atraso para melhor experiência do usuário
+      }
+    }
+  }, [userLocation, isAskingLocation, modo, pisciculturaSecao]);
 
   // Funções auxiliares
   const scrollToBottom = () => {
@@ -533,17 +568,65 @@ const ChatbotWidget: React.FC = () => {
             longitude: position.coords.longitude,
           });
           setIsAskingLocation(false);
+          
+          // Após obter a localização com sucesso, continuar o fluxo automaticamente
+          // Isto será processado no useEffect que observa mudanças em userLocation
+          console.log("Localização obtida com sucesso:", position.coords);
         },
         (error) => {
           console.error("Erro ao obter localização:", error);
           setIsAskingLocation(false);
-          addMessage("Não foi possível obter sua localização.", false);
+          
+          let errorMessage = "Não foi possível obter sua localização.";
+          
+          // Mensagens de erro mais específicas baseadas no código de erro
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = "Permissão para obter localização foi negada. Por favor, permita o acesso à sua localização e tente novamente.";
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = "As informações de localização não estão disponíveis no momento.";
+              break;
+            case error.TIMEOUT:
+              errorMessage = "A solicitação para obter sua localização expirou.";
+              break;
+          }
+          
+          addMessage(errorMessage, false);
+          
+          // Perguntar se quer tentar novamente ou prosseguir sem localização
+          addMessage("Deseja tentar novamente ou prosseguir sem informações de localização?", false);
+          setSuggestions([
+            { text: "Tentar novamente", action: "tentar novamente" },
+            { text: "Prosseguir sem localização", action: "prosseguir" }
+          ]);
         },
+        // Opções para a API de geolocalização
+        { 
+          enableHighAccuracy: true, // Alta precisão
+          timeout: 10000,           // 10 segundos de timeout
+          maximumAge: 0             // Não usar cache
+        }
       );
     } else {
       console.error("Geolocation não suportado.");
       setIsAskingLocation(false);
-      addMessage("Geolocation não suportado.", false);
+      addMessage("Geolocation não é suportado pelo seu navegador. Vamos prosseguir sem informações de localização.", false);
+      
+      // Continuar o fluxo sem localização
+      if (pisciculturaSecao === 'atividade') {
+        setModo('piscicultura');
+        setPisciculturaSecao('estrutura');
+        setPisciculturaEtapa(0);
+        addMessage(pisciculturaEstruturaQuestions[0], false);
+        setSuggestions([
+          { text: "Viveiro", action: "Viveiro" },
+          { text: "Tanque-rede", action: "Tanque-rede" },
+          { text: "Barragem", action: "Barragem" },
+          { text: "Canal", action: "Canal" },
+          { text: "Represa", action: "Represa" },
+        ]);
+      }
     }
   };
 
@@ -1026,9 +1109,13 @@ const ChatbotWidget: React.FC = () => {
       // Verificar se o usuário respondeu se está na propriedade ou não
       if (!isAskingLocation && userLocation === null) {
         if (userMessage.toLowerCase().includes("sim")) {
-          // Usuário está na propriedade, obter localização
+          // Usuário está na propriedade, obter localização automaticamente
           getUserLocation();
-          botResponse = "Obtendo sua localização atual...";
+          botResponse = "Obtendo sua localização atual... Por favor, aguarde um momento.";
+          // Não mudar o modo ainda, vamos manter no modo 'localizacao' até obtermos as coordenadas
+          addMessage(botResponse, false);
+          setIsLoading(false);
+          return;
         } else {
           // Usuário não está na propriedade, pular obtenção de localização
           setSkipLocationQuestions(true);
@@ -1059,6 +1146,10 @@ const ChatbotWidget: React.FC = () => {
             longitude: userLocation.longitude
           };
           setDadosPiscicultura(novosDados);
+          
+          // Mostrar para o usuário as coordenadas obtidas
+          botResponse = `Obtive sua localização: Latitude ${userLocation.latitude.toFixed(6)}, Longitude ${userLocation.longitude.toFixed(6)}. Continuando com o cadastro...`;
+          addMessage(botResponse, false);
           
           // Voltar para o fluxo de piscicultura
           setModo('piscicultura');
@@ -2080,7 +2171,7 @@ const ChatbotWidget: React.FC = () => {
             if (novosDados.detalhamento.situacaoLegal.toLowerCase() === "outra") {
               novosDados.detalhamento.outraSituacao = userMessage;
               // Avançar para a próxima pergunta normal
-              pisciculturaEtapa++;
+              setPisciculturaEtapa(pisciculturaEtapa + 1);
             } 
             // Se não entrou no if, essa pergunta é a área total 
             else {
@@ -2256,7 +2347,7 @@ const ChatbotWidget: React.FC = () => {
             if (novosDados.recursos.recursosFinanceiros.toLowerCase().includes("financiamento")) {
               novosDados.recursos.fonteFinanciamento = userMessage;
               // Avançar para a pergunta normal
-              pisciculturaEtapa++;
+              setPisciculturaEtapa(pisciculturaEtapa + 1);
             } else {
               // Esta é a pergunta sobre assistência técnica
               novosDados.recursos.assistenciaTecnica = userMessage;
