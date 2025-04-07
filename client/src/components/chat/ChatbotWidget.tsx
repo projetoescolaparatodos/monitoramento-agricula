@@ -517,7 +517,7 @@ const ChatbotWidget: React.FC = () => {
     // Atualizar sugestões imediatamente após mudar de modo ou etapa
     setSuggestions(getContextualSuggestions());
   }, [modo, cadastroEtapa, subFluxo, subFluxoEtapa, usuarioCadastrado]);
-  
+
   // Novo useEffect para monitorar mudanças na geolocalização
   useEffect(() => {
     // Se estamos em modo de localização e acabamos de obter as coordenadas
@@ -530,11 +530,11 @@ const ChatbotWidget: React.FC = () => {
           longitude: userLocation.longitude
         };
         setDadosPiscicultura(novosDados);
-        
+
         // Mostrar as coordenadas obtidas
         const locationMsg = `Obtive sua localização: Latitude ${userLocation.latitude.toFixed(6)}, Longitude ${userLocation.longitude.toFixed(6)}. Continuando com o cadastro...`;
         addMessage(locationMsg, false);
-        
+
         // Continuar o fluxo para a próxima seção
         setTimeout(() => {
           setModo('piscicultura');
@@ -568,7 +568,7 @@ const ChatbotWidget: React.FC = () => {
             longitude: position.coords.longitude,
           });
           setIsAskingLocation(false);
-          
+
           // Após obter a localização com sucesso, continuar o fluxo automaticamente
           // Isto será processado no useEffect que observa mudanças em userLocation
           console.log("Localização obtida com sucesso:", position.coords);
@@ -576,9 +576,9 @@ const ChatbotWidget: React.FC = () => {
         (error) => {
           console.error("Erro ao obter localização:", error);
           setIsAskingLocation(false);
-          
+
           let errorMessage = "Não foi possível obter sua localização.";
-          
+
           // Mensagens de erro mais específicas baseadas no código de erro
           switch(error.code) {
             case error.PERMISSION_DENIED:
@@ -591,9 +591,9 @@ const ChatbotWidget: React.FC = () => {
               errorMessage = "A solicitação para obter sua localização expirou.";
               break;
           }
-          
+
           addMessage(errorMessage, false);
-          
+
           // Perguntar se quer tentar novamente ou prosseguir sem localização
           addMessage("Deseja tentar novamente ou prosseguir sem informações de localização?", false);
           setSuggestions([
@@ -612,7 +612,7 @@ const ChatbotWidget: React.FC = () => {
       console.error("Geolocation não suportado.");
       setIsAskingLocation(false);
       addMessage("Geolocation não é suportado pelo seu navegador. Vamos prosseguir sem informações de localização.", false);
-      
+
       // Continuar o fluxo sem localização
       if (pisciculturaSecao === 'atividade') {
         setModo('piscicultura');
@@ -637,11 +637,19 @@ const ChatbotWidget: React.FC = () => {
       return servicosSugestoes;
     }
     // Modo localização
-    else if (modo === "localizacao" && !isAskingLocation && userLocation === null) {
-      return [
-        { text: "Sim, estou", action: "sim" },
-        { text: "Não, não estou", action: "nao" }
-      ];
+    else if (modo === "localizacao") {
+      if (!isAskingLocation && userLocation === null) {
+        return [
+          { text: "Sim, estou", action: "sim" },
+          { text: "Não, não estou", action: "nao" }
+        ];
+      } else if (userLocation !== null) {
+        return [
+          { text: "Confirmar localização", action: "confirmar" },
+          { text: "Ajustar no mapa", action: "ajustar" },
+          { text: "Inserir manualmente", action: "manual" }
+        ];
+      }
     }
     // Modo piscicultura - sugestões específicas para cada seção
     else if (modo === "piscicultura") {
@@ -800,7 +808,7 @@ const ChatbotWidget: React.FC = () => {
       } else if (subFluxo === "mandioca") {
         if (subFluxoEtapa === 0) {
           return [
-            { text: "Brava", action: "Brava" },
+            { text: "Brava", action: "Brava},
             { text: "Mansa", action: "Mansa" },
           ];
         } else if (subFluxoEtapa === 1) {
@@ -1119,7 +1127,7 @@ const ChatbotWidget: React.FC = () => {
         } else {
           // Usuário não está na propriedade, pular obtenção de localização
           setSkipLocationQuestions(true);
-          
+
           // Se viemos do fluxo de piscicultura, voltar para ele
           if (pisciculturaSecao === 'atividade') {
             setModo('piscicultura');
@@ -1146,11 +1154,11 @@ const ChatbotWidget: React.FC = () => {
             longitude: userLocation.longitude
           };
           setDadosPiscicultura(novosDados);
-          
+
           // Mostrar para o usuário as coordenadas obtidas
           botResponse = `Obtive sua localização: Latitude ${userLocation.latitude.toFixed(6)}, Longitude ${userLocation.longitude.toFixed(6)}. Continuando com o cadastro...`;
           addMessage(botResponse, false);
-          
+
           // Voltar para o fluxo de piscicultura
           setModo('piscicultura');
           setPisciculturaSecao('estrutura');
@@ -1554,30 +1562,30 @@ const ChatbotWidget: React.FC = () => {
   // Função para gerar resumo dos dados de piscicultura
   const gerarResumoPiscicultura = (): string => {
     const dados = dadosPiscicultura;
-    
+
     let resumo = `RESUMO DO CADASTRO DE PISCICULTURA\n\n`;
-    
+
     resumo += `DADOS DO EMPREENDEDOR:\n`;
     resumo += `- Nome: ${dados.empreendedor.nome}\n`;
     resumo += `- CPF: ${dados.empreendedor.cpf}\n`;
     resumo += `- Telefone: ${dados.empreendedor.celular}\n`;
-    
+
     resumo += `\nDADOS DA ATIVIDADE:\n`;
     resumo += `- Atividade: ${dados.atividade.descricao}\n`;
     resumo += `- Endereço: ${dados.atividade.endereco}\n`;
-    
+
     if (dados.atividade.coordenadas) {
       resumo += `- Localização: Lat ${dados.atividade.coordenadas.latitude.toFixed(6)}, Long ${dados.atividade.coordenadas.longitude.toFixed(6)}\n`;
     }
-    
+
     if (dados.atividade.estruturaAquicola.length > 0) {
       resumo += `- Estruturas aquícolas: ${dados.atividade.estruturaAquicola.join(", ")}\n`;
     }
-    
+
     // Adicionar outras seções conforme necessário...
-    
+
     resumo += `\nPor favor, confirme se as informações estão corretas.`;
-    
+
     return resumo;
   };
 
@@ -1857,7 +1865,7 @@ const ChatbotWidget: React.FC = () => {
       if (pisciculturaSecao === 'empreendedor') {
         // Atualizar dados do empreendedor
         const novosDados = { ...dadosPiscicultura };
-        
+
         switch(pisciculturaEtapa) {
           case 0: // Nome
             novosDados.empreendedor.nome = userMessage;
@@ -1902,14 +1910,14 @@ const ChatbotWidget: React.FC = () => {
         }
 
         setDadosPiscicultura(novosDados);
-        
+
         // Avançar para a próxima etapa ou seção
         if (botResponse === "") { // Se não houve erro de validação
           if (pisciculturaEtapa < pisciculturaEmpreendedorQuestions.length - 1) {
             // Próxima pergunta na mesma seção
             setPisciculturaEtapa(pisciculturaEtapa + 1);
             botResponse = pisciculturaEmpreendedorQuestions[pisciculturaEtapa + 1];
-            
+
             // Definir sugestões para perguntas específicas
             if (pisciculturaEtapa + 1 === 6) { // Pergunta sobre sexo
               setSuggestions([
@@ -1932,15 +1940,15 @@ const ChatbotWidget: React.FC = () => {
       else if (pisciculturaSecao === 'atividade') {
         // Atualizar dados da atividade
         const novosDados = { ...dadosPiscicultura };
-        
+
         if (pisciculturaEtapa === 0) {
           novosDados.atividade.descricao = userMessage;
         } else if (pisciculturaEtapa === 1) {
           novosDados.atividade.endereco = userMessage;
         }
-        
+
         setDadosPiscicultura(novosDados);
-        
+
         // Avançar para a próxima etapa
         if (pisciculturaEtapa < pisciculturaAtividadeQuestions.length - 1) {
           setPisciculturaEtapa(pisciculturaEtapa + 1);
@@ -1963,7 +1971,7 @@ const ChatbotWidget: React.FC = () => {
           const novosDados = { ...dadosPiscicultura };
           novosDados.atividade.estruturaAquicola = estruturasSelecionadas;
           setDadosPiscicultura(novosDados);
-          
+
           // Avançar para a seção de obras
           setPisciculturaSecao('obras');
           setPisciculturaEtapa(0);
@@ -1979,12 +1987,12 @@ const ChatbotWidget: React.FC = () => {
       }
       else if (pisciculturaSecao === 'obras') {
         const novosDados = { ...dadosPiscicultura };
-        
+
         if (pisciculturaEtapa === 0) {
           // Processar seleção de obras
           const obrasList = userMessage.split(',').map(s => s.trim());
           setObrasSelecionadas(obrasList);
-          
+
           // Se não selecionou nenhuma obra ou selecionou "Nenhuma"
           if (obrasList.includes("Nenhuma") || obrasList.length === 0) {
             // Pular para a próxima seção
@@ -2010,7 +2018,7 @@ const ChatbotWidget: React.FC = () => {
           const obraAtual = obrasSelecionadas[Math.floor((pisciculturaEtapa - 1) / 2)];
           const obraKey = obraAtual.toLowerCase().replace(/\s+/g, '') as keyof typeof pisciculturaObrasQuestions;
           const isAreaQuestion = (pisciculturaEtapa - 1) % 2 === 0;
-          
+
           if (isAreaQuestion) {
             // Pergunta sobre área
             const area = parseFloat(userMessage);
@@ -2020,16 +2028,16 @@ const ChatbotWidget: React.FC = () => {
               setIsLoading(false);
               return;
             }
-            
+
             // Inicializar a obra se ainda não existir
             if (!novosDados.obras[obraKey]) {
               novosDados.obras[obraKey] = {} as any;
             }
-            
+
             // Salvar a área
             (novosDados.obras[obraKey] as any).area = area;
             setDadosPiscicultura(novosDados);
-            
+
             // Próxima pergunta (situação da obra)
             botResponse = pisciculturaObrasQuestions[obraKey][1];
             setPisciculturaEtapa(pisciculturaEtapa + 1);
@@ -2045,7 +2053,7 @@ const ChatbotWidget: React.FC = () => {
             }
             (novosDados.obras[obraKey] as any).situacao = userMessage;
             setDadosPiscicultura(novosDados);
-            
+
             // Verificar se há mais obras para processar
             const nextObraIndex = Math.floor(pisciculturaEtapa / 2);
             if (nextObraIndex < obrasSelecionadas.length) {
@@ -2074,12 +2082,12 @@ const ChatbotWidget: React.FC = () => {
       }
       else if (pisciculturaSecao === 'especies') {
         const novosDados = { ...dadosPiscicultura };
-        
+
         if (pisciculturaEtapa === 0) {
           // Processar seleção de espécies
           const especiesList = userMessage.split(',').map(s => s.trim());
           setEspeciesSelecionadas(especiesList);
-          
+
           if (especiesList.length === 0) {
             // Pular para a próxima seção
             setPisciculturaSecao('detalhamento');
@@ -2098,7 +2106,7 @@ const ChatbotWidget: React.FC = () => {
           const especieIndex = pisciculturaEtapa - 1;
           if (especieIndex < especiesSelecionadas.length) {
             const especie = especiesSelecionadas[especieIndex].toLowerCase() as keyof typeof novosDados.especies;
-            
+
             // Validar quantidade
             const quantidade = parseInt(userMessage);
             if (isNaN(quantidade)) {
@@ -2107,11 +2115,11 @@ const ChatbotWidget: React.FC = () => {
               setIsLoading(false);
               return;
             }
-            
+
             // Salvar quantidade
             novosDados.especies[especie] = quantidade;
             setDadosPiscicultura(novosDados);
-            
+
             // Verificar se há mais espécies para processar
             if (especieIndex + 1 < especiesSelecionadas.length) {
               // Próxima espécie
@@ -2130,7 +2138,7 @@ const ChatbotWidget: React.FC = () => {
       }
       else if (pisciculturaSecao === 'detalhamento') {
         const novosDados = { ...dadosPiscicultura };
-        
+
         switch(pisciculturaEtapa) {
           case 0: // Distância da sede municipal
             const distancia = parseFloat(userMessage);
@@ -2142,14 +2150,14 @@ const ChatbotWidget: React.FC = () => {
             }
             novosDados.detalhamento.distanciaSede = distancia;
             break;
-            
+
           case 1: // Referência de localização
             novosDados.detalhamento.referencia = userMessage;
             break;
-            
+
           case 2: // Situação legal da propriedade
             novosDados.detalhamento.situacaoLegal = userMessage;
-            
+
             // Se selecionou "Outra", precisamos perguntar qual
             if (userMessage.toLowerCase() === "outra") {
               setPisciculturaEtapa(pisciculturaEtapa + 1);
@@ -2166,7 +2174,7 @@ const ChatbotWidget: React.FC = () => {
               novosDados.detalhamento.outraSituacao = userMessage;
             }
             break;
-            
+
           case 3: // Outra situação (caso tenha selecionado "Outra")
             if (novosDados.detalhamento.situacaoLegal.toLowerCase() === "outra") {
               novosDados.detalhamento.outraSituacao = userMessage;
@@ -2185,7 +2193,7 @@ const ChatbotWidget: React.FC = () => {
               novosDados.detalhamento.areaTotal = area;
             }
             break;
-            
+
           case 4: // Área total (se veio da pergunta de outra situação) ou Recursos Hídricos
             if (novosDados.detalhamento.outraSituacao && pisciculturaEtapa === 4) {
               // Neste caso, essa pergunta é sobre a área total
@@ -2202,7 +2210,7 @@ const ChatbotWidget: React.FC = () => {
               const recursos = userMessage.split(',').map(r => r.trim());
               novosDados.detalhamento.recursosHidricos.tipo = recursos;
               setRecursosHidricosSelecionados(recursos);
-              
+
               // Se selecionou algum recurso, perguntar os nomes
               if (recursos.length > 0 && recursos[0] !== "Nenhum") {
                 setPisciculturaEtapa(pisciculturaEtapa + 1);
@@ -2215,21 +2223,21 @@ const ChatbotWidget: React.FC = () => {
               }
             }
             break;
-            
+
           case 5: // Nome dos recursos hídricos ou Usos múltiplos da água
             if (recursosHidricosSelecionados.length > 0 && 
                 !novosDados.detalhamento.recursosHidricos.nomes[recursosHidricosSelecionados[0]]) {
               // Estamos processando o nome do primeiro recurso hídrico
               novosDados.detalhamento.recursosHidricos.nomes[recursosHidricosSelecionados[0]] = userMessage;
-              
+
               // Verificar se há mais recursos para perguntar
               if (recursosHidricosSelecionados.length > 1) {
                 const proximoRecurso = recursosHidricosSelecionados[1];
                 botResponse = `Qual o nome do(s) ${proximoRecurso}(s) na propriedade?`;
-                
+
                 // Remover o primeiro item da lista
                 setRecursosHidricosSelecionados(recursosHidricosSelecionados.slice(1));
-                
+
                 setDadosPiscicultura(novosDados);
                 setIsLoading(false);
                 addMessage(botResponse, false);
@@ -2243,13 +2251,13 @@ const ChatbotWidget: React.FC = () => {
             }
             break;
         }
-        
+
         setDadosPiscicultura(novosDados);
-        
+
         // Avançar para a próxima pergunta ou seção
         if (pisciculturaEtapa < pisciculturaDetalhamentoQuestions.length - 1) {
           setPisciculturaEtapa(pisciculturaEtapa + 1);
-          
+
           // Verificar se devemos pular a pergunta de "outra situação"
           if (pisciculturaEtapa + 1 === 3 && 
               novosDados.detalhamento.situacaoLegal && 
@@ -2258,7 +2266,7 @@ const ChatbotWidget: React.FC = () => {
             botResponse = "Qual a área total da propriedade (em ha)?";
           } else {
             botResponse = pisciculturaDetalhamentoQuestions[pisciculturaEtapa + 1];
-            
+
             // Configurar sugestões para perguntas específicas
             if (pisciculturaEtapa + 1 === 2) { // Situação legal
               setSuggestions([
@@ -2299,7 +2307,7 @@ const ChatbotWidget: React.FC = () => {
       }
       else if (pisciculturaSecao === 'recursos') {
         const novosDados = { ...dadosPiscicultura };
-        
+
         switch(pisciculturaEtapa) {
           case 0: // Número de empregados
             const numEmpregados = parseInt(userMessage);
@@ -2311,7 +2319,7 @@ const ChatbotWidget: React.FC = () => {
             }
             novosDados.recursos.numEmpregados = numEmpregados;
             break;
-            
+
           case 1: // Número de familiares
             const numFamiliares = parseInt(userMessage);
             if (isNaN(numFamiliares)) {
@@ -2322,10 +2330,10 @@ const ChatbotWidget: React.FC = () => {
             }
             novosDados.recursos.numFamiliares = numFamiliares;
             break;
-            
+
           case 2: // Recursos financeiros
             novosDados.recursos.recursosFinanceiros = userMessage;
-            
+
             // Se selecionou financiamento, perguntar a fonte
             if (userMessage.toLowerCase().includes("financiamento")) {
               setPisciculturaEtapa(pisciculturaEtapa + 1);
@@ -2342,7 +2350,7 @@ const ChatbotWidget: React.FC = () => {
               return;
             }
             break;
-            
+
           case 3: // Fonte do financiamento ou Assistência técnica
             if (novosDados.recursos.recursosFinanceiros.toLowerCase().includes("financiamento")) {
               novosDados.recursos.fonteFinanciamento = userMessage;
@@ -2353,18 +2361,18 @@ const ChatbotWidget: React.FC = () => {
               novosDados.recursos.assistenciaTecnica = userMessage;
             }
             break;
-            
+
           case 4: // Assistência técnica
             novosDados.recursos.assistenciaTecnica = userMessage;
             break;
         }
-        
+
         setDadosPiscicultura(novosDados);
-        
+
         // Avançar para a próxima pergunta ou seção
         if (pisciculturaEtapa < pisciculturaRecursosQuestions.length - 1) {
           setPisciculturaEtapa(pisciculturaEtapa + 1);
-          
+
           // Verificar se devemos pular a pergunta de fonte de financiamento
           if (pisciculturaEtapa + 1 === 3 && 
               novosDados.recursos.recursosFinanceiros && 
@@ -2373,7 +2381,7 @@ const ChatbotWidget: React.FC = () => {
             botResponse = pisciculturaRecursosQuestions[3]; // Pergunta sobre assistência técnica
           } else {
             botResponse = pisciculturaRecursosQuestions[pisciculturaEtapa + 1];
-            
+
             // Configurar sugestões para perguntas específicas
             if (pisciculturaEtapa + 1 === 2) { // Recursos financeiros
               setSuggestions([
@@ -2408,7 +2416,7 @@ const ChatbotWidget: React.FC = () => {
           novosDados.observacoes = userMessage;
           setDadosPiscicultura(novosDados);
         }
-        
+
         // Gerar resumo e ir para tela de confirmação
         setPisciculturaSecao('resumo');
         setPisciculturaEtapa(0);
@@ -2423,10 +2431,10 @@ const ChatbotWidget: React.FC = () => {
         if (userMessage.toLowerCase().includes("confirmar") || 
             userMessage.toLowerCase().includes("sim") || 
             userMessage.toLowerCase().includes("correto")) {
-          
+
           // Finalizar cadastro e salvar no Firebase
           const success = await salvarPisciculturaNoFirebase();
-          
+
           if (success) {
             // Avançar para solicitação de serviço
             setModo('solicitacao');
@@ -2554,7 +2562,7 @@ const ChatbotWidget: React.FC = () => {
               <X size={20} />
             </Button>
           </div>
-          
+
           {modo === 'piscicultura' && (
             <div className="px-3 py-1 bg-green-100 text-green-800 text-xs border-b border-green-200">
               {pisciculturaSecao === 'empreendedor' && `Empreendedor - Pergunta ${pisciculturaEtapa + 1} de ${pisciculturaEmpreendedorQuestions.length}`}
