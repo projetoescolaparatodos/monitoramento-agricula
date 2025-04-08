@@ -18,17 +18,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Exporta as funcionalidades que vamos usar
-const db = getFirestore(app, {
-  // Use a configuração de cache recomendada em vez de enableMultiTabIndexedDbPersistence
-  localCache: {
-    lruGarbageCollector: {
-      sizeThreshold: 100 * 1024 * 1024 // 100 MB
+const db = getFirestore(app);
+enableMultiTabIndexedDbPersistence(db).catch((err) => {
+    if (err.code === 'failed-precondition') {
+        console.warn('Persistence failed - multiple tabs open');
+    } else if (err.code === 'unimplemented') {
+        console.warn('Persistence not available');
     }
-  }
 });
-
-// Tratamento de possíveis erros de persistência
-// Deixamos isso aqui para compatibilidade, mas agora usamos a configuração acima
 
 export { db };
 export const storage = getStorage(app);
