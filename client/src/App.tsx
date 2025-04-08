@@ -1,4 +1,5 @@
-import { Switch, Route, Suspense } from "wouter";
+import { Switch, Route } from "wouter";
+import { Suspense } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ChatButton } from "@/components/chat/ChatButton";
 import ChatbotWidget from "@/components/chat/ChatbotWidget";
