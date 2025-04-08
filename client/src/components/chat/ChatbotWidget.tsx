@@ -1629,8 +1629,7 @@ const ChatbotWidget: React.FC = () => {
     }
 
     // Modo solicitação - recebe a solicitação final e finaliza o processo
-    if```javascript
-    (modo === "solicitacao") {
+    if (modo === "solicitacao") {
       setSolicitacao(userMessage);
       await salvarCadastroNoFirebase();
       botResponse =
