@@ -1,0 +1,16 @@
+
+Warning: Invalid prop &#x60;data-replit-metadata&#x60; supplied to &#x60;React.Fragment&#x60;. React.Fragment can only have &#x60;key&#x60; and &#x60;children&#x60; props.
+ChatbotWidget@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/components/chat/ChatbotWidget.tsx:218:39
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=8374d481:2804:27
+App
+Router@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=8374d481:6386:16
+BrowserRouter@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=8374d481:8613:23
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=8374d481:2804:27
+Cadastro salvo com sucesso!
+Warning: Invalid prop &#x60;data-replit-metadata&#x60; supplied to &#x60;React.Fragment&#x60;. React.Fragment can only have &#x60;key&#x60; and &#x60;children&#x60; props.
+ChatbotWidget@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/components/chat/ChatbotWidget.tsx:218:39
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=8374d481:2804:27
+App
+Router@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=8374d481:6386:16
+BrowserRouter@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=8374d481:8613:23
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=8374d481:2804:27
