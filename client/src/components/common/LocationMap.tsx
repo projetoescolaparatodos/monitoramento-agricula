@@ -1,8 +1,13 @@
 
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+
+// Lazy load Leaflet components
+const MapContainer = lazy(() => import('react-leaflet').then(mod => ({ default: mod.MapContainer })));
+const TileLayer = lazy(() => import('react-leaflet').then(mod => ({ default: mod.TileLayer })));
+const Marker = lazy(() => import('react-leaflet').then(mod => ({ default: mod.Marker })));
+const useMap = lazy(() => import('react-leaflet').then(mod => ({ default: mod.useMap })));
 
 // Fix for default marker icon in Leaflet
 delete L.Icon.Default.prototype._getIconUrl;

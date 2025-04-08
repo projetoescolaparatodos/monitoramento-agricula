@@ -7,7 +7,7 @@ channel = "stable-24_05"
 
 [deployment]
 deploymentTarget = "cloudrun"
-run = ["sh", "-c", "node dist/server/index.js"]
+run = ["sh", "-c", "node server/index.ts"]
 build = ["sh", "-c", "npm run build"]
 
 [[ports]]
@@ -134,3 +134,16 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Build e Executar Produção"
+author = 40255565
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node server/index.ts"

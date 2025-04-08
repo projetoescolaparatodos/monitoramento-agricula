@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, Suspense } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ChatButton } from "@/components/chat/ChatButton";
 import ChatbotWidget from "@/components/chat/ChatbotWidget";
@@ -30,32 +30,34 @@ function Router() {
       <div className="relative z-10">
         <ChatbotWidget />
         <NavBar />
-        <Switch>
-          <Route path="/" component={Home} />
-          <Route path="/agriculture" component={Agriculture} />
-          <Route path="/agriculture/info" component={AgricultureInfo} />
-          <Route path="/agriculture/map" component={AgricultureMap} />
-          <Route path="/fishing" component={Fishing} />
-          <Route path="/fishing/info" component={FishingInfo} />
-          <Route path="/fishing/map" component={PescaMap} /> 
-          <Route path="/paa" component={PAAInfo} /> 
-          <Route path="/paa/info" component={PAAInfo} />
-          <Route path="/paa/map" component={PAAMap} />
-          <Route path="/dashboard/:section?" component={Dashboard} />
-          <Route path="/login" component={Login} />
-          <Route path="/admin">
-            {() => {
-              const user = auth.currentUser;
-              if (!user) {
-                window.location.href = "/login";
-                return null;
-              }
-              return <Admin />;
-            }}
-          </Route>
-          <Route path="/report" component={Report} />
-          <Route component={NotFound} />
-        </Switch>
+        <Suspense fallback={<div className="flex items-center justify-center h-screen">Carregando...</div>}>
+          <Switch>
+            <Route path="/" component={Home} />
+            <Route path="/agriculture" component={Agriculture} />
+            <Route path="/agriculture/info" component={AgricultureInfo} />
+            <Route path="/agriculture/map" component={AgricultureMap} />
+            <Route path="/fishing" component={Fishing} />
+            <Route path="/fishing/info" component={FishingInfo} />
+            <Route path="/fishing/map" component={PescaMap} /> 
+            <Route path="/paa" component={PAAInfo} /> 
+            <Route path="/paa/info" component={PAAInfo} />
+            <Route path="/paa/map" component={PAAMap} />
+            <Route path="/dashboard/:section?" component={Dashboard} />
+            <Route path="/login" component={Login} />
+            <Route path="/admin">
+              {() => {
+                const user = auth.currentUser;
+                if (!user) {
+                  window.location.href = "/login";
+                  return null;
+                }
+                return <Admin />;
+              }}
+            </Route>
+            <Route path="/report" component={Report} />
+            <Route component={NotFound} />
+          </Switch>
+        </Suspense>
       </div>
     </>
   );
