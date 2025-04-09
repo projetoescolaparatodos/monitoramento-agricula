@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import React, { Suspense } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ChatButton } from "@/components/chat/ChatButton";
@@ -27,15 +27,20 @@ import BackgroundVideo from "./components/ui/BackgroundVideo";
 // Formulários Setoriais - Importação lazy para melhor performance
 const FormAgricultura = React.lazy(() => import('./forms/agriculture'));
 const FormPesca = React.lazy(() => import('./forms/pesca'));
-const FormPAA = React.lazy(() => import('./forms/paa'));
+const FormPAA = React.lazy(() => import('./forms/paa'));));
 
 function Router() {
+  // Verifica se a rota atual é um formulário
+  const [location] = useLocation();
+  const isFormPage = location.startsWith('/forms/');
+  const isReportPage = location === '/report';
+  
   return (
     <>
       <BackgroundVideo videoPath="/videos/BackgroundVideo.mp4" opacity={0.3} />
       <div className="relative z-10">
         <ChatbotWidget />
-        <NavBar />
+        {!isFormPage && !isReportPage && <NavBar />}
         <Suspense fallback={<div className="flex items-center justify-center h-screen">Carregando...</div>}>
           <Switch>
             <Route path="/" component={Home} />
@@ -61,7 +66,9 @@ function Router() {
               }}
             </Route>
             <Route path="/report" component={Report} />
-            {/* Rotas para formulários setoriais */}
+            <Route path="/forms/agricultura" component={FormAgricultura} />
+            <Route path="/forms/pesca" component={FormPesca} />
+            <Route path="/forms/paa" component={FormPAA} /> */}
             <Route path="/forms/agricultura" component={FormAgricultura} />
             <Route path="/forms/pesca" component={FormPesca} />
             <Route path="/forms/paa" component={FormPAA} />

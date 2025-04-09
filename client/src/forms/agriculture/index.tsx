@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -290,7 +291,17 @@ const FormAgricultura = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
+    <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4 relative">
+      {/* Botão para voltar ao portal */}
+      <div className="fixed bottom-6 left-6 z-20">
+        <Button 
+          onClick={() => window.location.href = '/'} 
+          className="rounded-full w-12 h-12 bg-green-600 hover:bg-green-700 text-white shadow-lg flex items-center justify-center"
+          title="Voltar ao Portal"
+        >
+          <ArrowLeft size={20} />
+        </Button>
+      </div>
       <Card className="w-full max-w-md">
         <CardHeader className="bg-green-50">
           <CardTitle className="text-green-800">Solicitação de Serviço Agrícola</CardTitle>
