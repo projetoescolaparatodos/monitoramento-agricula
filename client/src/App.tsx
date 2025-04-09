@@ -27,7 +27,7 @@ import BackgroundVideo from "./components/ui/BackgroundVideo";
 // Formulários Setoriais - Importação lazy para melhor performance
 const FormAgricultura = React.lazy(() => import('./forms/agriculture'));
 const FormPesca = React.lazy(() => import('./forms/pesca'));
-const FormPAA = React.lazy(() => import('./forms/paa'));));
+const FormPAA = React.lazy(() => import('./forms/paa'));
 
 function Router() {
   // Verifica se a rota atual é um formulário
