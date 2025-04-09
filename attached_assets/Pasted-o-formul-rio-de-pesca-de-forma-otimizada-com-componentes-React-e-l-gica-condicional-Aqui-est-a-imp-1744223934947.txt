@@ -1,0 +1,427 @@
+o formulário de pesca de forma otimizada com componentes React e lógica condicional. Aqui está a implementação completa:
+
+Formulário de Pesca (FormPesca.tsx)
+tsx
+Copy
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { 
+  Input, 
+  Select, 
+  Checkbox, 
+  RadioGroup,
+  Button,
+  MapPicker
+} from '@/components/ui';
+
+export default function FormPesca() {
+  const { register, handleSubmit, watch, setValue } = useForm();
+  const [selectedObras, setSelectedObras] = useState<string[]>([]);
+  const [selectedEspecies, setSelectedEspecies] = useState<string[]>([]);
+
+  const onSubmit = (data) => {
+    console.log(data);
+    // Enviar para Firebase
+  };
+
+  // Observa mudanças nos campos condicionais
+  const atividade = watch('atividade');
+  const situacaoLegal = watch('situacaoLegal');
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-4xl mx-auto p-6">
+      {/* Seção 1: Identificação */}
+      <fieldset className="border p-4 rounded-lg">
+        <legend className="font-bold text-lg px-2">1. Identificação do Empreendedor</legend>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Input label="Nome Completo" {...register('nome', { required: true })} />
+          <Input label="CPF" mask="999.999.999-99" {...register('cpf', { required: true })} />
+          <Input label="Endereço" {...register('endereco')} />
+          <Input label="Travessão" {...register('travessao')} />
+          <div className="md:col-span-2 grid grid-cols-3 gap-4">
+            <Input label="Identidade" {...register('identidade')} />
+            <Input label="Emissor/UF" {...register('emissor')} />
+            <Select 
+              label="Sexo"
+              options={['Masculino', 'Feminino', 'Outro']}
+              {...register('sexo')}
+            />
+          </div>
+          <Input label="Celular" mask="(99) 99999-9999" {...register('celular')} />
+        </div>
+      </fieldset>
+
+      {/* Seção 2: Atividade */}
+      <fieldset className="border p-4 rounded-lg">
+        <legend className="font-bold text-lg px-2">2. Identificação da Atividade</legend>
+        
+        <Select
+          label="Atividade Principal"
+          options={['Piscicultura', 'Aquicultura', 'Pesca Artesanal', 'Outra']}
+          {...register('atividade')}
+        />
+
+        {atividade === 'Outra' && (
+          <Input label="Especifique a atividade" {...register('outraAtividade')} />
+        )}
+
+        <div className="mt-4">
+          <label className="block mb-2 font-medium">Localização da Propriedade</label>
+          <MapPicker 
+            onSelect={(coords) => setValue('coordenadas', coords)}
+          />
+        </div>
+
+        <div className="mt-4">
+          <label className="block mb-2 font-medium">Estrutura Aquícola</label>
+          <div className="grid grid-cols-2 gap-2">
+            {['Viveiros escavados', 'Açudes', 'Tanques', 'Estruturas flutuantes'].map((opcao) => (
+              <Checkbox 
+                key={opcao}
+                label={opcao}
+                {...register(`estruturas.${opcao.toLowerCase().replace(/\s/g, '_')}`)}
+              />
+            ))}
+          </div>
+        </div>
+      </fieldset>
+
+      {/* Seção 3: Classificação */}
+      <fieldset className="border p-4 rounded-lg">
+        <legend className="font-bold text-lg px-2">3. Classificação</legend>
+        
+        {/* 3.1 Obras */}
+        <div className="mb-6">
+          <h4 className="font-medium mb-3">3.1 Obras a serem analisadas</h4>
+          
+          {['Canal de igarapé', 'Viveiro Escavado', 'Barragem', 'Viveiro Suspenso'].map((obra) => (
+            <div key={obra} className="mb-3">
+              <Checkbox
+                label={obra}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setSelectedObras([...selectedObras, obra]);
+                  } else {
+                    setSelectedObras(selectedObras.filter(o => o !== obra));
+                  }
+                }}
+              />
+              
+              {selectedObras.includes(obra) && (
+                <div className="ml-6 mt-2 grid grid-cols-2 gap-4">
+                  <Input 
+                    label={obra.includes('Viveiro') ? 'Área (ha)' : 'Área (m²)'} 
+                    type="number"
+                    {...register(`obras.${obra}.area`)}
+                  />
+                  <Select
+                    label="Situação"
+                    options={['Obras não iniciadas', 'Em Construção', 'Construído', 'Em manutenção']}
+                    {...register(`obras.${obra}.situacao`)}
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* 3.2 Espécies */}
+        <div>
+          <h4 className="font-medium mb-3">3.2 Espécies confinadas</h4>
+          
+          <div className="grid grid-cols-2 gap-2">
+            {['Tambaqui', 'Tambatinga', 'Matrinxã', 'Curimatã', 'Pirarucu', 'Tilápia'].map((especie) => (
+              <div key={especie}>
+                <Checkbox
+                  label={especie}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedEspecies([...selectedEspecies, especie]);
+                    } else {
+                      setSelectedEspecies(selectedEspecies.filter(e => e !== especie));
+                    }
+                  }}
+                />
+                
+                {selectedEspecies.includes(especie) && (
+                  <Input
+                    label={`Quantidade de ${especie}`}
+                    type="number"
+                    className="ml-6 mt-1"
+                    {...register(`especies.${especie}.quantidade`)}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </fieldset>
+
+      {/* Seção 4: Detalhamento */}
+      <fieldset className="border p-4 rounded-lg">
+        <legend className="font-bold text-lg px-2">4. Detalhamento</legend>
+        
+        <Input 
+          label="Distância da sede municipal (km)" 
+          type="number" 
+          {...register('distanciaMunicipio')} 
+        />
+        
+        <Input
+          label="Referencial para localização"
+          description="Ex: Estrada X, Posto Y"
+          {...register('referencialLocalizacao')}
+        />
+
+        <div className="mt-4">
+          <h4 className="font-medium mb-2">Situação Legal</h4>
+          <RadioGroup
+            options={['Proprietário', 'Arrendatário', 'Parceiro', 'Outros']}
+            {...register('situacaoLegal')}
+          />
+          
+          {situacaoLegal === 'Outros' && (
+            <Input 
+              label="Especifique" 
+              className="mt-2"
+              {...register('outraSituacaoLegal')}
+            />
+          )}
+        </div>
+
+        <Input 
+          label="Área total da propriedade (ha)" 
+          type="number" 
+          className="mt-4"
+          {...register('areaTotal')}
+        />
+
+        <div className="mt-4">
+          <h4 className="font-medium mb-2">Recursos Hídricos</h4>
+          <Select
+            label="Tipo de recurso"
+            options={['Rio', 'Nascente/Grota', 'Barragem/Açude', 'Outros']}
+            {...register('recursoHidrico')}
+          />
+          <Input 
+            label="Nome do recurso" 
+            className="mt-2"
+            {...register('nomeRecurso')}
+          />
+        </div>
+
+        <div className="mt-4">
+          <h4 className="font-medium mb-2">Usos múltiplos da água</h4>
+          <div className="grid grid-cols-2 gap-2">
+            {['Aquicultura', 'Irrigação', 'Abastecimento Público', 'Lazer'].map((uso) => (
+              <Checkbox 
+                key={uso}
+                label={uso}
+                {...register(`usosAgua.${uso}`)}
+              />
+            ))}
+          </div>
+        </div>
+      </fieldset>
+
+      {/* Seção 5: Recursos */}
+      <fieldset className="border p-4 rounded-lg">
+        <legend className="font-bold text-lg px-2">5. Recursos</legend>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <Input label="Nº de empregados" type="number" {...register('numEmpregados')} />
+          <Input label="Trabalho familiar (pessoas)" type="number" {...register('trabalhoFamiliar')} />
+        </div>
+
+        <div className="mt-4">
+          <h4 className="font-medium mb-2">Recursos Financeiros</h4>
+          <RadioGroup
+            options={['Próprios', 'Financiamento']}
+            {...register('fonteRecursos')}
+          />
+          
+          {watch('fonteRecursos') === 'Financiamento' && (
+            <Input 
+              label="Fonte do financiamento" 
+              className="mt-2"
+              {...register('fonteFinanciamento')}
+            />
+          )}
+        </div>
+
+        <div className="mt-4">
+          <h4 className="font-medium mb-2">Assistência Técnica</h4>
+          <RadioGroup
+            options={['Permanente', 'Eventual', 'Não tem']}
+            {...register('assistenciaTecnica')}
+          />
+        </div>
+      </fieldset>
+
+      {/* Seção 6: Observações */}
+      <fieldset className="border p-4 rounded-lg">
+        <legend className="font-bold text-lg px-2">6. Observações</legend>
+        <Input 
+          label="Observações adicionais (opcional)" 
+          multiline 
+          rows={3}
+          {...register('observacoes')}
+        />
+      </fieldset>
+
+      <div className="flex justify-end gap-4 mt-6">
+        <Button type="button" variant="outline">
+          Salvar Rascunho
+        </Button>
+        <Button type="submit" className="bg-green-600 hover:bg-green-700">
+          Enviar Formulário
+        </Button>
+      </div>
+    </form>
+  );
+}
+🔧 Componentes Necessários
+MapPicker.tsx (Para seleção de coordenadas):
+
+tsx
+Copy
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+
+export function MapPicker({ onSelect }) {
+  const MapEvents = () => {
+    useMapEvents({
+      click(e) {
+        onSelect(e.latlng);
+      },
+    });
+    return null;
+  };
+
+  return (
+    <MapContainer 
+      center={[-15.79, -47.88]} 
+      zoom={13} 
+      style={{ height: '300px', width: '100%' }}
+    >
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      <Marker position={[-15.79, -47.88]} draggable />
+      <MapEvents />
+    </MapContainer>
+  );
+}
+RadioGroup.tsx (Para opções exclusivas):
+
+tsx
+Copy
+export function RadioGroup({ options, ...props }) {
+  return (
+    <div className="space-y-2">
+      {options.map((option) => (
+        <label key={option} className="flex items-center space-x-2">
+          <input 
+            type="radio" 
+            value={option}
+            className="text-green-600 focus:ring-green-500"
+            {...props}
+          />
+          <span>{option}</span>
+        </label>
+      ))}
+    </div>
+  );
+}
+📌 Dicas de Implementação no Replit
+Instale as dependências necessárias:
+
+bash
+Copy
+npm install react-hook-form react-leaflet leaflet
+Configure o CSS do Leaflet no seu arquivo principal:
+
+css
+Copy
+@import '~leaflet/dist/leaflet.css';
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.5rem;
+}
+Para o salvamento no Firebase, adicione esta função:
+
+typescript
+Copy
+const saveFormData = async (data) => {
+  try {
+    await addDoc(collection(db, 'formularios_pesca'), {
+      ...data,
+      timestamp: serverTimestamp(),
+      status: 'pendente'
+    });
+    alert('Formulário enviado com sucesso!');
+  } catch (error) {
+    console.error('Erro ao salvar:', error);
+    alert('Erro ao enviar formulário');
+  }
+};
+Integre com o chatbot usando:
+
+typescript
+Copy
+// No redirecionamento:
+window.open(`/formulario-pesca?prefill=${encodeURIComponent(JSON.stringify({
+  nome: dadosChat.nome,
+  cpf: dadosChat.cpf
+}))}`);
+🎨 Melhorias de UX Adicionais
+Salvamento automático:
+
+typescript
+Copy
+// Adicione este efeito:
+useEffect(() => {
+  const timer = setTimeout(() => {
+    localStorage.setItem('formPescaDraft', JSON.stringify(getValues()));
+  }, 2000);
+  return () => clearTimeout(timer);
+}, [watch()]);
+Barra de progresso:
+
+tsx
+Copy
+<div className="mb-6">
+  <div className="h-2 bg-gray-200 rounded-full">
+    <div 
+      className="h-full bg-green-600 rounded-full" 
+      style={{ width: `${progress}%` }}
+    />
+  </div>
+  <p className="text-sm text-gray-500 mt-1">Completado: {progress}%</p>
+</div>
+Validação em tempo real:
+
+typescript
+Copy
+// Adicione schemas com Zod:
+const schema = z.object({
+  nome: z.string().min(3),
+  cpf: z.string().length(11),
+  // ...
+});
+
+// Integre com react-hook-form
+const { register, formState: { errors } } = useForm({
+  resolver: zodResolver(schema)
+});
+Esta implementação oferece:
+
+Formulário organizado por seções
+
+Lógica condicional avançada
+
+Integração com mapas
+
+Validação robusta
+
+Experiência mobile-friendly
