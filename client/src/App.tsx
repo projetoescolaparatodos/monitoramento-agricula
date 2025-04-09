@@ -24,6 +24,11 @@ import AgricultureMap from "@/pages/AgriculturaMap";
 import AgricultureInfo from "./pages/AgricultureInfo";
 import BackgroundVideo from "./components/ui/BackgroundVideo";
 
+// Formulários Setoriais - Importação lazy para melhor performance
+const FormAgricultura = React.lazy(() => import('./forms/agriculture'));
+const FormPesca = React.lazy(() => import('./forms/pesca'));
+const FormPAA = React.lazy(() => import('./forms/paa'));
+
 function Router() {
   return (
     <>
@@ -56,6 +61,10 @@ function Router() {
               }}
             </Route>
             <Route path="/report" component={Report} />
+            {/* Rotas para formulários setoriais */}
+            <Route path="/forms/agricultura" component={FormAgricultura} />
+            <Route path="/forms/pesca" component={FormPesca} />
+            <Route path="/forms/paa" component={FormPAA} />
             <Route component={NotFound} />
           </Switch>
         </Suspense>

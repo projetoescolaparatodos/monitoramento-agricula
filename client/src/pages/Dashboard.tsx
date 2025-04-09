@@ -13,6 +13,7 @@ import MediaList from "@/components/dashboard/MediaList";
 import MediaUploader from "@/components/dashboard/MediaUploader";
 import StatisticList from "@/components/dashboard/StatisticList";
 import StatisticForm from "@/components/dashboard/StatisticForm";
+import ChatbotSolicitacoes from '@/components/dashboard/ChatbotSolicitacoes';
 
 const Dashboard = () => {
   const [, setLocation] = useLocation();
