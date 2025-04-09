@@ -1,5 +1,5 @@
 import { Switch, Route, useLocation } from "wouter";
-import React, { Suspense } from "react";
+import React, { Suspense, lazy } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ChatButton } from "@/components/chat/ChatButton";
 import ChatbotWidget from "@/components/chat/ChatbotWidget";
@@ -25,16 +25,18 @@ import AgricultureInfo from "./pages/AgricultureInfo";
 import BackgroundVideo from "./components/ui/BackgroundVideo";
 
 // Formulários Setoriais - Importação lazy para melhor performance
-const FormAgricultura = React.lazy(() => import('./forms/agriculture'));
-const FormPesca = React.lazy(() => import('./forms/pesca'));
-const FormPAA = React.lazy(() => import('./forms/paa'));
+const FormAgricultura = lazy(() => import('./forms/agriculture/index'));
+const FormAgriculturaCompleto = lazy(() => import('./forms/agricultura-completo/index'));
+const FormPesca = lazy(() => import('./forms/pesca/index'));
+const FormPescaCompleto = lazy(() => import('./forms/pesca-completo/index'));
+const FormPAA = lazy(() => import('./forms/paa/index'));
 
 function Router() {
   // Verifica se a rota atual é um formulário
   const [location] = useLocation();
   const isFormPage = location.startsWith('/forms/');
   const isReportPage = location === '/report';
-  
+
   return (
     <>
       <BackgroundVideo videoPath="/videos/BackgroundVideo.mp4" opacity={0.3} />

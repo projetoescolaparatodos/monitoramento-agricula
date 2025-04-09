@@ -52,10 +52,14 @@ const fluxoConversa = {
       "- Acesso a insumos agrícolas",
       "- Análise de solo",
       "- Distribuição de mudas",
-      "Deseja [Mais Informações] ou [Solicitar Serviço]?"
+      "Temos dois tipos de formulários disponíveis:",
+      "- [Pré-Cadastro]: formulário rápido e simples",
+      "- [Cadastro Completo]: formulário detalhado com todas as informações",
+      "O que deseja fazer?"
     ],
     acoes: {
-      "Solicitar Serviço": "abrirFormulario('agricultura')",
+      "Pré-Cadastro": "abrirFormulario('agricultura')",
+      "Cadastro Completo": "abrirFormulario('agricultura-completo')",
       "Mais Informações": "detalhesAgricultura"
     }
   },
@@ -66,10 +70,14 @@ const fluxoConversa = {
       "- Orientação para licenciamento",
       "- Assistência técnica especializada",
       "- Programas de incentivo à produção",
-      "Deseja [Mais Informações] ou [Solicitar Serviço]?"
+      "Temos dois tipos de formulários disponíveis:",
+      "- [Pré-Cadastro]: formulário rápido e simples",
+      "- [Cadastro Completo]: formulário detalhado com todas as informações",
+      "O que deseja fazer?"
     ],
     acoes: {
-      "Solicitar Serviço": "abrirFormulario('pesca')",
+      "Pré-Cadastro": "abrirFormulario('pesca')",
+      "Cadastro Completo": "abrirFormulario('pesca-completo')",
       "Mais Informações": "detalhesPesca"
     }
   },
@@ -110,10 +118,16 @@ const fluxoConversa = {
       "3. Insumos: Sementes, adubo e calcário para pequenos produtores",
       "4. Análise de Solo: Coleta e análise laboratorial",
       "5. Distribuição de Mudas: Espécies frutíferas e florestais nativas",
-      "Quer saber sobre algum serviço específico ou [Solicitar Serviço]?"
+      "",
+      "📝 Sobre nossos formulários:",
+      "- Pré-Cadastro: Formulário rápido com dados básicos (nome, contato, propriedade)",
+      "- Cadastro Completo: Formulário detalhado com todas as informações (documentação, dados da propriedade, necessidades específicas)",
+      "",
+      "Qual opção você prefere?"
     ],
     acoes: {
-      "Solicitar Serviço": "abrirFormulario('agricultura')",
+      "Pré-Cadastro": "abrirFormulario('agricultura')",
+      "Cadastro Completo": "abrirFormulario('agricultura-completo')",
       "Voltar": "fluxoAgricultura"
     }
   },
@@ -124,10 +138,16 @@ const fluxoConversa = {
       "2. Licenciamento: Apoio para documentação ambiental e autorizações",
       "3. Assistência Especializada: Técnicos capacitados em aquicultura",
       "4. Incentivos: Acesso a programas de crédito e subsídios",
-      "Quer saber sobre algum serviço específico ou [Solicitar Serviço]?"
+      "",
+      "📝 Sobre nossos formulários:",
+      "- Pré-Cadastro: Formulário rápido com dados básicos do pescador e atividade",
+      "- Cadastro Completo: Formulário detalhado com todas as informações (estruturas, espécies, situação legal, etc.)",
+      "",
+      "Qual opção você prefere?"
     ],
     acoes: {
-      "Solicitar Serviço": "abrirFormulario('pesca')",
+      "Pré-Cadastro": "abrirFormulario('pesca')",
+      "Cadastro Completo": "abrirFormulario('pesca-completo')",
       "Voltar": "fluxoPesca"
     }
   },
@@ -316,18 +336,35 @@ const ChatbotWidget: React.FC = () => {
   };
 
   // Função para abrir formulário em nova aba
-  const abrirFormulario = (setor: string) => {
+  const abrirFormulario = (formType: string) => {
+    // Extrair setor do tipo de formulário
+    const setor = formType.split('-')[0]; // 'agricultura-completo' -> 'agricultura'
+    const isCompleto = formType.includes('-completo');
+    
     // Salvar contexto da conversa para uso posterior
     localStorage.setItem('chatContext', JSON.stringify({
       ultimasMensagens: messages.slice(-5),
       setor: setor,
+      formType: formType,
+      isCompleto: isCompleto,
       userLocation: userLocation
     }));
 
-    // Abrir formulário em nova aba
-    window.open(`/forms/${setor}`, '_blank');
+    // Determinar a URL correta para o formulário
+    let formUrl = `/forms/${setor}`;
+    if (isCompleto) {
+      formUrl = `/forms/${setor}-completo`;
+    }
 
-    addMessage(`Estou abrindo o formulário do setor de ${setor} em uma nova aba.`, false);
+    // Abrir formulário em nova aba
+    window.open(formUrl, '_blank');
+
+    // Mensagem apropriada com base no tipo de formulário
+    if (isCompleto) {
+      addMessage(`Estou abrindo o formulário de cadastro completo do setor de ${setor} em uma nova aba.`, false);
+    } else {
+      addMessage(`Estou abrindo o formulário de pré-cadastro do setor de ${setor} em uma nova aba.`, false);
+    }
     addMessage("Você pode continuar nossa conversa aqui após preencher o formulário.", false);
 
     return false; // Impede processamento adicional
@@ -615,13 +652,29 @@ const ChatbotWidget: React.FC = () => {
                     <li>Distribuição de mudas e sementes</li>
                   </ul>
                   <p className="mt-3 text-gray-600">Horário de atendimento: Segunda a Sexta, 8h às 14h</p>
+                  
+                  <div className="mt-4 p-3 bg-white rounded-md border border-green-200">
+                    <h5 className="font-medium text-green-800 mb-2">Tipos de formulários disponíveis:</h5>
+                    <div className="space-y-1 mb-3">
+                      <p><span className="font-medium">Pré-Cadastro:</span> Formulário rápido e simplificado para um primeiro contato</p>
+                      <p><span className="font-medium">Cadastro Completo:</span> Formulário detalhado com todas as informações necessárias</p>
+                    </div>
+                  </div>
                 </div>
-                <Button 
-                  onClick={() => abrirFormulario('agricultura')}
-                  className="mt-4 w-full bg-green-600 hover:bg-green-700"
-                >
-                  Solicitar Serviço
-                </Button>
+                <div className="grid grid-cols-2 gap-2 mt-4">
+                  <Button 
+                    onClick={() => abrirFormulario('agricultura')}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    Pré-Cadastro
+                  </Button>
+                  <Button 
+                    onClick={() => abrirFormulario('agricultura-completo')}
+                    className="bg-green-800 hover:bg-green-900"
+                  >
+                    Cadastro Completo
+                  </Button>
+                </div>
               </div>
             </TabsContent>
 
@@ -637,13 +690,29 @@ const ChatbotWidget: React.FC = () => {
                     <li>Programas de incentivo à produção</li>
                   </ul>
                   <p className="mt-3 text-gray-600">Responsável: Coord. de Pesca - (99) 3333-4446</p>
+                  
+                  <div className="mt-4 p-3 bg-white rounded-md border border-blue-200">
+                    <h5 className="font-medium text-blue-800 mb-2">Tipos de formulários disponíveis:</h5>
+                    <div className="space-y-1 mb-3">
+                      <p><span className="font-medium">Pré-Cadastro:</span> Formulário rápido e simplificado para um primeiro contato</p>
+                      <p><span className="font-medium">Cadastro Completo:</span> Formulário detalhado com estruturas, espécies e situação legal</p>
+                    </div>
+                  </div>
                 </div>
-                <Button 
-                  onClick={() => abrirFormulario('pesca')}
-                  className="mt-4 w-full bg-blue-600 hover:bg-blue-700"
-                >
-                  Solicitar Serviço
-                </Button>
+                <div className="grid grid-cols-2 gap-2 mt-4">
+                  <Button 
+                    onClick={() => abrirFormulario('pesca')}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    Pré-Cadastro
+                  </Button>
+                  <Button 
+                    onClick={() => abrirFormulario('pesca-completo')}
+                    className="bg-blue-800 hover:bg-blue-900"
+                  >
+                    Cadastro Completo
+                  </Button>
+                </div>
               </div>
             </TabsContent>
 
