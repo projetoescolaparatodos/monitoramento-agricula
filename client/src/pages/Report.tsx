@@ -6,9 +6,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { BarChart2, Download, FilePieChart, Loader2, Users, Leaf, Tractor, Fish, Shrub } from "lucide-react"; // Added Fish and Shrub icons
+import { BarChart2, Download, FilePieChart, Loader2, Users, Leaf, Tractor, Fish, Shrub, ArrowLeft } from "lucide-react"; // Added ArrowLeft icon
 import { jsPDF } from "jspdf";
 import autoTable from 'jspdf-autotable';
+import { useNavigate } from 'react-router-dom';
 
 const Report = () => {
   const [loading, setLoading] = useState(true);
@@ -431,10 +432,18 @@ const Report = () => {
   const estatisticasPesca = calcularEstatisticasPesca();
   const estatisticasPAA = calcularEstatisticasPAA();
 
+  const navigate = useNavigate();
+
+  const handleVoltar = () => {
+    navigate('/');
+  };
+
   return (
     <div className="container mx-auto px-4 py-20">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Relatórios</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-3xl font-bold">Relatórios</h1>
+        </div>
         <Button onClick={() => exportarPDF('completo')} className="flex items-center gap-2">
           <Download className="h-4 w-4" />
           Exportar Relatório Completo
@@ -849,6 +858,17 @@ const Report = () => {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      {/* Botão flutuante para voltar ao portal */}
+      <div className="fixed bottom-6 left-6">
+        <Button 
+          onClick={handleVoltar} 
+          className="rounded-full w-12 h-12 bg-green-600 hover:bg-green-700 text-white shadow-lg flex items-center justify-center"
+          title="Voltar ao Portal"
+        >
+          <ArrowLeft size={20} />
+        </Button>
+      </div>
     </div>
   );
 };

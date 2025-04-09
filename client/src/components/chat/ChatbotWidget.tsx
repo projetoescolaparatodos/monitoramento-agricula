@@ -509,14 +509,14 @@ const ChatbotWidget: React.FC = () => {
 
             <TabsContent value="chat" className="p-0 m-0">
               <CardContent className="p-0 flex flex-col h-[500px] relative">
-                <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
+                <div className="flex-1 overflow-y-auto p-4 pb-16 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
                   {messages.map((msg, idx) => (
                     <div
                       key={idx}
                       className={`mb-4 flex ${msg.isUser ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`p-3 rounded-lg max-w-[85%] ${
+                        className={`p-3 rounded-lg max-w-[85%] break-words ${
                           msg.isUser
                             ? "bg-green-600 text-white rounded-tr-none"
                             : "bg-gray-100 text-gray-800 rounded-tl-none"
@@ -562,7 +562,7 @@ const ChatbotWidget: React.FC = () => {
                 )}
 
                 {suggestions.length > 0 && (
-                  <div className="sticky bottom-[60px] p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10">
+                  <div className="fixed bottom-[60px] left-0 right-0 p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10 mx-auto w-[calc(100%-0.5rem)] max-w-[380px] rounded-b-lg">
                     {suggestions.map((suggestion, index) => (
                       <Button
                         key={index}
