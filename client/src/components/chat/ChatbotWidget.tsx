@@ -370,26 +370,47 @@ const ChatbotWidget: React.FC = () => {
     return false; // Impede processamento adicional
   };
 
-  // Processar mensagem do usuário
-  const processUserMessage = async (userMessage: string) => {
-    setIsLoading(true);
+  // Importar a função getAIResponse do arquivo openrouter.ts
+  import { getAIResponse } from '@/lib/openrouter';
+  
+  // Cache de respostas
+  const [responseCache, setResponseCache] = useState<Record<string, string>>({});
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [trainingData, setTrainingData] = useState("");
 
-    // Adiciona mensagem do usuário
-    addMessage(userMessage, true);
+  // Verifique se é admin (em produção use autenticação adequada)
+  useEffect(() => {
+    setIsAdmin(localStorage.getItem('admin') === 'true');
+  }, []);
 
+  // Construir o contexto para a IA
+  const buildAIContext = () => {
+    return `
+      Setor Ativo: ${setorAtivo}
+      Últimas Mensagens: ${JSON.stringify(messages.slice(-3))}
+      Formulários Disponíveis:
+      - Agricultura Pré-Cadastro: /forms/agricultura
+      - Agricultura Cadastro Completo: /forms/agricultura-completo
+      - Pesca Pré-Cadastro: /forms/pesca
+      - Pesca Cadastro Completo: /forms/pesca-completo
+      - PAA: /forms/paa
+      Dados do Município: Vitória do Xingu/PA
+    `;
+  };
+
+  // Tentar responder com o fluxo programático
+  const tryProgrammaticFlow = (userMessage: string) => {
     // Verificar se está respondendo sobre localização
     if (isAskingLocation && 
         (userMessage.toLowerCase().includes("tentar novamente") || 
          userMessage.toLowerCase().includes("prosseguir"))) {
       if (userMessage.toLowerCase().includes("tentar novamente")) {
         getUserLocation();
-        setIsLoading(false);
-        return;
+        return { shouldRespond: true, response: "" };
       } else if (userMessage.toLowerCase().includes("prosseguir")) {
         setIsAskingLocation(false);
         // Continuar o fluxo sem localização
-        setIsLoading(false);
-        return;
+        return { shouldRespond: true, response: "Continuando sem localização." };
       }
     }
 
@@ -398,8 +419,7 @@ const ChatbotWidget: React.FC = () => {
         userMessage.toLowerCase().includes("participar do paa")) {
       const setor = activeFluxo.replace("fluxo", "").toLowerCase();
       abrirFormulario(setor);
-      setIsLoading(false);
-      return;
+      return { shouldRespond: true, response: "" };
     }
 
     // Processar navegação entre fluxos
@@ -426,8 +446,7 @@ const ChatbotWidget: React.FC = () => {
             if (typeof acao === 'string' && acao.startsWith("abrirFormulario")) {
               const setor = acao.match(/'([^']+)'/)?.[1] || "agricultura";
               abrirFormulario(setor);
-              setIsLoading(false);
-              return;
+              return { shouldRespond: true, response: "" };
             } else {
               novoFluxo = acao as string;
               break;
@@ -457,17 +476,110 @@ const ChatbotWidget: React.FC = () => {
         } else {
           setSuggestions([]);
         }
+        
+        return { shouldRespond: true, response: resposta };
       }
-    } 
-    // Se não encontrou novo fluxo, manter o atual e dar resposta genérica
-    else {
-      resposta = "Desculpe, não entendi sua solicitação. Posso ajudar com informações sobre os serviços da Secretaria de Agricultura, Pesca ou PAA.";
-      // Manter as sugestões do fluxo atual
+    }
+    
+    // Não encontrou resposta no fluxo programático
+    return { shouldRespond: false, response: "" };
+  };
+
+  // Avaliar resposta
+  const rateResponse = async (messageIndex: number, isGood: boolean) => {
+    try {
+      const message = messages[messageIndex];
+      await addDoc(collection(db, 'ai_feedback'), {
+        question: messages[messageIndex - 1]?.text || '',
+        answer: message.text,
+        isGood,
+        timestamp: serverTimestamp()
+      });
+      
+      addMessage(isGood ? "Obrigado pelo feedback positivo!" : "Obrigado pelo feedback. Tentaremos melhorar.", false);
+    } catch (error) {
+      console.error("Erro ao salvar feedback:", error);
+    }
+  };
+
+  // Treinar IA
+  const trainAI = async () => {
+    try {
+      const examples = trainingData.split('\n\n').map(example => {
+        const [q, r] = example.split('\n');
+        return {
+          question: q.replace('Q: ', ''),
+          answer: r.replace('R: ', '')
+        };
+      });
+
+      await addDoc(collection(db, 'ai_training'), {
+        examples,
+        timestamp: serverTimestamp(),
+        trainedBy: 'admin'
+      });
+
+      addMessage('Dados de treinamento enviados com sucesso!', false);
+      setTrainingData("");
+    } catch (error) {
+      console.error("Erro no treinamento:", error);
+      addMessage('Erro ao enviar dados de treinamento', false);
+    }
+  };
+
+  // Processar mensagem do usuário
+  const processUserMessage = async (userMessage: string) => {
+    setIsLoading(true);
+
+    // Adiciona mensagem do usuário
+    addMessage(userMessage, true);
+
+    // Verificar cache de respostas
+    const cachedResponse = responseCache[userMessage.toLowerCase()];
+    if (cachedResponse) {
+      addMessage(cachedResponse, false);
+      setIsLoading(false);
+      return;
     }
 
-    // Adicionar resposta do bot
-    if (resposta) {
-      addMessage(resposta, false);
+    // 1. Primeiro tente o fluxo programático
+    const flowResponse = tryProgrammaticFlow(userMessage);
+    if (flowResponse.shouldRespond) {
+      if (flowResponse.response) {
+        addMessage(flowResponse.response, false);
+      }
+      setIsLoading(false);
+      return;
+    }
+
+    // 2. Se não encontrou no fluxo, use a IA
+    try {
+      const context = buildAIContext();
+      const aiResponse = await getAIResponse(userMessage, context);
+      
+      // Processar resposta da IA para ações especiais
+      if (aiResponse.includes('[[FORMULARIO_AGRICULTURA]]')) {
+        abrirFormulario('agricultura');
+      } else if (aiResponse.includes('[[FORMULARIO_AGRICULTURA_COMPLETO]]')) {
+        abrirFormulario('agricultura-completo');
+      } else if (aiResponse.includes('[[FORMULARIO_PESCA]]')) {
+        abrirFormulario('pesca');
+      } else if (aiResponse.includes('[[FORMULARIO_PESCA_COMPLETO]]')) {
+        abrirFormulario('pesca-completo');
+      } else if (aiResponse.includes('[[FORMULARIO_PAA]]')) {
+        abrirFormulario('paa');
+      } else {
+        addMessage(aiResponse, false);
+        
+        // Adicionar à cache
+        setResponseCache(prev => ({
+          ...prev,
+          [userMessage.toLowerCase()]: aiResponse
+        }));
+      }
+    } catch (error) {
+      console.error("Erro na IA:", error);
+      addMessage("Desculpe, estou com dificuldades para processar sua solicitação. Vamos tentar novamente?", false);
     }
 
     setIsLoading(false);
@@ -553,7 +665,7 @@ const ChatbotWidget: React.FC = () => {
                       className={`mb-4 flex ${msg.isUser ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`p-3 rounded-lg max-w-[85%] break-words overflow-hidden overflow-wrap-anywhere whitespace-pre-wrap ${
+                        className={`p-3 rounded-lg max-w-[85%] break-words overflow-hidden overflow-wrap-anywhere whitespace-pre-wrap group relative ${
                           msg.isUser
                             ? "bg-green-600 text-white rounded-tr-none"
                             : "bg-gray-100 text-gray-800 rounded-tl-none"
@@ -565,6 +677,23 @@ const ChatbotWidget: React.FC = () => {
                             {i < msg.text.split("\n").length - 1 && <br />}
                           </React.Fragment>
                         ))}
+                        
+                        {!msg.isUser && (
+                          <div className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 bg-white/80 rounded p-1">
+                            <button
+                              className="text-xs px-1 text-green-600 hover:text-green-800"
+                              onClick={() => rateResponse(idx, true)}
+                            >
+                              👍
+                            </button>
+                            <button
+                              className="text-xs px-1 text-red-600 hover:text-red-800"
+                              onClick={() => rateResponse(idx, false)}
+                            >
+                              👎
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -636,6 +765,29 @@ const ChatbotWidget: React.FC = () => {
                     <Send size={20} />
                   </Button>
                 </form>
+                
+                {isAdmin && (
+                  <div className="p-3 border-t bg-gray-50">
+                    <details>
+                      <summary className="font-medium cursor-pointer">⚙️ Treinamento da IA</summary>
+                      <div className="mt-2 space-y-3">
+                        <textarea 
+                          placeholder="Adicione exemplos de perguntas e respostas (Q: Pergunta&#10;R: Resposta)"
+                          value={trainingData}
+                          onChange={(e) => setTrainingData(e.target.value)}
+                          className="w-full p-2 border rounded"
+                          rows={4}
+                        />
+                        <Button 
+                          onClick={trainAI}
+                          className="bg-purple-600 hover:bg-purple-700"
+                        >
+                          Treinar Modelo
+                        </Button>
+                      </div>
+                    </details>
+                  </div>
+                )}
               </CardContent>
             </TabsContent>
 

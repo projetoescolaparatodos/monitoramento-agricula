@@ -71,6 +71,8 @@ function Router() {
             <Route path="/forms/agricultura" component={FormAgricultura} />
             <Route path="/forms/pesca" component={FormPesca} />
             <Route path="/forms/paa" component={FormPAA} />
+            <Route path="/forms/agricultura-completo" component={FormAgriculturaCompleto} />
+            <Route path="/forms/pesca-completo" component={FormPescaCompleto} />
             <Route component={NotFound} />
           </Switch>
         </Suspense>
