@@ -59,8 +59,17 @@ const FirebaseUpload: React.FC<FirebaseUploadProps> = ({ onUpload, folder = "upl
   const handleUrlSubmit = (e: React.FormEvent) => {
     e.preventDefault(); // Garantir que a página não recarregue
     if (uploadUrl.trim() && (uploadUrl.startsWith("http://") || uploadUrl.startsWith("https://"))) {
+      // Processar o upload do link
       onUpload(uploadUrl);
       setUploadUrl("");
+      
+      // Persistir o link enviado para recuperação em caso de navegação
+      try {
+        const formData = JSON.parse(localStorage.getItem('currentFormData') || '{}');
+        localStorage.setItem('lastUploadedMedia', JSON.stringify([...formData.midias || [], uploadUrl]));
+      } catch (error) {
+        console.error('Erro ao salvar mídia no armazenamento local:', error);
+      }
       toast({
         title: "URL adicionada",
         description: "A URL da mídia foi adicionada com sucesso."

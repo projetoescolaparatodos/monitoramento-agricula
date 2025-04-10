@@ -60,8 +60,17 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
   const handleUrlSubmit = (e: React.FormEvent) => {
     e.preventDefault(); // Isso evita que a página seja recarregada
     if (uploadUrl.trim() && (uploadUrl.startsWith("http://") || uploadUrl.startsWith("https://"))) {
+      // Enviar URL e prevenir navegação
       onUpload(uploadUrl);
       setUploadUrl("");
+      
+      // Salvar o estado atual no localStorage para recuperação caso ocorra navegação
+      try {
+        const formData = JSON.parse(localStorage.getItem('currentFormData') || '{}');
+        localStorage.setItem('lastUploadedMedia', JSON.stringify([...formData.midias || [], uploadUrl]));
+      } catch (error) {
+        console.error('Erro ao salvar mídia no armazenamento local:', error);
+      }
       toast({
         title: "URL adicionada",
         description: "A URL da mídia foi adicionada com sucesso."
