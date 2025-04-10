@@ -1,0 +1,253 @@
+Vamos implementar uma integração com IA usando a API OpenAI para tornar o chatbot mais inteligente e fácil de treinar. Aqui está a solução completa:
+1. Primeiro, atualize o arquivo de configuração (src/lib/openai.ts):
+typescript
+Copy
+
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true // Apenas para frontend (em produção use backend)
+});
+
+export async function getAIResponse(prompt: string, context: string) {
+  const completion = await openai.chat.completions.create({
+    messages: [
+      {
+        role: "system",
+        content: `Você é um assistente virtual da SEMAPA (Secretaria de Agricultura, Pesca e Abastecimento). 
+        Contexto: ${context}
+        Responda de forma clara e objetiva, sempre sugerindo os formulários adequados.`
+      },
+      { role: "user", content: prompt }
+    ],
+    model: "gpt-3.5-turbo",
+    temperature: 0.3,
+    max_tokens: 500
+  });
+
+  return completion.choices[0].message.content;
+}
+
+2. Modifique o ChatbotWidget.tsx para integrar a IA:
+typescript
+Copy
+
+// Adicione no início do arquivo:
+import { getAIResponse } from '@/lib/openai';
+
+// Atualize a função processUserMessage:
+const processUserMessage = async (userMessage: string) => {
+  setIsLoading(true);
+  addMessage(userMessage, true);
+
+  // 1. Primeiro tente o fluxo programático
+  const flowResponse = tryProgrammaticFlow(userMessage);
+  if (flowResponse.shouldRespond) {
+    addMessage(flowResponse.response, false);
+    setIsLoading(false);
+    return;
+  }
+
+  // 2. Se não encontrou no fluxo, use a IA
+  try {
+    const context = buildAIContext();
+    const aiResponse = await getAIResponse(userMessage, context);
+    
+    // Processar resposta da IA para ações especiais
+    if (aiResponse.includes('[[FORMULARIO_AGRICULTURA]]')) {
+      abrirFormulario('agricultura');
+    } else if (aiResponse.includes('[[FORMULARIO_PESCA]]')) {
+      abrirFormulario('pesca');
+    } else {
+      addMessage(aiResponse, false);
+    }
+  } catch (error) {
+    console.error("Erro na IA:", error);
+    addMessage("Desculpe, estou com dificuldades. Vamos tentar novamente?", false);
+  }
+
+  setIsLoading(false);
+};
+
+// Funções auxiliares novas:
+const tryProgrammaticFlow = (userMessage: string) => {
+  // Implemente aqui a lógica do fluxo existente
+  // Retorne { shouldRespond: boolean, response: string }
+};
+
+const buildAIContext = () => {
+  return `
+    Setor Ativo: ${setorAtivo}
+    Últimas Mensagens: ${JSON.stringify(messages.slice(-3))}
+    Formulários Disponíveis:
+    - Agricultura: /forms/agricultura
+    - Pesca: /forms/pesca
+    - PAA: /forms/paa
+    Dados do Município: Vitória do Xingu/PA
+  `;
+};
+
+3. Sistema de Treinamento Integrado:
+
+Adicione este componente ao final do ChatbotWidget:
+tsx
+Copy
+
+{isAdmin && (
+  <div className="p-3 border-t bg-gray-50">
+    <details>
+      <summary className="font-medium cursor-pointer">⚙️ Treinamento da IA</summary>
+      <div className="mt-2 space-y-3">
+        <Textarea 
+          placeholder="Adicione exemplos de perguntas e respostas (Q: Pergunta\nR: Resposta)"
+          value={trainingData}
+          onChange={(e) => setTrainingData(e.target.value)}
+        />
+        <Button 
+          onClick={trainAI}
+          className="bg-purple-600 hover:bg-purple-700"
+        >
+          Treinar Modelo
+        </Button>
+      </div>
+    </details>
+  </div>
+)}
+
+E as funções de treinamento:
+typescript
+Copy
+
+const [trainingData, setTrainingData] = useState("");
+const [isAdmin, setIsAdmin] = useState(false);
+
+// Verifique se é admin (em produção use autenticação adequada)
+useEffect(() => {
+  setIsAdmin(localStorage.getItem('admin') === 'true');
+}, []);
+
+const trainAI = async () => {
+  try {
+    const examples = trainingData.split('\n\n').map(example => {
+      const [q, r] = example.split('\n');
+      return {
+        question: q.replace('Q: ', ''),
+        answer: r.replace('R: ', '')
+      };
+    });
+
+    await addDoc(collection(db, 'ai_training'), {
+      examples,
+      timestamp: serverTimestamp(),
+      trainedBy: 'admin'
+    });
+
+    alert('Dados de treinamento enviados com sucesso!');
+  } catch (error) {
+    console.error("Erro no treinamento:", error);
+    alert('Erro ao enviar dados de treinamento');
+  }
+};
+
+4. Backend Firebase (regras de segurança):
+javascript
+Copy
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /ai_training/{doc} {
+      allow write: if request.auth != null && request.auth.token.admin == true;
+      allow read: if request.auth != null;
+    }
+  }
+}
+
+5. Melhorias Adicionais:
+
+    Cache de Respostas:
+
+typescript
+Copy
+
+const [responseCache, setResponseCache] = useState<Record<string, string>>({});
+
+// Na função processUserMessage:
+const cachedResponse = responseCache[userMessage.toLowerCase()];
+if (cachedResponse) {
+  addMessage(cachedResponse, false);
+  setIsLoading(false);
+  return;
+}
+
+    Avaliação de Respostas:
+
+tsx
+Copy
+
+{messages.filter(m => !m.isUser).map((msg, idx) => (
+  <div key={idx} className="group relative">
+    {msg.text}
+    <div className="absolute right-0 top-0 opacity-0 group-hover:opacity-100">
+      <Button variant="ghost" size="xs" onClick={() => rateResponse(idx, true)}>
+        👍
+      </Button>
+      <Button variant="ghost" size="xs" onClick={() => rateResponse(idx, false)}>
+        👎
+      </Button>
+    </div>
+  </div>
+))}
+
+    Função de Avaliação:
+
+typescript
+Copy
+
+const rateResponse = async (messageIndex: number, isGood: boolean) => {
+  const message = messages[messageIndex];
+  await addDoc(collection(db, 'ai_feedback'), {
+    question: messages[messageIndex - 1]?.text || '',
+    answer: message.text,
+    isGood,
+    timestamp: serverTimestamp()
+  });
+};
+
+Como isso funciona na prática:
+
+    Fluxo Híbrido:
+
+        Primeiro tenta responder com regras programáticas (para fluxos conhecidos)
+
+        Se não encontrar, consulta a IA com o contexto atual
+
+    Treinamento Contínuo:
+
+        Administradores podem adicionar exemplos Q&A
+
+        O sistema coleta feedback dos usuários (👍/👎)
+
+        Você pode re-treinar o modelo periodicamente
+
+    Vantagens:
+
+        Reduz a necessidade de codificar cada fluxo possível
+
+        Melhora com o tempo através do feedback
+
+        Mantém controle sobre respostas importantes (via fluxos programados)
+
+Exemplo de Dados de Treinamento:
+Copy
+
+Q: Como me cadastrar no programa de agricultura?
+R: Você pode se cadastrar no programa agrícola através do nosso formulário online. [[FORMULARIO_AGRICULTURA]]
+
+Q: Quais documentos preciso para o cadastro de pesca?
+R: Para o cadastro de pesca você precisará de: RG, CPF e comprovante de residência. [[FORMULARIO_PESCA]]
+
+Q: Qual o horário de atendimento?
+R: Atendemos de segunda a sexta, das 8h às 14h. Você pode nos visitar na Av. Principal, 500.
+
+Esta implementação mantém todo o funcionamento atual enquanto adiciona a capacidade de lidar com perguntas não previstas inicialmente. Você pode começar com a IA respondendo apenas quando o fluxo programático não souber responder, e gradualmente migrar mais lógica para a IA conforme o sistema aprende.
