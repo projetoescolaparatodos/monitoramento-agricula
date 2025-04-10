@@ -19,9 +19,9 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "tratores_preset"); // Preset do Cloudinary configurado como unsigned
+    formData.append("upload_preset", "tratores_preset");
+    formData.append("api_key", "w41TEMp-LcV8swH1Bxw6FDApG9Y"); // API key do Cloudinary
     
-    // Não incluir API key para uploads não assinados
     // Adicionar timestamp para evitar problemas de cache
     formData.append("timestamp", String(Date.now() / 1000));
 
@@ -35,8 +35,14 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
       
       console.log("Iniciando upload para Cloudinary com preset:", formData.get("upload_preset"));
       
+      // Adicionar assinatura para upload
+      const cloudName = "dwtcpujnm";
+      const apiKey = "w41TEMp-LcV8swH1Bxw6FDApG9Y";
+      
+      console.log("Iniciando upload para Cloudinary com API key:", apiKey);
+      
       const response = await fetch(
-        "https://api.cloudinary.com/v1_1/dwtcpujnm/image/upload", // URL correta para upload de imagens
+        `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, // URL para detectar automaticamente o tipo de mídia
         {
           method: "POST",
           body: formData,
@@ -50,7 +56,9 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
       
       if (!response.ok) {
         if (response.status === 401) {
-          throw new Error("Erro de autenticação no Cloudinary. Verifique se o upload_preset 'tratores_preset' está configurado como 'Unsigned' no console do Cloudinary.");
+          throw new Error("Erro de autenticação no Cloudinary. Verifique a chave API e o upload_preset.");
+        } else if (response.status === 400) {
+          throw new Error(`Erro no formato dos dados enviados ao Cloudinary: ${response.statusText}`);
         } else {
           throw new Error(`Falha no upload para o Cloudinary: ${response.status} ${response.statusText}`);
         }
