@@ -155,10 +155,14 @@ const FormPesca = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
+    const newFormData = {
+      ...formData,
       [name]: value
-    }));
+    };
+    setFormData(newFormData);
+    
+    // Salvar rascunho automaticamente quando o usuário digita
+    localStorage.setItem('formPescaDraft', JSON.stringify(newFormData));
   };
   
   const handleSelectChange = (name: string, value: string) => {

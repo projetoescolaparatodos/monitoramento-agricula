@@ -58,7 +58,7 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
   };
 
   const handleUrlSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Isso evita que a página seja recarregada
     if (uploadUrl.trim() && (uploadUrl.startsWith("http://") || uploadUrl.startsWith("https://"))) {
       onUpload(uploadUrl);
       setUploadUrl("");

@@ -57,7 +57,7 @@ const FirebaseUpload: React.FC<FirebaseUploadProps> = ({ onUpload, folder = "upl
   };
 
   const handleUrlSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Garantir que a página não recarregue
     if (uploadUrl.trim() && (uploadUrl.startsWith("http://") || uploadUrl.startsWith("https://"))) {
       onUpload(uploadUrl);
       setUploadUrl("");
