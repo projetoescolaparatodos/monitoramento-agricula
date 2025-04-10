@@ -22,6 +22,7 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
     formData.append("upload_preset", "semapa_uploads"); // Preset configurado no Cloudinary
 
     try {
+      console.log("Iniciando upload para Cloudinary...");
       const response = await fetch(
         "https://api.cloudinary.com/v1_1/dwtcpujnm/upload", // Cloud name do Cloudinary
         {
@@ -30,11 +31,27 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
         }
       );
 
+      const responseText = await response.text();
+      console.log("Resposta Cloudinary:", responseText);
+      
       if (!response.ok) {
-        throw new Error("Falha no upload para o Cloudinary");
+        throw new Error(`Falha no upload para o Cloudinary: ${response.status} ${response.statusText}`);
       }
 
-      const data = await response.json();
+      // Tentar converter texto para JSON
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("Erro ao analisar resposta JSON:", parseError);
+        throw new Error("Resposta inválida do Cloudinary");
+      }
+
+      if (!data.secure_url) {
+        throw new Error("URL segura não encontrada na resposta do Cloudinary");
+      }
+
+      console.log("URL gerada:", data.secure_url);
       onUpload(data.secure_url);
       toast({
         title: "Upload concluído",
@@ -44,7 +61,7 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
       console.error("Erro no upload para Cloudinary:", error);
       toast({
         title: "Erro no upload",
-        description: "Não foi possível fazer o upload da mídia. Verifique o console para mais detalhes.",
+        description: `Falha no upload: ${error.message || "Erro desconhecido"}`,
         variant: "destructive",
       });
     } finally {

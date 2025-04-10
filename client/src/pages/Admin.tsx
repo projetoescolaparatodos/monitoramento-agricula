@@ -416,11 +416,16 @@ const AgriculturaForm = () => {
               <div className="grid grid-cols-4 gap-2 mt-2">
                 {midias.map((url, index) => (
                   <div key={index} className="relative group">
-                    {url.includes("/video/") || url.includes("/video/upload/") || url.endsWith(".mp4") ? (
+                    {url.includes("/video/") || url.includes("/video/upload/") || 
+                      url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".mov") ? (
                       <video
                         src={url}
                         controls
                         className="w-full h-24 object-cover rounded-lg"
+                        onError={(e) => {
+                          console.error("Erro ao carregar vídeo:", url);
+                          e.currentTarget.poster = 'https://placehold.co/600x400?text=Erro+no+vídeo';
+                        }}
                       />
                     ) : (
                       <img
@@ -428,6 +433,7 @@ const AgriculturaForm = () => {
                         alt={`Mídia ${index + 1}`}
                         className="w-full h-24 object-cover rounded-lg"
                         onError={(e) => {
+                          console.error("Erro ao carregar imagem:", url);
                           (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Erro+ao+carregar';
                         }}
                       />
@@ -857,11 +863,16 @@ const PescaForm = () => {
               <div className="grid grid-cols-4 gap-2 mt-2">
                 {midias.map((url, index) => (
                   <div key={index} className="relative group">
-                    {url.includes("/video/") || url.includes("/video/upload/") || url.endsWith(".mp4") ? (
+                    {url.includes("/video/") || url.includes("/video/upload/") || 
+                      url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".mov") ? (
                       <video
                         src={url}
                         controls
                         className="w-full h-24 object-cover rounded-lg"
+                        onError={(e) => {
+                          console.error("Erro ao carregar vídeo:", url);
+                          e.currentTarget.poster = 'https://placehold.co/600x400?text=Erro+no+vídeo';
+                        }}
                       />
                     ) : (
                       <img
@@ -869,6 +880,7 @@ const PescaForm = () => {
                         alt={`Mídia ${index + 1}`}
                         className="w-full h-24 object-cover rounded-lg"
                         onError={(e) => {
+                          console.error("Erro ao carregar imagem:", url);
                           (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Erro+ao+carregar';
                         }}
                       />
@@ -1331,11 +1343,16 @@ const PAAForm = () => {
               <div className="grid grid-cols-4 gap-2 mt-2">
                 {midias.map((url, index) => (
                   <div key={index} className="relative group">
-                    {url.includes("/video/") || url.includes("/video/upload/") || url.endsWith(".mp4") ? (
+                    {url.includes("/video/") || url.includes("/video/upload/") || 
+                      url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".mov") ? (
                       <video
                         src={url}
                         controls
                         className="w-full h-24 object-cover rounded-lg"
+                        onError={(e) => {
+                          console.error("Erro ao carregar vídeo:", url);
+                          e.currentTarget.poster = 'https://placehold.co/600x400?text=Erro+no+vídeo';
+                        }}
                       />
                     ) : (
                       <img
@@ -1343,6 +1360,7 @@ const PAAForm = () => {
                         alt={`Mídia ${index + 1}`}
                         className="w-full h-24 object-cover rounded-lg"
                         onError={(e) => {
+                          console.error("Erro ao carregar imagem:", url);
                           (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Erro+ao+carregar';
                         }}
                       />
