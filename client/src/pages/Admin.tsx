@@ -415,22 +415,32 @@ const AgriculturaForm = () => {
               <Upload onUpload={handleUpload} />
               <div className="grid grid-cols-4 gap-2 mt-2">
                 {midias.map((url, index) => (
-                  url.includes("/video/") || url.includes("/video/upload/") ? (
-                    <div key={index} className="relative">
+                  <div key={index} className="relative group">
+                    {url.includes("/video/") || url.includes("/video/upload/") || url.endsWith(".mp4") ? (
                       <video
                         src={url}
                         controls
                         className="w-full h-24 object-cover rounded-lg"
                       />
-                    </div>
-                  ) : (
-                    <img
-                      key={index}
-                      src={url}
-                      alt={`Mídia ${index + 1}`}
-                      className="w-full h-24 object-cover rounded-lg"
-                    />
-                  )
+                    ) : (
+                      <img
+                        src={url}
+                        alt={`Mídia ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Erro+ao+carregar';
+                        }}
+                      />
+                    )}
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => setMidias(midias.filter((_, i) => i !== index))}
+                    >
+                      ✕
+                    </Button>
+                  </div>
                 ))}
               </div>
             </div>
@@ -846,22 +856,32 @@ const PescaForm = () => {
               <Upload onUpload={handleUpload} />
               <div className="grid grid-cols-4 gap-2 mt-2">
                 {midias.map((url, index) => (
-                  url.includes("/video/") || url.includes("/video/upload/") ? (
-                    <div key={index} className="relative">
+                  <div key={index} className="relative group">
+                    {url.includes("/video/") || url.includes("/video/upload/") || url.endsWith(".mp4") ? (
                       <video
                         src={url}
                         controls
                         className="w-full h-24 object-cover rounded-lg"
                       />
-                    </div>
-                  ) : (
-                    <img
-                      key={index}
-                      src={url}
-                      alt={`Mídia ${index + 1}`}
-                      className="w-full h-24 object-cover rounded-lg"
-                    />
-                  )
+                    ) : (
+                      <img
+                        src={url}
+                        alt={`Mídia ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Erro+ao+carregar';
+                        }}
+                      />
+                    )}
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => setMidias(midias.filter((_, i) => i !== index))}
+                    >
+                      ✕
+                    </Button>
+                  </div>
                 ))}
               </div>
             </div>
@@ -1310,22 +1330,32 @@ const PAAForm = () => {
               <Upload onUpload={handleUpload} />
               <div className="grid grid-cols-4 gap-2 mt-2">
                 {midias.map((url, index) => (
-                  url.includes("/video/") || url.includes("/video/upload/") ? (
-                    <div key={index} className="relative">
+                  <div key={index} className="relative group">
+                    {url.includes("/video/") || url.includes("/video/upload/") || url.endsWith(".mp4") ? (
                       <video
                         src={url}
                         controls
                         className="w-full h-24 object-cover rounded-lg"
                       />
-                    </div>
-                  ) : (
-                    <img
-                      key={index}
-                      src={url}
-                      alt={`Mídia ${index + 1}`}
-                      className="w-full h-24 object-cover rounded-lg"
-                    />
-                  )
+                    ) : (
+                      <img
+                        src={url}
+                        alt={`Mídia ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Erro+ao+carregar';
+                        }}
+                      />
+                    )}
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => setMidias(midias.filter((_, i) => i !== index))}
+                    >
+                      ✕
+                    </Button>
+                  </div>
                 ))}
               </div>
             </div>

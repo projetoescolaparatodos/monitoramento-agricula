@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
 
 interface UploadProps {
   onUpload: (url: string) => void;
@@ -22,7 +23,7 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
 
     try {
       const response = await fetch(
-        "https://api.cloudinary.com/v1_1/dwtcpujnm/upload", // Substitua pelo seu cloud_name
+        "https://api.cloudinary.com/v1_1/dwtcpujnm/upload", // Cloud name do Cloudinary
         {
           method: "POST",
           body: formData,
@@ -43,7 +44,7 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
       console.error("Erro no upload para Cloudinary:", error);
       toast({
         title: "Erro no upload",
-        description: "Não foi possível fazer o upload da mídia",
+        description: "Não foi possível fazer o upload da mídia. Verifique o console para mais detalhes.",
         variant: "destructive",
       });
     } finally {
@@ -55,7 +56,7 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
   const handleUrlSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (uploadUrl.trim()) {
-      onUpload(uploadUrl);
+      onUpload(uploadUrl.trim());
       setUploadUrl("");
       toast({
         title: "URL adicionada",
@@ -88,15 +89,15 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
         
         <div className="flex items-center space-x-2 rounded-md border p-2">
           <form onSubmit={handleUrlSubmit} className="flex w-full gap-2">
-            <input
-              className="flex-1 border rounded p-2 text-sm"
+            <Input
+              className="flex-1"
               type="url"
               placeholder="Ou adicione por URL (https://...)"
               value={uploadUrl}
               onChange={(e) => setUploadUrl(e.target.value)}
             />
             <Button type="submit" variant="outline" size="sm">
-              Adicionar
+              Adicionar URL
             </Button>
           </form>
         </div>
