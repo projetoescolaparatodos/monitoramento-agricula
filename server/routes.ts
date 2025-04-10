@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { collection, query, where, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore';
 import { db } from './storage';
-import { upload, uploadToFirebase, handleCloudinaryUpload, uploadToCloudinary } from './upload'; // Assuming these functions exist in ./upload.ts
+import { handleCloudinaryUpload, uploadToCloudinary } from './upload'; // Importando apenas as funções que existem no módulo
 
 interface ChatbotMessage {
   nome: string;
@@ -98,14 +98,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Media items routes
-  app.post('/api/upload', upload.single('file'), async (req, res) => {
+  app.post('/api/upload', handleCloudinaryUpload, async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: true, message: 'Nenhum arquivo enviado' });
       }
 
       const path = `uploads/${Date.now()}-${req.file.originalname}`;
-      const downloadUrl = await uploadToFirebase(req.file, path);
+      // Como não temos mais a função uploadToFirebase, vamos usar o Cloudinary
+      const formData = new FormData();
+      formData.append('file', new Blob([req.file.buffer]), req.file.originalname);
+      formData.append('upload_preset', 'tratores_preset');
+      
+      const cloudinaryResponse = await fetch(
+        `https://api.cloudinary.com/v1_1/dwtcpujnm/auto/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+      
+      const cloudinaryData = await cloudinaryResponse.json();
+      const downloadUrl = cloudinaryData.secure_url;
 
       res.json({ url: downloadUrl });
     } catch (error) {
