@@ -616,6 +616,55 @@ const ChatbotWidget: React.FC = () => {
     }
   };
 
+  const renderContent = (content: string) => {
+    // Verifica se o conteúdo tem URLs de imagem ou vídeo
+    const mediaRegex = /(https?:\/\/[^\s]+\.(jpg|jpeg|png|gif|webp|mp4|webm|mov))/gi;
+    const matches = content.match(mediaRegex) || [];
+
+    // Se não houver mídia, retorne apenas o texto
+    if (matches.length === 0) {
+      return <p>{content}</p>;
+    }
+
+    // Para cada mídia encontrada, substitua pelo placeholder e armazene a URL
+    let processedContent = content;
+    const mediaUrls: string[] = [];
+
+    matches.forEach(url => {
+      mediaUrls.push(url);
+      processedContent = processedContent.replace(url, '');
+    });
+
+    // Limpe o texto resultante (remova espaços extras)
+    processedContent = processedContent.trim();
+
+    return (
+      <>
+        {mediaUrls.map((url, index) => {
+          const isVideo = /\.(mp4|webm|mov)$/i.test(url);
+          return isVideo ? (
+            <video key={index} controls className="w-full h-auto rounded-md mb-2 max-h-60">
+              <source src={url} type={`video/${url.split('.').pop()}`} />
+              Seu navegador não suporta vídeos.
+            </video>
+          ) : (
+            <img 
+              key={index}
+              src={url} 
+              alt="Imagem" 
+              className="w-full h-auto rounded-md mb-2 max-h-60" 
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Imagem+não+encontrada';
+              }}
+            />
+          );
+        })}
+        {processedContent && <p>{processedContent}</p>}
+      </>
+    );
+  };
+
+
   return (
     <div className="fixed bottom-4 right-4 z-50">
       {!isOpen ? (
@@ -667,12 +716,7 @@ const ChatbotWidget: React.FC = () => {
                             : "bg-gray-100 text-gray-800 rounded-tl-none"
                         }`}
                       >
-                        {msg.text.split("\n").map((line, i) => (
-                          <React.Fragment key={i}>
-                            {line}
-                            {i < msg.text.split("\n").length - 1 && <br />}
-                          </React.Fragment>
-                        ))}
+                        {renderContent(msg.text)}
                         {!msg.isUser && (
                           <div className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 bg-white/80 rounded p-1">
                             <Button variant="ghost" size="xs" onClick={() => rateResponse(idx, true)}>👍</Button>

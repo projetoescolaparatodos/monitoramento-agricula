@@ -16,7 +16,9 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/utils/firebase';
 import { useToast } from '@/hooks/use-toast';
-import MediaFileUploader from './MediaFileUploader'; // Assumed location for MediaFileUploader component
+import MediaFileUploader from './MediaFileUploader';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 
 const ChatbotAdmin = () => {
@@ -24,13 +26,17 @@ const ChatbotAdmin = () => {
   const [trainingHistory, setTrainingHistory] = useState<any[]>([]);
   const [feedbackHistory, setFeedbackHistory] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [mediaUrls, setMediaUrls] = useState([]); // Added state for media URLs
+  const [mediaUrls, setMediaUrls] = useState<string[]>([]); 
+  const [contextText, setContextText] = useState("");
+  const [contextList, setContextList] = useState<any[]>([]);
+  const [editingContextId, setEditingContextId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Carregar histórico de treinamentos e feedbacks
+  // Carregar histórico de treinamentos, feedbacks e contextos
   useEffect(() => {
     loadTrainings();
     loadFeedbacks();
+    loadSavedContexts();
   }, []);
 
   const loadTrainings = async () => {
@@ -158,11 +164,104 @@ const ChatbotAdmin = () => {
   };
 
 
-  // Placeholder functions -  These need to be implemented based on your actual data structure and Firebase setup.
-  const handleSaveContext = async () => { /*Implementation missing*/ };
-  const handleEditContext = (contextId, contextText, mediaList = []) => { /*Implementation missing*/ };
-  const handleDeleteContext = (contextId) => { /*Implementation missing*/ };
-  const loadSavedContexts = async () => { /*Implementation missing*/ };
+  // Implementação para gerenciamento de contextos
+  const loadSavedContexts = async () => {
+    try {
+      const q = query(collection(db, 'ai_contexts'), orderBy('timestamp', 'desc'));
+      const querySnapshot = await getDocs(q);
+      const contexts = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setContextList(contexts);
+    } catch (error) {
+      console.error('Erro ao carregar contextos:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar os contextos salvos",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleSaveContext = async () => {
+    if (!contextText.trim()) {
+      toast({
+        title: "Erro",
+        description: "O texto do contexto não pode estar vazio",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      if (editingContextId) {
+        // Atualizar contexto existente
+        await updateDoc(doc(db, 'ai_contexts', editingContextId), {
+          text: contextText,
+          media: mediaUrls,
+          updatedAt: serverTimestamp()
+        });
+        toast({
+          title: "Sucesso",
+          description: "Contexto atualizado com sucesso",
+        });
+      } else {
+        // Criar novo contexto
+        await addDoc(collection(db, 'ai_contexts'), {
+          text: contextText,
+          media: mediaUrls,
+          timestamp: serverTimestamp(),
+          createdBy: 'admin'
+        });
+        toast({
+          title: "Sucesso",
+          description: "Novo contexto adicionado com sucesso",
+        });
+      }
+
+      // Limpar formulário e recarregar contextos
+      setContextText("");
+      setMediaUrls([]);
+      setEditingContextId(null);
+      loadSavedContexts();
+    } catch (error) {
+      console.error("Erro ao salvar contexto:", error);
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao salvar o contexto",
+        variant: "destructive"
+      });
+    }
+    setIsLoading(false);
+  };
+
+  const handleEditContext = (contextId: string, text: string, media: string[] = []) => {
+    setEditingContextId(contextId);
+    setContextText(text);
+    setMediaUrls(media);
+  };
+
+  const handleDeleteContext = async (contextId: string) => {
+    if (confirm("Tem certeza que deseja excluir este contexto?")) {
+      try {
+        await deleteDoc(doc(db, 'ai_contexts', contextId));
+        toast({
+          title: "Sucesso",
+          description: "Contexto excluído com sucesso",
+        });
+        loadSavedContexts();
+      } catch (error) {
+        console.error("Erro ao excluir contexto:", error);
+        toast({
+          title: "Erro",
+          description: "Ocorreu um erro ao excluir o contexto",
+          variant: "destructive"
+        });
+      }
+    }
+  };
 
 
   return (
@@ -175,10 +274,11 @@ const ChatbotAdmin = () => {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="training">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="training">Treinamento</TabsTrigger>
             <TabsTrigger value="history">Histórico de Treinamentos</TabsTrigger>
             <TabsTrigger value="feedback">Feedbacks dos Usuários</TabsTrigger>
+            <TabsTrigger value="contexts">Contextos</TabsTrigger>
           </TabsList>
 
           <TabsContent value="training" className="space-y-4 mt-4">
@@ -301,6 +401,164 @@ R: Para o PAA, você precisa apresentar DAP/CAF ativa, documentos pessoais e com
                         <p className="text-sm font-medium">Resposta avaliada:</p>
                         <p className="text-sm">{feedback.answer || "N/A"}</p>
                       </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="contexts" className="mt-4">
+            <h3 className="text-lg font-medium mb-4">Gerenciamento de Contextos do Chatbot</h3>
+            
+            <div className="space-y-4 mb-6">
+              <div>
+                <Label htmlFor="context-text">Texto do Contexto</Label>
+                <Textarea 
+                  id="context-text"
+                  placeholder="Adicione informações de contexto para o chatbot..."
+                  value={contextText}
+                  onChange={(e) => setContextText(e.target.value)}
+                  rows={5}
+                  className="mt-1"
+                />
+              </div>
+              
+              <div>
+                <Label className="block mb-2">Adicionar Mídia</Label>
+                <MediaFileUploader 
+                  onFileUploaded={handleFileUploaded}
+                  label="Upload de Mídia"
+                  acceptTypes="image/*,video/*"
+                  folderPath="chatbot-contexts"
+                />
+              </div>
+              
+              {mediaUrls.length > 0 && (
+                <div className="mt-4">
+                  <h4 className="font-medium mb-2">Mídias ({mediaUrls.length})</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    {mediaUrls.map((url, index) => (
+                      <div key={index} className="relative border rounded-md overflow-hidden">
+                        {url.match(/\.(jpeg|jpg|gif|png)$/i) ? (
+                          <img 
+                            src={url} 
+                            alt={`Mídia ${index + 1}`}
+                            className="w-full h-32 object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Erro+ao+carregar';
+                            }}
+                          />
+                        ) : url.match(/\.(mp4|webm|ogg)$/i) ? (
+                          <div className="w-full h-32 bg-gray-100 flex items-center justify-center">
+                            <p className="text-sm text-gray-500">Vídeo</p>
+                          </div>
+                        ) : (
+                          <div className="w-full h-32 bg-gray-100 flex items-center justify-center">
+                            <p className="text-sm text-gray-500">Link: {url.substring(0, 20)}...</p>
+                          </div>
+                        )}
+                        <Button 
+                          size="icon" 
+                          variant="destructive"
+                          className="absolute top-1 right-1 w-6 h-6"
+                          onClick={() => handleRemoveMedia(index)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex justify-end gap-2 mt-4">
+                {editingContextId && (
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setEditingContextId(null);
+                      setContextText("");
+                      setMediaUrls([]);
+                    }}
+                    disabled={isLoading}
+                  >
+                    Cancelar
+                  </Button>
+                )}
+                <Button 
+                  onClick={handleSaveContext}
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Salvando..." : editingContextId ? "Atualizar Contexto" : "Salvar Contexto"}
+                </Button>
+              </div>
+            </div>
+            
+            <h4 className="font-medium mb-2">Contextos Salvos</h4>
+            {contextList.length === 0 ? (
+              <p className="text-gray-500 text-center py-8">Nenhum contexto salvo ainda.</p>
+            ) : (
+              <div className="space-y-4">
+                {contextList.map((context) => (
+                  <Card key={context.id} className="p-4">
+                    <div className="flex justify-between">
+                      <div className="text-sm font-medium">
+                        Contexto #{context.id.substring(0, 8)}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {context.timestamp?.toDate().toLocaleString() || 'Data desconhecida'}
+                      </div>
+                    </div>
+                    
+                    <div className="mt-2">
+                      <p className="text-sm mb-1">Texto:</p>
+                      <div className="bg-gray-50 p-2 rounded text-sm">
+                        {context.text}
+                      </div>
+                    </div>
+                    
+                    {context.media && context.media.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-sm mb-1">Mídias ({context.media.length}):</p>
+                        <div className="grid grid-cols-3 gap-2 mt-1">
+                          {context.media.map((url: string, i: number) => (
+                            <div key={i} className="h-16 rounded overflow-hidden border">
+                              {url.match(/\.(jpeg|jpg|gif|png)$/i) ? (
+                                <img 
+                                  src={url} 
+                                  alt={`Mídia ${i + 1}`}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = 'https://placehold.co/300x200?text=Erro';
+                                  }}
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                                  <p className="text-xs text-gray-500">Link de mídia</p>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="mt-3 flex justify-end gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleEditContext(context.id, context.text, context.media || [])}
+                      >
+                        Editar
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        size="sm"
+                        onClick={() => handleDeleteContext(context.id)}
+                      >
+                        Excluir
+                      </Button>
                     </div>
                   </Card>
                 ))}
