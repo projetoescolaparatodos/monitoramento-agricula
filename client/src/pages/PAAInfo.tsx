@@ -167,7 +167,7 @@ const PAAInfo = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-3xl font-bold">
-                    {paaData?.reduce((total, paa) => {
+                    {(paaData?.reduce((total, paa) => {
                       // Certifica que areaMecanizacao existe e é número
                       const area = typeof paa.areaMecanizacao === 'number' ? paa.areaMecanizacao : 0;
                       return total + area;
