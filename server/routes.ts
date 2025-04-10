@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { collection, query, where, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore';
 import { db } from './storage';
-import { handleCloudinaryUpload, uploadToCloudinary } from './upload'; // Importando apenas as funções que existem no módulo
+import multer from 'multer';
 
 interface ChatbotMessage {
   nome: string;
@@ -98,28 +98,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Media items routes
-  app.post('/api/upload', handleCloudinaryUpload, async (req, res) => {
+  app.post('/api/upload', upload.single('file'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: true, message: 'Nenhum arquivo enviado' });
       }
 
-      const path = `uploads/${Date.now()}-${req.file.originalname}`;
-      // Como não temos mais a função uploadToFirebase, vamos usar o Cloudinary
-      const formData = new FormData();
-      formData.append('file', new Blob([req.file.buffer]), req.file.originalname);
-      formData.append('upload_preset', 'tratores_preset');
+      // Importação direta do módulo do Firebase
+      const { getStorage, ref, uploadBytes, getDownloadURL } = require('firebase/storage');
+      const { storage } = require('./storage');
       
-      const cloudinaryResponse = await fetch(
-        `https://api.cloudinary.com/v1_1/dwtcpujnm/auto/upload`,
-        {
-          method: 'POST',
-          body: formData,
-        }
-      );
+      // Criar caminho para o arquivo
+      const fileType = req.file.mimetype.split('/')[0]; // 'image' ou 'video'
+      const timestamp = Date.now();
+      const path = `uploads/${fileType}/${timestamp}_${req.file.originalname}`;
       
-      const cloudinaryData = await cloudinaryResponse.json();
-      const downloadUrl = cloudinaryData.secure_url;
+      // Criar referência para o arquivo
+      const fileRef = ref(storage, path);
+      
+      // Upload do arquivo para o Firebase Storage
+      await uploadBytes(fileRef, req.file.buffer);
+      
+      // Obter URL de download
+      const downloadUrl = await getDownloadURL(fileRef);
 
       res.json({ url: downloadUrl });
     } catch (error) {
@@ -219,8 +220,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Cloudinary upload route
-  app.post('/api/cloudinary-upload', handleCloudinaryUpload, uploadToCloudinary);
+  // Configurar multer para processar uploads
+  const upload = multer({ 
+    storage: multer.memoryStorage(),
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB
+    },
+  });
 
 
   const httpServer = createServer(app);

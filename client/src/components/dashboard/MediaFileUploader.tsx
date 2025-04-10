@@ -68,39 +68,31 @@ const MediaFileUploader = ({
   };
 
   return (
-    <Card className="mb-4">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-base">{label}</CardTitle>
+        <CardTitle>{label}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="media-upload">Selecione um arquivo</Label>
+        <div className="grid w-full items-center gap-4">
+          <div className="flex flex-col space-y-1.5">
+            <Label htmlFor="mediaFile">Selecione o arquivo</Label>
             <Input
-              id="media-upload"
+              id="mediaFile"
               type="file"
               accept={acceptTypes}
               onChange={handleFileChange}
               disabled={uploading}
-              className="mt-1"
             />
           </div>
-          
           {uploading && (
-            <div className="mt-2">
-              <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <div 
-                  className="bg-primary h-2.5 rounded-full" 
-                  style={{ width: `${progress}%` }}
-                ></div>
-              </div>
-              <p className="text-sm text-center mt-1">{progress}% Concluído</p>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div
+                className="bg-blue-600 h-2.5 rounded-full"
+                style={{ width: `${progress}%` }}
+              ></div>
+              <p className="text-xs text-center mt-1">{progress}%</p>
             </div>
           )}
-          
-          <p className="text-sm text-muted-foreground">
-            Formatos suportados: JPG, PNG, GIF, MP4, WebM
-          </p>
         </div>
       </CardContent>
     </Card>

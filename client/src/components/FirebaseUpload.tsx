@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,50 +7,48 @@ import { useToast } from "@/hooks/use-toast";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/utils/firebase";
 
-interface UploadProps {
+interface FirebaseUploadProps {
   onUpload: (url: string) => void;
+  folder?: string;
 }
 
-const Upload: React.FC<UploadProps> = ({ onUpload }) => {
+const FirebaseUpload: React.FC<FirebaseUploadProps> = ({ onUpload, folder = "uploads" }) => {
   const [uploading, setUploading] = useState(false);
   const [uploadUrl, setUploadUrl] = useState<string>("");
   const { toast } = useToast();
 
-  // Função para upload via Firebase Storage
   const handleFirebaseUpload = async (file: File) => {
+    if (!file) return;
+    
     setUploading(true);
-
     try {
-      console.log("Iniciando upload para Firebase Storage...");
-
-      // Verificar se o arquivo é muito grande
+      // Verificar tamanho do arquivo
       if (file.size > 10 * 1024 * 1024) { // 10MB
         throw new Error("Arquivo muito grande. O limite é de 10MB.");
       }
-
-      // Criar uma referência para o arquivo no Firebase Storage
+      
+      // Criar referência de armazenamento para o arquivo
       const fileType = file.type.split('/')[0]; // 'image' ou 'video'
       const timestamp = Date.now();
-      const fileRef = ref(storage, `uploads/${fileType}/${timestamp}_${file.name}`);
-
+      const fileRef = ref(storage, `${folder}/${fileType}/${timestamp}_${file.name}`);
+      
       // Fazer upload do arquivo
       await uploadBytes(fileRef, file);
-
+      
       // Obter URL do arquivo enviado
       const downloadUrl = await getDownloadURL(fileRef);
-
-      console.log("Upload concluído para Firebase Storage, URL:", downloadUrl);
+      
       onUpload(downloadUrl);
-
+      
       toast({
         title: "Upload concluído",
-        description: "Arquivo enviado com sucesso para o Firebase Storage.",
+        description: "O arquivo foi carregado com sucesso."
       });
     } catch (error) {
-      console.error("Erro ao fazer upload para o Firebase Storage:", error);
+      console.error("Erro no upload:", error);
       toast({
         title: "Erro no upload",
-        description: `Falha ao enviar arquivo: ${(error as Error).message}`,
+        description: "Ocorreu um erro ao enviar o arquivo: " + (error as Error).message,
         variant: "destructive",
       });
     } finally {
@@ -90,7 +89,7 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
           }}
           disabled={uploading}
         />
-
+        
         <div className="flex items-center space-x-2 rounded-md border p-2">
           <form onSubmit={handleUrlSubmit} className="flex w-full gap-2">
             <Input
@@ -117,4 +116,4 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
   );
 };
 
-export default Upload;
+export default FirebaseUpload;
