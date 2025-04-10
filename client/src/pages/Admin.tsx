@@ -415,12 +415,22 @@ const AgriculturaForm = () => {
               <Upload onUpload={handleUpload} />
               <div className="grid grid-cols-4 gap-2 mt-2">
                 {midias.map((url, index) => (
-                  <img
-                    key={index}
-                    src={url}
-                    alt={`Mídia ${index + 1}`}
-                    className="w-full h-24 object-cover rounded-lg"
-                  />
+                  url.includes("/video/") || url.includes("/video/upload/") ? (
+                    <div key={index} className="relative">
+                      <video
+                        src={url}
+                        controls
+                        className="w-full h-24 object-cover rounded-lg"
+                      />
+                    </div>
+                  ) : (
+                    <img
+                      key={index}
+                      src={url}
+                      alt={`Mídia ${index + 1}`}
+                      className="w-full h-24 object-cover rounded-lg"
+                    />
+                  )
                 ))}
               </div>
             </div>
@@ -836,12 +846,22 @@ const PescaForm = () => {
               <Upload onUpload={handleUpload} />
               <div className="grid grid-cols-4 gap-2 mt-2">
                 {midias.map((url, index) => (
-                  <img
-                    key={index}
-                    src={url}
-                    alt={`Mídia ${index + 1}`}
-                    className="w-full h-24 object-cover rounded-lg"
-                  />
+                  url.includes("/video/") || url.includes("/video/upload/") ? (
+                    <div key={index} className="relative">
+                      <video
+                        src={url}
+                        controls
+                        className="w-full h-24 object-cover rounded-lg"
+                      />
+                    </div>
+                  ) : (
+                    <img
+                      key={index}
+                      src={url}
+                      alt={`Mídia ${index + 1}`}
+                      className="w-full h-24 object-cover rounded-lg"
+                    />
+                  )
                 ))}
               </div>
             </div>
@@ -923,7 +943,7 @@ const PAAForm = () => {
     new Date().toISOString().split("T")[0],
   );
   const [paaLocaisCadastrados, setPaaLocaisCadastrados] = useState<any[]>([]);
-  const [paaLocalEmEdicao, setPaaLocalEmEdicao] = useState<any | null>(null);
+  const [paaLocalEmEdicao, setPaaLocalEmEdicao] =useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -1104,7 +1124,7 @@ const PAAForm = () => {
   useEffect(() => {
     const fetchAtividades = async () => {
       const querySnapshot = await getDocs(collection(db, "paa"));
-      const atividadesData = querySnapshot.docs.map(doc => ({
+      const atividadesData = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
@@ -1116,7 +1136,7 @@ const PAAForm = () => {
   const atualizarStatus = async (id, statusAtual) => {
     try {
       await updateDoc(doc(db, "paa", id), {
-        concluido: !statusAtual
+        concluido: !statusAtual,
       });
       toast({
         title: "Sucesso",
@@ -1124,7 +1144,7 @@ const PAAForm = () => {
       });
       // Atualizar a lista
       const querySnapshot = await getDocs(collection(db, "paa"));
-      const atividadesData = querySnapshot.docs.map(doc => ({
+      const atividadesData = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
@@ -1155,7 +1175,7 @@ const PAAForm = () => {
                     <div>
                       <h4 className="font-semibold">{atividade.localidade}</h4>
                       <p className="text-sm text-gray-500">
-                        Técnico: {atividade.tecnicoResponsavel || 'Não informado'}
+                        Técnico: {atividade.tecnicoResponsavel || "Não informado"}
                       </p>
                       <p className="text-sm text-gray-500">
                         Data: {new Date(atividade.dataCadastro).toLocaleDateString()}
@@ -1290,12 +1310,22 @@ const PAAForm = () => {
               <Upload onUpload={handleUpload} />
               <div className="grid grid-cols-4 gap-2 mt-2">
                 {midias.map((url, index) => (
-                  <img
-                    key={index}
-                    src={url}
-                    alt={`Mídia ${index + 1}`}
-                    className="w-full h-24 object-cover rounded-lg"
-                  />
+                  url.includes("/video/") || url.includes("/video/upload/") ? (
+                    <div key={index} className="relative">
+                      <video
+                        src={url}
+                        controls
+                        className="w-full h-24 object-cover rounded-lg"
+                      />
+                    </div>
+                  ) : (
+                    <img
+                      key={index}
+                      src={url}
+                      alt={`Mídia ${index + 1}`}
+                      className="w-full h-24 object-cover rounded-lg"
+                    />
+                  )
                 ))}
               </div>
             </div>
@@ -1371,14 +1401,14 @@ const Admin = () => {
       const agriculturaSnapshot = await getDocs(collection(db, "agricultura"));
       const pescaSnapshot = await getDocs(collection(db, "pesca"));
 
-      setAgriculturaData(agriculturaSnapshot.docs.map(doc => ({
+      setAgriculturaData(agriculturaSnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       })));
 
-      setPescaData(pescaSnapshot.docs.map(doc => ({
+      setPescaData(pescaSnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       })));
     };
     fetchData();
@@ -1387,16 +1417,16 @@ const Admin = () => {
   const atualizarStatusAgricultura = async (id, statusAtual) => {
     try {
       await updateDoc(doc(db, "agricultura", id), {
-        concluido: !statusAtual
+        concluido: !statusAtual,
       });
       toast({
         title: "Sucesso",
         description: "Status atualizado com sucesso!",
       });
       const snapshot = await getDocs(collection(db, "agricultura"));
-      setAgriculturaData(snapshot.docs.map(doc => ({
+      setAgriculturaData(snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       })));
     } catch (error) {
       console.error("Erro ao atualizar status:", error);
@@ -1411,16 +1441,16 @@ const Admin = () => {
   const atualizarStatusPesca = async (id, statusAtual) => {
     try {
       await updateDoc(doc(db, "pesca", id), {
-        concluido: !statusAtual
+        concluido: !statusAtual,
       });
       toast({
         title: "Sucesso",
         description: "Status atualizado com sucesso!",
       });
       const snapshot = await getDocs(collection(db, "pesca"));
-      setPescaData(snapshot.docs.map(doc => ({
+      setPescaData(snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       })));
     } catch (error) {
       console.error("Erro ao atualizar status:", error);
@@ -1467,7 +1497,7 @@ const Admin = () => {
                         <div>
                           <h4 className="font-semibold">{atividade.localidade}</h4>
                           <p className="text-sm text-gray-500">
-                            Operador: {atividade.operador || 'Não informado'}
+                            Operador: {atividade.operador || "Não informado"}
                           </p>
                           <p className="text-sm text-gray-500">
                             Data: {new Date(atividade.dataCadastro).toLocaleDateString()}
@@ -1510,7 +1540,7 @@ const Admin = () => {
                         <div>
                           <h4 className="font-semibold">{atividade.localidade}</h4>
                           <p className="text-sm text-gray-500">
-                            Operador: {atividade.operador || 'Não informado'}
+                            Operador: {atividade.operador || "Não informado"}
                           </p>
                           <p className="text-sm text-gray-500">
                             Data: {new Date(atividade.dataCadastro).toLocaleDateString()}
