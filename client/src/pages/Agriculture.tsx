@@ -257,7 +257,8 @@ const Agriculture = () => {
                     {tratoresData?.reduce((sum, t) => {
                       // Certifica que tempoAtividade existe e é número
                       const tempo = typeof t.tempoAtividade === 'number' ? t.tempoAtividade : 0;
-                      return sum + (tempo / 60);
+                      // Convertendo de minutos para horas se necessário
+                      return sum + (tempo > 100 ? tempo / 60 : tempo);
                     }, 0).toFixed(2)} horas
                   </p>
                 </CardContent>
@@ -272,9 +273,15 @@ const Agriculture = () => {
                 <CardContent>
                   <p className="text-3xl font-bold">
                     {(tratoresData?.reduce((sum, t) => {
-                      // Certifica que areaTrabalhada existe e é número
-                      const area = typeof t.areaTrabalhada === 'number' ? t.areaTrabalhada : 0;
-                      return sum + area;
+                      // Verifica se areaTrabalhada existe e verifica seu tipo
+                      if (typeof t.areaTrabalhada === 'number') {
+                        return sum + t.areaTrabalhada;
+                      } else if (typeof t.areaTrabalhada === 'string') {
+                        // Tenta converter string para número
+                        const parsed = parseFloat(t.areaTrabalhada);
+                        return sum + (isNaN(parsed) ? 0 : parsed);
+                      }
+                      return sum;
                     }, 0) / 10000).toFixed(2)} ha
                   </p>
                 </CardContent>
@@ -312,8 +319,26 @@ const Agriculture = () => {
                             {trator.concluido ? 'Concluído' : 'Em Serviço'}
                           </span>
                         </TableCell>
-                        <TableCell>{(typeof trator.tempoAtividade === 'number' ? trator.tempoAtividade / 60 : 0).toFixed(2)}</TableCell>
-                        <TableCell>{(typeof trator.areaTrabalhada === 'number' ? trator.areaTrabalhada / 10000 : 0).toFixed(2)}</TableCell>
+                        <TableCell>
+                          {(() => {
+                            const tempo = typeof trator.tempoAtividade === 'number' 
+                              ? trator.tempoAtividade 
+                              : typeof trator.tempoAtividade === 'string' 
+                                ? parseFloat(trator.tempoAtividade) 
+                                : 0;
+                            return (tempo > 100 ? tempo / 60 : tempo).toFixed(2);
+                          })()}
+                        </TableCell>
+                        <TableCell>
+                          {(() => {
+                            const area = typeof trator.areaTrabalhada === 'number' 
+                              ? trator.areaTrabalhada 
+                              : typeof trator.areaTrabalhada === 'string' 
+                                ? parseFloat(trator.areaTrabalhada) 
+                                : 0;
+                            return (area / 10000).toFixed(2);
+                          })()}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

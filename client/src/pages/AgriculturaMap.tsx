@@ -155,11 +155,30 @@ const AgriculturaMap = () => {
                   <strong>Operação:</strong> {trator.atividade}
                 </p>
                 <p>
-                  <strong>Hora/máquina:</strong> {trator.tempoAtividade || "-"}
+                  <strong>Hora/máquina:</strong>{" "}
+                  {(() => {
+                    const tempo = typeof trator.tempoAtividade === 'number' 
+                      ? trator.tempoAtividade 
+                      : typeof trator.tempoAtividade === 'string' 
+                        ? parseFloat(trator.tempoAtividade) 
+                        : null;
+                    
+                    if (tempo === null) return "-";
+                    return (tempo > 100 ? (tempo / 60).toFixed(2) : tempo.toFixed(2)) + " horas";
+                  })()}
                 </p>
                 <p>
                   <strong>Área para mecanização:</strong>{" "}
-                  {trator.areaTrabalhada || "-"}
+                  {(() => {
+                    const area = typeof trator.areaTrabalhada === 'number' 
+                      ? trator.areaTrabalhada 
+                      : typeof trator.areaTrabalhada === 'string' 
+                        ? parseFloat(trator.areaTrabalhada) 
+                        : null;
+                    
+                    if (area === null) return "-";
+                    return (area / 10000).toFixed(2) + " ha";
+                  })()}
                 </p>
                 <p>
                   <strong>Operador:</strong> {trator.piloto}
