@@ -756,19 +756,40 @@ const ChatbotWidget: React.FC = () => {
                     <details>
                       <summary className="font-medium cursor-pointer">⚙️ Treinamento da IA</summary>
                       <div className="mt-2 space-y-3">
+                        <p className="text-xs text-gray-600">
+                          Adicione exemplos de perguntas e respostas para treinar o chatbot. 
+                          Separe cada par com linha em branco. Use o formato:
+                        </p>
+                        <div className="bg-gray-100 p-2 rounded text-xs">
+                          <pre>Q: Como solicitar assistência técnica?
+R: Para solicitar assistência técnica, preencha o formulário de Agricultura.
+
+Q: Quais documentos preciso para o PAA?
+R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulário PAA.</pre>
+                        </div>
                         <Textarea 
                           placeholder="Adicione exemplos de perguntas e respostas (Q: Pergunta&#10;R: Resposta)"
                           value={trainingData}
                           onChange={(e) => setTrainingData(e.target.value)}
-                          className="w-full p-2 border rounded"
-                          rows={4}
+                          rows={6}
                         />
-                        <Button 
-                          onClick={trainAI}
-                          className="bg-purple-600 hover:bg-purple-700"
-                        >
-                          Treinar Modelo
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button 
+                            onClick={trainAI}
+                            className="bg-purple-600 hover:bg-purple-700"
+                          >
+                            Treinar Modelo
+                          </Button>
+                          <Button 
+                            onClick={() => setTrainingData("")}
+                            variant="outline"
+                          >
+                            Limpar
+                          </Button>
+                        </div>
+                        <div className="text-xs text-gray-600 mt-1">
+                          O treino melhora a capacidade da IA de responder a perguntas específicas sobre os serviços da SEMAPA.
+                        </div>
                       </div>
                     </details>
                   </div>
@@ -804,8 +825,7 @@ const ChatbotWidget: React.FC = () => {
                     className="bg-green-600 hover:bg-green-700"
                   >
                     Pré-Cadastro
-                  </Button>
-                  <Button 
+                  </Button                  <Button 
                     onClick={() => abrirFormulario('agricultura-completo')}
                     className="bg-green-800 hover:bg-green-900"
                   >
