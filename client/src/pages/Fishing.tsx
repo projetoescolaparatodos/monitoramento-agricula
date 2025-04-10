@@ -167,7 +167,7 @@ const Fishing = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-3xl font-bold">
-                    {pescaData?.reduce((sum, p) => {
+                    {(pescaData?.reduce((sum, p) => {
                       // Certifica que areaTanque existe e é número
                       const area = typeof p.areaTanque === 'number' ? p.areaTanque : 0;
                       return sum + area;
