@@ -13,7 +13,8 @@ import MediaList from "@/components/dashboard/MediaList";
 import MediaUploader from "@/components/dashboard/MediaUploader";
 import StatisticList from "@/components/dashboard/StatisticList";
 import StatisticForm from "@/components/dashboard/StatisticForm";
-import ChatbotSolicitacoes from '@/components/dashboard/ChatbotSolicitacoes';
+import ChatbotSolicitacoes from "@/components/dashboard/ChatbotSolicitacoes";
+import ChatbotAdmin from "@/components/dashboard/ChatbotAdmin";
 
 const Dashboard = () => {
   const [, setLocation] = useLocation();
@@ -133,6 +134,10 @@ const Dashboard = () => {
                 )}
               </>
             )}
+
+            {section === "chatbot" && <ChatbotAdmin />}
+            {section === "solicitacoes" && <ChatbotSolicitacoes />}
+
 
             {showForm && (
               <div className="flex justify-end mt-4">

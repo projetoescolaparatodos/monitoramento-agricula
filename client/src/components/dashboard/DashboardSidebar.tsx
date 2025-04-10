@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, PieChart, Image, BarChart2 } from 'lucide-react';
+import { FileText, PieChart, Image, BarChart2, MessageSquare } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 interface DashboardSidebarProps {
@@ -12,7 +12,8 @@ const DashboardSidebar = ({ activeSection, onSectionChange }: DashboardSidebarPr
     { id: 'contents', label: 'Conteúdos', Icon: FileText },
     { id: 'charts', label: 'Gráficos', Icon: PieChart },
     { id: 'media', label: 'Mídias', Icon: Image },
-    { id: 'statistics', label: 'Estatísticas', Icon: BarChart2 }
+    { id: 'statistics', label: 'Estatísticas', Icon: BarChart2 },
+    { id: 'chatbot', label: 'Chatbot IA', Icon: MessageSquare }
   ];
 
   return (
