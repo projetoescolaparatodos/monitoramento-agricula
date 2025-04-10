@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
+// Usando import.meta.env para acessar variáveis de ambiente no frontend
+const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || '';
 
 export async function getAIResponse(prompt: string, context: string) {
   const messages = [

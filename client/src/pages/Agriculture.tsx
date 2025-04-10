@@ -253,7 +253,13 @@ const Agriculture = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold">{tratoresData?.reduce((sum, t) => sum + ((t.tempoAtividade || 0) / 60), 0).toFixed(2)} horas</p>
+                  <p className="text-3xl font-bold">
+                    {tratoresData?.reduce((sum, t) => {
+                      // Certifica que tempoAtividade existe e é número
+                      const tempo = typeof t.tempoAtividade === 'number' ? t.tempoAtividade : 0;
+                      return sum + (tempo / 60);
+                    }, 0).toFixed(2)} horas
+                  </p>
                 </CardContent>
               </Card>
               <Card>
@@ -264,7 +270,13 @@ const Agriculture = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold">{(tratoresData?.reduce((sum, t) => sum + (t.areaTrabalhada || 0), 0) / 10000).toFixed(2)} ha</p>
+                  <p className="text-3xl font-bold">
+                    {tratoresData?.reduce((sum, t) => {
+                      // Certifica que areaTrabalhada existe e é número
+                      const area = typeof t.areaTrabalhada === 'number' ? t.areaTrabalhada : 0;
+                      return sum + area;
+                    }, 0) / 10000).toFixed(2)} ha
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -300,8 +312,8 @@ const Agriculture = () => {
                             {trator.concluido ? 'Concluído' : 'Em Serviço'}
                           </span>
                         </TableCell>
-                        <TableCell>{(trator.tempoAtividade / 60).toFixed(2)}</TableCell>
-                        <TableCell>{(trator.areaTrabalhada / 10000).toFixed(2)}</TableCell>
+                        <TableCell>{(typeof trator.tempoAtividade === 'number' ? trator.tempoAtividade / 60 : 0).toFixed(2)}</TableCell>
+                        <TableCell>{(typeof trator.areaTrabalhada === 'number' ? trator.areaTrabalhada / 10000 : 0).toFixed(2)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

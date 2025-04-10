@@ -166,7 +166,13 @@ const Fishing = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold">{(pescaData?.reduce((sum, p) => sum + (p.areaTanque || 0), 0) / 10000).toFixed(2)} ha</p>
+                  <p className="text-3xl font-bold">
+                    {pescaData?.reduce((sum, p) => {
+                      // Certifica que areaTanque existe e é número
+                      const area = typeof p.areaTanque === 'number' ? p.areaTanque : 0;
+                      return sum + area;
+                    }, 0) / 10000).toFixed(2)} ha
+                  </p>
                 </CardContent>
               </Card>
               <Card>

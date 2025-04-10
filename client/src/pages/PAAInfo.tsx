@@ -166,7 +166,13 @@ const PAAInfo = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold">{(paaData?.reduce((total, paa) => total + (paa.areaMecanizacao || 0), 0) / 10000).toFixed(2)} ha</p>
+                  <p className="text-3xl font-bold">
+                    {paaData?.reduce((total, paa) => {
+                      // Certifica que areaMecanizacao existe e é número
+                      const area = typeof paa.areaMecanizacao === 'number' ? paa.areaMecanizacao : 0;
+                      return total + area;
+                    }, 0) / 10000).toFixed(2)} ha
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -205,7 +211,7 @@ const PAAInfo = () => {
                             {paa.concluido ? 'Concluído' : 'Em Andamento'}
                           </span>
                         </TableCell>
-                        <TableCell>{paa.areaMecanizacao ? (paa.areaMecanizacao / 10000).toFixed(2) : '0.00'}</TableCell>
+                        <TableCell>{typeof paa.areaMecanizacao === 'number' ? (paa.areaMecanizacao / 10000).toFixed(2) : '0.00'}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
