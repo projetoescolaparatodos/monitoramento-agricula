@@ -20,9 +20,18 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "semapa_uploads"); // Preset configurado no Cloudinary
+    
+    // Adicionar timestamp para evitar problemas de cache
+    formData.append("timestamp", String(Date.now() / 1000));
 
     try {
       console.log("Iniciando upload para Cloudinary...");
+      
+      // Verificar se o arquivo é muito grande
+      if (file.size > 10 * 1024 * 1024) { // 10MB
+        throw new Error("Arquivo muito grande. O limite é de 10MB.");
+      }
+      
       const response = await fetch(
         "https://api.cloudinary.com/v1_1/dwtcpujnm/upload", // Cloud name do Cloudinary
         {
@@ -31,11 +40,16 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
         }
       );
 
+      // Capturar o texto da resposta para diagnóstico
       const responseText = await response.text();
       console.log("Resposta Cloudinary:", responseText);
       
       if (!response.ok) {
-        throw new Error(`Falha no upload para o Cloudinary: ${response.status} ${response.statusText}`);
+        if (response.status === 401) {
+          throw new Error("Erro de autenticação no Cloudinary. Verifique se o upload_preset está configurado como 'Unsigned' no console do Cloudinary.");
+        } else {
+          throw new Error(`Falha no upload para o Cloudinary: ${response.status} ${response.statusText}`);
+        }
       }
 
       // Tentar converter texto para JSON
