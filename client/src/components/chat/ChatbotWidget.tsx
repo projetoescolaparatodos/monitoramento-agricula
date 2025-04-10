@@ -3,10 +3,12 @@ import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle, Send, X, ArrowLeft, MapPin, Info } from "lucide-react";
 import { db } from "@/utils/firebase";
 import LocationMap from "../common/LocationMap";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getAIResponse } from '@/lib/openrouter';
 import {
   collection,
   addDoc,
@@ -239,6 +241,9 @@ const ChatbotWidget: React.FC = () => {
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [isAskingLocation, setIsAskingLocation] = useState<boolean>(false);
   const [setorAtivo, setSetorAtivo] = useState<string>("agricultura");
+  const [responseCache, setResponseCache] = useState<Record<string, string>>({});
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [trainingData, setTrainingData] = useState("");
 
   // Efeitos
   useEffect(() => {
@@ -258,6 +263,10 @@ const ChatbotWidget: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    setIsAdmin(localStorage.getItem('admin') === 'true');
+  }, []);
 
   // Funções auxiliares
   const scrollToBottom = () => {
@@ -340,7 +349,7 @@ const ChatbotWidget: React.FC = () => {
     // Extrair setor do tipo de formulário
     const setor = formType.split('-')[0]; // 'agricultura-completo' -> 'agricultura'
     const isCompleto = formType.includes('-completo');
-    
+
     // Salvar contexto da conversa para uso posterior
     localStorage.setItem('chatContext', JSON.stringify({
       ultimasMensagens: messages.slice(-5),
@@ -369,19 +378,6 @@ const ChatbotWidget: React.FC = () => {
 
     return false; // Impede processamento adicional
   };
-
-  // Importar a função getAIResponse do arquivo openrouter.ts
-  import { getAIResponse } from '@/lib/openrouter';
-  
-  // Cache de respostas
-  const [responseCache, setResponseCache] = useState<Record<string, string>>({});
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [trainingData, setTrainingData] = useState("");
-
-  // Verifique se é admin (em produção use autenticação adequada)
-  useEffect(() => {
-    setIsAdmin(localStorage.getItem('admin') === 'true');
-  }, []);
 
   // Construir o contexto para a IA
   const buildAIContext = () => {
@@ -476,11 +472,11 @@ const ChatbotWidget: React.FC = () => {
         } else {
           setSuggestions([]);
         }
-        
+
         return { shouldRespond: true, response: resposta };
       }
     }
-    
+
     // Não encontrou resposta no fluxo programático
     return { shouldRespond: false, response: "" };
   };
@@ -495,7 +491,7 @@ const ChatbotWidget: React.FC = () => {
         isGood,
         timestamp: serverTimestamp()
       });
-      
+
       addMessage(isGood ? "Obrigado pelo feedback positivo!" : "Obrigado pelo feedback. Tentaremos melhorar.", false);
     } catch (error) {
       console.error("Erro ao salvar feedback:", error);
@@ -556,7 +552,7 @@ const ChatbotWidget: React.FC = () => {
     try {
       const context = buildAIContext();
       const aiResponse = await getAIResponse(userMessage, context);
-      
+
       // Processar resposta da IA para ações especiais
       if (aiResponse.includes('[[FORMULARIO_AGRICULTURA]]')) {
         abrirFormulario('agricultura');
@@ -570,7 +566,7 @@ const ChatbotWidget: React.FC = () => {
         abrirFormulario('paa');
       } else {
         addMessage(aiResponse, false);
-        
+
         // Adicionar à cache
         setResponseCache(prev => ({
           ...prev,
@@ -677,21 +673,10 @@ const ChatbotWidget: React.FC = () => {
                             {i < msg.text.split("\n").length - 1 && <br />}
                           </React.Fragment>
                         ))}
-                        
                         {!msg.isUser && (
                           <div className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 bg-white/80 rounded p-1">
-                            <button
-                              className="text-xs px-1 text-green-600 hover:text-green-800"
-                              onClick={() => rateResponse(idx, true)}
-                            >
-                              👍
-                            </button>
-                            <button
-                              className="text-xs px-1 text-red-600 hover:text-red-800"
-                              onClick={() => rateResponse(idx, false)}
-                            >
-                              👎
-                            </button>
+                            <Button variant="ghost" size="xs" onClick={() => rateResponse(idx, true)}>👍</Button>
+                            <Button variant="ghost" size="xs" onClick={() => rateResponse(idx, false)}>👎</Button>
                           </div>
                         )}
                       </div>
@@ -765,13 +750,13 @@ const ChatbotWidget: React.FC = () => {
                     <Send size={20} />
                   </Button>
                 </form>
-                
+
                 {isAdmin && (
                   <div className="p-3 border-t bg-gray-50">
                     <details>
                       <summary className="font-medium cursor-pointer">⚙️ Treinamento da IA</summary>
                       <div className="mt-2 space-y-3">
-                        <textarea 
+                        <Textarea 
                           placeholder="Adicione exemplos de perguntas e respostas (Q: Pergunta&#10;R: Resposta)"
                           value={trainingData}
                           onChange={(e) => setTrainingData(e.target.value)}
@@ -804,7 +789,7 @@ const ChatbotWidget: React.FC = () => {
                     <li>Distribuição de mudas e sementes</li>
                   </ul>
                   <p className="mt-3 text-gray-600">Horário de atendimento: Segunda a Sexta, 8h às 14h</p>
-                  
+
                   <div className="mt-4 p-3 bg-white rounded-md border border-green-200">
                     <h5 className="font-medium text-green-800 mb-2">Tipos de formulários disponíveis:</h5>
                     <div className="space-y-1 mb-3">
@@ -842,7 +827,7 @@ const ChatbotWidget: React.FC = () => {
                     <li>Programas de incentivo à produção</li>
                   </ul>
                   <p className="mt-3 text-gray-600">Responsável: Coord. de Pesca - (99) 3333-4446</p>
-                  
+
                   <div className="mt-4 p-3 bg-white rounded-md border border-blue-200">
                     <h5 className="font-medium text-blue-800 mb-2">Tipos de formulários disponíveis:</h5>
                     <div className="space-y-1 mb-3">
