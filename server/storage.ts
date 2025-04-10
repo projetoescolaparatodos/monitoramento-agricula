@@ -15,7 +15,7 @@ export const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
-export const storage = getStorage(app);
+export const firebaseStorage = getStorage(app);
 
 // Interface para operações de storage
 export interface IStorage {
@@ -122,7 +122,7 @@ export class FirebaseStorage implements IStorage {
 }
 
 // Escolhe o storage apropriado dependendo do ambiente
-export const storage = process.env.NODE_ENV === "production"
+export const storageImplementation = process.env.NODE_ENV === "production"
   ? new FirebaseStorage()
   : process.env.NODE_ENV === "development"
     ? new FirebaseStorage() // Você pode usar Firebase em desenvolvimento também

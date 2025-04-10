@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { collection, query, where, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore';
-import { db } from './storage';
+import { db, storageImplementation } from './storage';
 import multer from 'multer';
 
 interface ChatbotMessage {
