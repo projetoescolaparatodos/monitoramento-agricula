@@ -825,7 +825,8 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
                     className="bg-green-600 hover:bg-green-700"
                   >
                     Pré-Cadastro
-                  </Button                  <Button 
+                  </Button>
+                  <Button 
                     onClick={() => abrirFormulario('agricultura-completo')}
                     className="bg-green-800 hover:bg-green-900"
                   >
