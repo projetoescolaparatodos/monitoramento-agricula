@@ -150,16 +150,32 @@ const PAAMap = () => {
                 </p>
                 <p>
                   <strong>Quantidade Produzida:</strong>{" "}
-                  {paa.quantidadeProduzida}
+                  {(() => {
+                    const quantidade = typeof paa.quantidadeProduzida === 'number' 
+                      ? paa.quantidadeProduzida 
+                      : typeof paa.quantidadeProduzida === 'string' 
+                        ? parseFloat(paa.quantidadeProduzida) 
+                        : null;
+                    
+                    if (quantidade === null) return "-";
+                    return quantidade.toFixed(2) + " kg";
+                  })()}
                 </p>
                 <p>
                   <strong>Método de Colheita:</strong> {paa.metodoColheita}
                 </p>
                 <p>
                   <strong>Área de Mecanização:</strong>{" "}
-                  {paa.areaMecanization
-                    ? `${(paa.areaMecanization / 10000).toFixed(2)} ha`
-                    : "0.00 ha"}
+                  {(() => {
+                    const area = typeof paa.areaMecanization === 'number' 
+                      ? paa.areaMecanization 
+                      : typeof paa.areaMecanization === 'string' 
+                        ? parseFloat(paa.areaMecanization) 
+                        : null;
+                    
+                    if (area === null) return "0.00 ha";
+                    return (area / 10000).toFixed(2) + " ha";
+                  })()}
                 </p>
                 <p>
                   <strong>Operador:</strong> {paa.operador || "-"}

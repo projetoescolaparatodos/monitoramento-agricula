@@ -168,9 +168,15 @@ const PAAInfo = () => {
                 <CardContent>
                   <p className="text-3xl font-bold">
                     {(paaData?.reduce((total, paa) => {
-                      // Certifica que areaMecanizacao existe e é número
-                      const area = typeof paa.areaMecanizacao === 'number' ? paa.areaMecanizacao : 0;
-                      return total + area;
+                      // Verifica se areaMecanizacao existe e verifica seu tipo
+                      if (typeof paa.areaMecanizacao === 'number') {
+                        return total + paa.areaMecanizacao;
+                      } else if (typeof paa.areaMecanizacao === 'string') {
+                        // Tenta converter string para número
+                        const parsed = parseFloat(paa.areaMecanizacao);
+                        return total + (isNaN(parsed) ? 0 : parsed);
+                      }
+                      return total;
                     }, 0) / 10000).toFixed(2)} ha
                   </p>
                 </CardContent>
@@ -211,7 +217,16 @@ const PAAInfo = () => {
                             {paa.concluido ? 'Concluído' : 'Em Andamento'}
                           </span>
                         </TableCell>
-                        <TableCell>{typeof paa.areaMecanizacao === 'number' ? (paa.areaMecanizacao / 10000).toFixed(2) : '0.00'}</TableCell>
+                        <TableCell>
+                          {(() => {
+                            const area = typeof paa.areaMecanizacao === 'number' 
+                              ? paa.areaMecanizacao 
+                              : typeof paa.areaMecanizacao === 'string' 
+                                ? parseFloat(paa.areaMecanizacao) 
+                                : 0;
+                            return (area / 10000).toFixed(2);
+                          })()}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

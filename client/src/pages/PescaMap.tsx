@@ -158,11 +158,29 @@ const PescaMap = () => {
                 </p>
                 <p>
                   <strong>Área do imóvel:</strong>{" "}
-                  {pesca.areaImovel ? `${pesca.areaImovel} ha` : "-"}
+                  {(() => {
+                    const area = typeof pesca.areaImovel === 'number' 
+                      ? pesca.areaImovel 
+                      : typeof pesca.areaImovel === 'string' 
+                        ? parseFloat(pesca.areaImovel) 
+                        : null;
+                    
+                    if (area === null) return "-";
+                    return area.toFixed(2) + " ha";
+                  })()}
                 </p>
                 <p>
                   <strong>Área Alagada:</strong>{" "}
-                  {pesca.areaAlagada ? `${pesca.areaAlagada} ha` : "-"}
+                  {(() => {
+                    const area = typeof pesca.areaAlagada === 'number' 
+                      ? pesca.areaAlagada 
+                      : typeof pesca.areaAlagada === 'string' 
+                        ? parseFloat(pesca.areaAlagada) 
+                        : null;
+                    
+                    if (area === null) return "-";
+                    return area.toFixed(2) + " ha";
+                  })()}
                 </p>
                 <p>
                   <strong>Ciclo de produção:</strong>{" "}
