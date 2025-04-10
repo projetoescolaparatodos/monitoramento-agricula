@@ -11,16 +11,20 @@ import {
   orderBy, 
   deleteDoc,
   doc,
-  serverTimestamp
+  serverTimestamp,
+  updateDoc
 } from 'firebase/firestore';
 import { db } from '@/utils/firebase';
 import { useToast } from '@/hooks/use-toast';
+import MediaFileUploader from './MediaFileUploader'; // Assumed location for MediaFileUploader component
+
 
 const ChatbotAdmin = () => {
   const [trainingData, setTrainingData] = useState("");
   const [trainingHistory, setTrainingHistory] = useState<any[]>([]);
   const [feedbackHistory, setFeedbackHistory] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [mediaUrls, setMediaUrls] = useState([]); // Added state for media URLs
   const { toast } = useToast();
 
   // Carregar histórico de treinamentos e feedbacks
@@ -141,6 +145,26 @@ const ChatbotAdmin = () => {
     }
   };
 
+  const handleFileUploaded = (url) => {
+    setMediaUrls((prevUrls) => [...prevUrls, url]);
+    toast({
+      title: "Arquivo adicionado",
+      description: "O arquivo foi adicionado à lista de mídia."
+    });
+  };
+
+  const handleRemoveMedia = (index) => {
+    setMediaUrls((prevUrls) => prevUrls.filter((_, i) => i !== index));
+  };
+
+
+  // Placeholder functions -  These need to be implemented based on your actual data structure and Firebase setup.
+  const handleSaveContext = async () => { /*Implementation missing*/ };
+  const handleEditContext = (contextId, contextText, mediaList = []) => { /*Implementation missing*/ };
+  const handleDeleteContext = (contextId) => { /*Implementation missing*/ };
+  const loadSavedContexts = async () => { /*Implementation missing*/ };
+
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -156,7 +180,7 @@ const ChatbotAdmin = () => {
             <TabsTrigger value="history">Histórico de Treinamentos</TabsTrigger>
             <TabsTrigger value="feedback">Feedbacks dos Usuários</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="training" className="space-y-4 mt-4">
             <div className="space-y-2">
               <h3 className="text-lg font-medium">Adicionar Novos Treinamentos</h3>
@@ -174,7 +198,7 @@ const ChatbotAdmin = () => {
                 Separe cada par pergunta/resposta com uma linha em branco.
               </p>
             </div>
-            
+
             <Textarea 
               placeholder="Q: Como posso participar do programa de mecanização agrícola?
 R: Para participar do programa de mecanização agrícola, preencha o formulário de Agricultura disponível no nosso site ou visite a Secretaria.
@@ -186,7 +210,7 @@ R: Para o PAA, você precisa apresentar DAP/CAF ativa, documentos pessoais e com
               rows={10}
               className="font-mono text-sm"
             />
-            
+
             <div className="flex justify-end gap-2">
               <Button 
                 variant="outline" 
@@ -203,10 +227,10 @@ R: Para o PAA, você precisa apresentar DAP/CAF ativa, documentos pessoais e com
               </Button>
             </div>
           </TabsContent>
-          
+
           <TabsContent value="history" className="mt-4">
             <h3 className="text-lg font-medium mb-4">Histórico de Treinamentos</h3>
-            
+
             {trainingHistory.length === 0 ? (
               <p className="text-gray-500 text-center py-8">Nenhum treinamento registrado ainda.</p>
             ) : (
@@ -248,10 +272,10 @@ R: Para o PAA, você precisa apresentar DAP/CAF ativa, documentos pessoais e com
               </div>
             )}
           </TabsContent>
-          
+
           <TabsContent value="feedback" className="mt-4">
             <h3 className="text-lg font-medium mb-4">Feedbacks dos Usuários</h3>
-            
+
             {feedbackHistory.length === 0 ? (
               <p className="text-gray-500 text-center py-8">Nenhum feedback registrado ainda.</p>
             ) : (

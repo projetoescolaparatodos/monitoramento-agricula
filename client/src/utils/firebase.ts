@@ -19,6 +19,14 @@ const app = initializeApp(firebaseConfig);
 
 // Exporta as funcionalidades que vamos usar
 const db = getFirestore(app);
+export const storage = getStorage(app);
+storage.cors = [
+  {
+    origin: ['*'],
+    method: ['GET', 'POST', 'PUT', 'DELETE', 'HEAD'],
+    maxAgeSeconds: 3600
+  }
+];
 enableMultiTabIndexedDbPersistence(db).catch((err) => {
     if (err.code === 'failed-precondition') {
         console.warn('Persistence failed - multiple tabs open');
@@ -28,14 +36,6 @@ enableMultiTabIndexedDbPersistence(db).catch((err) => {
 });
 
 export { db };
-export const storage = getStorage(app);
-storage.cors = [
-  {
-    origin: ['*'],
-    method: ['GET', 'POST', 'PUT', 'DELETE', 'HEAD'],
-    maxAgeSeconds: 3600
-  }
-];
 export const auth = getAuth(app);
 
 
