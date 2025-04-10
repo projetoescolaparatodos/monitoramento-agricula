@@ -19,7 +19,8 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "semapa_uploads"); // Preset configurado no Cloudinary
+    formData.append("upload_preset", "tratores_preset"); // Preset correto do Cloudinary
+    formData.append("api_key", "6ff122d4-4688-45c0-b259-6eef603152c9"); // API key correta
     
     // Adicionar timestamp para evitar problemas de cache
     formData.append("timestamp", String(Date.now() / 1000));
