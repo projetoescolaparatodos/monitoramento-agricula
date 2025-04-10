@@ -14,35 +14,23 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
   const [uploadUrl, setUploadUrl] = useState<string>("");
   const { toast } = useToast();
 
-  // Função para upload via Cloudinary
+  // Função para upload via servidor seguro
   const handleCloudinaryUpload = async (file: File) => {
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "tratores_preset");
-    formData.append("api_key", "w41TEMp-LcV8swH1Bxw6FDApG9Y"); // API key do Cloudinary
-    
-    // Adicionar timestamp para evitar problemas de cache
-    formData.append("timestamp", String(Date.now() / 1000));
 
     try {
-      console.log("Iniciando upload para Cloudinary...");
+      console.log("Iniciando upload para Cloudinary via servidor seguro...");
       
       // Verificar se o arquivo é muito grande
       if (file.size > 10 * 1024 * 1024) { // 10MB
         throw new Error("Arquivo muito grande. O limite é de 10MB.");
       }
       
-      console.log("Iniciando upload para Cloudinary com preset:", formData.get("upload_preset"));
-      
-      // Adicionar assinatura para upload
-      const cloudName = "dwtcpujnm";
-      const apiKey = "w41TEMp-LcV8swH1Bxw6FDApG9Y";
-      
-      console.log("Iniciando upload para Cloudinary com API key:", apiKey);
-      
+      // Enviar para o endpoint seguro do servidor
       const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, // URL para detectar automaticamente o tipo de mídia
+        `/api/upload`, // Endpoint do servidor que lida com o upload seguro
         {
           method: "POST",
           body: formData,

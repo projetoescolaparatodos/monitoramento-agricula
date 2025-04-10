@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { collection, query, where, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore';
 import { db } from './storage';
-import { upload, uploadToFirebase } from './upload';
+import { upload, uploadToFirebase, handleCloudinaryUpload, uploadToCloudinary } from './upload'; // Assuming these functions exist in ./upload.ts
 
 interface ChatbotMessage {
   nome: string;
@@ -197,13 +197,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/chatbot/mensagens', async (req, res) => {
     try {
       const messageData: ChatbotMessage = req.body;
-      await db.collection('chatbot_messages').add(messageData); // Assumes db is correctly defined
+      await db.collection('chatbot_messages').add(messageData); 
       res.status(200).json({ success: true, message: 'Dados salvos com sucesso' });
     } catch (error) {
       console.error('Erro ao salvar dados do chatbot:', error);
       res.status(500).json({ success: false, error: 'Erro ao processar solicitação' });
     }
   });
+
+  // Cloudinary upload route
+  app.post('/api/cloudinary-upload', handleCloudinaryUpload, uploadToCloudinary);
 
 
   const httpServer = createServer(app);
