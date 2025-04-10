@@ -4,6 +4,14 @@ import { collection, query, where, getDocs, addDoc, updateDoc, doc } from 'fireb
 import { db, storageImplementation } from './storage';
 import multer from 'multer';
 
+// Configurar multer para processar uploads
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB
+  },
+});
+
 interface ChatbotMessage {
   nome: string;
   cpf: string;
@@ -218,14 +226,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Erro ao salvar dados do chatbot:', error);
       res.status(500).json({ success: false, error: 'Erro ao processar solicitação' });
     }
-  });
-
-  // Configurar multer para processar uploads
-  const upload = multer({ 
-    storage: multer.memoryStorage(),
-    limits: {
-      fileSize: 10 * 1024 * 1024, // 10MB
-    },
   });
 
 
