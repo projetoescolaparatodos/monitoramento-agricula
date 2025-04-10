@@ -271,7 +271,7 @@ const Agriculture = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-3xl font-bold">
-                    {tratoresData?.reduce((sum, t) => {
+                    {(tratoresData?.reduce((sum, t) => {
                       // Certifica que areaTrabalhada existe e é número
                       const area = typeof t.areaTrabalhada === 'number' ? t.areaTrabalhada : 0;
                       return sum + area;
