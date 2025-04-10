@@ -19,9 +19,9 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "tratores_preset"); // Preset correto do Cloudinary
-    formData.append("api_key", "6ff122d4-4688-45c0-b259-6eef603152c9"); // API key correta
+    formData.append("upload_preset", "tratores_preset"); // Preset do Cloudinary configurado como unsigned
     
+    // Não incluir API key para uploads não assinados
     // Adicionar timestamp para evitar problemas de cache
     formData.append("timestamp", String(Date.now() / 1000));
 
@@ -33,8 +33,10 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
         throw new Error("Arquivo muito grande. O limite é de 10MB.");
       }
       
+      console.log("Iniciando upload para Cloudinary com preset:", formData.get("upload_preset"));
+      
       const response = await fetch(
-        "https://api.cloudinary.com/v1_1/dwtcpujnm/upload", // Cloud name do Cloudinary
+        "https://api.cloudinary.com/v1_1/dwtcpujnm/image/upload", // URL correta para upload de imagens
         {
           method: "POST",
           body: formData,
@@ -44,10 +46,11 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
       // Capturar o texto da resposta para diagnóstico
       const responseText = await response.text();
       console.log("Resposta Cloudinary:", responseText);
+      console.log("Status Cloudinary:", response.status, response.statusText);
       
       if (!response.ok) {
         if (response.status === 401) {
-          throw new Error("Erro de autenticação no Cloudinary. Verifique se o upload_preset está configurado como 'Unsigned' no console do Cloudinary.");
+          throw new Error("Erro de autenticação no Cloudinary. Verifique se o upload_preset 'tratores_preset' está configurado como 'Unsigned' no console do Cloudinary.");
         } else {
           throw new Error(`Falha no upload para o Cloudinary: ${response.status} ${response.statusText}`);
         }
