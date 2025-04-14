@@ -1176,7 +1176,7 @@ const ChatbotWidget: React.FC = () => {
                 className="p-3 bg-green-50/50 flex flex-col"
                 style={{ height: "450px", display: "flex", flexDirection: "column" }}
               >
-                <div className="flex-1 overflow-y-auto mb-2" style={{ maxHeight: "320px" }}>
+                <div className="flex-1 overflow-y-auto mb-2" style={{ maxHeight: "320px", minHeight: "250px" }}
                   <h4 className="font-semibold text-green-800 mb-2">
                     Setor de Agricultura
                   </h4>
@@ -1240,7 +1240,7 @@ const ChatbotWidget: React.FC = () => {
                 className="p-3 bg-blue-50/50 flex flex-col"
                 style={{ height: "450px", display: "flex", flexDirection: "column", position: "relative" }}
               >
-                <div className="flex-1 overflow-y-auto mb-2" style={{ maxHeight: "300px" }}>
+                <div className="flex-1 overflow-y-auto mb-2" style={{ maxHeight: "300px", minHeight: "250px" }}>
                   <h4 className="font-semibold text-blue-800 mb-2">
                     Setor de Pesca
                   </h4>
@@ -1301,7 +1301,7 @@ const ChatbotWidget: React.FC = () => {
                 className="p-3 bg-amber-50/50 flex flex-col"
                 style={{ height: "450px", display: "flex", flexDirection: "column", position: "relative" }}
               >
-                <div className="flex-1 overflow-y-auto mb-2" style={{ maxHeight: "300px" }}>
+                <div className="flex-1 overflow-y-auto mb-2" style={{ maxHeight: "300px", minHeight: "250px" }}>
                   <h4 className="font-semibold text-amber-800 mb-2">
                     Programa de Aquisição de Alimentos
                   </h4>
