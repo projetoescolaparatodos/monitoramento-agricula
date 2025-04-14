@@ -1027,8 +1027,8 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
                   <div className="mt-4 p-3 bg-white rounded-md border border-blue-200">
                     <h5 className="font-medium text-blue-800 mb-2">Tipos de formulários disponíveis:</h5>
                     <div className="space-y-1 mb-3">
-                      <p><span className="font-medium">Pré-Cadastro:</span> Formulário rápido e simplificado para um primeiro contato</p>
-                      <p><span className="font-medium">Cadastro Completo:</span> Formulário detalhado com estruturas, espécies e situação legal</p>
+                      <p><span className="font-medium">Pré-Cadastro:</span> Formulário rápido e simplificado para aqueles agricultores que já possuem cadastro e desejam solicitar serviços da secretaria.</p>
+                      <p><span className="font-medium">Cadastro Completo:</span> Formulário detalhado com estruturas, espécies e situação legal, ideal para </p>
                     </div>
                   </div>
                 </div>
