@@ -105,44 +105,108 @@ export let keywordMap: KeywordMap = { ...defaultKeywordMap };
 export function findBestKeywordMatch(userInput: string): string | null {
   const normalizedInput = userInput.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   let bestMatch: { keyword: string; score: number } | null = null;
-
-  // Função para calcular a pontuação de correspondência
+  
+  // Função aprimorada para calcular a pontuação de correspondência
   const calculateMatchScore = (input: string, keyword: string, baseScore: number): number => {
     let score = baseScore;
     
-    // Correspondência exata ou como palavra completa recebe pontuação adicional
+    // Dividir em palavras
     const inputWords = input.split(/\s+/);
     const keywordWords = keyword.split(/\s+/);
     
-    // Bônus para correspondência exata
+    // CORRESPONDÊNCIA EXATA - Alta prioridade
     if (input === keyword) {
-      score += 10;
+      score += 20; // Pontuação muito alta para correspondência exata
+      console.log(`  💯 Match exato "${keyword}" = +20`);
     }
     
-    // Bônus para palavra no início da frase
-    if (input.startsWith(keyword)) {
-      score += 3;
+    // CORRESPONDÊNCIA DE FRASE - Alta prioridade
+    if (input.includes(keyword)) {
+      // Quanto maior a palavra-chave, maior a pontuação (mais específica)
+      const phraseScore = 10 + (keyword.length / 10);
+      score += phraseScore;
+      console.log(`  🔤 Contém frase "${keyword}" = +${phraseScore.toFixed(1)}`);
+      
+      // Bônus para palavra no início da frase (mais relevante)
+      if (input.startsWith(keyword)) {
+        score += 5;
+        console.log(`  🔝 Início da frase "${keyword}" = +5`);
+      }
     }
     
-    // Bônus para palavras completas
-    const keywordRegex = new RegExp(`\\b${keyword}\\b`, 'i');
-    if (keywordRegex.test(input)) {
-      score += 5;
+    // CORRESPONDÊNCIA DE PALAVRA COMPLETA - Média prioridade
+    // Verificar se as palavras da keyword aparecem como palavras completas no input
+    if (keywordWords.length > 0) {
+      let fullWordsFound = 0;
+      
+      for (const keywordWord of keywordWords) {
+        if (keywordWord.length < 3) continue; // Ignorar palavras muito curtas
+        
+        const wordRegex = new RegExp(`\\b${keywordWord}\\b`, 'i');
+        if (wordRegex.test(input)) {
+          fullWordsFound++;
+          // Palavra maior = mais específica = maior pontuação
+          score += 2 + (keywordWord.length / 10);
+        }
+      }
+      
+      if (fullWordsFound > 0) {
+        // Bônus para múltiplas palavras encontradas (melhor contexto)
+        if (fullWordsFound > 1) {
+          const multiWordBonus = fullWordsFound * 3;
+          score += multiWordBonus;
+          console.log(`  📚 ${fullWordsFound} palavras completas = +${multiWordBonus}`);
+        } else {
+          console.log(`  📝 1 palavra completa = +2`);
+        }
+        
+        // Super bônus quando TODAS as palavras-chave são encontradas
+        if (fullWordsFound === keywordWords.length && keywordWords.length > 1) {
+          score += 8;
+          console.log(`  🌟 Todas palavras encontradas = +8`);
+        }
+      }
     }
     
-    // Bônus para palavras compartilhadas
-    const sharedWords = keywordWords.filter(word => inputWords.includes(word));
-    score += sharedWords.length * 2;
+    // Normalizar pontuação com base no tamanho da entrada
+    // Isso evita que entradas longas tenham vantagem injusta
+    const lengthNormalization = Math.min(1, 15 / Math.max(1, input.length));
+    score *= (0.7 + (0.3 * lengthNormalization));
     
     return score;
   };
 
+  console.log(`🔍 Analisando palavras-chave para: "${normalizedInput}"`);
+  
+  // Verificar cada palavra-chave no mapa
   for (const keyword of Object.keys(keywordMap)) {
     const normalizedKeyword = keyword.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     
+    // Verificar correspondência de substring ou palavras
+    let matchFound = false;
+    
+    // Correspondência de substring
     if (normalizedInput.includes(normalizedKeyword)) {
+      matchFound = true;
+    } else {
+      // Verificar palavras individuais para casos mais complexos
+      const keywordWords = normalizedKeyword.split(/\s+/).filter(w => w.length > 3);
+      if (keywordWords.length > 0) {
+        const inputWords = normalizedInput.split(/\s+/);
+        const foundWords = keywordWords.filter(kw => inputWords.some(iw => iw.includes(kw) || kw.includes(iw)));
+        
+        // Se encontrou pelo menos metade das palavras ou uma palavra longa
+        matchFound = foundWords.length >= Math.ceil(keywordWords.length / 2) || 
+                     foundWords.some(w => w.length > 6 && normalizedInput.includes(w));
+      }
+    }
+    
+    if (matchFound) {
+      console.log(`Avaliando: "${keyword}"`);
       const baseScore = keywordMap[keyword].score;
       const currentScore = calculateMatchScore(normalizedInput, normalizedKeyword, baseScore);
+      
+      console.log(`  Base: ${baseScore}, Total: ${currentScore.toFixed(1)}`);
       
       if (!bestMatch || currentScore > bestMatch.score) {
         bestMatch = { keyword, score: currentScore };
@@ -150,7 +214,15 @@ export function findBestKeywordMatch(userInput: string): string | null {
     }
   }
 
-  return bestMatch?.keyword || null;
+  if (bestMatch) {
+    console.log(`✅ Melhor correspondência: "${bestMatch.keyword}" com pontuação ${bestMatch.score.toFixed(1)}`);
+  } else {
+    console.log(`❌ Nenhuma correspondência de palavra-chave encontrada`);
+  }
+
+  // Retornar apenas se a pontuação for suficiente (evitar falsos positivos)
+  const MIN_SCORE_THRESHOLD = 5.0;
+  return (bestMatch && bestMatch.score >= MIN_SCORE_THRESHOLD) ? bestMatch.keyword : null;
 }
 
 /**

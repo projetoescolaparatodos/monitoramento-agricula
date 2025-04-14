@@ -456,7 +456,7 @@ const ChatbotWidget: React.FC = () => {
     fetchTrainedResponses();
   }, []);
 
-  // Tentar responder com o fluxo programático
+  // Tentar responder com a hierarquia especificada de respostas
   const tryProgrammaticFlow = (userMessage: string) => {
     // Verificar se está respondendo sobre localização
     if (isAskingLocation && 
@@ -472,26 +472,28 @@ const ChatbotWidget: React.FC = () => {
       }
     }
 
-    // Verificar se há resposta treinada para a mensagem
+    // Normalizar a mensagem do usuário
     const normalizedUserMessage = userMessage.toLowerCase().trim();
 
     // Log para verificar quantidade de exemplos de treinamento carregados
     console.log(`Verificando ${trainedResponses.length} exemplos de treinamento para: "${normalizedUserMessage}"`);
 
-    // 1. Primeiro tente correspondência exata com respostas treinadas
+    // HIERARQUIA 1: Primeiro tente correspondência EXATA com respostas treinadas
+    console.log("🔍 HIERARQUIA 1: Buscando correspondência exata com respostas treinadas");
     const exactMatch = trainedResponses.find(
       item => item.question.toLowerCase().trim() === normalizedUserMessage
     );
 
     if (exactMatch) {
-      console.log('Correspondência exata encontrada:', exactMatch.question);
+      console.log('✅ Correspondência exata encontrada:', exactMatch.question);
       return { shouldRespond: true, response: exactMatch.answer };
     }
 
-    // 2. Tente encontrar correspondência por palavras-chave -  Melhora aqui
+    // HIERARQUIA 2: Buscar palavras-chave relevantes
+    console.log("🔍 HIERARQUIA 2: Buscando correspondência por palavras-chave");
     const matchedKeyword = findBestKeywordMatch(userMessage);
     if (matchedKeyword) {
-      console.log(`Palavra-chave encontrada: "${matchedKeyword}"`);
+      console.log(`✅ Palavra-chave encontrada: "${matchedKeyword}"`);
       // Obter resposta aleatória para a palavra-chave
       const keywordResponse = getRandomResponse(matchedKeyword);
 
@@ -518,40 +520,55 @@ const ChatbotWidget: React.FC = () => {
       return { shouldRespond: true, response: keywordResponse || "" };
     }
 
-
-    // 3. Algoritmo melhorado para encontrar a melhor correspondência de treinamento
+    // HIERARQUIA 2 (parte 2): Buscar correspondência parcial em respostas treinadas 
+    console.log("🔍 HIERARQUIA 2: Tentando encontrar correspondência parcial em treinamentos");
     let bestMatch = null;
     let bestMatchScore = 0;
 
     for (const item of trainedResponses) {
       const normalizedQuestion = item.question.toLowerCase().trim();
+      let currentScore = 0;
 
-      // Verificar se contém palavras-chave completas
-      if (normalizedUserMessage.includes(normalizedQuestion) && normalizedQuestion.length > bestMatchScore) {
-        bestMatch = item;
-        bestMatchScore = normalizedQuestion.length;
-      } else if (normalizedQuestion.includes(normalizedUserMessage) && normalizedUserMessage.length > 3 && normalizedUserMessage.length > bestMatchScore) {
-        bestMatch = item;
-        bestMatchScore = normalizedUserMessage.length;
+      // Verificar se contém a frase treinada (correspondência mais forte)
+      if (normalizedUserMessage.includes(normalizedQuestion) && normalizedQuestion.length > 3) {
+        currentScore = normalizedQuestion.length * 2;
+      } 
+      // Verificar se a frase treinada contém a mensagem do usuário (correspondência inversa)
+      else if (normalizedQuestion.includes(normalizedUserMessage) && normalizedUserMessage.length > 3) {
+        currentScore = normalizedUserMessage.length;
       }
 
-      // Calcular palavras compartilhadas
-      const userWords = normalizedUserMessage.split(/\s+/);
-      const trainedWords = normalizedQuestion.split(/\s+/);
-      const sharedWords = userWords.filter(word => trainedWords.includes(word) && word.length > 3);
+      // Calcular palavras compartilhadas (correspondência por palavras-chave)
+      const userWords = normalizedUserMessage.split(/\s+/).filter(word => word.length > 3);
+      const trainedWords = normalizedQuestion.split(/\s+/).filter(word => word.length > 3);
+      const sharedWords = userWords.filter(word => trainedWords.includes(word));
 
-      if (sharedWords.length >= 2 && sharedWords.length > bestMatchScore / 5) {
+      // Adicionar pontuação para palavras compartilhadas
+      if (sharedWords.length > 0) {
+        // Pontuação baseada na quantidade e tamanho das palavras compartilhadas
+        const wordScore = sharedWords.reduce((sum, word) => sum + word.length, 0) * sharedWords.length;
+        currentScore = Math.max(currentScore, wordScore);
+      }
+
+      // Atualizar melhor correspondência se encontrou algo melhor
+      if (currentScore > bestMatchScore) {
         bestMatch = item;
-        bestMatchScore = sharedWords.length * 5; // Pontuação mais alta para múltiplas palavras compartilhadas
+        bestMatchScore = currentScore;
       }
     }
 
-    if (bestMatch) {
-      console.log('Melhor correspondência encontrada:', bestMatch.question, 'com pontuação:', bestMatchScore);
+    // Limiar de confiança para considerar a correspondência válida
+    const MATCH_THRESHOLD = 10;
+    
+    if (bestMatch && bestMatchScore >= MATCH_THRESHOLD) {
+      console.log('✅ Correspondência parcial encontrada:', bestMatch.question, 'com pontuação:', bestMatchScore);
       return { shouldRespond: true, response: bestMatch.answer };
     }
 
-    // 4. Processar ações do fluxo de conversa
+    // Verificar fluxos de conversa predefinidos antes de passar para IA
+    console.log("🔍 HIERARQUIA 2: Verificando fluxos de conversa predefinidos");
+    
+    // Processar ações do fluxo de conversa
     if (userMessage.toLowerCase().includes("solicitar serviço") || 
         userMessage.toLowerCase().includes("participar do paa")) {
       const setor = activeFluxo.replace("fluxo", "").toLowerCase();
@@ -559,7 +576,7 @@ const ChatbotWidget: React.FC = () => {
       return { shouldRespond: true, response: "" };
     }
 
-    // 5. Processar navegação entre fluxos
+    // Processar navegação entre fluxos
     let novoFluxo = activeFluxo;
     let resposta = "";
 
@@ -595,6 +612,7 @@ const ChatbotWidget: React.FC = () => {
 
     // Se encontrou um novo fluxo, atualiza e obtém a resposta
     if (novoFluxo !== activeFluxo) {
+      console.log('✅ Fluxo de conversa encontrado:', novoFluxo);
       setActiveFluxo(novoFluxo);
 
       if (fluxoConversa[novoFluxo as keyof typeof fluxoConversa]) {
@@ -618,7 +636,8 @@ const ChatbotWidget: React.FC = () => {
       }
     }
 
-    // Não encontrou resposta no fluxo programático
+    // HIERARQUIA 3: Não encontrou respostas nas etapas anteriores, irá usar IA generativa
+    console.log("🔍 HIERARQUIA 3: Recorrendo à IA generativa");
     return { shouldRespond: false, response: "" };
   };
 
@@ -668,10 +687,10 @@ const ChatbotWidget: React.FC = () => {
   const processUserMessage = async (userMessage: string) => {
     setIsLoading(true);
 
-    // Adiciona mensagem do usuário
+    // Adiciona mensagem do usuário ao chat
     addMessage(userMessage, true);
 
-    // Função para normalizar melhor a mensagem
+    // Função para normalizar mensagem 
     const normalizeMessage = (msg: string) => {
       return msg
         .toLowerCase()
@@ -684,17 +703,19 @@ const ChatbotWidget: React.FC = () => {
     const normalizedMessage = normalizeMessage(userMessage);
     const cachedResponse = responseCache[normalizedMessage];
     if (cachedResponse) {
-      console.log("Resposta encontrada no cache:", userMessage);
+      console.log("📋 Resposta encontrada no CACHE:", userMessage);
       addMessage(cachedResponse, false);
       setIsLoading(false);
       return;
     }
 
-    // 1. Primeiro tente o fluxo programático (inclui agora respostas treinadas)
+    console.log("🔄 Iniciando sistema de resposta hierárquico");
+    
+    // HIERARQUIA 1 e 2: Tentar respostas treinadas e palavras-chave
     const flowResponse = tryProgrammaticFlow(userMessage);
     if (flowResponse.shouldRespond) {
       if (flowResponse.response) {
-        console.log("Resposta encontrada no fluxo programático ou treinamento");
+        console.log("✅ Resposta encontrada nas hierarquias 1 ou 2");
         addMessage(flowResponse.response, false);
 
         // Adicionar à cache
@@ -707,17 +728,17 @@ const ChatbotWidget: React.FC = () => {
       return;
     }
 
-    // 2. Se não encontrou no fluxo ou treinamento, use a IA OpenRouter
-    console.log("Tentando obter resposta da IA OpenRouter...");
+    // HIERARQUIA 3: Usar IA generativa como última opção
+    console.log("🤖 HIERARQUIA 3: Recorrendo à IA generativa");
     console.log("Verificando disponibilidade da chave API:", !!import.meta.env.VITE_OPENROUTER_API_KEY);
     try {
       const context = buildAIContext();
 
-      // Seleciona os exemplos mais relevantes para o contexto da pergunta atual
+      // Seleciona os exemplos mais relevantes para o contexto
       let relevantExamples = trainedResponses;
       const normalizedUserMessage = userMessage.toLowerCase().trim();
 
-      // Filtra exemplos que compartilham palavras-chave com a pergunta do usuário
+      // Filtra exemplos que compartilham palavras-chave com a pergunta
       const userWords = normalizedUserMessage.split(/\s+/).filter(word => word.length > 3);
       if (userWords.length > 0) {
         relevantExamples = trainedResponses
@@ -740,17 +761,21 @@ const ChatbotWidget: React.FC = () => {
         `Q: ${ex.question}\nR: ${ex.answer}`
       ).join('\n\n');
 
+      // Instruções específicas para a IA seguir o estilo das respostas treinadas
       const enrichedContext = `
         ${context}
 
         Exemplos de treinamento (utilize estes exemplos para responder de forma similar):
         ${trainedExamples}
 
-        Responda de forma semelhante aos exemplos acima, mantendo o tom e estilo. Se a pergunta do usuário for similar a algum exemplo, priorize essa resposta.
+        IMPORTANTE: Responda como um assistente oficial da SEMAPA (Secretaria Municipal de Agricultura, Pesca e Abastecimento).
+        Mantenha respostas curtas, objetivas e formais, seguindo o estilo dos exemplos acima.
+        Se não souber a resposta específica, direcione o usuário para um dos formulários disponíveis.
+        Não crie informações que não estejam no contexto.
       `;
 
       const aiResponse = await getAIResponse(userMessage, enrichedContext);
-      console.log("Resposta da IA recebida:", aiResponse.substring(0, 100) + "...");
+      console.log("✅ Resposta da IA recebida:", aiResponse.substring(0, 100) + "...");
 
       // Processar resposta da IA para ações especiais
       if (aiResponse.includes('[[FORMULARIO_AGRICULTURA]]')) {
@@ -773,9 +798,9 @@ const ChatbotWidget: React.FC = () => {
         }));
       }
     } catch (error) {
-      console.error("Erro na IA:", error);
+      console.error("❌ Erro na IA:", error);
 
-      // Adicione esta verificação para erros específicos da API
+      // Verificação para erros específicos da API
       if (error.response) {
         console.error("Detalhes do erro:", {
           status: error.response.status,
