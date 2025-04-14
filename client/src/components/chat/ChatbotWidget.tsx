@@ -1176,7 +1176,7 @@ const ChatbotWidget: React.FC = () => {
                 className="p-3 bg-green-50/50 flex flex-col"
                 style={{ height: "450px", display: "flex", flexDirection: "column" }}
               >
-                <div className="flex-1 overflow-y-auto mb-2" style={{ maxHeight: "320px", minHeight: "250px" }}
+                <div className="flex-1 overflow-y-auto mb-2" style={{ maxHeight: "320px", minHeight: "250px" }}>
                   <h4 className="font-semibold text-green-800 mb-2">
                     Setor de Agricultura
                   </h4>
