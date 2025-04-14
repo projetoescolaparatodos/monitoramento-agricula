@@ -1218,7 +1218,7 @@ const ChatbotWidget: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 py-3 border-t bg-green-50/80 mt-auto" style={{ position: "absolute", bottom: "0", left: "0", right: "0", padding: "0.75rem" }}>
+                <div className="grid grid-cols-2 gap-2 py-3 border-t bg-green-50/80 mt-auto" style={{ position: "sticky", bottom: "0", left: "0", right: "0", padding: "0.75rem", zIndex: 10 }}>
                   <Button
                     onClick={() => abrirFormulario("agricultura")}
                     className="bg-green-600 hover:bg-green-700"
@@ -1240,7 +1240,7 @@ const ChatbotWidget: React.FC = () => {
                 className="p-3 bg-blue-50/50 flex flex-col"
                 style={{ height: "450px", display: "flex", flexDirection: "column", position: "relative" }}
               >
-                <div className="flex-1 overflow-y-auto mb-2" style={{ maxHeight: "320px" }}>
+                <div className="flex-1 overflow-y-auto mb-2" style={{ maxHeight: "300px" }}>
                   <h4 className="font-semibold text-blue-800 mb-2">
                     Setor de Pesca
                   </h4>
@@ -1279,7 +1279,7 @@ const ChatbotWidget: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 py-3 border-t bg-blue-50/80" style={{ position: "absolute", bottom: "0", left: "0", right: "0", padding: "0.75rem" }}>
+                <div className="grid grid-cols-2 gap-2 py-3 border-t bg-blue-50/80" style={{ position: "sticky", bottom: "0", left: "0", right: "0", padding: "0.75rem", zIndex: 10 }}>
                   <Button
                     onClick={() => abrirFormulario("pesca")}
                     className="bg-blue-600 hover:bg-blue-700"
@@ -1301,7 +1301,7 @@ const ChatbotWidget: React.FC = () => {
                 className="p-3 bg-amber-50/50 flex flex-col"
                 style={{ height: "450px", display: "flex", flexDirection: "column", position: "relative" }}
               >
-                <div className="flex-1 overflow-y-auto mb-2" style={{ maxHeight: "320px", paddingBottom: "60px" }}>
+                <div className="flex-1 overflow-y-auto mb-2" style={{ maxHeight: "300px" }}>
                   <h4 className="font-semibold text-amber-800 mb-2">
                     Programa de Aquisição de Alimentos
                   </h4>
@@ -1321,7 +1321,7 @@ const ChatbotWidget: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="py-3 border-t bg-amber-50/80" style={{ position: "absolute", bottom: "0", left: "0", right: "0", padding: "0.75rem" }}>
+                <div className="py-3 border-t bg-amber-50/80" style={{ position: "sticky", bottom: "0", left: "0", right: "0", padding: "0.75rem", zIndex: 10 }}>
                   <Button
                     onClick={() => abrirFormulario("paa")}
                     className="w-full bg-amber-600 hover:bg-amber-700"
