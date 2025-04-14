@@ -272,7 +272,7 @@ const ChatbotWidget: React.FC = () => {
 
   // Funções auxiliares
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   };
 
   const getUserLocation = () => {
@@ -952,7 +952,7 @@ const handleTabChange = (tab: string) => {
 
             <TabsContent value="chat" className="p-0 m-0">
               <CardContent className="p-0 flex flex-col h-[500px] relative">
-                <div className="flex-1 overflow-y-auto p-4 pb-24 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
+                <div className="flex-1 overflow-y-auto p-4 pb-32 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
                   {messages.map((msg, idx) => (
                     <div
                       key={idx}
@@ -997,7 +997,7 @@ const handleTabChange = (tab: string) => {
                       </div>
                     </div>
                   )}
-                  <div ref={messagesEndRef} />
+                  <div ref={messagesEndRef} className="h-4" />
                 </div>
 
                 {userLocation && (
@@ -1019,7 +1019,11 @@ const handleTabChange = (tab: string) => {
                           variant="outline"
                           size="sm"
                           className="text-xs bg-white hover:bg-green-50 border-green-200 text-green-800"
-                          onClick={() => handleSuggestionClick(suggestion)}
+                          onClick={() => {
+                            handleSuggestionClick(suggestion);
+                            // Force scroll to bottom after suggestion click
+                            setTimeout(() => scrollToBottom(), 100);
+                          }}
                         >
                           {suggestion.text}
                         </Button>
