@@ -247,6 +247,7 @@ const ChatbotWidget: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<string>("chat");
   const [activeFluxo, setActiveFluxo] = useState<string>("saudacao");
+  // Localização removida mas mantendo valor null para compatibilidade
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [isAskingLocation, setIsAskingLocation] = useState<boolean>(false);
   const [setorAtivo, setSetorAtivo] = useState<string>("agricultura");
@@ -290,66 +291,6 @@ const ChatbotWidget: React.FC = () => {
       behavior: "smooth",
       block: "end",
     });
-  };
-
-  const getUserLocation = () => {
-    setIsAskingLocation(true);
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          });
-          setIsAskingLocation(false);
-          console.log("Localização obtida com sucesso:", position.coords);
-        },
-        (error) => {
-          console.error("Erro ao obter localização:", error);
-          setIsAskingLocation(false);
-
-          let errorMessage = "Não foi possível obter sua localização.";
-
-          // Mensagens de erro mais específicas baseadas no código de erro
-          switch (error.code) {
-            case error.PERMISSION_DENIED:
-              errorMessage =
-                "Permissão para obter localização foi negada. Por favor, permita o acesso à sua localização e tente novamente.";
-              break;
-            case error.POSITION_UNAVAILABLE:
-              errorMessage =
-                "As informações de localização não estão disponíveis no momento.";
-              break;
-            case error.TIMEOUT:
-              errorMessage =
-                "A solicitação para obter sua localização expirou.";
-              break;
-          }
-
-          addMessage(errorMessage, false);
-          addMessage(
-            "Deseja tentar novamente ou prosseguir sem informações de localização?",
-            false,
-          );
-          setSuggestions([
-            { text: "Tentar novamente", action: "tentar novamente" },
-            { text: "Prosseguir sem localização", action: "prosseguir" },
-          ]);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0,
-        },
-      );
-    } else {
-      console.error("Geolocation não suportado.");
-      setIsAskingLocation(false);
-      addMessage(
-        "Geolocation não é suportado pelo seu navegador. Vamos prosseguir sem informações de localização.",
-        false,
-      );
-    }
   };
 
   const addMessage = (text: string, isUser: boolean) => {
@@ -506,24 +447,6 @@ const ChatbotWidget: React.FC = () => {
 
   // Tentar responder com a hierarquia especificada de respostas
   const tryProgrammaticFlow = (userMessage: string) => {
-    // Verificar se está respondendo sobre localização
-    if (
-      isAskingLocation &&
-      (userMessage.toLowerCase().includes("tentar novamente") ||
-        userMessage.toLowerCase().includes("prosseguir"))
-    ) {
-      if (userMessage.toLowerCase().includes("tentar novamente")) {
-        getUserLocation();
-        return { shouldRespond: true, response: "" };
-      } else if (userMessage.toLowerCase().includes("prosseguir")) {
-        setIsAskingLocation(false);
-        // Continuar o fluxo sem localização
-        return {
-          shouldRespond: true,
-          response: "Continuando sem localização.",
-        };
-      }
-    }
 
     // Normalizar a mensagem do usuário
     const normalizedUserMessage = userMessage.toLowerCase().trim();
@@ -661,7 +584,9 @@ const ChatbotWidget: React.FC = () => {
     let resposta = "";
 
     // Verificar se a mensagem corresponde a alguma ação no fluxo atual
-    if (fluxoConversa[activeFluxo as keyof typeof fluxoConversa]) {
+    if (
+      fluxoConversa[activeFluxo as keyof typeof fluxoConversa]
+    ) {
       const fluxoAtual = fluxoConversa[
         activeFluxo as keyof typeof fluxoConversa
       ] as any;
@@ -1150,15 +1075,6 @@ const ChatbotWidget: React.FC = () => {
                   <div ref={messagesEndRef} className="h-4" />
                 </div>
 
-                {userLocation && (
-                  <div className="p-2 border-t">
-                    <LocationMap
-                      latitude={userLocation.latitude}
-                      longitude={userLocation.longitude}
-                      height={150}
-                    />
-                  </div>
-                )}
 
                 {suggestions.length > 0 && (
                   <div className="absolute bottom-[60px] left-0 right-0 p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10 mx-auto w-full rounded-b-lg shadow-md">

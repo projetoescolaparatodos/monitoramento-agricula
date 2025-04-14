@@ -7,6 +7,7 @@ interface Message {
   timestamp: Date;
 }
 
+// Interface mantida para compatibilidade com código existente
 interface UserLocation {
   latitude: number;
   longitude: number;
