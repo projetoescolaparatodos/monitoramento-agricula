@@ -361,10 +361,13 @@ const ChatbotWidget: React.FC = () => {
       userLocation: userLocation
     }));
 
+    // Obter o domínio atual para construir a URL completa
+    const baseUrl = window.location.origin;
+    
     // Determinar a URL correta para o formulário
-    let formUrl = `/forms/${setor}`;
+    let formUrl = `${baseUrl}/forms/${setor}`;
     if (isCompleto) {
-      formUrl = `/forms/${setor}-completo`;
+      formUrl = `${baseUrl}/forms/${setor}-completo`;
     }
 
     // Abrir formulário em nova aba
@@ -387,11 +390,11 @@ const ChatbotWidget: React.FC = () => {
       Setor Ativo: ${setorAtivo}
       Últimas Mensagens: ${JSON.stringify(messages.slice(-3))}
       Formulários Disponíveis:
-      - Agricultura Pré-Cadastro: /forms/agricultura
-      - Agricultura Cadastro Completo: /forms/agricultura-completo
-      - Pesca Pré-Cadastro: /forms/pesca
-      - Pesca Cadastro Completo: /forms/pesca-completo
-      - PAA: /forms/paa
+      - Formulário de Pré-Cadastro de Agricultura
+      - Formulário de Cadastro Completo de Agricultura
+      - Formulário de Pré-Cadastro de Pesca
+      - Formulário de Cadastro Completo de Pesca
+      - Formulário do PAA
       Dados do Município: Vitória do Xingu/PA
     `;
   };

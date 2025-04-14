@@ -51,12 +51,12 @@ export async function getAIResponse(prompt: string, context: string) {
     return response.data.choices[0].message.content;
   } catch (error) {
     console.error("Erro na chamada à API OpenRouter:", error);
-    
+
     // Melhor tratamento de erro
     if (axios.isAxiosError(error)) {
       console.error("Detalhes do erro:", error.response?.data);
     }
-    
+
     return "Desculpe, estou com dificuldades para processar sua solicitação. Por favor, tente novamente mais tarde ou utilize as opções de sugestão.";
   }
 }
