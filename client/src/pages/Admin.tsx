@@ -927,7 +927,7 @@ const PescaForm = () => {
                 className="flex items-center justify-between p-4 border rounded-lg"
               >
                 <div>
-                  <h3 className="font-semibold">{pesqueiro.localidade}</h3>
+                  <h3`font-semibold">{pesqueiro.localidade}</h3>
                   <p className="text-sm text-gray-600">
                     {pesqueiro.nomeImovel} -{" "}
                     {pesqueiro.concluido ? "Concluído" : "Em Andamento"}

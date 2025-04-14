@@ -102,8 +102,21 @@ const Map = () => {
             <p><strong>Operador:</strong> ${trator.piloto}</p>
             <p><strong>Data:</strong> ${new Date(trator.dataCadastro).toLocaleDateString()}</p>
             <p><strong>Status:</strong> ${status}</p>
-            ${trator.tempoAtividade ? `<p><strong>Tempo de Atividade:</strong> ${trator.tempoAtividade} minutos</p>` : ''}
-            ${trator.areaTrabalhada ? `<p><strong>Área Trabalhada:</strong> ${trator.areaTrabalhada}</p>` : ''}
+            ${(() => {
+              const tempoValue = trator.tempoAtividade || trator.horasMaquina || trator.horas || trator.tempo;
+              if (!tempoValue) return '';
+              const tempo = typeof tempoValue === 'number' ? tempoValue : parseFloat(tempoValue);
+              if (isNaN(tempo)) return '';
+              const displayTempo = tempo > 100 ? (tempo / 60).toFixed(2) + ' horas' : tempo.toFixed(2) + ' horas';
+              return `<p><strong>Tempo de Atividade:</strong> ${displayTempo}</p>`;
+            })()}
+            ${(() => {
+              const areaValue = trator.areaTrabalhada || trator.areaMecanizacao || trator.areaMecanization || trator.area;
+              if (!areaValue) return '';
+              const area = typeof areaValue === 'number' ? areaValue : parseFloat(areaValue);
+              if (isNaN(area)) return '';
+              return `<p><strong>Área Trabalhada:</strong> ${(area / 10000).toFixed(2)} ha</p>`;
+            })()}
           </div>
           ${trator.midias && trator.midias.length > 0 ? `
             <div class="mt-4">

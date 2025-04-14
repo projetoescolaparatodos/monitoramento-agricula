@@ -157,26 +157,30 @@ const AgriculturaMap = () => {
                 <p>
                   <strong>Hora/máquina:</strong>{" "}
                   {(() => {
-                    const tempo = typeof trator.tempoAtividade === 'number' 
-                      ? trator.tempoAtividade 
-                      : typeof trator.tempoAtividade === 'string' 
-                        ? parseFloat(trator.tempoAtividade) 
+                    // Verifica múltiplas possíveis propriedades para o tempo
+                    const tempoValue = trator.tempoAtividade || trator.horasMaquina || trator.horas || trator.tempo;
+                    const tempo = typeof tempoValue === 'number' 
+                      ? tempoValue 
+                      : typeof tempoValue === 'string' 
+                        ? parseFloat(tempoValue) 
                         : null;
                     
-                    if (tempo === null) return "-";
+                    if (tempo === null || isNaN(tempo)) return "-";
                     return (tempo > 100 ? (tempo / 60).toFixed(2) : tempo.toFixed(2)) + " horas";
                   })()}
                 </p>
                 <p>
                   <strong>Área para mecanização:</strong>{" "}
                   {(() => {
-                    const area = typeof trator.areaTrabalhada === 'number' 
-                      ? trator.areaTrabalhada 
-                      : typeof trator.areaTrabalhada === 'string' 
-                        ? parseFloat(trator.areaTrabalhada) 
+                    // Verifica múltiplas possíveis propriedades para a área
+                    const areaValue = trator.areaTrabalhada || trator.areaMecanizacao || trator.areaMecanization || trator.area;
+                    const area = typeof areaValue === 'number' 
+                      ? areaValue 
+                      : typeof areaValue === 'string' 
+                        ? parseFloat(areaValue) 
                         : null;
                     
-                    if (area === null) return "-";
+                    if (area === null || isNaN(area)) return "-";
                     return (area / 10000).toFixed(2) + " ha";
                   })()}
                 </p>
