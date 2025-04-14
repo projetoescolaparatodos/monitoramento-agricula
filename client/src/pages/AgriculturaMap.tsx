@@ -26,7 +26,7 @@ interface Trator {
   latitude: number;
   longitude: number;
   tempoAtividade?: number;
-  areaTrabalhada?: string;
+  areaTrabalhada?: number; // Changed to number for easier calculation
   midias?: string[];
   localidade?: string;
   proprietario?: string;
@@ -76,7 +76,7 @@ const AgriculturaMap = () => {
           latitude: data.latitude,
           longitude: data.longitude,
           tempoAtividade: data.tempoAtividade,
-          areaTrabalhada: data.areaTrabalhada,
+          areaTrabalhada: data.areaTrabalhada ? parseFloat(data.areaTrabalhada) : undefined, //Parse areaTrabalhada to a number
           midias: data.midias,
           localidade: data.localidade,
           proprietario: data.proprietario,
@@ -164,25 +164,14 @@ const AgriculturaMap = () => {
                       : typeof tempoValue === 'string' 
                         ? parseFloat(tempoValue) 
                         : null;
-                    
+
                     if (tempo === null || isNaN(tempo)) return "-";
                     return (tempo > 100 ? (tempo / 60).toFixed(2) : tempo.toFixed(2)) + " horas";
                   })()}
                 </p>
                 <p>
                   <strong>Área para mecanização:</strong>{" "}
-                  {(() => {
-                    // Verifica múltiplas possíveis propriedades para a área
-                    const areaValue = trator.areaTrabalhada || trator.areaMecanizacao || trator.areaMecanization || trator.area;
-                    const area = typeof areaValue === 'number' 
-                      ? areaValue 
-                      : typeof areaValue === 'string' 
-                        ? parseFloat(areaValue) 
-                        : null;
-                    
-                    if (area === null || isNaN(area)) return "-";
-                    return (area / 10000).toFixed(2) + " ha";
-                  })()}
+                  {trator.areaTrabalhada ? (trator.areaTrabalhada / 10000).toFixed(2) : "-"} ha
                 </p>
                 <p>
                   <strong>Operador:</strong> {trator.piloto}

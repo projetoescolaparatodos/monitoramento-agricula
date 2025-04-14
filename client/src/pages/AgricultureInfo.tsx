@@ -17,6 +17,10 @@ const AgricultureInfo = () => {
     queryKey: ['/api/media-items?pageType=agriculture'],
   });
 
+  // Assume agriculturalData is fetched from Firebase here.  This needs to be added based on the actual implementation.
+  const agriculturalData = useQuery(['agriculturalData'], () => fetch('/api/agriculturalData').then(res => res.json())).data;
+
+
   return (
     <>
       <Navbar />
@@ -29,7 +33,16 @@ const AgricultureInfo = () => {
         isLoadingContents={isLoadingContents}
         isLoadingCharts={isLoadingCharts}
         isLoadingMedia={isLoadingMedia}
-      />
+      >
+        {/* Added this section to display the area in hectares */}
+        {agriculturalData && (
+          <div>
+            <p className="text-3xl font-bold">
+              {(agriculturalData.reduce((total, data) => total + (data.areaTrabalhada || 0), 0) / 10000).toFixed(2)} ha
+            </p>
+          </div>
+        )}
+      </InfoPage>
       <Footer />
     </>
   );

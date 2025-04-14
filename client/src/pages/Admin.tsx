@@ -386,16 +386,18 @@ const AgriculturaForm = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="areaTrabalhada">
-                  Área para mecanização (m²)
+                  Área para mecanização (ha)
                 </Label>
                 <Input
                   id="areaTrabalhada"
                   type="number"
-                  value={areaTrabalhada}
-                  onChange={(e) => setAreaTrabalhada(Number(e.target.value))}
-                  placeholder="4"
+                  value={areaTrabalhada / 10000}
+                  onChange={(e) => setAreaTrabalhada(Number(e.target.value) * 10000)}
+                  placeholder="0.4"
+                  step="0.01"
                   required
                 />
+                <p className="text-xs text-gray-500">Digite a área em hectares (ha)</p>
               </div>
 
               <div className="space-y-2">
@@ -482,7 +484,7 @@ const AgriculturaForm = () => {
                   <th className="p-2 border">Operação</th>
                   <th className="p-2 border">Operador</th>
                   <th className="p-2 border">H/Máquina</th>
-                  <th className="p-2 border">Área (m²)</th>
+                  <th className="p-2 border">Área (ha)</th>
                   <th className="p-2 border">Data</th>
                   <th className="p-2 border">Status</th>
                   <th className="p-2 border">Ações</th>
@@ -496,7 +498,7 @@ const AgriculturaForm = () => {
                     <td className="p-2 border">{trator.operacao}</td>
                     <td className="p-2 border">{trator.piloto}</td>
                     <td className="p-2 border">{trator.horaMaquina || "-"}</td>
-                    <td className="p-2 border">{trator.areaTrabalhada}</td>
+                    <td className="p-2 border">{trator.areaTrabalhada ? (trator.areaTrabalhada / 10000).toFixed(2) : "-"} ha</td>
                     <td className="p-2 border">
                       {new Date(trator.dataCadastro).toLocaleDateString()}
                     </td>
