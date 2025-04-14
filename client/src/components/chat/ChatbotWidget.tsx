@@ -831,7 +831,7 @@ const ChatbotWidget: React.FC = () => {
       ) : (
         <Card
           className="w-80 sm:w-96 shadowxl flex flex-col"
-          style={{ height: "600px", maxHeight: "80vh" }}
+          style={{ height: "580px", maxHeight: "80vh" }}
         >
           <div className="bg-green-600 text-white p-3 flex justify-between items-center rounded-t-lg">
             <div className="flex items-center gap-2">
@@ -857,7 +857,7 @@ const ChatbotWidget: React.FC = () => {
 
             <TabsContent value="chat" className="p-0 m-0">
               <CardContent className="p-0 flex flex-col h-[500px] relative">
-                <div className="flex-1 overflow-y-auto p-4 pb-20 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
+                <div className="flex-1 overflow-y-auto p-4 pb-24 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
                   {messages.map((msg, idx) => (
                     <div
                       key={idx}
@@ -916,7 +916,7 @@ const ChatbotWidget: React.FC = () => {
                 )}
 
                 {suggestions.length > 0 && (
-                  <div className="absolute bottom-[70px] left-0 right-0 p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10 mx-auto w-full rounded-b-lg shadow-md">
+                  <div className="absolute bottom-[60px] left-0 right-0 p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10 mx-auto w-full rounded-b-lg shadow-md">
                     <div className="w-full flex flex-wrap gap-2">
                       {suggestions.map((suggestion, index) => (
                         <Button
@@ -935,7 +935,7 @@ const ChatbotWidget: React.FC = () => {
 
                 <form
                   onSubmit={handleSubmit}
-                  className="p-3 border-t flex items-center sticky bottom-0 bg-white"
+                  className="p-3 border-t flex items-center sticky bottom-0 bg-white z-20"
                 >
                   <Input
                     value={input}
@@ -1001,9 +1001,9 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
             </TabsContent>
 
             <TabsContent value="agricultura" className="p-0 m-0">
-              <div className="p-4 bg-green-50/50">
+              <div className="p-3 bg-green-50/50 overflow-y-auto" style={{ maxHeight: "450px" }}>
                 <h4 className="font-semibold text-green-800 mb-2">Setor de Agricultura</h4>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-1 text-sm">
                   <p>O setor agrícola oferece serviços de apoio ao produtor rural:</p>
                   <ul className="list-disc pl-5 space-y-1">
                     <li>Assistência técnica rural</li>
@@ -1012,37 +1012,38 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
                     <li>Análise de solo</li>
                     <li>Distribuição de mudas e sementes</li>
                   </ul>
-                  <p className="mt-3 text-gray-600">Horário de atendimento: Segunda a Sexta, 8h às 14h</p>
+                  <p className="text-gray-600 text-xs">Horário de atendimento: Segunda a Sexta, 8h às 14h</p>
 
-                  <div className="mt-4 p-3 bg-white rounded-md border border-green-200">
-                    <h5 className="font-medium text-green-800 mb-2">Tipos de formulários disponíveis:</h5>
-                    <div className="space-y-1 mb-3">
+                  <div className="mt-2 p-2 bg-white rounded-md border border-green-200">
+                    <h5 className="font-medium text-green-800 mb-1">Tipos de formulários disponíveis:</h5>
+                    <div className="space-y-1 mb-2">
                       <p><span className="font-medium">Pré-Cadastro:</span> Formulário rápido e simplificado para um primeiro contato</p>
                       <p><span className="font-medium">Cadastro Completo:</span> Formulário detalhado com todas as informações necessárias</p>
                     </div>
                   </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2 mt-4">
-                  <Button 
-                    onClick={() => abrirFormulario('agricultura')}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    Pré-Cadastro
-                  </Button>
-                  <Button 
-                    onClick={() => abrirFormulario('agricultura-completo')}
-                    className="bg-green-800 hover:bg-green-900"
-                  >
-                    Cadastro Completo
-                  </Button>
+                
+                  <div className="grid grid-cols-2 gap-2 mt-2 sticky bottom-0">
+                    <Button 
+                      onClick={() => abrirFormulario('agricultura')}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      Pré-Cadastro
+                    </Button>
+                    <Button 
+                      onClick={() => abrirFormulario('agricultura-completo')}
+                      className="bg-green-800 hover:bg-green-900"
+                    >
+                      Cadastro Completo
+                    </Button>
+                  </div>
                 </div>
               </div>
             </TabsContent>
 
             <TabsContent value="pesca" className="p-0 m-0">
-              <div className="p-4 bg-blue-50/50">
+              <div className="p-3 bg-blue-50/50 overflow-y-auto" style={{ maxHeight: "450px" }}>
                 <h4 className="font-semibold text-blue-800 mb-2">Setor de Pesca</h4>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-1 text-sm">
                   <p>O setor de pesca oferece:</p>
                   <ul className="list-disc pl-5 space-y-1">
                     <li>Suporte à piscicultura</li>
@@ -1050,37 +1051,38 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
                     <li>Assistência técnica especializada</li>
                     <li>Programas de incentivo à produção</li>
                   </ul>
-                  <p className="mt-3 text-gray-600">Responsável: Coord. de Pesca - (99) 3333-4446</p>
+                  <p className="text-gray-600 text-xs">Responsável: Coord. de Pesca - (99) 3333-4446</p>
 
-                  <div className="mt-4 p-3 bg-white rounded-md border border-blue-200">
-                    <h5 className="font-medium text-blue-800 mb-2">Tipos de formulários disponíveis:</h5>
-                    <div className="space-y-1 mb-3">
+                  <div className="mt-2 p-2 bg-white rounded-md border border-blue-200">
+                    <h5 className="font-medium text-blue-800 mb-1">Tipos de formulários disponíveis:</h5>
+                    <div className="space-y-1 mb-2">
                       <p><span className="font-medium">Pré-Cadastro:</span> Formulário rápido e simplificado para aqueles agricultores que já possuem cadastro e desejam solicitar serviços da secretaria.</p>
-                      <p><span className="font-medium">Cadastro Completo:</span> Formulário detalhado com estruturas, espécies e situação legal, ideal para </p>
+                      <p><span className="font-medium">Cadastro Completo:</span> Formulário detalhado com estruturas, espécies e situação legal.</p>
                     </div>
                   </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2 mt-4">
-                  <Button 
-                    onClick={() => abrirFormulario('pesca')}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    Pré-Cadastro
-                  </Button>
-                  <Button 
-                    onClick={() => abrirFormulario('pesca-completo')}
-                    className="bg-blue-800 hover:bg-blue-900"
-                  >
-                    Cadastro Completo
-                  </Button>
+                  
+                  <div className="grid grid-cols-2 gap-2 mt-2 sticky bottom-0">
+                    <Button 
+                      onClick={() => abrirFormulario('pesca')}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      Pré-Cadastro
+                    </Button>
+                    <Button 
+                      onClick={() => abrirFormulario('pesca-completo')}
+                      className="bg-blue-800 hover:bg-blue-900"
+                    >
+                      Cadastro Completo
+                    </Button>
+                  </div>
                 </div>
               </div>
             </TabsContent>
 
             <TabsContent value="paa" className="p-0 m-0">
-              <div className="p-4 bg-amber-50/50">
+              <div className="p-3 bg-amber-50/50 overflow-y-auto" style={{ maxHeight: "450px" }}>
                 <h4 className="font-semibold text-amber-800 mb-2">Programa de Aquisição de Alimentos</h4>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-1 text-sm">
                   <p>O PAA oferece:</p>
                   <ul className="list-disc pl-5 space-y-1">
                     <li>Compra institucional de produtos da agricultura familiar</li>
@@ -1088,14 +1090,17 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
                     <li>Acesso a mercados</li>
                     <li>Preços justos e garantidos</li>
                   </ul>
-                  <p className="mt-3 text-gray-600">Requisitos: Ser agricultor familiar com DAP/CAF ativa</p>
+                  <p className="text-gray-600 text-xs">Requisitos: Ser agricultor familiar com DAP/CAF ativa</p>
+                  
+                  <div className="sticky bottom-0 pt-2">
+                    <Button 
+                      onClick={() => abrirFormulario('paa')}
+                      className="w-full bg-amber-600 hover:bg-amber-700"
+                    >
+                      Participar do PAA
+                    </Button>
+                  </div>
                 </div>
-                <Button 
-                  onClick={() => abrirFormulario('paa')}
-                  className="mt-4 w-full bg-amber-600 hover:bg-amber-700"
-                >
-                  Participar do PAA
-                </Button>
               </div>
             </TabsContent>
           </Tabs>
