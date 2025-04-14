@@ -745,7 +745,7 @@ const ChatbotWidget: React.FC = () => {
 
             <TabsContent value="chat" className="p-0 m-0">
               <CardContent className="p-0 flex flex-col h-[500px] relative">
-                <div className="flex-1 overflow-y-auto p-4 pb-16 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
+                <div className="flex-1 overflow-y-auto p-4 pb-20 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
                   {messages.map((msg, idx) => (
                     <div
                       key={idx}
@@ -804,7 +804,7 @@ const ChatbotWidget: React.FC = () => {
                 )}
 
                 {suggestions.length > 0 && (
-                  <div className="absolute bottom-[60px] left-0 right-0 p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10 mx-auto w-full rounded-b-lg shadow-md">
+                  <div className="absolute bottom-[70px] left-0 right-0 p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10 mx-auto w-full rounded-b-lg shadow-md">
                     <div className="w-full flex flex-wrap gap-2">
                       {suggestions.map((suggestion, index) => (
                         <Button
