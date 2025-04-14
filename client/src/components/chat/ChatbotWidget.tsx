@@ -1103,28 +1103,31 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
             </TabsContent>
 
             <TabsContent value="agricultura" className="p-0 m-0">
-              <div className="p-3 bg-green-50/50 overflow-y-auto" style={{ maxHeight: "450px" }}>
-                <h4 className="font-semibold text-green-800 mb-2">Setor de Agricultura</h4>
-                <div className="space-y-1 text-sm">
-                  <p>O setor agrícola oferece serviços de apoio ao produtor rural:</p>
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li>Assistência técnica rural</li>
-                    <li>Programas de mecanização</li>
-                    <li>Acesso a insumos agrícolas</li>
-                    <li>Análise de solo</li>
-                    <li>Distribuição de mudas e sementes</li>
-                  </ul>
-                  <p className="text-gray-600 text-xs">Horário de atendimento: Segunda a Sexta, 8h às 14h</p>
+              <div className="p-3 bg-green-50/50 overflow-y-auto flex flex-col" style={{ maxHeight: "450px" }}>
+                <div className="flex-1 overflow-y-auto">
+                  <h4 className="font-semibold text-green-800 mb-2">Setor de Agricultura</h4>
+                  <div className="space-y-1 text-sm">
+                    <p>O setor agrícola oferece serviços de apoio ao produtor rural:</p>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Assistência técnica rural</li>
+                      <li>Programas de mecanização</li>
+                      <li>Acesso a insumos agrícolas</li>
+                      <li>Análise de solo</li>
+                      <li>Distribuição de mudas e sementes</li>
+                    </ul>
+                    <p className="text-gray-600 text-xs">Horário de atendimento: Segunda a Sexta, 8h às 14h</p>
 
-                  <div className="mt-2 p-2 bg-white rounded-md border border-green-200">
-                    <h5 className="font-medium text-green-800 mb-1">Tipos de formulários disponíveis:</h5>
-                    <div className="space-y-1 mb-2">
-                      <p><span className="font-medium">Pré-Cadastro:</span> Formulário rápido e simplificado para um primeiro contato</p>
-                      <p><span className="font-medium">Cadastro Completo:</span> Formulário detalhado com todas as informações necessárias</p>
+                    <div className="mt-2 p-2 bg-white rounded-md border border-green-200">
+                      <h5 className="font-medium text-green-800 mb-1">Tipos de formulários disponíveis:</h5>
+                      <div className="space-y-1 mb-2">
+                        <p><span className="font-medium">Pré-Cadastro:</span> Formulário rápido e simplificado para um primeiro contato</p>
+                        <p><span className="font-medium">Cadastro Completo:</span> Formulário detalhado com todas as informações necessárias</p>
+                      </div>
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-2 mt-2 sticky bottom-0">
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2 mt-4 py-3 border-t bg-green-50/80 sticky bottom-0">
                     <Button 
                       onClick={() => abrirFormulario('agricultura')}
                       className="bg-green-600 hover:bg-green-700"
@@ -1143,27 +1146,30 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
             </TabsContent>
 
             <TabsContent value="pesca" className="p-0 m-0">
-              <div className="p-3 bg-blue-50/50 overflow-y-auto" style={{ maxHeight: "450px" }}>
-                <h4 className="font-semibold text-blue-800 mb-2">Setor de Pesca</h4>
-                <div className="space-y-1 text-sm">
-                  <p>O setor de pesca oferece:</p>
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li>Suporte à piscicultura</li>
-                    <li>Orientação para licenciamento</li>
-                    <li>Assistência técnica especializada</li>
-                    <li>Programas de incentivo à produção</li>
-                  </ul>
-                  <p className="text-gray-600 text-xs">Responsável: Coord. de Pesca - (99) 3333-4446</p>
+              <div className="p-3 bg-blue-50/50 overflow-y-auto flex flex-col" style={{ maxHeight: "450px" }}>
+                <div className="flex-1 overflow-y-auto">
+                  <h4 className="font-semibold text-blue-800 mb-2">Setor de Pesca</h4>
+                  <div className="space-y-1 text-sm">
+                    <p>O setor de pesca oferece:</p>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Suporte à piscicultura</li>
+                      <li>Orientação para licenciamento</li>
+                      <li>Assistência técnica especializada</li>
+                      <li>Programas de incentivo à produção</li>
+                    </ul>
+                    <p className="text-gray-600 text-xs">Responsável: Coord. de Pesca - (99) 3333-4446</p>
 
-                  <div className="mt-2 p-2 bg-white rounded-md border border-blue-200">
-                    <h5 className="font-medium text-blue-800 mb-1">Tipos de formulários disponíveis:</h5>
-                    <div className="space-y-1 mb-2">
-                      <p><span className="font-medium">Pré-Cadastro:</span> Formulário rápido e simplificado para aqueles agricultores que já possuem cadastro e desejam solicitar serviços da secretaria.</p>
-                      <p><span className="font-medium">Cadastro Completo:</span> Formulário detalhado com estruturas, espécies e situação legal.</p>
+                    <div className="mt-2 p-2 bg-white rounded-md border border-blue-200">
+                      <h5 className="font-medium text-blue-800 mb-1">Tipos de formulários disponíveis:</h5>
+                      <div className="space-y-1 mb-2">
+                        <p><span className="font-medium">Pré-Cadastro:</span> Formulário rápido e simplificado para aqueles agricultores que já possuem cadastro e desejam solicitar serviços da secretaria.</p>
+                        <p><span className="font-medium">Cadastro Completo:</span> Formulário detalhado com estruturas, espécies e situação legal.</p>
+                      </div>
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-2 mt-2 sticky bottom-0">
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2 mt-4 py-3 border-t bg-blue-50/80 sticky bottom-0">
                     <Button 
                       onClick={() => abrirFormulario('pesca')}
                       className="bg-blue-600 hover:bg-blue-700"
@@ -1182,19 +1188,22 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
             </TabsContent>
 
             <TabsContent value="paa" className="p-0 m-0">
-              <div className="p-3 bg-amber-50/50 overflow-y-auto" style={{ maxHeight: "450px" }}>
-                <h4 className="font-semibold text-amber-800 mb-2">Programa de Aquisição de Alimentos</h4>
-                <div className="space-y-1 text-sm">
-                  <p>O PAA oferece:</p>
-                  <ul className="list-disc pl-5 space-y-1">
-                    <li>Compra institucional de produtos da agricultura familiar</li>
-                    <li>Apoio à comercialização</li>
-                    <li>Acesso a mercados</li>
-                    <li>Preços justos e garantidos</li>
-                  </ul>
-                  <p className="text-gray-600 text-xs">Requisitos: Ser agricultor familiar com DAP/CAF ativa</p>
-
-                  <div className="sticky bottom-0 pt-2">
+              <div className="p-3 bg-amber-50/50 overflow-y-auto flex flex-col" style={{ maxHeight: "450px" }}>
+                <div className="flex-1 overflow-y-auto">
+                  <h4 className="font-semibold text-amber-800 mb-2">Programa de Aquisição de Alimentos</h4>
+                  <div className="space-y-1 text-sm">
+                    <p>O PAA oferece:</p>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Compra institucional de produtos da agricultura familiar</li>
+                      <li>Apoio à comercialização</li>
+                      <li>Acesso a mercados</li>
+                      <li>Preços justos e garantidos</li>
+                    </ul>
+                    <p className="text-gray-600 text-xs">Requisitos: Ser agricultor familiar com DAP/CAF ativa</p>
+                  </div>
+                </div>
+                
+                <div className="py-3 border-t bg-amber-50/80 sticky bottom-0">
                     <Button 
                       onClick={() => abrirFormulario('paa')}
                       className="w-full bg-amber-600 hover:bg-amber-700"
