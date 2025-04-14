@@ -662,6 +662,7 @@ const ChatbotWidget: React.FC = () => {
 
     // 2. Se não encontrou no fluxo ou treinamento, use a IA OpenRouter
     console.log("Tentando obter resposta da IA OpenRouter...");
+    console.log("Verificando disponibilidade da chave API:", !!import.meta.env.VITE_OPENROUTER_API_KEY);
     try {
       const context = buildAIContext();
       
