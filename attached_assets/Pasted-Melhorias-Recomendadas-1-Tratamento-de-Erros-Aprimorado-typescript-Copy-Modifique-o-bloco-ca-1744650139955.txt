@@ -1,0 +1,142 @@
+Melhorias Recomendadas
+1. Tratamento de Erros Aprimorado
+typescript
+Copy
+// Modifique o bloco catch do processUserMessage
+catch (error) {
+  console.error("Erro na IA:", error);
+  
+  // Adicione esta verificação para erros específicos da API
+  if (error.response) {
+    console.error("Detalhes do erro:", {
+      status: error.response.status,
+      data: error.response.data
+    });
+  }
+
+  // Mensagens mais específicas baseadas no tipo de erro
+  let errorMessage = "Desculpe, estou com dificuldades técnicas no momento.";
+  
+  if (error.message.includes("rate limit")) {
+    errorMessage = "Estou recebendo muitas solicitações. Por favor, tente novamente em alguns instantes.";
+  } else if (error.message.includes("authentication")) {
+    errorMessage = "Problema de conexão com o serviço. Estamos trabalhando para resolver.";
+  }
+
+  addMessage(errorMessage, false);
+}
+2. Aprimoramento do Sistema de Cache
+typescript
+Copy
+// Antes de verificar o cache, normalize melhor a mensagem
+const normalizeMessage = (msg: string) => {
+  return msg
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s]/g, '') // Remove pontuação
+    .replace(/\s+/g, ' ');    // Normaliza espaços
+};
+
+// E na verificação do cache:
+const normalizedMessage = normalizeMessage(userMessage);
+const cachedResponse = responseCache[normalizedMessage];
+3. Melhoria no Contexto para IA
+typescript
+Copy
+const buildAIContext = () => {
+  // Adicione informações mais estruturadas
+  return JSON.stringify({
+    setorAtivo,
+    ultimasMensagens: messages.slice(-3).map(m => ({
+      role: m.isUser ? "user" : "assistant",
+      content: m.text
+    })),
+    formularios: {
+      agricultura: ["/forms/agricultura", "/forms/agricultura-completo"],
+      pesca: ["/forms/pesca", "/forms/pesca-completo"],
+      paa: ["/forms/paa"]
+    },
+    municipio: "Vitória do Xingu/PA",
+    data: new Date().toLocaleDateString('pt-BR'),
+    // Adicione informações úteis para respostas mais precisas
+    servicos: [
+      "assistência técnica",
+      "mecanização agrícola",
+      "análise de solo",
+      "distribuição de mudas",
+      "programas de incentivo"
+    ]
+  });
+};
+4. Otimização do Carregamento de Respostas Treinadas
+typescript
+Copy
+// Adicione um estado para controlar o carregamento
+const [isLoadingTrainedResponses, setIsLoadingTrainedResponses] = useState(true);
+
+// Modifique o useEffect de carregamento
+useEffect(() => {
+  const fetchTrainedResponses = async () => {
+    try {
+      setIsLoadingTrainedResponses(true);
+      // ... código existente ...
+    } catch (error) {
+      console.error('Erro ao carregar respostas treinadas:', error);
+      // Adicione uma mensagem de erro não intrusiva
+      if (isAdmin) {
+        addMessage("Aviso: Não foi possível carregar respostas treinadas. Usando apenas IA.", false);
+      }
+    } finally {
+      setIsLoadingTrainedResponses(false);
+    }
+  };
+  
+  fetchTrainedResponses();
+}, []);
+
+// E na renderização, você pode mostrar um indicador:
+{isLoadingTrainedResponses && (
+  <div className="text-xs text-gray-500 p-2">
+    Carregando conhecimentos do chatbot...
+  </div>
+)}
+5. Validação dos Dados de Treinamento
+typescript
+Copy
+const trainAI = async () => {
+  if (!trainingData.trim()) {
+    addMessage("Por favor, insira dados para treinamento.", false);
+    return;
+  }
+
+  try {
+    // Valide o formato antes de processar
+    const examplePairs = trainingData.split('\n\n').filter(pair => pair.includes('\n'));
+    
+    if (examplePairs.length === 0) {
+      addMessage("Formato inválido. Use 'Q: pergunta\nR: resposta' separados por linha vazia.", false);
+      return;
+    }
+
+    const examples = examplePairs.map(example => {
+      const [q, r] = example.split('\n');
+      // Validação mais rigorosa
+      if (!q.startsWith('Q:') || !r.startsWith('R:')) {
+        throw new Error("Formato inválido. Use 'Q:' e 'R:' como prefixos.");
+      }
+      
+      return {
+        question: q.replace('Q:', '').trim(),
+        answer: r.replace('R:', '').trim(),
+        // Adicione metadados úteis
+        setor: setorAtivo,
+        data: new Date().toISOString()
+      };
+    });
+
+    // ... resto do código ...
+  } catch (error) {
+    console.error("Erro no treinamento:", error);
+    addMessage(`Erro: ${error.message}`, false);
+  }
+};
