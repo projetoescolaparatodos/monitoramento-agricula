@@ -363,7 +363,7 @@ const ChatbotWidget: React.FC = () => {
 
     // Obter o domínio atual para construir a URL completa
     const baseUrl = window.location.origin;
-    
+
     // Determinar a URL correta para o formulário
     let formUrl = `${baseUrl}/forms/${setor}`;
     if (isCompleto) {
@@ -562,7 +562,7 @@ const ChatbotWidget: React.FC = () => {
 
     // Limiar de confiança para considerar a correspondência válida
     const MATCH_THRESHOLD = 10;
-    
+
     if (bestMatch && bestMatchScore >= MATCH_THRESHOLD) {
       console.log('✅ Correspondência parcial encontrada:', bestMatch.question, 'com pontuação:', bestMatchScore);
       return { shouldRespond: true, response: bestMatch.answer };
@@ -570,7 +570,7 @@ const ChatbotWidget: React.FC = () => {
 
     // Verificar fluxos de conversa predefinidos antes de passar para IA
     console.log("🔍 HIERARQUIA 2: Verificando fluxos de conversa predefinidos");
-    
+
     // Processar ações do fluxo de conversa
     if (userMessage.toLowerCase().includes("solicitar serviço") || 
         userMessage.toLowerCase().includes("participar do paa")) {
@@ -713,7 +713,7 @@ const ChatbotWidget: React.FC = () => {
     }
 
     console.log("🔄 Iniciando sistema de resposta hierárquico");
-    
+
     // HIERARQUIA 1 e 2: Tentar respostas treinadas e palavras-chave
     const flowResponse = tryProgrammaticFlow(userMessage);
     if (flowResponse.shouldRespond) {
@@ -1126,7 +1126,7 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-2 mt-4 py-3 border-t bg-green-50/80 sticky bottom-0">
                     <Button 
                       onClick={() => abrirFormulario('agricultura')}
@@ -1167,7 +1167,7 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-2 mt-4 py-3 border-t bg-blue-50/80 sticky bottom-0">
                     <Button 
                       onClick={() => abrirFormulario('pesca')}
@@ -1200,7 +1200,7 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
                     <p className="text-gray-600 text-xs">Requisitos: Ser agricultor familiar com DAP/CAF ativa</p>
                   </div>
                 </div>
-                
+
                 <div className="py-3 border-t bg-amber-50/80 sticky bottom-0">
                     <Button 
                       onClick={() => abrirFormulario('paa')}
