@@ -478,18 +478,53 @@ const ChatbotWidget: React.FC = () => {
     // Log para verificar quantidade de exemplos de treinamento carregados
     console.log(`Verificando ${trainedResponses.length} exemplos de treinamento para: "${normalizedUserMessage}"`);
 
-    // Algoritmo melhorado para encontrar a melhor correspondência
+    // 1. Primeiro tente correspondência exata com respostas treinadas
+    const exactMatch = trainedResponses.find(
+      item => item.question.toLowerCase().trim() === normalizedUserMessage
+    );
+
+    if (exactMatch) {
+      console.log('Correspondência exata encontrada:', exactMatch.question);
+      return { shouldRespond: true, response: exactMatch.answer };
+    }
+
+    // 2. Tente encontrar correspondência por palavras-chave -  Melhora aqui
+    const matchedKeyword = findBestKeywordMatch(userMessage);
+    if (matchedKeyword) {
+      console.log(`Palavra-chave encontrada: "${matchedKeyword}"`);
+      // Obter resposta aleatória para a palavra-chave
+      const keywordResponse = getRandomResponse(matchedKeyword);
+
+      // Obter sugestões para a palavra-chave
+      const keywordSuggestions = getSuggestions(matchedKeyword);
+      if (keywordSuggestions) {
+        setSuggestions(keywordSuggestions);
+      }
+
+      // Verificar se há uma ação associada à palavra-chave
+      const keywordAction = getAction(matchedKeyword);
+      if (keywordAction) {
+        if (keywordAction.startsWith("abrirFormulario")) {
+          const setor = keywordAction.match(/'([^']+)'/)?.[1] || "agricultura";
+          // Agendar a abertura do formulário após mostrar a resposta
+          setTimeout(() => {
+            abrirFormulario(setor);
+          }, 1500);
+        } else if (fluxoConversa[keywordAction as keyof typeof fluxoConversa]) {
+          setActiveFluxo(keywordAction);
+        }
+      }
+
+      return { shouldRespond: true, response: keywordResponse || "" };
+    }
+
+
+    // 3. Algoritmo melhorado para encontrar a melhor correspondência de treinamento
     let bestMatch = null;
     let bestMatchScore = 0;
 
     for (const item of trainedResponses) {
       const normalizedQuestion = item.question.toLowerCase().trim();
-
-      // Verificar correspondência exata
-      if (normalizedUserMessage === normalizedQuestion) {
-        console.log('Correspondência exata encontrada:', item.question);
-        return { shouldRespond: true, response: item.answer };
-      }
 
       // Verificar se contém palavras-chave completas
       if (normalizedUserMessage.includes(normalizedQuestion) && normalizedQuestion.length > bestMatchScore) {
@@ -516,7 +551,7 @@ const ChatbotWidget: React.FC = () => {
       return { shouldRespond: true, response: bestMatch.answer };
     }
 
-    // Processar ações do fluxo de conversa
+    // 4. Processar ações do fluxo de conversa
     if (userMessage.toLowerCase().includes("solicitar serviço") || 
         userMessage.toLowerCase().includes("participar do paa")) {
       const setor = activeFluxo.replace("fluxo", "").toLowerCase();
@@ -524,7 +559,7 @@ const ChatbotWidget: React.FC = () => {
       return { shouldRespond: true, response: "" };
     }
 
-    // Processar navegação entre fluxos
+    // 5. Processar navegação entre fluxos
     let novoFluxo = activeFluxo;
     let resposta = "";
 
@@ -583,38 +618,7 @@ const ChatbotWidget: React.FC = () => {
       }
     }
 
-    // Tentar encontrar correspondência por palavras-chave
-    const matchedKeyword = findBestKeywordMatch(userMessage);
-    if (matchedKeyword) {
-      console.log(`Palavra-chave encontrada: "${matchedKeyword}"`);
-
-      // Obter resposta aleatória para a palavra-chave
-      const keywordResponse = getRandomResponse(matchedKeyword);
-
-      // Obter sugestões para a palavra-chave
-      const keywordSuggestions = getSuggestions(matchedKeyword);
-      if (keywordSuggestions) {
-        setSuggestions(keywordSuggestions);
-      }
-
-      // Verificar se há uma ação associada à palavra-chave
-      const keywordAction = getAction(matchedKeyword);
-      if (keywordAction) {
-        if (keywordAction.startsWith("abrirFormulario")) {
-          const setor = keywordAction.match(/'([^']+)'/)?.[1] || "agricultura";
-          // Agendar a abertura do formulário após mostrar a resposta
-          setTimeout(() => {
-            abrirFormulario(setor);
-          }, 1500);
-        } else if (fluxoConversa[keywordAction as keyof typeof fluxoConversa]) {
-          setActiveFluxo(keywordAction);
-        }
-      }
-
-      return { shouldRespond: true, response: keywordResponse || "" };
-    }
-
-    // Não encontrou resposta no fluxo programático nem por palavras-chave
+    // Não encontrou resposta no fluxo programático
     return { shouldRespond: false, response: "" };
   };
 

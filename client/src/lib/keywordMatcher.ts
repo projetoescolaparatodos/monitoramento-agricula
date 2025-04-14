@@ -102,11 +102,43 @@ export function findBestKeywordMatch(userInput: string): string | null {
   const normalizedInput = userInput.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   let bestMatch: { keyword: string; score: number } | null = null;
 
+  // Função para calcular a pontuação de correspondência
+  const calculateMatchScore = (input: string, keyword: string, baseScore: number): number => {
+    let score = baseScore;
+    
+    // Correspondência exata ou como palavra completa recebe pontuação adicional
+    const inputWords = input.split(/\s+/);
+    const keywordWords = keyword.split(/\s+/);
+    
+    // Bônus para correspondência exata
+    if (input === keyword) {
+      score += 10;
+    }
+    
+    // Bônus para palavra no início da frase
+    if (input.startsWith(keyword)) {
+      score += 3;
+    }
+    
+    // Bônus para palavras completas
+    const keywordRegex = new RegExp(`\\b${keyword}\\b`, 'i');
+    if (keywordRegex.test(input)) {
+      score += 5;
+    }
+    
+    // Bônus para palavras compartilhadas
+    const sharedWords = keywordWords.filter(word => inputWords.includes(word));
+    score += sharedWords.length * 2;
+    
+    return score;
+  };
+
   for (const keyword of Object.keys(keywordMap)) {
     const normalizedKeyword = keyword.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     
     if (normalizedInput.includes(normalizedKeyword)) {
-      const currentScore = keywordMap[keyword].score;
+      const baseScore = keywordMap[keyword].score;
+      const currentScore = calculateMatchScore(normalizedInput, normalizedKeyword, baseScore);
       
       if (!bestMatch || currentScore > bestMatch.score) {
         bestMatch = { keyword, score: currentScore };
@@ -148,4 +180,45 @@ export function getSuggestions(keyword: string): SuggestionButton[] | undefined 
  */
 export function getAction(keyword: string): string | undefined {
   return keywordMap[keyword]?.action;
+}
+
+/**
+ * Processa uma entrada de texto para extrair palavras-chave significativas
+ * @param text O texto a ser processado
+ * @returns Array de palavras-chave significativas
+ */
+export function extractKeywords(text: string): string[] {
+  const stopWords = [
+    'a', 'o', 'e', 'é', 'de', 'da', 'do', 'em', 'para', 'por', 'com', 'sem',
+    'como', 'qual', 'quais', 'onde', 'quando', 'quem', 'que', 'porque', 'pois',
+    'ao', 'aos', 'ou', 'um', 'uma', 'uns', 'umas', 'me', 'mim', 'meu', 'minha',
+    'seu', 'sua', 'seus', 'suas', 'não', 'sim', 'talvez'
+  ];
+  
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")  // Remove acentos
+    .replace(/[^\w\s]/g, '')          // Remove pontuação
+    .split(/\s+/)                      // Divide em palavras
+    .filter(word => !stopWords.includes(word) && word.length > 2);
+}
+
+/**
+ * Encontra as palavras-chave mais relevantes em um conjunto de texto
+ * @param texts Array de textos
+ * @returns Mapa de palavras-chave e suas frequências
+ */
+export function analyzeKeywordFrequency(texts: string[]): Map<string, number> {
+  const frequencyMap = new Map<string, number>();
+  
+  texts.forEach(text => {
+    const keywords = extractKeywords(text);
+    keywords.forEach(keyword => {
+      const count = frequencyMap.get(keyword) || 0;
+      frequencyMap.set(keyword, count + 1);
+    });
+  });
+  
+  return frequencyMap;
 }
