@@ -1460,12 +1460,14 @@ const Admin = () => {
   const [showManagerButton, setShowManagerButton] = useState(false);
   const [agriculturaData, setAgriculturaData] = useState([]);
   const [pescaData, setPescaData] = useState([]);
+  const [agriculturasAtividades, setAgriculturasAtividades] = useState([]);
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
       const agriculturaSnapshot = await getDocs(collection(db, "agricultura"));
       const pescaSnapshot = await getDocs(collection(db, "pesca"));
+      const tratoresSnapshot = await getDocs(collection(db, "tratores"));
 
       setAgriculturaData(agriculturaSnapshot.docs.map((doc) => ({
         id: doc.id,
@@ -1476,21 +1478,26 @@ const Admin = () => {
         id: doc.id,
         ...doc.data(),
       })));
+      
+      setAgriculturasAtividades(tratoresSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })));
     };
     fetchData();
   }, []);
 
   const atualizarStatusAgricultura = async (id, statusAtual) => {
     try {
-      await updateDoc(doc(db, "agricultura", id), {
+      await updateDoc(doc(db, "tratores", id), {
         concluido: !statusAtual,
       });
       toast({
         title: "Sucesso",
         description: "Status atualizado com sucesso!",
       });
-      const snapshot = await getDocs(collection(db, "agricultura"));
-      setAgriculturaData(snapshot.docs.map((doc) => ({
+      const snapshot = await getDocs(collection(db, "tratores"));
+      setAgriculturasAtividades(snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })));
