@@ -28,6 +28,7 @@ const AgriculturaForm = () => {
   const [atividade, setAtividade] = useState("");
   const [piloto, setPiloto] = useState("");
   const [localidade, setLocalidade] = useState("");
+  const [proprietario, setProprietario] = useState("");
   const [operacao, setOperacao] = useState("");
   const [horaMaquina, setHoraMaquina] = useState(0);
   const [tecnicoResponsavel, setTecnicoResponsavel] = useState("");
@@ -159,6 +160,7 @@ const AgriculturaForm = () => {
         areaTrabalhada: areaTrabalhadaNum,
         midias: midiasValidas,
         localidade: localidade || null,
+        proprietario: proprietario || null,
         tecnicoResponsavel: tecnicoResponsavel || null,
         horaMaquina: horaMaquinaNum,
         operacao,
@@ -191,6 +193,7 @@ const AgriculturaForm = () => {
       setAtividade("");
       setPiloto("");
       setLocalidade("");
+      setProprietario("");
       setOperacao("");
       setHoraMaquina(0);
       setTecnicoResponsavel("");
@@ -234,6 +237,7 @@ const AgriculturaForm = () => {
     setAtividade(trator.atividade);
     setPiloto(trator.piloto);
     setLocalidade(trator.localidade || "");
+    setProprietario(trator.proprietario || "");
     setOperacao(trator.operacao || "");
     setHoraMaquina(trator.horaMaquina || 0);
     setTecnicoResponsavel(trator.tecnicoResponsavel || "");
@@ -314,6 +318,16 @@ const AgriculturaForm = () => {
                   onChange={(e) => setFazenda(e.target.value)}
                   required
                   placeholder="Du Rancho"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="proprietario">Nome do Proprietário</Label>
+                <Input
+                  id="proprietario"
+                  value={proprietario}
+                  onChange={(e) => setProprietario(e.target.value)}
+                  placeholder="Nome do proprietário"
                 />
               </div>
 
