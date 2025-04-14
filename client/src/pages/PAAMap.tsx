@@ -167,13 +167,15 @@ const PAAMap = () => {
                 <p>
                   <strong>Área de Mecanização:</strong>{" "}
                   {(() => {
-                    const area = typeof paa.areaMecanization === 'number' 
-                      ? paa.areaMecanization 
-                      : typeof paa.areaMecanization === 'string' 
-                        ? parseFloat(paa.areaMecanization) 
+                    // Verifica múltiplas possíveis propriedades para a área de mecanização
+                    const areaValue = paa.areaMecanization || paa.areaMecanizacao || paa.areaTrabalhada || paa.area;
+                    const area = typeof areaValue === 'number' 
+                      ? areaValue 
+                      : typeof areaValue === 'string' 
+                        ? parseFloat(areaValue) 
                         : null;
                     
-                    if (area === null) return "0.00 ha";
+                    if (area === null || isNaN(area)) return "0.00 ha";
                     return (area / 10000).toFixed(2) + " ha";
                   })()}
                 </p>

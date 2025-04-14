@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,6 +26,8 @@ const FormPAA = () => {
     dapCaf: '',
     localidade: '',
     produtos: '',
+    areaMecanizacao: '', // Added areaMecanizacao field
+    areaMecanization: '', // Added areaMecanization field for compatibility
     // Interesse no PAA
     interesse: '',
     quantidadeEstimada: '',
@@ -50,8 +51,7 @@ const FormPAA = () => {
     }
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+  const handleChange = (name: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -121,6 +121,8 @@ const FormPAA = () => {
                 dapCaf: '',
                 localidade: '',
                 produtos: '',
+                areaMecanizacao: '', //Added
+                areaMecanization: '', //Added
                 interesse: '',
                 quantidadeEstimada: '',
                 observacoes: '',
@@ -218,6 +220,23 @@ const FormPAA = () => {
                 placeholder="Liste os principais produtos que você produz"
                 rows={3}
                 required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="areaMecanizacao">Área para Mecanização</Label>
+              <Input
+                type="number"
+                id="areaMecanizacao"
+                name="areaMecanizacao"
+                value={formData.areaMecanizacao || ''}
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value);
+                  handleChange('areaMecanizacao', value);
+                  handleChange('areaMecanization', value);
+                }}
+                className="w-full"
+                min="0"
+                step="0.01"
               />
             </div>
             {chatContext?.userLocation && (
