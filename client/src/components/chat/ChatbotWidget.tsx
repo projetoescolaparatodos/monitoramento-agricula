@@ -18,6 +18,7 @@ import {
   getDocs,
   orderBy
 } from "firebase/firestore";
+import { findBestKeywordMatch, getRandomResponse, getSuggestions, getAction } from '@/lib/keywordMatcher';
 
 interface Message {
   text: string;
@@ -582,7 +583,38 @@ const ChatbotWidget: React.FC = () => {
       }
     }
 
-    // Não encontrou resposta no fluxo programático
+    // Tentar encontrar correspondência por palavras-chave
+    const matchedKeyword = findBestKeywordMatch(userMessage);
+    if (matchedKeyword) {
+      console.log(`Palavra-chave encontrada: "${matchedKeyword}"`);
+
+      // Obter resposta aleatória para a palavra-chave
+      const keywordResponse = getRandomResponse(matchedKeyword);
+
+      // Obter sugestões para a palavra-chave
+      const keywordSuggestions = getSuggestions(matchedKeyword);
+      if (keywordSuggestions) {
+        setSuggestions(keywordSuggestions);
+      }
+
+      // Verificar se há uma ação associada à palavra-chave
+      const keywordAction = getAction(matchedKeyword);
+      if (keywordAction) {
+        if (keywordAction.startsWith("abrirFormulario")) {
+          const setor = keywordAction.match(/'([^']+)'/)?.[1] || "agricultura";
+          // Agendar a abertura do formulário após mostrar a resposta
+          setTimeout(() => {
+            abrirFormulario(setor);
+          }, 1500);
+        } else if (fluxoConversa[keywordAction as keyof typeof fluxoConversa]) {
+          setActiveFluxo(keywordAction);
+        }
+      }
+
+      return { shouldRespond: true, response: keywordResponse || "" };
+    }
+
+    // Não encontrou resposta no fluxo programático nem por palavras-chave
     return { shouldRespond: false, response: "" };
   };
 
@@ -797,7 +829,7 @@ const ChatbotWidget: React.FC = () => {
     setInput("");
   };
 
-  const handleTabChange = (tab: string) => {
+const handleTabChange = (tab: string) => {
     setActiveTab(tab);
 
     // Ajustar o setor ativo baseado na tab
@@ -1021,7 +1053,7 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
                       <p><span className="font-medium">Cadastro Completo:</span> Formulário detalhado com todas as informações necessárias</p>
                     </div>
                   </div>
-                
+
                   <div className="grid grid-cols-2 gap-2 mt-2 sticky bottom-0">
                     <Button 
                       onClick={() => abrirFormulario('agricultura')}
@@ -1060,7 +1092,7 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
                       <p><span className="font-medium">Cadastro Completo:</span> Formulário detalhado com estruturas, espécies e situação legal.</p>
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-2 mt-2 sticky bottom-0">
                     <Button 
                       onClick={() => abrirFormulario('pesca')}
@@ -1091,7 +1123,7 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
                     <li>Preços justos e garantidos</li>
                   </ul>
                   <p className="text-gray-600 text-xs">Requisitos: Ser agricultor familiar com DAP/CAF ativa</p>
-                  
+
                   <div className="sticky bottom-0 pt-2">
                     <Button 
                       onClick={() => abrirFormulario('paa')}
