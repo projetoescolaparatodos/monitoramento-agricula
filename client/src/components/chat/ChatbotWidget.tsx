@@ -16,6 +16,7 @@ import {
   query,
   where,
   getDocs,
+  orderBy
 } from "firebase/firestore";
 
 interface Message {
@@ -396,7 +397,7 @@ const ChatbotWidget: React.FC = () => {
 
   // Estado para armazenar as respostas treinadas
   const [trainedResponses, setTrainedResponses] = useState<Array<{question: string, answer: string}>>([]);
-  
+
   // Carregar respostas treinadas do Firebase
   useEffect(() => {
     const fetchTrainedResponses = async () => {
@@ -404,7 +405,7 @@ const ChatbotWidget: React.FC = () => {
         const trainingsRef = collection(db, 'ai_training');
         const q = query(trainingsRef, orderBy('timestamp', 'desc'));
         const querySnapshot = await getDocs(q);
-        
+
         const allExamples: Array<{question: string, answer: string}> = [];
         querySnapshot.docs.forEach(doc => {
           const data = doc.data();
@@ -417,7 +418,7 @@ const ChatbotWidget: React.FC = () => {
             allExamples.push(...validExamples);
           }
         });
-        
+
         // Remover duplicatas baseado na pergunta
         const uniqueExamples = allExamples.reduce((acc: Array<{question: string, answer: string}>, current) => {
           const isDuplicate = acc.some(item => item.question.toLowerCase().trim() === current.question.toLowerCase().trim());
@@ -426,9 +427,9 @@ const ChatbotWidget: React.FC = () => {
           }
           return acc;
         }, []);
-        
+
         console.log('Respostas treinadas carregadas:', uniqueExamples.length);
-        
+
         // Adicionar algumas mensagens de log para depuração em ambiente de desenvolvimento
         if (uniqueExamples.length > 0) {
           console.log('Primeiros 3 exemplos de treinamento:');
@@ -437,9 +438,9 @@ const ChatbotWidget: React.FC = () => {
             console.log(`   R: ${example.answer.substring(0, 30)}...`);
           });
         }
-        
+
         setTrainedResponses(uniqueExamples);
-        
+
         // Adicionar mensagem informativa apenas na primeira carga
         if (uniqueExamples.length > 0 && messages.length === 1) {
           setTimeout(() => {
@@ -450,7 +451,7 @@ const ChatbotWidget: React.FC = () => {
         console.error('Erro ao carregar respostas treinadas:', error);
       }
     };
-    
+
     fetchTrainedResponses();
   }, []);
 
@@ -472,23 +473,23 @@ const ChatbotWidget: React.FC = () => {
 
     // Verificar se há resposta treinada para a mensagem
     const normalizedUserMessage = userMessage.toLowerCase().trim();
-    
+
     // Log para verificar quantidade de exemplos de treinamento carregados
     console.log(`Verificando ${trainedResponses.length} exemplos de treinamento para: "${normalizedUserMessage}"`);
-    
+
     // Algoritmo melhorado para encontrar a melhor correspondência
     let bestMatch = null;
     let bestMatchScore = 0;
-    
+
     for (const item of trainedResponses) {
       const normalizedQuestion = item.question.toLowerCase().trim();
-      
+
       // Verificar correspondência exata
       if (normalizedUserMessage === normalizedQuestion) {
         console.log('Correspondência exata encontrada:', item.question);
         return { shouldRespond: true, response: item.answer };
       }
-      
+
       // Verificar se contém palavras-chave completas
       if (normalizedUserMessage.includes(normalizedQuestion) && normalizedQuestion.length > bestMatchScore) {
         bestMatch = item;
@@ -497,18 +498,18 @@ const ChatbotWidget: React.FC = () => {
         bestMatch = item;
         bestMatchScore = normalizedUserMessage.length;
       }
-      
+
       // Calcular palavras compartilhadas
       const userWords = normalizedUserMessage.split(/\s+/);
       const trainedWords = normalizedQuestion.split(/\s+/);
       const sharedWords = userWords.filter(word => trainedWords.includes(word) && word.length > 3);
-      
+
       if (sharedWords.length >= 2 && sharedWords.length > bestMatchScore / 5) {
         bestMatch = item;
         bestMatchScore = sharedWords.length * 5; // Pontuação mais alta para múltiplas palavras compartilhadas
       }
     }
-    
+
     if (bestMatch) {
       console.log('Melhor correspondência encontrada:', bestMatch.question, 'com pontuação:', bestMatchScore);
       return { shouldRespond: true, response: bestMatch.answer };
@@ -634,8 +635,18 @@ const ChatbotWidget: React.FC = () => {
     // Adiciona mensagem do usuário
     addMessage(userMessage, true);
 
-    // Verificar cache de respostas
-    const cachedResponse = responseCache[userMessage.toLowerCase()];
+    // Função para normalizar melhor a mensagem
+    const normalizeMessage = (msg: string) => {
+      return msg
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s]/g, '') // Remove pontuação
+        .replace(/\s+/g, ' ');   // Normaliza espaços
+    };
+
+    // Verificar cache de respostas com normalização aprimorada
+    const normalizedMessage = normalizeMessage(userMessage);
+    const cachedResponse = responseCache[normalizedMessage];
     if (cachedResponse) {
       console.log("Resposta encontrada no cache:", userMessage);
       addMessage(cachedResponse, false);
@@ -649,11 +660,11 @@ const ChatbotWidget: React.FC = () => {
       if (flowResponse.response) {
         console.log("Resposta encontrada no fluxo programático ou treinamento");
         addMessage(flowResponse.response, false);
-        
+
         // Adicionar à cache
         setResponseCache(prev => ({
           ...prev,
-          [userMessage.toLowerCase()]: flowResponse.response
+          [normalizedMessage]: flowResponse.response
         }));
       }
       setIsLoading(false);
@@ -665,11 +676,11 @@ const ChatbotWidget: React.FC = () => {
     console.log("Verificando disponibilidade da chave API:", !!import.meta.env.VITE_OPENROUTER_API_KEY);
     try {
       const context = buildAIContext();
-      
+
       // Seleciona os exemplos mais relevantes para o contexto da pergunta atual
       let relevantExamples = trainedResponses;
       const normalizedUserMessage = userMessage.toLowerCase().trim();
-      
+
       // Filtra exemplos que compartilham palavras-chave com a pergunta do usuário
       const userWords = normalizedUserMessage.split(/\s+/).filter(word => word.length > 3);
       if (userWords.length > 0) {
@@ -680,28 +691,28 @@ const ChatbotWidget: React.FC = () => {
           })
           .slice(0, 8); // Pega até 8 exemplos relevantes
       }
-      
+
       // Se não encontrou exemplos relevantes, pega os 5 mais recentes
       if (relevantExamples.length === 0) {
         relevantExamples = trainedResponses.slice(0, 5);
       }
-      
+
       console.log(`Usando ${relevantExamples.length} exemplos relevantes para o contexto da IA`);
-      
+
       // Adiciona os exemplos treinados ao contexto
       const trainedExamples = relevantExamples.map(ex => 
         `Q: ${ex.question}\nR: ${ex.answer}`
       ).join('\n\n');
-      
+
       const enrichedContext = `
         ${context}
-        
+
         Exemplos de treinamento (utilize estes exemplos para responder de forma similar):
         ${trainedExamples}
-        
+
         Responda de forma semelhante aos exemplos acima, mantendo o tom e estilo. Se a pergunta do usuário for similar a algum exemplo, priorize essa resposta.
       `;
-      
+
       const aiResponse = await getAIResponse(userMessage, enrichedContext);
       console.log("Resposta da IA recebida:", aiResponse.substring(0, 100) + "...");
 
@@ -722,36 +733,52 @@ const ChatbotWidget: React.FC = () => {
         // Adicionar à cache
         setResponseCache(prev => ({
           ...prev,
-          [userMessage.toLowerCase()]: aiResponse
+          [normalizedMessage]: aiResponse
         }));
       }
     } catch (error) {
       console.error("Erro na IA:", error);
-      
-      // Se houver erro na IA, tentar usar uma resposta genérica baseada em palavras-chave
-      const lowercaseMsg = userMessage.toLowerCase();
-      let genericResponse = "Desculpe, estou com dificuldades para processar sua solicitação. Você pode tentar perguntar sobre nossos serviços de agricultura, pesca ou PAA?";
-      
-      if (lowercaseMsg.includes("agricultura") || lowercaseMsg.includes("plantação") || lowercaseMsg.includes("plantar") || lowercaseMsg.includes("trator")) {
-        genericResponse = "Para informações sobre serviços de agricultura, você pode preencher nosso formulário de pré-cadastro ou formulário completo. Deseja acessar algum deles?";
-        setSuggestions([
-          { text: "Formulário de Agricultura", action: "Pré-Cadastro" },
-          { text: "Formulário Completo", action: "Cadastro Completo" }
-        ]);
-      } else if (lowercaseMsg.includes("pesca") || lowercaseMsg.includes("peixe") || lowercaseMsg.includes("pescar")) {
-        genericResponse = "Para informações sobre serviços de pesca, você pode preencher nosso formulário de pré-cadastro ou formulário completo. Deseja acessar algum deles?";
-        setSuggestions([
-          { text: "Formulário de Pesca", action: "Pré-Cadastro" },
-          { text: "Formulário Completo", action: "Cadastro Completo" }
-        ]);
-      } else if (lowercaseMsg.includes("paa") || lowercaseMsg.includes("aquisição") || lowercaseMsg.includes("alimentos")) {
-        genericResponse = "O Programa de Aquisição de Alimentos (PAA) oferece compra institucional de produtos da agricultura familiar. Deseja participar?";
-        setSuggestions([
-          { text: "Participar do PAA", action: "Participar do PAA" }
-        ]);
+
+      // Adicione esta verificação para erros específicos da API
+      if (error.response) {
+        console.error("Detalhes do erro:", {
+          status: error.response.status,
+          data: error.response.data
+        });
       }
-      
-      addMessage(genericResponse, false);
+
+      // Mensagens mais específicas baseadas no tipo de erro
+      let errorMessage = "Desculpe, estou com dificuldades técnicas no momento.";
+
+      if (error.message && error.message.includes("rate limit")) {
+        errorMessage = "Estou recebendo muitas solicitações. Por favor, tente novamente em alguns instantes.";
+      } else if (error.message && error.message.includes("authentication")) {
+        errorMessage = "Problema de conexão com o serviço. Estamos trabalhando para resolver.";
+      } else {
+        // Se não for um erro específico, usar uma resposta genérica baseada em palavras-chave
+        const lowercaseMsg = userMessage.toLowerCase();
+
+        if (lowercaseMsg.includes("agricultura") || lowercaseMsg.includes("plantação") || lowercaseMsg.includes("plantar") || lowercaseMsg.includes("trator")) {
+          errorMessage = "Para informações sobre serviços de agricultura, você pode preencher nosso formulário de pré-cadastro ou formulário completo. Deseja acessar algum deles?";
+          setSuggestions([
+            { text: "Formulário de Agricultura", action: "Pré-Cadastro" },
+            { text: "Formulário Completo", action: "Cadastro Completo" }
+          ]);
+        } else if (lowercaseMsg.includes("pesca") || lowercaseMsg.includes("peixe") || lowercaseMsg.includes("pescar")) {
+          errorMessage = "Para informações sobre serviços de pesca, você pode preencher nosso formulário de pré-cadastro ou formulário completo. Deseja acessar algum deles?";
+          setSuggestions([
+            { text: "Formulário de Pesca", action: "Pré-Cadastro" },
+            { text: "Formulário Completo", action: "Cadastro Completo" }
+          ]);
+        } else if (lowercaseMsg.includes("paa") || lowercaseMsg.includes("aquisição") || lowercaseMsg.includes("alimentos")) {
+          errorMessage = "O Programa de Aquisição de Alimentos (PAA) oferece compra institucional de produtos da agricultura familiar. Deseja participar?";
+          setSuggestions([
+            { text: "Participar do PAA", action: "Participar do PAA" }
+          ]);
+        }
+      }
+
+      addMessage(errorMessage, false);
     }
 
     setIsLoading(false);
@@ -803,7 +830,7 @@ const ChatbotWidget: React.FC = () => {
         </Button>
       ) : (
         <Card
-          className="w-80 sm:w-96 shadow-xl flex flex-col"
+          className="w-80 sm:w-96 shadowxl flex flex-col"
           style={{ height: "600px", maxHeight: "80vh" }}
         >
           <div className="bg-green-600 text-white p-3 flex justify-between items-center rounded-t-lg">
