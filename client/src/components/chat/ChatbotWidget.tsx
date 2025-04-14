@@ -1174,7 +1174,7 @@ const ChatbotWidget: React.FC = () => {
             <TabsContent value="agricultura" className="p-0 m-0">
               <div
                 className="p-3 bg-green-50/50 flex flex-col"
-                style={{ height: "450px", display: "flex", flexDirection: "column" }}
+                style={{ height: "450px", display: "flex", flexDirection: "column", position: "relative" }}
               >
                 <div className="flex-1 overflow-y-auto mb-2" style={{ maxHeight: "320px", minHeight: "250px" }}>
                   <h4 className="font-semibold text-green-800 mb-2">
@@ -1218,7 +1218,7 @@ const ChatbotWidget: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 py-3 border-t bg-green-50/80 mt-auto" style={{ position: "sticky", bottom: "0", left: "0", right: "0", padding: "0.75rem", zIndex: 10 }}>
+                <div className="grid grid-cols-2 gap-2 py-3 border-t bg-green-50/80" style={{ position: "sticky", bottom: "0", left: "0", right: "0", padding: "0.75rem", zIndex: 10 }}>
                   <Button
                     onClick={() => abrirFormulario("agricultura")}
                     className="bg-green-600 hover:bg-green-700"
