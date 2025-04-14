@@ -409,12 +409,43 @@ const ChatbotWidget: React.FC = () => {
         querySnapshot.docs.forEach(doc => {
           const data = doc.data();
           if (data.examples && Array.isArray(data.examples)) {
-            allExamples.push(...data.examples);
+            // Filtrar exemplos inválidos
+            const validExamples = data.examples.filter(
+              (ex: any) => ex && typeof ex.question === 'string' && typeof ex.answer === 'string' && 
+                           ex.question.trim() !== '' && ex.answer.trim() !== ''
+            );
+            allExamples.push(...validExamples);
           }
         });
         
-        console.log('Respostas treinadas carregadas:', allExamples.length);
-        setTrainedResponses(allExamples);
+        // Remover duplicatas baseado na pergunta
+        const uniqueExamples = allExamples.reduce((acc: Array<{question: string, answer: string}>, current) => {
+          const isDuplicate = acc.some(item => item.question.toLowerCase().trim() === current.question.toLowerCase().trim());
+          if (!isDuplicate) {
+            acc.push(current);
+          }
+          return acc;
+        }, []);
+        
+        console.log('Respostas treinadas carregadas:', uniqueExamples.length);
+        
+        // Adicionar algumas mensagens de log para depuração em ambiente de desenvolvimento
+        if (uniqueExamples.length > 0) {
+          console.log('Primeiros 3 exemplos de treinamento:');
+          uniqueExamples.slice(0, 3).forEach((example, i) => {
+            console.log(`${i+1}. Q: ${example.question.substring(0, 30)}...`);
+            console.log(`   R: ${example.answer.substring(0, 30)}...`);
+          });
+        }
+        
+        setTrainedResponses(uniqueExamples);
+        
+        // Adicionar mensagem informativa apenas na primeira carga
+        if (uniqueExamples.length > 0 && messages.length === 1) {
+          setTimeout(() => {
+            addMessage(`Estou pronto para responder suas perguntas sobre serviços da SEMAPA. Tenho ${uniqueExamples.length} exemplos treinados para ajudar você.`, false);
+          }, 1000);
+        }
       } catch (error) {
         console.error('Erro ao carregar respostas treinadas:', error);
       }
@@ -441,17 +472,46 @@ const ChatbotWidget: React.FC = () => {
 
     // Verificar se há resposta treinada para a mensagem
     const normalizedUserMessage = userMessage.toLowerCase().trim();
-    const trainedResponse = trainedResponses.find(item => {
-      // Verifica se a pergunta treinada é semelhante à mensagem do usuário
+    
+    // Log para verificar quantidade de exemplos de treinamento carregados
+    console.log(`Verificando ${trainedResponses.length} exemplos de treinamento para: "${normalizedUserMessage}"`);
+    
+    // Algoritmo melhorado para encontrar a melhor correspondência
+    let bestMatch = null;
+    let bestMatchScore = 0;
+    
+    for (const item of trainedResponses) {
       const normalizedQuestion = item.question.toLowerCase().trim();
-      return normalizedUserMessage.includes(normalizedQuestion) || 
-             normalizedQuestion.includes(normalizedUserMessage) ||
-             normalizedUserMessage === normalizedQuestion;
-    });
-
-    if (trainedResponse) {
-      console.log('Resposta encontrada no treinamento:', trainedResponse);
-      return { shouldRespond: true, response: trainedResponse.answer };
+      
+      // Verificar correspondência exata
+      if (normalizedUserMessage === normalizedQuestion) {
+        console.log('Correspondência exata encontrada:', item.question);
+        return { shouldRespond: true, response: item.answer };
+      }
+      
+      // Verificar se contém palavras-chave completas
+      if (normalizedUserMessage.includes(normalizedQuestion) && normalizedQuestion.length > bestMatchScore) {
+        bestMatch = item;
+        bestMatchScore = normalizedQuestion.length;
+      } else if (normalizedQuestion.includes(normalizedUserMessage) && normalizedUserMessage.length > 3 && normalizedUserMessage.length > bestMatchScore) {
+        bestMatch = item;
+        bestMatchScore = normalizedUserMessage.length;
+      }
+      
+      // Calcular palavras compartilhadas
+      const userWords = normalizedUserMessage.split(/\s+/);
+      const trainedWords = normalizedQuestion.split(/\s+/);
+      const sharedWords = userWords.filter(word => trainedWords.includes(word) && word.length > 3);
+      
+      if (sharedWords.length >= 2 && sharedWords.length > bestMatchScore / 5) {
+        bestMatch = item;
+        bestMatchScore = sharedWords.length * 5; // Pontuação mais alta para múltiplas palavras compartilhadas
+      }
+    }
+    
+    if (bestMatch) {
+      console.log('Melhor correspondência encontrada:', bestMatch.question, 'com pontuação:', bestMatchScore);
+      return { shouldRespond: true, response: bestMatch.answer };
     }
 
     // Processar ações do fluxo de conversa
@@ -605,16 +665,40 @@ const ChatbotWidget: React.FC = () => {
     try {
       const context = buildAIContext();
       
+      // Seleciona os exemplos mais relevantes para o contexto da pergunta atual
+      let relevantExamples = trainedResponses;
+      const normalizedUserMessage = userMessage.toLowerCase().trim();
+      
+      // Filtra exemplos que compartilham palavras-chave com a pergunta do usuário
+      const userWords = normalizedUserMessage.split(/\s+/).filter(word => word.length > 3);
+      if (userWords.length > 0) {
+        relevantExamples = trainedResponses
+          .filter(ex => {
+            const exampleWords = ex.question.toLowerCase().split(/\s+/);
+            return userWords.some(word => exampleWords.includes(word));
+          })
+          .slice(0, 8); // Pega até 8 exemplos relevantes
+      }
+      
+      // Se não encontrou exemplos relevantes, pega os 5 mais recentes
+      if (relevantExamples.length === 0) {
+        relevantExamples = trainedResponses.slice(0, 5);
+      }
+      
+      console.log(`Usando ${relevantExamples.length} exemplos relevantes para o contexto da IA`);
+      
       // Adiciona os exemplos treinados ao contexto
-      const trainedExamples = trainedResponses.slice(0, 5).map(ex => 
+      const trainedExamples = relevantExamples.map(ex => 
         `Q: ${ex.question}\nR: ${ex.answer}`
       ).join('\n\n');
       
       const enrichedContext = `
         ${context}
         
-        Exemplos de treinamento:
+        Exemplos de treinamento (utilize estes exemplos para responder de forma similar):
         ${trainedExamples}
+        
+        Responda de forma semelhante aos exemplos acima, mantendo o tom e estilo. Se a pergunta do usuário for similar a algum exemplo, priorize essa resposta.
       `;
       
       const aiResponse = await getAIResponse(userMessage, enrichedContext);
