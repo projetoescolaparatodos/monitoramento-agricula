@@ -719,7 +719,7 @@ const ChatbotWidget: React.FC = () => {
       ) : (
         <Card
           className="w-80 sm:w-96 shadow-xl flex flex-col"
-          style={{ maxHeight: "80vh" }}
+          style={{ height: "600px", maxHeight: "80vh" }}
         >
           <div className="bg-green-600 text-white p-3 flex justify-between items-center rounded-t-lg">
             <div className="flex items-center gap-2">
@@ -745,7 +745,7 @@ const ChatbotWidget: React.FC = () => {
 
             <TabsContent value="chat" className="p-0 m-0">
               <CardContent className="p-0 flex flex-col h-[500px] relative">
-                <div className="flex-1 overflow-y-auto p-4 pb-24 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
+                <div className="flex-1 overflow-y-auto p-4 pb-16 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
                   {messages.map((msg, idx) => (
                     <div
                       key={idx}
@@ -804,7 +804,7 @@ const ChatbotWidget: React.FC = () => {
                 )}
 
                 {suggestions.length > 0 && (
-                  <div className="fixed bottom-[60px] left-0 right-0 p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10 mx-auto w-[calc(100%-0.5rem)] max-w-[380px] rounded-b-lg shadow-md">
+                  <div className="absolute bottom-[60px] left-0 right-0 p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10 mx-auto w-full rounded-b-lg shadow-md">
                     <div className="w-full flex flex-wrap gap-2">
                       {suggestions.map((suggestion, index) => (
                         <Button
@@ -823,7 +823,7 @@ const ChatbotWidget: React.FC = () => {
 
                 <form
                   onSubmit={handleSubmit}
-                  className="p-3 border-t flex items-center"
+                  className="p-3 border-t flex items-center sticky bottom-0 bg-white"
                 >
                   <Input
                     value={input}
