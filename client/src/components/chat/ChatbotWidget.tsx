@@ -8,7 +8,7 @@ import { MessageCircle, Send, X, ArrowLeft, MapPin, Info } from "lucide-react";
 import { db } from "@/utils/firebase";
 import LocationMap from "../common/LocationMap";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getAIResponse } from '@/lib/openrouter';
+import { getAIResponse } from "@/lib/openrouter";
 import {
   collection,
   addDoc,
@@ -16,9 +16,15 @@ import {
   query,
   where,
   getDocs,
-  orderBy
+  orderBy,
 } from "firebase/firestore";
-import { findBestKeywordMatch, getRandomResponse, getSuggestions, getAction, loadKeywordsFromFirestore } from '@/lib/keywordMatcher';
+import {
+  findBestKeywordMatch,
+  getRandomResponse,
+  getSuggestions,
+  getAction,
+  loadKeywordsFromFirestore,
+} from "@/lib/keywordMatcher";
 
 interface Message {
   text: string;
@@ -39,14 +45,15 @@ interface UserLocation {
 // Estrutura de fluxo de conversação do chatbot
 const fluxoConversa = {
   saudacao: {
-    pergunta: "Olá! Sou o assistente da SEMAPA. Sobre qual setor deseja informações?",
+    pergunta:
+      "Olá! Sou o assistente da SEMAPA. Sobre qual setor deseja informações?",
     opcoes: ["Agricultura", "Pesca", "PAA", "Secretaria"],
     redirecionamento: {
-      "Agricultura": "fluxoAgricultura",
-      "Pesca": "fluxoPesca",
-      "PAA": "fluxoPAA",
-      "Secretaria": "fluxoSecretaria"
-    }
+      Agricultura: "fluxoAgricultura",
+      Pesca: "fluxoPesca",
+      PAA: "fluxoPAA",
+      Secretaria: "fluxoSecretaria",
+    },
   },
   fluxoAgricultura: {
     informativo: [
@@ -59,13 +66,13 @@ const fluxoConversa = {
       "Temos dois tipos de formulários disponíveis:",
       "- [Pré-Cadastro]: formulário rápido e simples",
       "- [Cadastro Completo]: formulário detalhado com todas as informações",
-      "O que deseja fazer?"
+      "O que deseja fazer?",
     ],
     acoes: {
       "Pré-Cadastro": "abrirFormulario('agricultura')",
       "Cadastro Completo": "abrirFormulario('agricultura-completo')",
-      "Mais Informações": "detalhesAgricultura"
-    }
+      "Mais Informações": "detalhesAgricultura",
+    },
   },
   fluxoPesca: {
     informativo: [
@@ -77,13 +84,13 @@ const fluxoConversa = {
       "Temos dois tipos de formulários disponíveis:",
       "- 1 [Pré-Cadastro / Solicitar serviços]: formulário rápido e simples, ideal para quem ja tem cadastro na secretaria",
       "- 2 [Cadastro Completo]: formulário detalhado com todas as informações",
-      "O que deseja fazer?"
+      "O que deseja fazer?",
     ],
     acoes: {
-     "1 Pré-Cadastro": "abrirFormulario('pesca')",
-     "2 Cadastro Completo": "abrirFormulario('pesca-completo')",
-      "Mais Informações": "detalhesPesca"
-    }
+      "1 Pré-Cadastro": "abrirFormulario('pesca')",
+      "2 Cadastro Completo": "abrirFormulario('pesca-completo')",
+      "Mais Informações": "detalhesPesca",
+    },
   },
   fluxoPAA: {
     informativo: [
@@ -92,12 +99,13 @@ const fluxoConversa = {
       "- Apoio à comercialização",
       "- Acesso a mercados",
       "- Preços justos e garantidos",
-      "Deseja Mais Informações ou Participar do PAA?"
+      "Deseja Mais Informações ou Participar do PAA?",
     ],
     acoes: {
-      "Participar do PAA": "No momento não há vagas para o PAA, pois depende do orçamento disposto pelo Governo Federal",
-      "Mais Informações": "detalhesPAA"
-    }
+      "Participar do PAA":
+        "No momento não há vagas para o PAA, pois depende do orçamento disposto pelo Governo Federal",
+      "Mais Informações": "detalhesPAA",
+    },
   },
   fluxoSecretaria: {
     informativo: [
@@ -106,13 +114,13 @@ const fluxoConversa = {
       "- Atendimento: Segunda a Sexta, 8h às 14h",
       "- Telefone: (99) 3333-4444",
       "- Email: semapa@prefeitura.gov.br",
-      "Como podemos ajudar você hoje?"
+      "Como podemos ajudar você hoje?",
     ],
     acoes: {
       "Contato com Secretário": "contatoSecretario",
       "Políticas Públicas": "politicasPublicas",
-      "Eventos e Calendário": "eventosCalendario"
-    }
+      "Eventos e Calendário": "eventosCalendario",
+    },
   },
   detalhesAgricultura: {
     informativo: [
@@ -127,13 +135,13 @@ const fluxoConversa = {
       "- Pré-Cadastro: Formulário rápido com dados básicos (nome, contato, propriedade)",
       "- Cadastro Completo: Formulário detalhado com todas as informações (documentação, dados da propriedade, necessidades específicas)",
       "",
-      "Qual opção você prefere?"
+      "Qual opção você prefere?",
     ],
     acoes: {
       "Pré-Cadastro": "abrirFormulario('agricultura')",
       "Cadastro Completo": "abrirFormulario('agricultura-completo')",
-      "Voltar": "fluxoAgricultura"
-    }
+      Voltar: "fluxoAgricultura",
+    },
   },
   detalhesPesca: {
     informativo: [
@@ -147,13 +155,13 @@ const fluxoConversa = {
       "- Pré-Cadastro: Formulário rápido com dados básicos do pescador e atividade",
       "- Cadastro Completo: Formulário detalhado com todas as informações (estruturas, espécies, situação legal, etc.)",
       "",
-      "Qual opção você prefere?"
+      "Qual opção você prefere?",
     ],
     acoes: {
       "Pré-Cadastro": "abrirFormulario('pesca')",
       "Cadastro Completo": "abrirFormulario('pesca-completo')",
-      "Voltar": "fluxoPesca"
-    }
+      Voltar: "fluxoPesca",
+    },
   },
   detalhesPAA: {
     informativo: [
@@ -163,25 +171,23 @@ const fluxoConversa = {
       "3. Preços: Baseados na tabela da CONAB atualizada",
       "4. Entregas: Cronograma semanal em pontos específicos",
       "5. Pagamentos: Em até 30 dias após entrega",
-      "Deseja [Participar do PAA] ou tem mais alguma dúvida?"
+      "Deseja [Participar do PAA] ou tem mais alguma dúvida?",
     ],
     acoes: {
       "Participar do PAA": "abrirFormulario('paa')",
-      "Voltar": "fluxoPAA"
-    }
+      Voltar: "fluxoPAA",
+    },
   },
   contatoSecretario: {
     informativo: [
-      "📞 Contato com o Secretário:",
-      "- Agendamento de audiências às quintas-feiras",
-      "- Telefone do gabinete: (99) 3333-4445",
-      "- Email: secretario.semapa@prefeitura.gov.br",
-      "Deseja [Agendar Audiência] ou [Voltar]?"
+      "📞 Contato com o Secretário William Alves:",
+      "- Horário de Atendimento: 08h às 17h",
+      "- Telefone do gabinete: (93) 99144-6710",
+      "- Email: secagricultura@vitoriadoxingu.pa.gov.br",
     ],
     acoes: {
-      "Agendar Audiência": "abrirFormulario('agenda')",
-      "Voltar": "fluxoSecretaria"
-    }
+      Voltar: "fluxoSecretaria",
+    },
   },
   politicasPublicas: {
     informativo: [
@@ -190,12 +196,12 @@ const fluxoConversa = {
       "- Programa de Segurança Alimentar",
       "- Incentivos à Produção Sustentável",
       "- Apoio à Comercialização",
-      "Para mais informações, visite nosso portal ou [Voltar]"
+      "Para mais informações, visite nosso portal ou [Voltar]",
     ],
     acoes: {
       "Visitar Portal": "visitarPortal",
-      "Voltar": "fluxoSecretaria"
-    }
+      Voltar: "fluxoSecretaria",
+    },
   },
   eventosCalendario: {
     informativo: [
@@ -204,13 +210,13 @@ const fluxoConversa = {
       "- 22/05: Capacitação em Manejo Agrícola - Centro de Formação",
       "- 05/06: Dia do Meio Ambiente - Atividades em todas as escolas",
       "- 20/06: Workshop de Piscicultura - Centro de Convenções",
-      "Deseja receber lembretes destes eventos ou [Voltar]?"
+      "Todas as datas estão sujeitas a alterações",
+      "Para mais informações visite nossa Sede",
     ],
     acoes: {
-      "Receber Lembretes": "cadastrarLembretes",
-      "Voltar": "fluxoSecretaria"
-    }
-  }
+      Voltar: "fluxoSecretaria",
+    },
+  },
 };
 
 // Botões de sugestão iniciais
@@ -236,14 +242,17 @@ const ChatbotWidget: React.FC = () => {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [suggestions, setSuggestions] = useState<SuggestionButton[]>(initialSuggestions);
+  const [suggestions, setSuggestions] =
+    useState<SuggestionButton[]>(initialSuggestions);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<string>("chat");
   const [activeFluxo, setActiveFluxo] = useState<string>("saudacao");
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [isAskingLocation, setIsAskingLocation] = useState<boolean>(false);
   const [setorAtivo, setSetorAtivo] = useState<string>("agricultura");
-  const [responseCache, setResponseCache] = useState<Record<string, string>>({});
+  const [responseCache, setResponseCache] = useState<Record<string, string>>(
+    {},
+  );
   const [isAdmin, setIsAdmin] = useState(false);
   const [trainingData, setTrainingData] = useState("");
 
@@ -258,7 +267,12 @@ const ChatbotWidget: React.FC = () => {
           timestamp: new Date(),
         },
       ]);
-      setSuggestions(Object.keys(fluxoConversa.saudacao.redirecionamento).map(opcao => ({text: opcao, action: opcao})));
+      setSuggestions(
+        Object.keys(fluxoConversa.saudacao.redirecionamento).map((opcao) => ({
+          text: opcao,
+          action: opcao,
+        })),
+      );
     }
   }, [isOpen]);
 
@@ -267,12 +281,15 @@ const ChatbotWidget: React.FC = () => {
   }, [messages]);
 
   useEffect(() => {
-    setIsAdmin(localStorage.getItem('admin') === 'true');
+    setIsAdmin(localStorage.getItem("admin") === "true");
   }, []);
 
   // Funções auxiliares
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+    });
   };
 
   const getUserLocation = () => {
@@ -349,17 +366,20 @@ const ChatbotWidget: React.FC = () => {
   // Função para abrir formulário em nova aba
   const abrirFormulario = (formType: string) => {
     // Extrair setor do tipo de formulário
-    const setor = formType.split('-')[0]; // 'agricultura-completo' -> 'agricultura'
-    const isCompleto = formType.includes('-completo');
+    const setor = formType.split("-")[0]; // 'agricultura-completo' -> 'agricultura'
+    const isCompleto = formType.includes("-completo");
 
     // Salvar contexto da conversa para uso posterior
-    localStorage.setItem('chatContext', JSON.stringify({
-      ultimasMensagens: messages.slice(-5),
-      setor: setor,
-      formType: formType,
-      isCompleto: isCompleto,
-      userLocation: userLocation
-    }));
+    localStorage.setItem(
+      "chatContext",
+      JSON.stringify({
+        ultimasMensagens: messages.slice(-5),
+        setor: setor,
+        formType: formType,
+        isCompleto: isCompleto,
+        userLocation: userLocation,
+      }),
+    );
 
     // Obter o domínio atual para construir a URL completa
     const baseUrl = window.location.origin;
@@ -371,15 +391,24 @@ const ChatbotWidget: React.FC = () => {
     }
 
     // Abrir formulário em nova aba
-    window.open(formUrl, '_blank');
+    window.open(formUrl, "_blank");
 
     // Mensagem apropriada com base no tipo de formulário
     if (isCompleto) {
-      addMessage(`Estou abrindo o formulário de cadastro completo do setor de ${setor} em uma nova aba.`, false);
+      addMessage(
+        `Estou abrindo o formulário de cadastro completo do setor de ${setor} em uma nova aba.`,
+        false,
+      );
     } else {
-      addMessage(`Estou abrindo o formulário de pré-cadastro do setor de ${setor} em uma nova aba.`, false);
+      addMessage(
+        `Estou abrindo o formulário de pré-cadastro do setor de ${setor} em uma nova aba.`,
+        false,
+      );
     }
-    addMessage("Você pode continuar nossa conversa aqui após preencher o formulário.", false);
+    addMessage(
+      "Você pode continuar nossa conversa aqui após preencher o formulário.",
+      false,
+    );
 
     return false; // Impede processamento adicional
   };
@@ -400,45 +429,58 @@ const ChatbotWidget: React.FC = () => {
   };
 
   // Estado para armazenar as respostas treinadas
-  const [trainedResponses, setTrainedResponses] = useState<Array<{question: string, answer: string}>>([]);
+  const [trainedResponses, setTrainedResponses] = useState<
+    Array<{ question: string; answer: string }>
+  >([]);
 
   // Carregar respostas treinadas do Firebase
   useEffect(() => {
     const fetchTrainedResponses = async () => {
       try {
-        const trainingsRef = collection(db, 'ai_training');
-        const q = query(trainingsRef, orderBy('timestamp', 'desc'));
+        const trainingsRef = collection(db, "ai_training");
+        const q = query(trainingsRef, orderBy("timestamp", "desc"));
         const querySnapshot = await getDocs(q);
 
-        const allExamples: Array<{question: string, answer: string}> = [];
-        querySnapshot.docs.forEach(doc => {
+        const allExamples: Array<{ question: string; answer: string }> = [];
+        querySnapshot.docs.forEach((doc) => {
           const data = doc.data();
           if (data.examples && Array.isArray(data.examples)) {
             // Filtrar exemplos inválidos
             const validExamples = data.examples.filter(
-              (ex: any) => ex && typeof ex.question === 'string' && typeof ex.answer === 'string' && 
-                           ex.question.trim() !== '' && ex.answer.trim() !== ''
+              (ex: any) =>
+                ex &&
+                typeof ex.question === "string" &&
+                typeof ex.answer === "string" &&
+                ex.question.trim() !== "" &&
+                ex.answer.trim() !== "",
             );
             allExamples.push(...validExamples);
           }
         });
 
         // Remover duplicatas baseado na pergunta
-        const uniqueExamples = allExamples.reduce((acc: Array<{question: string, answer: string}>, current) => {
-          const isDuplicate = acc.some(item => item.question.toLowerCase().trim() === current.question.toLowerCase().trim());
-          if (!isDuplicate) {
-            acc.push(current);
-          }
-          return acc;
-        }, []);
+        const uniqueExamples = allExamples.reduce(
+          (acc: Array<{ question: string; answer: string }>, current) => {
+            const isDuplicate = acc.some(
+              (item) =>
+                item.question.toLowerCase().trim() ===
+                current.question.toLowerCase().trim(),
+            );
+            if (!isDuplicate) {
+              acc.push(current);
+            }
+            return acc;
+          },
+          [],
+        );
 
-        console.log('Respostas treinadas carregadas:', uniqueExamples.length);
+        console.log("Respostas treinadas carregadas:", uniqueExamples.length);
 
         // Adicionar algumas mensagens de log para depuração em ambiente de desenvolvimento
         if (uniqueExamples.length > 0) {
-          console.log('Primeiros 3 exemplos de treinamento:');
+          console.log("Primeiros 3 exemplos de treinamento:");
           uniqueExamples.slice(0, 3).forEach((example, i) => {
-            console.log(`${i+1}. Q: ${example.question.substring(0, 30)}...`);
+            console.log(`${i + 1}. Q: ${example.question.substring(0, 30)}...`);
             console.log(`   R: ${example.answer.substring(0, 30)}...`);
           });
         }
@@ -448,11 +490,14 @@ const ChatbotWidget: React.FC = () => {
         // Adicionar mensagem informativa apenas na primeira carga
         if (uniqueExamples.length > 0 && messages.length === 1) {
           setTimeout(() => {
-            addMessage(`Estou pronto para responder suas perguntas sobre serviços da SEMAPA. Tenho ${uniqueExamples.length} exemplos treinados para ajudar você.`, false);
+            addMessage(
+              `Estou pronto para responder suas perguntas sobre serviços da SEMAPA. Tenho ${uniqueExamples.length} exemplos treinados para ajudar você.`,
+              false,
+            );
           }, 1000);
         }
       } catch (error) {
-        console.error('Erro ao carregar respostas treinadas:', error);
+        console.error("Erro ao carregar respostas treinadas:", error);
       }
     };
 
@@ -462,16 +507,21 @@ const ChatbotWidget: React.FC = () => {
   // Tentar responder com a hierarquia especificada de respostas
   const tryProgrammaticFlow = (userMessage: string) => {
     // Verificar se está respondendo sobre localização
-    if (isAskingLocation && 
-        (userMessage.toLowerCase().includes("tentar novamente") || 
-         userMessage.toLowerCase().includes("prosseguir"))) {
+    if (
+      isAskingLocation &&
+      (userMessage.toLowerCase().includes("tentar novamente") ||
+        userMessage.toLowerCase().includes("prosseguir"))
+    ) {
       if (userMessage.toLowerCase().includes("tentar novamente")) {
         getUserLocation();
         return { shouldRespond: true, response: "" };
       } else if (userMessage.toLowerCase().includes("prosseguir")) {
         setIsAskingLocation(false);
         // Continuar o fluxo sem localização
-        return { shouldRespond: true, response: "Continuando sem localização." };
+        return {
+          shouldRespond: true,
+          response: "Continuando sem localização.",
+        };
       }
     }
 
@@ -479,16 +529,20 @@ const ChatbotWidget: React.FC = () => {
     const normalizedUserMessage = userMessage.toLowerCase().trim();
 
     // Log para verificar quantidade de exemplos de treinamento carregados
-    console.log(`Verificando ${trainedResponses.length} exemplos de treinamento para: "${normalizedUserMessage}"`);
+    console.log(
+      `Verificando ${trainedResponses.length} exemplos de treinamento para: "${normalizedUserMessage}"`,
+    );
 
     // HIERARQUIA 1: Primeiro tente correspondência EXATA com respostas treinadas
-    console.log("🔍 HIERARQUIA 1: Buscando correspondência exata com respostas treinadas");
+    console.log(
+      "🔍 HIERARQUIA 1: Buscando correspondência exata com respostas treinadas",
+    );
     const exactMatch = trainedResponses.find(
-      item => item.question.toLowerCase().trim() === normalizedUserMessage
+      (item) => item.question.toLowerCase().trim() === normalizedUserMessage,
     );
 
     if (exactMatch) {
-      console.log('✅ Correspondência exata encontrada:', exactMatch.question);
+      console.log("✅ Correspondência exata encontrada:", exactMatch.question);
       return { shouldRespond: true, response: exactMatch.answer };
     }
 
@@ -523,8 +577,10 @@ const ChatbotWidget: React.FC = () => {
       return { shouldRespond: true, response: keywordResponse || "" };
     }
 
-    // HIERARQUIA 2 (parte 2): Buscar correspondência parcial em respostas treinadas 
-    console.log("🔍 HIERARQUIA 2: Tentando encontrar correspondência parcial em treinamentos");
+    // HIERARQUIA 2 (parte 2): Buscar correspondência parcial em respostas treinadas
+    console.log(
+      "🔍 HIERARQUIA 2: Tentando encontrar correspondência parcial em treinamentos",
+    );
     let bestMatch = null;
     let bestMatchScore = 0;
 
@@ -533,23 +589,37 @@ const ChatbotWidget: React.FC = () => {
       let currentScore = 0;
 
       // Verificar se contém a frase treinada (correspondência mais forte)
-      if (normalizedUserMessage.includes(normalizedQuestion) && normalizedQuestion.length > 3) {
+      if (
+        normalizedUserMessage.includes(normalizedQuestion) &&
+        normalizedQuestion.length > 3
+      ) {
         currentScore = normalizedQuestion.length * 2;
-      } 
+      }
       // Verificar se a frase treinada contém a mensagem do usuário (correspondência inversa)
-      else if (normalizedQuestion.includes(normalizedUserMessage) && normalizedUserMessage.length > 3) {
+      else if (
+        normalizedQuestion.includes(normalizedUserMessage) &&
+        normalizedUserMessage.length > 3
+      ) {
         currentScore = normalizedUserMessage.length;
       }
 
       // Calcular palavras compartilhadas (correspondência por palavras-chave)
-      const userWords = normalizedUserMessage.split(/\s+/).filter(word => word.length > 3);
-      const trainedWords = normalizedQuestion.split(/\s+/).filter(word => word.length > 3);
-      const sharedWords = userWords.filter(word => trainedWords.includes(word));
+      const userWords = normalizedUserMessage
+        .split(/\s+/)
+        .filter((word) => word.length > 3);
+      const trainedWords = normalizedQuestion
+        .split(/\s+/)
+        .filter((word) => word.length > 3);
+      const sharedWords = userWords.filter((word) =>
+        trainedWords.includes(word),
+      );
 
       // Adicionar pontuação para palavras compartilhadas
       if (sharedWords.length > 0) {
         // Pontuação baseada na quantidade e tamanho das palavras compartilhadas
-        const wordScore = sharedWords.reduce((sum, word) => sum + word.length, 0) * sharedWords.length;
+        const wordScore =
+          sharedWords.reduce((sum, word) => sum + word.length, 0) *
+          sharedWords.length;
         currentScore = Math.max(currentScore, wordScore);
       }
 
@@ -564,7 +634,12 @@ const ChatbotWidget: React.FC = () => {
     const MATCH_THRESHOLD = 10;
 
     if (bestMatch && bestMatchScore >= MATCH_THRESHOLD) {
-      console.log('✅ Correspondência parcial encontrada:', bestMatch.question, 'com pontuação:', bestMatchScore);
+      console.log(
+        "✅ Correspondência parcial encontrada:",
+        bestMatch.question,
+        "com pontuação:",
+        bestMatchScore,
+      );
       return { shouldRespond: true, response: bestMatch.answer };
     }
 
@@ -572,8 +647,10 @@ const ChatbotWidget: React.FC = () => {
     console.log("🔍 HIERARQUIA 2: Verificando fluxos de conversa predefinidos");
 
     // Processar ações do fluxo de conversa
-    if (userMessage.toLowerCase().includes("solicitar serviço") || 
-        userMessage.toLowerCase().includes("participar do paa")) {
+    if (
+      userMessage.toLowerCase().includes("solicitar serviço") ||
+      userMessage.toLowerCase().includes("participar do paa")
+    ) {
       const setor = activeFluxo.replace("fluxo", "").toLowerCase();
       abrirFormulario(setor);
       return { shouldRespond: true, response: "" };
@@ -585,22 +662,29 @@ const ChatbotWidget: React.FC = () => {
 
     // Verificar se a mensagem corresponde a alguma ação no fluxo atual
     if (fluxoConversa[activeFluxo as keyof typeof fluxoConversa]) {
-      const fluxoAtual = fluxoConversa[activeFluxo as keyof typeof fluxoConversa] as any;
+      const fluxoAtual = fluxoConversa[
+        activeFluxo as keyof typeof fluxoConversa
+      ] as any;
 
       // Verificar redirecionamentos no fluxo de saudação
       if (activeFluxo === "saudacao" && fluxoAtual.redirecionamento) {
-        for (const [chave, destino] of Object.entries(fluxoAtual.redirecionamento)) {
+        for (const [chave, destino] of Object.entries(
+          fluxoAtual.redirecionamento,
+        )) {
           if (userMessage.toLowerCase().includes(chave.toLowerCase())) {
             novoFluxo = destino as string;
             break;
           }
         }
-      } 
+      }
       // Verificar ações nos demais fluxos
       else if (fluxoAtual.acoes) {
         for (const [chave, acao] of Object.entries(fluxoAtual.acoes)) {
           if (userMessage.toLowerCase().includes(chave.toLowerCase())) {
-            if (typeof acao === 'string' && acao.startsWith("abrirFormulario")) {
+            if (
+              typeof acao === "string" &&
+              acao.startsWith("abrirFormulario")
+            ) {
               const setor = acao.match(/'([^']+)'/)?.[1] || "agricultura";
               abrirFormulario(setor);
               return { shouldRespond: true, response: "" };
@@ -615,21 +699,25 @@ const ChatbotWidget: React.FC = () => {
 
     // Se encontrou um novo fluxo, atualiza e obtém a resposta
     if (novoFluxo !== activeFluxo) {
-      console.log('✅ Fluxo de conversa encontrado:', novoFluxo);
+      console.log("✅ Fluxo de conversa encontrado:", novoFluxo);
       setActiveFluxo(novoFluxo);
 
       if (fluxoConversa[novoFluxo as keyof typeof fluxoConversa]) {
-        const novoFluxoObj = fluxoConversa[novoFluxo as keyof typeof fluxoConversa] as any;
+        const novoFluxoObj = fluxoConversa[
+          novoFluxo as keyof typeof fluxoConversa
+        ] as any;
         if (novoFluxoObj.informativo) {
           resposta = novoFluxoObj.informativo.join("\n");
         }
 
         // Atualizar sugestões baseadas nas ações do novo fluxo
         if (novoFluxoObj.acoes) {
-          const novasSugestoes = Object.keys(novoFluxoObj.acoes).map(chave => ({
-            text: chave,
-            action: chave
-          }));
+          const novasSugestoes = Object.keys(novoFluxoObj.acoes).map(
+            (chave) => ({
+              text: chave,
+              action: chave,
+            }),
+          );
           setSuggestions(novasSugestoes);
         } else {
           setSuggestions([]);
@@ -648,14 +736,19 @@ const ChatbotWidget: React.FC = () => {
   const rateResponse = async (messageIndex: number, isGood: boolean) => {
     try {
       const message = messages[messageIndex];
-      await addDoc(collection(db, 'ai_feedback'), {
-        question: messages[messageIndex - 1]?.text || '',
+      await addDoc(collection(db, "ai_feedback"), {
+        question: messages[messageIndex - 1]?.text || "",
         answer: message.text,
         isGood,
-        timestamp: serverTimestamp()
+        timestamp: serverTimestamp(),
       });
 
-      addMessage(isGood ? "Obrigado pelo feedback positivo!" : "Obrigado pelo feedback. Tentaremos melhorar.", false);
+      addMessage(
+        isGood
+          ? "Obrigado pelo feedback positivo!"
+          : "Obrigado pelo feedback. Tentaremos melhorar.",
+        false,
+      );
     } catch (error) {
       console.error("Erro ao salvar feedback:", error);
     }
@@ -664,25 +757,25 @@ const ChatbotWidget: React.FC = () => {
   // Treinar IA
   const trainAI = async () => {
     try {
-      const examples = trainingData.split('\n\n').map(example => {
-        const [q, r] = example.split('\n');
+      const examples = trainingData.split("\n\n").map((example) => {
+        const [q, r] = example.split("\n");
         return {
-          question: q.replace('Q: ', ''),
-          answer: r.replace('R: ', '')
+          question: q.replace("Q: ", ""),
+          answer: r.replace("R: ", ""),
         };
       });
 
-      await addDoc(collection(db, 'ai_training'), {
+      await addDoc(collection(db, "ai_training"), {
         examples,
         timestamp: serverTimestamp(),
-        trainedBy: 'admin'
+        trainedBy: "admin",
       });
 
-      addMessage('Dados de treinamento enviados com sucesso!', false);
+      addMessage("Dados de treinamento enviados com sucesso!", false);
       setTrainingData("");
     } catch (error) {
       console.error("Erro no treinamento:", error);
-      addMessage('Erro ao enviar dados de treinamento', false);
+      addMessage("Erro ao enviar dados de treinamento", false);
     }
   };
 
@@ -693,13 +786,13 @@ const ChatbotWidget: React.FC = () => {
     // Adiciona mensagem do usuário ao chat
     addMessage(userMessage, true);
 
-    // Função para normalizar mensagem 
+    // Função para normalizar mensagem
     const normalizeMessage = (msg: string) => {
       return msg
         .toLowerCase()
         .trim()
-        .replace(/[^\w\s]/g, '') // Remove pontuação
-        .replace(/\s+/g, ' ');   // Normaliza espaços
+        .replace(/[^\w\s]/g, "") // Remove pontuação
+        .replace(/\s+/g, " "); // Normaliza espaços
     };
 
     // Verificar cache de respostas com normalização aprimorada
@@ -722,9 +815,9 @@ const ChatbotWidget: React.FC = () => {
         addMessage(flowResponse.response, false);
 
         // Adicionar à cache
-        setResponseCache(prev => ({
+        setResponseCache((prev) => ({
           ...prev,
-          [normalizedMessage]: flowResponse.response
+          [normalizedMessage]: flowResponse.response,
         }));
       }
       setIsLoading(false);
@@ -733,7 +826,10 @@ const ChatbotWidget: React.FC = () => {
 
     // HIERARQUIA 3: Usar IA generativa como última opção
     console.log("🤖 HIERARQUIA 3: Recorrendo à IA generativa");
-    console.log("Verificando disponibilidade da chave API:", !!import.meta.env.VITE_OPENROUTER_API_KEY);
+    console.log(
+      "Verificando disponibilidade da chave API:",
+      !!import.meta.env.VITE_OPENROUTER_API_KEY,
+    );
     try {
       const context = buildAIContext();
 
@@ -742,12 +838,14 @@ const ChatbotWidget: React.FC = () => {
       const normalizedUserMessage = userMessage.toLowerCase().trim();
 
       // Filtra exemplos que compartilham palavras-chave com a pergunta
-      const userWords = normalizedUserMessage.split(/\s+/).filter(word => word.length > 3);
+      const userWords = normalizedUserMessage
+        .split(/\s+/)
+        .filter((word) => word.length > 3);
       if (userWords.length > 0) {
         relevantExamples = trainedResponses
-          .filter(ex => {
+          .filter((ex) => {
             const exampleWords = ex.question.toLowerCase().split(/\s+/);
-            return userWords.some(word => exampleWords.includes(word));
+            return userWords.some((word) => exampleWords.includes(word));
           })
           .slice(0, 8); // Pega até 8 exemplos relevantes
       }
@@ -757,12 +855,14 @@ const ChatbotWidget: React.FC = () => {
         relevantExamples = trainedResponses.slice(0, 5);
       }
 
-      console.log(`Usando ${relevantExamples.length} exemplos relevantes para o contexto da IA`);
+      console.log(
+        `Usando ${relevantExamples.length} exemplos relevantes para o contexto da IA`,
+      );
 
       // Adiciona os exemplos treinados ao contexto
-      const trainedExamples = relevantExamples.map(ex => 
-        `Q: ${ex.question}\nR: ${ex.answer}`
-      ).join('\n\n');
+      const trainedExamples = relevantExamples
+        .map((ex) => `Q: ${ex.question}\nR: ${ex.answer}`)
+        .join("\n\n");
 
       // Instruções específicas para a IA seguir o estilo das respostas treinadas
       const enrichedContext = `
@@ -778,26 +878,29 @@ const ChatbotWidget: React.FC = () => {
       `;
 
       const aiResponse = await getAIResponse(userMessage, enrichedContext);
-      console.log("✅ Resposta da IA recebida:", aiResponse.substring(0, 100) + "...");
+      console.log(
+        "✅ Resposta da IA recebida:",
+        aiResponse.substring(0, 100) + "...",
+      );
 
       // Processar resposta da IA para ações especiais
-      if (aiResponse.includes('[[FORMULARIO_AGRICULTURA]]')) {
-        abrirFormulario('agricultura');
-      } else if (aiResponse.includes('[[FORMULARIO_AGRICULTURA_COMPLETO]]')) {
-        abrirFormulario('agricultura-completo');
-      } else if (aiResponse.includes('[[FORMULARIO_PESCA]]')) {
-        abrirFormulario('pesca');
-      } else if (aiResponse.includes('[[FORMULARIO_PESCA_COMPLETO]]')) {
-        abrirFormulario('pesca-completo');
-      } else if (aiResponse.includes('[[FORMULARIO_PAA]]')) {
-        abrirFormulario('paa');
+      if (aiResponse.includes("[[FORMULARIO_AGRICULTURA]]")) {
+        abrirFormulario("agricultura");
+      } else if (aiResponse.includes("[[FORMULARIO_AGRICULTURA_COMPLETO]]")) {
+        abrirFormulario("agricultura-completo");
+      } else if (aiResponse.includes("[[FORMULARIO_PESCA]]")) {
+        abrirFormulario("pesca");
+      } else if (aiResponse.includes("[[FORMULARIO_PESCA_COMPLETO]]")) {
+        abrirFormulario("pesca-completo");
+      } else if (aiResponse.includes("[[FORMULARIO_PAA]]")) {
+        abrirFormulario("paa");
       } else {
         addMessage(aiResponse, false);
 
         // Adicionar à cache
-        setResponseCache(prev => ({
+        setResponseCache((prev) => ({
           ...prev,
-          [normalizedMessage]: aiResponse
+          [normalizedMessage]: aiResponse,
         }));
       }
     } catch (error) {
@@ -807,37 +910,56 @@ const ChatbotWidget: React.FC = () => {
       if (error.response) {
         console.error("Detalhes do erro:", {
           status: error.response.status,
-          data: error.response.data
+          data: error.response.data,
         });
       }
 
       // Mensagens mais específicas baseadas no tipo de erro
-      let errorMessage = "Desculpe, estou com dificuldades técnicas no momento.";
+      let errorMessage =
+        "Desculpe, estou com dificuldades técnicas no momento.";
 
       if (error.message && error.message.includes("rate limit")) {
-        errorMessage = "Estou recebendo muitas solicitações. Por favor, tente novamente em alguns instantes.";
+        errorMessage =
+          "Estou recebendo muitas solicitações. Por favor, tente novamente em alguns instantes.";
       } else if (error.message && error.message.includes("authentication")) {
-        errorMessage = "Problema de conexão com o serviço. Estamos trabalhando para resolver.";
+        errorMessage =
+          "Problema de conexão com o serviço. Estamos trabalhando para resolver.";
       } else {
         // Se não for um erro específico, usar uma resposta genérica baseada em palavras-chave
         const lowercaseMsg = userMessage.toLowerCase();
 
-        if (lowercaseMsg.includes("agricultura") || lowercaseMsg.includes("plantação") || lowercaseMsg.includes("plantar") || lowercaseMsg.includes("trator")) {
-          errorMessage = "Para informações sobre serviços de agricultura, você pode preencher nosso formulário de pré-cadastro ou formulário completo. Deseja acessar algum deles?";
+        if (
+          lowercaseMsg.includes("agricultura") ||
+          lowercaseMsg.includes("plantação") ||
+          lowercaseMsg.includes("plantar") ||
+          lowercaseMsg.includes("trator")
+        ) {
+          errorMessage =
+            "Para informações sobre serviços de agricultura, você pode preencher nosso formulário de pré-cadastro ou formulário completo. Deseja acessar algum deles?";
           setSuggestions([
             { text: "Formulário de Agricultura", action: "Pré-Cadastro" },
-            { text: "Formulário Completo", action: "Cadastro Completo" }
+            { text: "Formulário Completo", action: "Cadastro Completo" },
           ]);
-        } else if (lowercaseMsg.includes("pesca") || lowercaseMsg.includes("peixe") || lowercaseMsg.includes("pescar")) {
-          errorMessage = "Para informações sobre serviços de pesca, você pode preencher nosso formulário de pré-cadastro ou formulário completo. Deseja acessar algum deles?";
+        } else if (
+          lowercaseMsg.includes("pesca") ||
+          lowercaseMsg.includes("peixe") ||
+          lowercaseMsg.includes("pescar")
+        ) {
+          errorMessage =
+            "Para informações sobre serviços de pesca, você pode preencher nosso formulário de pré-cadastro ou formulário completo. Deseja acessar algum deles?";
           setSuggestions([
             { text: "Formulário de Pesca", action: "Pré-Cadastro" },
-            { text: "Formulário Completo", action: "Cadastro Completo" }
+            { text: "Formulário Completo", action: "Cadastro Completo" },
           ]);
-        } else if (lowercaseMsg.includes("paa") || lowercaseMsg.includes("aquisição") || lowercaseMsg.includes("alimentos")) {
-          errorMessage = "O Programa de Aquisição de Alimentos (PAA) oferece compra institucional de produtos da agricultura familiar. Deseja participar?";
+        } else if (
+          lowercaseMsg.includes("paa") ||
+          lowercaseMsg.includes("aquisição") ||
+          lowercaseMsg.includes("alimentos")
+        ) {
+          errorMessage =
+            "O Programa de Aquisição de Alimentos (PAA) oferece compra institucional de produtos da agricultura familiar. Deseja participar?";
           setSuggestions([
-            { text: "Participar do PAA", action: "Participar do PAA" }
+            { text: "Participar do PAA", action: "Participar do PAA" },
           ]);
         }
       }
@@ -856,12 +978,12 @@ const ChatbotWidget: React.FC = () => {
   };
 
   const handleSuggestionClick = (suggestion: SuggestionButton) => {
-        const text = suggestion.text;
+    const text = suggestion.text;
     processUserMessage(text);
     setInput("");
   };
 
-const handleTabChange = (tab: string) => {
+  const handleTabChange = (tab: string) => {
     setActiveTab(tab);
 
     // Ajustar o setor ativo baseado na tab
@@ -869,13 +991,15 @@ const handleTabChange = (tab: string) => {
       setSetorAtivo(tab);
       // Preparar o contexto para possível abertura de formulário
       const setorMap: Record<string, string> = {
-        "agricultura": "agricultura",
-        "pesca": "pesca",
-        "paa": "paa"
+        agricultura: "agricultura",
+        pesca: "pesca",
+        paa: "paa",
       };
 
       if (setorMap[tab]) {
-        const informacoesSetor = fluxoConversa[`fluxo${tab.charAt(0).toUpperCase() + tab.slice(1)}` as keyof typeof fluxoConversa] as any;
+        const informacoesSetor = fluxoConversa[
+          `fluxo${tab.charAt(0).toUpperCase() + tab.slice(1)}` as keyof typeof fluxoConversa
+        ] as any;
         if (informacoesSetor && informacoesSetor.informativo) {
           // Não adicionar às mensagens, apenas mostrar na tab
         }
@@ -888,7 +1012,10 @@ const handleTabChange = (tab: string) => {
     const loadData = async () => {
       try {
         // Carregar respostas treinadas
-        const trainingsQuery = query(collection(db, 'ai_training'), orderBy('timestamp', 'desc'));
+        const trainingsQuery = query(
+          collection(db, "ai_training"),
+          orderBy("timestamp", "desc"),
+        );
         const trainingsSnapshot = await getDocs(trainingsQuery);
 
         let allResponses: TrainedResponse[] = [];
@@ -898,7 +1025,7 @@ const handleTabChange = (tab: string) => {
           if (data.examples && Array.isArray(data.examples)) {
             const responses = data.examples.map((ex: any) => ({
               question: ex.question,
-              answer: ex.answer
+              answer: ex.answer,
             }));
             allResponses = [...allResponses, ...responses];
           }
@@ -947,10 +1074,18 @@ const handleTabChange = (tab: string) => {
 
           <Tabs defaultValue="chat" onValueChange={handleTabChange}>
             <TabsList className="grid grid-cols-4 p-0 bg-green-50">
-              <TabsTrigger value="chat" className="text-xs">💬 Chat</TabsTrigger>
-              <TabsTrigger value="agricultura" className="text-xs">🌱 Agricultura</TabsTrigger>
-              <TabsTrigger value="pesca" className="text-xs">🎣 Pesca</TabsTrigger>
-              <TabsTrigger value="paa" className="text-xs">🛒 PAA</TabsTrigger>
+              <TabsTrigger value="chat" className="text-xs">
+                💬 Chat
+              </TabsTrigger>
+              <TabsTrigger value="agricultura" className="text-xs">
+                🌱 Agricultura
+              </TabsTrigger>
+              <TabsTrigger value="pesca" className="text-xs">
+                🎣 Pesca
+              </TabsTrigger>
+              <TabsTrigger value="paa" className="text-xs">
+                🛒 PAA
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="chat" className="p-0 m-0">
@@ -976,8 +1111,20 @@ const handleTabChange = (tab: string) => {
                         ))}
                         {!msg.isUser && (
                           <div className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 bg-white/80 rounded p-1">
-                            <Button variant="ghost" size="xs" onClick={() => rateResponse(idx, true)}>👍</Button>
-                            <Button variant="ghost" size="xs" onClick={() => rateResponse(idx, false)}>👎</Button>
+                            <Button
+                              variant="ghost"
+                              size="xs"
+                              onClick={() => rateResponse(idx, true)}
+                            >
+                              👍
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="xs"
+                              onClick={() => rateResponse(idx, false)}
+                            >
+                              👎
+                            </Button>
                           </div>
                         )}
                       </div>
@@ -1005,8 +1152,8 @@ const handleTabChange = (tab: string) => {
 
                 {userLocation && (
                   <div className="p-2 border-t">
-                    <LocationMap 
-                      latitude={userLocation.latitude} 
+                    <LocationMap
+                      latitude={userLocation.latitude}
                       longitude={userLocation.longitude}
                       height={150}
                     />
@@ -1059,33 +1206,38 @@ const handleTabChange = (tab: string) => {
                 {isAdmin && (
                   <div className="p-3 border-t bg-gray-50">
                     <details>
-                      <summary className="font-medium cursor-pointer">⚙️ Treinamento da IA</summary>
+                      <summary className="font-medium cursor-pointer">
+                        ⚙️ Treinamento da IA
+                      </summary>
                       <div className="mt-2 space-y-3">
                         <p className="text-xs text-gray-600">
-                          Adicione exemplos de perguntas e respostas para treinar o chatbot. 
-                          Separe cada par com linha em branco. Use o formato:
+                          Adicione exemplos de perguntas e respostas para
+                          treinar o chatbot. Separe cada par com linha em
+                          branco. Use o formato:
                         </p>
                         <div className="bg-gray-100 p-2 rounded text-xs">
-                          <pre>Q: Como solicitar assistência técnica?
-R: Para solicitar assistência técnica, preencha o formulário de Agricultura.
-
-Q: Quais documentos preciso para o PAA?
-R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulário PAA.</pre>
+                          <pre>
+                            Q: Como solicitar assistência técnica? R: Para
+                            solicitar assistência técnica, preencha o formulário
+                            de Agricultura. Q: Quais documentos preciso para o
+                            PAA? R: Para participar do PAA, você precisa ter
+                            DAP/CAF ativa. Preencha o formulário PAA.
+                          </pre>
                         </div>
-                        <Textarea 
+                        <Textarea
                           placeholder="Adicione exemplos de perguntas e respostas (Q: Pergunta&#10;R: Resposta)"
                           value={trainingData}
                           onChange={(e) => setTrainingData(e.target.value)}
                           rows={6}
                         />
                         <div className="flex gap-2">
-                          <Button 
+                          <Button
                             onClick={trainAI}
                             className="bg-purple-600 hover:bg-purple-700"
                           >
                             Treinar Modelo
                           </Button>
-                          <Button 
+                          <Button
                             onClick={() => setTrainingData("")}
                             variant="outline"
                           >
@@ -1093,7 +1245,8 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
                           </Button>
                         </div>
                         <div className="text-xs text-gray-600 mt-1">
-                          O treino melhora a capacidade da IA de responder a perguntas específicas sobre os serviços da SEMAPA.
+                          O treino melhora a capacidade da IA de responder a
+                          perguntas específicas sobre os serviços da SEMAPA.
                         </div>
                       </div>
                     </details>
@@ -1103,11 +1256,19 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
             </TabsContent>
 
             <TabsContent value="agricultura" className="p-0 m-0">
-              <div className="p-3 bg-green-50/50 overflow-y-auto flex flex-col" style={{ maxHeight: "450px" }}>
+              <div
+                className="p-3 bg-green-50/50 overflow-y-auto flex flex-col"
+                style={{ maxHeight: "450px" }}
+              >
                 <div className="flex-1 overflow-y-auto">
-                  <h4 className="font-semibold text-green-800 mb-2">Setor de Agricultura</h4>
+                  <h4 className="font-semibold text-green-800 mb-2">
+                    Setor de Agricultura
+                  </h4>
                   <div className="space-y-1 text-sm">
-                    <p>O setor agrícola oferece serviços de apoio ao produtor rural:</p>
+                    <p>
+                      O setor agrícola oferece serviços de apoio ao produtor
+                      rural:
+                    </p>
                     <ul className="list-disc pl-5 space-y-1">
                       <li>Assistência técnica rural</li>
                       <li>Programas de mecanização</li>
@@ -1115,39 +1276,58 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
                       <li>Análise de solo</li>
                       <li>Distribuição de mudas e sementes</li>
                     </ul>
-                    <p className="text-gray-600 text-xs">Horário de atendimento: Segunda a Sexta, 8h às 14h</p>
+                    <p className="text-gray-600 text-xs">
+                      Horário de atendimento: Segunda a Sexta, 8h às 14h
+                    </p>
 
                     <div className="mt-2 p-2 bg-white rounded-md border border-green-200">
-                      <h5 className="font-medium text-green-800 mb-1">Tipos de formulários disponíveis:</h5>
+                      <h5 className="font-medium text-green-800 mb-1">
+                        Tipos de formulários disponíveis:
+                      </h5>
                       <div className="space-y-1 mb-2">
-                        <p><span className="font-medium">Pré-Cadastro:</span> Formulário rápido e simplificado para um primeiro contato</p>
-                        <p><span className="font-medium">Cadastro Completo:</span> Formulário detalhado com todas as informações necessárias</p>
+                        <p>
+                          <span className="font-medium">Pré-Cadastro:</span>{" "}
+                          Formulário rápido e simplificado para um primeiro
+                          contato
+                        </p>
+                        <p>
+                          <span className="font-medium">
+                            Cadastro Completo:
+                          </span>{" "}
+                          Formulário detalhado com todas as informações
+                          necessárias
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 mt-4 py-3 border-t bg-green-50/80 sticky bottom-0">
-                    <Button 
-                      onClick={() => abrirFormulario('agricultura')}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      Pré-Cadastro
-                    </Button>
-                    <Button 
-                      onClick={() => abrirFormulario('agricultura-completo')}
-                      className="bg-green-800 hover:bg-green-900"
-                    >
-                      Cadastro Completo
-                    </Button>
-                  </div>
+                  <Button
+                    onClick={() => abrirFormulario("agricultura")}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    Pré-Cadastro
+                  </Button>
+                  <Button
+                    onClick={() => abrirFormulario("agricultura-completo")}
+                    className="bg-green-800 hover:bg-green-900"
+                  >
+                    Cadastro Completo
+                  </Button>
                 </div>
+              </div>
             </TabsContent>
 
             <TabsContent value="pesca" className="p-0 m-0">
-              <div className="p-3 bg-blue-50/50 overflow-y-auto flex flex-col" style={{ maxHeight: "450px" }}>
+              <div
+                className="p-3 bg-blue-50/50 overflow-y-auto flex flex-col"
+                style={{ maxHeight: "450px" }}
+              >
                 <div className="flex-1 overflow-y-auto">
-                  <h4 className="font-semibold text-blue-800 mb-2">Setor de Pesca</h4>
+                  <h4 className="font-semibold text-blue-800 mb-2">
+                    Setor de Pesca
+                  </h4>
                   <div className="space-y-1 text-sm">
                     <p>O setor de pesca oferece:</p>
                     <ul className="list-disc pl-5 space-y-1">
@@ -1156,58 +1336,82 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
                       <li>Assistência técnica especializada</li>
                       <li>Programas de incentivo à produção</li>
                     </ul>
-                    <p className="text-gray-600 text-xs">Responsável: Coord. de Pesca - (99) 3333-4446</p>
+                    <p className="text-gray-600 text-xs">
+                      Responsável: Coord. de Pesca - (99) 3333-4446
+                    </p>
 
                     <div className="mt-2 p-2 bg-white rounded-md border border-blue-200">
-                      <h5 className="font-medium text-blue-800 mb-1">Tipos de formulários disponíveis:</h5>
+                      <h5 className="font-medium text-blue-800 mb-1">
+                        Tipos de formulários disponíveis:
+                      </h5>
                       <div className="space-y-1 mb-2">
-                        <p><span className="font-medium">Pré-Cadastro:</span> Formulário rápido e simplificado para aqueles agricultores que já possuem cadastro e desejam solicitar serviços da secretaria.</p>
-                        <p><span className="font-medium">Cadastro Completo:</span> Formulário detalhado com estruturas, espécies e situação legal.</p>
+                        <p>
+                          <span className="font-medium">Pré-Cadastro:</span>{" "}
+                          Formulário rápido e simplificado para aqueles
+                          agricultores que já possuem cadastro e desejam
+                          solicitar serviços da secretaria.
+                        </p>
+                        <p>
+                          <span className="font-medium">
+                            Cadastro Completo:
+                          </span>{" "}
+                          Formulário detalhado com estruturas, espécies e
+                          situação legal.
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 mt-4 py-3 border-t bg-blue-50/80 sticky bottom-0">
-                    <Button 
-                      onClick={() => abrirFormulario('pesca')}
-                      className="bg-blue-600 hover:bg-blue-700"
-                    >
-                      Pré-Cadastro
-                    </Button>
-                    <Button 
-                      onClick={() => abrirFormulario('pesca-completo')}
-                      className="bg-blue-800 hover:bg-blue-900"
-                    >
-                      Cadastro Completo
-                    </Button>
-                  </div>
+                  <Button
+                    onClick={() => abrirFormulario("pesca")}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    Pré-Cadastro
+                  </Button>
+                  <Button
+                    onClick={() => abrirFormulario("pesca-completo")}
+                    className="bg-blue-800 hover:bg-blue-900"
+                  >
+                    Cadastro Completo
+                  </Button>
                 </div>
+              </div>
             </TabsContent>
 
             <TabsContent value="paa" className="p-0 m-0">
-              <div className="p-3 bg-amber-50/50 overflow-y-auto flex flex-col" style={{ maxHeight: "450px" }}>
+              <div
+                className="p-3 bg-amber-50/50 overflow-y-auto flex flex-col"
+                style={{ maxHeight: "450px" }}
+              >
                 <div className="flex-1 overflow-y-auto">
-                  <h4 className="font-semibold text-amber-800 mb-2">Programa de Aquisição de Alimentos</h4>
+                  <h4 className="font-semibold text-amber-800 mb-2">
+                    Programa de Aquisição de Alimentos
+                  </h4>
                   <div className="space-y-1 text-sm">
                     <p>O PAA oferece:</p>
                     <ul className="list-disc pl-5 space-y-1">
-                      <li>Compra institucional de produtos da agricultura familiar</li>
+                      <li>
+                        Compra institucional de produtos da agricultura familiar
+                      </li>
                       <li>Apoio à comercialização</li>
                       <li>Acesso a mercados</li>
                       <li>Preços justos e garantidos</li>
                     </ul>
-                    <p className="text-gray-600 text-xs">Requisitos: Ser agricultor familiar com DAP/CAF ativa</p>
+                    <p className="text-gray-600 text-xs">
+                      Requisitos: Ser agricultor familiar com DAP/CAF ativa
+                    </p>
                   </div>
                 </div>
 
                 <div className="py-3 border-t bg-amber-50/80 sticky bottom-0">
-                    <Button 
-                      onClick={() => abrirFormulario('paa')}
-                      className="w-full bg-amber-600 hover:bg-amber-700"
-                    >
-                      Participar do PAA
-                    </Button>
+                  <Button
+                    onClick={() => abrirFormulario("paa")}
+                    className="w-full bg-amber-600 hover:bg-amber-700"
+                  >
+                    Participar do PAA
+                  </Button>
                 </div>
               </div>
             </TabsContent>
