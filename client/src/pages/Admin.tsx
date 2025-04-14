@@ -45,6 +45,7 @@ const AgriculturaForm = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const [agriculturasAtividades, setAgriculturasAtividades] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchTratores = async () => {
@@ -55,6 +56,7 @@ const AgriculturaForm = () => {
           ...doc.data(),
         }));
         setTratoresCadastrados(tratoresData);
+        setAgriculturasAtividades(tratoresData);
       } catch (error) {
         console.error("Erro ao buscar tratores:", error);
         toast({
@@ -67,6 +69,33 @@ const AgriculturaForm = () => {
 
     fetchTratores();
   }, []);
+
+  const atualizarStatusAgricultura = async (id: string, statusAtual: boolean) => {
+    try {
+      await updateDoc(doc(db, "tratores", id), {
+        concluido: !statusAtual,
+      });
+      toast({
+        title: "Sucesso",
+        description: "Status atualizado com sucesso!",
+      });
+      // Atualiza a lista
+      const querySnapshot = await getDocs(collection(db, "tratores"));
+      const tratoresData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setTratoresCadastrados(tratoresData);
+      setAgriculturasAtividades(tratoresData);
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o status.",
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
     const map = L.map("admin-map-agricultura").setView(
@@ -1528,13 +1557,16 @@ const Admin = () => {
               <div className="mb-8">
                 <h3 className="text-lg font-semibold mb-4">Lista de Atividades</h3>
                 <div className="space-y-4">
-                  {agriculturaData?.map((atividade) => (
+                  {agriculturasAtividades.map((atividade) => (
                     <Card key={atividade.id} className="p-4">
                       <div className="flex justify-between items-center">
                         <div>
-                          <h4 className="font-semibold">{atividade.localidade}</h4>
+                          <h4 className="font-semibold">{atividade.nome}</h4>
                           <p className="text-sm text-gray-500">
-                            Operador: {atividade.operador || "Não informado"}
+                            Localidade: {atividade.localidade || atividade.fazenda || "Não informado"}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            Operador: {atividade.piloto || "Não informado"}
                           </p>
                           <p className="text-sm text-gray-500">
                             Data: {new Date(atividade.dataCadastro).toLocaleDateString()}
