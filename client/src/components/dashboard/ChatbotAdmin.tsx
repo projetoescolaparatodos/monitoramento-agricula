@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
@@ -12,7 +13,8 @@ import {
   deleteDoc,
   doc,
   serverTimestamp,
-  updateDoc
+  updateDoc,
+  where
 } from 'firebase/firestore';
 import { db } from '@/utils/firebase';
 import { useToast } from '@/hooks/use-toast';
@@ -25,12 +27,17 @@ const ChatbotAdmin = () => {
   const [feedbackHistory, setFeedbackHistory] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [mediaUrls, setMediaUrls] = useState([]); // Added state for media URLs
+  const [keywordList, setKeywordList] = useState<any[]>([]);
+  const [newKeyword, setNewKeyword] = useState("");
+  const [newResponse, setNewResponse] = useState("");
+  const [editingKeyword, setEditingKeyword] = useState<any>(null);
   const { toast } = useToast();
 
-  // Carregar histórico de treinamentos e feedbacks
+  // Carregar histórico de treinamentos, feedbacks e palavras-chave
   useEffect(() => {
     loadTrainings();
     loadFeedbacks();
+    loadKeywords();
   }, []);
 
   const loadTrainings = async () => {
@@ -167,6 +174,151 @@ const ChatbotAdmin = () => {
     setMediaUrls((prevUrls) => prevUrls.filter((_, i) => i !== index));
   };
 
+  // Funções para gerenciamento de palavras-chave
+  const loadKeywords = async () => {
+    try {
+      const q = query(collection(db, 'keywords'), orderBy('timestamp', 'desc'));
+      const querySnapshot = await getDocs(q);
+      const keywords = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setKeywordList(keywords);
+    } catch (error) {
+      console.error('Erro ao carregar palavras-chave:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar as palavras-chave",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const addKeyword = async () => {
+    if (!newKeyword.trim()) {
+      toast({
+        title: "Erro",
+        description: "A palavra-chave não pode estar vazia",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      await addDoc(collection(db, 'keywords'), {
+        keyword: newKeyword.trim(),
+        responses: [newResponse || "Resposta padrão para " + newKeyword],
+        score: 1,
+        timestamp: serverTimestamp()
+      });
+      setNewKeyword("");
+      setNewResponse("");
+      loadKeywords();
+      toast({
+        title: "Sucesso",
+        description: "Palavra-chave adicionada com sucesso",
+      });
+    } catch (error) {
+      console.error("Erro ao adicionar palavra-chave:", error);
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao adicionar a palavra-chave",
+        variant: "destructive"
+      });
+    }
+    setIsLoading(false);
+  };
+
+  const removeKeyword = async (id: string) => {
+    if (confirm("Tem certeza que deseja excluir esta palavra-chave?")) {
+      try {
+        await deleteDoc(doc(db, 'keywords', id));
+        toast({
+          title: "Sucesso",
+          description: "Palavra-chave removida com sucesso",
+        });
+        loadKeywords();
+      } catch (error) {
+        console.error("Erro ao remover palavra-chave:", error);
+        toast({
+          title: "Erro",
+          description: "Ocorreu um erro ao remover a palavra-chave",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
+  const startEditKeyword = (keyword: any) => {
+    setEditingKeyword({
+      ...keyword,
+      newResponses: [...keyword.responses]
+    });
+  };
+
+  const addResponseToKeyword = () => {
+    if (!editingKeyword) return;
+    
+    setEditingKeyword({
+      ...editingKeyword,
+      newResponses: [...editingKeyword.newResponses, ""]
+    });
+  };
+
+  const updateKeywordResponse = (index: number, value: string) => {
+    if (!editingKeyword) return;
+    
+    const updatedResponses = [...editingKeyword.newResponses];
+    updatedResponses[index] = value;
+    
+    setEditingKeyword({
+      ...editingKeyword,
+      newResponses: updatedResponses
+    });
+  };
+
+  const removeKeywordResponse = (index: number) => {
+    if (!editingKeyword || editingKeyword.newResponses.length <= 1) return;
+    
+    const updatedResponses = [...editingKeyword.newResponses];
+    updatedResponses.splice(index, 1);
+    
+    setEditingKeyword({
+      ...editingKeyword,
+      newResponses: updatedResponses
+    });
+  };
+
+  const saveKeywordEdit = async () => {
+    if (!editingKeyword) return;
+    
+    try {
+      await updateDoc(doc(db, 'keywords', editingKeyword.id), {
+        responses: editingKeyword.newResponses,
+        score: parseInt(editingKeyword.score) || 1
+      });
+      
+      setEditingKeyword(null);
+      loadKeywords();
+      
+      toast({
+        title: "Sucesso",
+        description: "Palavra-chave atualizada com sucesso",
+      });
+    } catch (error) {
+      console.error("Erro ao atualizar palavra-chave:", error);
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao atualizar a palavra-chave",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const cancelKeywordEdit = () => {
+    setEditingKeyword(null);
+  };
 
   // Placeholder functions -  These need to be implemented based on your actual data structure and Firebase setup.
   const handleSaveContext = async () => { /*Implementation missing*/ };
@@ -185,10 +337,11 @@ const ChatbotAdmin = () => {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="training">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="training">Treinamento</TabsTrigger>
             <TabsTrigger value="history">Histórico de Treinamentos</TabsTrigger>
             <TabsTrigger value="feedback">Feedbacks dos Usuários</TabsTrigger>
+            <TabsTrigger value="keywords">Palavras-chave</TabsTrigger>
           </TabsList>
 
           <TabsContent value="training" className="space-y-4 mt-4">
@@ -316,6 +469,151 @@ R: Para o PAA, você precisa apresentar DAP/CAF ativa, documentos pessoais e com
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="keywords" className="mt-4">
+            <h3 className="text-lg font-medium mb-4">Gerenciamento de Palavras-chave</h3>
+            
+            <div className="space-y-6">
+              {/* Formulário para adicionar palavra-chave */}
+              <Card className="p-4">
+                <h4 className="text-md font-medium mb-3">Adicionar Nova Palavra-chave</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                  <div>
+                    <label className="text-sm text-gray-600 mb-1 block">Palavra-chave</label>
+                    <Input 
+                      placeholder="Ex: licenciamento pesca"
+                      value={newKeyword}
+                      onChange={(e) => setNewKeyword(e.target.value)}
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="text-sm text-gray-600 mb-1 block">Resposta Inicial (opcional)</label>
+                    <Input 
+                      placeholder="Resposta padrão para esta palavra-chave"
+                      value={newResponse}
+                      onChange={(e) => setNewResponse(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <Button 
+                  onClick={addKeyword}
+                  disabled={isLoading || !newKeyword.trim()}
+                >
+                  Adicionar Palavra-chave
+                </Button>
+              </Card>
+              
+              {/* Lista de palavras-chave */}
+              <div className="space-y-4">
+                <h4 className="text-md font-medium">Palavras-chave Existentes</h4>
+                
+                {keywordList.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">Nenhuma palavra-chave registrada ainda.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {keywordList.map((keyword) => (
+                      <Card key={keyword.id} className="p-4">
+                        {editingKeyword && editingKeyword.id === keyword.id ? (
+                          // Modo de edição
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                              <h5 className="text-lg font-medium">{keyword.keyword}</h5>
+                              <div>
+                                <label className="text-sm mr-2">Pontuação:</label>
+                                <Input 
+                                  type="number" 
+                                  className="w-16 inline-block" 
+                                  value={editingKeyword.score} 
+                                  onChange={(e) => setEditingKeyword({...editingKeyword, score: e.target.value})}
+                                  min="1"
+                                  max="10"
+                                />
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-center">
+                                <h6 className="font-medium">Respostas:</h6>
+                                <Button variant="outline" size="sm" onClick={addResponseToKeyword}>
+                                  + Adicionar Resposta
+                                </Button>
+                              </div>
+                              
+                              {editingKeyword.newResponses.map((response, index) => (
+                                <div key={index} className="flex space-x-2">
+                                  <Textarea
+                                    value={response}
+                                    onChange={(e) => updateKeywordResponse(index, e.target.value)}
+                                    placeholder="Resposta para a palavra-chave"
+                                    className="flex-1"
+                                  />
+                                  {editingKeyword.newResponses.length > 1 && (
+                                    <Button 
+                                      variant="destructive" 
+                                      size="icon"
+                                      onClick={() => removeKeywordResponse(index)}
+                                    >
+                                      X
+                                    </Button>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                            
+                            <div className="flex justify-end space-x-2">
+                              <Button variant="outline" onClick={cancelKeywordEdit}>
+                                Cancelar
+                              </Button>
+                              <Button onClick={saveKeywordEdit}>
+                                Salvar Alterações
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          // Modo de visualização
+                          <div>
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <h5 className="text-lg font-medium">{keyword.keyword}</h5>
+                                <p className="text-sm text-gray-500">Pontuação: {keyword.score}</p>
+                              </div>
+                              <div className="space-x-2">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => startEditKeyword(keyword)}
+                                >
+                                  Editar
+                                </Button>
+                                <Button 
+                                  variant="destructive" 
+                                  size="sm"
+                                  onClick={() => removeKeyword(keyword.id)}
+                                >
+                                  Excluir
+                                </Button>
+                              </div>
+                            </div>
+                            
+                            <div className="mt-3">
+                              <p className="font-medium text-sm">Respostas:</p>
+                              <ul className="mt-2 space-y-2">
+                                {keyword.responses && keyword.responses.map((response, index) => (
+                                  <li key={index} className="bg-gray-50 p-2 rounded-md text-sm">
+                                    {response}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        )}
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </CardContent>

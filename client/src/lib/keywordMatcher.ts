@@ -10,7 +10,8 @@ interface KeywordMap {
   };
 }
 
-export const keywordMap: KeywordMap = {
+// Padrão inicial de palavras-chave
+export const defaultKeywordMap: KeywordMap = {
   // Agricultura
   "assistência técnica": {
     responses: [
@@ -92,6 +93,9 @@ export const keywordMap: KeywordMap = {
     score: 1
   }
 };
+
+// Este será o mapa de palavras-chave utilizado pelo sistema
+export let keywordMap: KeywordMap = { ...defaultKeywordMap };
 
 /**
  * Encontra a melhor correspondência de palavra-chave na mensagem do usuário
@@ -221,4 +225,39 @@ export function analyzeKeywordFrequency(texts: string[]): Map<string, number> {
   });
   
   return frequencyMap;
+}
+
+/**
+ * Carrega palavras-chave do Firestore e atualiza o keywordMap
+ * @param db Instância do Firestore
+ */
+export async function loadKeywordsFromFirestore(db: any) {
+  try {
+    const { collection, getDocs } = await import('firebase/firestore');
+    const keywordsSnapshot = await getDocs(collection(db, 'keywords'));
+    
+    // Começamos com as palavras-chave padrão
+    const updatedKeywordMap = { ...defaultKeywordMap };
+    
+    // Adicionamos ou substituímos com as palavras-chave do Firestore
+    keywordsSnapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.keyword && data.responses) {
+        updatedKeywordMap[data.keyword] = {
+          responses: data.responses,
+          score: data.score || 1,
+          action: data.action,
+          suggestions: data.suggestions
+        };
+      }
+    });
+    
+    // Atualizamos o mapa de palavras-chave
+    keywordMap = updatedKeywordMap;
+    console.log('Palavras-chave carregadas do Firestore:', Object.keys(keywordMap).length);
+    return true;
+  } catch (error) {
+    console.error('Erro ao carregar palavras-chave do Firestore:', error);
+    return false;
+  }
 }

@@ -18,7 +18,7 @@ import {
   getDocs,
   orderBy
 } from "firebase/firestore";
-import { findBestKeywordMatch, getRandomResponse, getSuggestions, getAction } from '@/lib/keywordMatcher';
+import { findBestKeywordMatch, getRandomResponse, getSuggestions, getAction, loadKeywordsFromFirestore } from '@/lib/keywordMatcher';
 
 interface Message {
   text: string;
@@ -828,7 +828,7 @@ const ChatbotWidget: React.FC = () => {
   };
 
   const handleSuggestionClick = (suggestion: SuggestionButton) => {
-    const text = suggestion.text;
+        const text = suggestion.text;
     processUserMessage(text);
     setInput("");
   };
@@ -854,6 +854,40 @@ const handleTabChange = (tab: string) => {
       }
     }
   };
+
+  // Carregar respostas treinadas e palavras-chave ao iniciar
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // Carregar respostas treinadas
+        const trainingsQuery = query(collection(db, 'ai_training'), orderBy('timestamp', 'desc'));
+        const trainingsSnapshot = await getDocs(trainingsQuery);
+
+        let allResponses: TrainedResponse[] = [];
+
+        trainingsSnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.examples && Array.isArray(data.examples)) {
+            const responses = data.examples.map((ex: any) => ({
+              question: ex.question,
+              answer: ex.answer
+            }));
+            allResponses = [...allResponses, ...responses];
+          }
+        });
+
+        setTrainedResponses(allResponses);
+        console.log(`Carregadas ${allResponses.length} respostas treinadas`);
+
+        // Carregar palavras-chave
+        await loadKeywordsFromFirestore(db);
+      } catch (error) {
+        console.error("Erro ao carregar dados:", error);
+      }
+    };
+
+    loadData();
+  }, []);
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
