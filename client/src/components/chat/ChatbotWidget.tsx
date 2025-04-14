@@ -822,7 +822,7 @@ const ChatbotWidget: React.FC = () => {
         // Se não for um erro específico, usar uma resposta genérica baseada em palavras-chave
         const lowercaseMsg = userMessage.toLowerCase();
 
-        if        if (lowercaseMsg.includes("agricultura") || lowercaseMsg.includes("plantação") || lowercaseMsg.includes("plantar") || lowercaseMsg.includes("trator")) {
+        if (lowercaseMsg.includes("agricultura") || lowercaseMsg.includes("plantação") || lowercaseMsg.includes("plantar") || lowercaseMsg.includes("trator")) {
           errorMessage = "Para informações sobre serviços de agricultura, você pode preencher nosso formulário de pré-cadastro ou formulário completo. Deseja acessar algum deles?";
           setSuggestions([
             { text: "Formulário de Agricultura", action: "Pré-Cadastro" },
