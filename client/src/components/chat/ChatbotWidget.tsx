@@ -1142,7 +1142,6 @@ R: Para participar do PAA, você precisa ter DAP/CAF ativa. Preencha o formulár
                     </Button>
                   </div>
                 </div>
-              </div>
             </TabsContent>
 
             <TabsContent value="pesca" className="p-0 m-0">
