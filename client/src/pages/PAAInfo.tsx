@@ -161,25 +161,23 @@ const PAAInfo = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <FilePieChart className="h-5 w-5 text-blue-500" />
-                    Área Total Cultivada
+                    <Users className="h-5 w-5 text-purple-500" />
+                    Famílias Assistidas
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold">
-                    {(paaData?.reduce((total, paa) => {
-                      // Verifica múltiplas possíveis propriedades para a área de mecanização
-                      const areaValue = paa.areaMecanizacao || paa.areaMecanization || paa.areaTrabalhada || paa.area;
-                      if (typeof areaValue === 'number') {
-                        return total + areaValue;
-                      } else if (typeof areaValue === 'string') {
-                        // Tenta converter string para número
-                        const parsed = parseFloat(areaValue);
-                        return total + (isNaN(parsed) ? 0 : parsed);
-                      }
-                      return total;
-                    }, 0) / 10000).toFixed(2)} ha
-                  </p>
+                  <p className="text-3xl font-bold">56 famílias</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FilePieChart className="h-5 w-5 text-blue-500" />
+                    Recursos do Governo Federal
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold">R$ 174.551,87</p>
                 </CardContent>
               </Card>
             </div>
@@ -196,11 +194,9 @@ const PAAInfo = () => {
                       <TableHead>Produtor</TableHead>
                       <TableHead>Tipo de Alimento</TableHead>
                       <TableHead>Quantidade (kg)</TableHead>
-                      <TableHead>Método de Colheita</TableHead>
                       <TableHead>Técnico Responsável</TableHead>
                       <TableHead>Data</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Área (ha)</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -210,23 +206,12 @@ const PAAInfo = () => {
                         <TableCell>{paa.proprietario || '-'}</TableCell>
                         <TableCell>{paa.tipoAlimento || '-'}</TableCell>
                         <TableCell>{paa.quantidadeProduzida ? paa.quantidadeProduzida.toFixed(2) : '0.00'}</TableCell>
-                        <TableCell>{paa.metodoColheita || '-'}</TableCell>
                         <TableCell>{paa.tecnicoResponsavel || '-'}</TableCell>
                         <TableCell>{new Date(paa.dataCadastro).toLocaleDateString()}</TableCell>
                         <TableCell>
                           <span className={paa.concluido ? 'text-green-600 font-medium' : 'text-blue-600 font-medium'}>
                             {paa.concluido ? 'Concluído' : 'Em Andamento'}
                           </span>
-                        </TableCell>
-                        <TableCell>
-                          {(() => {
-                            const area = typeof paa.areaMecanizacao === 'number' 
-                              ? paa.areaMecanizacao 
-                              : typeof paa.areaMecanizacao === 'string' 
-                                ? parseFloat(paa.areaMecanizacao) 
-                                : 0;
-                            return (area / 10000).toFixed(2);
-                          })()}
                         </TableCell>
                       </TableRow>
                     ))}

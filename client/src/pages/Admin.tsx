@@ -398,21 +398,7 @@ const AgriculturaForm = () => {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="areaTrabalhada">
-                  Área para mecanização (ha)
-                </Label>
-                <Input
-                  id="areaTrabalhada"
-                  type="number"
-                  value={areaTrabalhada / 10000}
-                  onChange={(e) => setAreaTrabalhada(Number(e.target.value) * 10000)}
-                  placeholder="0.4"
-                  step="0.01"
-                  required
-                />
-                <p className="text-xs text-gray-500">Digite a área em hectares (ha)</p>
-              </div>
+              {/* Campo de área trabalhada removido */}
 
               <div className="space-y-2">
                 <Label htmlFor="dataCadastro">Data</Label>
@@ -1061,7 +1047,6 @@ const PAAForm = () => {
         proprietario,
         tipoAlimento,
         quantidadeProduzida,
-        metodoColheita,
         operador,
         tecnicoResponsavel,
         latitude,
@@ -1093,7 +1078,6 @@ const PAAForm = () => {
       setProprietario("");
       setTipoAlimento("");
       setQuantidadeProduzida(0);
-      setMetodoColheita("");
       setOperador("");
       setTecnicoResponsavel("");
       setLatitude(null);
@@ -1132,7 +1116,6 @@ const PAAForm = () => {
     setProprietario(paaLocal.proprietario);
     setTipoAlimento(paaLocal.tipoAlimento || "");
     setQuantidadeProduzida(paaLocal.quantidadeProduzida || 0);
-    setMetodoColheita(paaLocal.metodoColheita || "");
     setOperador(paaLocal.operador);
     setTecnicoResponsavel(paaLocal.tecnicoResponsavel);
     setLatitude(paaLocal.latitude);
@@ -1309,16 +1292,7 @@ const PAAForm = () => {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="metodoColheita">Método de Colheita</Label>
-                <Input
-                  id="metodoColheita"
-                  value={metodoColheita}
-                  onChange={(e) => setMetodoColheita(e.target.value)}
-                  placeholder="Ex: Manual, Mecanizada"
-                  required
-                />
-              </div>
+              {/* Campo de método de colheita removido */}
 
               <div className="space-y-2">
                 <Label htmlFor="operador">Operador</Label>
