@@ -75,13 +75,13 @@ const fluxoConversa = {
       "- Assistência técnica especializada",
       "- Programas de incentivo à produção",
       "Temos dois tipos de formulários disponíveis:",
-      "- [Pré-Cadastro]: formulário rápido e simples",
-      "- [Cadastro Completo]: formulário detalhado com todas as informações",
+      "- 1 [Pré-Cadastro / Solicitar serviços]: formulário rápido e simples, ideal para quem ja tem cadastro na secretaria",
+      "- 2 [Cadastro Completo]: formulário detalhado com todas as informações",
       "O que deseja fazer?"
     ],
     acoes: {
-      "Pré-Cadastro": "abrirFormulario('pesca')",
-      "Cadastro Completo": "abrirFormulario('pesca-completo')",
+     "1 Pré-Cadastro": "abrirFormulario('pesca')",
+     "2 Cadastro Completo": "abrirFormulario('pesca-completo')",
       "Mais Informações": "detalhesPesca"
     }
   },
@@ -92,10 +92,10 @@ const fluxoConversa = {
       "- Apoio à comercialização",
       "- Acesso a mercados",
       "- Preços justos e garantidos",
-      "Deseja [Mais Informações] ou [Participar do PAA]?"
+      "Deseja Mais Informações ou Participar do PAA?"
     ],
     acoes: {
-      "Participar do PAA": "abrirFormulario('paa')",
+      "Participar do PAA": "No momento não há vagas para o PAA, pois depende do orçamento disposto pelo Governo Federal",
       "Mais Informações": "detalhesPAA"
     }
   },
