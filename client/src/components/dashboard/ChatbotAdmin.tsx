@@ -101,19 +101,29 @@ const ChatbotAdmin = () => {
         return;
       }
 
-      await addDoc(collection(db, 'ai_training'), {
+      const docRef = await addDoc(collection(db, 'ai_training'), {
         examples,
         timestamp: serverTimestamp(),
         trainedBy: 'admin'
       });
 
+      console.log("Treinamento adicionado com ID:", docRef.id);
+      
       toast({
         title: "Sucesso",
-        description: `${examples.length} exemplos adicionados ao treinamento da IA`,
+        description: `${examples.length} exemplos adicionados ao treinamento da IA. O chatbot agora responderá com base nestes exemplos.`,
       });
 
       setTrainingData("");
       loadTrainings();
+      
+      // Aviso adicional sobre atualização
+      setTimeout(() => {
+        toast({
+          title: "Informação",
+          description: "Os exemplos treinados já estão disponíveis no chatbot. Você pode testar agora mesmo.",
+        });
+      }, 1500);
     } catch (error) {
       console.error("Erro no treinamento:", error);
       toast({

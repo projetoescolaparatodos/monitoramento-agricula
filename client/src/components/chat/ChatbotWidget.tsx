@@ -394,6 +394,35 @@ const ChatbotWidget: React.FC = () => {
     `;
   };
 
+  // Estado para armazenar as respostas treinadas
+  const [trainedResponses, setTrainedResponses] = useState<Array<{question: string, answer: string}>>([]);
+  
+  // Carregar respostas treinadas do Firebase
+  useEffect(() => {
+    const fetchTrainedResponses = async () => {
+      try {
+        const trainingsRef = collection(db, 'ai_training');
+        const q = query(trainingsRef, orderBy('timestamp', 'desc'));
+        const querySnapshot = await getDocs(q);
+        
+        const allExamples: Array<{question: string, answer: string}> = [];
+        querySnapshot.docs.forEach(doc => {
+          const data = doc.data();
+          if (data.examples && Array.isArray(data.examples)) {
+            allExamples.push(...data.examples);
+          }
+        });
+        
+        console.log('Respostas treinadas carregadas:', allExamples.length);
+        setTrainedResponses(allExamples);
+      } catch (error) {
+        console.error('Erro ao carregar respostas treinadas:', error);
+      }
+    };
+    
+    fetchTrainedResponses();
+  }, []);
+
   // Tentar responder com o fluxo programático
   const tryProgrammaticFlow = (userMessage: string) => {
     // Verificar se está respondendo sobre localização
@@ -408,6 +437,21 @@ const ChatbotWidget: React.FC = () => {
         // Continuar o fluxo sem localização
         return { shouldRespond: true, response: "Continuando sem localização." };
       }
+    }
+
+    // Verificar se há resposta treinada para a mensagem
+    const normalizedUserMessage = userMessage.toLowerCase().trim();
+    const trainedResponse = trainedResponses.find(item => {
+      // Verifica se a pergunta treinada é semelhante à mensagem do usuário
+      const normalizedQuestion = item.question.toLowerCase().trim();
+      return normalizedUserMessage.includes(normalizedQuestion) || 
+             normalizedQuestion.includes(normalizedUserMessage) ||
+             normalizedUserMessage === normalizedQuestion;
+    });
+
+    if (trainedResponse) {
+      console.log('Resposta encontrada no treinamento:', trainedResponse);
+      return { shouldRespond: true, response: trainedResponse.answer };
     }
 
     // Processar ações do fluxo de conversa
@@ -533,25 +577,48 @@ const ChatbotWidget: React.FC = () => {
     // Verificar cache de respostas
     const cachedResponse = responseCache[userMessage.toLowerCase()];
     if (cachedResponse) {
+      console.log("Resposta encontrada no cache:", userMessage);
       addMessage(cachedResponse, false);
       setIsLoading(false);
       return;
     }
 
-    // 1. Primeiro tente o fluxo programático
+    // 1. Primeiro tente o fluxo programático (inclui agora respostas treinadas)
     const flowResponse = tryProgrammaticFlow(userMessage);
     if (flowResponse.shouldRespond) {
       if (flowResponse.response) {
+        console.log("Resposta encontrada no fluxo programático ou treinamento");
         addMessage(flowResponse.response, false);
+        
+        // Adicionar à cache
+        setResponseCache(prev => ({
+          ...prev,
+          [userMessage.toLowerCase()]: flowResponse.response
+        }));
       }
       setIsLoading(false);
       return;
     }
 
-    // 2. Se não encontrou no fluxo, use a IA
+    // 2. Se não encontrou no fluxo ou treinamento, use a IA OpenRouter
+    console.log("Tentando obter resposta da IA OpenRouter...");
     try {
       const context = buildAIContext();
-      const aiResponse = await getAIResponse(userMessage, context);
+      
+      // Adiciona os exemplos treinados ao contexto
+      const trainedExamples = trainedResponses.slice(0, 5).map(ex => 
+        `Q: ${ex.question}\nR: ${ex.answer}`
+      ).join('\n\n');
+      
+      const enrichedContext = `
+        ${context}
+        
+        Exemplos de treinamento:
+        ${trainedExamples}
+      `;
+      
+      const aiResponse = await getAIResponse(userMessage, enrichedContext);
+      console.log("Resposta da IA recebida:", aiResponse.substring(0, 100) + "...");
 
       // Processar resposta da IA para ações especiais
       if (aiResponse.includes('[[FORMULARIO_AGRICULTURA]]')) {
@@ -575,7 +642,31 @@ const ChatbotWidget: React.FC = () => {
       }
     } catch (error) {
       console.error("Erro na IA:", error);
-      addMessage("Desculpe, estou com dificuldades para processar sua solicitação. Vamos tentar novamente?", false);
+      
+      // Se houver erro na IA, tentar usar uma resposta genérica baseada em palavras-chave
+      const lowercaseMsg = userMessage.toLowerCase();
+      let genericResponse = "Desculpe, estou com dificuldades para processar sua solicitação. Você pode tentar perguntar sobre nossos serviços de agricultura, pesca ou PAA?";
+      
+      if (lowercaseMsg.includes("agricultura") || lowercaseMsg.includes("plantação") || lowercaseMsg.includes("plantar") || lowercaseMsg.includes("trator")) {
+        genericResponse = "Para informações sobre serviços de agricultura, você pode preencher nosso formulário de pré-cadastro ou formulário completo. Deseja acessar algum deles?";
+        setSuggestions([
+          { text: "Formulário de Agricultura", action: "Pré-Cadastro" },
+          { text: "Formulário Completo", action: "Cadastro Completo" }
+        ]);
+      } else if (lowercaseMsg.includes("pesca") || lowercaseMsg.includes("peixe") || lowercaseMsg.includes("pescar")) {
+        genericResponse = "Para informações sobre serviços de pesca, você pode preencher nosso formulário de pré-cadastro ou formulário completo. Deseja acessar algum deles?";
+        setSuggestions([
+          { text: "Formulário de Pesca", action: "Pré-Cadastro" },
+          { text: "Formulário Completo", action: "Cadastro Completo" }
+        ]);
+      } else if (lowercaseMsg.includes("paa") || lowercaseMsg.includes("aquisição") || lowercaseMsg.includes("alimentos")) {
+        genericResponse = "O Programa de Aquisição de Alimentos (PAA) oferece compra institucional de produtos da agricultura familiar. Deseja participar?";
+        setSuggestions([
+          { text: "Participar do PAA", action: "Participar do PAA" }
+        ]);
+      }
+      
+      addMessage(genericResponse, false);
     }
 
     setIsLoading(false);
