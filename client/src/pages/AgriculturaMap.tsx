@@ -201,7 +201,7 @@ const AgriculturaMap = () => {
                         <video
                           src={url}
                           controls
-                          className="popup-media"
+                          className="popup-media w-full h-auto object-cover rounded-lg"
                         />
                       </div>
                     ) : (

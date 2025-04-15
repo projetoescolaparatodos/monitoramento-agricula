@@ -41,12 +41,14 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 8px;
+  width: 100%;
 }
 
 .popup-content.maximized .media-container .grid {
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   max-height: 70vh;
   overflow-y: auto;
+  align-items: start;
 }
 
 .popup-media {
@@ -54,8 +56,10 @@
   height: 150px;
   object-fit: cover;
   border-radius: 8px;
+  max-height: 150px;
 }
 
 .popup-content.maximized .popup-media {
   height: 180px;
+  max-height: 180px;
 }
