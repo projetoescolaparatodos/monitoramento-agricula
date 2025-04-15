@@ -129,7 +129,7 @@ const PescaMap = () => {
           }}
         >
           <div
-            className={`p-4 ${isMaximized ? "maximized" : ""} popup-content`}
+            className={`p-4 ${isMaximized ? styles.maximized : ""}`}
           >
             {/* Botão de Fechar */}
             <button
@@ -137,12 +137,12 @@ const PescaMap = () => {
                 setSelectedMarker(null);
                 setIsMaximized(false);
               }}
-              className="absolute top-2 right-2 bg-gray-100 hover:bg-gray-200 rounded-full p-2"
+              className="absolute top-2 right-2 bg-gray-100 hover:bg-gray-200 rounded-full p-2 z-10"
             >
               <X className="h-4 w-4" /> {/* Ícone de fechar */}
             </button>
 
-            <div className="text-content">
+            <div className={styles["text-content"]}>
               <div className="flex justify-between items-center mb-2">
                 <h3 className="font-bold text-lg">{pesca.localidade}</h3>
               </div>
@@ -220,11 +220,9 @@ const PescaMap = () => {
             </div>
 
             {pesca.midias && pesca.midias.length > 0 && (
-              <div className="media-container">
+              <div className={styles["media-container"]}>
                 <h4 className="font-semibold mb-2">Fotos/Vídeos:</h4>
-                <div
-                  className={`grid ${isMaximized ? "grid-cols-3" : "grid-cols-2"} gap-2`}
-                >
+                <div className={styles.grid}>
                   {pesca.midias.map((url, index) => {
                     // Verifica se é um vídeo usando extensões ou padrões de URL comuns
                     const isVideo = 
@@ -265,7 +263,7 @@ const PescaMap = () => {
 
             <button
               onClick={() => setIsMaximized(!isMaximized)}
-              className="absolute top-2 right-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2"
+              className="absolute top-2 right-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2 z-10"
             >
               {isMaximized ? "Reduzir" : "Maximizar"}
             </button>
