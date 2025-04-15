@@ -120,7 +120,8 @@ const AgriculturaMap = () => {
             setIsMaximized(false);
           }}
           options={{
-            maxWidth: isMaximized ? window.innerWidth * 0.9 : undefined,
+            maxWidth: isMaximized ? window.innerWidth * 0.9 : 500,
+            maxHeight: isMaximized ? window.innerHeight * 0.9 : undefined,
           }}
         >
           <div
@@ -219,7 +220,7 @@ const AgriculturaMap = () => {
 
             <button
               onClick={() => setIsMaximized(!isMaximized)}
-              className="absolute top-2 right-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2"
+              className="absolute top-2 right-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2 z-10"
             >
               {isMaximized ? "Reduzir" : "Maximizar"}
             </button>

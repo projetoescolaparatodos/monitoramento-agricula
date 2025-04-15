@@ -8,12 +8,15 @@
 }
 
 .popup-content.maximized {
-  width: 90vw;
-  max-width: 90vw;
+  width: 90%;
+  height: 90%;
+  max-width: 90%;
+  max-height: 90%;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   justify-content: space-between;
+  overflow: auto;
 }
 
 .popup-content .text-content {
@@ -37,6 +40,8 @@
   max-width: 58%;
   flex: 0 0 58%;
   margin-left: 24px;
+  overflow-y: auto;
+  max-height: 100%;
 }
 
 .popup-content .media-container .grid {
@@ -47,11 +52,11 @@
 }
 
 .popup-content.maximized .media-container .grid {
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  max-height: 75vh;
-  overflow-y: auto;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  max-height: 100%;
   align-items: start;
   gap: 16px;
+  padding-right: 8px;
 }
 
 .popup-media {
