@@ -1,4 +1,3 @@
-
 .popup-content {
   display: flex;
   flex-direction: column;
@@ -7,41 +6,14 @@
   max-width: 500px;
 }
 
-.popup-content.maximized {
-  width: 90%;
-  height: 90%;
-  max-width: 90%;
-  max-height: 90%;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: space-between;
-  overflow: auto;
-}
-
 .popup-content .text-content {
   flex: 1;
   width: 100%;
 }
 
-.popup-content.maximized .text-content {
-  width: 38%;
-  max-width: 38%;
-  flex: 0 0 38%;
-}
-
 .popup-content .media-container {
   width: 100%;
   flex: 1;
-}
-
-.popup-content.maximized .media-container {
-  width: 58%;
-  max-width: 58%;
-  flex: 0 0 58%;
-  margin-left: 24px;
-  overflow-y: auto;
-  max-height: 100%;
 }
 
 .popup-content .media-container .grid {
@@ -51,14 +23,6 @@
   width: 100%;
 }
 
-.popup-content.maximized .media-container .grid {
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  max-height: 100%;
-  align-items: start;
-  gap: 16px;
-  padding-right: 8px;
-}
-
 .popup-media {
   width: 100%;
   height: 200px;
@@ -66,6 +30,43 @@
   border-radius: 8px;
 }
 
-.popup-content.maximized .popup-media {
-  height: 200px;
+.maximized {
+  width: 80vw;
+  height: auto;
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.text-content {
+  flex: 1;
+  min-width: 50%;
+}
+
+.media-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+
+.popup-media {
+  width: 100%;
+  max-height: 240px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+/* Quando estiver maximizado, reorganize a grade */
+.maximized .media-container .grid {
+  grid-template-columns: 1fr 1fr;
 }

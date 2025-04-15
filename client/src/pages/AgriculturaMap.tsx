@@ -125,7 +125,7 @@ const AgriculturaMap = () => {
           }}
         >
           <div
-            className={`p-4 popup-content ${isMaximized ? styles.maximized : ""}`}
+            className={`p-4 ${isMaximized ? styles.maximized : ""}`}
           >
             <button
               onClick={() => {
@@ -137,7 +137,7 @@ const AgriculturaMap = () => {
               <X className="h-4 w-4" /> 
             </button>
 
-            <div className={`text-content ${styles["text-content"]}`}>
+            <div className={styles["text-content"]}>
               <div className="flex justify-between items-center mb-2">
                 <h3 className="font-bold text-lg">{trator.nome}</h3>
               </div>
@@ -192,9 +192,9 @@ const AgriculturaMap = () => {
             </div>
 
             {trator.midias && trator.midias.length > 0 && (
-              <div className={`media-container ${styles["media-container"]}`}>
+              <div className={styles["media-container"]}>
                 <h4 className="font-semibold mb-2">Fotos/Vídeos:</h4>
-                <div className={`grid ${styles.grid}`}>
+                <div className={styles.grid}>
                   {trator.midias.map((url, index) =>
                     url.includes("/video/") ||
                     url.includes("/video/upload/") ? (
@@ -202,7 +202,7 @@ const AgriculturaMap = () => {
                         <video
                           src={url}
                           controls
-                          className={`${styles["popup-media"]} w-full rounded-lg`}
+                          className={`${styles["popup-media"]}`}
                         />
                       </div>
                     ) : (
@@ -210,7 +210,7 @@ const AgriculturaMap = () => {
                         key={index}
                         src={url}
                         alt="Mídia"
-                        className={`${styles["popup-media"]} w-full`}
+                        className={`${styles["popup-media"]}`}
                       />
                     ),
                   )}
