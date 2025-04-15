@@ -431,7 +431,16 @@ const AgriculturaForm = () => {
                 />
               </div>
 
-              {/* Campo de área trabalhada removido */}
+              <div className="space-y-2">
+                <Label htmlFor="areaTrabalhada">Área para Mecanização (m²)</Label>
+                <Input
+                  id="areaTrabalhada"
+                  type="number"
+                  value={areaTrabalhada}
+                  onChange={(e) => setAreaTrabalhada(Number(e.target.value))}
+                  required
+                />
+              </div>
 
               <div className="space-y-2">
                 <Label htmlFor="dataCadastro">Data</Label>
