@@ -124,7 +124,8 @@ const PescaMap = () => {
             setIsMaximized(false);
           }}
           options={{
-            maxWidth: isMaximized ? window.innerWidth * 0.9 : undefined,
+            maxWidth: isMaximized ? window.innerWidth * 0.9 : 500,
+            maxHeight: isMaximized ? window.innerHeight * 0.9 : undefined,
           }}
         >
           <div
@@ -224,13 +225,25 @@ const PescaMap = () => {
                 <div
                   className={`grid ${isMaximized ? "grid-cols-3" : "grid-cols-2"} gap-2`}
                 >
-                  {pesca.midias.map((url, index) =>
-                    url.includes("/video/") ||
-                    url.includes("/video/upload/") ? (
+                  {pesca.midias.map((url, index) => {
+                    // Verifica se é um vídeo usando extensões ou padrões de URL comuns
+                    const isVideo = 
+                      url.includes("/video/") || 
+                      url.includes("/video/upload/") || 
+                      url.endsWith(".mp4") || 
+                      url.endsWith(".webm") || 
+                      url.endsWith(".ogg") || 
+                      url.endsWith(".mov") || 
+                      url.includes("youtube.com") || 
+                      url.includes("youtu.be") || 
+                      url.includes("vimeo.com");
+                    
+                    return isVideo ? (
                       <div key={index} className="relative">
                         <video
                           src={url}
                           controls
+                          preload="metadata"
                           className="w-full h-auto max-h-48 object-cover rounded-lg popup-media"
                         />
                       </div>
@@ -240,9 +253,12 @@ const PescaMap = () => {
                         src={url}
                         alt="Mídia"
                         className="w-full h-auto max-h-48 object-cover rounded-lg popup-media"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Mídia+indisponível';
+                        }}
                       />
-                    ),
-                  )}
+                    );
+                  })}
                 </div>
               </div>
             )}
