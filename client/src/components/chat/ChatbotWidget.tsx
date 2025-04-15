@@ -110,14 +110,14 @@ const fluxoConversa = {
   fluxoSecretaria: {
     informativo: [
       "📌 A Secretaria Municipal de Agricultura, Pesca e Abastecimento (SEMAPA):",
-      "- Localizada na Av. Principal, nº 500",
-      "- Atendimento: Segunda a Sexta, 8h às 14h",
-      "- Telefone: (99) 3333-4444",
-      "- Email: semapa@prefeitura.gov.br",
+      "- Localizada na Av. Castelo Branco S/N",
+      "- Atendimento: Segunda a Sexta, 8h às 17h",
+      "- Email: secagricultura@vitoriadoxingu.pa.gov.br",
       "Como podemos ajudar você hoje?",
     ],
     acoes: {
       "Contato com Secretário": "contatoSecretario",
+      "Contato com Coordenadores": "contatoCoordenadores",
       "Políticas Públicas": "politicasPublicas",
       "Eventos e Calendário": "eventosCalendario",
     },
@@ -182,10 +182,25 @@ const fluxoConversa = {
     informativo: [
       "📞 Contato com o Secretário William Alves:",
       "- Horário de Atendimento: 08h às 17h",
-      "- Telefone do gabinete: (93) 99144-6710",
+      "- Telefone: (93) 99144-6710",
       "- Email: secagricultura@vitoriadoxingu.pa.gov.br",
     ],
     acoes: {
+      "Contato com Coordenadores": "contatoCoordenadores",
+      Voltar: "fluxoSecretaria",
+    },
+  },
+  contatoCoordenadores: {
+    informativo: [
+      "📞 Contatos dos Coordenadores:",
+      "- Coordenador de Pesca - Rosiano: (93) 99156-4138",
+      "- Coordenadora de Agricultura - Jéssica Suzane: (93) 9129-1357",
+      "- Coordenador do PAA - Silas Lima: (93) 99144-0173",
+      "- Email: secagricultura@vitoriadoxingu.pa.gov.br",
+      "- Horário de Atendimento: 08h às 17h",
+    ],
+    acoes: {
+      "Contato com Secretário": "contatoSecretario",
       Voltar: "fluxoSecretaria",
     },
   },
@@ -1193,7 +1208,7 @@ const ChatbotWidget: React.FC = () => {
                       <li>Distribuição de mudas e sementes</li>
                     </ul>
                     <p className="text-gray-600 text-xs">
-                      Horário de atendimento: Segunda a Sexta, 8h às 14h
+                      Horário de atendimento: Segunda a Sexta, 8h às 17h
                     </p>
 
                     <div className="mt-2 p-2 bg-white rounded-md border border-green-200">
@@ -1253,7 +1268,7 @@ const ChatbotWidget: React.FC = () => {
                       <li>Programas de incentivo à produção</li>
                     </ul>
                     <p className="text-gray-600 text-xs">
-                      Responsável: Coord. de Pesca - (99) 3333-4446
+                      Responsável: Coord. de Pesca - Rosiano - (93) 99156-4138
                     </p>
 
                     <div className="mt-2 p-2 bg-white rounded-md border border-blue-200">

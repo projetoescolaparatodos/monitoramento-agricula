@@ -73,22 +73,22 @@ export const defaultKeywordMap: KeywordMap = {
   // Genéricos
   "horário de atendimento": {
     responses: [
-      "Atendemos de segunda a sexta, das 8h às 14h.",
-      "Nosso horário de funcionamento é das 8h às 14h, exceto feriados."
+      "Atendemos de segunda a sexta, das 8h às 17h.",
+      "Nosso horário de funcionamento é das 8h às 17h, exceto feriados."
     ],
     score: 1
   },
   "endereço": {
     responses: [
-      "Estamos localizados na Av. Principal, nº 500, Centro, Vitória do Xingu/PA.",
-      "Nossa sede fica na avenida principal da cidade, próximo à prefeitura."
+      "Estamos localizados na Av. Castelo Branco S/N, Vitória do Xingu/PA.",
+      "Nossa sede fica na Avenida Castelo Branco S/N."
     ],
     score: 1
   },
   "contato": {
     responses: [
-      "Você pode entrar em contato pelo telefone (99) 3333-4444 ou pelo email semapa@prefeitura.gov.br",
-      "Para falar com nossa equipe, ligue (99) 3333-4444 ou envie um email."
+      "Secretário William Alves: (93) 99144-6710. Email: secagricultura@vitoriadoxingu.pa.gov.br",
+      "Coordenadores: Pesca (Rosiano): (93) 99156-4138, Agricultura (Jéssica): (93) 9129-1357, PAA (Silas): (93) 99144-0173."
     ],
     score: 1
   }
