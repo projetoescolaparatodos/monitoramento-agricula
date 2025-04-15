@@ -157,7 +157,7 @@ const PAAMap = () => {
                       : typeof paa.quantidadeProduzida === 'string' 
                         ? parseFloat(paa.quantidadeProduzida) 
                         : null;
-                    
+
                     if (quantidade === null) return "-";
                     return quantidade.toFixed(2) + " kg";
                   })()}
@@ -175,7 +175,7 @@ const PAAMap = () => {
                       : typeof areaValue === 'string' 
                         ? parseFloat(areaValue) 
                         : null;
-                    
+
                     if (area === null || isNaN(area)) return "0.00 ha";
                     return (area / 10000).toFixed(2) + " ha";
                   })()}
@@ -215,14 +215,14 @@ const PAAMap = () => {
                       url.includes("youtube.com") || 
                       url.includes("youtu.be") || 
                       url.includes("vimeo.com");
-                    
+
                     return isVideo ? (
                       <div key={index} className="relative">
                         <video
                           src={url}
                           controls
                           preload="metadata"
-                          className="w-full h-auto max-h-48 object-cover rounded-lg popup-media"
+                          className={`${styles["popup-media"]}`}
                         />
                       </div>
                     ) : (
@@ -230,7 +230,7 @@ const PAAMap = () => {
                         key={index}
                         src={url}
                         alt="Mídia"
-                        className="w-full h-auto max-h-48 object-cover rounded-lg popup-media"
+                        className={`${styles["popup-media"]}`}
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Mídia+indisponível';
                         }}

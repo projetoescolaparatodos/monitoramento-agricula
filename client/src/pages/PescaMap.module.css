@@ -1,0 +1,73 @@
+
+.popup-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.popup-content .text-content {
+  flex: 1;
+  width: 100%;
+}
+
+.popup-content .media-container {
+  width: 100%;
+  flex: 1;
+}
+
+.popup-content .media-container .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+
+.popup-media {
+  width: 100%;
+  height: 200px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.maximized {
+  width: 80vw;
+  height: auto;
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.text-content {
+  flex: 1;
+  min-width: 50%;
+}
+
+.media-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+
+.popup-media {
+  width: 100%;
+  max-height: 240px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+/* Quando estiver maximizado, reorganize a grade */
+.maximized .media-container .grid {
+  grid-template-columns: 1fr 1fr;
+}

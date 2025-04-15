@@ -165,7 +165,7 @@ const PescaMap = () => {
                       : typeof pesca.areaImovel === 'string' 
                         ? parseFloat(pesca.areaImovel) 
                         : null;
-                    
+
                     if (area === null) return "-";
                     return area.toFixed(2) + " ha";
                   })()}
@@ -178,7 +178,7 @@ const PescaMap = () => {
                       : typeof pesca.areaAlagada === 'string' 
                         ? parseFloat(pesca.areaAlagada) 
                         : null;
-                    
+
                     if (area === null) return "-";
                     return area.toFixed(2) + " ha";
                   })()}
@@ -237,14 +237,14 @@ const PescaMap = () => {
                       url.includes("youtube.com") || 
                       url.includes("youtu.be") || 
                       url.includes("vimeo.com");
-                    
+
                     return isVideo ? (
                       <div key={index} className="relative">
                         <video
                           src={url}
                           controls
                           preload="metadata"
-                          className="w-full h-auto max-h-48 object-cover rounded-lg popup-media"
+                          className={`${styles["popup-media"]}`}
                         />
                       </div>
                     ) : (
@@ -252,7 +252,7 @@ const PescaMap = () => {
                         key={index}
                         src={url}
                         alt="Mídia"
-                        className="w-full h-auto max-h-48 object-cover rounded-lg popup-media"
+                        className={`${styles["popup-media"]}`}
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Mídia+indisponível';
                         }}
