@@ -201,8 +201,7 @@ const AgriculturaMap = () => {
                         <video
                           src={url}
                           controls
-                          className="popup-media w-full h-auto object-cover rounded-lg"
-                          style={{ maxHeight: isMaximized ? '160px' : '150px' }}
+                          className="popup-media w-full rounded-lg"
                         />
                       </div>
                     ) : (
@@ -210,8 +209,7 @@ const AgriculturaMap = () => {
                         key={index}
                         src={url}
                         alt="Mídia"
-                        className="popup-media w-full h-auto"
-                        style={{ maxHeight: isMaximized ? '160px' : '150px' }}
+                        className="popup-media w-full"
                       />
                     ),
                   )}
