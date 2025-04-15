@@ -36,6 +36,20 @@ const MediaLinkUploader = ({ onLinkSubmit, title = "Adicionar mídia por link" }
       return;
     }
     
+    // Verificar se é um vídeo para informar ao usuário
+    const isVideo = 
+      url.endsWith(".mp4") || 
+      url.endsWith(".webm") || 
+      url.endsWith(".ogg") || 
+      url.endsWith(".mov") || 
+      url.includes("youtube.com") || 
+      url.includes("youtu.be") || 
+      url.includes("vimeo.com");
+      
+    if (isVideo) {
+      console.log("Link de vídeo detectado:", url);
+    }
+    
     try {
       setIsSubmitting(true);
       

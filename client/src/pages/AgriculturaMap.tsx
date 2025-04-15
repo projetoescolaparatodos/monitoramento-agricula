@@ -195,13 +195,25 @@ const AgriculturaMap = () => {
               <div className={styles["media-container"]}>
                 <h4 className="font-semibold mb-2">Fotos/Vídeos:</h4>
                 <div className={styles.grid}>
-                  {trator.midias.map((url, index) =>
-                    url.includes("/video/") ||
-                    url.includes("/video/upload/") ? (
+                  {trator.midias.map((url, index) => {
+                    // Verifica se é um vídeo usando extensões ou padrões de URL comuns
+                    const isVideo = 
+                      url.includes("/video/") || 
+                      url.includes("/video/upload/") || 
+                      url.endsWith(".mp4") || 
+                      url.endsWith(".webm") || 
+                      url.endsWith(".ogg") || 
+                      url.endsWith(".mov") || 
+                      url.includes("youtube.com") || 
+                      url.includes("youtu.be") || 
+                      url.includes("vimeo.com");
+                    
+                    return isVideo ? (
                       <div key={index} className="relative">
                         <video
                           src={url}
                           controls
+                          preload="metadata"
                           className={`${styles["popup-media"]}`}
                         />
                       </div>
@@ -211,9 +223,12 @@ const AgriculturaMap = () => {
                         src={url}
                         alt="Mídia"
                         className={`${styles["popup-media"]}`}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Mídia+indisponível';
+                        }}
                       />
-                    ),
-                  )}
+                    );
+                  })}
                 </div>
               </div>
             )}
