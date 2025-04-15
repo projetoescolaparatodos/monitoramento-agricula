@@ -3,41 +3,59 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
+  max-width: 500px;
 }
 
 .popup-content.maximized {
   width: 90vw;
+  max-width: 90vw;
   flex-direction: row;
+  align-items: flex-start;
 }
 
 .popup-content .text-content {
   flex: 1;
+  width: 100%;
 }
 
 .popup-content.maximized .text-content {
+  width: 40%;
   max-width: 40%;
+  flex: 0 0 40%;
 }
 
 .popup-content .media-container {
+  width: 100%;
   flex: 1;
 }
 
 .popup-content.maximized .media-container {
+  width: 60%;
   max-width: 60%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+  flex: 0 0 60%;
+  margin-left: 16px;
 }
 
 .popup-content .media-container .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 8px;
-  height: 100%;
 }
 
 .popup-content.maximized .media-container .grid {
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  max-height: 80vh;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  max-height: 70vh;
   overflow-y: auto;
+}
+
+.popup-media {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.popup-content.maximized .popup-media {
+  height: 180px;
 }

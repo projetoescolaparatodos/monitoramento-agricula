@@ -124,14 +124,14 @@ const AgriculturaMap = () => {
           }}
         >
           <div
-            className={`p-4 ${isMaximized ? "maximized" : ""} popup-content`}
+            className={`p-4 popup-content ${isMaximized ? "maximized" : ""}`}
           >
             <button
               onClick={() => {
                 setSelectedMarker(null);
                 setIsMaximized(false);
               }}
-              className="absolute top-2 right-2 bg-gray-100 hover:bg-gray-200 rounded-full p-2"
+              className="absolute top-2 right-2 bg-gray-100 hover:bg-gray-200 rounded-full p-2 z-10"
             >
               <X className="h-4 w-4" /> 
             </button>
@@ -193,9 +193,7 @@ const AgriculturaMap = () => {
             {trator.midias && trator.midias.length > 0 && (
               <div className="media-container">
                 <h4 className="font-semibold mb-2">Fotos/Vídeos:</h4>
-                <div
-                  className={`grid ${isMaximized ? "grid-cols-3" : "grid-cols-2"} gap-2`}
-                >
+                <div className="grid gap-2">
                   {trator.midias.map((url, index) =>
                     url.includes("/video/") ||
                     url.includes("/video/upload/") ? (
@@ -203,7 +201,7 @@ const AgriculturaMap = () => {
                         <video
                           src={url}
                           controls
-                          className="w-full h-auto max-h-48 object-cover rounded-lg popup-media"
+                          className="popup-media"
                         />
                       </div>
                     ) : (
@@ -211,7 +209,7 @@ const AgriculturaMap = () => {
                         key={index}
                         src={url}
                         alt="Mídia"
-                        className="w-full h-auto max-h-48 object-cover rounded-lg popup-media"
+                        className="popup-media"
                       />
                     ),
                   )}
