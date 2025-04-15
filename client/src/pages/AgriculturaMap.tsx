@@ -191,9 +191,9 @@ const AgriculturaMap = () => {
             </div>
 
             {trator.midias && trator.midias.length > 0 && (
-              <div className="media-container">
+              <div className={`media-container ${styles["media-container"]}`}>
                 <h4 className="font-semibold mb-2">Fotos/Vídeos:</h4>
-                <div className="grid gap-2">
+                <div className={`grid ${styles.grid}`}>
                   {trator.midias.map((url, index) =>
                     url.includes("/video/") ||
                     url.includes("/video/upload/") ? (
@@ -201,7 +201,7 @@ const AgriculturaMap = () => {
                         <video
                           src={url}
                           controls
-                          className="popup-media w-full rounded-lg"
+                          className={`${styles["popup-media"]} w-full rounded-lg`}
                         />
                       </div>
                     ) : (
@@ -209,7 +209,7 @@ const AgriculturaMap = () => {
                         key={index}
                         src={url}
                         alt="Mídia"
-                        className="popup-media w-full"
+                        className={`${styles["popup-media"]} w-full`}
                       />
                     ),
                   )}
