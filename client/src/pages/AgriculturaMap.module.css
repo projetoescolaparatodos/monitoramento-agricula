@@ -57,9 +57,11 @@
   object-fit: cover;
   border-radius: 8px;
   max-height: 150px;
+  max-width: 100%;
 }
 
 .popup-content.maximized .popup-media {
-  height: 180px;
-  max-height: 180px;
+  height: 160px;
+  max-height: 160px;
+  max-width: 100%;
 }
