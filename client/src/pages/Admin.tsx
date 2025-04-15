@@ -21,6 +21,17 @@ import Upload from "@/components/Upload";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useLocation } from "wouter";
 
+// Placeholder for EnhancedUpload component -  This needs to be replaced with the actual component from the admin folder.
+const EnhancedUpload = ({ onUpload }) => {
+  return (
+    <div>
+      {/*  Implementation for file and link upload would go here */}
+      <Upload onUpload={onUpload} /> {/*Temporary - Replace with actual EnhancedUpload functionality*/}
+    </div>
+  );
+};
+
+
 // Agriculture Tab
 const AgriculturaForm = () => {
   const [nome, setNome] = useState("");
@@ -443,7 +454,7 @@ const AgriculturaForm = () => {
 
             <div className="space-y-2">
               <Label>Fotos/Vídeos</Label>
-              <Upload onUpload={handleUpload} />
+              <EnhancedUpload onUpload={handleUpload} />
               <div className="grid grid-cols-4 gap-2 mt-2">
                 {midias.map((url, index) => (
                   <div key={index} className="relative group">
@@ -890,7 +901,7 @@ const PescaForm = () => {
 
             <div className="space-y-2">
               <Label>Fotos/Vídeos</Label>
-              <Upload onUpload={handleUpload} />
+              <EnhancedUpload onUpload={handleUpload} />
               <div className="grid grid-cols-4 gap-2 mt-2">
                 {midias.map((url, index) => (
                   <div key={index} className="relative group">
@@ -1357,7 +1368,7 @@ const PAAForm = () => {
 
             <div className="space-y-2">
               <Label>Fotos/Vídeos</Label>
-              <Upload onUpload={handleUpload} />
+              <EnhancedUpload onUpload={handleUpload} />
               <div className="grid grid-cols-4 gap-2 mt-2">
                 {midias.map((url, index) => (
                   <div key={index} className="relative group">
@@ -1478,7 +1489,7 @@ const Admin = () => {
         id: doc.id,
         ...doc.data(),
       })));
-      
+
       setAgriculturasAtividades(tratoresSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
