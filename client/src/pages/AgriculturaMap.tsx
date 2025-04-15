@@ -196,28 +196,67 @@ const AgriculturaMap = () => {
                 <h4 className="font-semibold mb-2">Fotos/Vídeos:</h4>
                 <div className={styles.grid}>
                   {trator.midias.map((url, index) => {
-                    // Verifica se é um vídeo usando extensões ou padrões de URL comuns
-                    const isVideo = 
+                    // Verifica se é um vídeo do YouTube
+                    const isYouTube = url.includes("youtube.com") || url.includes("youtu.be");
+                    
+                    if (isYouTube) {
+                      // Extrair o ID do vídeo
+                      let videoId = '';
+                      try {
+                        if (url.includes("youtu.be")) {
+                          videoId = url.split("/").pop() || '';
+                        } else {
+                          // Para links como youtube.com/watch?v=XYZ123
+                          const urlObj = new URL(url);
+                          videoId = urlObj.searchParams.get("v") || '';
+                        }
+                      } catch (e) {
+                        console.error("Erro ao processar URL do YouTube:", e);
+                      }
+                      
+                      if (videoId) {
+                        const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                        return (
+                          <iframe
+                            key={index}
+                            width="100%"
+                            height="240"
+                            src={embedUrl}
+                            title={`YouTube video ${index}`}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className={`${styles["popup-media"]} rounded-lg`}
+                          />
+                        );
+                      }
+                    }
+                    
+                    // Verifica se é um vídeo comum (não YouTube)
+                    const isRegularVideo = 
                       url.includes("/video/") || 
                       url.includes("/video/upload/") || 
                       url.endsWith(".mp4") || 
                       url.endsWith(".webm") || 
                       url.endsWith(".ogg") || 
-                      url.endsWith(".mov") || 
-                      url.includes("youtube.com") || 
-                      url.includes("youtu.be") || 
+                      url.endsWith(".mov") ||
                       url.includes("vimeo.com");
                     
-                    return isVideo ? (
-                      <div key={index} className="relative">
-                        <video
-                          src={url}
-                          controls
-                          preload="metadata"
-                          className={`${styles["popup-media"]}`}
-                        />
-                      </div>
-                    ) : (
+                    if (isRegularVideo) {
+                      return (
+                        <div key={index} className="relative">
+                          <video
+                            src={url}
+                            controls
+                            preload="metadata"
+                            className={`${styles["popup-media"]}`}
+                          />
+                        </div>
+                      );
+                    }
+                    
+                    // Se não for vídeo, exibe como imagem
+                    return (
                       <img
                         key={index}
                         src={url}

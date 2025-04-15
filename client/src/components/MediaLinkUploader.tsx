@@ -48,6 +48,15 @@ const MediaLinkUploader = ({ onLinkSubmit, title = "Adicionar mídia por link" }
       
     if (isVideo) {
       console.log("Link de vídeo detectado:", url);
+      
+      // Verificar se é vídeo do YouTube e normalizar a URL para formato de incorporação
+      if (url.includes("youtube.com") || url.includes("youtu.be")) {
+        toast({
+          title: "Vídeo do YouTube detectado",
+          description: "Os vídeos do YouTube serão exibidos em um player incorporado.",
+          variant: "default"
+        });
+      }
     }
     
     try {
