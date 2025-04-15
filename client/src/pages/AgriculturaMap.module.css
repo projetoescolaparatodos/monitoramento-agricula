@@ -10,8 +10,10 @@
 .popup-content.maximized {
   width: 90vw;
   max-width: 90vw;
+  display: flex;
   flex-direction: row;
   align-items: flex-start;
+  justify-content: space-between;
 }
 
 .popup-content .text-content {
@@ -20,9 +22,9 @@
 }
 
 .popup-content.maximized .text-content {
-  width: 40%;
-  max-width: 40%;
-  flex: 0 0 40%;
+  width: 38%;
+  max-width: 38%;
+  flex: 0 0 38%;
 }
 
 .popup-content .media-container {
@@ -31,10 +33,10 @@
 }
 
 .popup-content.maximized .media-container {
-  width: 60%;
-  max-width: 60%;
-  flex: 0 0 60%;
-  margin-left: 16px;
+  width: 58%;
+  max-width: 58%;
+  flex: 0 0 58%;
+  margin-left: 24px;
 }
 
 .popup-content .media-container .grid {
@@ -45,10 +47,11 @@
 }
 
 .popup-content.maximized .media-container .grid {
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   max-height: 75vh;
   overflow-y: auto;
   align-items: start;
+  gap: 16px;
 }
 
 .popup-media {

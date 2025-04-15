@@ -124,7 +124,7 @@ const AgriculturaMap = () => {
           }}
         >
           <div
-            className={`p-4 popup-content ${isMaximized ? "maximized" : ""}`}
+            className={`p-4 popup-content ${isMaximized ? styles.maximized : ""}`}
           >
             <button
               onClick={() => {
@@ -136,7 +136,7 @@ const AgriculturaMap = () => {
               <X className="h-4 w-4" /> 
             </button>
 
-            <div className="text-content">
+            <div className={`text-content ${styles["text-content"]}`}>
               <div className="flex justify-between items-center mb-2">
                 <h3 className="font-bold text-lg">{trator.nome}</h3>
               </div>
