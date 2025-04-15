@@ -990,8 +990,10 @@ const ChatbotWidget: React.FC = () => {
         <Button
           onClick={() => setIsOpen(true)}
           className="rounded-full w-14 h-14 bg-green-600 hover:bg-green-700 text-white shadow-lg"
+          aria-label="Abrir chat assistente"
         >
           <MessageCircle size={24} />
+          <span className="sr-only">Abrir chat assistente</span>
         </Button>
       ) : (
         <Card
