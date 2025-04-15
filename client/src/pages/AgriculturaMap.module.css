@@ -1,26 +1,43 @@
 
 .popup-content {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 16px;
 }
 
 .popup-content.maximized {
   width: 90vw;
+  flex-direction: row;
 }
 
 .popup-content .text-content {
   flex: 1;
-  max-width: 50%;
+}
+
+.popup-content.maximized .text-content {
+  max-width: 40%;
 }
 
 .popup-content .media-container {
   flex: 1;
-  max-width: 50%;
+}
+
+.popup-content.maximized .media-container {
+  max-width: 60%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .popup-content .media-container .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 8px;
+  height: 100%;
+}
+
+.popup-content.maximized .media-container .grid {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  max-height: 80vh;
+  overflow-y: auto;
 }
