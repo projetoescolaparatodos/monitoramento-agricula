@@ -28,7 +28,7 @@ const HeroSection = () => {
                   <div>Carregando...</div>
                 ) : (
                   <>
-                    <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 md:mb-6 leading-tight font-heading tracking-tight">
+                    <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 md:mb-6 leading-tight font-heading tracking-tight text-center">
                       {content?.title || "Secretaria Municipal de Agricultura, Pesca e Abastecimento"}
                     </h1>
                     <p className="text-lg md:text-2xl text-white/90 font-medium tracking-wide mb-6 md:mb-8 max-w-xl text-justify border-l-4 border-white/40 pl-4 py-2">
