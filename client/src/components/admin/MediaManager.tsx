@@ -33,7 +33,9 @@ const MediaManager = ({ onMediaUploaded, title = "Gerenciador de Mídia" }: Medi
             <TabsTrigger value="link">Link</TabsTrigger>
           </TabsList>
           <TabsContent value="file" className="mt-2">
-            <Upload onUpload={handleUpload} />
+            <div className="p-2">
+              <Upload onUpload={handleUpload} />
+            </div>
           </TabsContent>
           <TabsContent value="link" className="mt-2">
             <MediaLinkUploader onLinkSubmit={handleUpload} />
