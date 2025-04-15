@@ -16,7 +16,7 @@ const MediaLinkUploader = ({ onLinkSubmit, title = "Adicionar mídia por link" }
   const { toast } = useToast();
 
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Impede o comportamento padrão de submissão do formulário
     
     if (!url.trim()) {
       toast({

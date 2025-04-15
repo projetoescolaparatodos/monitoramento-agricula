@@ -21,15 +21,8 @@ import Upload from "@/components/Upload";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useLocation } from "wouter";
 
-// Placeholder for EnhancedUpload component -  This needs to be replaced with the actual component from the admin folder.
-const EnhancedUpload = ({ onUpload }) => {
-  return (
-    <div>
-      {/*  Implementation for file and link upload would go here */}
-      <Upload onUpload={onUpload} /> {/*Temporary - Replace with actual EnhancedUpload functionality*/}
-    </div>
-  );
-};
+// Importing the EnhancedUpload component
+import EnhancedUpload from "@/components/EnhancedUpload";
 
 
 // Agriculture Tab

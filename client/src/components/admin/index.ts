@@ -1,4 +1,5 @@
+import MediaFileUploader from "./MediaFileUploader";
+import MediaUploader from "./MediaUploader";
+import MediaManager from "./MediaManager";
 
-export { default as MediaUploader } from './MediaUploader';
-export { default as MediaFileUploader } from './MediaFileUploader';
-export { default as MediaManager } from './MediaManager';
+export { MediaFileUploader, MediaUploader, MediaManager };
