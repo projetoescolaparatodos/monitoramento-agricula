@@ -1,8 +1,6 @@
-import React, { useState } from "react";
+
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import MediaFileUploader from "./MediaFileUploader";
-import MediaLinkUploader from "../MediaLinkUploader";
 import { useToast } from "@/hooks/use-toast";
 import EnhancedUpload from "../EnhancedUpload";
 
@@ -17,10 +15,8 @@ const MediaManager = ({ onMediaUploaded, title = "Gerenciador de Mídia" }: Medi
   const handleUpload = (url: string) => {
     // Passar a URL diretamente para a função de callback
     onMediaUploaded(url);
-    toast({
-      title: "Sucesso",
-      description: "Mídia adicionada com sucesso",
-    });
+    
+    // Não precisamos mostrar toast aqui pois o EnhancedUpload já faz isso
   };
 
   return (
@@ -29,7 +25,7 @@ const MediaManager = ({ onMediaUploaded, title = "Gerenciador de Mídia" }: Medi
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <EnhancedUpload onUpload={handleUpload} />
+        <EnhancedUpload onUpload={handleUpload} title="Adicionar nova mídia" />
       </CardContent>
     </Card>
   );

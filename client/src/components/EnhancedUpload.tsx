@@ -3,10 +3,8 @@ import React, { useState, FormEvent } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Upload from "./Upload";
-import MediaLinkUploader from "./MediaLinkUploader";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "./ui/input";
-import { Button } from "./ui/button";
 
 interface EnhancedUploadProps {
   onUpload: (url: string) => void;
@@ -25,20 +23,7 @@ const EnhancedUpload = ({
     onUpload(url);
   };
 
-  const handleLinkSubmit = (url: string) => {
-    // Processa o link imediatamente, sem necessidade de submeter o formulário
-    onUpload(url);
-    
-    // Limpa o campo após o envio
-    setUrl('');
-    
-    toast({
-      title: "Link adicionado",
-      description: "O link da mídia foi adicionado com sucesso."
-    });
-  };
-
-  // Função que é acionada quando o valor da URL muda
+  // Função que processa o link automaticamente quando ele é válido
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newUrl = e.target.value;
     setUrl(newUrl);
@@ -50,16 +35,48 @@ const EnhancedUpload = ({
     }
   };
 
+  const handleLinkSubmit = (url: string) => {
+    if (!url.trim()) {
+      toast({
+        title: "Erro",
+        description: "Por favor, insira uma URL válida",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      toast({
+        title: "Erro",
+        description: "A URL deve começar com http:// ou https://",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Processa o link imediatamente, sem necessidade de submeter o formulário
+    onUpload(url);
+    
+    // Feedback visual para o usuário
+    toast({
+      title: "Link adicionado",
+      description: "O link da mídia foi adicionado com sucesso."
+    });
+    
+    // Limpa o campo após o envio
+    setUrl('');
+  };
+
   return (
-    <Card className="w-full mb-4">
-      <CardHeader className="py-3">
-        <CardTitle className="text-base">{title}</CardTitle>
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
       </CardHeader>
-      <CardContent className="py-2">
-        <Tabs defaultValue="file" className="w-full">
-          <TabsList className="w-full grid grid-cols-2">
-            <TabsTrigger value="file">Upload de Arquivo</TabsTrigger>
-            <TabsTrigger value="link">Link Externo</TabsTrigger>
+      <CardContent>
+        <Tabs defaultValue="file">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="file">Arquivo</TabsTrigger>
+            <TabsTrigger value="link">Link</TabsTrigger>
           </TabsList>
           <TabsContent value="file" className="mt-2">
             <Upload onUpload={handleFileUploaded} />
@@ -82,9 +99,6 @@ const EnhancedUpload = ({
       </CardContent>
     </Card>
   );
-};
-
-export default EnhancedUpload;
 };
 
 export default EnhancedUpload;
