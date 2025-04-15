@@ -877,7 +877,7 @@ const ChatbotWidget: React.FC = () => {
           errorMessage =
             "Para informações sobre serviços de agricultura, você pode preencher nosso formulário de solicitação de serviços ou formulário completo. Deseja acessar algum deles?";
           setSuggestions([
-            { text: "Formulário de Agricultura", action: ""Solicitar serviços" },
+            { text: "Formulário de Agricultura", action: "Solicitar serviços" },
             { text: "Formulário Completo", action: "Cadastro Completo" },
           ]);
         } else if (
