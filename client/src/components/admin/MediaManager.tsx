@@ -15,6 +15,7 @@ const MediaManager = ({ onMediaUploaded, title = "Gerenciador de Mídia" }: Medi
   const { toast } = useToast();
 
   const handleUpload = (url: string) => {
+    // Passar a URL diretamente para a função de callback
     onMediaUploaded(url);
     toast({
       title: "Sucesso",
