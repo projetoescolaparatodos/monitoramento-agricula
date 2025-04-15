@@ -1,4 +1,3 @@
-
 import { SuggestionButton } from "@/components/chat/ChatbotWidget";
 
 interface KeywordMap {
@@ -39,7 +38,7 @@ export const defaultKeywordMap: KeywordMap = {
     action: "fluxoAgricultura",
     score: 2
   },
-  
+
   // Pesca
   "licenciamento pesca": {
     responses: [
@@ -47,7 +46,7 @@ export const defaultKeywordMap: KeywordMap = {
       "Podemos ajudar com todo processo de licenciamento ambiental para pesca."
     ],
     suggestions: [
-      { text: "Formulário de Pesca", action: "Pré-Cadastro" }
+      { text: "Formulário de Pesca", action: "Solicitar serviços" }
     ],
     score: 3
   },
@@ -59,7 +58,7 @@ export const defaultKeywordMap: KeywordMap = {
     action: "fluxoPesca",
     score: 3
   },
-  
+
   // PAA
   "vender para o governo": {
     responses: [
@@ -69,7 +68,7 @@ export const defaultKeywordMap: KeywordMap = {
     action: "fluxoPAA",
     score: 3
   },
-  
+
   // Genéricos
   "horário de atendimento": {
     responses: [
@@ -91,7 +90,20 @@ export const defaultKeywordMap: KeywordMap = {
       "Coordenadores: Pesca (Rosiano): (93) 99156-4138, Agricultura (Jéssica): (93) 9129-1357, PAA (Silas): (93) 99144-0173."
     ],
     score: 1
-  }
+  },
+  "formulário": {
+    responses: [
+      "Temos formulários para solicitar serviços (simplificados) e formulários completos para os setores de Agricultura, Pesca e PAA. Qual você deseja acessar?",
+      "Você pode escolher entre formulários para solicitar serviços ou cadastros completos. Qual setor lhe interessa?"
+    ],
+    score: 0.8,
+    suggestions: [
+      { text: "Agricultura - Solicitar serviços", action: "Solicitar serviços" },
+      { text: "Agricultura - Completo", action: "Cadastro Completo" },
+      { text: "Pesca - Solicitar serviços", action: "Solicitar serviços" },
+      { text: "Pesca - Completo", action: "Cadastro Completo" }
+    ]
+  },
 };
 
 // Este será o mapa de palavras-chave utilizado pelo sistema
@@ -105,43 +117,43 @@ export let keywordMap: KeywordMap = { ...defaultKeywordMap };
 export function findBestKeywordMatch(userInput: string): string | null {
   const normalizedInput = userInput.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   let bestMatch: { keyword: string; score: number } | null = null;
-  
+
   // Função aprimorada para calcular a pontuação de correspondência
   const calculateMatchScore = (input: string, keyword: string, baseScore: number): number => {
     let score = baseScore;
-    
+
     // Dividir em palavras
     const inputWords = input.split(/\s+/);
     const keywordWords = keyword.split(/\s+/);
-    
+
     // CORRESPONDÊNCIA EXATA - Alta prioridade
     if (input === keyword) {
       score += 20; // Pontuação muito alta para correspondência exata
       console.log(`  💯 Match exato "${keyword}" = +20`);
     }
-    
+
     // CORRESPONDÊNCIA DE FRASE - Alta prioridade
     if (input.includes(keyword)) {
       // Quanto maior a palavra-chave, maior a pontuação (mais específica)
       const phraseScore = 10 + (keyword.length / 10);
       score += phraseScore;
       console.log(`  🔤 Contém frase "${keyword}" = +${phraseScore.toFixed(1)}`);
-      
+
       // Bônus para palavra no início da frase (mais relevante)
       if (input.startsWith(keyword)) {
         score += 5;
         console.log(`  🔝 Início da frase "${keyword}" = +5`);
       }
     }
-    
+
     // CORRESPONDÊNCIA DE PALAVRA COMPLETA - Média prioridade
     // Verificar se as palavras da keyword aparecem como palavras completas no input
     if (keywordWords.length > 0) {
       let fullWordsFound = 0;
-      
+
       for (const keywordWord of keywordWords) {
         if (keywordWord.length < 3) continue; // Ignorar palavras muito curtas
-        
+
         const wordRegex = new RegExp(`\\b${keywordWord}\\b`, 'i');
         if (wordRegex.test(input)) {
           fullWordsFound++;
@@ -149,7 +161,7 @@ export function findBestKeywordMatch(userInput: string): string | null {
           score += 2 + (keywordWord.length / 10);
         }
       }
-      
+
       if (fullWordsFound > 0) {
         // Bônus para múltiplas palavras encontradas (melhor contexto)
         if (fullWordsFound > 1) {
@@ -159,7 +171,7 @@ export function findBestKeywordMatch(userInput: string): string | null {
         } else {
           console.log(`  📝 1 palavra completa = +2`);
         }
-        
+
         // Super bônus quando TODAS as palavras-chave são encontradas
         if (fullWordsFound === keywordWords.length && keywordWords.length > 1) {
           score += 8;
@@ -167,24 +179,24 @@ export function findBestKeywordMatch(userInput: string): string | null {
         }
       }
     }
-    
+
     // Normalizar pontuação com base no tamanho da entrada
     // Isso evita que entradas longas tenham vantagem injusta
     const lengthNormalization = Math.min(1, 15 / Math.max(1, input.length));
     score *= (0.7 + (0.3 * lengthNormalization));
-    
+
     return score;
   };
 
   console.log(`🔍 Analisando palavras-chave para: "${normalizedInput}"`);
-  
+
   // Verificar cada palavra-chave no mapa
   for (const keyword of Object.keys(keywordMap)) {
     const normalizedKeyword = keyword.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    
+
     // Verificar correspondência de substring ou palavras
     let matchFound = false;
-    
+
     // Correspondência de substring
     if (normalizedInput.includes(normalizedKeyword)) {
       matchFound = true;
@@ -194,20 +206,20 @@ export function findBestKeywordMatch(userInput: string): string | null {
       if (keywordWords.length > 0) {
         const inputWords = normalizedInput.split(/\s+/);
         const foundWords = keywordWords.filter(kw => inputWords.some(iw => iw.includes(kw) || kw.includes(iw)));
-        
+
         // Se encontrou pelo menos metade das palavras ou uma palavra longa
         matchFound = foundWords.length >= Math.ceil(keywordWords.length / 2) || 
                      foundWords.some(w => w.length > 6 && normalizedInput.includes(w));
       }
     }
-    
+
     if (matchFound) {
       console.log(`Avaliando: "${keyword}"`);
       const baseScore = keywordMap[keyword].score;
       const currentScore = calculateMatchScore(normalizedInput, normalizedKeyword, baseScore);
-      
+
       console.log(`  Base: ${baseScore}, Total: ${currentScore.toFixed(1)}`);
-      
+
       if (!bestMatch || currentScore > bestMatch.score) {
         bestMatch = { keyword, score: currentScore };
       }
@@ -235,7 +247,7 @@ export function getRandomResponse(keyword: string): string | null {
   if (!entry || !entry.responses || entry.responses.length === 0) {
     return null;
   }
-  
+
   const randomIndex = Math.floor(Math.random() * entry.responses.length);
   return entry.responses[randomIndex];
 }
@@ -270,7 +282,7 @@ export function extractKeywords(text: string): string[] {
     'ao', 'aos', 'ou', 'um', 'uma', 'uns', 'umas', 'me', 'mim', 'meu', 'minha',
     'seu', 'sua', 'seus', 'suas', 'não', 'sim', 'talvez'
   ];
-  
+
   return text
     .toLowerCase()
     .normalize("NFD")
@@ -287,7 +299,7 @@ export function extractKeywords(text: string): string[] {
  */
 export function analyzeKeywordFrequency(texts: string[]): Map<string, number> {
   const frequencyMap = new Map<string, number>();
-  
+
   texts.forEach(text => {
     const keywords = extractKeywords(text);
     keywords.forEach(keyword => {
@@ -295,7 +307,7 @@ export function analyzeKeywordFrequency(texts: string[]): Map<string, number> {
       frequencyMap.set(keyword, count + 1);
     });
   });
-  
+
   return frequencyMap;
 }
 
@@ -307,10 +319,10 @@ export async function loadKeywordsFromFirestore(db: any) {
   try {
     const { collection, getDocs } = await import('firebase/firestore');
     const keywordsSnapshot = await getDocs(collection(db, 'keywords'));
-    
+
     // Começamos com as palavras-chave padrão
     const updatedKeywordMap = { ...defaultKeywordMap };
-    
+
     // Adicionamos ou substituímos com as palavras-chave do Firestore
     keywordsSnapshot.forEach(doc => {
       const data = doc.data();
@@ -323,7 +335,7 @@ export async function loadKeywordsFromFirestore(db: any) {
         };
       }
     });
-    
+
     // Atualizamos o mapa de palavras-chave
     keywordMap = updatedKeywordMap;
     console.log('Palavras-chave carregadas do Firestore:', Object.keys(keywordMap).length);

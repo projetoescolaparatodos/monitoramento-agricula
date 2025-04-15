@@ -64,12 +64,12 @@ const fluxoConversa = {
       "- Análise de solo",
       "- Distribuição de mudas",
       "Temos dois tipos de formulários disponíveis:",
-      "- [Pré-Cadastro]: formulário rápido e simples",
+      "- [Solicitar serviços]: formulário rápido e simples",
       "- [Cadastro Completo]: formulário detalhado com todas as informações",
       "O que deseja fazer?",
     ],
     acoes: {
-      "Pré-Cadastro": "abrirFormulario('agricultura')",
+      "Solicitar serviços": "abrirFormulario('agricultura')",
       "Cadastro Completo": "abrirFormulario('agricultura-completo')",
       "Mais Informações": "detalhesAgricultura",
     },
@@ -82,12 +82,12 @@ const fluxoConversa = {
       "- Assistência técnica especializada",
       "- Programas de incentivo à produção",
       "Temos dois tipos de formulários disponíveis:",
-      "- 1 [Pré-Cadastro / Solicitar serviços]: formulário rápido e simples, ideal para quem ja tem cadastro na secretaria",
+      "- 1 [Solicitar serviços]: formulário rápido e simples, ideal para quem ja tem cadastro na secretaria",
       "- 2 [Cadastro Completo]: formulário detalhado com todas as informações",
       "O que deseja fazer?",
     ],
     acoes: {
-      "1 Pré-Cadastro": "abrirFormulario('pesca')",
+      "1 Solicitar serviços": "abrirFormulario('pesca')",
       "2 Cadastro Completo": "abrirFormulario('pesca-completo')",
       "Mais Informações": "detalhesPesca",
     },
@@ -132,13 +132,13 @@ const fluxoConversa = {
       "5. Distribuição de Mudas: Espécies frutíferas e florestais nativas",
       "",
       "📝 Sobre nossos formulários:",
-      "- Pré-Cadastro: Formulário rápido com dados básicos (nome, contato, propriedade)",
+      "- Solicitar serviços: Formulário rápido com dados básicos (nome, contato, propriedade)",
       "- Cadastro Completo: Formulário detalhado com todas as informações (documentação, dados da propriedade, necessidades específicas)",
       "",
       "Qual opção você prefere?",
     ],
     acoes: {
-      "Pré-Cadastro": "abrirFormulario('agricultura')",
+      "Solicitar serviços": "abrirFormulario('agricultura')",
       "Cadastro Completo": "abrirFormulario('agricultura-completo')",
       Voltar: "fluxoAgricultura",
     },
@@ -152,13 +152,13 @@ const fluxoConversa = {
       "4. Incentivos: Acesso a programas de crédito e subsídios",
       "",
       "📝 Sobre nossos formulários:",
-      "- Pré-Cadastro: Formulário rápido com dados básicos do pescador e atividade",
+      "- Solicitar serviços: Formulário rápido com dados básicos do pescador e atividade",
       "- Cadastro Completo: Formulário detalhado com todas as informações (estruturas, espécies, situação legal, etc.)",
       "",
       "Qual opção você prefere?",
     ],
     acoes: {
-      "Pré-Cadastro": "abrirFormulario('pesca')",
+      "Solicitar serviços": "abrirFormulario('pesca')",
       "Cadastro Completo": "abrirFormulario('pesca-completo')",
       Voltar: "fluxoPesca",
     },
@@ -357,7 +357,7 @@ const ChatbotWidget: React.FC = () => {
       );
     } else {
       addMessage(
-        `Estou abrindo o formulário de pré-cadastro do setor de ${setor} em uma nova aba.`,
+        `Estou abrindo o formulário de solicitação de serviços do setor de ${setor} em uma nova aba.`,
         false,
       );
     }
@@ -375,9 +375,9 @@ const ChatbotWidget: React.FC = () => {
       Setor Ativo: ${setorAtivo}
       Últimas Mensagens: ${JSON.stringify(messages.slice(-3))}
       Formulários Disponíveis:
-      - Formulário de Pré-Cadastro de Agricultura
+      - Formulário de Solicitação de Serviços de Agricultura
       - Formulário de Cadastro Completo de Agricultura
-      - Formulário de Pré-Cadastro de Pesca
+      - Formulário de Solicitação de Serviços de Pesca
       - Formulário de Cadastro Completo de Pesca
       - Formulário do PAA
       Dados do Município: Vitória do Xingu/PA
@@ -875,9 +875,9 @@ const ChatbotWidget: React.FC = () => {
           lowercaseMsg.includes("trator")
         ) {
           errorMessage =
-            "Para informações sobre serviços de agricultura, você pode preencher nosso formulário de pré-cadastro ou formulário completo. Deseja acessar algum deles?";
+            "Para informações sobre serviços de agricultura, você pode preencher nosso formulário de solicitação de serviços ou formulário completo. Deseja acessar algum deles?";
           setSuggestions([
-            { text: "Formulário de Agricultura", action: "Pré-Cadastro" },
+            { text: "Formulário de Agricultura", action: ""Solicitar serviços" },
             { text: "Formulário Completo", action: "Cadastro Completo" },
           ]);
         } else if (
@@ -886,9 +886,9 @@ const ChatbotWidget: React.FC = () => {
           lowercaseMsg.includes("pescar")
         ) {
           errorMessage =
-            "Para informações sobre serviços de pesca, você pode preencher nosso formulário de pré-cadastro ou formulário completo. Deseja acessar algum deles?";
+            "Para informações sobre serviços de pesca, você pode preencher nosso formulário de solicitação de serviços ou formulário completo. Deseja acessar algum deles?";
           setSuggestions([
-            { text: "Formulário de Pesca", action: "Pré-Cadastro" },
+            { text: "Formulário de Pesca", action: "Solicitar serviços" },
             { text: "Formulário Completo", action: "Cadastro Completo" },
           ]);
         } else if (
@@ -1217,16 +1217,14 @@ const ChatbotWidget: React.FC = () => {
                       </h5>
                       <div className="space-y-1 mb-2">
                         <p>
-                          <span className="font-medium">Pré-Cadastro:</span>{" "}
-                          Formulário rápido e simplificado para um primeiro
-                          contato
+                          <span className="font-medium">Solicitar serviços:</span>{" "}
+                          Formulário rápido e simplificado, ideal para quem já possui cadastro na secretaria
                         </p>
                         <p>
                           <span className="font-medium">
                             Cadastro Completo:
                           </span>{" "}
-                          Formulário detalhado com todas as informações
-                          necessárias
+                          Formulário detalhado com todas as informações necessárias, ideal para um primeiro contato com a secretaria
                         </p>
                       </div>
                     </div>
@@ -1238,7 +1236,7 @@ const ChatbotWidget: React.FC = () => {
                     onClick={() => abrirFormulario("agricultura")}
                     className="bg-green-600 hover:bg-green-700"
                   >
-                    Pré-Cadastro
+                    Solicitar serviços
                   </Button>
                   <Button
                     onClick={() => abrirFormulario("agricultura-completo")}
@@ -1277,17 +1275,14 @@ const ChatbotWidget: React.FC = () => {
                       </h5>
                       <div className="space-y-1 mb-2">
                         <p>
-                          <span className="font-medium">Pré-Cadastro:</span>{" "}
-                          Formulário rápido e simplificado para aqueles
-                          agricultores que já possuem cadastro e desejam
-                          solicitar serviços da secretaria.
+                          <span className="font-medium">Solicitar serviços:</span>{" "}
+                          Formulário rápido e simplificado, ideal para quem já possui cadastro na secretaria
                         </p>
                         <p>
                           <span className="font-medium">
                             Cadastro Completo:
                           </span>{" "}
-                          Formulário detalhado com estruturas, espécies e
-                          situação legal.
+                          Formulário detalhado com todas as informações necessárias, ideal para um primeiro contato com a secretaria
                         </p>
                       </div>
                     </div>
@@ -1299,7 +1294,7 @@ const ChatbotWidget: React.FC = () => {
                     onClick={() => abrirFormulario("pesca")}
                     className="bg-blue-600 hover:bg-blue-700"
                   >
-                    Pré-Cadastro
+                    Solicitar serviços
                   </Button>
                   <Button
                     onClick={() => abrirFormulario("pesca-completo")}
