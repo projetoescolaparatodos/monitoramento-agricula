@@ -6,7 +6,8 @@ import {
   GoogleMap,
   MarkerF,
   InfoWindow,
-  KmlLayer
+  KmlLayer,
+  Polygon
 } from "@react-google-maps/api";
 import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -45,6 +46,7 @@ const PescaMap = () => {
   const [selectedMarker, setSelectedMarker] = useState<Pesca | null>(null);
   const [filtro, setFiltro] = useState("todos");
   const [isMaximized, setIsMaximized] = useState(false);
+  const [municipioBoundary, setMunicipioBoundary] = useState<google.maps.LatLng[]>([]);
 
   const mapContainerStyle = {
     width: "100%",
@@ -61,6 +63,17 @@ const PescaMap = () => {
     }),
     [],
   );
+  
+  // Criar um polígono que representa a área externa ao município
+  const outerBounds = useMemo(() => {
+    // Pontos que formam um retângulo maior que a área do mapa
+    return [
+      { lat: bounds.north + 1, lng: bounds.west - 1 },
+      { lat: bounds.north + 1, lng: bounds.east + 1 },
+      { lat: bounds.south - 1, lng: bounds.east + 1 },
+      { lat: bounds.south - 1, lng: bounds.west - 1 }
+    ];
+  }, [bounds]);
 
   const fetchPesqueiros = useCallback(async () => {
     try {
@@ -375,6 +388,17 @@ const PescaMap = () => {
           options={{
             preserveViewport: true,
             suppressInfoWindows: true,
+          }}
+        />
+        
+        {/* Polígono com máscara invertida para escurecer a área fora do município */}
+        <Polygon
+          paths={[outerBounds]}
+          options={{
+            fillColor: "#000000",
+            fillOpacity: 0.35,
+            strokeWeight: 0,
+            clickable: false,
           }}
         />
       </GoogleMap>
