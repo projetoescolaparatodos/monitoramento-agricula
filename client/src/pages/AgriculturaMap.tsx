@@ -63,6 +63,18 @@ const AgriculturaMap = () => {
     [],
   );
   
+  // Definir polígono aproximado de Vitória do Xingu (simplificado)
+  const municipioBoundary = useMemo(() => {
+    // Essas coordenadas são aproximadas para o município de Vitória do Xingu
+    // Substitua por coordenadas mais precisas se necessário
+    return [
+      { lat: -2.8, lng: -52.0 },
+      { lat: -2.9, lng: -51.9 },
+      { lat: -3.0, lng: -52.0 },
+      { lat: -2.9, lng: -52.1 },
+    ];
+  }, []);
+
   // Criar um polígono que representa a área externa ao município
   const outerBounds = useMemo(() => {
     // Pontos que formam um retângulo maior que a área do mapa
@@ -376,7 +388,7 @@ const AgriculturaMap = () => {
         
         {/* Polígono com máscara invertida para escurecer a área fora do município */}
         <Polygon
-          paths={[outerBounds]}
+          paths={[outerBounds, municipioBoundary]}
           options={{
             fillColor: "#000000",
             fillOpacity: 0.35,
