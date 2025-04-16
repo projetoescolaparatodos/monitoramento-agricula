@@ -447,7 +447,7 @@ const PescaMap = () => {
           }}
         />
         
-        {/* Máscara escura aplicada FORA do município (solução invertida) */}
+        {/* Máscara escura aplicada FORA do município (sempre visível) */}
         <Polygon
           paths={[
             worldBounds, // Primeiro caminho: mundo inteiro
@@ -456,7 +456,7 @@ const PescaMap = () => {
           options={maskStyle}
         />
         
-        {/* Contorno do município */}
+        {/* Contorno do município (opcional, controlado pelo filtro) */}
         {showBoundary && (
           <Polygon
             paths={municipioBoundary}
@@ -470,7 +470,7 @@ const PescaMap = () => {
             onClick={() => setShowBoundary(!showBoundary)}
             className={styles["boundary-toggle"]}
           >
-            {showBoundary ? "Ocultar Limite Municipal" : "Mostrar Limite Municipal"}
+            {showBoundary ? "Ocultar Contorno Municipal" : "Mostrar Contorno Municipal"}
           </button>
         </div>
         
