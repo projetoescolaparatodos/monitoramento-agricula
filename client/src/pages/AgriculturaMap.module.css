@@ -34,24 +34,6 @@
   width: 80vw;
   height: auto;
   display: flex;
-
-.boundary-toggle {
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 8px 12px;
-  border-radius: 4px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-.boundary-toggle:hover {
-  background-color: white;
-}
-
-
   flex-direction: row;
   gap: 1.5rem;
   max-height: 80vh;
@@ -84,7 +66,36 @@
   border-radius: 0.5rem;
 }
 
-/* Quando estiver maximizado, reorganize a grade */
+/* When maximized, reorganize the grid */
 .maximized .media-container .grid {
   grid-template-columns: 1fr 1fr;
+}
+
+.boundary-toggle {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 8px 16px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.blurred-overlay {
+  filter: blur(4px); /* Increased blur intensity */
+  transition: filter 0.3s ease;
+}
+
+/* Assuming the municipality area is represented by a class .municipality-area */
+.municipality-area {
+  filter: brightness(0.7) saturate(0.5); /* Darker and less saturated */
+  /* Add the blur class to apply blur effect */
+  /* Adjust brightness and saturation to fine-tune darkness */
+}
+
+.municipality-area.blurred-overlay {
+    filter: blur(4px) brightness(0.7) saturate(0.5);
 }

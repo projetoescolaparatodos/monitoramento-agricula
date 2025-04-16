@@ -1,4 +1,3 @@
-
 .popup-content {
   display: flex;
   flex-direction: column;
@@ -88,4 +87,9 @@
 /* Quando estiver maximizado, reorganize a grade */
 .maximized .media-container .grid {
   grid-template-columns: 1fr 1fr;
+}
+
+.blurred-overlay {
+  filter: blur(2px);
+  transition: filter 0.3s ease;
 }
