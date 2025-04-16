@@ -447,20 +447,12 @@ const PescaMap = () => {
           }}
         />
         
-        {/* Polígono transparente que define a área do município (área interna visível) */}
+        {/* Máscara escura aplicada FORA do município (solução invertida) */}
         <Polygon
-          paths={municipioBoundary}
-          options={{
-            fillColor: 'transparent',
-            fillOpacity: 0,
-            strokeWeight: 0,
-            clickable: false
-          }}
-        />
-        
-        {/* Máscara escura aplicada inversamente - apenas fora dos limites do município */}
-        <Polygon
-          paths={[worldBounds, municipioBoundary]}
+          paths={[
+            worldBounds, // Primeiro caminho: mundo inteiro
+            [...municipioBoundary].reverse() // Segundo caminho: município em ordem inversa
+          ]}
           options={maskStyle}
         />
         
