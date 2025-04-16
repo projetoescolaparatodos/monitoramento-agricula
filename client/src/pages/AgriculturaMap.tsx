@@ -7,7 +7,7 @@ import {
   useLoadScript,
   GoogleMap,
   MarkerF,
-  InfoWindow,
+  InfoWindow, KmlLayer
 } from "@react-google-maps/api";
 import { Loader2, X } from "lucide-react"; 
 import { Card } from "@/components/ui/card";
@@ -346,6 +346,14 @@ const AgriculturaMap = () => {
           />
         ))}
         {selectedMarker && renderInfoWindow(selectedMarker)}
+        
+        <KmlLayer
+          url="https://firebasestorage.googleapis.com/v0/b/transparencia-agricola.appspot.com/o/uploads%2Fvitoria-xingu.kml?alt=media"
+          options={{
+            preserveViewport: true,
+            suppressInfoWindows: true,
+          }}
+        />
       </GoogleMap>
     </div>
   );
