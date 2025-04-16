@@ -3,6 +3,7 @@ import "@dotlottie/player-component";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../utils/firebase";
+import { useKmlBoundary } from "../hooks/useKmlBoundary";
 import {
   useLoadScript,
   GoogleMap,
@@ -66,18 +67,28 @@ const AgriculturaMap = () => {
   const [showBoundary, setShowBoundary] = useState(true);
   const [mapLoaded, setMapLoaded] = useState(false);
   
-  // Definir polígono aproximado de Vitória do Xingu (mais detalhado)
+  // URL do KML no Firebase Storage
+  const kmlUrl = "https://firebasestorage.googleapis.com/v0/b/transparencia-agricola.appspot.com/o/uploads%2Fvitoria-xingu.kml?alt=media";
+  
+  // Usando o hook personalizado para carregar o KML
+  const { boundaryCoordinates, loading: loadingKml, error: kmlError } = useKmlBoundary(kmlUrl);
+  
+  // Fallback para coordenadas caso o KML não seja carregado
+  const fallbackBoundary = useMemo(() => [
+    { lat: -2.85, lng: -52.05 },
+    { lat: -2.88, lng: -51.95 },
+    { lat: -2.93, lng: -51.98 },
+    { lat: -2.91, lng: -52.07 },
+    { lat: -2.85, lng: -52.05 }, // Fechar o polígono
+  ], []);
+  
+  // Usar coordenadas do KML se disponíveis, senão usar fallback
   const municipioBoundary = useMemo(() => {
-    // Essas coordenadas são aproximadas para o município de Vitória do Xingu
-    // Substitua por coordenadas mais precisas se necessário
-    return [
-      { lat: -2.85, lng: -52.05 },
-      { lat: -2.88, lng: -51.95 },
-      { lat: -2.93, lng: -51.98 },
-      { lat: -2.91, lng: -52.07 },
-      { lat: -2.85, lng: -52.05 }, // Fechar o polígono
-    ];
-  }, []);
+    if (boundaryCoordinates.length > 0) {
+      return boundaryCoordinates;
+    }
+    return fallbackBoundary;
+  }, [boundaryCoordinates, fallbackBoundary]);
 
   // Coordenadas para o polígono que cobre a área externa (mundo)
   const worldBounds = useMemo(() => [
@@ -91,7 +102,7 @@ const AgriculturaMap = () => {
   // Estilo para a área externa escurecida
   const maskStyle = useMemo(() => ({
     fillColor: '#000000',
-    fillOpacity: 0.35,
+    fillOpacity: 0.5, // Aumentado para 50% conforme solicitado
     strokeWeight: 0,
     clickable: false
   }), []);
@@ -103,6 +114,7 @@ const AgriculturaMap = () => {
     strokeColor: '#FF0000',
     strokeOpacity: 0.8,
     strokeWeight: 2,
+    strokeDasharray: [4, 4], // Linha tracejada para visual mais profissional
     clickable: false
   }), []);
 
@@ -430,15 +442,22 @@ const AgriculturaMap = () => {
           />
         )}
         
-        {/* Botão de controle para o limite */}
-        <div className="absolute top-20 right-4 z-50 bg-white p-2 rounded shadow-lg">
+        {/* Botão de controle para o limite com estilo profissional */}
+        <div className="absolute top-20 right-4 z-50">
           <button
             onClick={() => setShowBoundary(!showBoundary)}
-            className="flex items-center text-sm"
+            className={styles["boundary-toggle"]}
           >
-            {showBoundary ? "Ocultar Limite" : "Mostrar Limite"}
+            {showBoundary ? "Ocultar Limite Municipal" : "Mostrar Limite Municipal"}
           </button>
         </div>
+        
+        {/* Mensagem de erro de carregamento de KML, se houver */}
+        {kmlError && (
+          <div className="absolute top-28 right-4 z-50 bg-red-100 text-red-800 p-2 rounded text-sm">
+            Usando limites aproximados. {kmlError}
+          </div>
+        )}
       </GoogleMap>
     </div>
   );
