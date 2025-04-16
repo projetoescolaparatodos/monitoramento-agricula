@@ -447,7 +447,7 @@ const PescaMap = () => {
           }}
         />
         
-        {/* Polígono transparente para a área do município */}
+        {/* Polígono transparente que define a área do município (área interna visível) */}
         <Polygon
           paths={municipioBoundary}
           options={{
@@ -458,7 +458,7 @@ const PescaMap = () => {
           }}
         />
         
-        {/* Máscara escura aplicada fora do município */}
+        {/* Máscara escura aplicada inversamente - apenas fora dos limites do município */}
         <Polygon
           paths={[worldBounds, municipioBoundary]}
           options={maskStyle}

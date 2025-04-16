@@ -9,7 +9,7 @@ interface LatLng {
 }
 
 // Coordenadas precisas do município de Vitória do Xingu
-// Estas coordenadas são extraídas diretamente do KML
+// Estas coordenadas são extraídas do arquivo KML e são usadas para a máscara invertida
 const FIXED_MUNICIPALITY_COORDINATES: LatLng[] = [
   { lat: -2.8017371803446, lng: -52.0350368520088 },
   { lat: -2.81587473183036, lng: -52.0297256549434 },
