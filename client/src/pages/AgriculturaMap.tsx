@@ -99,18 +99,18 @@ const AgriculturaMap = () => {
     { lat: -90, lng: -180 }, // Fechar o polígono
   ], []);
 
-  // Estilo para a área externa escurecida
+  // Estilo para a área externa (agora clara)
   const maskStyle = useMemo(() => ({
-    fillColor: '#000000',
-    fillOpacity: 0.35, // Reduzido para 35% para melhor contraste
+    fillColor: '#FFFFFF',
+    fillOpacity: 0.1, // Opacidade baixa para ficar clara
     strokeWeight: 0,
     clickable: false
   }), []);
 
-  // Estilo para o contorno do município - sem preenchimento
+  // Estilo para o município (agora escuro com contorno)
   const boundaryStyle = useMemo(() => ({
-    fillColor: 'transparent',
-    fillOpacity: 0,
+    fillColor: '#000000',
+    fillOpacity: 0.35, // Opacidade média para escurecer o município
     strokeColor: '#FF0000',
     strokeOpacity: 0.8,
     strokeWeight: 2,
