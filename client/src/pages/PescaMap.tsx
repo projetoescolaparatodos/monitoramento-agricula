@@ -6,6 +6,7 @@ import {
   GoogleMap,
   MarkerF,
   InfoWindow,
+  KmlLayer
 } from "@react-google-maps/api";
 import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -368,6 +369,14 @@ const PescaMap = () => {
           />
         ))}
         {selectedMarker && renderInfoWindow(selectedMarker)}
+        
+        <KmlLayer
+          url="https://firebasestorage.googleapis.com/v0/b/transparencia-agricola.appspot.com/o/uploads%2Fvitoria-xingu.kml?alt=media"
+          options={{
+            preserveViewport: true,
+            suppressInfoWindows: true,
+          }}
+        />
       </GoogleMap>
     </div>
   );
