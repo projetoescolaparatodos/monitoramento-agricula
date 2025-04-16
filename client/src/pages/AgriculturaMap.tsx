@@ -45,7 +45,6 @@ const AgriculturaMap = () => {
   const [selectedMarker, setSelectedMarker] = useState<Trator | null>(null);
   const [filtro, setFiltro] = useState("todos");
   const [isMaximized, setIsMaximized] = useState(false);
-  const [municipioBoundary, setMunicipioBoundary] = useState<google.maps.LatLng[]>([]);
 
   const mapContainerStyle = {
     width: "100%",

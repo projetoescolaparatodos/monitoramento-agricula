@@ -46,7 +46,6 @@ const PescaMap = () => {
   const [selectedMarker, setSelectedMarker] = useState<Pesca | null>(null);
   const [filtro, setFiltro] = useState("todos");
   const [isMaximized, setIsMaximized] = useState(false);
-  const [municipioBoundary, setMunicipioBoundary] = useState<google.maps.LatLng[]>([]);
 
   const mapContainerStyle = {
     width: "100%",
