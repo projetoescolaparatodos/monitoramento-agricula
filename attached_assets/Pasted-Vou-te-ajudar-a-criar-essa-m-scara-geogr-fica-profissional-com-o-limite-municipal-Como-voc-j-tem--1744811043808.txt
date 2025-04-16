@@ -1,0 +1,142 @@
+Vou te ajudar a criar essa máscara geográfica profissional com o limite municipal. Como você já tem o KML, vamos implementar a solução completa:
+1. Primeiro, a solução com máscara invertida (área externa escurecida):
+jsx
+Copy
+
+// Adicione estas interfaces e estados
+interface PolygonCoordinates {
+  lat: number;
+  lng: number;
+}
+
+const AgriculturaMap = () => {
+  // ... seus estados existentes
+  
+  const [municipioPolygon, setMunicipioPolygon] = useState<PolygonCoordinates[][]>([]);
+  const [showBoundary, setShowBoundary] = useState(true);
+  const [mapLoaded, setMapLoaded] = useState(false);
+
+  // Coordenadas aproximadas do retângulo que cobre o mundo (para a máscara)
+  const worldBounds = useMemo(() => [
+    { lat: -90, lng: -180 }, // SW
+    { lat: -90, lng: 180 },  // SE
+    { lat: 90, lng: 180 },   // NE
+    { lat: 90, lng: -180 }   // NW
+  ], []);
+
+  // Efeito para carregar e converter o KML
+  useEffect(() => {
+    if (!mapLoaded) return;
+
+    const loadKmlData = async () => {
+      try {
+        // Carrega o KML e converte para coordenadas (simplificado)
+        // Na prática, você precisaria de uma lib ou converter offline
+        const mockPolygon = [
+          // Exemplo com coordenadas aproximadas de Vitória do Xingu
+          // Substitua pelo seu KML real convertido
+          { lat: -2.85, lng: -52.05 },
+          { lat: -2.88, lng: -51.95 },
+          { lat: -2.93, lng: -51.98 },
+          { lat: -2.91, lng: -52.07 },
+          { lat: -2.85, lng: -52.05 } // Fechar o polígono
+        ];
+        
+        setMunicipioPolygon([mockPolygon]);
+      } catch (error) {
+        console.error("Erro ao carregar KML:", error);
+      }
+    };
+
+    loadKmlData();
+  }, [mapLoaded]);
+
+  // Estilo para a área externa escurecida
+  const maskStyle = useMemo(() => ({
+    fillColor: '#000',
+    fillOpacity: 0.5,
+    strokeColor: '#000',
+    strokeOpacity: 0,
+    strokeWeight: 0,
+    clickable: false
+  }), []);
+
+  // Estilo para o contorno do município
+  const boundaryStyle = useMemo(() => ({
+    fillColor: '#00FF00',
+    fillOpacity: 0.1,
+    strokeColor: '#FF0000',
+    strokeOpacity: 0.8,
+    strokeWeight: 2,
+    clickable: false
+  }), []);
+
+2. Implementação no componente GoogleMap:
+jsx
+Copy
+
+<GoogleMap
+  mapContainerStyle={mapContainerStyle}
+  center={center}
+  zoom={12}
+  onLoad={() => setMapLoaded(true)}
+  options={{
+    minZoom: 10,
+    styles: [
+      {
+        featureType: "administrative",
+        elementType: "labels",
+        stylers: [{ visibility: "off" }]
+      },
+      {
+        featureType: "poi",
+        stylers: [{ visibility: "off" }]
+      }
+    ]
+  }}
+>
+  {/* Máscara escura sobre a área externa */}
+  {municipioPolygon.length > 0 && (
+    <Polygon
+      paths={[worldBounds, ...municipioPolygon]}
+      options={maskStyle}
+    />
+  )}
+
+  {/* Contorno do município */}
+  {showBoundary && municipioPolygon.length > 0 && (
+    <Polygon
+      paths={municipioPolygon}
+      options={boundaryStyle}
+    />
+  )}
+
+  {/* Seus marcadores e KmlLayer existentes */}
+  <KmlLayer
+    url="https://firebasestorage.googleapis.com/v0/b/transparencia-agricola.appspot.com/o/uploads%2Fvitoria-xingu.kml?alt=media"
+    options={{
+      preserveViewport: true,
+      suppressInfoWindows: true
+    }}
+  />
+
+  {/* Botão de controle para o limite */}
+  <div className="absolute top-4 right-4 z-10">
+    <button
+      onClick={() => setShowBoundary(!showBoundary)}
+      className="bg-white p-2 rounded shadow-lg flex items-center"
+    >
+      {showBoundary ? (
+        <>
+          <EyeOff className="w-4 h-4 mr-2" />
+          Ocultar Limite
+        </>
+      ) : (
+        <>
+          <Eye className="w-4 h-4 mr-2" />
+          Mostrar Limite
+        </>
+      )}
+    </button>
+  </div>
+</GoogleMap>
