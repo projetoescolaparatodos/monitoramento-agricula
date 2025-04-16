@@ -104,10 +104,10 @@ const PAAMap = () => {
     clickable: false
   }), []);
 
-  // Estilo para o contorno do município
+  // Estilo para o contorno do município - sem preenchimento
   const boundaryStyle = useMemo(() => ({
-    fillColor: '#00FF00',
-    fillOpacity: 0.1,
+    fillColor: 'transparent',
+    fillOpacity: 0,
     strokeColor: '#FF0000',
     strokeOpacity: 0.8,
     strokeWeight: 2,
