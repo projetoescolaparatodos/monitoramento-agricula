@@ -62,28 +62,49 @@ const AgriculturaMap = () => {
     [],
   );
   
-  // Definir polígono aproximado de Vitória do Xingu (simplificado)
+  // Estado para controlar a exibição do contorno do município
+  const [showBoundary, setShowBoundary] = useState(true);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  
+  // Definir polígono aproximado de Vitória do Xingu (mais detalhado)
   const municipioBoundary = useMemo(() => {
     // Essas coordenadas são aproximadas para o município de Vitória do Xingu
     // Substitua por coordenadas mais precisas se necessário
     return [
-      { lat: -2.8, lng: -52.0 },
-      { lat: -2.9, lng: -51.9 },
-      { lat: -3.0, lng: -52.0 },
-      { lat: -2.9, lng: -52.1 },
+      { lat: -2.85, lng: -52.05 },
+      { lat: -2.88, lng: -51.95 },
+      { lat: -2.93, lng: -51.98 },
+      { lat: -2.91, lng: -52.07 },
+      { lat: -2.85, lng: -52.05 }, // Fechar o polígono
     ];
   }, []);
 
-  // Criar um polígono que representa a área externa ao município
-  const outerBounds = useMemo(() => {
-    // Pontos que formam um retângulo maior que a área do mapa
-    return [
-      { lat: bounds.north + 1, lng: bounds.west - 1 },
-      { lat: bounds.north + 1, lng: bounds.east + 1 },
-      { lat: bounds.south - 1, lng: bounds.east + 1 },
-      { lat: bounds.south - 1, lng: bounds.west - 1 }
-    ];
-  }, [bounds]);
+  // Coordenadas para o polígono que cobre a área externa (mundo)
+  const worldBounds = useMemo(() => [
+    { lat: -90, lng: -180 }, // SW
+    { lat: -90, lng: 180 },  // SE
+    { lat: 90, lng: 180 },   // NE
+    { lat: 90, lng: -180 },  // NW
+    { lat: -90, lng: -180 }, // Fechar o polígono
+  ], []);
+
+  // Estilo para a área externa escurecida
+  const maskStyle = useMemo(() => ({
+    fillColor: '#000000',
+    fillOpacity: 0.35,
+    strokeWeight: 0,
+    clickable: false
+  }), []);
+
+  // Estilo para o contorno do município
+  const boundaryStyle = useMemo(() => ({
+    fillColor: '#00FF00',
+    fillOpacity: 0.1,
+    strokeColor: '#FF0000',
+    strokeOpacity: 0.8,
+    strokeWeight: 2,
+    clickable: false
+  }), []);
 
   const fetchTratores = useCallback(async () => {
     try {
@@ -343,6 +364,7 @@ const AgriculturaMap = () => {
         mapContainerStyle={mapContainerStyle}
         center={center}
         zoom={12}
+        onLoad={() => setMapLoaded(true)}
         options={{
           minZoom: 10,
           maxZoom: 16,
@@ -350,6 +372,17 @@ const AgriculturaMap = () => {
             latLngBounds: bounds,
             strictBounds: true,
           },
+          styles: [
+            {
+              featureType: "administrative",
+              elementType: "labels",
+              stylers: [{ visibility: "on" }]
+            },
+            {
+              featureType: "poi",
+              stylers: [{ visibility: "on" }]
+            }
+          ]
         }}
       >
         {tratoresFiltrados.map((trator) => (
@@ -379,22 +412,33 @@ const AgriculturaMap = () => {
             suppressInfoWindows: true,
           }}
           onLoad={(kmlLayer) => {
-            // Tentar extrair os pontos do limite do município (isso é uma simplificação, 
-            // normalmente precisaríamos converter o KML para GeoJSON e extrair os polígonos)
             console.log("KML carregado:", kmlLayer);
           }}
         />
         
-        {/* Polígono com máscara invertida para escurecer a área fora do município */}
+        {/* Máscara escura sobre a área externa */}
         <Polygon
-          paths={[outerBounds, municipioBoundary]}
-          options={{
-            fillColor: "#000000",
-            fillOpacity: 0.35,
-            strokeWeight: 0,
-            clickable: false,
-          }}
+          paths={[worldBounds, municipioBoundary]}
+          options={maskStyle}
         />
+        
+        {/* Contorno do município */}
+        {showBoundary && (
+          <Polygon
+            paths={municipioBoundary}
+            options={boundaryStyle}
+          />
+        )}
+        
+        {/* Botão de controle para o limite */}
+        <div className="absolute top-20 right-4 z-50 bg-white p-2 rounded shadow-lg">
+          <button
+            onClick={() => setShowBoundary(!showBoundary)}
+            className="flex items-center text-sm"
+          >
+            {showBoundary ? "Ocultar Limite" : "Mostrar Limite"}
+          </button>
+        </div>
       </GoogleMap>
     </div>
   );
