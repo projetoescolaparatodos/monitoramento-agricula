@@ -102,7 +102,7 @@ const AgriculturaMap = () => {
   // Estilo para a área externa escurecida
   const maskStyle = useMemo(() => ({
     fillColor: '#000000',
-    fillOpacity: 0.5, // Aumentado para 50% conforme solicitado
+    fillOpacity: 0.35, // Reduzido para 35% para melhor contraste
     strokeWeight: 0,
     clickable: false
   }), []);
