@@ -100,25 +100,23 @@ const PescaMap = () => {
     { lat: -90, lng: -180 }, // Fechar o polígono
   ], []);
 
-  // Estilo para a área externa (agora clara)
+  // Estilo para a área externa - removido o filtro
   const maskStyle = useMemo(() => ({
-    fillColor: '#FFFFFF',
-    fillOpacity: 0.1, // Opacidade baixa para ficar clara
+    fillColor: 'transparent',
+    fillOpacity: 0,
     strokeWeight: 0,
     clickable: false
   }), []);
 
-  // Estilo para o município (escuro e desfocado com contorno)
+  // Estilo apenas para o contorno do município sem preenchimento
   const boundaryStyle = useMemo(() => ({
-    fillColor: '#000000',
-    fillOpacity: 0.6, // Aumentado para 60% para escurecer mais
+    fillColor: 'transparent',
+    fillOpacity: 0,
     strokeColor: '#FF0000',
     strokeOpacity: 0.8,
     strokeWeight: 2,
     strokeDasharray: [4, 4], // Linha tracejada para visual mais profissional
-    clickable: false,
-    // Efeito de desfoque aplicado através do CSS do polígono
-    className: styles["blurred-overlay"]
+    clickable: false
   }), []);
 
   const fetchPesqueiros = useCallback(async () => {
