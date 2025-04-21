@@ -406,7 +406,7 @@ const PescaMap = () => {
         zoom={12}
         onLoad={() => setMapLoaded(true)}
         options={{
-          minZoom: 10,
+          minZoom: 8,
           maxZoom: 16,
           restriction: {
             latLngBounds: bounds,
