@@ -385,9 +385,16 @@ const AgriculturaMap = () => {
             strictBounds: true,
           },
           mapTypeId: google.maps.MapTypeId.SATELLITE,
-          mapTypeControl: false,
+          mapTypeControl: true,
           mapTypeControlOptions: {
-            mapTypeIds: [google.maps.MapTypeId.SATELLITE]
+            style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+            position: google.maps.ControlPosition.TOP_RIGHT,
+            mapTypeIds: [
+              google.maps.MapTypeId.SATELLITE,
+              google.maps.MapTypeId.ROADMAP,
+              google.maps.MapTypeId.HYBRID,
+              google.maps.MapTypeId.TERRAIN
+            ]
           },
           styles: [
             {
