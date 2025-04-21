@@ -99,3 +99,7 @@
 .municipality-area.blurred-overlay {
     filter: blur(4px) brightness(0.7) saturate(0.5);
 }
+
+.external-area {
+    filter: blur(3px) brightness(0.4) saturate(0.3);
+}

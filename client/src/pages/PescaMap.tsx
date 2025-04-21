@@ -100,10 +100,10 @@ const PescaMap = () => {
     { lat: -90, lng: -180 }, // Fechar o polígono
   ], []);
 
-  // Estilo para a área externa - removido o filtro
+  // Estilo para a área externa - com filtro escuro e desfocado
   const maskStyle = useMemo(() => ({
-    fillColor: 'transparent',
-    fillOpacity: 0,
+    fillColor: '#000000',
+    fillOpacity: 0.5,
     strokeWeight: 0,
     clickable: false
   }), []);
@@ -456,6 +456,7 @@ const PescaMap = () => {
             [...municipioBoundary].reverse() // Segundo caminho: município em ordem inversa
           ]}
           options={maskStyle}
+          className={styles["external-area"]}
         />
         
         {/* Contorno do município (opcional, controlado pelo filtro) */}

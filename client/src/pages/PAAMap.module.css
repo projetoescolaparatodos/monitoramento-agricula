@@ -93,3 +93,8 @@
   filter: blur(2px);
   transition: filter 0.3s ease;
 }
+
+/* Styles for PAAMap */
+.external-area {
+    filter: blur(3px) brightness(0.4) saturate(0.3);
+}
