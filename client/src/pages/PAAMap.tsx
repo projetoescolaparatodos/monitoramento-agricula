@@ -398,7 +398,7 @@ const PAAMap = () => {
             latLngBounds: bounds,
             strictBounds: true,
           },
-          mapTypeId: google.maps.MapTypeId.SATELLITE,
+          mapTypeId: google.maps.MapTypeId.HYBRID,
           mapTypeControl: true,
           mapTypeControlOptions: {
             style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
