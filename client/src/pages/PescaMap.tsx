@@ -412,6 +412,8 @@ const PescaMap = () => {
             latLngBounds: bounds,
             strictBounds: true,
           },
+          mapTypeId: google.maps.MapTypeId.SATELLITE,
+          mapTypeControl: false,
           styles: [
             {
               featureType: "administrative",
