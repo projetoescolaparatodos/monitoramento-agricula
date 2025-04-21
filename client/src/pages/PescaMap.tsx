@@ -414,6 +414,9 @@ const PescaMap = () => {
           },
           mapTypeId: google.maps.MapTypeId.SATELLITE,
           mapTypeControl: false,
+          mapTypeControlOptions: {
+            mapTypeIds: [google.maps.MapTypeId.SATELLITE]
+          },
           styles: [
             {
               featureType: "administrative",
