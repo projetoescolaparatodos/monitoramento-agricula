@@ -434,10 +434,13 @@ const PescaMap = () => {
           <MarkerF
             key={pesca.id}
             position={{ lat: pesca.latitude, lng: pesca.longitude }}
+            options={{ visible: true, clickable: true }}
             icon={{
               url: "/pesca-icon.png",
-              scaledSize: new window.google.maps.Size(50, 50),
-              anchor: new window.google.maps.Point(25, 50),
+              scaledSize: new window.google.maps.Size(70, 70),
+              anchor: new window.google.maps.Point(35, 70),
+              origin: new window.google.maps.Point(0, 0),
+              zIndex: 1000,
             }}
             onClick={() => setSelectedMarker(pesca)}
           />
