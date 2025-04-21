@@ -456,13 +456,6 @@ const AgriculturaMap = () => {
             {showBoundary ? "Ocultar Contorno Municipal" : "Mostrar Contorno Municipal"}
           </button>
         </div>
-        
-        {/* Mensagem de erro de carregamento de KML, se houver */}
-        {kmlError && (
-          <div className="absolute top-28 right-4 z-50 bg-red-100 text-red-800 p-2 rounded text-sm">
-            Usando limites aproximados. {kmlError}
-          </div>
-        )}
       </GoogleMap>
     </div>
   );
