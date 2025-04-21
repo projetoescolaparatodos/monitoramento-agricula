@@ -99,7 +99,7 @@ const AgriculturaMap = () => {
     { lat: -90, lng: -180 }, // Fechar o polígono
   ], []);
 
-  // Estilo para a máscara escura (área externa)
+  // Estilo para a máscara escura (área interna)
   const maskStyle = useMemo(() => ({
     fillColor: '#000000',
     fillOpacity: 0.6,
@@ -110,8 +110,8 @@ const AgriculturaMap = () => {
 
   // Estilo para o contorno do município
   const boundaryStyle = useMemo(() => ({
-    fillColor: '#00ff88',
-    fillOpacity: 0.1,
+    fillColor: 'transparent',
+    fillOpacity: 0,
     strokeColor: '#00ff88',
     strokeOpacity: 0.8,
     strokeWeight: 2,
@@ -471,12 +471,9 @@ const AgriculturaMap = () => {
           }}
         />
         
-        {/* Máscara escura com buraco no formato do município */}
+        {/* Máscara escura aplicada dentro do município */}
         <Polygon
-          paths={[
-            worldBounds, // Primeiro caminho: mundo inteiro
-            correctedBoundary // Segundo caminho: município (criando o "buraco")
-          ]}
+          paths={correctedBoundary}
           options={maskStyle}
         />
         
