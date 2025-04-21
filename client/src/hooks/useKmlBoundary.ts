@@ -224,6 +224,23 @@ export function useKmlBoundary(kmlUrl: string) {
           
           if (geometry.type === 'Polygon' && geometry.coordinates.length > 0) {
             const coordinates = geometry.coordinates[0];
+
+// Função para verificar se um caminho está em sentido horário
+export function isClockwise(path: LatLng[]): boolean {
+  let area = 0;
+  for (let i = 0; i < path.length - 1; i++) {
+    const p1 = path[i];
+    const p2 = path[i + 1];
+    area += (p2.lng - p1.lng) * (p2.lat + p1.lat);
+  }
+  return area > 0;
+}
+
+// Função para garantir que um caminho esteja em sentido horário
+export function ensureClockwise(path: LatLng[]): LatLng[] {
+  return isClockwise(path) ? path : [...path].reverse();
+}
+
             const formattedCoords = coordinates.map(([lng, lat]: number[]) => ({ lat, lng }));
             setBoundaryCoordinates(formattedCoords);
           } else {

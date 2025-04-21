@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { db } from "../utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
-import { useKmlBoundary } from "../hooks/useKmlBoundary";
+import { useKmlBoundary, isClockwise, ensureClockwise } from "../hooks/useKmlBoundary";
 import {
   useLoadScript,
   GoogleMap,
@@ -96,24 +96,32 @@ const PAAMap = () => {
     { lat: -90, lng: -180 }, // Fechar o polígono
   ], []);
 
-  // Estilo para a área externa - removido o filtro
+  // Estilo para a máscara escura (área externa)
   const maskStyle = useMemo(() => ({
-    fillColor: 'transparent',
-    fillOpacity: 0,
+    fillColor: '#000000',
+    fillOpacity: 0.6,
     strokeWeight: 0,
-    clickable: false
+    clickable: false,
+    zIndex: 1
   }), []);
 
-  // Estilo apenas para o contorno do município sem preenchimento
+  // Estilo para o contorno do município
   const boundaryStyle = useMemo(() => ({
-    fillColor: 'transparent',
-    fillOpacity: 0,
-    strokeColor: '#FF0000',
+    fillColor: '#00ff88',
+    fillOpacity: 0.1,
+    strokeColor: '#00ff88',
     strokeOpacity: 0.8,
     strokeWeight: 2,
-    strokeDasharray: [4, 4], // Linha tracejada para visual mais profissional
+    zIndex: 2,
     clickable: false
   }), []);
+  
+  // Usamos as funções importadas diretamente
+  
+  // Garantir que o caminho do município esteja no sentido horário
+  const correctedBoundary = useMemo(() => {
+    return ensureClockwise(municipioBoundary);
+  }, [municipioBoundary]);
 
   const fetchPAA = useCallback(async () => {
     try {
@@ -460,11 +468,11 @@ const PAAMap = () => {
           }}
         />
         
-        {/* Máscara escura aplicada FORA do município (sempre visível) */}
+        {/* Máscara escura com buraco no formato do município */}
         <Polygon
           paths={[
             worldBounds, // Primeiro caminho: mundo inteiro
-            [...municipioBoundary].reverse() // Segundo caminho: município em ordem inversa
+            correctedBoundary // Segundo caminho: município (criando o "buraco")
           ]}
           options={maskStyle}
         />
@@ -472,7 +480,7 @@ const PAAMap = () => {
         {/* Contorno do município (opcional, controlado pelo filtro) */}
         {showBoundary && (
           <Polygon
-            paths={municipioBoundary}
+            paths={correctedBoundary}
             options={boundaryStyle}
           />
         )}
