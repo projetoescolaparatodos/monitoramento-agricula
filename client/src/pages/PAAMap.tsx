@@ -411,6 +411,26 @@ const PAAMap = () => {
             {
               featureType: "poi",
               stylers: [{ visibility: "on" }]
+            },
+            {
+              featureType: "road",
+              stylers: [{ visibility: "on" }]
+            },
+            {
+              featureType: "water",
+              stylers: [{ visibility: "on" }]
+            },
+            {
+              featureType: "transit",
+              stylers: [{ visibility: "on" }]
+            },
+            {
+              featureType: "landscape",
+              stylers: [{ visibility: "on" }]
+            },
+            {
+              featureType: "poi.business",
+              stylers: [{ visibility: "on" }]
             }
           ]
         }}
