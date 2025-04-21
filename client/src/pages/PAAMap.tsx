@@ -96,7 +96,7 @@ const PAAMap = () => {
     { lat: -90, lng: -180 }, // Fechar o polígono
   ], []);
 
-  // Estilo para a máscara escura (área interna)
+  // Estilo para a máscara escura (área externa)
   const maskStyle = useMemo(() => ({
     fillColor: '#000000',
     fillOpacity: 0.6,
@@ -107,8 +107,8 @@ const PAAMap = () => {
 
   // Estilo para o contorno do município
   const boundaryStyle = useMemo(() => ({
-    fillColor: 'transparent',
-    fillOpacity: 0,
+    fillColor: '#00ff88',
+    fillOpacity: 0.1,
     strokeColor: '#00ff88',
     strokeOpacity: 0.8,
     strokeWeight: 2,
@@ -468,9 +468,12 @@ const PAAMap = () => {
           }}
         />
         
-        {/* Máscara escura aplicada dentro do município */}
+        {/* Máscara escura com buraco no formato do município */}
         <Polygon
-          paths={correctedBoundary}
+          paths={[
+            worldBounds, // Primeiro caminho: mundo inteiro
+            correctedBoundary // Segundo caminho: município (criando o "buraco")
+          ]}
           options={maskStyle}
         />
         
