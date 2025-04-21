@@ -460,14 +460,6 @@ const PAAMap = () => {
         ))}
         {selectedMarker && renderInfoWindow(selectedMarker)}
         
-        <KmlLayer
-          url="https://firebasestorage.googleapis.com/v0/b/transparencia-agricola.appspot.com/o/uploads%2Fvitoria-xingu.kml?alt=media"
-          options={{
-            preserveViewport: true,
-            suppressInfoWindows: true,
-          }}
-        />
-        
         {/* Máscara escura com buraco no formato do município */}
         <Polygon
           paths={[
