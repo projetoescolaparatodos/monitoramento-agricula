@@ -53,11 +53,11 @@ const PescaMap = () => {
     height: "100%",
   };
 
-  const center = useMemo(() => ({ lat: -2.87922, lng: -52.0088 }), []);
+  const center = useMemo(() => ({ lat: -3.15, lng: -52.0088 }), []); // Movido mais para o sul
   const bounds = useMemo(
     () => ({
       north: -2.5,
-      south: -3.5,
+      south: -3.8, // Aumentado para mostrar mais ao sul
       east: -51.5,
       west: -52.5,
     }),
