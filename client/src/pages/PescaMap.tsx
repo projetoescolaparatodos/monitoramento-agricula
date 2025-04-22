@@ -498,7 +498,7 @@ const PescaMap = () => {
             title={showBoundary ? "Ocultar Contorno Municipal" : "Mostrar Contorno Municipal"}
           >
             <img 
-              src="/boundary-icon.svg" 
+              src="/contornoicone.png" 
               alt="Contorno Municipal" 
               className={`w-8 h-8 ${showBoundary ? styles["icon-active"] : ""}`}
             />
