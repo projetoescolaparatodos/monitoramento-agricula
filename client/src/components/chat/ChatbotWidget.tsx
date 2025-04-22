@@ -984,6 +984,22 @@ const ChatbotWidget: React.FC = () => {
     loadData();
   }, []);
 
+  // Responder ao evento personalizado para abrir o chatbot em uma aba específica
+  useEffect(() => {
+    const handleOpenChatbot = (event: CustomEvent) => {
+      setIsOpen(true);
+      if (event.detail?.tab) {
+        setActiveTab(event.detail.tab);
+      }
+    };
+
+    window.addEventListener('open-chatbot', handleOpenChatbot as EventListener);
+    
+    return () => {
+      window.removeEventListener('open-chatbot', handleOpenChatbot as EventListener);
+    };
+  }, []);
+
   // Verificar se há uma aba específica para abrir
   useEffect(() => {
     if (isOpen) {
@@ -1001,6 +1017,7 @@ const ChatbotWidget: React.FC = () => {
       const tabToOpen = hashTab || savedTab;
       
       if (tabToOpen && ['chat', 'agricultura', 'pesca', 'paa'].includes(tabToOpen)) {
+        console.log("Abrindo chatbot na aba:", tabToOpen);
         setActiveTab(tabToOpen);
         
         // Limpar após usar
