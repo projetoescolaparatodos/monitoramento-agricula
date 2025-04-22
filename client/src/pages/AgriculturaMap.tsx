@@ -469,7 +469,7 @@ const AgriculturaMap = () => {
         )}
         
         {/* Botão de controle para o limite com ícone do município */}
-        <div className="absolute top-20 right-4 z-50">
+        <div className="absolute top-36 right-4 z-50">
           <button
             onClick={() => setShowBoundary(!showBoundary)}
             className={styles["boundary-toggle"]}
