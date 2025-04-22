@@ -51,6 +51,14 @@ const PAAInfo = () => {
       );
       const snapshot = await getDocs(chartsQuery);
       return snapshot.docs.map((doc) => ({
+
+import OpenChatPAA from "@/components/chat/OpenChatPAA";
+
+{/* Botão para abrir o chat do PAA */}
+<div className="flex justify-center mb-8">
+  <OpenChatPAA buttonText="Tire dúvidas sobre o PAA" className="bg-amber-600 hover:bg-amber-700 text-white" />
+</div>
+
         id: doc.id,
         ...doc.data()
       }));

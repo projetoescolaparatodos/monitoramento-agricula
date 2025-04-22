@@ -86,3 +86,11 @@ const Home = () => {
 };
 
 export default Home;
+
+
+import OpenChatPAA from "@/components/chat/OpenChatPAA";
+
+{/* Adicione este componente onde desejar na página Home */}
+<div className="mt-8 flex justify-center">
+  <OpenChatPAA buttonText="Abrir Assistente do PAA" className="bg-amber-600 hover:bg-amber-700 text-white" />
+</div>

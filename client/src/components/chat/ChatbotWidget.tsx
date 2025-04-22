@@ -984,6 +984,18 @@ const ChatbotWidget: React.FC = () => {
     loadData();
   }, []);
 
+  // Verificar se há uma aba específica para abrir
+  useEffect(() => {
+    if (isOpen) {
+      const savedTab = localStorage.getItem('chatbot_tab');
+      if (savedTab) {
+        setActiveTab(savedTab);
+        // Limpar após usar
+        localStorage.removeItem('chatbot_tab');
+      }
+    }
+  }, [isOpen]);
+  
   return (
     <div className="fixed bottom-4 right-4 z-50">
       {!isOpen ? (
@@ -991,6 +1003,7 @@ const ChatbotWidget: React.FC = () => {
           onClick={() => setIsOpen(true)}
           className="rounded-full w-14 h-14 bg-green-600 hover:bg-green-700 text-white shadow-lg"
           aria-label="Abrir chat assistente"
+          data-chatbot-button
         >
           <MessageCircle size={24} />
           <span className="sr-only">Abrir chat assistente</span>
