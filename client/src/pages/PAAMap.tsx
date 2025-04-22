@@ -216,7 +216,7 @@ const PAAMap = () => {
                   <strong>Tipo de Alimento:</strong> {paa.tipoAlimento}
                 </p>
                 <p>
-                  <strong>Quantidade Produzida:</strong>{" "}
+                  <strong>Variedade de Alimentos:</strong>{" "}
                   {(() => {
                     const quantidade = typeof paa.quantidadeProduzida === 'number' 
                       ? paa.quantidadeProduzida 
@@ -225,7 +225,7 @@ const PAAMap = () => {
                         : null;
 
                     if (quantidade === null) return "-";
-                    return quantidade.toFixed(2) + " kg";
+                    return paa.tipoAlimento || "-";
                   })()}
                 </p>
                 <p>

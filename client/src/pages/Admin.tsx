@@ -922,7 +922,7 @@ const PescaForm = () => {
                       <img
                         src={url}
                         alt={`Mídia ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg"
+                        className="w-full h24 object-cover rounded-lg"
                         onError={(e) => {
                           console.error("Erro ao carregar imagem:", url);
                           (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Erro+ao+carregar';

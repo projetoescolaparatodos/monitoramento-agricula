@@ -394,7 +394,7 @@ const Report = () => {
         item.localidade || '-',
         item.proprietario || '-',
         item.tipoAlimento || '-',
-        item.quantidadeProduzida ? item.quantidadeProduzida.toFixed(2) : '0.00',
+        item.tipoAlimento || '-',
         item.metodoColheita || '-',
         item.tecnicoResponsavel || '-',
         new Date(item.dataCadastro).toLocaleDateString(),

@@ -149,7 +149,7 @@ const PAAInfo = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold">{paaData?.reduce((total, paa) => total + (paa.quantidadeProduzida || 0), 0).toFixed(2)} kg</p>
+                  <p className="text-3xl font-bold">15.185,87 kg</p>
                 </CardContent>
               </Card>
               <Card>
@@ -198,7 +198,7 @@ const PAAInfo = () => {
                       <TableHead>Localidade</TableHead>
                       <TableHead>Produtor</TableHead>
                       <TableHead>Tipo de Alimento</TableHead>
-                      <TableHead>Quantidade (kg)</TableHead>
+                      <TableHead>Variedade de Alimentos</TableHead>
                       <TableHead>Técnico Responsável</TableHead>
                       <TableHead>Data</TableHead>
                       <TableHead>Status</TableHead>
@@ -210,7 +210,7 @@ const PAAInfo = () => {
                         <TableCell>{paa.localidade || '-'}</TableCell>
                         <TableCell>{paa.proprietario || '-'}</TableCell>
                         <TableCell>{paa.tipoAlimento || '-'}</TableCell>
-                        <TableCell>{paa.quantidadeProduzida ? paa.quantidadeProduzida.toFixed(2) : '0.00'}</TableCell>
+                        <TableCell>{paa.tipoAlimento || '-'}</TableCell>
                         <TableCell>{paa.tecnicoResponsavel || '-'}</TableCell>
                         <TableCell>{new Date(paa.dataCadastro).toLocaleDateString()}</TableCell>
                         <TableCell>
