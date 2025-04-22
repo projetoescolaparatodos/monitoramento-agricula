@@ -1,6 +1,14 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
+// Interface to declare global window property for storing intervals
+declare global {
+  interface Window {
+    _chatTabIntervals?: number[];
+    _chatOpeningInProgress?: boolean;
+  }
+}
+
 export interface UseChatTabOptions {
   retryInterval?: number;
   maxRetries?: number;
@@ -25,6 +33,15 @@ export function useChatTab(options: UseChatTabOptions = {}) {
       return;
     }
     
+    // Prevenir múltiplas aberturas simultâneas
+    if (window._chatOpeningInProgress) {
+      console.log('Uma operação de abertura de chat já está em andamento');
+      return;
+    }
+    
+    // Marcar que uma operação está em andamento
+    window._chatOpeningInProgress = true;
+    
     // Limpar quaisquer processos em andamento primeiro
     const existingIntervals = window._chatTabIntervals || [];
     existingIntervals.forEach((intervalId: number) => clearInterval(intervalId));
@@ -41,9 +58,6 @@ export function useChatTab(options: UseChatTabOptions = {}) {
     
     // Definir a preferência no localStorage 
     localStorage.setItem('chatbot_tab', tab);
-    
-    // Atualizar hash na URL para persistência
-    window.location.hash = `chatbot-tab=${tab}`;
     
     // Gerar ID único para o evento
     const eventId = `chat-tab-request-${Date.now()}`;
@@ -63,7 +77,7 @@ export function useChatTab(options: UseChatTabOptions = {}) {
     // Buscar o botão do chat
     const chatbotButton = document.querySelector('[data-chatbot-button]');
     
-    // Variável para rastrear se o chatbot já está aberto
+    // Verificar se o chatbot já está aberto
     const isChatOpen = document.querySelector('[role="dialog"]') !== null;
     
     if (chatbotButton || isChatOpen) {
@@ -72,78 +86,62 @@ export function useChatTab(options: UseChatTabOptions = {}) {
         (chatbotButton as HTMLButtonElement).click();
       }
       
-      // Sistema de retry com intervalos crescentes
+      // Sistema de retry com um único intervalo
       let retries = 0;
       
       const interval = setInterval(() => {
         if (retries >= maxRetries) {
           clearInterval(interval);
           setIsProcessing(false);
+          window._chatOpeningInProgress = false;
           return;
         }
         
         console.log(`Tentativa ${retries+1} de alternar para a aba ${tab}`);
         
-        // Disparar evento novamente
-        window.dispatchEvent(new CustomEvent('open-chatbot', {
-          detail: {
-            tab,
-            timestamp: Date.now(),
-            stage: 'retry',
-            retryCount: retries,
-            eventId
-          }
-        }));
-        
         // Tentar clicar na aba diretamente
         const tabElement = document.querySelector(`[value="${tab}"]`);
         if (tabElement) {
-          // Usar método tradicional e dispatch de evento para garantir
+          // Usar método tradicional para clicar na aba
           (tabElement as HTMLButtonElement).click();
-          
-          tabElement.dispatchEvent(new MouseEvent('click', {
-            view: window,
-            bubbles: true,
-            cancelable: true
-          }));
-          
           console.log(`Clicou na aba ${tab} (tentativa ${retries+1})`);
-        } else {
-          console.log(`Aba ${tab} não encontrada na tentativa ${retries+1}`);
+          
+          // Se conseguiu clicar, interromper as tentativas
+          clearInterval(interval);
+          setIsProcessing(false);
+          window._chatOpeningInProgress = false;
         }
         
         retries++;
-      }, retryInterval * Math.pow(1.2, retries)); // Intervalos crescentes
+      }, retryInterval);
       
       // Armazenar referência ao intervalo para poder cancelar se necessário
       if (!window._chatTabIntervals) window._chatTabIntervals = [];
       window._chatTabIntervals.push(interval);
       
-      // Limpar após sucesso ou máximo de tentativas
+      // Limpar após o tempo máximo, se não for interrompido antes
       setTimeout(() => {
         clearInterval(interval);
         setIsProcessing(false);
-        setTargetTab(null);
-        console.log('Processo de abertura do chat finalizado');
-      }, retryInterval * (maxRetries + 2));
+        window._chatOpeningInProgress = false;
+        console.log('Processo de abertura do chat finalizado pelo timeout');
+      }, retryInterval * (maxRetries + 1));
     } else {
       console.error("Botão do chatbot não encontrado e chat não está aberto");
       setIsProcessing(false);
+      window._chatOpeningInProgress = false;
     }
   }, [maxRetries, retryInterval]);
   
-  // Monitorar mudanças no localStorage
+  // Limpar eventos e intervalos quando o componente for desmontado
   useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'chatbot_tab' && e.newValue) {
-        if (['chat', 'agricultura', 'pesca', 'paa'].includes(e.newValue)) {
-          setTargetTab(e.newValue);
-        }
-      }
+    return () => {
+      // Limpar todos os intervalos registrados
+      const existingIntervals = window._chatTabIntervals || [];
+      existingIntervals.forEach(intervalId => clearInterval(intervalId));
+      window._chatTabIntervals = [];
+      window._chatOpeningInProgress = false;
     };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
   
   return {
