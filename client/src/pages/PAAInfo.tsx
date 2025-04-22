@@ -120,7 +120,10 @@ const PAAInfo = () => {
           {/* Botões removidos conforme solicitado */}
 
           <div className="flex justify-center mb-8">
-            <OpenChatPAA buttonText="Tire dúvidas sobre o PAA" className="bg-amber-600 hover:bg-amber-700 text-white" />
+            <OpenChatPAA 
+              buttonText="Tire dúvidas sobre o PAA" 
+              className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 text-lg font-medium shadow-lg rounded-lg transition-all duration-300 hover:shadow-xl" 
+            />
           </div>
 
           <DataVisualizationSection 
