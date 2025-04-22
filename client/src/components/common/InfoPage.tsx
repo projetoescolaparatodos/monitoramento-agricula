@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
 import Chart from "./Chart";
 import {useEffect} from "react";
+import parse from 'html-react-parser';
 
 interface InfoPageProps {
   title: string;
@@ -63,7 +64,9 @@ const InfoPage = ({
             <Card key={content.id}>
               <CardContent className="p-6">
                 <h3 className="text-xl font-semibold mb-4">{content.title}</h3>
-                <p className="text-gray-600">{content.content}</p>
+                <div className="text-gray-600 rich-content">
+                  {parse(content.content || '')}
+                </div>
               </CardContent>
             </Card>
           ))}

@@ -4,6 +4,7 @@ import { db } from "@/utils/firebase";
 import { useQuery } from "@tanstack/react-query";
 import Footer from "@/components/layout/Footer";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
+import parse from 'html-react-parser';
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Map, BarChart2, FilePieChart, Users } from "lucide-react";
@@ -101,7 +102,9 @@ const PAAInfo = () => {
               {contents.map((content) => (
                 <Card key={content.id} className="p-6 border-0 bg-white/10 backdrop-blur-sm">
                   <h3 className="text-2xl font-bold mb-4 text-white drop-shadow-sm">{content.title}</h3>
-                  <p className="text-white text-lg leading-relaxed">{content.content}</p>
+                  <div className="text-white text-lg leading-relaxed rich-content">
+                    {parse(content.content || '')}
+                  </div>
                 </Card>
               ))}
             </div>

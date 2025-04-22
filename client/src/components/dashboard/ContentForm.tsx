@@ -1,26 +1,64 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { queryClient } from "@/lib/queryClient";
 import { ContentFormData } from "@/types";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
+// Form validation schema
 const formSchema = z.object({
-  pageType: z.string(),
-  sectionType: z.string(),
-  title: z.string().min(2, "Título deve ter pelo menos 2 caracteres"),
+  pageType: z.enum(["home", "agriculture", "fishing", "paa"]),
+  sectionType: z.string().min(2, "Tipo de seção é obrigatório"),
+  title: z.string().min(5, "Título deve ter pelo menos 5 caracteres"),
   content: z.string().min(10, "Conteúdo deve ter pelo menos 10 caracteres"),
   active: z.boolean().default(true),
 });
+
+// Configuração do editor Quill
+const modules = {
+  toolbar: [
+    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+    [{ 'align': [] }],
+    [{ 'color': [] }, { 'background': [] }],
+    ['link', 'image'],
+    ['clean']
+  ],
+};
+
+const formats = [
+  'header',
+  'bold', 'italic', 'underline', 'strike',
+  'list', 'bullet',
+  'align',
+  'color', 'background',
+  'link', 'image'
+];
 
 interface ContentFormProps {
   contentData?: ContentFormData;
@@ -179,11 +217,17 @@ export const ContentForm = ({ contentData, isEdit = false, onSuccess }: ContentF
                 <FormItem>
                   <FormLabel>Conteúdo</FormLabel>
                   <FormControl>
-                    <Textarea
-                      {...field}
-                      placeholder="Escreva o conteúdo aqui..."
-                      className="min-h-[200px]"
-                    />
+                    <div className="quill-container" style={{ minHeight: '250px' }}>
+                      <ReactQuill
+                        theme="snow"
+                        value={field.value}
+                        onChange={field.onChange}
+                        modules={modules}
+                        formats={formats}
+                        placeholder="Insira o conteúdo (formatação rica disponível)"
+                        style={{ height: '200px' }}
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
