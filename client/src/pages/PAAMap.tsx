@@ -478,7 +478,7 @@ const PAAMap = () => {
             <img 
               src="/contornoicone.png" 
               alt="Contorno Municipal" 
-              className={`w-8 h-8 ${showBoundary ? styles["icon-active"] : ""}`}
+              className={`${showBoundary ? styles["icon-active"] : ""}`}
             />
           </button>
         </div>
