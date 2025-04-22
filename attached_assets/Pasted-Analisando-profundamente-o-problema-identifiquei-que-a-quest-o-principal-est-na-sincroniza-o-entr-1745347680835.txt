@@ -1,0 +1,205 @@
+Analisando profundamente o problema, identifiquei que a questão principal está na sincronização entre a abertura do chat e a seleção da aba correta. Vou propor uma solução robusta que resolve definitivamente esse problema.
+1. Componente ChatTabLink Aprimorado
+tsx
+
+// client/src/components/chat/ChatTabLink.tsx
+import React, { useEffect } from 'react';
+import { Button, ButtonProps } from '@/components/ui/button';
+
+interface ChatTabLinkProps extends ButtonProps {
+  tab: 'chat' | 'agricultura' | 'pesca' | 'paa';
+  retryInterval?: number;
+  maxRetries?: number;
+}
+
+const ChatTabLink: React.FC<ChatTabLinkProps> = ({ 
+  tab, 
+  children, 
+  retryInterval = 300,
+  maxRetries = 5,
+  ...props 
+}) => {
+  const openChatWithTab = () => {
+    // Armazena em localStorage como fallback
+    localStorage.setItem('chatbot_target_tab', tab);
+    
+    // Dispara evento personalizado com timestamp
+    const eventId = `chat-tab-request-${Date.now()}`;
+    const event = new CustomEvent('open-chatbot', {
+      detail: {
+        tab,
+        eventId,
+        timestamp: Date.now()
+      }
+    });
+    window.dispatchEvent(event);
+    
+    // Abre o chat
+    window.dispatchEvent(new Event('toggle-chatbot'));
+    
+    // Sistema de retry para garantir a mudança de aba
+    let retries = 0;
+    const retryIntervalId = setInterval(() => {
+      retries++;
+      window.dispatchEvent(event);
+      
+      if (retries >= maxRetries) {
+        clearInterval(retryIntervalId);
+      }
+    }, retryInterval);
+  };
+
+  return (
+    <Button onClick={openChatWithTab} {...props}>
+      {children}
+    </Button>
+  );
+};
+
+export default ChatTabLink;
+
+2. Atualização do ChatbotWidget
+tsx
+
+// client/src/components/chat/ChatbotWidget.tsx
+// Adicione estes useEffect no componente:
+
+// Estado para controlar a aba alvo
+const [targetTab, setTargetTab] = useState<string | null>(null);
+
+// Efeito para lidar com eventos de abertura
+useEffect(() => {
+  const handleOpenEvent = (e: CustomEvent) => {
+    if (e.detail?.tab) {
+      console.log(`Recebido pedido para abrir na aba: ${e.detail.tab}`);
+      setTargetTab(e.detail.tab);
+      
+      // Se o chat já estiver aberto, muda a aba imediatamente
+      if (isOpen) {
+        setActiveTab(e.detail.tab);
+        setTargetTab(null);
+      } else {
+        setIsOpen(true);
+      }
+    }
+  };
+
+  // @ts-ignore - Tipagem para CustomEvent
+  window.addEventListener('open-chatbot', handleOpenEvent);
+  
+  return () => {
+    // @ts-ignore
+    window.removeEventListener('open-chatbot', handleOpenEvent);
+  };
+}, [isOpen]);
+
+// Efeito para verificar localStorage quando o chat abre
+useEffect(() => {
+  if (isOpen) {
+    // Verifica se há uma aba alvo definida
+    if (targetTab) {
+      setActiveTab(targetTab);
+      setTargetTab(null);
+      localStorage.removeItem('chatbot_target_tab');
+      return;
+    }
+    
+    // Fallback para localStorage
+    const savedTab = localStorage.getItem('chatbot_target_tab');
+    if (savedTab && ['chat', 'agricultura', 'pesca', 'paa'].includes(savedTab)) {
+      console.log(`Aplicando aba do localStorage: ${savedTab}`);
+      setActiveTab(savedTab);
+      localStorage.removeItem('chatbot_target_tab');
+    }
+  }
+}, [isOpen, targetTab]);
+
+// Efeito adicional para garantir a mudança de aba
+useEffect(() => {
+  if (isOpen && targetTab) {
+    const timer = setTimeout(() => {
+      console.log(`Garantindo mudança para aba: ${targetTab}`);
+      setActiveTab(targetTab);
+      setTargetTab(null);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }
+}, [isOpen, targetTab]);
+
+3. Implementação de um Hook Personalizado
+
+Para melhor organização, crie um hook personalizado:
+tsx
+
+// client/src/hooks/useChatTab.ts
+import { useState, useEffect } from 'react';
+
+export const useChatTab = () => {
+  const [targetTab, setTargetTab] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const tab = localStorage.getItem('chatbot_target_tab');
+      if (tab && ['chat', 'agricultura', 'pesca', 'paa'].includes(tab)) {
+        setTargetTab(tab);
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  const openChatWithTab = (tab: string) => {
+    if (!['chat', 'agricultura', 'pesca', 'paa'].includes(tab)) return;
+    
+    localStorage.setItem('chatbot_target_tab', tab);
+    window.dispatchEvent(new CustomEvent('open-chatbot', { detail: { tab } }));
+    window.dispatchEvent(new Event('toggle-chatbot'));
+  };
+
+  return { targetTab, openChatWithTab };
+};
+
+4. Como Usar em Seus Componentes
+tsx
+
+// Exemplo de uso em qualquer componente
+import { ChatTabLink } from '@/components/chat/ChatTabLink';
+
+const MyComponent = () => {
+  return (
+    <div>
+      {/* Botão que abre direto na aba PAA */}
+      <ChatTabLink tab="paa" className="bg-blue-500 text-white">
+        Fale sobre o PAA
+      </ChatTabLink>
+      
+      {/* Botão que abre direto na aba Agricultura */}
+      <ChatTabLink tab="agricultura" variant="outline">
+        Fale sobre Agricultura
+      </ChatTabLink>
+    </div>
+  );
+};
+
+5. Solução Alternativa para Links HTML
+
+Se precisar de um link HTML simples:
+html
+
+<a href="#" onclick="localStorage.setItem('chatbot_target_tab', 'paa'); window.dispatchEvent(new Event('toggle-chatbot'));">
+  Abrir Chat no PAA
+</a>
+
+Por que esta solução funciona?
+
+    Múltiplos mecanismos de sincronização: Usa eventos, localStorage e state management
+
+    Sistema de retry: Garante que a mudança de aba ocorra mesmo se o chat não estiver totalmente carregado
+
+    Fallbacks robustos: Se um método falhar, outros estão disponíveis como backup
+
+    Monitoramento contínuo: Observa mudanças no localStorage entre abas/contextos
+
+    Desacoplamento: Os componentes que disparam a abertura não precisam conhecer a implementação do chat
