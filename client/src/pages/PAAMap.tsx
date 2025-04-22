@@ -460,15 +460,6 @@ const PAAMap = () => {
         ))}
         {selectedMarker && renderInfoWindow(selectedMarker)}
         
-        {/* Máscara escura com buraco no formato do município */}
-        <Polygon
-          paths={[
-            worldBounds, // Primeiro caminho: mundo inteiro
-            correctedBoundary // Segundo caminho: município (criando o "buraco")
-          ]}
-          options={maskStyle}
-        />
-        
         {/* Contorno do município (opcional, controlado pelo filtro) */}
         {showBoundary && (
           <Polygon
