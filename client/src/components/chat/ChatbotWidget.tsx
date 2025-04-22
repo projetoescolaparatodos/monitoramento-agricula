@@ -992,6 +992,11 @@ const ChatbotWidget: React.FC = () => {
   // Responder ao evento personalizado para abrir o chatbot em uma aba específica
   useEffect(() => {
     const handleOpenChatbot = (event: CustomEvent) => {
+      // Primeiro, limpar quaisquer tentativas anteriores para evitar múltiplas execuções
+      setRequestedTab(null);
+      setLastEventId(null);
+      setTabChangeAttempts(0);
+      
       console.log("Evento open-chatbot capturado:", event.detail);
       
       // Verificar se a requisição especifica uma aba
@@ -1004,15 +1009,14 @@ const ChatbotWidget: React.FC = () => {
         // Armazenar a solicitação recebida
         setRequestedTab(tab);
         setLastEventId(eventId);
-        setTabChangeAttempts(0);
         
         // Abrir o chatbot se não estiver aberto
         if (!isOpen) {
           setIsOpen(true);
-        } else {
-          // Se já estiver aberto, definir a aba imediatamente
-          setActiveTab(tab);
         }
+        
+        // Definir a aba imediatamente, independente do estado atual
+        setActiveTab(tab);
       }
     };
 
@@ -1023,7 +1027,7 @@ const ChatbotWidget: React.FC = () => {
     };
   }, [isOpen]);
 
-  // Efeito para mudar a aba depois que o chat é aberto
+  // Efeito para mudar a aba depois que o chat é aberto e garantir que a mudança persista
   useEffect(() => {
     if (isOpen && requestedTab && tabChangeAttempts < 6) {
       console.log(`Tentativa ${tabChangeAttempts+1} de alternar para a aba ${requestedTab}`);
@@ -1032,18 +1036,22 @@ const ChatbotWidget: React.FC = () => {
       setActiveTab(requestedTab);
       
       // Incrementar as tentativas e tentar novamente após um delay
-      const delayTime = 200 * Math.pow(1.5, tabChangeAttempts); // delay exponencial
+      const delayTime = 150 * Math.pow(1.5, tabChangeAttempts); // delay exponencial
       
       const timer = setTimeout(() => {
         // Verificar se a aba atual é a solicitada
         if (activeTab !== requestedTab) {
           setTabChangeAttempts(prev => prev + 1);
+          // Tentar mudar a aba novamente
+          setActiveTab(requestedTab);
         } else {
-          // Se já estiver na aba correta, limpar
-          console.log(`Aba ${requestedTab} definida com sucesso`);
-          setRequestedTab(null);
-          setLastEventId(null);
-          setTabChangeAttempts(0);
+          // Se já estiver na aba correta, limpar após um breve período para confirmar
+          setTimeout(() => {
+            console.log(`Aba ${requestedTab} definida com sucesso`);
+            setRequestedTab(null);
+            setLastEventId(null);
+            setTabChangeAttempts(0);
+          }, 100);
         }
       }, delayTime);
       
@@ -1056,6 +1064,14 @@ const ChatbotWidget: React.FC = () => {
       setTabChangeAttempts(0);
     }
   }, [isOpen, requestedTab, tabChangeAttempts, activeTab]);
+  
+  // Quando o chatbot abre, forçar a aba solicitada imediatamente
+  useEffect(() => {
+    if (isOpen && requestedTab) {
+      console.log(`Chat aberto. Definindo aba para ${requestedTab} imediatamente`);
+      setActiveTab(requestedTab);
+    }
+  }, [isOpen]);
 
   // Verificar se há uma aba específica para abrir ao montar o componente e ao abrir o chatbot
   useEffect(() => {

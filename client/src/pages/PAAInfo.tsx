@@ -14,6 +14,7 @@ import DataVisualizationSection from "@/components/agriculture/DataVisualization
 import BackgroundVideo from "@/components/ui/BackgroundVideo";
 import OpenChatPAA from "@/components/chat/OpenChatPAA";
 import ChatTabLink from "@/components/chat/ChatTabLink";
+import PAAChatButton from "@/components/chat/PAAChatButton"; // Assuming this component exists
 
 const PAAInfo = () => {
   const backgroundStyle = {
@@ -77,8 +78,6 @@ const PAAInfo = () => {
       ),
   });
 
-  // Utilizamos o componente ChatTabLink importado para gerenciar a abertura do chat
-
 
   return (
     <>
@@ -100,6 +99,9 @@ const PAAInfo = () => {
             <p className="text-center text-lg text-white/80">
               Informações e dados sobre o Programa de Aquisição de Alimentos em Vitória do Xingu
             </p>
+            <div className="flex justify-center mt-4">
+              <PAAChatButton buttonText="TIRE SUAS DÚVIDAS" className="bg-amber-600 hover:bg-amber-700 text-white" />
+            </div>
           </div>
 
           {contents && contents.length > 0 && (
@@ -117,14 +119,6 @@ const PAAInfo = () => {
             </div>
           )}
 
-          {/* Botões removidos conforme solicitado */}
-
-          <div className="flex justify-center mb-8">
-            <OpenChatPAA 
-              buttonText="Tire dúvidas sobre o PAA" 
-              className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 text-lg font-medium shadow-lg rounded-lg transition-all duration-300 hover:shadow-xl" 
-            />
-          </div>
 
           <DataVisualizationSection 
             charts={charts || []} 
