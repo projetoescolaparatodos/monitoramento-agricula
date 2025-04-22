@@ -17,32 +17,37 @@ const ChatTabLink: React.FC<ChatTabLinkProps> = ({
     // Evitar comportamento padrão do link
     e.preventDefault();
     
-    // Definir a aba ativa
+    // Definir a aba ativa no localStorage
     localStorage.setItem('chatbot_tab', tab);
     
-    // Definir a âncora na URL
+    // Definir a âncora na URL para persistir a intenção
     window.location.hash = `chatbot-tab=${tab}`;
     
-    // Dispara um evento personalizado para notificar o chatbot
-    window.dispatchEvent(new CustomEvent('open-chatbot', { detail: { tab } }));
-    
-    // Aguardar um pouco para garantir que o chatbot já esteja carregado
-    setTimeout(() => {
-      // Clicar no botão do chatbot
-      const chatbotButton = document.querySelector('[data-chatbot-button]');
-      if (chatbotButton) {
-        (chatbotButton as HTMLButtonElement).click();
+    // Clicar no botão do chatbot primeiro para garantir que ele está aberto
+    const chatbotButton = document.querySelector('[data-chatbot-button]');
+    if (chatbotButton) {
+      (chatbotButton as HTMLButtonElement).click();
+      
+      // Aguardar tempo suficiente para o chatbot abrir completamente
+      setTimeout(() => {
+        // Disparar evento após chatbot abrir
+        window.dispatchEvent(new CustomEvent('open-chatbot', { detail: { tab } }));
         
-        // Aguardar mais um pouco para o chatbot abrir
-        setTimeout(() => {
-          // Buscar a aba dentro do chatbot e clicar nela
-          const tabElement = document.querySelector(`[value="${tab}"]`);
-          if (tabElement) {
-            (tabElement as HTMLButtonElement).click();
-          }
-        }, 300);
-      }
-    }, 100);
+        // Buscar a aba dentro do chatbot e clicar nela
+        const tabElement = document.querySelector(`[value="${tab}"]`);
+        if (tabElement) {
+          (tabElement as HTMLButtonElement).click();
+        } else {
+          // Se não encontrou a aba, tentar novamente após mais tempo
+          setTimeout(() => {
+            const retryTabElement = document.querySelector(`[value="${tab}"]`);
+            if (retryTabElement) {
+              (retryTabElement as HTMLButtonElement).click();
+            }
+          }, 200);
+        }
+      }, 400); // Aumentado para 400ms para dar mais tempo
+    }
   };
   
   return (

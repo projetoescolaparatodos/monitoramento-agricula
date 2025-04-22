@@ -5,25 +5,37 @@ import { MessageCircle } from "lucide-react";
 
 // Função para abrir o chatbot na seção do PAA
 const openChatbotPAA = () => {
-  // Criar ou atualizar um item no localStorage para indicar qual aba abrir
+  // Definir a aba ativa no localStorage
   localStorage.setItem('chatbot_tab', 'paa');
   
-  // Disparar um evento personalizado para notificar o chatbot
-  window.dispatchEvent(new CustomEvent('open-chatbot', { detail: { tab: 'paa' } }));
+  // Definir hash na URL para persistir a intenção
+  window.location.hash = 'chatbot-tab=paa';
   
   // Buscar o elemento do chatbot e simular um clique se estiver fechado
   const chatbotButton = document.querySelector('[data-chatbot-button]');
   if (chatbotButton) {
+    // Primeiro clique para abrir o chatbot
     (chatbotButton as HTMLButtonElement).click();
     
-    // Aguardar um pouco para dar tempo do chatbot abrir
+    // Aguardar tempo suficiente para o chatbot abrir completamente
     setTimeout(() => {
+      // Disparar um evento personalizado depois de abrir
+      window.dispatchEvent(new CustomEvent('open-chatbot', { detail: { tab: 'paa' } }));
+      
       // Buscar a aba PAA dentro do chatbot e clicar nela
       const paaTab = document.querySelector('[value="paa"]');
       if (paaTab) {
         (paaTab as HTMLButtonElement).click();
+      } else {
+        // Se não encontrou a aba, tentar novamente após mais tempo
+        setTimeout(() => {
+          const retryPaaTab = document.querySelector('[value="paa"]');
+          if (retryPaaTab) {
+            (retryPaaTab as HTMLButtonElement).click();
+          }
+        }, 200);
       }
-    }, 300);
+    }, 400); // Aumentado para 400ms para dar mais tempo
   }
 };
 

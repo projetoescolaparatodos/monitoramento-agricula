@@ -16,27 +16,36 @@ const PAAChatButton: React.FC<PAAChatButtonProps> = ({
     // Salvar a preferência no localStorage
     localStorage.setItem('chatbot_tab', 'paa');
     
-    // Definir a âncora na URL
+    // Definir a âncora na URL para persistir a intenção
     window.location.hash = `chatbot-tab=paa`;
     
-    // Disparar o evento personalizado que o ChatbotWidget escuta
-    window.dispatchEvent(new CustomEvent('open-chatbot', { detail: { tab: 'paa' } }));
-    
-    // Aguardar um pouco e clicar no botão do chatbot
-    setTimeout(() => {
-      const chatbotButton = document.querySelector('[data-chatbot-button]');
-      if (chatbotButton) {
-        (chatbotButton as HTMLButtonElement).click();
+    // Primeiro, abrir o chatbot
+    const chatbotButton = document.querySelector('[data-chatbot-button]');
+    if (chatbotButton) {
+      (chatbotButton as HTMLButtonElement).click();
+      
+      // Aguardar tempo suficiente para o chatbot abrir completamente
+      setTimeout(() => {
+        // Disparar o evento personalizado após o chatbot abrir
+        window.dispatchEvent(new CustomEvent('open-chatbot', { detail: { tab: 'paa' } }));
         
-        // Aguardar mais um pouco para o chatbot abrir e então clicar na aba PAA
-        setTimeout(() => {
-          const paaTab = document.querySelector('[value="paa"]');
-          if (paaTab) {
-            (paaTab as HTMLButtonElement).click();
-          }
-        }, 300);
-      }
-    }, 100);
+        // Tentar clicar na aba PAA
+        const paaTab = document.querySelector('[value="paa"]');
+        if (paaTab) {
+          (paaTab as HTMLButtonElement).click();
+          console.log("Clicou na aba PAA");
+        } else {
+          // Tentar novamente após um pequeno atraso
+          setTimeout(() => {
+            const retryPaaTab = document.querySelector('[value="paa"]');
+            if (retryPaaTab) {
+              (retryPaaTab as HTMLButtonElement).click();
+              console.log("Clicou na aba PAA (segunda tentativa)");
+            }
+          }, 200);
+        }
+      }, 400);
+    }
   };
 
   return (

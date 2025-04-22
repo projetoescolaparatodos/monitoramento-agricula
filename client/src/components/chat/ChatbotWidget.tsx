@@ -988,8 +988,15 @@ const ChatbotWidget: React.FC = () => {
   useEffect(() => {
     const handleOpenChatbot = (event: CustomEvent) => {
       setIsOpen(true);
+      
+      // Verificar se a requisição especifica uma aba
       if (event.detail?.tab) {
-        setActiveTab(event.detail.tab);
+        console.log("Evento para abrir chatbot na aba:", event.detail.tab);
+        
+        // Pequeno atraso para garantir que o componente está renderizado
+        setTimeout(() => {
+          setActiveTab(event.detail.tab);
+        }, 50);
       }
     };
 
@@ -1000,36 +1007,45 @@ const ChatbotWidget: React.FC = () => {
     };
   }, []);
 
-  // Verificar se há uma aba específica para abrir
+  // Verificar se há uma aba específica para abrir ao carregar ou abrir
   useEffect(() => {
-    if (isOpen) {
-      // Verificar se há um valor no localStorage
-      const savedTab = localStorage.getItem('chatbot_tab');
+    // Executar independente do estado isOpen para garantir abertura mesmo se já estiver aberto
+    // Verificar se há um valor no localStorage
+    const savedTab = localStorage.getItem('chatbot_tab');
+    
+    // Verificar se há um valor no hash da URL
+    const hash = window.location.hash;
+    let hashTab = '';
+    if (hash.includes('chatbot-tab=')) {
+      hashTab = hash.split('=')[1];
+    }
+    
+    // Priorizar o hash, mas usar localStorage como fallback
+    const tabToOpen = hashTab || savedTab;
+    
+    if (tabToOpen && ['chat', 'agricultura', 'pesca', 'paa'].includes(tabToOpen)) {
+      console.log("Definindo aba do chatbot para:", tabToOpen);
       
-      // Verificar se há um valor no hash da URL
-      const hash = window.location.hash;
-      let hashTab = '';
-      if (hash.includes('chatbot-tab=')) {
-        hashTab = hash.split('=')[1];
+      // Se não estiver aberto, abrir
+      if (!isOpen) {
+        setIsOpen(true);
       }
       
-      // Priorizar o hash, mas usar localStorage como fallback
-      const tabToOpen = hashTab || savedTab;
-      
-      if (tabToOpen && ['chat', 'agricultura', 'pesca', 'paa'].includes(tabToOpen)) {
-        console.log("Abrindo chatbot na aba:", tabToOpen);
+      // Garantir que a aba seja definida após o componente estar renderizado
+      setTimeout(() => {
         setActiveTab(tabToOpen);
-        
-        // Limpar após usar
-        localStorage.removeItem('chatbot_tab');
-        
-        // Limpar o hash após usar
-        if (hashTab) {
-          history.pushState("", document.title, window.location.pathname + window.location.search);
-        }
+        console.log("Aba do chatbot definida para:", tabToOpen);
+      }, 100);
+      
+      // Limpar após usar para não persistir em navegações futuras
+      localStorage.removeItem('chatbot_tab');
+      
+      // Limpar o hash após usar
+      if (hashTab) {
+        history.pushState("", document.title, window.location.pathname + window.location.search);
       }
     }
-  }, [isOpen]);
+  }, [isOpen]); // Mantido apenas isOpen como dependência para não executar continuamente
   
   return (
     <div className="fixed bottom-4 right-4 z-50">
