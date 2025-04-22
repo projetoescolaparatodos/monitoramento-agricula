@@ -987,11 +987,29 @@ const ChatbotWidget: React.FC = () => {
   // Verificar se há uma aba específica para abrir
   useEffect(() => {
     if (isOpen) {
+      // Verificar se há um valor no localStorage
       const savedTab = localStorage.getItem('chatbot_tab');
-      if (savedTab) {
-        setActiveTab(savedTab);
+      
+      // Verificar se há um valor no hash da URL
+      const hash = window.location.hash;
+      let hashTab = '';
+      if (hash.includes('chatbot-tab=')) {
+        hashTab = hash.split('=')[1];
+      }
+      
+      // Priorizar o hash, mas usar localStorage como fallback
+      const tabToOpen = hashTab || savedTab;
+      
+      if (tabToOpen && ['chat', 'agricultura', 'pesca', 'paa'].includes(tabToOpen)) {
+        setActiveTab(tabToOpen);
+        
         // Limpar após usar
         localStorage.removeItem('chatbot_tab');
+        
+        // Limpar o hash após usar
+        if (hashTab) {
+          history.pushState("", document.title, window.location.pathname + window.location.search);
+        }
       }
     }
   }, [isOpen]);

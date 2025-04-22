@@ -14,6 +14,20 @@ import DataVisualizationSection from "@/components/agriculture/DataVisualization
 import BackgroundVideo from "@/components/ui/BackgroundVideo";
 import OpenChatPAA from "@/components/chat/OpenChatPAA";
 
+const ChatTabLink = ({ tab, children, className, ...props }: { tab: string; children: React.ReactNode; className?: string; }) => {
+  const handleClick = () => {
+    //Assuming setIsOpen and setActiveTab are available in the parent component's scope.
+    setIsOpen(true); 
+    setActiveTab(tab);
+  };
+  return (
+    <button onClick={handleClick} className={className} {...props}>
+      {children}
+    </button>
+  );
+};
+
+
 const PAAInfo = () => {
   const backgroundStyle = {
     backgroundImage: 'url("/fundo estatico.jpg")',
@@ -76,6 +90,11 @@ const PAAInfo = () => {
       ),
   });
 
+  // Assuming setIsOpen and setActiveTab are available here.  This needs to be confirmed in the original code.
+  const setIsOpen = () => {};
+  const setActiveTab = () => {};
+
+
   return (
     <>
       <div style={backgroundStyle} />
@@ -103,15 +122,24 @@ const PAAInfo = () => {
               {contents
                 .sort((a, b) => (a.order || 0) - (b.order || 0))
                 .map((content) => (
-                <Card key={content.id} className="p-6 border-0 bg-white/10 backdrop-blur-sm">
-                  <h3 className="text-2xl font-bold mb-4 text-white drop-shadow-sm">{content.title}</h3>
-                  <div className="text-white text-lg leading-relaxed rich-content">
-                    {parse(content.content || '')}
-                  </div>
-                </Card>
-              ))}
+                  <Card key={content.id} className="p-6 border-0 bg-white/10 backdrop-blur-sm">
+                    <h3 className="text-2xl font-bold mb-4 text-white drop-shadow-sm">{content.title}</h3>
+                    <div className="text-white text-lg leading-relaxed rich-content">
+                      {parse(content.content || '')}
+                    </div>
+                  </Card>
+                ))}
             </div>
           )}
+
+          <div className="mt-6 flex justify-center gap-4">
+            <Button variant="default" className="bg-amber-600 hover:bg-amber-700">
+              Saiba Mais
+            </Button>
+            <ChatTabLink tab="paa" className="px-4 py-2 rounded-md bg-green-600 hover:bg-green-700 text-white">
+              Fale sobre o PAA
+            </ChatTabLink>
+          </div>
 
           <div className="flex justify-center mb-8">
             <OpenChatPAA buttonText="Tire dúvidas sobre o PAA" className="bg-amber-600 hover:bg-amber-700 text-white" />
