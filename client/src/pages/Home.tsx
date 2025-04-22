@@ -7,6 +7,8 @@ import StatisticsSection from "@/components/home/StatisticsSection";
 import DataVisualizationSection from "@/components/home/DataVisualizationSection";
 import MediaGallerySection from "@/components/home/MediaGallerySection";
 import BackgroundVideo from "@/components/ui/BackgroundVideo";
+import OpenChatPAA from "@/components/chat/OpenChatPAA";
+import PAADirectLink from "@/components/chat/PAADirectLink";
 
 const AreasSection = () => {
   return (
@@ -80,22 +82,17 @@ const Home = () => {
           <h2 className="text-3xl font-bold text-center mb-8 text-white">Galeria de Mídia</h2>
           <MediaGallerySection variant="transparent" />
         </section>
+        
+        {/* PAA Assistant components */}
+        <div className="mt-8 flex flex-col gap-4 items-center">
+          <OpenChatPAA buttonText="Abrir Assistente do PAA" className="bg-amber-600 hover:bg-amber-700 text-white" />
+          <PAADirectLink className="text-amber-600 hover:text-amber-800 underline">
+            Link direto para conversar sobre o PAA
+          </PAADirectLink>
+        </div>
       </main>
     </>
   );
 };
 
 export default Home;
-
-
-import OpenChatPAA from "@/components/chat/OpenChatPAA";
-import PAADirectLink from "@/components/chat/PAADirectLink";
-
-{/* Adicione estes componentes onde desejar na página Home */}
-<div className="mt-8 flex flex-col gap-4 items-center">
-  <OpenChatPAA buttonText="Abrir Assistente do PAA" className="bg-amber-600 hover:bg-amber-700 text-white" />
-  
-  <PAADirectLink className="text-amber-600 hover:text-amber-800 underline">
-    Link direto para conversar sobre o PAA
-  </PAADirectLink>white" />
-</div>
