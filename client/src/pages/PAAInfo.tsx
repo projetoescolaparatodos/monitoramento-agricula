@@ -117,14 +117,7 @@ const PAAInfo = () => {
             </div>
           )}
 
-          <div className="mt-6 flex justify-center gap-4">
-            <Button variant="default" className="bg-amber-600 hover:bg-amber-700">
-              Saiba Mais
-            </Button>
-            <ChatTabLink tab="paa" className="px-4 py-2 rounded-md bg-green-600 hover:bg-green-700 text-white">
-              Fale sobre o PAA
-            </ChatTabLink>
-          </div>
+          {/* Botões removidos conforme solicitado */}
 
           <div className="flex justify-center mb-8">
             <OpenChatPAA buttonText="Tire dúvidas sobre o PAA" className="bg-amber-600 hover:bg-amber-700 text-white" />
