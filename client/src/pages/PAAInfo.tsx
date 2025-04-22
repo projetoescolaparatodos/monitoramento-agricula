@@ -14,7 +14,7 @@ import DataVisualizationSection from "@/components/agriculture/DataVisualization
 import BackgroundVideo from "@/components/ui/BackgroundVideo";
 import OpenChatPAA from "@/components/chat/OpenChatPAA";
 import ChatTabLink from "@/components/chat/ChatTabLink";
-import PAAChatButton from "@/components/chat/PAAChatButton"; // Assuming this component exists
+import PAAChatButton from "@/components/chat/PAAChatButton";
 
 const PAAInfo = () => {
   const backgroundStyle = {
