@@ -13,20 +13,7 @@ import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
 import BackgroundVideo from "@/components/ui/BackgroundVideo";
 import OpenChatPAA from "@/components/chat/OpenChatPAA";
-
-const ChatTabLink = ({ tab, children, className, ...props }: { tab: string; children: React.ReactNode; className?: string; }) => {
-  const handleClick = () => {
-    //Assuming setIsOpen and setActiveTab are available in the parent component's scope.
-    setIsOpen(true); 
-    setActiveTab(tab);
-  };
-  return (
-    <button onClick={handleClick} className={className} {...props}>
-      {children}
-    </button>
-  );
-};
-
+import ChatTabLink from "@/components/chat/ChatTabLink";
 
 const PAAInfo = () => {
   const backgroundStyle = {
@@ -90,9 +77,7 @@ const PAAInfo = () => {
       ),
   });
 
-  // Assuming setIsOpen and setActiveTab are available here.  This needs to be confirmed in the original code.
-  const setIsOpen = () => {};
-  const setActiveTab = () => {};
+  // Utilizamos o componente ChatTabLink importado para gerenciar a abertura do chat
 
 
   return (
