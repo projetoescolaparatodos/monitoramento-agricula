@@ -93,3 +93,35 @@
   filter: blur(2px);
   transition: filter 0.3s ease;
 }
+
+/* Estilo para as mídias do popup */
+.popup-media {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.boundary-toggle {
+    background: white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.boundary-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.icon-active {
+    filter: drop-shadow(0 0 2px #00ff88);
+}

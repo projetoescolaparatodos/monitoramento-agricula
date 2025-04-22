@@ -468,13 +468,18 @@ const AgriculturaMap = () => {
           />
         )}
         
-        {/* Botão de controle para o limite com estilo profissional */}
+        {/* Botão de controle para o limite com ícone do município */}
         <div className="absolute top-20 right-4 z-50">
           <button
             onClick={() => setShowBoundary(!showBoundary)}
             className={styles["boundary-toggle"]}
+            title={showBoundary ? "Ocultar Contorno Municipal" : "Mostrar Contorno Municipal"}
           >
-            {showBoundary ? "Ocultar Contorno Municipal" : "Mostrar Contorno Municipal"}
+            <img 
+              src="/boundary-icon.svg" 
+              alt="Contorno Municipal" 
+              className={`w-8 h-8 ${showBoundary ? styles["icon-active"] : ""}`}
+            />
           </button>
         </div>
       </GoogleMap>
