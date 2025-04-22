@@ -8,7 +8,6 @@ import DataVisualizationSection from "@/components/home/DataVisualizationSection
 import MediaGallerySection from "@/components/home/MediaGallerySection";
 import BackgroundVideo from "@/components/ui/BackgroundVideo";
 
-
 const AreasSection = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -81,8 +80,6 @@ const Home = () => {
           <h2 className="text-3xl font-bold text-center mb-8 text-white">Galeria de Mídia</h2>
           <MediaGallerySection variant="transparent" />
         </section>
-        
-        {/* Componentes de PAA Assistant removidos */}
       </main>
     </>
   );

@@ -1,5 +1,5 @@
 import { Switch, Route, useLocation } from "wouter";
-import React, { Suspense, lazy, useEffect } from "react";
+import React, { Suspense, lazy } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ChatButton } from "@/components/chat/ChatButton";
 import ChatbotWidget from "@/components/chat/ChatbotWidget";
@@ -17,7 +17,6 @@ import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import Admin from "@/pages/Admin";
 import NotFound from "@/pages/not-found";
-
 import NavBar from "@/components/NavBar";
 import { auth } from "./utils/firebase";
 import FishingInfo from "@/pages/FishingInfo";
@@ -37,24 +36,6 @@ function Router() {
   const [location] = useLocation();
   const isFormPage = location.startsWith('/forms/');
   const isReportPage = location === '/report';
-
-  // Verificar se há uma âncora para abrir o chat
-  useEffect(() => {
-    if (window.location.hash === '#open-paa-chat') {
-      localStorage.setItem('chatbot_tab', 'paa');
-      
-      // Atrasar um pouco para garantir que o componente do chatbot já esteja carregado
-      setTimeout(() => {
-        const chatbotButton = document.querySelector('[data-chatbot-button]');
-        if (chatbotButton) {
-          (chatbotButton as HTMLButtonElement).click();
-        }
-      }, 500);
-      
-      // Limpar a âncora
-      history.pushState("", document.title, window.location.pathname + window.location.search);
-    }
-  }, []);
 
   return (
     <>

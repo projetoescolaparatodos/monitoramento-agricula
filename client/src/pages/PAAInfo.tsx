@@ -12,9 +12,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
 import BackgroundVideo from "@/components/ui/BackgroundVideo";
-import OpenChatPAA from "@/components/chat/OpenChatPAA";
-import ChatTabLink from "@/components/chat/ChatTabLink";
-import PAAChatButton from "@/components/chat/PAAChatButton";
 
 const PAAInfo = () => {
   const backgroundStyle = {
@@ -78,7 +75,6 @@ const PAAInfo = () => {
       ),
   });
 
-
   return (
     <>
       <div style={backgroundStyle} />
@@ -99,9 +95,6 @@ const PAAInfo = () => {
             <p className="text-center text-lg text-white/80">
               Informações e dados sobre o Programa de Aquisição de Alimentos em Vitória do Xingu
             </p>
-            <div className="flex justify-center mt-4">
-              <PAAChatButton buttonText="TIRE SUAS DÚVIDAS" className="bg-amber-600 hover:bg-amber-700 text-white" />
-            </div>
           </div>
 
           {contents && contents.length > 0 && (
@@ -109,16 +102,15 @@ const PAAInfo = () => {
               {contents
                 .sort((a, b) => (a.order || 0) - (b.order || 0))
                 .map((content) => (
-                  <Card key={content.id} className="p-6 border-0 bg-white/10 backdrop-blur-sm">
-                    <h3 className="text-2xl font-bold mb-4 text-white drop-shadow-sm">{content.title}</h3>
-                    <div className="text-white text-lg leading-relaxed rich-content">
-                      {parse(content.content || '')}
-                    </div>
-                  </Card>
-                ))}
+                <Card key={content.id} className="p-6 border-0 bg-white/10 backdrop-blur-sm">
+                  <h3 className="text-2xl font-bold mb-4 text-white drop-shadow-sm">{content.title}</h3>
+                  <div className="text-white text-lg leading-relaxed rich-content">
+                    {parse(content.content || '')}
+                  </div>
+                </Card>
+              ))}
             </div>
           )}
-
 
           <DataVisualizationSection 
             charts={charts || []} 
