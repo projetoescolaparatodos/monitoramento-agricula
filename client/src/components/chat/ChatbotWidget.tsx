@@ -1015,17 +1015,29 @@ const ChatbotWidget: React.FC = () => {
           </div>
 
           <Tabs defaultValue="chat" onValueChange={handleTabChange}>
-            <TabsList className="grid grid-cols-4 p-0 bg-green-50">
-              <TabsTrigger value="chat" className="text-xs">
+            <TabsList className="grid grid-cols-4 p-0 bg-green-50 gap-1 pt-1 px-1 shadow-inner rounded-md">
+              <TabsTrigger 
+                value="chat" 
+                className="text-sm font-medium shadow-sm rounded-md transition-all data-[state=active]:border-t-2 data-[state=active]:border-t-green-600 data-[state=active]:bg-green-600 data-[state=active]:text-white hover:bg-green-100"
+              >
                 💬 Chat
               </TabsTrigger>
-              <TabsTrigger value="agricultura" className="text-xs">
+              <TabsTrigger 
+                value="agricultura" 
+                className="text-sm font-medium shadow-sm rounded-md transition-all data-[state=active]:border-t-2 data-[state=active]:border-t-green-700 data-[state=active]:bg-green-700 data-[state=active]:text-white hover:bg-green-100"
+              >
                 🌱 Agricultura
               </TabsTrigger>
-              <TabsTrigger value="pesca" className="text-xs">
+              <TabsTrigger 
+                value="pesca" 
+                className="text-sm font-medium shadow-sm rounded-md transition-all data-[state=active]:border-t-2 data-[state=active]:border-t-blue-600 data-[state=active]:bg-blue-600 data-[state=active]:text-white hover:bg-blue-100"
+              >
                 🎣 Pesca
               </TabsTrigger>
-              <TabsTrigger value="paa" className="text-xs">
+              <TabsTrigger 
+                value="paa" 
+                className="text-sm font-medium shadow-sm rounded-md transition-all data-[state=active]:border-t-2 data-[state=active]:border-t-amber-600 data-[state=active]:bg-amber-600 data-[state=active]:text-white hover:bg-amber-100"
+              >
                 🛒 PAA
               </TabsTrigger>
             </TabsList>
