@@ -6,11 +6,20 @@ import { MessageCircle } from "lucide-react";
 const openChatbotPAA = () => {
   // Criar ou atualizar um item no localStorage para indicar qual aba abrir
   localStorage.setItem('chatbot_tab', 'paa');
-
+  
   // Buscar o elemento do chatbot e simular um clique se estiver fechado
   const chatbotButton = document.querySelector('[data-chatbot-button]');
   if (chatbotButton) {
     (chatbotButton as HTMLButtonElement).click();
+    
+    // Aguardar um pouco para dar tempo do chatbot abrir
+    setTimeout(() => {
+      // Buscar a aba PAA dentro do chatbot e clicar nela
+      const paaTab = document.querySelector('[value="paa"]');
+      if (paaTab) {
+        (paaTab as HTMLButtonElement).click();
+      }
+    }, 300);
   }
 };
 
