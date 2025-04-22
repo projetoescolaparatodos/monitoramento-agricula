@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
 import BackgroundVideo from "@/components/ui/BackgroundVideo";
+import OpenChatPAA from "@/components/chat/OpenChatPAA";
 
 const PAAInfo = () => {
   const backgroundStyle = {
@@ -51,14 +52,6 @@ const PAAInfo = () => {
       );
       const snapshot = await getDocs(chartsQuery);
       return snapshot.docs.map((doc) => ({
-
-import OpenChatPAA from "@/components/chat/OpenChatPAA";
-
-{/* Botão para abrir o chat do PAA */}
-<div className="flex justify-center mb-8">
-  <OpenChatPAA buttonText="Tire dúvidas sobre o PAA" className="bg-amber-600 hover:bg-amber-700 text-white" />
-</div>
-
         id: doc.id,
         ...doc.data()
       }));
@@ -119,6 +112,10 @@ import OpenChatPAA from "@/components/chat/OpenChatPAA";
               ))}
             </div>
           )}
+
+          <div className="flex justify-center mb-8">
+            <OpenChatPAA buttonText="Tire dúvidas sobre o PAA" className="bg-amber-600 hover:bg-amber-700 text-white" />
+          </div>
 
           <DataVisualizationSection 
             charts={charts || []} 
