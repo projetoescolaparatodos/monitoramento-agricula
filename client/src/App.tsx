@@ -53,7 +53,6 @@ function Router() {
             <Route path="/fishing/info" component={FishingInfo} />
             <Route path="/fishing/map" component={PescaMap} /> 
             <Route path="/paa" component={PAAInfo} /> 
-            <Route path="/paa/info" component={PAAInfo} />
             <Route path="/paa/map" component={PAAMap} />
             <Route path="/dashboard/:section?" component={Dashboard} />
             <Route path="/login" component={Login} />

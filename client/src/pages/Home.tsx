@@ -31,7 +31,7 @@ const AreasSection = () => {
           <p className="text-gray-600">Dados sobre pesca e atividades pesqueiras</p>
         </div>
       </Link>
-      <Link href="/paa-info">
+      <Link href="/paa">
         <div className="relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer group">
           <div className="absolute -top-4 -right-4 w-16 h-16 bg-primary/10 rounded-full transform group-hover:scale-110 transition-transform"></div>
           <div className="absolute -top-5 -right-5 w-16 h-16 flex items-center justify-center">
