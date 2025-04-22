@@ -272,12 +272,12 @@ const ChatbotWidget: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [trainingData, setTrainingData] = useState("");
   
-  // Efeito para abrir automaticamente o chat após 5 segundos
+  // Efeito para abrir automaticamente o chat após 10 segundos
   useEffect(() => {
-    // Timer para abrir o chat automaticamente após 5 segundos
+    // Timer para abrir o chat automaticamente após 10 segundos
     const autoOpenTimer = setTimeout(() => {
       setIsOpen(true);
-    }, 5000);
+    }, 10000);
     
     // Limpar o timer quando o componente for desmontado
     return () => clearTimeout(autoOpenTimer);
