@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { MessageCircle } from "lucide-react";
 
@@ -7,7 +6,7 @@ import { MessageCircle } from "lucide-react";
 const openChatbotPAA = () => {
   // Criar ou atualizar um item no localStorage para indicar qual aba abrir
   localStorage.setItem('chatbot_tab', 'paa');
-  
+
   // Buscar o elemento do chatbot e simular um clique se estiver fechado
   const chatbotButton = document.querySelector('[data-chatbot-button]');
   if (chatbotButton) {
