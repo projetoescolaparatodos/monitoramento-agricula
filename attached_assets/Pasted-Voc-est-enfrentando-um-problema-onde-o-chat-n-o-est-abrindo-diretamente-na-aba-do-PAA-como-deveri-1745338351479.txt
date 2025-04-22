@@ -1,0 +1,74 @@
+Você está enfrentando um problema onde o chat não está abrindo diretamente na aba do PAA como deveria, e sim na aba do Chat. Vamos corrigir isso com uma solução robusta. Aqui está a implementação completa:
+1. Primeiro, crie o componente ChatTabLink:
+tsx
+
+// client/src/components/chat/ChatTabLink.tsx
+import React from 'react';
+import { Button, ButtonProps } from '@/components/ui/button';
+
+interface ChatTabLinkProps extends ButtonProps {
+  tab: 'chat' | 'agricultura' | 'pesca' | 'paa';
+}
+
+const ChatTabLink: React.FC<ChatTabLinkProps> = ({ 
+  tab, 
+  children, 
+  ...props 
+}) => {
+  const handleClick = () => {
+    // Armazena a aba desejada no localStorage
+    localStorage.setItem('chatbot_tab', tab);
+    // Dispara um evento personalizado para notificar o chatbot
+    window.dispatchEvent(new CustomEvent('open-chatbot', { detail: { tab } }));
+  };
+
+  return (
+    <Button onClick={handleClick} {...props}>
+      {children}
+    </Button>
+  );
+};
+
+export default ChatTabLink;
+
+2. Atualize o ChatbotWidget para responder ao evento:
+tsx
+
+// client/src/components/chat/ChatbotWidget.tsx
+// Adicione este useEffect no componente:
+useEffect(() => {
+  const handleOpenChatbot = (event: CustomEvent) => {
+    setIsOpen(true);
+    if (event.detail?.tab) {
+      setActiveTab(event.detail.tab);
+    }
+  };
+
+  window.addEventListener('open-chatbot', handleOpenChatbot as EventListener);
+  
+  return () => {
+    window.removeEventListener('open-chatbot', handleOpenChatbot as EventListener);
+  };
+}, []);
+
+// E atualize o useEffect existente:
+useEffect(() => {
+  if (isOpen) {
+    const savedTab = localStorage.getItem('chatbot_tab');
+    if (savedTab && ['chat', 'agricultura', 'pesca', 'paa'].includes(savedTab)) {
+      setActiveTab(savedTab);
+      localStorage.removeItem('chatbot_tab');
+    }
+
+    // Verifica também o hash da URL
+    const hash = window.location.hash;
+    if (hash.includes('chat-tab=')) {
+      const tabFromHash = hash.split('=')[1];
+      if (['chat', 'agricultura', 'pesca', 'paa'].includes(tabFromHash)) {
+        setActiveTab(tabFromHash);
+        // Remove o hash para não interferir em navegações futuras
+        window.location.hash = '';
+      }
+    }
+  }
+}, [isOpen]);
