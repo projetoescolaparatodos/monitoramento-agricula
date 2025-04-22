@@ -89,8 +89,13 @@ export default Home;
 
 
 import OpenChatPAA from "@/components/chat/OpenChatPAA";
+import PAADirectLink from "@/components/chat/PAADirectLink";
 
-{/* Adicione este componente onde desejar na página Home */}
-<div className="mt-8 flex justify-center">
+{/* Adicione estes componentes onde desejar na página Home */}
+<div className="mt-8 flex flex-col gap-4 items-center">
   <OpenChatPAA buttonText="Abrir Assistente do PAA" className="bg-amber-600 hover:bg-amber-700 text-white" />
+  
+  <PAADirectLink className="text-amber-600 hover:text-amber-800 underline">
+    Link direto para conversar sobre o PAA
+  </PAADirectLink>white" />
 </div>
