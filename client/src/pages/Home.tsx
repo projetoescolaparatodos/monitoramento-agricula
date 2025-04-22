@@ -7,8 +7,7 @@ import StatisticsSection from "@/components/home/StatisticsSection";
 import DataVisualizationSection from "@/components/home/DataVisualizationSection";
 import MediaGallerySection from "@/components/home/MediaGallerySection";
 import BackgroundVideo from "@/components/ui/BackgroundVideo";
-import OpenChatPAA from "@/components/chat/OpenChatPAA";
-import PAADirectLink from "@/components/chat/PAADirectLink";
+
 
 const AreasSection = () => {
   return (
@@ -83,13 +82,7 @@ const Home = () => {
           <MediaGallerySection variant="transparent" />
         </section>
         
-        {/* PAA Assistant components */}
-        <div className="mt-8 flex flex-col gap-4 items-center">
-          <OpenChatPAA buttonText="Abrir Assistente do PAA" className="bg-amber-600 hover:bg-amber-700 text-white" />
-          <PAADirectLink className="text-amber-600 hover:text-amber-800 underline">
-            Link direto para conversar sobre o PAA
-          </PAADirectLink>
-        </div>
+        {/* Componentes de PAA Assistant removidos */}
       </main>
     </>
   );
