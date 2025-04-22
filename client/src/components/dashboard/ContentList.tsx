@@ -94,6 +94,7 @@ const ContentList = ({ onEdit, onDelete }: ContentListProps) => {
           <TableRow>
             <TableHead>Título</TableHead>
             <TableHead>Página</TableHead>
+            <TableHead>Ordem</TableHead>
             <TableHead>Data de Criação</TableHead>
             <TableHead>Ações</TableHead>
           </TableRow>
@@ -107,6 +108,7 @@ const ContentList = ({ onEdit, onDelete }: ContentListProps) => {
                   {getPageTypeName(content.pageType)}
                 </Badge>
               </TableCell>
+              <TableCell>{content.order || 0}</TableCell>
               <TableCell>
                 {new Date(content.createdAt).toLocaleDateString()}
               </TableCell>

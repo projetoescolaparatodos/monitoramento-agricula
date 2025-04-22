@@ -36,6 +36,7 @@ const formSchema = z.object({
   sectionType: z.string().min(2, "Tipo de seção é obrigatório"),
   title: z.string().min(5, "Título deve ter pelo menos 5 caracteres"),
   content: z.string().min(10, "Conteúdo deve ter pelo menos 10 caracteres"),
+  order: z.number().default(0),
   active: z.boolean().default(true),
 });
 
@@ -89,6 +90,7 @@ export const ContentForm = ({ contentData, isEdit = false, onSuccess }: ContentF
     sectionType: "info",
     title: "",
     content: "",
+    order: 0,
     active: true,
   };
 
@@ -234,6 +236,29 @@ export const ContentForm = ({ contentData, isEdit = false, onSuccess }: ContentF
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="order"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ordem de exibição</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                      value={field.value}
+                      placeholder="0" 
+                    />
+                  </FormControl>
+                  <p className="text-sm text-muted-foreground">
+                    Números menores aparecem primeiro (0, 1, 2, ...)
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
             <FormField
               control={form.control}
               name="active"

@@ -1,4 +1,3 @@
-
 export interface ContentItem {
   id: string;
   title: string;
@@ -7,6 +6,7 @@ export interface ContentItem {
   sectionType: string;
   createdAt: Date;
   updatedAt: Date;
+  order: number;
 }
 
 export interface ChartItem {

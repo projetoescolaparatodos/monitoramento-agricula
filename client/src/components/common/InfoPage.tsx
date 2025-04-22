@@ -60,7 +60,9 @@ const InfoPage = ({
 
       {contents && contents.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          {contents.map((content) => (
+          {contents
+            .sort((a, b) => (a.order || 0) - (b.order || 0))
+            .map((content) => (
             <Card key={content.id}>
               <CardContent className="p-6">
                 <h3 className="text-xl font-semibold mb-4">{content.title}</h3>
