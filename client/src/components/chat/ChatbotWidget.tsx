@@ -272,7 +272,7 @@ const ChatbotWidget: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [trainingData, setTrainingData] = useState("");
   
-  // Efeito para abrir automaticamente o chat após 10 segundos
+  // Efeito para abrir automaticamente o chat após 10 segundos apenas na página inicial
   useEffect(() => {
     // Verificar se já existe uma instância ativa do chat
     const chatInstanceKey = "chat_instance_active";
@@ -283,19 +283,27 @@ const ChatbotWidget: React.FC = () => {
       return;
     }
     
-    // Marcar esta instância como ativa
-    localStorage.setItem(chatInstanceKey, "true");
+    // Verificar se estamos na página inicial
+    const isHomePage = window.location.pathname === "/" || 
+                       window.location.pathname === "/home" || 
+                       window.location.pathname === "";
     
-    // Timer para abrir o chat automaticamente após 10 segundos
-    const autoOpenTimer = setTimeout(() => {
-      setIsOpen(true);
-    }, 10000);
-    
-    // Limpar o timer e a marcação quando o componente for desmontado
-    return () => {
-      clearTimeout(autoOpenTimer);
-      localStorage.removeItem(chatInstanceKey);
-    };
+    // Só abrir automaticamente se for a página inicial
+    if (isHomePage) {
+      // Marcar esta instância como ativa
+      localStorage.setItem(chatInstanceKey, "true");
+      
+      // Timer para abrir o chat automaticamente após 10 segundos
+      const autoOpenTimer = setTimeout(() => {
+        setIsOpen(true);
+      }, 10000);
+      
+      // Limpar o timer e a marcação quando o componente for desmontado
+      return () => {
+        clearTimeout(autoOpenTimer);
+        localStorage.removeItem(chatInstanceKey);
+      };
+    }
   }, []);
   
   // Garante que apenas uma instância do chat está aberta de cada vez
