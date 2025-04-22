@@ -7,6 +7,9 @@ import { MessageCircle } from "lucide-react";
 const openChatbotPAA = () => {
   console.log("=== INICIANDO ABERTURA DO CHATBOT NA ABA PAA ===");
   
+  // Armazenar o tempo de início para análise de tempo de resposta
+  const startTime = Date.now();
+  
   // Garantir que qualquer estado anterior seja limpo
   localStorage.removeItem('chatbot_tab');
   
@@ -18,6 +21,9 @@ const openChatbotPAA = () => {
   window.location.hash = 'chatbot-tab=paa';
   console.log("Hash da URL definido para 'chatbot-tab=paa'");
   
+  // Gerar um ID único para este evento
+  const eventId = `paa-open-request-${Date.now()}`;
+  
   // Buscar o elemento do chatbot
   const chatbotButton = document.querySelector('[data-chatbot-button]');
   if (chatbotButton) {
@@ -25,49 +31,67 @@ const openChatbotPAA = () => {
     
     // Disparar evento ANTES de abrir o chatbot
     window.dispatchEvent(new CustomEvent('open-chatbot', { 
-      detail: { tab: 'paa', timestamp: Date.now() }
+      detail: { 
+        tab: 'paa', 
+        timestamp: Date.now(),
+        eventId: eventId,
+        source: 'OpenChatPAA'
+      }
     }));
     console.log("Evento 'open-chatbot' disparado ANTES do clique");
     
     // Clicar para abrir o chatbot
     (chatbotButton as HTMLButtonElement).click();
     
-    // Sequência de tentativas para garantir que a aba PAA seja selecionada
-    // Usamos mais tentativas e com intervalos maiores para garantir
-    const attemptTimes = [100, 200, 400, 600, 800, 1000, 1500, 2000];
+    // Usar múltiplas estratégias para garantir a seleção da aba PAA
     
-    // Funções para tentar selecionar a aba PAA
-    const trySelectPaaTab = (attempt: number) => {
+    // Estratégia 1: Sequência de tentativas com intervalos progressivos
+    const attemptTimes = [100, 200, 400, 700, 1000, 1500];
+    
+    // Função para tentar selecionar a aba PAA
+    attemptTimes.forEach((delay, index) => {
       setTimeout(() => {
-        // Disparar evento novamente após o chatbot estar aberto
-        if (attempt === 2) {
-          window.dispatchEvent(new CustomEvent('open-chatbot', { 
-            detail: { tab: 'paa', timestamp: Date.now(), stage: 'post-open' }
-          }));
-          console.log(`Evento 'open-chatbot' disparado novamente após abertura (${attemptTimes[attempt]}ms)`);
-        }
-        
-        // Tentar selecionar a aba PAA diretamente
+        // Tentar selecionar a aba PAA
         const paaTab = document.querySelector('[value="paa"]');
+        
         if (paaTab) {
-          console.log(`Aba PAA encontrada (tentativa ${attempt+1}), clicando após ${attemptTimes[attempt]}ms`);
-          // Usar click() para a interação programática
+          console.log(`Aba PAA encontrada (tentativa ${index+1} após ${delay}ms), clicando`);
+          
+          // Tentar diferentes métodos para garantir o clique
+          // Método 1: click()
           (paaTab as HTMLButtonElement).click();
           
-          // Alternativa usando dispatchEvent para um clique mais "natural"
+          // Método 2: dispatchEvent para um clique mais "natural"
           paaTab.dispatchEvent(new MouseEvent('click', {
             view: window,
             bubbles: true,
             cancelable: true
           }));
+          
+          // Disparar evento novamente confirmando que a aba foi selecionada
+          if (index === 2) { // Na terceira tentativa
+            window.dispatchEvent(new CustomEvent('open-chatbot', { 
+              detail: { 
+                tab: 'paa', 
+                timestamp: Date.now(),
+                eventId: eventId,
+                stage: 'post-click',
+                elapsedTime: Date.now() - startTime
+              }
+            }));
+          }
         } else {
-          console.log(`Aba PAA não encontrada na tentativa ${attempt+1} (${attemptTimes[attempt]}ms)`);
+          console.log(`Aba PAA não encontrada na tentativa ${index+1} (${delay}ms)`);
+          
+          // Verificar se o chat foi aberto corretamente
+          const chatWindow = document.querySelector('[role="dialog"]');
+          if (!chatWindow) {
+            console.log("Chat não foi aberto corretamente. Tentando abrir novamente.");
+            (chatbotButton as HTMLButtonElement).click();
+          }
         }
-      }, attemptTimes[attempt]);
-    };
-    
-    // Executar todas as tentativas
-    attemptTimes.forEach((_, index) => trySelectPaaTab(index));
+      }, delay);
+    });
     
   } else {
     console.error("Botão do chatbot não encontrado");
@@ -75,7 +99,12 @@ const openChatbotPAA = () => {
     // Mesmo se o botão não for encontrado, tentar disparar o evento
     // para caso o chatbot já esteja aberto
     window.dispatchEvent(new CustomEvent('open-chatbot', { 
-      detail: { tab: 'paa', timestamp: Date.now(), force: true }
+      detail: { 
+        tab: 'paa', 
+        timestamp: Date.now(), 
+        force: true,
+        eventId: eventId 
+      }
     }));
     console.log("Evento 'open-chatbot' disparado mesmo sem encontrar o botão");
   }

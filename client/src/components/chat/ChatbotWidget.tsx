@@ -984,29 +984,35 @@ const ChatbotWidget: React.FC = () => {
     loadData();
   }, []);
 
+  // Estado para rastrear solicitações de abas específicas
+  const [requestedTab, setRequestedTab] = useState<string | null>(null);
+  const [lastEventId, setLastEventId] = useState<string | null>(null);
+  const [tabChangeAttempts, setTabChangeAttempts] = useState<number>(0);
+  
   // Responder ao evento personalizado para abrir o chatbot em uma aba específica
   useEffect(() => {
     const handleOpenChatbot = (event: CustomEvent) => {
-      console.log("Evento open-chatbot capturado com detalhes:", event.detail);
-      setIsOpen(true);
+      console.log("Evento open-chatbot capturado:", event.detail);
       
       // Verificar se a requisição especifica uma aba
       if (event.detail?.tab) {
-        const requestedTab = event.detail.tab;
-        console.log("Evento para abrir chatbot na aba:", requestedTab);
+        const tab = event.detail.tab;
+        const eventId = event.detail.eventId || `auto-${Date.now()}`;
         
-        // Definir a aba ativa imediatamente e com pequeno atraso para garantir que o componente está completamente renderizado
-        setActiveTab(requestedTab);
+        console.log(`Solicitação para abrir chatbot na aba: ${tab} (eventId: ${eventId})`);
         
-        // Usar múltiplas tentativas com intervalos diferentes para garantir que a aba seja definida
-        const attemptIntervals = [50, 150, 300, 500, 800];
+        // Armazenar a solicitação recebida
+        setRequestedTab(tab);
+        setLastEventId(eventId);
+        setTabChangeAttempts(0);
         
-        attemptIntervals.forEach(interval => {
-          setTimeout(() => {
-            console.log(`Tentativa de definir aba para ${requestedTab} após ${interval}ms`);
-            setActiveTab(requestedTab);
-          }, interval);
-        });
+        // Abrir o chatbot se não estiver aberto
+        if (!isOpen) {
+          setIsOpen(true);
+        } else {
+          // Se já estiver aberto, definir a aba imediatamente
+          setActiveTab(tab);
+        }
       }
     };
 
@@ -1015,56 +1021,89 @@ const ChatbotWidget: React.FC = () => {
     return () => {
       window.removeEventListener('open-chatbot', handleOpenChatbot as EventListener);
     };
-  }, []);
+  }, [isOpen]);
+
+  // Efeito para mudar a aba depois que o chat é aberto
+  useEffect(() => {
+    if (isOpen && requestedTab && tabChangeAttempts < 6) {
+      console.log(`Tentativa ${tabChangeAttempts+1} de alternar para a aba ${requestedTab}`);
+      
+      // Definir a aba
+      setActiveTab(requestedTab);
+      
+      // Incrementar as tentativas e tentar novamente após um delay
+      const delayTime = 200 * Math.pow(1.5, tabChangeAttempts); // delay exponencial
+      
+      const timer = setTimeout(() => {
+        // Verificar se a aba atual é a solicitada
+        if (activeTab !== requestedTab) {
+          setTabChangeAttempts(prev => prev + 1);
+        } else {
+          // Se já estiver na aba correta, limpar
+          console.log(`Aba ${requestedTab} definida com sucesso`);
+          setRequestedTab(null);
+          setLastEventId(null);
+          setTabChangeAttempts(0);
+        }
+      }, delayTime);
+      
+      return () => clearTimeout(timer);
+    } else if (tabChangeAttempts >= 6) {
+      // Desistir após muitas tentativas
+      console.log(`Desistindo de alternar para a aba ${requestedTab} após ${tabChangeAttempts} tentativas`);
+      setRequestedTab(null);
+      setLastEventId(null);
+      setTabChangeAttempts(0);
+    }
+  }, [isOpen, requestedTab, tabChangeAttempts, activeTab]);
 
   // Verificar se há uma aba específica para abrir ao montar o componente e ao abrir o chatbot
   useEffect(() => {
     // Função para verificar e aplicar a preferência de aba
     const checkAndApplyTabPreference = () => {
-      console.log("Verificando preferências de aba ao " + (isOpen ? "abrir" : "montar") + " o componente");
-      
-      // Verificar se há um valor no localStorage
-      const savedTab = localStorage.getItem('chatbot_tab');
-      
-      // Verificar se há um valor no hash da URL
-      const hash = window.location.hash;
-      let hashTab = '';
-      if (hash.includes('chatbot-tab=')) {
-        hashTab = hash.split('=')[1];
-      }
-      
-      // Priorizar o hash, mas usar localStorage como fallback
-      const tabToOpen = hashTab || savedTab;
-      
-      if (tabToOpen && ['chat', 'agricultura', 'pesca', 'paa'].includes(tabToOpen)) {
-        console.log("Definindo aba do chatbot para:", tabToOpen);
+      if (!requestedTab) { // Só verificar se não houver uma solicitação ativa
+        console.log("Verificando preferências de aba ao " + (isOpen ? "abrir" : "montar") + " o componente");
         
-        // Se não estiver aberto, abrir
-        if (!isOpen) {
-          setIsOpen(true);
+        // Verificar se há um valor no localStorage
+        const savedTab = localStorage.getItem('chatbot_tab');
+        
+        // Verificar se há um valor no hash da URL
+        const hash = window.location.hash;
+        let hashTab = '';
+        if (hash.includes('chatbot-tab=')) {
+          hashTab = hash.split('=')[1];
         }
         
-        // Definir a aba imediatamente
-        setActiveTab(tabToOpen);
+        // Priorizar o hash, mas usar localStorage como fallback
+        const tabToOpen = hashTab || savedTab;
         
-        // Usar tentativas múltiplas para garantir que o estado seja atualizado e a aba seja selecionada
-        [50, 150, 300, 500].forEach(delay => {
-          setTimeout(() => {
+        if (tabToOpen && ['chat', 'agricultura', 'pesca', 'paa'].includes(tabToOpen)) {
+          console.log("Definindo aba do chatbot para:", tabToOpen);
+          
+          // Simular um evento de abertura de aba
+          setRequestedTab(tabToOpen);
+          setLastEventId(`hash-${Date.now()}`);
+          setTabChangeAttempts(0);
+          
+          // Se não estiver aberto, abrir
+          if (!isOpen) {
+            setIsOpen(true);
+          } else {
+            // Se já estiver aberto, definir a aba
             setActiveTab(tabToOpen);
-            console.log(`Tentativa de definir aba para ${tabToOpen} após ${delay}ms`);
-          }, delay);
-        });
-        
-        // Limpar após usar para não persistir em navegações futuras
-        if (savedTab) {
-          console.log("Removendo preferência de aba do localStorage");
-          localStorage.removeItem('chatbot_tab');
-        }
-        
-        // Limpar o hash após usar
-        if (hashTab) {
-          console.log("Removendo hash da URL");
-          history.pushState("", document.title, window.location.pathname + window.location.search);
+          }
+          
+          // Limpar após usar para não persistir em navegações futuras
+          if (savedTab) {
+            console.log("Removendo preferência de aba do localStorage");
+            localStorage.removeItem('chatbot_tab');
+          }
+          
+          // Limpar o hash após usar
+          if (hashTab) {
+            console.log("Removendo hash da URL");
+            history.pushState("", document.title, window.location.pathname + window.location.search);
+          }
         }
       }
     };
@@ -1073,6 +1112,17 @@ const ChatbotWidget: React.FC = () => {
     checkAndApplyTabPreference();
     
   }, [isOpen]); // Executar ao abrir o chatbot
+  
+  // Efeito para registrar a alteração real da aba
+  useEffect(() => {
+    if (activeTab && requestedTab && activeTab === requestedTab) {
+      console.log(`Aba alterada com sucesso para: ${activeTab}`);
+      // Limpar a solicitação após sucesso
+      setRequestedTab(null);
+      setLastEventId(null);
+      setTabChangeAttempts(0);
+    }
+  }, [activeTab, requestedTab]);
   
   return (
     <div className="fixed bottom-4 right-4 z-50">
