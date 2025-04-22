@@ -274,14 +274,54 @@ const ChatbotWidget: React.FC = () => {
   
   // Efeito para abrir automaticamente o chat após 10 segundos
   useEffect(() => {
+    // Verificar se já existe uma instância ativa do chat
+    const chatInstanceKey = "chat_instance_active";
+    const existingInstance = localStorage.getItem(chatInstanceKey);
+    
+    if (existingInstance === "true") {
+      // Outra instância já está ativa, não abrir este chat
+      return;
+    }
+    
+    // Marcar esta instância como ativa
+    localStorage.setItem(chatInstanceKey, "true");
+    
     // Timer para abrir o chat automaticamente após 10 segundos
     const autoOpenTimer = setTimeout(() => {
       setIsOpen(true);
     }, 10000);
     
-    // Limpar o timer quando o componente for desmontado
-    return () => clearTimeout(autoOpenTimer);
+    // Limpar o timer e a marcação quando o componente for desmontado
+    return () => {
+      clearTimeout(autoOpenTimer);
+      localStorage.removeItem(chatInstanceKey);
+    };
   }, []);
+  
+  // Garante que apenas uma instância do chat está aberta de cada vez
+  useEffect(() => {
+    // Criar um evento personalizado para comunicação entre instâncias
+    const chatEvent = new CustomEvent("chat_instance_toggle", {
+      detail: { isOpen }
+    });
+    
+    // Disparar o evento quando o estado mudar
+    window.dispatchEvent(chatEvent);
+    
+    // Ouvir eventos de outras instâncias
+    const handleChatToggle = (event: CustomEvent) => {
+      if (event.detail.isOpen && isOpen) {
+        // Se outra instância está abrindo e esta já está aberta, fechar esta
+        setIsOpen(false);
+      }
+    };
+    
+    window.addEventListener("chat_instance_toggle", handleChatToggle as EventListener);
+    
+    return () => {
+      window.removeEventListener("chat_instance_toggle", handleChatToggle as EventListener);
+    };
+  }, [isOpen]);
 
   // Efeitos
   useEffect(() => {
