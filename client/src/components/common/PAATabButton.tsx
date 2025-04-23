@@ -8,20 +8,29 @@ interface PAATabButtonProps {
 }
 
 const PAATabButton: React.FC<PAATabButtonProps> = ({ className = "" }) => {
-  // Estado para rastrear se o chatbot já foi aberto por este botão
+  // Estado para rastrear se o chatbot foi aberto por este botão
   const [chatOpened, setChatOpened] = useState(false);
 
-  // Efeito para observar eventos de abertura/fechamento do chat
+  // Efeito para lidar com a comunicação entre componentes
   useEffect(() => {
+    // Função para manipular eventos de abertura do chat
     const handleChatOpen = (event: CustomEvent) => {
-      if (event.detail && event.detail.source === 'paa-button' && event.detail.isOpen === true) {
-        setChatOpened(true);
-      } else if (event.detail && event.detail.isOpen === false) {
-        setChatOpened(false);
+      if (event.detail) {
+        // Quando o chat é aberto pelo nosso botão
+        if (event.detail.source === 'paa-button' && event.detail.isOpen === true) {
+          setChatOpened(true);
+        }
+        // Quando o chat é fechado
+        else if (event.detail.isOpen === false) {
+          setChatOpened(false);
+        }
       }
     };
 
+    // Adicionar listener para o evento personalizado
     window.addEventListener('chat_instance_toggle', handleChatOpen as EventListener);
+
+    // Limpeza ao desmontar o componente
     return () => {
       window.removeEventListener('chat_instance_toggle', handleChatOpen as EventListener);
     };
@@ -29,34 +38,47 @@ const PAATabButton: React.FC<PAATabButtonProps> = ({ className = "" }) => {
 
   // Função para abrir o chat na aba PAA
   const openChatPAATab = () => {
-    // Verificar primeiro se o chat já está aberto
-    const isCurrentlyOpen = document.querySelector('[data-chat-open="true"]') !== null;
+    // Método direto para forçar a abertura do chat na aba PAA
     
-    // Definir no localStorage a aba a ser aberta antes de qualquer evento
-    localStorage.setItem('open_chat_tab', 'paa');
+    // 1. Forçar que qualquer instância aberta se feche primeiro
+    window.dispatchEvent(new CustomEvent('chat_instance_toggle', { 
+      detail: { isOpen: false } 
+    }));
     
-    if (isCurrentlyOpen) {
-      // Se o chat já está aberto, apenas mudar para a aba PAA sem fechar
-      const switchTabEvent = new CustomEvent('chat_instance_open_tab', { 
-        detail: { tab: 'paa' } 
+    // 2. Pequeno delay para garantir que qualquer chat aberto se feche
+    setTimeout(() => {
+      // 3. Definir aba no localStorage antes de abrir o chat
+      localStorage.setItem('open_chat_tab', 'paa');
+      console.log("PAATab: Definindo aba no localStorage:", 'paa');
+      
+      // 4. Disparar evento especial para abrir na aba PAA com prioridade máxima
+      const paaEvent = new CustomEvent('direct_paa_open', {
+        detail: { directTab: 'paa' }
       });
-      window.dispatchEvent(switchTabEvent);
-    } else {
-      // Se o chat está fechado, abrir diretamente na aba PAA
-      const openEvent = new CustomEvent('chat_instance_toggle', { 
-        detail: { isOpen: true, source: 'paa-button', tab: 'paa' } 
-      });
-      window.dispatchEvent(openEvent);
-    }
-    
-    setChatOpened(true);
+      window.dispatchEvent(paaEvent);
+      
+      // 5. Pequeno delay adicional antes de abrir o chat para garantir que o evento foi processado
+      setTimeout(() => {
+        // 6. Finalmente abrir o chat com evento de toggle normal
+        const openEvent = new CustomEvent('chat_instance_toggle', { 
+          detail: { 
+            isOpen: true, 
+            source: 'paa-button', 
+            tab: 'paa',
+            priority: 10  // Prioridade alta
+          } 
+        });
+        window.dispatchEvent(openEvent);
+        
+        setChatOpened(true);
+      }, 50);
+    }, 50);
   };
 
   return (
     <Button 
       onClick={openChatPAATab} 
       className={`bg-amber-600 hover:bg-amber-700 text-white flex items-center gap-2 ${className}`}
-      disabled={chatOpened}
     >
       <ShoppingBag size={18} />
       <span>Programa PAA</span>

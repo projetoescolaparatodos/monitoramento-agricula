@@ -308,64 +308,92 @@ const ChatbotWidget: React.FC = () => {
     }
   }, []);
 
-  // Efeito para verificar se há solicitação para abrir em uma aba específica
+  // Para forçar abertura na aba PAA diretamente
   useEffect(() => {
-    // Verificar se há uma aba específica para abrir
-    const tabToOpen = localStorage.getItem('open_chat_tab');
-    if (tabToOpen) {
-      // Definir a aba ativa
-      setActiveTab(tabToOpen);
-      
-      // Limpar o valor no localStorage para não reabrir na próxima vez
-      localStorage.removeItem('open_chat_tab');
+    // Função especial para tratar evento direto do PAAButton
+    const handleDirectPAAOpen = (event: CustomEvent) => {
+      if (event.detail && event.detail.directTab === 'paa') {
+        console.log("ChatbotWidget: Recebido evento para abrir diretamente na aba PAA");
+        setActiveTab('paa');
+      }
+    };
+
+    // Adiciona o listener para o evento especial
+    window.addEventListener('direct_paa_open', handleDirectPAAOpen as EventListener);
+
+    // Remove o listener ao desmontar
+    return () => {
+      window.removeEventListener('direct_paa_open', handleDirectPAAOpen as EventListener);
+    };
+  }, []);
+
+  // Efeito para verificar se há solicitação para abrir em uma aba específica - mais robusto
+  useEffect(() => {
+    // Função para verificar e aplicar a aba salva no localStorage
+    const checkSavedTab = () => {
+      const tabToOpen = localStorage.getItem('open_chat_tab');
+      if (tabToOpen) {
+        console.log("ChatbotWidget: Aplicando aba do localStorage:", tabToOpen);
+        setActiveTab(tabToOpen);
+        // Limpamos depois de aplicar para evitar reaplicação indesejada
+        localStorage.removeItem('open_chat_tab');
+      }
+    };
+    
+    // Verificamos logo quando o isOpen muda para true (quando o chat é aberto)
+    if (isOpen) {
+      checkSavedTab();
     }
   }, [isOpen]);
 
   // Garante que apenas uma instância do chat está aberta de cada vez
   useEffect(() => {
-    // Criar um evento personalizado para comunicação entre instâncias
-    const chatEvent = new CustomEvent("chat_instance_toggle", {
-      detail: { isOpen },
-    });
-
-    // Disparar o evento quando o estado mudar
-    window.dispatchEvent(chatEvent);
-
     // Ouvir eventos de outras instâncias
     const handleChatToggle = (event: CustomEvent) => {
       if (event.detail) {
+        // Se for pedido para abrir o chat
         if (event.detail.isOpen === true) {
-          // Se for solicitado para abrir
+          // Se o evento vem específicamente do botão PAA
           if (event.detail.source === 'paa-button' && event.detail.tab === 'paa') {
-            // Se o evento vem do botão PAA, abrir o chat na aba PAA
+            console.log("ChatbotWidget: Recebido pedido para abrir na aba PAA");
+            // Primeiro abrimos o chat
             setIsOpen(true);
-            setActiveTab('paa');
-            console.log("Abrindo chat na aba PAA via botão específico");
-          } else {
-            // Qualquer outra solicitação de abertura
-            setIsOpen(true);
-          }
-        } else if (event.detail.isOpen === false) {
-          // Se estamos sendo solicitados a fechar E NÃO vier do botão PAA
-          if (!event.detail.source || event.detail.source !== 'paa-button') {
+            
+            // Depois definimos a aba com pequeno delay para garantir que o componente está renderizado
+            setTimeout(() => {
+              setActiveTab('paa');
+              console.log("ChatbotWidget: Aba PAA definida com delay");
+            }, 20);
+          } 
+          // Se outra instância está pedindo para abrir, mas não é do nosso botão
+          else if (isOpen && !event.detail.source) {
             setIsOpen(false);
           }
+          // Caso normal (quando não é do botão PAA), apenas abrimos
+          else if (!isOpen) {
+            setIsOpen(true);
+          }
+        }
+        // Se for pedido para fechar o chat
+        else if (event.detail.isOpen === false) {
+          setIsOpen(false);
         }
       }
     };
 
-    window.addEventListener(
-      "chat_instance_toggle",
-      handleChatToggle as EventListener,
-    );
+    // Registramos o listener
+    window.addEventListener('chat_instance_toggle', handleChatToggle as EventListener);
 
+    // Ao montar o componente, disparamos um evento informando o estado atual
+    window.dispatchEvent(new CustomEvent('chat_instance_toggle', {
+      detail: { isOpen, currentTab: activeTab }
+    }));
+
+    // Limpeza ao desmontar
     return () => {
-      window.removeEventListener(
-        "chat_instance_toggle",
-        handleChatToggle as EventListener,
-      );
+      window.removeEventListener('chat_instance_toggle', handleChatToggle as EventListener);
     };
-  }, [isOpen]);
+  }, [isOpen, activeTab]);
 
   // Efeitos
   useEffect(() => {
@@ -1140,7 +1168,15 @@ const ChatbotWidget: React.FC = () => {
             </Button>
           </div>
 
-          <Tabs defaultValue="chat" onValueChange={handleTabChange}>
+          <Tabs 
+            defaultValue="chat" 
+            value={activeTab} 
+            onValueChange={(value) => {
+              console.log("ChatbotWidget: Alterando aba para:", value);
+              setActiveTab(value);
+              handleTabChange(value);
+            }}
+          >
             <TabsList className="grid grid-cols-4 p-0 bg-green-50 gap-1 pt-1 px-1 shadow-inner rounded-md">
               <TabsTrigger
                 value="chat"
