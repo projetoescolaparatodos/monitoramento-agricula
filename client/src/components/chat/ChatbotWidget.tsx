@@ -1176,7 +1176,7 @@ const ChatbotWidget: React.FC = () => {
               setActiveTab(value);
               handleTabChange(value);
             }}
-            >
+          >
             <TabsList className="grid grid-cols-4 p-0 bg-green-50 gap-1 pt-1 px-1 shadow-inner rounded-md">
               <TabsTrigger
                 value="chat"
