@@ -198,6 +198,52 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
 
             <FormField
               control={form.control}
+              name="author"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Autor</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Nome do autor (opcional)" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="authorImage"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Imagem do Autor (URL)</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="URL da imagem do autor (opcional)" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hashtags</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Ex: #agricultura #sustentabilidade" />
+                  </FormControl>
+                  <FormDescription>
+                    Separe as hashtags com espaços. Exemplo: #agricultura #sustentabilidade
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="description"
               render={({ field }) => (
                 <FormItem>

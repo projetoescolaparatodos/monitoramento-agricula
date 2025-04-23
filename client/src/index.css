@@ -66,6 +66,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Estilos para cards de mídia */
+.media-display {
+  @apply rounded-2xl overflow-hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.media-display:hover {
+  transform: translateY(-5px);
+}
+
+/* Classes para rich content em descrições */
+.rich-content a {
+  @apply text-blue-500 hover:underline;
+}
+
+.rich-content strong, 
+.rich-content b {
+  @apply font-bold;
+}
+
+.rich-content em,
+.rich-content i {
+  @apply italic;
+}
+
+/* Animação para hashtags */
+.media-display .hashtag {
+  @apply inline-block transition-colors duration-200;
+}
+
+.media-display .hashtag:hover {
+  @apply text-blue-600;
+}
+
 @layer base {
   * {
     @apply border-border;

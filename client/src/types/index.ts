@@ -21,12 +21,16 @@ export interface ChartItem {
 
 export interface MediaItem {
   id: string;
-  title: string;
-  url: string;
-  type: 'image' | 'video';
-  pageType: 'home' | 'agriculture' | 'fishing' | 'paa';
-  createdAt: Date;
-  updatedAt: Date;
+  title?: string;
+  description?: string;
+  mediaUrl?: string;
+  mediaType?: 'image' | 'video';
+  pageType?: string;
+  active?: boolean;
+  createdAt?: string;
+  tags?: string;
+  author?: string;
+  authorImage?: string;
 }
 
 export interface StatisticItem {
