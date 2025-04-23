@@ -38,40 +38,31 @@ const PAATabButton: React.FC<PAATabButtonProps> = ({ className = "" }) => {
 
   // Função para abrir o chat na aba PAA
   const openChatPAATab = () => {
-    // Método direto para forçar a abertura do chat na aba PAA
+    // Método otimizado para abrir o chat diretamente na aba PAA sem fechamentos intermediários
     
-    // 1. Forçar que qualquer instância aberta se feche primeiro
-    window.dispatchEvent(new CustomEvent('chat_instance_toggle', { 
-      detail: { isOpen: false } 
-    }));
+    // 1. Definir aba no localStorage para garantir persistência
+    localStorage.setItem('open_chat_tab', 'paa');
+    console.log("PAATab: Definindo aba no localStorage:", 'paa');
     
-    // 2. Pequeno delay para garantir que qualquer chat aberto se feche
-    setTimeout(() => {
-      // 3. Definir aba no localStorage antes de abrir o chat
-      localStorage.setItem('open_chat_tab', 'paa');
-      console.log("PAATab: Definindo aba no localStorage:", 'paa');
-      
-      // 4. Disparar evento especial para abrir na aba PAA com prioridade máxima
-      const paaEvent = new CustomEvent('direct_paa_open', {
-        detail: { directTab: 'paa' }
-      });
-      window.dispatchEvent(paaEvent);
-      
-      // 5. Pequeno delay adicional antes de abrir o chat para garantir que o evento foi processado
-      setTimeout(() => {
-        // 6. Finalmente abrir o chat com evento de toggle normal
-        const openEvent = new CustomEvent('chat_instance_toggle', { 
-          detail: { 
-            isOpen: true, 
-            source: 'paa-button', 
-            tab: 'paa',
-            priority: 10  // Prioridade alta
-          } 
-        });
-        window.dispatchEvent(openEvent);
-        
-        setChatOpened(true);
-      }, 50);
+    // 2. Disparar evento especial para abrir na aba PAA
+    const paaEvent = new CustomEvent('direct_paa_open', {
+      detail: { directTab: 'paa' }
+    });
+    window.dispatchEvent(paaEvent);
+    
+    // 3. Abrir o chat com evento simplificado
+    const openEvent = new CustomEvent('chat_instance_toggle', { 
+      detail: { 
+        isOpen: true, 
+        source: 'paa-button', 
+        tab: 'paa',
+        priority: 10,  // Prioridade alta
+        preventClose: true // Flag para evitar o fechamento automático
+      } 
+    });
+    window.dispatchEvent(openEvent);
+    
+    setChatOpened(true);
     }, 50);
   };
 

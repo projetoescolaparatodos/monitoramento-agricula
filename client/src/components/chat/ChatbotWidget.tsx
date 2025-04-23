@@ -339,16 +339,16 @@ const ChatbotWidget: React.FC = () => {
         localStorage.removeItem('open_chat_tab');
       }
     };
-    
+
     // Verificamos logo quando o isOpen muda para true (quando o chat é aberto)
     if (isOpen) {
       checkSavedTab();
     }
   }, [isOpen]);
 
-  // Garante que apenas uma instância do chat está aberta de cada vez
+  // Efeito para lidar com a comunicação entre componentes
   useEffect(() => {
-    // Ouvir eventos de outras instâncias
+    // Função para manipular eventos de abertura do chat
     const handleChatToggle = (event: CustomEvent) => {
       if (event.detail) {
         // Se for pedido para abrir o chat
@@ -356,26 +356,27 @@ const ChatbotWidget: React.FC = () => {
           // Se o evento vem específicamente do botão PAA
           if (event.detail.source === 'paa-button' && event.detail.tab === 'paa') {
             console.log("ChatbotWidget: Recebido pedido para abrir na aba PAA");
-            // Primeiro abrimos o chat
+            // Abrimos o chat e definimos a aba imediatamente
             setIsOpen(true);
-            
-            // Depois definimos a aba com pequeno delay para garantir que o componente está renderizado
-            setTimeout(() => {
-              setActiveTab('paa');
-              console.log("ChatbotWidget: Aba PAA definida com delay");
-            }, 20);
+            setActiveTab('paa');
           } 
           // Se outra instância está pedindo para abrir, mas não é do nosso botão
-          else if (isOpen && !event.detail.source) {
+          else if (isOpen && !event.detail.source && !event.detail.preventClose) {
+            // Só fechamos se não houver flag para prevenir fechamento
             setIsOpen(false);
           }
           // Caso normal (quando não é do botão PAA), apenas abrimos
           else if (!isOpen) {
             setIsOpen(true);
+
+            // Se tiver aba especificada, abrimos nela
+            if (event.detail.tab) {
+              setActiveTab(event.detail.tab);
+            }
           }
         }
-        // Se for pedido para fechar o chat
-        else if (event.detail.isOpen === false) {
+        // Se for pedido para fechar o chat e não tiver flag para prevenir fechamento
+        else if (event.detail.isOpen === false && !event.detail.preventClose) {
           setIsOpen(false);
         }
       }
@@ -384,10 +385,8 @@ const ChatbotWidget: React.FC = () => {
     // Registramos o listener
     window.addEventListener('chat_instance_toggle', handleChatToggle as EventListener);
 
-    // Ao montar o componente, disparamos um evento informando o estado atual
-    window.dispatchEvent(new CustomEvent('chat_instance_toggle', {
-      detail: { isOpen, currentTab: activeTab }
-    }));
+    // Evitamos disparar evento ao montar para não causar fechamentos indesejados
+    // Apenas se o isOpen mudar explicitamente
 
     // Limpeza ao desmontar
     return () => {
