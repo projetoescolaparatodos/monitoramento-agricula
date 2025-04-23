@@ -55,8 +55,6 @@ const FishingInfo = () => {
 
 export default FishingInfo;
 
-export default FishingInfo;
-
 // Added to address the original error message.  Path may need adjustment.
 //  This is a placeholder; replace with the actual component code.
 export const DashboardSidebar = () => {
