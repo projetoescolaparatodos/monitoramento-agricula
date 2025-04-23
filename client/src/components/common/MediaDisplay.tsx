@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MediaItem } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,22 +14,22 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
   // Processar hashtags na descrição
   const renderDescription = (text?: string) => {
     if (!text) return null;
-    
+
     // Converter quebras de linha
     const withLineBreaks = text.replace(/\n/g, '<br/>');
-    
+
     // Destacar hashtags
     const withHashtags = withLineBreaks.replace(
       /#(\w+)/g, 
       '<span class="hashtag">#$1</span>'
     );
-    
+
     // Suporte a markdown básico
     const withMarkdown = withHashtags
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-    
+
     return <div className="description rich-content mt-2" dangerouslySetInnerHTML={{ __html: withMarkdown }} />;
   };
 
@@ -45,7 +44,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
     if (!embedUrl) return null;
 
     return (
-      <Card className={`media-display overflow-hidden bg-white dark:bg-zinc-800 rounded-2xl shadow-md ${className}`}>
+      <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className}`}>
         <div className="aspect-video w-full relative">
           <iframe
             className="w-full h-full rounded-t-lg"
@@ -57,7 +56,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
         <CardContent className="p-5 space-y-3">
           {item.title && <h3 className="font-semibold text-xl text-gray-900 dark:text-gray-100">{item.title}</h3>}
           {renderDescription(item.description)}
-          
+
           <div className="flex flex-wrap items-center justify-between mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-2">
               {item.author && (
@@ -77,14 +76,14 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
                 </div>
               )}
             </div>
-            
+
             {formattedDate && (
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 {formattedDate}
               </span>
             )}
           </div>
-          
+
           {item.location && (
             <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               📍 {item.location}
@@ -97,7 +96,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
 
   // Renderização padrão para imagens e outros tipos de mídia
   return (
-    <Card className={`media-display overflow-hidden bg-white dark:bg-zinc-800 rounded-2xl shadow-md ${className}`}>
+    <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className}`}>
       <div className="relative">
         <img 
           src={item.mediaUrl || item.thumbnailUrl} 
@@ -129,7 +128,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
       <CardContent className="p-5 space-y-3">
         {item.title && <h3 className="font-semibold text-xl text-gray-900 dark:text-gray-100">{item.title}</h3>}
         {renderDescription(item.description)}
-        
+
         <div className="flex flex-wrap items-center justify-between mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-2">
             {item.author && (
@@ -149,14 +148,14 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
               </div>
             )}
           </div>
-          
+
           {formattedDate && (
             <span className="text-xs text-gray-500 dark:text-gray-400">
               {formattedDate}
             </span>
           )}
         </div>
-        
+
         {item.location && (
           <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             📍 {item.location}

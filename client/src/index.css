@@ -80,11 +80,11 @@
 }
 
 .media-display .description {
-  @apply text-gray-700 dark:text-gray-300 text-sm leading-relaxed;
+  @apply text-gray-800 dark:text-gray-200 text-sm leading-relaxed;
 }
 
 .media-display .author {
-  @apply text-sm font-medium text-gray-700 dark:text-gray-300;
+  @apply text-sm font-medium text-gray-800 dark:text-gray-200;
 }
 
 /* Animações específicas para os cards de mídia */
