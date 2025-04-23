@@ -72,9 +72,9 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
     setPreviewUrl(watchMediaUrl);
   }
 
-  // Validar URL do YouTube
-  const isValidYoutubeUrl = (url: string) => {
-    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+  //Improved YouTube URL validation
+  const isValidYoutubeUrl = (url: string): boolean => {
+    const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=)|youtu\.be\/)([^#&\?]*)/;
     return youtubeRegex.test(url);
   };
 
@@ -82,6 +82,7 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
     try {
       setIsSubmitting(true);
 
+      // Validate YouTube URL if media type is video
       if (data.mediaType === "video" && !isValidYoutubeUrl(data.mediaUrl)) {
         toast({
           title: "Erro",
@@ -90,7 +91,6 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
         });
         return;
       }
-
 
       if (isEdit && mediaData?.id) {
         await apiRequest("PUT", `/api/media-items/${mediaData.id}`, data);
@@ -283,8 +283,8 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
                   <FormItem>
                     <FormLabel>Ordem</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
+                      <Input
+                        type="number"
                         min="0"
                         {...field}
                         onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}

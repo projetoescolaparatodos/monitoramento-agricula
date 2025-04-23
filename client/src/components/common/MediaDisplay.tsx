@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { MediaItem } from '@/types';
+import { isYoutubeUrl, getYoutubeVideoId } from '@/utils/mediaUtils';
 
 interface MediaDisplayProps {
   item: MediaItem;
@@ -8,16 +9,19 @@ interface MediaDisplayProps {
 }
 
 const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = '' }) => {
-  // Função para extrair o ID do vídeo do YouTube da URL
-  const getYoutubeVideoId = (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
+  // Determinar o tipo de mídia - imagem, vídeo do YouTube ou outro
+  const getMediaType = (item: MediaItem) => {
+    if (item.mediaType === 'video' || (item.mediaUrl && isYoutubeUrl(item.mediaUrl))) {
+      return 'video';
+    }
+    return item.mediaType || 'image';
   };
+
+  const mediaType = getMediaType(item);
 
   return (
     <div className={`media-display overflow-hidden rounded-lg shadow-md ${className}`}>
-      {item.mediaType === 'image' ? (
+      {mediaType === 'image' ? (
         <div className="relative group h-48">
           <img
             src={item.mediaUrl}
@@ -31,11 +35,11 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = '' }) => 
             </div>
           </div>
         </div>
-      ) : item.mediaType === 'video' && item.mediaUrl?.includes('youtube') ? (
+      ) : mediaType === 'video' ? (
         <div className="relative h-48">
           <iframe 
             className="w-full h-full"
-            src={`https://www.youtube.com/embed/${getYoutubeVideoId(item.mediaUrl)}`}
+            src={`https://www.youtube.com/embed/${getYoutubeVideoId(item.mediaUrl || '')}`}
             title={item.title || 'Vídeo do YouTube'}
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
