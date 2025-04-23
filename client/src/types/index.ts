@@ -31,6 +31,10 @@ export interface MediaItem {
   tags?: string;
   author?: string;
   authorImage?: string;
+  thumbnailUrl?: string;
+  location?: string;
+  likes?: number;
+  views?: number;
 }
 
 export interface StatisticItem {
