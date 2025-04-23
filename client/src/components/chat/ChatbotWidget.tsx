@@ -271,6 +271,7 @@ const ChatbotWidget: React.FC = () => {
   );
   const [isAdmin, setIsAdmin] = useState(false);
   const [trainingData, setTrainingData] = useState("");
+  const [isMobile, setIsMobile] = useState(false); // Added for responsiveness
 
   // Efeito para abrir automaticamente o chat após 10 segundos apenas na página inicial
   useEffect(() => {
@@ -364,6 +365,33 @@ const ChatbotWidget: React.FC = () => {
 
   useEffect(() => {
     setIsAdmin(localStorage.getItem("admin") === "true");
+  }, []);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 768px)");
+    setIsMobile(mediaQuery.matches);
+
+    const handleResize = () => setIsMobile(mediaQuery.matches);
+    mediaQuery.addEventListener("change", handleResize);
+
+    // Adiciona ouvinte para eventos de abertura do chat em abas específicas
+    const handleChatOpenTab = (event: CustomEvent) => {
+      if (event.detail && event.detail.tab) {
+        setActiveTab(event.detail.tab);
+      }
+    };
+    window.addEventListener(
+      "chat_instance_open_tab",
+      handleChatOpenTab as EventListener,
+    );
+
+    return () => {
+      mediaQuery.removeEventListener("change", handleResize);
+      window.removeEventListener(
+        "chat_instance_open_tab",
+        handleChatOpenTab as EventListener,
+      );
+    };
   }, []);
 
   // Funções auxiliares
@@ -664,7 +692,9 @@ const ChatbotWidget: React.FC = () => {
     let resposta = "";
 
     // Verificar se a mensagem corresponde a alguma ação no fluxo atual
-    if (fluxoConversa[activeFluxo as keyof typeof fluxoConversa]) {
+    if (
+      fluxoConversa[activeFluxo as keyof typeof fluxoConversa]
+    ) {
       const fluxoAtual = fluxoConversa[
         activeFluxo as keyof typeof fluxoConversa
       ] as any;
@@ -1492,3 +1522,8 @@ const ChatbotWidget: React.FC = () => {
 };
 
 export default ChatbotWidget;
+
+interface TrainedResponse {
+  question: string;
+  answer: string;
+}

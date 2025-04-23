@@ -8,6 +8,7 @@ import parse from 'html-react-parser';
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Map, BarChart2, FilePieChart, Users } from "lucide-react";
+import PAATabButton from "@/components/common/PAATabButton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
@@ -80,7 +81,8 @@ const PAAInfo = () => {
       <div style={backgroundStyle} />
       <div className="fixed inset-0 w-full min-h-screen bg-black/40 z-[1]"></div>
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
-        <div className="flex justify-end mb-6">
+        <div className="flex justify-end mb-6 gap-4">
+          <PAATabButton className="shadow-md" />
           <Button
             onClick={() => setLocation("/paa/map")}
             className="flex items-center gap-2"
