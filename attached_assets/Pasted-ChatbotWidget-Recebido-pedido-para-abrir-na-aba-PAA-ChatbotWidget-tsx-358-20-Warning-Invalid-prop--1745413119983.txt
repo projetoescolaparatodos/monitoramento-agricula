@@ -1,0 +1,17 @@
+ChatbotWidget: Recebido pedido para abrir na aba PAA ChatbotWidget.tsx:358:20
+Warning: Invalid prop `data-replit-metadata` supplied to `React.Fragment`. React.Fragment can only have `key` and `children` props.
+ChatbotWidget@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/components/chat/ChatbotWidget.tsx:246:39
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=77fa55ab:2804:27
+App
+Router@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=77fa55ab:6386:16
+BrowserRouter@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=77fa55ab:8613:23
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=77fa55ab:2804:27 react-jsx-dev-runtime.development.js:87:29
+ChatbotWidget: Aplicando aba do localStorage: paa ChatbotWidget.tsx:336:16
+Warning: Invalid prop `data-replit-metadata` supplied to `React.Fragment`. React.Fragment can only have `key` and `children` props.
+ChatbotWidget@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/components/chat/ChatbotWidget.tsx:246:39
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=77fa55ab:2804:27
+App
+Router@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=77fa55ab:6386:16
+BrowserRouter@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=77fa55ab:8613:23
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=77fa55ab:2804:27 react-jsx-dev-runtime.development.js:87:29
+ChatbotWidget: Aba PAA definida com delay
