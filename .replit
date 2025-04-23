@@ -14,8 +14,12 @@ build = ["sh", "-c", "npm run build"]
 localPort = 5000
 externalPort = 80
 
+[[ports]]
+localPort = 5001
+externalPort = 3000
+
 [workflows]
-runButton = "Run"
+runButton = "Run on Different Port"
 
 [[workflows.workflow]]
 name = "Project"
@@ -147,3 +151,12 @@ args = "npm run build"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "node server/index.ts"
+
+[[workflows.workflow]]
+name = "Run on Different Port"
+author = 40255565
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "PORT=5001 npm run dev"
