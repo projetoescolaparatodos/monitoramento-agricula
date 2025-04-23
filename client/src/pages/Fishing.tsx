@@ -115,23 +115,14 @@ const Fishing = () => {
           />
 
           {mediaItems && mediaItems.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {mediaItems.map((media) => (
-                <Card key={media.id} className="overflow-hidden">
-                  {media.mediaType === 'image' && (
-                    <img 
-                      src={media.mediaUrl} 
-                      alt={media.title}
-                      className="w-full h-48 object-cover"
-                    />
-                  )}
-                  <div className="p-4">
-                    <h3 className="font-semibold text-white">{media.title}</h3>
-                    <p className="text-sm text-white/80">{media.description}</p>
-                  </div>
-                </Card>
-              ))}
-            </div>
+            <section className="mt-16">
+              <h2 className="text-3xl font-bold text-center mb-8 text-white">Galeria de Mídia</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {mediaItems.map((item) => (
+                  <MediaDisplay key={item.id} item={item} className="bg-opacity-90 backdrop-blur-sm" />
+                ))}
+              </div>
+            </section>
           )}
 
           {/* Fishing Report Section */}
