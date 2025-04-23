@@ -24,7 +24,7 @@ export interface MediaItem {
   mediaUrl: string;
   thumbnailUrl?: string;
   title?: string;
-  description?: string; // Agora pode conter HTML formatado do ReactQuill
+  description?: string; // Contém HTML formatado do ReactQuill
   mediaType: 'image' | 'video';
   pageType?: 'home' | 'agriculture' | 'fishing' | 'paa';
   active?: boolean;
