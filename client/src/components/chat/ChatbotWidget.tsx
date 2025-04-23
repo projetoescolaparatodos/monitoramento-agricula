@@ -308,6 +308,19 @@ const ChatbotWidget: React.FC = () => {
     }
   }, []);
 
+  // Efeito para verificar se há solicitação para abrir em uma aba específica
+  useEffect(() => {
+    // Verificar se há uma aba específica para abrir
+    const tabToOpen = localStorage.getItem('open_chat_tab');
+    if (tabToOpen) {
+      // Definir a aba ativa
+      setActiveTab(tabToOpen);
+      
+      // Limpar o valor no localStorage para não reabrir na próxima vez
+      localStorage.removeItem('open_chat_tab');
+    }
+  }, [isOpen]);
+
   // Garante que apenas uma instância do chat está aberta de cada vez
   useEffect(() => {
     // Criar um evento personalizado para comunicação entre instâncias
@@ -320,9 +333,21 @@ const ChatbotWidget: React.FC = () => {
 
     // Ouvir eventos de outras instâncias
     const handleChatToggle = (event: CustomEvent) => {
-      if (event.detail.isOpen && isOpen) {
-        // Se outra instância está abrindo e esta já está aberta, fechar esta
-        setIsOpen(false);
+      if (event.detail) {
+        if (event.detail.isOpen === true) {
+          // Se outra instância está abrindo
+          if (event.detail.source === 'paa-button' && event.detail.tab === 'paa') {
+            // Se o evento vem do botão PAA, abrir o chat na aba PAA
+            setIsOpen(true);
+            setActiveTab('paa');
+          } else if (isOpen) {
+            // Se outra instância está abrindo e esta já está aberta, fechar esta
+            setIsOpen(false);
+          }
+        } else if (event.detail.isOpen === false && isOpen) {
+          // Se estamos sendo solicitados a fechar
+          setIsOpen(false);
+        }
       }
     };
 
