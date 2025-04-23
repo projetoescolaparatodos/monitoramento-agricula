@@ -5,9 +5,10 @@ import { ShoppingBag } from "lucide-react";
 
 interface PAATabButtonProps {
   className?: string;
+  children?: React.ReactNode;
 }
 
-const PAATabButton: React.FC<PAATabButtonProps> = ({ className = "" }) => {
+const PAATabButton: React.FC<PAATabButtonProps> = ({ className = "", children }) => {
   // Estado para rastrear se o chatbot foi aberto por este botão
   const [chatOpened, setChatOpened] = useState(false);
 
@@ -71,7 +72,7 @@ const PAATabButton: React.FC<PAATabButtonProps> = ({ className = "" }) => {
       className={`bg-amber-600 hover:bg-amber-700 text-white flex items-center gap-2 ${className}`}
     >
       <ShoppingBag size={18} />
-      <span>Programa PAA</span>
+      {children || <span>Programa PAA</span>}
     </Button>
   );
 };
