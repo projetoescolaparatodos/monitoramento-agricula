@@ -63,7 +63,6 @@ const PAATabButton: React.FC<PAATabButtonProps> = ({ className = "" }) => {
     window.dispatchEvent(openEvent);
     
     setChatOpened(true);
-    }, 50);
   };
 
   return (
