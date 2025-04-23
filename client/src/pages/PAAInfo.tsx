@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
 import BackgroundVideo from "@/components/ui/BackgroundVideo";
-import MediaDisplay from '@/components/common/MediaDisplay'; // Added import
+import MediaDisplay from '@/components/common/MediaDisplay';
 
 
 const PAAInfo = () => {
