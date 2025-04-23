@@ -1,0 +1,178 @@
+Implementação de botão para abertura direta de aba específica do chatbot
+Objetivo da implementação
+
+Criar um botão que abra diretamente o chatbot em uma aba específica (no caso, a aba PAA), permitindo o acesso rápido aos serviços do Programa de Aquisição de Alimentos.
+Arquitetura de comunicação entre componentes
+
+A solução utiliza comunicação entre componentes baseada em:
+
+    Eventos personalizados (CustomEvent)
+    Armazenamento temporário de estado no localStorage
+    Sistema de props para estilização contextual
+
+1. Criação do componente PAATabButton
+
+// client/src/components/common/PAATabButton.tsx
+// Este componente é um botão especializado que abre o chatbot diretamente na aba PAA
+
+import React, { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { ShoppingBag } from "lucide-react";
+
+interface PAATabButtonProps {
+  className?: string;
+}
+
+const PAATabButton: React.FC<PAATabButtonProps> = ({ className = "" }) => {
+  // Estado para rastrear se o chatbot já foi aberto por este botão
+  const [chatOpened, setChatOpened] = useState(false);
+
+  // Efeito para observar eventos de abertura/fechamento do chat
+  useEffect(() => {
+    const handleChatOpen = (event: CustomEvent) => {
+      if (event.detail && event.detail.source === 'paa-button' && event.detail.isOpen === true) {
+        setChatOpened(true);
+      } else if (event.detail && event.detail.isOpen === false) {
+        setChatOpened(false);
+      }
+    };
+
+    window.addEventListener('chat_instance_toggle', handleChatOpen as EventListener);
+    return () => {
+      window.removeEventListener('chat_instance_toggle', handleChatOpen as EventListener);
+    };
+  }, []);
+
+  // Função para abrir o chat na aba PAA
+  const openChatPAATab = () => {
+    // Primeiro, fechar qualquer instância aberta do chat
+    const closeEvent = new CustomEvent('chat_instance_toggle', { 
+      detail: { isOpen: false } 
+    });
+    window.dispatchEvent(closeEvent);
+
+    // Um pequeno atraso para garantir que o chat feche antes de abrir novamente
+    setTimeout(() => {
+      // Definir no localStorage a aba a ser aberta
+      localStorage.setItem('open_chat_tab', 'paa');
+
+      // Disparar evento para abrir o chat na aba PAA
+      const openEvent = new CustomEvent('chat_instance_toggle', { 
+        detail: { isOpen: true, source: 'paa-button', tab: 'paa' } 
+      });
+      window.dispatchEvent(openEvent);
+      
+      setChatOpened(true);
+    }, 100);
+  };
+
+  return (
+    <Button 
+      onClick={openChatPAATab} 
+      className={`bg-amber-600 hover:bg-amber-700 text-white flex items-center gap-2 ${className}`}
+      disabled={chatOpened}
+    >
+      <ShoppingBag size={18} />
+      <span>Programa PAA</span>
+    </Button>
+  );
+};
+
+export default PAATabButton;
+
+2. Modificação no componente ChatbotWidget
+
+// No ChatbotWidget, adicione estes efeitos para lidar com a comunicação entre componentes
+
+// Efeito para verificar se há solicitação para abrir em uma aba específica
+useEffect(() => {
+  // Verificar se há uma aba específica para abrir
+  const tabToOpen = localStorage.getItem('open_chat_tab');
+  if (tabToOpen) {
+    // Definir a aba ativa
+    setActiveTab(tabToOpen);
+    
+    // Limpar o valor no localStorage para não reabrir na próxima vez
+    localStorage.removeItem('open_chat_tab');
+  }
+}, [isOpen]);
+
+// Garante que apenas uma instância do chat está aberta de cada vez
+useEffect(() => {
+  // Criar um evento personalizado para comunicação entre instâncias
+  const chatEvent = new CustomEvent("chat_instance_toggle", {
+    detail: { isOpen },
+  });
+
+  // Disparar o evento quando o estado mudar
+  window.dispatchEvent(chatEvent);
+
+  // Ouvir eventos de outras instâncias
+  const handleChatToggle = (event: CustomEvent) => {
+    if (event.detail) {
+      if (event.detail.isOpen === true) {
+        // Se outra instância está abrindo
+        if (event.detail.source === 'paa-button' && event.detail.tab === 'paa') {
+          // Se o evento vem do botão PAA, abrir o chat na aba PAA
+          setIsOpen(true);
+          setActiveTab('paa');
+        } else if (isOpen) {
+          // Se outra instância está abrindo e esta já está aberta, fechar esta
+          setIsOpen(false);
+        }
+      } else if (event.detail.isOpen === false && isOpen) {
+        // Se estamos sendo solicitados a fechar
+        setIsOpen(false);
+      }
+    }
+  };
+
+  window.addEventListener(
+    "chat_instance_toggle",
+    handleChatToggle as EventListener,
+  );
+
+  return () => {
+    window.removeEventListener(
+      "chat_instance_toggle",
+      handleChatToggle as EventListener,
+    );
+  };
+}, [isOpen]);
+
+3. Integração do botão na página PAA
+
+// client/src/pages/PAA.tsx
+// Modificação para incluir o banner com o botão PAA
+
+import { useQuery } from "@tanstack/react-query";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import { ContentItem, ChartItem, MediaItem } from "@/types";
+import InfoPage from "@/components/common/InfoPage";
+import PAATabButton from "@/components/common/PAATabButton";
+
+const PAA = () => {
+  // Queries existentes...
+
+  return (
+    <>
+      <Navbar />
+      <div className="container mx-auto pt-28 px-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between bg-gradient-to-r from-amber-600 to-amber-700 rounded-lg p-6 mb-6 shadow-lg">
+          <div className="text-white mb-4 md:mb-0">
+            <h2 className="text-xl font-bold">Quer participar do PAA?</h2>
+            <p className="opacity-90">Converse com nosso assistente virtual para obter mais informações</p>
+          </div>
+          <PAATabButton className="md:self-end" />
+        </div>
+      </div>
+      <InfoPage 
+        // Props existentes...
+      />
+      <Footer />
+    </>
+  );
+};
+
+export default PAA;

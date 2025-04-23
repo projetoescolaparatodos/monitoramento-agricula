@@ -1,3 +1,4 @@
+
 import { Switch, Route, useLocation } from "wouter";
 import React, { Suspense, lazy } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -41,7 +42,6 @@ function Router() {
     <>
       <BackgroundVideo videoPath="/videos/BackgroundVideo.mp4" opacity={0.3} />
       <div className="relative z-10">
-        <ChatbotWidget />
         {!isFormPage && !isReportPage && <NavBar />}
         <Suspense fallback={<div className="flex items-center justify-center h-screen">Carregando...</div>}>
           <Switch>
