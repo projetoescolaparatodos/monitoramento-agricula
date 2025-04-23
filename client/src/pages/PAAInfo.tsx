@@ -13,6 +13,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
 import BackgroundVideo from "@/components/ui/BackgroundVideo";
+import MediaDisplay from '@/components/common/MediaDisplay'; // Added import
+
 
 const PAAInfo = () => {
   const backgroundStyle = {
@@ -113,7 +115,7 @@ const PAAInfo = () => {
               ))}
             </div>
           )}
-          
+
           {/* Botões posicionados após a seção de conteúdos informativos */}
           <div className="flex justify-center mt-8 mb-6 gap-4">
             <Button
@@ -134,23 +136,7 @@ const PAAInfo = () => {
           />
 
           {mediaItems && mediaItems.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {mediaItems.map((media) => (
-                <Card key={media.id} className="overflow-hidden">
-                  {media.mediaType === 'image' && (
-                    <img 
-                      src={media.mediaUrl} 
-                      alt={media.title}
-                      className="w-full h-48 object-cover"
-                    />
-                  )}
-                  <div className="p-4">
-                    <h3 className="font-semibold text-white">{media.title}</h3>
-                    <p className="text-sm text-white/80">{media.description}</p>
-                  </div>
-                </Card>
-              ))}
-            </div>
+            <MediaDisplay mediaItems={mediaItems} /> {/* Replaced the old media display */}
           )}
 
           {/* Seção de Estatísticas do PAA */}
@@ -242,7 +228,7 @@ const PAAInfo = () => {
             </Card>
           </section>
 
-          
+
         </main>
       </main>
       <Footer />

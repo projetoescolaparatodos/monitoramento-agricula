@@ -72,9 +72,25 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
     setPreviewUrl(watchMediaUrl);
   }
 
+  // Validar URL do YouTube
+  const isValidYoutubeUrl = (url: string) => {
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+    return youtubeRegex.test(url);
+  };
+
   const onSubmit = async (data: MediaFormData) => {
     try {
       setIsSubmitting(true);
+
+      if (data.mediaType === "video" && !isValidYoutubeUrl(data.mediaUrl)) {
+        toast({
+          title: "Erro",
+          description: "Por favor, insira uma URL válida do YouTube.",
+          variant: "destructive",
+        });
+        return;
+      }
+
 
       if (isEdit && mediaData?.id) {
         await apiRequest("PUT", `/api/media-items/${mediaData.id}`, data);
@@ -94,7 +110,7 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
 
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['/api/media-items'] });
-      
+
       if (onSuccess) {
         onSuccess();
       }
@@ -206,9 +222,12 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
                 <FormItem>
                   <FormLabel>URL da Mídia</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Insira a URL da mídia" />
+                    <Input {...field} placeholder={form.watch("mediaType") === "video" ? "https://www.youtube.com/watch?v=ID_DO_VIDEO" : "Insira a URL da mídia"} />
                   </FormControl>
                   <FormMessage />
+                  {form.watch("mediaType") === "video" && !isValidYoutubeUrl(field.value) && (
+                    <p className="text-red-500 text-sm">Por favor, insira uma URL válida do YouTube</p>
+                  )}
                 </FormItem>
               )}
             />
