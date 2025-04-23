@@ -66,5 +66,3 @@ const AgricultureInfo = () => {
 };
 
 export default AgricultureInfo;
-
-export default AgricultureInfo;
