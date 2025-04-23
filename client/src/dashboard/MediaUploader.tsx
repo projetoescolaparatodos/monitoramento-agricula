@@ -29,6 +29,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import MediaFileUploader from "./MediaFileUploader";
 
 // Form validation schema
 const formSchema = z.object({
@@ -77,6 +78,13 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
 
   //Improved YouTube URL validation
   const isValidYoutubeUrl = (url: string): boolean => {
+    if (!url) return false;
+    
+    // Se URL for do Firebase Storage (upload de arquivo), aceitar automaticamente
+    if (url.includes('firebasestorage.googleapis.com')) {
+      return true;
+    }
+    
     const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=)|youtu\.be\/)([^#&\?]*)/;
     return youtubeRegex.test(url);
   };
@@ -298,22 +306,37 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
             />
 
 
-            <FormField
-              control={form.control}
-              name="mediaUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>URL da Mídia</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder={form.watch("mediaType") === "video" ? "https://www.youtube.com/watch?v=ID_DO_VIDEO" : "Insira a URL da mídia"} />
-                  </FormControl>
-                  <FormMessage />
-                  {form.watch("mediaType") === "video" && !isValidYoutubeUrl(field.value) && (
-                    <p className="text-red-500 text-sm">Por favor, insira uma URL válida do YouTube</p>
-                  )}
-                </FormItem>
-              )}
-            />
+            <div className="space-y-6">
+              <FormField
+                control={form.control}
+                name="mediaUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>URL da Mídia</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder={form.watch("mediaType") === "video" ? "https://www.youtube.com/watch?v=ID_DO_VIDEO" : "Insira a URL da mídia"} />
+                    </FormControl>
+                    <FormMessage />
+                    {form.watch("mediaType") === "video" && !isValidYoutubeUrl(field.value) && (
+                      <p className="text-red-500 text-sm">Por favor, insira uma URL válida do YouTube</p>
+                    )}
+                  </FormItem>
+                )}
+              />
+              
+              <div className="border-t pt-4">
+                <h3 className="text-sm font-medium mb-2">Ou faça upload de um arquivo:</h3>
+                <MediaFileUploader 
+                  onFileUploaded={(url) => {
+                    form.setValue("mediaUrl", url);
+                    setPreviewUrl(url);
+                  }}
+                  label={`Upload de ${watchMediaType === "image" ? "Imagem" : "Vídeo"}`}
+                  acceptTypes={watchMediaType === "image" ? "image/*" : "video/*"}
+                  folderPath={`midias/${watchMediaType}`}
+                />
+              </div>
+            </div>
 
             {watchMediaType === "video" && (
               <FormField
