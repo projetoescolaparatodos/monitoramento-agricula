@@ -152,6 +152,45 @@
   color: #9ca3af;
 }
 
+/* Estilos para o editor ReactQuill no formulário de mídia */
+.quill-container {
+  margin-bottom: 1.5rem;
+}
+
+.quill-container .ql-editor {
+  min-height: 150px;
+  font-size: 0.95rem;
+  background-color: #f9fafb;
+  border-radius: 0 0 0.375rem 0.375rem;
+}
+
+.dark .quill-container .ql-editor {
+  background-color: #1f2937;
+  color: #e5e7eb;
+}
+
+.quill-container .ql-toolbar {
+  border-radius: 0.375rem 0.375rem 0 0;
+  background-color: #f3f4f6;
+}
+
+.dark .quill-container .ql-toolbar {
+  background-color: #374151;
+  border-color: #4b5563;
+}
+
+.dark .quill-container .ql-formats .ql-stroke {
+  stroke: #d1d5db;
+}
+
+.dark .quill-container .ql-formats .ql-fill {
+  fill: #d1d5db;
+}
+
+.dark .quill-container .ql-picker-label {
+  color: #d1d5db;
+}
+
 .rich-content blockquote {
   border-left: 3px solid #ccc;
   margin-left: 1em;

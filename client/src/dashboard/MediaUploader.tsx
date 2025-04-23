@@ -249,7 +249,10 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Descrição (opcional)</FormLabel>
+                  <FormLabel>Descrição</FormLabel>
+                  <FormDescription>
+                    Crie uma descrição rica com formatação avançada
+                  </FormDescription>
                   <FormControl>
                     <div className="quill-container">
                       <ReactQuill
@@ -261,6 +264,7 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
                             [{ 'header': [1, 2, 3, false] }],
                             ['bold', 'italic', 'underline', 'strike'],
                             [{'list': 'ordered'}, {'list': 'bullet'}],
+                            [{'align': []}],
                             [{'color': []}, {'background': []}],
                             ['link'],
                             ['clean']
@@ -270,16 +274,23 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
                           'header',
                           'bold', 'italic', 'underline', 'strike',
                           'list', 'bullet',
+                          'align',
                           'color', 'background',
                           'link'
                         ]}
                         placeholder="Descreva a mídia com formatação detalhada..."
                       />
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Use formatação como negrito, itálico, listas, cores e links para criar uma descrição rica.
-                      Dica: use # para criar hashtags que serão destacadas na exibição.
-                    </p>
+                    <div className="text-xs text-muted-foreground mt-2 space-y-1">
+                      <p>
+                        <span className="font-medium">Dicas de formatação:</span>
+                      </p>
+                      <ul className="list-disc pl-4 space-y-0.5">
+                        <li>Use <strong>#palavras</strong> para criar hashtags que serão destacadas</li>
+                        <li>Adicione títulos, listas e formatação para melhor organização</li>
+                        <li>Inclua links para referências externas quando necessário</li>
+                      </ul>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

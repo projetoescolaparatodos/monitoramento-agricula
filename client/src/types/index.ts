@@ -46,3 +46,19 @@ export interface StatisticItem {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface MediaFormData {
+  id?: string;
+  pageType: string;
+  title: string;
+  description?: string; // Contém HTML formatado do ReactQuill
+  mediaType: string;
+  mediaUrl: string;
+  thumbnailUrl?: string;
+  active: boolean;
+  order: number;
+  author?: string;
+  authorImage?: string;
+  tags?: string;
+  createdAt?: string;
+}
