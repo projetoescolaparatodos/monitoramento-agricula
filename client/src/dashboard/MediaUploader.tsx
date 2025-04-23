@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 // Form validation schema
 const formSchema = z.object({
@@ -239,7 +241,6 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
                   <FormMessage />
                 </FormItem>
               )}
-              )}
             />
 
             <FormField
@@ -249,17 +250,41 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
                 <FormItem>
                   <FormLabel>Descrição (opcional)</FormLabel>
                   <FormControl>
-                    <Textarea
-                      {...field}
-                      placeholder="Insira uma descrição para a mídia"
-                      rows={3}
-                      value={field.value || ""}
-                    />
+                    <div className="quill-container">
+                      <ReactQuill
+                        theme="snow"
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        modules={{
+                          toolbar: [
+                            [{ 'header': [1, 2, 3, false] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{'list': 'ordered'}, {'list': 'bullet'}],
+                            [{'color': []}, {'background': []}],
+                            ['link'],
+                            ['clean']
+                          ]
+                        }}
+                        formats={[
+                          'header',
+                          'bold', 'italic', 'underline', 'strike',
+                          'list', 'bullet',
+                          'color', 'background',
+                          'link'
+                        ]}
+                        placeholder="Descreva a mídia com formatação detalhada..."
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Use formatação como negrito, itálico, listas, cores e links para criar uma descrição rica.
+                      Dica: use # para criar hashtags que serão destacadas na exibição.
+                    </p>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
 
             <FormField
               control={form.control}

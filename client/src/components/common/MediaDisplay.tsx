@@ -57,6 +57,26 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
           {item.title && <h3 className="font-semibold text-xl text-gray-900 dark:text-gray-100">{item.title}</h3>}
           {renderDescription(item.description)}
 
+          {/* Extrair e exibir hashtags separadamente */}
+          {item.description && (
+            (() => {
+              const hashtagRegex = /#(\w+)/g;
+              const matches = [...item.description.matchAll(hashtagRegex)];
+
+              if (matches.length > 0) {
+                const hashtags = matches.map(match => match[1]);
+                return (
+                  <div className="tags-container">
+                    {hashtags.map((tag, index) => (
+                      <span key={index} className="tag">#{tag}</span>
+                    ))}
+                  </div>
+                );
+              }
+              return null;
+            })()
+          )}
+
           <div className="flex flex-wrap items-center justify-between mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-2">
               {item.author && (
@@ -128,6 +148,26 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
       <CardContent className="p-5 space-y-3">
         {item.title && <h3 className="font-semibold text-xl text-gray-900 dark:text-gray-100">{item.title}</h3>}
         {renderDescription(item.description)}
+
+        {/* Extrair e exibir hashtags separadamente */}
+        {item.description && (
+          (() => {
+            const hashtagRegex = /#(\w+)/g;
+            const matches = [...item.description.matchAll(hashtagRegex)];
+
+            if (matches.length > 0) {
+              const hashtags = matches.map(match => match[1]);
+              return (
+                <div className="tags-container">
+                  {hashtags.map((tag, index) => (
+                    <span key={index} className="tag">#{tag}</span>
+                  ))}
+                </div>
+              );
+            }
+            return null;
+          })()
+        )}
 
         <div className="flex flex-wrap items-center justify-between mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-2">
