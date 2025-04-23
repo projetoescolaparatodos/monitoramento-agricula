@@ -11,6 +11,7 @@ import { Map, BarChart2, FilePieChart, Fish, Users } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
+import MediaDisplay from "@/components/common/MediaDisplay";
 
 const Fishing = () => {
   const { data: pescaData } = useQuery({
