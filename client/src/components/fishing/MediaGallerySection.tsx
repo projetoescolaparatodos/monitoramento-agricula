@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MediaItem } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
