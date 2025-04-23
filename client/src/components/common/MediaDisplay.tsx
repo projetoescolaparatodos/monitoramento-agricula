@@ -1,7 +1,10 @@
+
 import React from 'react';
 import { MediaItem } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { isYoutubeUrl, getYoutubeEmbedUrl } from '@/utils/isYoutubeUrl';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface MediaDisplayProps {
   item: MediaItem;
@@ -9,14 +12,41 @@ interface MediaDisplayProps {
 }
 
 const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => {
+  // Processar hashtags na descrição
+  const renderDescription = (text?: string) => {
+    if (!text) return null;
+    
+    // Converter quebras de linha
+    const withLineBreaks = text.replace(/\n/g, '<br/>');
+    
+    // Destacar hashtags
+    const withHashtags = withLineBreaks.replace(
+      /#(\w+)/g, 
+      '<span class="hashtag">#$1</span>'
+    );
+    
+    // Suporte a markdown básico
+    const withMarkdown = withHashtags
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    
+    return <div className="description rich-content mt-2" dangerouslySetInnerHTML={{ __html: withMarkdown }} />;
+  };
+
+  // Formatar data se disponível
+  const formattedDate = item.createdAt 
+    ? format(new Date(item.createdAt), "d 'de' MMMM 'de' yyyy", { locale: ptBR })
+    : null;
+
   // Renderização de vídeos do YouTube
   if (item.mediaUrl && isYoutubeUrl(item.mediaUrl)) {
     const embedUrl = getYoutubeEmbedUrl(item.mediaUrl);
     if (!embedUrl) return null;
 
     return (
-      <Card className={`overflow-hidden bg-white dark:bg-zinc-800 rounded-2xl shadow-md ${className}`}>
-        <div className="aspect-video w-full">
+      <Card className={`media-display overflow-hidden bg-white dark:bg-zinc-800 rounded-2xl shadow-md ${className}`}>
+        <div className="aspect-video w-full relative">
           <iframe
             className="w-full h-full rounded-t-lg"
             src={embedUrl}
@@ -24,9 +54,42 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
             allowFullScreen
           />
         </div>
-        <CardContent className="p-4">
-          {item.title && <h3 className="font-medium text-lg mb-1">{item.title}</h3>}
-          {item.description && <p className="text-gray-600 dark:text-gray-400">{item.description}</p>}
+        <CardContent className="p-5 space-y-3">
+          {item.title && <h3 className="font-semibold text-xl text-gray-900 dark:text-gray-100">{item.title}</h3>}
+          {renderDescription(item.description)}
+          
+          <div className="flex flex-wrap items-center justify-between mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center space-x-2">
+              {item.author && (
+                <div className="flex items-center">
+                  {item.authorImage ? (
+                    <img 
+                      src={item.authorImage} 
+                      alt={item.author} 
+                      className="w-6 h-6 rounded-full mr-2"
+                    />
+                  ) : (
+                    <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white mr-2">
+                      {item.author.charAt(0)}
+                    </div>
+                  )}
+                  <span className="author">{item.author}</span>
+                </div>
+              )}
+            </div>
+            
+            {formattedDate && (
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {formattedDate}
+              </span>
+            )}
+          </div>
+          
+          {item.location && (
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              📍 {item.location}
+            </div>
+          )}
         </CardContent>
       </Card>
     );
@@ -34,15 +97,71 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
 
   // Renderização padrão para imagens e outros tipos de mídia
   return (
-    <Card className={`overflow-hidden bg-white dark:bg-zinc-800 rounded-2xl shadow-md ${className}`}>
-      <img 
-        src={item.mediaUrl} 
-        alt={item.title || "Mídia"} 
-        className="w-full object-cover aspect-video rounded-t-lg"
-      />
-      <CardContent className="p-4">
-        {item.title && <h3 className="font-medium text-lg mb-1">{item.title}</h3>}
-        {item.description && <p className="text-gray-600 dark:text-gray-400">{item.description}</p>}
+    <Card className={`media-display overflow-hidden bg-white dark:bg-zinc-800 rounded-2xl shadow-md ${className}`}>
+      <div className="relative">
+        <img 
+          src={item.mediaUrl || item.thumbnailUrl} 
+          alt={item.title || "Mídia"} 
+          className="w-full object-cover aspect-video rounded-t-lg"
+        />
+        {(item.views !== undefined || item.likes !== undefined) && (
+          <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs rounded-full px-2 py-1 flex space-x-2">
+            {item.views !== undefined && (
+              <span className="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                {item.views}
+              </span>
+            )}
+            {item.likes !== undefined && (
+              <span className="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                {item.likes}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+      <CardContent className="p-5 space-y-3">
+        {item.title && <h3 className="font-semibold text-xl text-gray-900 dark:text-gray-100">{item.title}</h3>}
+        {renderDescription(item.description)}
+        
+        <div className="flex flex-wrap items-center justify-between mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center space-x-2">
+            {item.author && (
+              <div className="flex items-center">
+                {item.authorImage ? (
+                  <img 
+                    src={item.authorImage} 
+                    alt={item.author} 
+                    className="w-6 h-6 rounded-full mr-2"
+                  />
+                ) : (
+                  <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white mr-2">
+                    {item.author.charAt(0)}
+                  </div>
+                )}
+                <span className="author">{item.author}</span>
+              </div>
+            )}
+          </div>
+          
+          {formattedDate && (
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {formattedDate}
+            </span>
+          )}
+        </div>
+        
+        {item.location && (
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            📍 {item.location}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

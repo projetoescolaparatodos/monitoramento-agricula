@@ -34,7 +34,7 @@ const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ mediaItems, i
         ) : mediaItems && mediaItems.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mediaItems.map((item) => (
-              <MediaDisplay key={item.id} item={item} />
+              <MediaDisplay key={item.id} item={item} className="hover:scale-105 transition-transform" />
             ))}
           </div>
         ) : (
