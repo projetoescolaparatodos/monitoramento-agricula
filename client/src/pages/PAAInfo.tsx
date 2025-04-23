@@ -113,6 +113,20 @@ const PAAInfo = () => {
               ))}
             </div>
           )}
+          
+          {/* Botões posicionados após a seção de conteúdos informativos */}
+          <div className="flex justify-center mt-8 mb-6 gap-4">
+            <Button
+              onClick={() => setLocation("/paa/map")}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+            >
+              <Map className="h-4 w-4" />
+              Atividades do PAA
+            </Button>
+            <PAATabButton className="shadow-md bg-green-600 hover:bg-green-700">
+              <span>Solicitar Cadastro no PAA</span>
+            </PAATabButton>
+          </div>
 
           <DataVisualizationSection 
             charts={charts || []} 
@@ -228,19 +242,7 @@ const PAAInfo = () => {
             </Card>
           </section>
 
-          {/* Botões duplicados no final da página */}
-          <div className="flex justify-center mt-12 mb-6 gap-4">
-            <Button
-              onClick={() => setLocation("/paa/map")}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-            >
-              <Map className="h-4 w-4" />
-              Atividades do PAA
-            </Button>
-            <PAATabButton className="shadow-md bg-green-600 hover:bg-green-700">
-              <span>Solicitar Cadastro no PAA</span>
-            </PAATabButton>
-          </div>
+          
         </main>
       </main>
       <Footer />
