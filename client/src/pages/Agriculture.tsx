@@ -11,6 +11,7 @@ import { Map, BarChart2, FilePieChart } from "lucide-react";
 import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import MediaDisplay from "@/components/common/MediaDisplay";
 
 const Agriculture = () => {
   const { data: tratoresData } = useQuery({
