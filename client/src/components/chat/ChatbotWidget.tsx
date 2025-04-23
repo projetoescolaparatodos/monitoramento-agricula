@@ -335,18 +335,21 @@ const ChatbotWidget: React.FC = () => {
     const handleChatToggle = (event: CustomEvent) => {
       if (event.detail) {
         if (event.detail.isOpen === true) {
-          // Se outra instância está abrindo
+          // Se for solicitado para abrir
           if (event.detail.source === 'paa-button' && event.detail.tab === 'paa') {
             // Se o evento vem do botão PAA, abrir o chat na aba PAA
             setIsOpen(true);
             setActiveTab('paa');
-          } else if (isOpen) {
-            // Se outra instância está abrindo e esta já está aberta, fechar esta
+            console.log("Abrindo chat na aba PAA via botão específico");
+          } else {
+            // Qualquer outra solicitação de abertura
+            setIsOpen(true);
+          }
+        } else if (event.detail.isOpen === false) {
+          // Se estamos sendo solicitados a fechar E NÃO vier do botão PAA
+          if (!event.detail.source || event.detail.source !== 'paa-button') {
             setIsOpen(false);
           }
-        } else if (event.detail.isOpen === false && isOpen) {
-          // Se estamos sendo solicitados a fechar
-          setIsOpen(false);
         }
       }
     };
@@ -1112,6 +1115,7 @@ const ChatbotWidget: React.FC = () => {
           onClick={() => setIsOpen(true)}
           className="rounded-full w-14 h-14 bg-green-600 hover:bg-green-700 text-white shadow-lg"
           aria-label="Abrir chat assistente"
+          data-chat-open="false"
         >
           <MessageCircle size={24} />
           <span className="sr-only">Abrir chat assistente</span>
@@ -1120,6 +1124,7 @@ const ChatbotWidget: React.FC = () => {
         <Card
           className="w-80 sm:w-96 shadowxl flex flex-col"
           style={{ height: "580px", maxHeight: "80vh" }}
+          data-chat-open="true"
         >
           <div className="bg-green-600 text-white p-3 flex justify-between items-center rounded-t-lg">
             <div className="flex items-center gap-2">
