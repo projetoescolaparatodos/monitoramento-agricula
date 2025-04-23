@@ -271,33 +271,34 @@ const ChatbotWidget: React.FC = () => {
   );
   const [isAdmin, setIsAdmin] = useState(false);
   const [trainingData, setTrainingData] = useState("");
-  
+
   // Efeito para abrir automaticamente o chat após 10 segundos apenas na página inicial
   useEffect(() => {
     // Verificar se já existe uma instância ativa do chat
     const chatInstanceKey = "chat_instance_active";
     const existingInstance = localStorage.getItem(chatInstanceKey);
-    
+
     if (existingInstance === "true") {
       // Outra instância já está ativa, não abrir este chat
       return;
     }
-    
+
     // Verificar se estamos na página inicial
-    const isHomePage = window.location.pathname === "/" || 
-                       window.location.pathname === "/home" || 
-                       window.location.pathname === "";
-    
+    const isHomePage =
+      window.location.pathname === "/" ||
+      window.location.pathname === "/home" ||
+      window.location.pathname === "";
+
     // Só abrir automaticamente se for a página inicial
     if (isHomePage) {
       // Marcar esta instância como ativa
       localStorage.setItem(chatInstanceKey, "true");
-      
+
       // Timer para abrir o chat automaticamente após 10 segundos
       const autoOpenTimer = setTimeout(() => {
         setIsOpen(true);
       }, 10000);
-      
+
       // Limpar o timer e a marcação quando o componente for desmontado
       return () => {
         clearTimeout(autoOpenTimer);
@@ -305,17 +306,17 @@ const ChatbotWidget: React.FC = () => {
       };
     }
   }, []);
-  
+
   // Garante que apenas uma instância do chat está aberta de cada vez
   useEffect(() => {
     // Criar um evento personalizado para comunicação entre instâncias
     const chatEvent = new CustomEvent("chat_instance_toggle", {
-      detail: { isOpen }
+      detail: { isOpen },
     });
-    
+
     // Disparar o evento quando o estado mudar
     window.dispatchEvent(chatEvent);
-    
+
     // Ouvir eventos de outras instâncias
     const handleChatToggle = (event: CustomEvent) => {
       if (event.detail.isOpen && isOpen) {
@@ -323,11 +324,17 @@ const ChatbotWidget: React.FC = () => {
         setIsOpen(false);
       }
     };
-    
-    window.addEventListener("chat_instance_toggle", handleChatToggle as EventListener);
-    
+
+    window.addEventListener(
+      "chat_instance_toggle",
+      handleChatToggle as EventListener,
+    );
+
     return () => {
-      window.removeEventListener("chat_instance_toggle", handleChatToggle as EventListener);
+      window.removeEventListener(
+        "chat_instance_toggle",
+        handleChatToggle as EventListener,
+      );
     };
   }, [isOpen]);
 
@@ -521,7 +528,6 @@ const ChatbotWidget: React.FC = () => {
 
   // Tentar responder com a hierarquia especificada de respostas
   const tryProgrammaticFlow = (userMessage: string) => {
-
     // Normalizar a mensagem do usuário
     const normalizedUserMessage = userMessage.toLowerCase().trim();
 
@@ -658,9 +664,7 @@ const ChatbotWidget: React.FC = () => {
     let resposta = "";
 
     // Verificar se a mensagem corresponde a alguma ação no fluxo atual
-    if (
-      fluxoConversa[activeFluxo as keyof typeof fluxoConversa]
-    ) {
+    if (fluxoConversa[activeFluxo as keyof typeof fluxoConversa]) {
       const fluxoAtual = fluxoConversa[
         activeFluxo as keyof typeof fluxoConversa
       ] as any;
@@ -936,7 +940,10 @@ const ChatbotWidget: React.FC = () => {
           errorMessage =
             "Para informações sobre serviços de agricultura, você pode preencher nosso formulário de solicitação de serviços ou formulário completo. Deseja acessar algum deles?";
           setSuggestions([
-            { text: "Formulário de Agricultura", action: "Solicitar serviços" },
+            {
+              text: "Solicitar Serviços da Asgricultra",
+              action: "Solicitar serviços",
+            },
             { text: "Formulário Completo", action: "Cadastro Completo" },
           ]);
         } else if (
@@ -1075,26 +1082,26 @@ const ChatbotWidget: React.FC = () => {
 
           <Tabs defaultValue="chat" onValueChange={handleTabChange}>
             <TabsList className="grid grid-cols-4 p-0 bg-green-50 gap-1 pt-1 px-1 shadow-inner rounded-md">
-              <TabsTrigger 
-                value="chat" 
+              <TabsTrigger
+                value="chat"
                 className="text-sm font-medium shadow-sm rounded-md transition-all data-[state=active]:border-t-2 data-[state=active]:border-t-green-600 data-[state=active]:bg-green-600 data-[state=active]:text-white hover:bg-green-100"
               >
                 💬 Chat
               </TabsTrigger>
-              <TabsTrigger 
-                value="agricultura" 
+              <TabsTrigger
+                value="agricultura"
                 className="text-sm font-medium shadow-sm rounded-md transition-all data-[state=active]:border-t-2 data-[state=active]:border-t-green-700 data-[state=active]:bg-green-700 data-[state=active]:text-white hover:bg-green-100"
               >
                 🌱 Agricultura
               </TabsTrigger>
-              <TabsTrigger 
-                value="pesca" 
+              <TabsTrigger
+                value="pesca"
                 className="text-sm font-medium shadow-sm rounded-md transition-all data-[state=active]:border-t-2 data-[state=active]:border-t-blue-600 data-[state=active]:bg-blue-600 data-[state=active]:text-white hover:bg-blue-100"
               >
                 🎣 Pesca
               </TabsTrigger>
-              <TabsTrigger 
-                value="paa" 
+              <TabsTrigger
+                value="paa"
                 className="text-sm font-medium shadow-sm rounded-md transition-all data-[state=active]:border-t-2 data-[state=active]:border-t-amber-600 data-[state=active]:bg-amber-600 data-[state=active]:text-white hover:bg-amber-100"
               >
                 🛒 PAA
@@ -1162,7 +1169,6 @@ const ChatbotWidget: React.FC = () => {
                   )}
                   <div ref={messagesEndRef} className="h-4" />
                 </div>
-
 
                 {suggestions.length > 0 && (
                   <div className="absolute bottom-[60px] left-0 right-0 p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10 mx-auto w-full rounded-b-lg shadow-md">
@@ -1262,9 +1268,17 @@ const ChatbotWidget: React.FC = () => {
             <TabsContent value="agricultura" className="p-0 m-0">
               <div
                 className="p-3 bg-green-50/50 flex flex-col"
-                style={{ height: "450px", display: "flex", flexDirection: "column", position: "relative" }}
+                style={{
+                  height: "450px",
+                  display: "flex",
+                  flexDirection: "column",
+                  position: "relative",
+                }}
               >
-                <div className="flex-1 overflow-y-auto mb-4" style={{ maxHeight: "290px", minHeight: "250px" }}>
+                <div
+                  className="flex-1 overflow-y-auto mb-4"
+                  style={{ maxHeight: "290px", minHeight: "250px" }}
+                >
                   <h4 className="font-semibold text-green-800 mb-2">
                     Setor de Agricultura
                   </h4>
@@ -1290,21 +1304,36 @@ const ChatbotWidget: React.FC = () => {
                       </h5>
                       <div className="space-y-1 mb-2">
                         <p>
-                          <span className="font-medium">Solicitar serviços:</span>{" "}
-                          Formulário rápido e simplificado, ideal para quem já possui cadastro na secretaria
+                          <span className="font-medium">
+                            Solicitar serviços:
+                          </span>{" "}
+                          Formulário rápido e simplificado, ideal para quem já
+                          possui cadastro na secretaria
                         </p>
                         <p>
                           <span className="font-medium">
                             Cadastro Completo:
                           </span>{" "}
-                          Formulário detalhado com todas as informações necessárias, ideal para um primeiro contato com a secretaria
+                          Formulário detalhado com todas as informações
+                          necessárias, ideal para um primeiro contato com a
+                          secretaria
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 py-3 border-t bg-green-50/80" style={{ position: "sticky", bottom: "0", left: "0", right: "0", padding: "0.75rem", zIndex: 10 }}>
+                <div
+                  className="grid grid-cols-2 gap-2 py-3 border-t bg-green-50/80"
+                  style={{
+                    position: "sticky",
+                    bottom: "0",
+                    left: "0",
+                    right: "0",
+                    padding: "0.75rem",
+                    zIndex: 10,
+                  }}
+                >
                   <Button
                     onClick={() => abrirFormulario("agricultura")}
                     className="bg-green-600 hover:bg-green-700"
@@ -1324,9 +1353,17 @@ const ChatbotWidget: React.FC = () => {
             <TabsContent value="pesca" className="p-0 m-0">
               <div
                 className="p-3 bg-blue-50/50 flex flex-col"
-                style={{ height: "450px", display: "flex", flexDirection: "column", position: "relative" }}
+                style={{
+                  height: "450px",
+                  display: "flex",
+                  flexDirection: "column",
+                  position: "relative",
+                }}
               >
-                <div className="flex-1 overflow-y-auto mb-2" style={{ maxHeight: "300px", minHeight: "250px" }}>
+                <div
+                  className="flex-1 overflow-y-auto mb-2"
+                  style={{ maxHeight: "300px", minHeight: "250px" }}
+                >
                   <h4 className="font-semibold text-blue-800 mb-2">
                     Setor de Pesca
                   </h4>
@@ -1348,21 +1385,36 @@ const ChatbotWidget: React.FC = () => {
                       </h5>
                       <div className="space-y-1 mb-2">
                         <p>
-                          <span className="font-medium">Solicitar serviços:</span>{" "}
-                          Formulário rápido e simplificado, ideal para quem já possui cadastro na secretaria
+                          <span className="font-medium">
+                            Solicitar serviços:
+                          </span>{" "}
+                          Formulário rápido e simplificado, ideal para quem já
+                          possui cadastro na secretaria
                         </p>
                         <p>
                           <span className="font-medium">
                             Cadastro Completo:
                           </span>{" "}
-                          Formulário detalhado com todas as informações necessárias, ideal para um primeiro contato com a secretaria
+                          Formulário detalhado com todas as informações
+                          necessárias, ideal para um primeiro contato com a
+                          secretaria
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 py-3 border-t bg-blue-50/80" style={{ position: "sticky", bottom: "0", left: "0", right: "0", padding: "0.75rem", zIndex: 10 }}>
+                <div
+                  className="grid grid-cols-2 gap-2 py-3 border-t bg-blue-50/80"
+                  style={{
+                    position: "sticky",
+                    bottom: "0",
+                    left: "0",
+                    right: "0",
+                    padding: "0.75rem",
+                    zIndex: 10,
+                  }}
+                >
                   <Button
                     onClick={() => abrirFormulario("pesca")}
                     className="bg-blue-600 hover:bg-blue-700"
@@ -1382,9 +1434,17 @@ const ChatbotWidget: React.FC = () => {
             <TabsContent value="paa" className="p-0 m-0">
               <div
                 className="p-3 bg-amber-50/50 flex flex-col"
-                style={{ height: "450px", display: "flex", flexDirection: "column", position: "relative" }}
+                style={{
+                  height: "450px",
+                  display: "flex",
+                  flexDirection: "column",
+                  position: "relative",
+                }}
               >
-                <div className="flex-1 overflow-y-auto mb-2" style={{ maxHeight: "300px", minHeight: "250px" }}>
+                <div
+                  className="flex-1 overflow-y-auto mb-2"
+                  style={{ maxHeight: "300px", minHeight: "250px" }}
+                >
                   <h4 className="font-semibold text-amber-800 mb-2">
                     Programa de Aquisição de Alimentos
                   </h4>
@@ -1404,7 +1464,17 @@ const ChatbotWidget: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="py-3 border-t bg-amber-50/80" style={{ position: "sticky", bottom: "0", left: "0", right: "0", padding: "0.75rem", zIndex: 10 }}>
+                <div
+                  className="py-3 border-t bg-amber-50/80"
+                  style={{
+                    position: "sticky",
+                    bottom: "0",
+                    left: "0",
+                    right: "0",
+                    padding: "0.75rem",
+                    zIndex: 10,
+                  }}
+                >
                   <Button
                     onClick={() => abrirFormulario("paa")}
                     className="w-full bg-amber-600 hover:bg-amber-700"
