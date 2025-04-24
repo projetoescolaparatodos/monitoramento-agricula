@@ -74,7 +74,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
 
     return (
       <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className}`}>
-        <div className="aspect-video w-full relative">
+        <div className="w-full relative">
           {isYouTubeVideo && embedUrl ? (
             <iframe
               className="w-full aspect-video rounded-t-lg"

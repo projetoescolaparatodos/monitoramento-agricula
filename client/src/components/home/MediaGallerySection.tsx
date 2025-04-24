@@ -1,56 +1,145 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { MediaItem } from "@/types";
-import { Link } from "wouter";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "wouter";
+import { isYoutubeUrl, getYoutubeEmbedUrl } from "@/utils/mediaUtils";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
-const MediaGallerySection = () => {
+interface MediaGallerySectionProps {
+  variant?: "default" | "transparent";
+}
+
+const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
+  // Verificar o tipo de mídia
+  const isFirebaseVideo = item.mediaType === 'video' && item.mediaUrl?.includes('firebasestorage.googleapis.com');
+  const isFirebaseImage = item.mediaType === 'image' && item.mediaUrl?.includes('firebasestorage.googleapis.com');
+  const isYouTubeVideo = item.mediaUrl && isYoutubeUrl(item.mediaUrl);
+  
+  // Determinar a página destino
+  const getDestinationPage = (pageType: string) => {
+    switch (pageType) {
+      case 'agriculture': return '/agriculture';
+      case 'fishing': return '/fishing';
+      case 'paa': return '/paa';
+      default: return '/';
+    }
+  };
+  
+  // Formatar data se disponível
+  const formattedDate = item.createdAt 
+    ? format(new Date(item.createdAt), "d 'de' MMM", { locale: ptBR })
+    : null;
+  
+  const pageLabel = {
+    'agriculture': 'Agricultura',
+    'fishing': 'Pesca',
+    'paa': 'PAA',
+    'home': 'Home'
+  }[item.pageType] || 'Geral';
+  
+  return (
+    <Link href={getDestinationPage(item.pageType)}>
+      <Card className="overflow-hidden bg-white/90 dark:bg-zinc-800/90 rounded-xl shadow-md cursor-pointer hover:shadow-lg transition-transform hover:scale-105">
+        <div className="aspect-video w-full relative">
+          {isYouTubeVideo ? (
+            <iframe
+              className="w-full h-full rounded-t-lg"
+              src={getYoutubeEmbedUrl(item.mediaUrl)}
+              title={item.title || "Vídeo do YouTube"}
+              allowFullScreen
+            />
+          ) : isFirebaseVideo ? (
+            <video 
+              className="w-full h-auto object-contain"
+              src={item.mediaUrl}
+              poster={item.thumbnailUrl || ''}
+              title={item.title || "Vídeo"}
+            >
+              Seu navegador não suporta a reprodução de vídeos.
+            </video>
+          ) : (
+            <img 
+              src={item.mediaUrl || item.thumbnailUrl} 
+              alt={item.title || "Mídia"} 
+              className="w-full h-full object-cover"
+            />
+          )}
+          
+          <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs rounded-full px-2 py-1">
+            <span className="font-medium">{pageLabel}</span>
+          </div>
+        </div>
+        <CardContent className="p-3">
+          <h3 className="font-medium text-sm line-clamp-1">
+            {item.title || "Sem título"}
+          </h3>
+          <div className="flex justify-between items-center mt-1">
+            {item.author && (
+              <span className="text-xs text-gray-600 dark:text-gray-400">
+                {item.author}
+              </span>
+            )}
+            {formattedDate && (
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {formattedDate}
+              </span>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+};
+
+const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ variant = "default" }) => {
   const { data: mediaItems, isLoading } = useQuery<MediaItem[]>({
     queryKey: ['/api/media-items'],
   });
 
-  // Limit to 4 items for homepage display
-  const displayItems = mediaItems?.slice(0, 4);
+  // Filtramos apenas itens ativos e limitamos a 8 itens para a página inicial
+  const displayItems = mediaItems?.filter(item => item.active !== false).slice(0, 8);
 
   return (
     <section className="mb-16">
       <div className="text-center mb-10">
-        {/* Removed duplicate title */}
-        <p className="text-white text-xl md:text-2xl font-medium tracking-wide max-w-3xl mx-auto">
+        <p className={`text-xl md:text-2xl font-medium tracking-wide max-w-3xl mx-auto ${variant === "transparent" ? "text-white" : "text-gray-700 dark:text-gray-200"}`}>
           Acompanhe o dia a dia das atividades agrícolas e pesqueiras, com fotos e vídeos das ações da SEMAPA e conteúdos informativos.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {isLoading ? (
-          // Loading skeletons
-          Array(4).fill(0).map((_, index) => (
-            <div key={index} className="relative overflow-hidden rounded-lg shadow h-48">
-              <Skeleton className="w-full h-full" />
-            </div>
-          ))
-        ) : displayItems?.length ? (
-          displayItems.map((item) => (
-            <div key={item.id} className="relative overflow-hidden rounded-lg shadow group h-48">
-              <img 
-                src={item.mediaUrl} 
-                alt={item.title} 
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
-                <div className="p-4 text-white">
-                  <h4 className="font-heading font-semibold">{item.title}</h4>
-                  {item.description && (
-                    <p className="text-xs opacity-80">{item.description}</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="col-span-4 text-center py-12 bg-white rounded-lg shadow">
-            <p className="text-neutral-dark">Nenhuma mídia disponível no momento.</p>
-          </div>
-        )}
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array(8).fill(0).map((_, index) => (
+            <Card key={index} className="overflow-hidden rounded-xl shadow">
+              <Skeleton className="w-full aspect-video" />
+              <CardContent className="p-3">
+                <Skeleton className="h-4 w-2/3 mb-2" />
+                <Skeleton className="h-3 w-1/2" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : displayItems?.length ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {displayItems.map((item) => (
+            <MediaPreviewCard key={item.id} item={item} />
+          ))}
+        </div>
+      ) : (
+        <div className="col-span-4 text-center py-12 bg-white rounded-lg shadow">
+          <p className="text-neutral-dark">Nenhuma mídia disponível no momento.</p>
+        </div>
+      )}
+      
+      <div className="mt-8 text-center">
+        <Link href="/media-gallery">
+          <button className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-full transition-colors">
+            Ver todas as mídias
+          </button>
+        </Link>
       </div>
     </section>
   );

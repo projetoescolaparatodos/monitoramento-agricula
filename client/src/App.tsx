@@ -1,4 +1,3 @@
-
 import { Switch, Route, useLocation } from "wouter";
 import React, { Suspense, lazy } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -21,9 +20,9 @@ import NotFound from "@/pages/not-found";
 import NavBar from "@/components/NavBar";
 import { auth } from "./utils/firebase";
 import FishingInfo from "@/pages/FishingInfo";
-import AgricultureMap from "@/pages/AgriculturaMap";
 import AgricultureInfo from "./pages/AgricultureInfo";
 import BackgroundVideo from "./components/ui/BackgroundVideo";
+import MediaGallery from "@/pages/MediaGallery"; // Added import for MediaGallery
 
 // Formulários Setoriais - Importação lazy para melhor performance
 const FormAgricultura = lazy(() => import('./forms/agriculture/index'));
@@ -72,6 +71,7 @@ function Router() {
             <Route path="/forms/paa" component={FormPAA} />
             <Route path="/forms/agricultura-completo" component={FormAgriculturaCompleto} />
             <Route path="/forms/pesca-completo" component={FormPescaCompleto} />
+            <Route path="/media-gallery" component={MediaGallery} /> {/* Added MediaGallery route */}
             <Route component={NotFound} />
           </Switch>
         </Suspense>
