@@ -133,10 +133,10 @@ const PAAInfo = () => {
           
           {/* Seção de Painéis Interativos */}
           <section className="mt-8">
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+            <div className="bg-white rounded-lg p-6">
               <InteractivePanel 
                 pageType="paa" 
-                className="text-white"
+                className=""
               />
             </div>
           </section>

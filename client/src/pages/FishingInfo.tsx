@@ -54,7 +54,7 @@ const FishingInfo = () => {
           <div className="container mx-auto px-4">
             <InteractivePanel 
               pageType="fishing" 
-              className="bg-white dark:bg-zinc-800 rounded-lg shadow-md"
+              className="rounded-lg shadow-md"
             />
           </div>
         </section>

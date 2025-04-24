@@ -135,13 +135,13 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
       {/* Conteúdo do painel */}
       <div className="md:col-span-2">
         {currentPanel ? (
-          <Card className="animate-in fade-in-50 duration-300">
-            <CardHeader className="pb-2 border-b bg-secondary/10">
-              <CardTitle className="text-xl font-bold flex items-center gap-2 text-secondary">
+          <Card className="animate-in fade-in-50 duration-300 shadow-md border-0" style={{ backgroundColor: '#f0fff4' }}>
+            <CardHeader className="pb-2 border-b">
+              <CardTitle className="text-xl font-bold flex items-center gap-2 text-black">
                 {currentPanel.title}
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-4 prose prose-sm sm:prose lg:prose-lg max-w-none text-justify leading-relaxed">
+            <CardContent className="pt-4 prose prose-sm sm:prose lg:prose-lg max-w-none text-justify text-black leading-relaxed">
               {parse(currentPanel.content)}
             </CardContent>
           </Card>

@@ -66,7 +66,7 @@ const AgricultureInfo = () => {
           <div className="container mx-auto px-4">
             <InteractivePanel 
               pageType="agriculture" 
-              className="bg-white dark:bg-zinc-800 rounded-lg shadow-md"
+              className="rounded-lg shadow-md"
             />
           </div>
         </section>
