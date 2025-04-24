@@ -130,6 +130,17 @@ const PAAInfo = () => {
               <span>Solicitar Cadastro no PAA</span>
             </PAATabButton>
           </div>
+          
+          {/* Seção de Painéis Interativos */}
+          <section className="mt-8">
+            <h2 className="text-3xl font-bold text-center mb-8 text-white">Painéis Informativos</h2>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+              <InteractivePanel 
+                pageType="paa" 
+                className="text-white"
+              />
+            </div>
+          </section>
 
           <DataVisualizationSection 
             charts={charts || []} 
@@ -236,18 +247,7 @@ const PAAInfo = () => {
             </Card>
           </section>
 
-          {/* Seção de Painéis Interativos */}
-          <section className="mt-16">
-            <h2 className="text-3xl font-bold text-center mb-8 text-white">Painéis Informativos</h2>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-              <InteractivePanel 
-                pageType="paa" 
-                className="text-white"
-              />
-            </div>
-          </section>
-
-        </main>
+          </main>
       </main>
       <Footer />
     </>

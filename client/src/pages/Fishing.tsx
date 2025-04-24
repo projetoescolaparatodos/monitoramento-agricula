@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
 import MediaDisplay from "@/components/common/MediaDisplay";
+import InteractivePanel from "@/components/paa/InteractivePanel";
 
 const Fishing = () => {
   const { data: pescaData } = useQuery({
@@ -109,6 +110,17 @@ const Fishing = () => {
               ))}
             </div>
           )}
+          
+          {/* Seção de Painéis Interativos */}
+          <section className="mt-16">
+            <h2 className="text-3xl font-bold text-center mb-8 text-white">Painéis Informativos</h2>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+              <InteractivePanel 
+                pageType="fishing" 
+                className="text-white"
+              />
+            </div>
+          </section>
 
           <DataVisualizationSection 
             charts={charts || []} 
