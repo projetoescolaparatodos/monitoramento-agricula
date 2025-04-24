@@ -1,0 +1,110 @@
+Guia Detalhado: Sistema de Painéis Interativos no Estilo Gov.br
+
+Visão Geral do Sistema
+
+O sistema de painéis interativos implementado segue o estilo gov.br, oferecendo uma experiência de usuário intuitiva e padronizada em todo o site. Este sistema inclui:
+
+1. **Componentes de Exibição para o Usuário Final**
+    
+    - Painéis expansíveis organizados por categorias
+    - Visual moderno seguindo o estilo gov.br
+    - Interface responsiva adaptada para dispositivos móveis e desktop
+2. **Interface Administrativa Completa**
+    
+    - CRUD para gerenciamento de painéis
+    - Organização por categorias e tipos de página
+    - Ordenação e controle de visibilidade
+3. **Integração com o Backend**
+    
+    - Armazenamento no banco de dados existente
+    - APIs específicas para operações com painéis
+    - Sincronização em tempo real
+
+Estrutura de Componentes
+
+Principais Componentes
+
+1. **InteractivePanel**: Exibe os painéis na interface do usuário
+2. **InfoPanelManager**: Interface de administração para os painéis
+3. **InfoPanelForm**: Formulário para criar/editar painéis
+4. **InfoPanelList**: Lista de painéis existentes para gerenciamento
+5. **InfoPanelPreview**: Visualização do painel sendo editado
+
+Componentes de Suporte
+
+1. **InfoPage**: Integra painéis às páginas informativas
+2. **AdminPanels**: Página administrativa dedicada aos painéis
+
+Passo a Passo para Integração em Projeto Existente
+
+1. Copiar Componentes Principais
+
+**Copie os seguintes componentes para seu projeto:**
+
+`   client/src/components/paa/InteractivePanel.tsx  client/src/components/dashboard/InfoPanelManager.tsx  client/src/components/dashboard/InfoPanelForm.tsx  client/src/components/dashboard/InfoPanelList.tsx  client/src/components/dashboard/InfoPanelPreview.tsx  client/src/pages/AdminPanels.tsx   `
+Definição de Tipos
+
+Adicione as seguintes interfaces ao seu arquivo `types.ts` existente:
+
+`   export interface InfoPanelItem {    id: number;    title: string;    content: string;    pageType: string;    categoryId: string;    icon: string;    order: number;    active: boolean;    createdAt: Date;    updatedAt: Date;  }  export interface InfoPanelFormData {    title: string;    content: string;    pageType: string;    categoryId: string;    icon: string;    order: number;    active: boolean;  }   `
+
+3. Configuração de API e Storage no Backend
+
+Adicione ao storage.ts
+
+`   // Adicione à interface IStorage  getInfoPanels(pageType?: string, categoryId?: string): Promise<InfoPanel[]>;  getInfoPanel(id: number): Promise<InfoPanel | undefined>;  createInfoPanel(infoPanel: InsertInfoPanel): Promise<InfoPanel>;  updateInfoPanel(id: number, infoPanel: Partial<InsertInfoPanel>): Promise<InfoPanel | undefined>;  deleteInfoPanel(id: number): Promise<boolean>;  // Implemente na classe MemStorage  private infoPanels: Map<number, InfoPanel>;  private currentInfoPanelId: number;  async getInfoPanels(pageType?: string, categoryId?: string): Promise<InfoPanel[]> {    let panels = Array.from(this.infoPanels.values());    if (pageType) {      panels = panels.filter(panel => panel.pageType === pageType);    }    if (categoryId) {      panels = panels.filter(panel => panel.categoryId === categoryId);    }    return panels.sort((a, b) => a.order - b.order);  }  async getInfoPanel(id: number): Promise<InfoPanel | undefined> {    return this.infoPanels.get(id);  }  async createInfoPanel(infoPanel: InsertInfoPanel): Promise<InfoPanel> {    const id = ++this.currentInfoPanelId;    const now = new Date();    const newInfoPanel: InfoPanel = {       ...infoPanel,       id,      createdAt: now,      updatedAt: now    };    this.infoPanels.set(id, newInfoPanel);    return newInfoPanel;  }  async updateInfoPanel(id: number, infoPanel: Partial<InsertInfoPanel>): Promise<InfoPanel | undefined> {    const existingPanel = this.infoPanels.get(id);    if (!existingPanel) {      return undefined;    }    const updatedInfoPanel: InfoPanel = {      ...existingPanel,      ...infoPanel,      id,      updatedAt: new Date()    };    this.infoPanels.set(id, updatedInfoPanel);    return updatedInfoPanel;  }  async deleteInfoPanel(id: number): Promise<boolean> {    return this.infoPanels.delete(id);  }   `
+
+Adicione as rotas no routes.ts
+
+`   // Adicione nas importações  import { insertInfoPanelSchema } from "@shared/schema";  // Adicione nas rotas  app.get("/api/info-panels", async (req: Request, res: Response) => {    const { pageType, categoryId } = req.query;    const panels = await storage.getInfoPanels(      pageType as string | undefined,       categoryId as string | undefined    );    res.json(panels);  });  app.get("/api/info-panels/:id", async (req: Request, res: Response) => {    const id = parseInt(req.params.id);    const panel = await storage.getInfoPanel(id);    if (!panel) {      return res.status(404).json({ error: "Info panel not found" });    }    res.json(panel);  });  app.post("/api/info-panels", async (req: Request, res: Response) => {    const parseResult = insertInfoPanelSchema.safeParse(req.body);    if (!parseResult.success) {      return res.status(400).json({ error: parseResult.error });    }    const panel = await storage.createInfoPanel(parseResult.data);    res.status(201).json(panel);  });  app.put("/api/info-panels/:id", async (req: Request, res: Response) => {    const id = parseInt(req.params.id);    const parseResult = insertInfoPanelSchema.partial().safeParse(req.body);    if (!parseResult.success) {      return res.status(400).json({ error: parseResult.error });    }    const panel = await storage.updateInfoPanel(id, parseResult.data);    if (!panel) {      return res.status(404).json({ error: "Info panel not found" });    }    res.json(panel);  });  app.delete("/api/info-panels/:id", async (req: Request, res: Response) => {    const id = parseInt(req.params.id);    const success = await storage.deleteInfoPanel(id);    if (!success) {      return res.status(404).json({ error: "Info panel not found" });    }    res.json({ success: true });  });   `
+
+4. Adicione ao Schema (shared/schema.ts)
+
+`   export const infoPanels = pgTable("info_panels", {    id: serial("id").primaryKey(),    pageType: text("page_type").notNull(),    title: text("title").notNull(),    content: text("content").notNull(),    categoryId: text("category_id").notNull(),    icon: text("icon").notNull(),    order: integer("order").notNull().default(0),    active: boolean("active").notNull().default(true),    createdAt: timestamp("created_at").notNull().defaultNow(),    updatedAt: timestamp("updated_at").notNull().defaultNow(),  });  export const insertInfoPanelSchema = createInsertSchema(infoPanels).omit({    id: true,    createdAt: true,    updatedAt: true,  });  export type InfoPanel = typeof infoPanels.$inferSelect;  export type InsertInfoPanel = z.infer<typeof insertInfoPanelSchema>;   `
+
+5. Adicione Rota à Navegação (App.tsx)
+
+`   <Route path="/admin/panels" component={AdminPanels} />   `
+
+6. Integração em Páginas Existentes
+
+Para adicionar o painel interativo a uma página existente que utiliza o InfoPage:
+
+`   <InfoPage     title="Título da Página"     subtitle="Subtítulo da página"    contents={contents || []}     charts={charts || []}     mediaItems={mediaItems || []}     isLoadingContents={isLoadingContents}    isLoadingCharts={isLoadingCharts}    isLoadingMedia={isLoadingMedia}    pageType="nome-da-pagina" // Importante: defina o tipo de página  />   `
+
+Para páginas personalizadas que não usam o InfoPage:
+
+`   <section className="secao-paineis">    <h2>Painéis Informativos</h2>    <InteractivePanel       pageType="nome-da-pagina"       className="classes-opcionais-de-estilo"    />  </section>   `
+
+7. Acesso à Administração dos Painéis
+
+Adicione um novo item ao seu menu de dashboard:
+
+`   // No componente de menu/sidebar do dashboard  const sections = [    // ... seções existentes    { id: 'panels', label: 'Painéis Interativos', icon: 'layout' },  ];  // No handler de navegação  const handleSectionChange = (value: string) => {    // ...    if (value === 'panels') {      navigate('/admin/panels');      return;    }    // ...  };   `
+
+Aspectos Importantes da Implementação
+
+Isolamento de Dados por Página
+
+Cada tipo de página (`pageType`) possui seu próprio conjunto de painéis, permitindo personalização sem afetar outras seções do site. Os principais tipos são:
+
+- - `agriculture`: Página de agricultura
+- `fishing`: Página de pesca
+- `paa`: Página do PAA
+
+Sistema de Categorias
+
+Os painéis são organizados por categorias (`categoryId`), permitindo agrupamento lógico. Exemplos de categorias:
+
+- `about`: Informações gerais
+- `services`: Serviços disponíveis
+- `documents`: Documentação necessária
+- `faq`: Perguntas frequentes
+
+Ordenação Customizável
+
+Cada painel possui um campo `order` que controla a ordem de exibição dentro de sua categoria, permitindo organização específica para cada seção do site.
+
+Ícones Personalizáveis
+
+O campo `icon` permite especificar um ícone para cada painel, melhorando a experiência visual do usuário.
