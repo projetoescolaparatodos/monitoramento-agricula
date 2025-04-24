@@ -25,7 +25,13 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
         '><span class="hashtag">#$1</span><'
       );
       
-      return <div className="description rich-content quill-content mt-2" dangerouslySetInnerHTML={{ __html: withHashtags }} />;
+      // Destacar hashtags no texto normal também
+      const enhancedHtml = withHashtags.replace(
+        /(^|[^>])#(\w+)/g, 
+        '$1<span class="hashtag">#$2</span>'
+      );
+      
+      return <div className="description rich-content quill-content mt-3" dangerouslySetInnerHTML={{ __html: enhancedHtml }} />;
     } else {
       // Tratamento para texto puro (legado)
       // Converter quebras de linha
@@ -43,7 +49,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
         .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
 
-      return <div className="description rich-content mt-2" dangerouslySetInnerHTML={{ __html: withMarkdown }} />;
+      return <div className="description rich-content mt-3" dangerouslySetInnerHTML={{ __html: withMarkdown }} />;
     }
   };
 
@@ -67,8 +73,16 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
             allowFullScreen
           />
         </div>
-        <CardContent className="p-5 space-y-3">
-          {item.title && <h3 className="font-semibold text-xl text-gray-900 dark:text-gray-100">{item.title}</h3>}
+        <CardContent className="p-5 space-y-4">
+          {item.title && (
+            <div className="media-title">
+              {/<\/?[a-z][\s\S]*>/i.test(item.title) ? (
+                <div className="font-heading text-xl text-gray-900 dark:text-gray-100" dangerouslySetInnerHTML={{ __html: item.title }} />
+              ) : (
+                <h3 className="font-semibold text-xl text-gray-900 dark:text-gray-100">{item.title}</h3>
+              )}
+            </div>
+          )}
           {renderDescription(item.description)}
 
           {/* Extrair e exibir hashtags separadamente */}

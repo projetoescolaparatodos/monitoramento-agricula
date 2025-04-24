@@ -202,6 +202,9 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
                   <FormControl>
                     <Input {...field} placeholder="Insira o título da mídia" />
                   </FormControl>
+                  <FormDescription>
+                    Insira o título da mídia. Use tags HTML básicas para formatação (ex: &lt;b&gt;Título em negrito&lt;/b&gt;)
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
