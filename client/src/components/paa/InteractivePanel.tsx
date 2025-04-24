@@ -113,10 +113,10 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
             key={panel.categoryId}
             onClick={() => handlePanelChange(panel.categoryId)}
             className={cn(
-              "w-full justify-start text-left p-3 rounded-md relative overflow-hidden transition-all duration-200 shadow-sm border",
+              "w-full justify-start text-left p-3 rounded-md relative overflow-hidden transition-all duration-200",
               activePanel === panel.categoryId
-                ? "bg-primary text-white font-medium" 
-                : "bg-muted text-muted-foreground hover:bg-muted/90"
+                ? "border border-primary bg-white text-primary shadow-sm font-semibold" 
+                : "bg-muted text-muted-foreground hover:bg-muted/80 border border-transparent"
             )}
           >
             {activePanel === panel.categoryId && (
