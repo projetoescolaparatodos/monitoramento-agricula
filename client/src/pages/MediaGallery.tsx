@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { MediaItem } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -61,7 +60,7 @@ const MediaFilters = ({
 
 const MediaGallery = () => {
   const [selectedFilter, setSelectedFilter] = useState('all');
-  
+
   const { data: mediaItems, isLoading } = useQuery<MediaItem[]>({
     queryKey: ['/api/media-items'],
   });
@@ -79,7 +78,7 @@ const MediaGallery = () => {
         Confira todas as fotos e vídeos relacionados às atividades da SEMAPA, incluindo conteúdos
         das áreas de Agricultura, Pesca e PAA.
       </p>
-      
+
       <MediaFilters 
         selectedFilter={selectedFilter} 
         setSelectedFilter={setSelectedFilter} 
@@ -99,7 +98,7 @@ const MediaGallery = () => {
             // Determinar se é vídeo ou imagem vertical para ocupar espaço maior
             const isVideo = item.mediaType === 'video';
             const isVerticalOrVideo = isVideo || (item.orientation === 'vertical');
-            
+
             return (
               <div 
                 key={item.id} 
