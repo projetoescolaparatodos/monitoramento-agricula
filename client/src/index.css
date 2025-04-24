@@ -159,12 +159,21 @@
 /* Estilos específicos para o editor de título */
 .quill-container .ql-editor {
   min-height: 80px;
+  background-color: white !important;
+  color: #333 !important;
 }
 
 /* Tamanho reduzido para toolbar do editor de título */
 .quill-container .ql-toolbar.ql-snow {
   border-radius: 4px 4px 0 0;
   margin-bottom: 0.5rem;
+  background-color: #f3f4f6 !important;
+  border: 1px solid #d1d5db !important;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 8px;
 }
 
 .quill-container .ql-editor {

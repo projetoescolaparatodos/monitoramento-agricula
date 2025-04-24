@@ -203,7 +203,7 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
                     Crie um título com formatação personalizada
                   </FormDescription>
                   <FormControl>
-                    <div className="quill-container">
+                    <div className="quill-container bg-white text-black rounded-md border border-gray-300 overflow-visible">
                       <ReactQuill
                         theme="snow"
                         value={field.value || ''}
@@ -222,6 +222,7 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
                           'color', 'background'
                         ]}
                         placeholder="Insira o título da mídia..."
+                        preserveWhitespace={true}
                       />
                     </div>
                   </FormControl>
@@ -285,7 +286,7 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
                     Crie uma descrição rica com formatação avançada
                   </FormDescription>
                   <FormControl>
-                    <div className="quill-container">
+                    <div className="quill-container bg-white text-black rounded-md border border-gray-300 overflow-visible">
                       <ReactQuill
                         theme="snow"
                         value={field.value || ''}
@@ -310,6 +311,7 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
                           'link'
                         ]}
                         placeholder="Descreva a mídia com formatação detalhada..."
+                        preserveWhitespace={true}
                       />
                     </div>
                     <div className="text-xs text-muted-foreground mt-2 space-y-1">
