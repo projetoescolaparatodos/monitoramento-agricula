@@ -122,6 +122,21 @@ const Fishing = () => {
                 pageType="fishing" 
                 className="text-white"
               />
+              
+              {/* Novos botões abaixo do painel */}
+              <div className="flex flex-col md:flex-row justify-center gap-4 mt-8">
+                <FishingTabButton className="shadow-md text-lg py-3 px-6 rounded-lg">
+                  Iniciar Cadastro na Psicultura
+                </FishingTabButton>
+                
+                <Button
+                  onClick={() => setLocation("/fishing/map")}
+                  className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-lg py-3 px-6 rounded-lg shadow-md"
+                >
+                  <Map className="h-5 w-5" />
+                  Acompanhe nossas Atividades em tempo real
+                </Button>
+              </div>
             </div>
           </section>
 
