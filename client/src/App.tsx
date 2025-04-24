@@ -73,18 +73,8 @@ function Router() {
                 return <Admin />;
               }}
             </Route>
-            <Route path="/admin/panels">
-              {() => {
-                const user = auth.currentUser;
-                if (!user) {
-                  window.location.href = "/login";
-                  return null;
-                }
-                // Assumindo que o componente AdminPanels existe e foi criado
-                const AdminPanels = lazy(() => import("./pages/AdminPanels"));
-                return <AdminPanels />;
-              }}
-            </Route>
+               {/* Panel management is integrated into dashboard */}
+                         </Route>
             <Route path="/report" component={Report} />
             <Route path="/forms/agricultura" component={FormAgricultura} />
             <Route path="/forms/pesca" component={FormPesca} />
