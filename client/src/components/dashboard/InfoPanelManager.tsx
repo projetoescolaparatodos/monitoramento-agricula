@@ -25,7 +25,7 @@ const InfoPanelManager: React.FC = () => {
   // Mutation para criar painel
   const createMutation = useMutation({
     mutationFn: async (data: InfoPanelFormData) => {
-      return apiRequest('/api/info-panels', 'POST', data);
+      return apiRequest('POST', '/api/info-panels', data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/info-panels'] });
@@ -48,7 +48,7 @@ const InfoPanelManager: React.FC = () => {
   // Mutation para atualizar painel
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number, data: InfoPanelFormData }) => {
-      return apiRequest(`/api/info-panels/${id}`, 'PUT', data);
+      return apiRequest('PUT', `/api/info-panels/${id}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/info-panels'] });
