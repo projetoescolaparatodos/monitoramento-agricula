@@ -212,7 +212,7 @@ const Agriculture = () => {
           {/* Seção de Painéis Interativos */}
           <section className="mt-16">
             <h2 className="text-3xl font-bold text-center mb-8 text-white">Painéis Informativos</h2>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+            <div className="p-6">
               <InteractivePanel 
                 pageType="agriculture" 
                 className="text-white"
