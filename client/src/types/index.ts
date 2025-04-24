@@ -62,3 +62,26 @@ export interface MediaFormData {
   tags?: string;
   createdAt?: string;
 }
+
+export interface InfoPanelItem {
+  id: number;
+  title: string;
+  content: string;
+  pageType: string;
+  categoryId: string;
+  icon: string;
+  order: number;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface InfoPanelFormData {
+  title: string;
+  content: string;
+  pageType: string;
+  categoryId: string;
+  icon: string;
+  order: number;
+  active: boolean;
+}

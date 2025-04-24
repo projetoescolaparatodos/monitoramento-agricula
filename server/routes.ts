@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { collection, query, where, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, updateDoc, doc, getDoc, deleteDoc, serverTimestamp, orderBy } from 'firebase/firestore';
 import { db, storageImplementation } from './storage';
 import multer from 'multer';
 
@@ -115,18 +115,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Importação direta do módulo do Firebase
       const { getStorage, ref, uploadBytes, getDownloadURL } = require('firebase/storage');
       const { storage } = require('./storage');
-      
+
       // Criar caminho para o arquivo
       const fileType = req.file.mimetype.split('/')[0]; // 'image' ou 'video'
       const timestamp = Date.now();
       const path = `uploads/${fileType}/${timestamp}_${req.file.originalname}`;
-      
+
       // Criar referência para o arquivo
       const fileRef = ref(storage, path);
-      
+
       // Upload do arquivo para o Firebase Storage
       await uploadBytes(fileRef, req.file.buffer);
-      
+
       // Obter URL de download
       const downloadUrl = await getDownloadURL(fileRef);
 
@@ -225,6 +225,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Erro ao salvar dados do chatbot:', error);
       res.status(500).json({ success: false, error: 'Erro ao processar solicitação' });
+    }
+  });
+
+  // Info Panels API Routes
+  app.get("/api/info-panels", async (req, res) => {
+    const { pageType, categoryId } = req.query;
+    try {
+      const panels = await getDocs(
+        query(collection(db, "info_panels"), 
+          ...[
+            pageType ? where("pageType", "==", pageType) : null,
+            categoryId ? where("categoryId", "==", categoryId) : null
+          ].filter(Boolean)
+        )
+      );
+      const result = panels.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching info panels:", error);
+      res.status(500).json({ error: "Failed to fetch info panels" });
+    }
+  });
+
+  app.get("/api/info-panels/:id", async (req, res) => {
+    const id = req.params.id;
+    try {
+      const panelDoc = await getDoc(doc(db, "info_panels", id));
+      if (!panelDoc.exists()) {
+        return res.status(404).json({ error: "Info panel not found" });
+      }
+      res.json({ id: panelDoc.id, ...panelDoc.data() });
+    } catch (error) {
+      console.error("Error fetching info panel:", error);
+      res.status(500).json({ error: "Failed to fetch info panel" });
+    }
+  });
+
+  app.post("/api/info-panels", async (req, res) => {
+    try {
+      const newPanel = {
+        ...req.body,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      const docRef = await addDoc(collection(db, "info_panels"), newPanel);
+      res.status(201).json({ id: docRef.id, ...newPanel });
+    } catch (error) {
+      console.error("Error creating info panel:", error);
+      res.status(500).json({ error: "Failed to create info panel" });
+    }
+  });
+
+  app.put("/api/info-panels/:id", async (req, res) => {
+    const id = req.params.id;
+    try {
+      const updateData = {
+        ...req.body,
+        updatedAt: new Date()
+      };
+      await updateDoc(doc(db, "info_panels", id), updateData);
+      res.json({ id, ...updateData });
+    } catch (error) {
+      console.error("Error updating info panel:", error);
+      res.status(500).json({ error: "Failed to update info panel" });
+    }
+  });
+
+  app.delete("/api/info-panels/:id", async (req, res) => {
+    const id = req.params.id;
+    try {
+      await deleteDoc(doc(db, "info_panels", id));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting info panel:", error);
+      res.status(500).json({ error: "Failed to delete info panel" });
     }
   });
 

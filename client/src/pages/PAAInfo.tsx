@@ -14,6 +14,7 @@ import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
 import BackgroundVideo from "@/components/ui/BackgroundVideo";
 import MediaDisplay from '@/components/common/MediaDisplay';
+import InteractivePanel from "@/components/paa/InteractivePanel";
 
 
 const PAAInfo = () => {
@@ -235,6 +236,16 @@ const PAAInfo = () => {
             </Card>
           </section>
 
+          {/* Seção de Painéis Interativos */}
+          <section className="mt-16">
+            <h2 className="text-3xl font-bold text-center mb-8 text-white">Painéis Informativos</h2>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+              <InteractivePanel 
+                pageType="paa" 
+                className="text-white"
+              />
+            </div>
+          </section>
 
         </main>
       </main>
