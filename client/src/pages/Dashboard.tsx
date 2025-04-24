@@ -16,7 +16,6 @@ import StatisticForm from "@/components/dashboard/StatisticForm";
 import ChatbotSolicitacoes from "@/components/dashboard/ChatbotSolicitacoes";
 import ChatbotAdmin from "@/components/dashboard/ChatbotAdmin";
 import InfoPanelManager from "@/components/dashboard/InfoPanelManager";
-import InfoPanelManager from "@/components/dashboard/InfoPanelManager";
 
 const Dashboard = () => {
   const [, setLocation] = useLocation();
