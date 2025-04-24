@@ -113,17 +113,17 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
             key={panel.categoryId}
             onClick={() => handlePanelChange(panel.categoryId)}
             className={cn(
-              "w-full justify-start text-left p-3 rounded-md relative overflow-hidden transition-all duration-200 shadow-sm",
+              "w-full justify-start text-left p-3 rounded-md relative overflow-hidden transition-all duration-200 shadow-sm border",
               activePanel === panel.categoryId
-                ? "bg-primary/10 text-primary font-medium" 
-                : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
+                ? "bg-primary text-white font-medium" 
+                : "bg-muted text-muted-foreground hover:bg-muted/90"
             )}
           >
             {activePanel === panel.categoryId && (
-              <div className="absolute inset-y-0 left-0 w-1 bg-primary" />
+              <div className="absolute inset-y-0 left-0 w-1 bg-white" />
             )}
             <div className="flex items-center gap-3 w-full">
-              <span className="shrink-0 text-primary">
+              <span className="shrink-0">
                 {iconMap[panel.icon] || <Info size={20} />}
               </span>
               <span className="flex-grow font-medium">{panel.title}</span>
@@ -136,12 +136,12 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
       <div className="md:col-span-2">
         {currentPanel ? (
           <Card className="animate-in fade-in-50 duration-300">
-            <CardHeader className="pb-2 border-b">
-              <CardTitle className="text-xl font-bold flex items-center gap-2">
+            <CardHeader className="pb-2 border-b bg-secondary/10">
+              <CardTitle className="text-xl font-bold flex items-center gap-2 text-secondary">
                 {currentPanel.title}
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-4 prose max-w-none">
+            <CardContent className="pt-4 prose prose-sm sm:prose lg:prose-lg max-w-none text-justify leading-relaxed">
               {parse(currentPanel.content)}
             </CardContent>
           </Card>
