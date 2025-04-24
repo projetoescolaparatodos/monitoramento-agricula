@@ -309,7 +309,7 @@ const PescaMap = () => {
                       }
 
                       if (videoId) {
-                        const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                        const embedUrl = `https://www.youtube.com/embed/${videoId}?modestbranding=1&rel=0&enablejsapi=1`;
                         return (
                           <iframe
                             key={index}
