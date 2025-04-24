@@ -86,22 +86,34 @@ const MediaGallery = () => {
       />
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array(6).fill(0).map((_, index) => (
-            <div key={index} className="relative overflow-hidden rounded-lg shadow h-72">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 auto-rows-[200px] gap-4 grid-flow-dense">
+          {Array(8).fill(0).map((_, index) => (
+            <div key={index} className={`relative overflow-hidden rounded-lg shadow ${index % 3 === 0 ? 'col-span-2 row-span-2' : ''}`}>
               <Skeleton className="w-full h-full" />
             </div>
           ))}
         </div>
       ) : filteredItems?.length ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredItems.map((item) => (
-            <MediaDisplay 
-              key={item.id} 
-              item={item} 
-              className="hover:shadow-lg transition-transform" 
-            />
-          ))}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 auto-rows-[200px] gap-4 grid-flow-dense">
+          {filteredItems.map((item) => {
+            // Determinar se é vídeo ou imagem vertical para ocupar espaço maior
+            const isVideo = item.mediaType === 'video';
+            const isVerticalOrVideo = isVideo || (item.orientation === 'vertical');
+            
+            return (
+              <div 
+                key={item.id} 
+                className={`
+                  ${isVerticalOrVideo ? 'col-span-2 row-span-2' : 'col-span-1 row-span-1'}
+                `}
+              >
+                <MediaDisplay 
+                  item={item} 
+                  className="h-full hover:shadow-lg transition-transform" 
+                />
+              </div>
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-12 bg-white rounded-lg shadow">

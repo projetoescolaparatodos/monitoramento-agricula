@@ -42,8 +42,8 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
   
   return (
     <Link href={getDestinationPage(item.pageType)}>
-      <Card className="overflow-hidden bg-white/90 dark:bg-zinc-800/90 rounded-xl shadow-md cursor-pointer hover:shadow-lg transition-transform hover:scale-105">
-        <div className="aspect-video w-full relative">
+      <Card className="overflow-hidden bg-white/90 dark:bg-zinc-800/90 rounded-xl shadow-md cursor-pointer hover:shadow-lg transition-transform hover:scale-105 h-full">
+        <div className="w-full h-full relative">
           {isYouTubeVideo ? (
             <iframe
               className="w-full h-full rounded-t-lg"
@@ -53,7 +53,7 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
             />
           ) : isFirebaseVideo ? (
             <video 
-              className="w-full h-auto object-contain"
+              className="w-full h-full object-cover"
               src={item.mediaUrl}
               poster={item.thumbnailUrl || ''}
               title={item.title || "Vídeo"}
@@ -71,24 +71,25 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
           <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs rounded-full px-2 py-1">
             <span className="font-medium">{pageLabel}</span>
           </div>
-        </div>
-        <CardContent className="p-3">
-          <h3 className="font-medium text-sm line-clamp-1">
-            {item.title || "Sem título"}
-          </h3>
-          <div className="flex justify-between items-center mt-1">
-            {item.author && (
-              <span className="text-xs text-gray-600 dark:text-gray-400">
-                {item.author}
-              </span>
-            )}
-            {formattedDate && (
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {formattedDate}
-              </span>
-            )}
+          
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+            <h3 className="font-medium text-sm text-white line-clamp-1">
+              {item.title || "Sem título"}
+            </h3>
+            <div className="flex justify-between items-center mt-1">
+              {item.author && (
+                <span className="text-xs text-gray-200">
+                  {item.author}
+                </span>
+              )}
+              {formattedDate && (
+                <span className="text-xs text-gray-300">
+                  {formattedDate}
+                </span>
+              )}
+            </div>
           </div>
-        </CardContent>
+        </div>
       </Card>
     </Link>
   );
@@ -111,11 +112,11 @@ const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ variant = "de
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 auto-rows-[200px] gap-4 grid-flow-dense">
           {Array(8).fill(0).map((_, index) => (
             <Card key={index} className="overflow-hidden rounded-xl shadow">
-              <Skeleton className="w-full aspect-video" />
-              <CardContent className="p-3">
+              <Skeleton className="w-full h-full" />
+              <CardContent className="p-3 absolute bottom-0 w-full bg-white/80 dark:bg-zinc-800/80">
                 <Skeleton className="h-4 w-2/3 mb-2" />
                 <Skeleton className="h-3 w-1/2" />
               </CardContent>
@@ -123,10 +124,23 @@ const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ variant = "de
           ))}
         </div>
       ) : displayItems?.length ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {displayItems.map((item) => (
-            <MediaPreviewCard key={item.id} item={item} />
-          ))}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 auto-rows-[200px] gap-4 grid-flow-dense">
+          {displayItems.map((item) => {
+            // Determinar se é vídeo ou imagem vertical para ocupar espaço maior
+            const isVideo = item.mediaType === 'video';
+            const isVerticalOrVideo = isVideo || (item.orientation === 'vertical');
+            
+            return (
+              <div 
+                key={item.id} 
+                className={`
+                  ${isVerticalOrVideo ? 'col-span-2 row-span-2' : 'col-span-1 row-span-1'}
+                `}
+              >
+                <MediaPreviewCard item={item} />
+              </div>
+            );
+          })}
         </div>
       ) : (
         <div className="col-span-4 text-center py-12 bg-white rounded-lg shadow">

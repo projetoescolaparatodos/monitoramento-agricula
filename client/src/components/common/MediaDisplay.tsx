@@ -17,20 +17,20 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
 
     // Verificar se o texto já é conteúdo HTML do ReactQuill
     const isHtmlContent = /<\/?[a-z][\s\S]*>/i.test(text);
-    
+
     if (isHtmlContent) {
       // Destacar hashtags dentro do HTML também
       const withHashtags = text.replace(
         />#([a-zA-Z0-9]+)</g, 
         '><span class="hashtag">#$1</span><'
       );
-      
+
       // Destacar hashtags no texto normal também
       const enhancedHtml = withHashtags.replace(
         /(^|[^>])#(\w+)/g, 
         '$1<span class="hashtag">#$2</span>'
       );
-      
+
       return <div className="description rich-content quill-content mt-3" dangerouslySetInnerHTML={{ __html: enhancedHtml }} />;
     } else {
       // Tratamento para texto puro (legado)
@@ -60,12 +60,12 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
 
   // Estado para controle de erros de carregamento de imagem
   const [imageError, setImageError] = useState(false);
-  
+
   // Detecta o tipo de mídia com base na URL e no mediaType
   const isFirebaseVideo = item.mediaType === 'video' && item.mediaUrl?.includes('firebasestorage.googleapis.com');
   const isFirebaseImage = item.mediaType === 'image' && item.mediaUrl?.includes('firebasestorage.googleapis.com');
   const isYouTubeVideo = item.mediaUrl && isYoutubeUrl(item.mediaUrl);
-  
+
   // Renderização de vídeos (YouTube ou Firebase Storage)
   if (isYouTubeVideo || isFirebaseVideo) {
     // Para YouTube, obtenha a URL de incorporação
@@ -73,7 +73,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
     // Para vídeos do Firebase, use a URL diretamente
 
     return (
-      <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className}`}>
+      <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className} flex flex-col`}>
         <div className="w-full relative">
           {isYouTubeVideo && embedUrl ? (
             <iframe
@@ -169,7 +169,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
 
   // Renderização padrão para imagens e outros tipos de mídia
   return (
-    <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className}`}>
+    <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className} flex flex-col`}>
       <div className="relative">
         {!imageError ? (
           <div className="w-full mx-auto">
