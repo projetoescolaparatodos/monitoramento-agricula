@@ -14,6 +14,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,6 +27,9 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import MediaFileUploader from "./MediaFileUploader";
 
 // Form validation schema
 const formSchema = z.object({
@@ -74,6 +78,13 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
 
   //Improved YouTube URL validation
   const isValidYoutubeUrl = (url: string): boolean => {
+    if (!url) return false;
+    
+    // Se URL for do Firebase Storage (upload de arquivo), aceitar automaticamente
+    if (url.includes('firebasestorage.googleapis.com')) {
+      return true;
+    }
+    
     const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=)|youtu\.be\/)([^#&\?]*)/;
     return youtubeRegex.test(url);
   };
@@ -239,7 +250,6 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
                   <FormMessage />
                 </FormItem>
               )}
-              )}
             />
 
             <FormField
@@ -247,36 +257,86 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Descrição (opcional)</FormLabel>
+                  <FormLabel>Descrição</FormLabel>
+                  <FormDescription>
+                    Crie uma descrição rica com formatação avançada
+                  </FormDescription>
                   <FormControl>
-                    <Textarea
-                      {...field}
-                      placeholder="Insira uma descrição para a mídia"
-                      rows={3}
-                      value={field.value || ""}
-                    />
+                    <div className="quill-container">
+                      <ReactQuill
+                        theme="snow"
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        modules={{
+                          toolbar: [
+                            [{ 'header': [1, 2, 3, false] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{'list': 'ordered'}, {'list': 'bullet'}],
+                            [{'align': []}],
+                            [{'color': []}, {'background': []}],
+                            ['link'],
+                            ['clean']
+                          ]
+                        }}
+                        formats={[
+                          'header',
+                          'bold', 'italic', 'underline', 'strike',
+                          'list', 'bullet',
+                          'align',
+                          'color', 'background',
+                          'link'
+                        ]}
+                        placeholder="Descreva a mídia com formatação detalhada..."
+                      />
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-2 space-y-1">
+                      <p>
+                        <span className="font-medium">Dicas de formatação:</span>
+                      </p>
+                      <ul className="list-disc pl-4 space-y-0.5">
+                        <li>Use <strong>#palavras</strong> para criar hashtags que serão destacadas</li>
+                        <li>Adicione títulos, listas e formatação para melhor organização</li>
+                        <li>Inclua links para referências externas quando necessário</li>
+                      </ul>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="mediaUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>URL da Mídia</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder={form.watch("mediaType") === "video" ? "https://www.youtube.com/watch?v=ID_DO_VIDEO" : "Insira a URL da mídia"} />
-                  </FormControl>
-                  <FormMessage />
-                  {form.watch("mediaType") === "video" && !isValidYoutubeUrl(field.value) && (
-                    <p className="text-red-500 text-sm">Por favor, insira uma URL válida do YouTube</p>
-                  )}
-                </FormItem>
-              )}
-            />
+
+            <div className="space-y-6">
+              <FormField
+                control={form.control}
+                name="mediaUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>URL da Mídia</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder={form.watch("mediaType") === "video" ? "https://www.youtube.com/watch?v=ID_DO_VIDEO" : "Insira a URL da mídia"} />
+                    </FormControl>
+                    <FormMessage />
+                    {form.watch("mediaType") === "video" && !isValidYoutubeUrl(field.value) && (
+                      <p className="text-red-500 text-sm">Por favor, insira uma URL válida do YouTube</p>
+                    )}
+                  </FormItem>
+                )}
+              />
+              
+              <div className="border-t pt-4">
+                <h3 className="text-sm font-medium mb-2">Ou faça upload de um arquivo:</h3>
+                <MediaFileUploader 
+                  onFileUploaded={(url) => {
+                    form.setValue("mediaUrl", url);
+                    setPreviewUrl(url);
+                  }}
+                  label={`Upload de ${watchMediaType === "image" ? "Imagem" : "Vídeo"}`}
+                  acceptTypes={watchMediaType === "image" ? "image/*" : "video/*"}
+                  folderPath={`midias/${watchMediaType}`}
+                />
+              </div>
+            </div>
 
             {watchMediaType === "video" && (
               <FormField

@@ -21,20 +21,20 @@ export interface ChartItem {
 
 export interface MediaItem {
   id: string;
+  mediaUrl: string;
+  thumbnailUrl?: string;
   title?: string;
-  description?: string;
-  mediaUrl?: string;
-  mediaType?: 'image' | 'video';
-  pageType?: string;
+  description?: string; // Contém HTML formatado do ReactQuill
+  mediaType: 'image' | 'video';
+  pageType?: 'home' | 'agriculture' | 'fishing' | 'paa';
   active?: boolean;
   createdAt?: string;
-  tags?: string;
   author?: string;
   authorImage?: string;
-  thumbnailUrl?: string;
   location?: string;
-  likes?: number;
   views?: number;
+  likes?: number;
+  tags?: string[]; // Array opcional de tags para facilitar a busca
 }
 
 export interface StatisticItem {
@@ -45,4 +45,20 @@ export interface StatisticItem {
   percentage: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface MediaFormData {
+  id?: string;
+  pageType: string;
+  title: string;
+  description?: string; // Contém HTML formatado do ReactQuill
+  mediaType: string;
+  mediaUrl: string;
+  thumbnailUrl?: string;
+  active: boolean;
+  order: number;
+  author?: string;
+  authorImage?: string;
+  tags?: string;
+  createdAt?: string;
 }

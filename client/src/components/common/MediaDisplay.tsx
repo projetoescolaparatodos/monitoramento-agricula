@@ -11,26 +11,40 @@ interface MediaDisplayProps {
 }
 
 const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => {
-  // Processar hashtags na descrição
+  // Processar o conteúdo rico da descrição
   const renderDescription = (text?: string) => {
     if (!text) return null;
 
-    // Converter quebras de linha
-    const withLineBreaks = text.replace(/\n/g, '<br/>');
+    // Verificar se o texto já é conteúdo HTML do ReactQuill
+    const isHtmlContent = /<\/?[a-z][\s\S]*>/i.test(text);
+    
+    if (isHtmlContent) {
+      // Destacar hashtags dentro do HTML também
+      const withHashtags = text.replace(
+        />#([a-zA-Z0-9]+)</g, 
+        '><span class="hashtag">#$1</span><'
+      );
+      
+      return <div className="description rich-content quill-content mt-2" dangerouslySetInnerHTML={{ __html: withHashtags }} />;
+    } else {
+      // Tratamento para texto puro (legado)
+      // Converter quebras de linha
+      const withLineBreaks = text.replace(/\n/g, '<br/>');
 
-    // Destacar hashtags
-    const withHashtags = withLineBreaks.replace(
-      /#(\w+)/g, 
-      '<span class="hashtag">#$1</span>'
-    );
+      // Destacar hashtags
+      const withHashtags = withLineBreaks.replace(
+        /#(\w+)/g, 
+        '<span class="hashtag">#$1</span>'
+      );
 
-    // Suporte a markdown básico
-    const withMarkdown = withHashtags
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+      // Suporte a markdown básico
+      const withMarkdown = withHashtags
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
 
-    return <div className="description rich-content mt-2" dangerouslySetInnerHTML={{ __html: withMarkdown }} />;
+      return <div className="description rich-content mt-2" dangerouslySetInnerHTML={{ __html: withMarkdown }} />;
+    }
   };
 
   // Formatar data se disponível
@@ -56,6 +70,26 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
         <CardContent className="p-5 space-y-3">
           {item.title && <h3 className="font-semibold text-xl text-gray-900 dark:text-gray-100">{item.title}</h3>}
           {renderDescription(item.description)}
+
+          {/* Extrair e exibir hashtags separadamente */}
+          {item.description && (
+            (() => {
+              const hashtagRegex = /#(\w+)/g;
+              const matches = [...item.description.matchAll(hashtagRegex)];
+
+              if (matches.length > 0) {
+                const hashtags = matches.map(match => match[1]);
+                return (
+                  <div className="tags-container">
+                    {hashtags.map((tag, index) => (
+                      <span key={index} className="tag">#{tag}</span>
+                    ))}
+                  </div>
+                );
+              }
+              return null;
+            })()
+          )}
 
           <div className="flex flex-wrap items-center justify-between mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-2">
@@ -128,6 +162,26 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
       <CardContent className="p-5 space-y-3">
         {item.title && <h3 className="font-semibold text-xl text-gray-900 dark:text-gray-100">{item.title}</h3>}
         {renderDescription(item.description)}
+
+        {/* Extrair e exibir hashtags separadamente */}
+        {item.description && (
+          (() => {
+            const hashtagRegex = /#(\w+)/g;
+            const matches = [...item.description.matchAll(hashtagRegex)];
+
+            if (matches.length > 0) {
+              const hashtags = matches.map(match => match[1]);
+              return (
+                <div className="tags-container">
+                  {hashtags.map((tag, index) => (
+                    <span key={index} className="tag">#{tag}</span>
+                  ))}
+                </div>
+              );
+            }
+            return null;
+          })()
+        )}
 
         <div className="flex flex-wrap items-center justify-between mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-2">
