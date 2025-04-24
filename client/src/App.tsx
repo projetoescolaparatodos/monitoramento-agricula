@@ -25,33 +25,41 @@ import BackgroundVideo from "./components/ui/BackgroundVideo";
 import MediaGallery from "@/pages/MediaGallery"; // Added import for MediaGallery
 
 // Formulários Setoriais - Importação lazy para melhor performance
-const FormAgricultura = lazy(() => import('./forms/agriculture/index'));
-const FormAgriculturaCompleto = lazy(() => import('./forms/agricultura-completo/index'));
-const FormPesca = lazy(() => import('./forms/pesca/index'));
-const FormPescaCompleto = lazy(() => import('./forms/pesca-completo/index'));
-const FormPAA = lazy(() => import('./forms/paa/index'));
+const FormAgricultura = lazy(() => import("./forms/agriculture/index"));
+const FormAgriculturaCompleto = lazy(
+  () => import("./forms/agricultura-completo/index"),
+);
+const FormPesca = lazy(() => import("./forms/pesca/index"));
+const FormPescaCompleto = lazy(() => import("./forms/pesca-completo/index"));
+const FormPAA = lazy(() => import("./forms/paa/index"));
 
 function Router() {
   // Verifica se a rota atual é um formulário
   const [location] = useLocation();
-  const isFormPage = location.startsWith('/forms/');
-  const isReportPage = location === '/report';
+  const isFormPage = location.startsWith("/forms/");
+  const isReportPage = location === "/report";
 
   return (
     <>
       <BackgroundVideo videoPath="/videos/BackgroundVideo.mp4" opacity={0.3} />
       <div className="relative z-10">
         {!isFormPage && !isReportPage && <NavBar />}
-        <Suspense fallback={<div className="flex items-center justify-center h-screen">Carregando...</div>}>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center h-screen">
+              Carregando...
+            </div>
+          }
+        >
           <Switch>
             <Route path="/" component={Home} />
             <Route path="/agriculture" component={Agriculture} />
             <Route path="/agriculture/info" component={AgricultureInfo} />
-            <Route path="/agriculture/map" component={AgricultureMap} />
+            <Route path="/agriculture/map" component={AgriculturaMap} />
             <Route path="/fishing" component={Fishing} />
             <Route path="/fishing/info" component={FishingInfo} />
-            <Route path="/fishing/map" component={PescaMap} /> 
-            <Route path="/paa" component={PAAInfo} /> 
+            <Route path="/fishing/map" component={PescaMap} />
+            <Route path="/paa" component={PAAInfo} />
             <Route path="/paa/map" component={PAAMap} />
             <Route path="/dashboard/:section?" component={Dashboard} />
             <Route path="/login" component={Login} />
@@ -69,9 +77,13 @@ function Router() {
             <Route path="/forms/agricultura" component={FormAgricultura} />
             <Route path="/forms/pesca" component={FormPesca} />
             <Route path="/forms/paa" component={FormPAA} />
-            <Route path="/forms/agricultura-completo" component={FormAgriculturaCompleto} />
+            <Route
+              path="/forms/agricultura-completo"
+              component={FormAgriculturaCompleto}
+            />
             <Route path="/forms/pesca-completo" component={FormPescaCompleto} />
-            <Route path="/media-gallery" component={MediaGallery} /> {/* Added MediaGallery route */}
+            <Route path="/media-gallery" component={MediaGallery} />{" "}
+            {/* Added MediaGallery route */}
             <Route component={NotFound} />
           </Switch>
         </Suspense>
