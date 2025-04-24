@@ -13,6 +13,7 @@ import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
 import MediaDisplay from "@/components/common/MediaDisplay";
 import InteractivePanel from "@/components/paa/InteractivePanel";
+import FishingTabButton from "@/components/common/FishingTabButton";
 
 const Fishing = () => {
   const { data: pescaData } = useQuery({
@@ -81,7 +82,10 @@ const Fishing = () => {
       <div style={backgroundStyle} />
       <div className="fixed inset-0 w-full min-h-screen bg-black/40 z-[1]"></div>
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
-        <div className="flex justify-end mb-6">
+        <div className="flex justify-end mb-6 gap-3">
+          <FishingTabButton className="shadow-md">
+            Serviços Pesca
+          </FishingTabButton>
           <Button
             onClick={() => setLocation("/fishing/map")}
             className="flex items-center gap-2"
