@@ -13,6 +13,7 @@ import DataVisualizationSection from "@/components/agriculture/DataVisualization
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import MediaDisplay from "@/components/common/MediaDisplay";
 import InteractivePanel from "@/components/paa/InteractivePanel";
+import AgricultureTabButton from "@/components/common/AgricultureTabButton";
 
 const Agriculture = () => {
   const { data: tratoresData } = useQuery({
@@ -179,7 +180,10 @@ const Agriculture = () => {
       <div style={backgroundStyle}></div>
       <div className="fixed inset-0 w-full min-h-screen bg-black/40 z-[1]"></div>
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
-        <div className="flex justify-end mb-6">
+        <div className="flex justify-end mb-6 gap-3">
+          <AgricultureTabButton className="shadow-md">
+            Serviços Agricultura
+          </AgricultureTabButton>
           <Button
             onClick={() => setLocation("/agriculture/map")}
             className="flex items-center gap-2"
