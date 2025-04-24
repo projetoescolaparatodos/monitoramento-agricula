@@ -77,14 +77,14 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
         <div className="aspect-video w-full relative">
           {isYouTubeVideo && embedUrl ? (
             <iframe
-              className="w-full h-full rounded-t-lg"
+              className="w-full aspect-video rounded-t-lg"
               src={embedUrl}
               title={item.title || "Vídeo do YouTube"}
               allowFullScreen
             />
           ) : isFirebaseVideo ? (
             <video 
-              className="w-full h-full rounded-t-lg object-contain"
+              className="w-full h-auto rounded-t-lg object-contain"
               controls
               src={item.mediaUrl}
               poster={item.thumbnailUrl || ''}
@@ -172,12 +172,14 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
     <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className}`}>
       <div className="relative">
         {!imageError ? (
-          <img 
-            src={item.mediaUrl || item.thumbnailUrl} 
-            alt={item.title || "Mídia"} 
-            className="w-full h-auto object-contain aspect-video rounded-t-lg"
-            onError={() => setImageError(true)}
-          />
+          <div className="w-full mx-auto">
+            <img 
+              src={item.mediaUrl || item.thumbnailUrl} 
+              alt={item.title || "Mídia"} 
+              className="w-full h-auto object-contain rounded-t-lg"
+              onError={() => setImageError(true)}
+            />
+          </div>
         ) : (
           <div className="w-full aspect-video bg-gray-200 flex items-center justify-center rounded-t-lg">
             <p className="text-gray-500">Não foi possível carregar a imagem</p>
