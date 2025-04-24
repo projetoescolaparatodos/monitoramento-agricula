@@ -1,0 +1,49 @@
+deixar o player do YouTube embutido totalmente limpo e discreto, mantendo somente os controles essenciais (barra de tempo, volume e tela cheia) e removendo tudo o que distrai como:
+
+Botões “Assistir mais tarde” e “Compartilhar”
+
+Título do vídeo
+
+Logotipo do YouTube
+
+Recomendações no final
+
+🧠 Prompt detalhado para player YouTube embedado customizado
+Objetivo:
+Integrar vídeos do YouTube via <iframe> de forma limpa e embutida, sem elementos visuais indesejados. O player deve manter apenas os controles básicos: barra de tempo, volume e modo tela cheia.
+
+✅ Parâmetros da URL que devem ser usados
+Use a seguinte estrutura para o src do iframe:
+
+arduino
+Copiar
+Editar
+https://www.youtube.com/embed/VIDEO_ID?modestbranding=1&rel=0&controls=1&showinfo=0&fs=1&enablejsapi=1
+Substitua VIDEO_ID pelo ID real do vídeo.
+
+💬 Explicação de cada parâmetro:
+
+Parâmetro	Função
+modestbranding=1	Remove o logo do YouTube do controle do player.
+rel=0	Impede sugestões de outros canais ao final do vídeo.
+controls=1	Mantém os controles básicos (tempo, volume, fullscreen).
+showinfo=0	Oculta o título e outras informações no início do vídeo (obsoleto, mas ainda ajuda).
+fs=1	Permite o botão de fullscreen.
+enablejsapi=1	Permite controle via JavaScript (útil se quiser pausar/reproduzir via código).
+✅ Exemplo de implementação do <iframe>
+tsx
+Copiar
+Editar
+<iframe
+  src={`https://www.youtube.com/embed/${videoId}?modestbranding=1&rel=0&controls=1&showinfo=0&fs=1&enablejsapi=1`}
+  className="w-full h-full rounded-xl aspect-video"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+/>
+⚠️ Observações importantes:
+Os botões "Assistir mais tarde" e "Compartilhar" são removidos automaticamente ao usar modestbranding=1 e showinfo=0 em vídeos que permitem incorporação.
+
+Nem todos os vídeos permitem remoção completa de todos elementos (especialmente se tiverem restrições de incorporação ou monetização).
+
+Se ainda aparecerem elementos indesejados, considere usar uma API personalizada do YouTube com um player via JavaScript ou uma wrapper de player customizado, como ReactPlayer.
+
