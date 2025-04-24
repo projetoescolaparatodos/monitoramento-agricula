@@ -29,7 +29,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Importação explícita do CSS
-import MediaFileUploader from "./MediaFileUploader";
+import MediaFileUploader from "@/components/dashboard/MediaFileUploader";
 
 // Form validation schema
 const formSchema = z.object({
