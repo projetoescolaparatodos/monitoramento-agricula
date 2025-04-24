@@ -199,12 +199,32 @@ const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderPr
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Título</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Insira o título da mídia" />
-                  </FormControl>
                   <FormDescription>
-                    Insira o título da mídia. Use tags HTML básicas para formatação (ex: &lt;b&gt;Título em negrito&lt;/b&gt;)
+                    Crie um título com formatação personalizada
                   </FormDescription>
+                  <FormControl>
+                    <div className="quill-container">
+                      <ReactQuill
+                        theme="snow"
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        modules={{
+                          toolbar: [
+                            [{ 'header': [1, 2, false] }],
+                            ['bold', 'italic', 'underline'],
+                            [{'color': []}, {'background': []}],
+                            ['clean']
+                          ]
+                        }}
+                        formats={[
+                          'header',
+                          'bold', 'italic', 'underline',
+                          'color', 'background'
+                        ]}
+                        placeholder="Insira o título da mídia..."
+                      />
+                    </div>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
