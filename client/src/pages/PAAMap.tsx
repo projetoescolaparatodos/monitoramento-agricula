@@ -287,7 +287,7 @@ const PAAMap = () => {
                       }
 
                       if (videoId) {
-                        const embedUrl = `https://www.youtube.com/embed/${videoId}?modestbranding=1&rel=0&enablejsapi=1`;
+                        const embedUrl = `https://www.youtube.com/embed/${videoId}?modestbranding=1&rel=0&controls=1&showinfo=0&fs=1&enablejsapi=1`;
                         return (
                           <iframe
                             key={index}

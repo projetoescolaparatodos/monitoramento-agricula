@@ -62,17 +62,17 @@ const AgriculturaMap = () => {
     }),
     [],
   );
-  
+
   // Estado para controlar a exibição do contorno do município
   const [showBoundary, setShowBoundary] = useState(true);
   const [mapLoaded, setMapLoaded] = useState(false);
-  
+
   // URL do KML no Firebase Storage
   const kmlUrl = "https://firebasestorage.googleapis.com/v0/b/transparencia-agricola.appspot.com/o/uploads%2Fvitoria-xingu.kml?alt=media";
-  
+
   // Usando o hook personalizado para carregar o KML
   const { boundaryCoordinates, loading: loadingKml, error: kmlError } = useKmlBoundary(kmlUrl);
-  
+
   // Fallback para coordenadas caso o KML não seja carregado
   const fallbackBoundary = useMemo(() => [
     { lat: -2.85, lng: -52.05 },
@@ -81,7 +81,7 @@ const AgriculturaMap = () => {
     { lat: -2.91, lng: -52.07 },
     { lat: -2.85, lng: -52.05 }, // Fechar o polígono
   ], []);
-  
+
   // Usar coordenadas do KML se disponíveis, senão usar fallback
   const municipioBoundary = useMemo(() => {
     if (boundaryCoordinates.length > 0) {
@@ -118,9 +118,9 @@ const AgriculturaMap = () => {
     zIndex: 2,
     clickable: false
   }), []);
-  
+
   // Usamos as funções importadas diretamente
-  
+
   // Garantir que o caminho do município esteja no sentido horário
   const correctedBoundary = useMemo(() => {
     return ensureClockwise(municipioBoundary);
@@ -264,7 +264,7 @@ const AgriculturaMap = () => {
                   {trator.midias.map((url, index) => {
                     // Verifica se é um vídeo do YouTube
                     const isYouTube = url.includes("youtube.com") || url.includes("youtu.be");
-                    
+
                     if (isYouTube) {
                       // Extrair o ID do vídeo
                       let videoId = '';
@@ -279,9 +279,9 @@ const AgriculturaMap = () => {
                       } catch (e) {
                         console.error("Erro ao processar URL do YouTube:", e);
                       }
-                      
+
                       if (videoId) {
-                        const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                        const embedUrl = `https://www.youtube.com/embed/${videoId}?modestbranding=1&rel=0&controls=1&showinfo=0&fs=1&enablejsapi=1`;
                         return (
                           <iframe
                             key={index}
@@ -297,7 +297,7 @@ const AgriculturaMap = () => {
                         );
                       }
                     }
-                    
+
                     // Verifica se é um vídeo comum (não YouTube)
                     const isRegularVideo = 
                       url.includes("/video/") || 
@@ -307,7 +307,7 @@ const AgriculturaMap = () => {
                       url.endsWith(".ogg") || 
                       url.endsWith(".mov") ||
                       url.includes("vimeo.com");
-                    
+
                     if (isRegularVideo) {
                       return (
                         <div key={index} className="relative">
@@ -320,7 +320,7 @@ const AgriculturaMap = () => {
                         </div>
                       );
                     }
-                    
+
                     // Se não for vídeo, exibe como imagem
                     return (
                       <img
@@ -459,7 +459,7 @@ const AgriculturaMap = () => {
           />
         ))}
         {selectedMarker && renderInfoWindow(selectedMarker)}
-        
+
         {/* Contorno do município (opcional, controlado pelo filtro) */}
         {showBoundary && (
           <Polygon
@@ -467,7 +467,7 @@ const AgriculturaMap = () => {
             options={boundaryStyle}
           />
         )}
-        
+
         {/* Botão de controle para o limite com ícone do município */}
         <div className="absolute top-36 right-4 z-50">
           <button

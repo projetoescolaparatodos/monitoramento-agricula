@@ -82,6 +82,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
               title={item.title || "Vídeo do YouTube"}
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              loading="lazy"
               allowFullScreen
             />
           ) : isFirebaseVideo ? (

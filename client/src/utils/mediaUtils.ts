@@ -73,5 +73,5 @@ export const getYoutubeVideoId = (url: string): string | null => {
  */
 export const getYoutubeEmbedUrl = (url: string): string | null => {
   const videoId = getYoutubeVideoId(url);
-  return videoId ? `https://www.youtube.com/embed/${videoId}?modestbranding=1&rel=0&enablejsapi=1` : null;
+  return videoId ? `https://www.youtube.com/embed/${videoId}?modestbranding=1&rel=0&controls=1&showinfo=0&fs=1&enablejsapi=1` : null;
 };

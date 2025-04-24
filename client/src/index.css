@@ -332,6 +332,22 @@
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
+/* Estilos para melhorar a aparência do player do YouTube */
+.youtube-embed {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  width: 100%;
+  aspect-ratio: 16/9;
+}
+
+.youtube-embed iframe {
+  border: none;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 /* Classes para rich content em descrições */
 .rich-content a {
   @apply text-blue-500 hover:underline;
