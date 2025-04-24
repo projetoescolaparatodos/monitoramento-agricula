@@ -133,7 +133,7 @@ const PAAInfo = () => {
           
           {/* Seção de Painéis Interativos */}
           <section className="mt-8">
-            <div className="bg-white rounded-lg p-6">
+            <div className="p-6">
               <InteractivePanel 
                 pageType="paa" 
                 className=""

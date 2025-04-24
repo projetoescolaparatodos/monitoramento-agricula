@@ -50,7 +50,7 @@ const FishingInfo = () => {
         )}
         
         {/* Seção de Painéis Interativos */}
-        <section className="mt-8 py-8 bg-neutral-50 dark:bg-zinc-900">
+        <section className="mt-8 py-8">
           <div className="container mx-auto px-4">
             <InteractivePanel 
               pageType="fishing" 
