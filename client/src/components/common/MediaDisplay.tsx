@@ -84,7 +84,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
             />
           ) : isFirebaseVideo ? (
             <video 
-              className="w-full h-full rounded-t-lg object-cover"
+              className="w-full h-full rounded-t-lg object-contain"
               controls
               src={item.mediaUrl}
               poster={item.thumbnailUrl || ''}
@@ -175,7 +175,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
           <img 
             src={item.mediaUrl || item.thumbnailUrl} 
             alt={item.title || "Mídia"} 
-            className="w-full object-cover aspect-video rounded-t-lg"
+            className="w-full h-auto object-contain aspect-video rounded-t-lg"
             onError={() => setImageError(true)}
           />
         ) : (

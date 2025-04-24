@@ -436,11 +436,11 @@ const MediaUploader = ({
               <div className="border rounded-lg p-4">
                 <h3 className="text-lg font-medium mb-4">Pré-visualização</h3>
                 {watchMediaType === "image" ? (
-                  <div className="overflow-hidden rounded-md h-48 w-full">
+                  <div className="overflow-hidden rounded-md w-full max-h-[300px]">
                     <img
                       src={previewUrl}
                       alt="Preview"
-                      className="object-cover w-full h-full"
+                      className="object-contain w-full h-auto max-h-[300px]"
                       onError={() => {
                         toast({
                           title: "Erro",
