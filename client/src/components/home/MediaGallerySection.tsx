@@ -50,6 +50,8 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
               className="w-full h-full rounded-t-lg"
               src={getYoutubeEmbedUrl(item.mediaUrl)}
               title={item.title || "Vídeo do YouTube"}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
           ) : isFirebaseVideo ? (

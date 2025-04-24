@@ -3,6 +3,7 @@ import { MediaItem } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaDisplay from '@/components/common/MediaDisplay';
+// Já utiliza o componente MediaDisplay que terá os parâmetros atualizados
 
 interface MediaGallerySectionProps {
   mediaItems?: MediaItem[];

@@ -80,6 +80,8 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
               className="w-full aspect-video rounded-t-lg"
               src={embedUrl}
               title={item.title || "Vídeo do YouTube"}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
           ) : isFirebaseVideo ? (
