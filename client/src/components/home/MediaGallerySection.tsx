@@ -5,7 +5,7 @@ import { MediaItem } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import MediaCardPreview from "@/components/common/MediaCardPreview";
+import MediaDisplay from "@/components/common/MediaDisplay";
 
 interface MediaGallerySectionProps {
   mediaItems?: MediaItem[];
@@ -50,7 +50,7 @@ const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ mediaItems, i
                       ${isVerticalOrVideo ? 'col-span-2 row-span-2' : 'col-span-1 row-span-1'}
                     `}
                   >
-                    <MediaCardPreview item={item} />
+                    <MediaDisplay item={item} className="h-full" />
                   </div>
                 );
               })}
