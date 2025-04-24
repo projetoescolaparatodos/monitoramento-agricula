@@ -10,7 +10,7 @@ import ContentForm from "@/components/dashboard/ContentForm";
 import ChartList from "@/components/dashboard/ChartList";
 import ChartForm from "@/components/dashboard/ChartForm";
 import MediaList from "@/components/dashboard/MediaList";
-import MediaUploader from "@/components/dashboard/MediaUploader";
+import MediaUploader from "@/dashboard/MediaUploader";
 import StatisticList from "@/components/dashboard/StatisticList";
 import StatisticForm from "@/components/dashboard/StatisticForm";
 import ChatbotSolicitacoes from "@/components/dashboard/ChatbotSolicitacoes";
