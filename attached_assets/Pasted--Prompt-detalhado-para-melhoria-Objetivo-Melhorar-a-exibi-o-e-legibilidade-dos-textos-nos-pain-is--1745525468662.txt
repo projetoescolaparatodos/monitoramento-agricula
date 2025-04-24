@@ -1,0 +1,65 @@
+ Prompt detalhado para melhoria
+Objetivo:
+Melhorar a exibição e legibilidade dos textos nos painéis e remover o título fixo "Painéis Informativos", mantendo a experiência fluida e moderna, responsiva para desktop e mobile.
+
+🎯 Alterações sugeridas:
+🧹 Remover o título fixo "Painéis Informativos"
+
+Esse título aparentemente não está presente diretamente no JSX fornecido. Se ele estiver fora do componente (no pai), pode ser removido no local onde você está usando o <InteractivePanel />.
+
+🖋️ Melhorar legibilidade e estética do texto (usando prose)
+
+Já está usando prose max-w-none, mas vamos melhorar com um refinamento visual e responsivo.
+
+tsx
+Copiar
+Editar
+<CardContent className="pt-4 prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none text-justify leading-relaxed">
+  {parse(currentPanel.content)}
+</CardContent>
+Essas classes garantem:
+
+Tamanho do texto adaptável.
+
+Melhor legibilidade (espaçamento de linha).
+
+Justificação opcional para textos longos (melhora leitura).
+
+Renderização mais harmoniosa de listas, negritos, etc.
+
+📱 Adaptação para Mobile
+
+No menu lateral e no conteúdo, mantenha os gap, padding, e use animações leves para suavidade. Já está bom nesse ponto, mas pode refinar com:
+
+tsx
+Copiar
+Editar
+<div className="md:col-span-1 space-y-2 pr-1 md:pr-4">
+tsx
+Copiar
+Editar
+<Card className="animate-in fade-in duration-300 shadow-md">
+💡 Sugestão opcional: Adicionar um subtítulo dinâmico (se desejar) Se quiser uma linha guia como subtítulo dentro do CardHeader com contexto:
+
+tsx
+Copiar
+Editar
+<CardHeader className="pb-2 border-b">
+  <CardTitle className="text-xl font-bold flex items-center gap-2">
+    {iconMap[currentPanel.icon] || <Info size={20} />}
+    {currentPanel.title}
+  </CardTitle>
+  {currentPanel.subtitle && (
+    <p className="text-muted-foreground text-sm mt-1">
+      {currentPanel.subtitle}
+    </p>
+  )}
+</CardHeader>
+✅ Resultado final esperado:
+Texto mais fluido e bonito.
+
+Sem título redundante externo.
+
+Melhor experiência em telas pequenas e grandes.
+
+Organização e estética otimizadas.
