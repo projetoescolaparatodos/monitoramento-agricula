@@ -73,18 +73,18 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
     // Para vídeos do Firebase, use a URL diretamente
 
     return (
-      <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md h-full ${className}`}>
-        <div className="w-full h-full relative">
+      <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className}`}>
+        <div className="w-full relative">
           {isYouTubeVideo && embedUrl ? (
             <iframe
-              className="w-full h-[200px] md:h-[240px] rounded-t-lg"
+              className="w-full aspect-video rounded-t-lg"
               src={embedUrl}
               title={item.title || "Vídeo do YouTube"}
               allowFullScreen
             />
           ) : isFirebaseVideo ? (
             <video 
-              className="w-full h-[200px] md:h-[240px] rounded-t-lg object-cover"
+              className="w-full h-auto rounded-t-lg object-contain"
               controls
               src={item.mediaUrl}
               poster={item.thumbnailUrl || ''}
@@ -93,7 +93,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
               Seu navegador não suporta a reprodução de vídeos.
             </video>
           ) : (
-            <div className="w-full h-[200px] flex items-center justify-center bg-gray-200 rounded-t-lg">
+            <div className="w-full h-full flex items-center justify-center bg-gray-200 rounded-t-lg">
               <p className="text-gray-500">Não foi possível carregar o vídeo</p>
             </div>
           )}
@@ -169,14 +169,14 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
 
   // Renderização padrão para imagens e outros tipos de mídia
   return (
-    <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md h-full ${className}`}>
-      <div className="relative h-full">
+    <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className}`}>
+      <div className="relative">
         {!imageError ? (
-          <div className="w-full h-[200px] md:h-[240px] mx-auto overflow-hidden">
+          <div className="w-full mx-auto">
             <img 
               src={item.mediaUrl || item.thumbnailUrl} 
               alt={item.title || "Mídia"} 
-              className="w-full h-full object-cover rounded-t-lg"
+              className="w-full h-auto object-contain rounded-t-lg"
               onError={() => setImageError(true)}
             />
           </div>
