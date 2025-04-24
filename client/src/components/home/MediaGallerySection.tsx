@@ -7,6 +7,7 @@ import { Link } from "wouter";
 import { isYoutubeUrl, getYoutubeEmbedUrl } from "@/utils/mediaUtils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import "../../../src/index.css";
 
 interface MediaGallerySectionProps {
   variant?: "default" | "transparent";
@@ -74,7 +75,11 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
           
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
             <h3 className="font-medium text-sm text-white line-clamp-1">
-              {item.title || "Sem título"}
+              {/<\/?[a-z][\s\S]*>/i.test(item.title || "") ? (
+                <div dangerouslySetInnerHTML={{ __html: item.title || "Sem título" }} />
+              ) : (
+                item.title || "Sem título"
+              )}
             </h3>
             <div className="flex justify-between items-center mt-1">
               {item.author && (
