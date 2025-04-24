@@ -164,7 +164,7 @@
 /* Tamanho reduzido para toolbar do editor de título */
 .quill-container .ql-toolbar.ql-snow {
   border-radius: 4px 4px 0 0;
-}.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .quill-container .ql-editor {
