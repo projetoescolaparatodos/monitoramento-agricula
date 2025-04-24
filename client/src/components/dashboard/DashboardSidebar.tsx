@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, PieChart, Image, BarChart2, MessageSquare, GridView } from 'lucide-react'; // Added GridView icon
+import { FileText, PieChart, Image, BarChart2, MessageSquare, LayoutGrid } from 'lucide-react'; // Ícone para painéis
 import { cn } from "@/lib/utils";
 
 interface DashboardSidebarProps {
@@ -13,7 +13,7 @@ const DashboardSidebar = ({ activeSection, onSectionChange }: DashboardSidebarPr
     { id: 'charts', label: 'Gráficos', Icon: PieChart },
     { id: 'media', label: 'Mídias', Icon: Image },
     { id: 'statistics', label: 'Estatísticas', Icon: BarChart2 },
-    { id: 'panels', label: 'Painéis Interativos', Icon: GridView }, // Added panels section
+    { id: 'panels', label: 'Painéis Interativos', Icon: LayoutGrid }, // Seção de painéis interativos
     { id: 'chatbot', label: 'Chatbot IA', Icon: MessageSquare }
   ];
 
