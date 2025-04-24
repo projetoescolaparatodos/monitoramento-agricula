@@ -64,10 +64,6 @@ const AgricultureInfo = () => {
         {/* Seção de Painéis Interativos */}
         <section className="mt-8 py-8 bg-neutral-50 dark:bg-zinc-900">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold mb-2 text-center">Painéis Informativos</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-8 text-center max-w-2xl mx-auto">
-              Informações importantes sobre agricultura organizadas por categoria
-            </p>
             <InteractivePanel 
               pageType="agriculture" 
               className="bg-white dark:bg-zinc-800 rounded-lg shadow-md"
