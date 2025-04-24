@@ -73,8 +73,7 @@ function Router() {
                 return <Admin />;
               }}
             </Route>
-               {/* Panel management is integrated into dashboard */}
-                         </Route>
+            {/* Panel management is integrated into dashboard */}
             <Route path="/report" component={Report} />
             <Route path="/forms/agricultura" component={FormAgricultura} />
             <Route path="/forms/pesca" component={FormPesca} />
