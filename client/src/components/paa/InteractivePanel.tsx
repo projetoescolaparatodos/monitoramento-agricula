@@ -113,7 +113,7 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
             key={panel.categoryId}
             onClick={() => handlePanelChange(panel.categoryId)}
             className={cn(
-              "w-full justify-start text-left p-3 rounded-md relative overflow-hidden transition-all duration-200",
+              "w-full justify-start text-left p-3 rounded-md relative overflow-hidden transition-all duration-200 shadow-sm",
               activePanel === panel.categoryId
                 ? "bg-primary/10 text-primary font-medium" 
                 : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
@@ -123,10 +123,10 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
               <div className="absolute inset-y-0 left-0 w-1 bg-primary" />
             )}
             <div className="flex items-center gap-3 w-full">
-              <span className="shrink-0">
+              <span className="shrink-0 text-primary">
                 {iconMap[panel.icon] || <Info size={20} />}
               </span>
-              <span className="flex-grow">{panel.title}</span>
+              <span className="flex-grow font-medium">{panel.title}</span>
             </div>
           </button>
         ))}
