@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { MediaItem } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
-import { isYoutubeUrl, getYoutubeEmbedUrl } from '@/utils/isYoutubeUrl';
+import { isYoutubeUrl, getYoutubeEmbedUrl } from '@/utils/mediaUtils';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -58,20 +58,45 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
     ? format(new Date(item.createdAt), "d 'de' MMMM 'de' yyyy", { locale: ptBR })
     : null;
 
-  // Renderização de vídeos do YouTube
-  if (item.mediaUrl && isYoutubeUrl(item.mediaUrl)) {
-    const embedUrl = getYoutubeEmbedUrl(item.mediaUrl);
-    if (!embedUrl) return null;
+  // Estado para controle de erros de carregamento de imagem
+  const [imageError, setImageError] = useState(false);
+  
+  // Detecta o tipo de mídia com base na URL e no mediaType
+  const isFirebaseVideo = item.mediaType === 'video' && item.mediaUrl?.includes('firebasestorage.googleapis.com');
+  const isFirebaseImage = item.mediaType === 'image' && item.mediaUrl?.includes('firebasestorage.googleapis.com');
+  const isYouTubeVideo = item.mediaUrl && isYoutubeUrl(item.mediaUrl);
+  
+  // Renderização de vídeos (YouTube ou Firebase Storage)
+  if (isYouTubeVideo || isFirebaseVideo) {
+    // Para YouTube, obtenha a URL de incorporação
+    const embedUrl = isYouTubeVideo ? getYoutubeEmbedUrl(item.mediaUrl) : null;
+    // Para vídeos do Firebase, use a URL diretamente
 
     return (
       <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className}`}>
         <div className="aspect-video w-full relative">
-          <iframe
-            className="w-full h-full rounded-t-lg"
-            src={embedUrl}
-            title={item.title || "Vídeo do YouTube"}
-            allowFullScreen
-          />
+          {isYouTubeVideo && embedUrl ? (
+            <iframe
+              className="w-full h-full rounded-t-lg"
+              src={embedUrl}
+              title={item.title || "Vídeo do YouTube"}
+              allowFullScreen
+            />
+          ) : isFirebaseVideo ? (
+            <video 
+              className="w-full h-full rounded-t-lg object-cover"
+              controls
+              src={item.mediaUrl}
+              poster={item.thumbnailUrl || ''}
+              title={item.title || "Vídeo"}
+            >
+              Seu navegador não suporta a reprodução de vídeos.
+            </video>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gray-200 rounded-t-lg">
+              <p className="text-gray-500">Não foi possível carregar o vídeo</p>
+            </div>
+          )}
         </div>
         <CardContent className="p-5 space-y-4">
           {item.title && (
@@ -146,11 +171,18 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
   return (
     <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className}`}>
       <div className="relative">
-        <img 
-          src={item.mediaUrl || item.thumbnailUrl} 
-          alt={item.title || "Mídia"} 
-          className="w-full object-cover aspect-video rounded-t-lg"
-        />
+        {!imageError ? (
+          <img 
+            src={item.mediaUrl || item.thumbnailUrl} 
+            alt={item.title || "Mídia"} 
+            className="w-full object-cover aspect-video rounded-t-lg"
+            onError={() => setImageError(true)}
+          />
+        ) : (
+          <div className="w-full aspect-video bg-gray-200 flex items-center justify-center rounded-t-lg">
+            <p className="text-gray-500">Não foi possível carregar a imagem</p>
+          </div>
+        )}
         {(item.views !== undefined || item.likes !== undefined) && (
           <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs rounded-full px-2 py-1 flex space-x-2">
             {item.views !== undefined && (

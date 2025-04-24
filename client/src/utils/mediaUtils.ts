@@ -1,7 +1,47 @@
 
 /**
- * Utilitários para processamento de mídia, especialmente vídeos do YouTube
+ * Utilitários para processamento de mídia, incluindo vídeos do YouTube e arquivos do Firebase Storage
  */
+
+/**
+ * Verifica se uma URL é do Firebase Storage
+ * @param url URL a ser verificada
+ * @returns true se for URL do Firebase Storage, false caso contrário
+ */
+export const isFirebaseStorageUrl = (url: string): boolean => {
+  if (!url) return false;
+  return url.includes('firebasestorage.googleapis.com');
+};
+
+/**
+ * Tenta determinar o tipo de mídia com base na URL
+ * @param url URL da mídia
+ * @param defaultType Tipo padrão se não for possível determinar
+ * @returns 'image', 'video' ou o valor padrão fornecido
+ */
+export const detectMediaType = (url: string, defaultType: string = 'image'): string => {
+  if (!url) return defaultType;
+  
+  if (isYoutubeUrl(url)) return 'video';
+  
+  if (isFirebaseStorageUrl(url)) {
+    // Tentar determinar com base na extensão
+    const fileExtension = url.split('.').pop()?.toLowerCase();
+    if (fileExtension) {
+      const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+      const videoExtensions = ['mp4', 'webm', 'ogg', 'mov', 'avi', 'wmv', 'flv'];
+      
+      if (imageExtensions.includes(fileExtension)) return 'image';
+      if (videoExtensions.includes(fileExtension)) return 'video';
+    }
+    
+    // Verificar se a URL contém indicações do tipo
+    if (url.includes('/video/')) return 'video';
+    if (url.includes('/image/')) return 'image';
+  }
+  
+  return defaultType;
+};
 
 /**
  * Verifica se uma URL é do YouTube
