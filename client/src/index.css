@@ -42,6 +42,19 @@
   font-size: 0.95rem;
   line-height: 1.5;
   overflow-wrap: break-word;
+
+/* InteractivePanel CSS para mobile */
+@media (max-width: 768px) {
+  .interactive-panel-content {
+    padding-bottom: 80px; /* Evita conflito com o botão flutuante */
+  }
+}
+
+/* Ajuda nas transições de conteúdo */
+.will-change-transform {
+  will-change: transform;
+}
+
 }
 
 .rich-content ul, .rich-content ol {
