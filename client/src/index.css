@@ -345,8 +345,10 @@
 @tailwind components;
 @tailwind utilities;
 
-.media-display {
-  transition: all 300ms;
+@layer components {
+  .media-display {
+    @apply transform transition-all duration-300;
+  }
 }
 
 .media-display:hover {
