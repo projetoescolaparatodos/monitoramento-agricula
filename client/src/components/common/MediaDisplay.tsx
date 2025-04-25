@@ -239,16 +239,18 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
 
   if (isMobile) {
     return (
-      <MediaCard
-        title={item.title || ''}
-        description={item.description || ''}
-        mediaUrl={item.mediaUrl || ''}
-        mediaType={item.mediaType || 'image'}
-        author={item.author}
-        authorImage={item.authorImage}
-        createdAt={item.createdAt}
-        location={item.location}
-      />
+      <div className="w-full">
+        <MediaCard
+          title={item.title || ''}
+          description={item.description || ''}
+          mediaUrl={item.mediaUrl || ''}
+          mediaType={item.mediaType || 'image'}
+          author={item.author}
+          authorImage={item.authorImage}
+          createdAt={item.createdAt}
+          location={item.location}
+        />
+      </div>
     );
   } else {
     // Renderização de vídeos (YouTube ou Firebase Storage)

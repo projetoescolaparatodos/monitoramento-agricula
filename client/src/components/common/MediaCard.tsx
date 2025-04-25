@@ -42,7 +42,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
         );
       } else {
         return (
-          <div className="w-full max-w-md mx-auto">
+          <div className="w-full mx-auto">
             <div className="w-full flex justify-center bg-black max-h-[90vh] overflow-hidden rounded-xl">
               <video 
                 src={mediaUrl} 
@@ -56,7 +56,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
       }
     } else {
       return (
-        <div className="w-full max-w-md mx-auto">
+        <div className="w-full mx-auto">
           <div className="w-full flex justify-center bg-black/5 max-h-[90vh] overflow-hidden rounded-xl">
             <img
               src={mediaUrl}
