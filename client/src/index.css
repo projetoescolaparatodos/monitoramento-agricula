@@ -1,4 +1,3 @@
-
 /* Estilos adicionais para conteúdo formatado nos cards de mídia */
 .media-card .rich-content strong,
 .media-display .rich-content strong {
@@ -457,12 +456,12 @@
 }
 
 /* Estilos melhorados para o conteúdo formatado */
-.media-display {
+.media-display, .media-card {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.media-display:hover {
+.media-display:hover, .media-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
 }
@@ -545,4 +544,29 @@
 .dark .rich-content blockquote {
   border-left-color: #4b5563;
   color: #9ca3af;
+}
+
+/* Estilos para títulos formatados em HTML */
+.media-card .media-title h1, 
+.media-card .media-title h2, 
+.media-card .media-title h3,
+.media-card .media-title strong, 
+.media-card .media-title b {
+  font-weight: 700;
+  display: inline;
+}
+
+.media-card .media-title em,
+.media-card .media-title i {
+  font-style: italic;
+  display: inline;
+}
+
+.media-card .media-title p {
+  margin: 0;
+  padding: 0;
+}
+
+.media-card .media-title span[style*="color"] {
+  display: inline;
 }

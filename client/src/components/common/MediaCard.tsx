@@ -72,7 +72,14 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
     <Card className="overflow-hidden shadow-md border-0 transition-all duration-300 hover:shadow-lg">
       {renderMedia()}
       <CardContent className="p-4 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95">
-        <h3 className="font-semibold text-base mb-2 text-green-800 dark:text-green-300">{title}</h3>
+        {/<\/?[a-z][\s\S]*>/i.test(title) ? (
+          <h3 
+            className="font-semibold text-base mb-2 text-green-800 dark:text-green-300 media-title" 
+            dangerouslySetInnerHTML={{ __html: title }}
+          />
+        ) : (
+          <h3 className="font-semibold text-base mb-2 text-green-800 dark:text-green-300">{title}</h3>
+        )}
         
         <AnimatePresence initial={false}>
           {isMobile ? (
