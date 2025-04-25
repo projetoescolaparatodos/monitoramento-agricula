@@ -59,24 +59,24 @@ const MediaCard: React.FC<{
         );
       } else {
         return (
-          <div className="aspect-video w-full overflow-hidden rounded-t-lg">
-            <video 
-              src={mediaUrl} 
-              controls 
-              className="w-full h-full object-cover"
+          <div className="w-full flex justify-center items-center bg-black rounded-t-lg overflow-hidden">
+            <video
+              src={mediaUrl}
+              controls
               title={title}
+              className="h-auto w-auto max-h-[80vh] max-w-full object-contain"
             />
           </div>
         );
       }
     } else {
       return (
-        <div className="aspect-video w-full flex items-center justify-center overflow-hidden rounded-t-lg">
+        <div className="w-full flex items-center justify-center overflow-hidden rounded-t-lg bg-black/5">
           {!imageError ? (
             <img
               src={mediaUrl}
               alt={title}
-              className="w-full h-full object-cover"
+              className="h-auto w-auto max-h-[80vh] max-w-full object-contain"
               onError={() => setImageError(true)}
             />
           ) : (
@@ -274,7 +274,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
               />
             ) : isFirebaseVideo ? (
               <video 
-                className="w-full h-auto rounded-t-lg object-contain"
+                className="max-h-[80vh] max-w-full h-auto w-auto rounded-t-lg object-contain"
                 controls
                 src={item.mediaUrl}
                 poster={item.thumbnailUrl || ''}
@@ -366,7 +366,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
               <img 
                 src={item.mediaUrl || item.thumbnailUrl} 
                 alt={item.title || "Mídia"} 
-                className="w-full h-auto object-contain rounded-t-lg"
+                className="max-h-[80vh] max-w-full h-auto w-auto object-contain rounded-t-lg"
                 onError={() => setImageError(true)}
               />
             </div>
