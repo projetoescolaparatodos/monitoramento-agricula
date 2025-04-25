@@ -33,7 +33,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
           <div className="w-full bg-black flex items-center justify-center">
             <iframe
               src={`https://www.youtube.com/embed/${videoId}?rel=0&showinfo=0&controls=1`}
-              className="w-full aspect-video max-h-[300px]"
+              className="w-full aspect-video"
               title={title}
               allowFullScreen
               loading="lazy"
@@ -42,11 +42,11 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
         );
       } else {
         return (
-          <div className="w-full bg-black flex items-center justify-center">
+          <div className="w-full max-h-[500px] bg-black flex items-center justify-center overflow-hidden">
             <video 
               src={mediaUrl} 
               controls 
-              className="w-full h-auto max-h-[300px] object-contain"
+              className="w-full h-auto max-h-[500px] object-contain"
               title={title}
             />
           </div>
@@ -54,11 +54,11 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
       }
     } else {
       return (
-        <div className="w-full bg-black/5 flex items-center justify-center">
+        <div className="w-full max-h-[500px] bg-black/5 flex items-center justify-center overflow-hidden">
           <img
             src={mediaUrl}
             alt={title}
-            className="w-full h-auto max-h-[300px] object-contain"
+            className="w-full h-auto max-h-[500px] object-contain"
           />
         </div>
       );
