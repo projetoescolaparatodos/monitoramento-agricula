@@ -16,11 +16,33 @@ interface MediaCardProps {
 
 const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, mediaType }) => {
   const [expanded, setExpanded] = useState(false);
+  const [isVideoPortrait, setIsVideoPortrait] = useState(false);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
   const isMobile = useIsMobile();
   
   const previewLength = 100;
   const shouldTruncate = description.length > previewLength;
   const previewText = shouldTruncate ? description.slice(0, previewLength) + '...' : description;
+  
+  // Detectar orientação do vídeo ao carregar
+  React.useEffect(() => {
+    if (mediaType === 'video' && videoRef.current) {
+      const handleMetadata = () => {
+        if (videoRef.current) {
+          const { videoWidth, videoHeight } = videoRef.current;
+          setIsVideoPortrait(videoHeight > videoWidth);
+        }
+      };
+      
+      videoRef.current.addEventListener('loadedmetadata', handleMetadata);
+      
+      return () => {
+        if (videoRef.current) {
+          videoRef.current.removeEventListener('loadedmetadata', handleMetadata);
+        }
+      };
+    }
+  }, [mediaType, mediaUrl]);
 
   const renderMedia = () => {
     if (mediaType === 'video') {
@@ -43,12 +65,14 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
       } else {
         return (
           <div className="w-full mx-auto">
-            <div className="w-full h-auto flex justify-center bg-black max-h-[90vh] overflow-hidden rounded-xl">
+            <div className="w-full flex justify-center bg-black rounded-xl">
               <video 
+                ref={videoRef}
                 src={mediaUrl} 
                 controls 
-                className="w-full h-auto max-h-[90vh] object-contain"
+                className={`h-auto object-contain ${isVideoPortrait ? 'portrait-video' : 'w-full'}`}
                 title={title}
+                style={{ maxHeight: "90vh" }}
               />
             </div>
           </div>
@@ -57,11 +81,12 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
     } else {
       return (
         <div className="w-full mx-auto">
-          <div className="w-full h-auto flex justify-center bg-black/5 max-h-[90vh] overflow-hidden rounded-xl">
+          <div className="w-full flex justify-center bg-black/5 rounded-xl">
             <img
               src={mediaUrl}
               alt={title}
-              className="w-full h-auto max-h-[90vh] object-contain"
+              className="w-full h-auto object-contain"
+              style={{ maxHeight: "90vh" }}
             />
           </div>
         </div>
