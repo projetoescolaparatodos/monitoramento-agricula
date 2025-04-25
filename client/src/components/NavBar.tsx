@@ -6,12 +6,16 @@ import { useState } from "react";
 
 const NavBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  const handleNavLinkClick = () => {
+    setIsMenuOpen(false); // Fecha o menu quando um link é clicado
+  };
 
   return (
     <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-sm border-b z-50">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex-1 flex justify-center md:justify-start">
+          <Link to="/" className="flex-1 flex justify-center md:justify-start" onClick={handleNavLinkClick}>
             <div className="flex items-center gap-2 text-primary">
               <img
                 src="/logo.png"
@@ -30,7 +34,7 @@ const NavBar = () => {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             ☰
-          </button>
+          </buttonon>
 
           {/* Menu de Navegação */}
           <div className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row absolute md:relative top-full left-0 w-full md:w-auto bg-white/80 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none gap-2 md:gap-4 p-4 md:p-0 border-b md:border-0`}>
