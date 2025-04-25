@@ -42,25 +42,23 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
         );
       } else {
         return (
-          <div className="w-full bg-black flex items-center justify-center">
+          <div className="w-full max-w-md mx-auto bg-black">
             <video 
               src={mediaUrl} 
               controls 
-              className="w-full h-auto object-contain"
+              className="w-full h-auto object-contain rounded-xl"
               title={title}
-              style={{ maxHeight: 'calc(100vh - 200px)' }}
             />
           </div>
         );
       }
     } else {
       return (
-        <div className="w-full bg-black/5 flex items-center justify-center">
+        <div className="w-full max-w-md mx-auto bg-black/5">
           <img
             src={mediaUrl}
             alt={title}
-            className="w-full h-auto object-contain"
-            style={{ maxHeight: 'calc(100vh - 200px)' }}
+            className="w-full h-auto object-contain rounded-xl"
           />
         </div>
       );
