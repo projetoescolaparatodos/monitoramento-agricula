@@ -392,8 +392,32 @@
 
 /* Estilos para cards de mídia */
 .media-display {
-  @apply rounded-2xl overflow-hidden;
+  @apply rounded-2xl overflow-hidden w-full;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Ajustes específicos para dispositivos móveis */
+@media (max-width: 640px) {
+  .media-display {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  
+  .media-display video,
+  .media-display img {
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
+    object-fit: contain;
+  }
+  
+  .media-card video,
+  .media-card img {
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
+    object-fit: contain;
+  }
 }
 
 .media-display:hover {

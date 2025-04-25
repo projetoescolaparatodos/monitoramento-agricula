@@ -239,7 +239,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
 
   if (isMobile) {
     return (
-      <div className="w-full">
+      <div className="w-full h-auto">
         <MediaCard
           title={item.title || ''}
           description={item.description || ''}

@@ -147,9 +147,11 @@ const PAAInfo = () => {
           {mediaItems && mediaItems.length > 0 && (
             <section className="mt-16">
               <h2 className="text-3xl font-bold text-center mb-8 text-white">Galeria de Mídia</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {mediaItems.map((item) => (
-                  <MediaDisplay key={item.id} item={item} className="bg-opacity-90 backdrop-blur-sm w-full" />
+                  <div className="w-full" key={item.id}>
+                    <MediaDisplay item={item} className="bg-opacity-90 backdrop-blur-sm w-full h-auto" />
+                  </div>
                 ))}
               </div>
             </section>
