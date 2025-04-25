@@ -1,0 +1,203 @@
+a proposta de melhorias para dispositivos móveis no seu InteractivePanel, mantendo a essência do design atual enquanto adaptamos para uma experiência mobile intuitiva:
+
+📱 Melhorias para Mobile (Versão Atualizada)
+tsx
+const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className }) => {
+  const isMobile = useIsMobile();
+  const [activePanel, setActivePanel] = useState<string | null>(null);
+  const [panelExpanded, setPanelExpanded] = useState(false); // Novo estado para controle mobile
+
+  // ... (código existente de useQuery e handlers)
+
+  // Novo handler para mobile
+  const handleMobileSelection = (categoryId: string) => {
+    setActivePanel(categoryId);
+    setPanelExpanded(false); // Fecha o menu após seleção
+  };
+
+  return (
+    <div className={cn("relative", className)}>
+      {/* Botão de Toggle (Mobile Only) */}
+      {isMobile && (
+        <button
+          onClick={() => setPanelExpanded(!panelExpanded)}
+          className="fixed bottom-6 right-6 z-50 p-3 bg-primary rounded-full shadow-lg"
+        >
+          {panelExpanded ? <X size={24} className="text-white" /> : <Menu size={24} className="text-white" />}
+        </button>
+      )}
+
+      {/* Container Principal */}
+      <div className="flex flex-col md:flex-row gap-4">
+        {/* Painel Lateral (Mobile Adaptado) */}
+        <div className={cn(
+          "w-full md:w-64 space-y-2 bg-background md:bg-transparent",
+          "fixed md:relative z-40 h-[calc(100vh-80px)] md:h-auto top-0 left-0 p-4 md:p-0",
+          "transition-transform duration-300 ease-in-out",
+          isMobile ? (panelExpanded ? "translate-x-0" : "-translate-x-full") : ""
+        )}>
+          <h3 className="hidden md:block text-lg font-semibold mb-3">Informações</h3>
+          {activePanels.map((panel) => (
+            <button
+              key={panel.categoryId}
+              onClick={() => isMobile ? handleMobileSelection(panel.categoryId) : handlePanelChange(panel.categoryId)}
+              className={cn(
+                "w-full text-left p-3 rounded-lg flex items-center gap-3",
+                "transition-colors duration-200",
+                activePanel === panel.categoryId
+                  ? "bg-primary/10 border border-primary/20"
+                  : "hover:bg-muted/50"
+              )}
+            >
+              {iconMap[panel.icon] || <Info size={18} />}
+              <span>{panel.title}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Overlay Mobile (Quando menu aberto) */}
+        {isMobile && panelExpanded && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-30"
+            onClick={() => setPanelExpanded(false)}
+          />
+        )}
+
+        {/* Conteúdo (Mobile Adaptado) */}
+        <div className={cn(
+          "flex-1 transition-opacity duration-300",
+          isMobile && panelExpanded && "opacity-30 pointer-events-none"
+        )}>
+          {currentPanel ? (
+            <motion.div
+              key={currentPanel.categoryId}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card className="shadow-sm border-0 md:border">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    {isMobile && (
+                      <button 
+                        onClick={() => setActivePanel(null)}
+                        className="md:hidden mr-2"
+                      >
+                        <ChevronLeft size={20} />
+                      </button>
+                    )}
+                    {currentPanel.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="prose max-w-none">
+                  {parse(currentPanel.content)}
+                </CardContent>
+              </Card>
+            </motion.div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              Selecione uma categoria
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+🔍 Principais Melhorias para Mobile
+Menu "Drawer" Deslizante
+
+Transforma a barra lateral em um menu que aparece pela esquerda
+
+Acionado por botão flutuante (FAB) no canto inferior direito
+
+Overlay escurece o conteúdo principal quando aberto
+
+Hierarquia de Navegação
+
+Adiciona botão "Voltar" (<) no header quando em modo de conteúdo
+
+Fecha automaticamente o menu após seleção
+
+Otimizações de Espaço
+
+Remove bordas desnecessárias em mobile
+
+Aumenta área de toque dos botões (48px recomendado)
+
+Espaçamento maior entre itens
+
+Transições Adaptadas
+
+Animação vertical (em vez de horizontal) para melhor fluidez
+
+Efeito de "morph" entre lista e conteúdo
+
+Feedback Visual
+
+Ícone de menu muda para "X" quando aberto
+
+Opacidade reduzida no conteúdo quando menu está ativo
+
+🛠 CSS Adicional Recomendado
+css
+/* Adicione ao seu arquivo global.css */
+@media (max-width: 768px) {
+  .interactive-panel-content {
+    padding-bottom: 80px; /* Evita conflito com o FAB */
+  }
+  
+  .panel-menu-item {
+    min-height: 48px; /* Tamanho mínimo para toque */
+  }
+}
+📱 Fluxo de Navegação Mobile Proposto
+Estado Inicial
+
+Mostra apenas botão flutuante (ícone de menu)
+
+Conteúdo principal visível mas sem informação selecionada
+
+Menu Aberto
+
+Usuário toca no FAB → menu desliza da esquerda
+
+Overlay escurece o conteúdo existente
+
+Seleção de item → menu fecha automaticamente
+
+Visualização de Conteúdo
+
+Header mostra botão "Voltar" para retornar à lista
+
+Transição suave entre categorias
+
+💡 Dicas Extras para Mobile
+Priorize Conteúdo
+
+tsx
+// Exemplo: Mostrar resumo em mobile
+{isMobile && (
+  <p className="text-sm text-muted-foreground line-clamp-2">
+    {currentPanel.excerpt}
+  </p>
+)}
+Gestos
+Considere adicionar suporte a swipe:
+
+tsx
+import { useSwipeable } from 'react-swipeable';
+
+const swipeHandlers = useSwipeable({
+  onSwipedLeft: () => setPanelExpanded(false),
+  onSwipedRight: () => setPanelExpanded(true)
+});
+
+<div {...swipeHandlers}>
+  {/* Seu conteúdo */}
+</div>
+Performance
+
+Use will-change: transform para animações mais suaves
+
+Considere virtualização se tiver muitos itens
