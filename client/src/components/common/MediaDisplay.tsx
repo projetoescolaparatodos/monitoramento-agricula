@@ -1,10 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
 import { MediaItem } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { isYoutubeUrl, getYoutubeEmbedUrl } from '@/utils/mediaUtils';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useIsMobile } from '@/hooks/use-mobile'; // Assuming this hook exists
+import { useIsMobile } from '@/hooks/use-mobile';
+import { ChevronDown, ChevronUp, Calendar, MapPin, User } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface MediaDisplayProps {
   item: MediaItem;
@@ -16,36 +19,153 @@ const MediaCard: React.FC<{
   description: string;
   mediaUrl: string;
   mediaType: 'video' | 'image';
-}> = ({ title, description, mediaUrl, mediaType }) => {
+  author?: string;
+  authorImage?: string;
+  createdAt?: string;
+  location?: string;
+}> = ({ title, description, mediaUrl, mediaType, author, authorImage, createdAt, location }) => {
   const [expanded, setExpanded] = useState(false);
-  const shortDescription = description.substring(0, 100) + "...";
+  const [imageError, setImageError] = useState(false);
+  
+  // Limitar a descrição para exibição inicial
+  const previewLength = 100;
+  const shouldTruncate = description.length > previewLength;
+  const previewText = shouldTruncate ? description.slice(0, previewLength) + '...' : description;
+  
+  // Formatar data se disponível
+  const formattedDate = createdAt 
+    ? format(new Date(createdAt), "d 'de' MMMM 'de' yyyy", { locale: ptBR })
+    : null;
+
+  // Detecta o tipo de mídia com base na URL
+  const isYouTubeVideo = mediaUrl && isYoutubeUrl(mediaUrl);
+  
+  const renderMedia = () => {
+    if (mediaType === 'video') {
+      if (isYouTubeVideo) {
+        // Extrair o ID do vídeo do YouTube
+        const embedUrl = getYoutubeEmbedUrl(mediaUrl);
+        
+        return (
+          <div className="aspect-video w-full overflow-hidden rounded-t-lg">
+            <iframe
+              src={`${embedUrl}?rel=0&showinfo=0&controls=1`}
+              className="w-full h-full"
+              title={title}
+              allowFullScreen
+              loading="lazy"
+            />
+          </div>
+        );
+      } else {
+        return (
+          <div className="aspect-video w-full overflow-hidden rounded-t-lg">
+            <video 
+              src={mediaUrl} 
+              controls 
+              className="w-full h-full object-cover"
+              title={title}
+            />
+          </div>
+        );
+      }
+    } else {
+      return (
+        <div className="aspect-video w-full flex items-center justify-center overflow-hidden rounded-t-lg">
+          {!imageError ? (
+            <img
+              src={mediaUrl}
+              alt={title}
+              className="w-full h-full object-cover"
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gray-200">
+              <p className="text-gray-500">Não foi possível carregar a imagem</p>
+            </div>
+          )}
+        </div>
+      );
+    }
+  };
 
   return (
-    <Card>
-      <div>
-        {/* Media rendering logic (similar to original MediaDisplay) */}
-        {mediaType === 'video' && (
-          <video src={mediaUrl} controls />
+    <Card className="media-card overflow-hidden shadow-md border-0 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95 rounded-xl transition-all duration-300 hover:shadow-lg">
+      {renderMedia()}
+      <CardContent className="p-4">
+        <h3 className="font-semibold text-lg mb-2 text-green-800 dark:text-green-300">{title}</h3>
+        
+        <AnimatePresence initial={false}>
+          <motion.div 
+            className="text-sm text-gray-700 dark:text-gray-300"
+            initial={expanded ? { height: 0, opacity: 0 } : {}}
+            animate={{ height: "auto", opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            {expanded ? (
+              <div className="prose prose-sm max-w-none dark:prose-invert">
+                {description.split('\n').map((paragraph, i) => (
+                  <p key={i} className="mb-2">{paragraph}</p>
+                ))}
+              </div>
+            ) : (
+              <p>{previewText}</p>
+            )}
+          </motion.div>
+        </AnimatePresence>
+        
+        {shouldTruncate && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            <button
+              className="mt-2 text-primary flex items-center text-sm font-medium hover:underline"
+              onClick={() => setExpanded(!expanded)}
+            >
+              {expanded ? (
+                <>
+                  <span>Mostrar menos</span>
+                  <ChevronUp size={16} className="ml-1" />
+                </>
+              ) : (
+                <>
+                  <span>Saiba mais</span>
+                  <ChevronDown size={16} className="ml-1" />
+                </>
+              )}
+            </button>
+          </motion.div>
         )}
-        {mediaType === 'image' && (
-          <img src={mediaUrl} alt={title} />
-        )}
-      </div>
-      <CardContent>
-        <h3>{title}</h3>
-        {!expanded ? (
-          <>
-            <p>{shortDescription}</p>
-            <button onClick={() => setExpanded(true)}>Saiba mais</button>
-          </>
-        ) : (
-          <p>{description}</p>
-        )}
+        
+        {/* Metadados (autor, data, localização) */}
+        <div className="flex flex-wrap items-center gap-3 mt-4 pt-3 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
+          {author && (
+            <div className="flex items-center">
+              <User size={14} className="mr-1" />
+              <span>{author}</span>
+            </div>
+          )}
+          
+          {formattedDate && (
+            <div className="flex items-center">
+              <Calendar size={14} className="mr-1" />
+              <span>{formattedDate}</span>
+            </div>
+          )}
+          
+          {location && (
+            <div className="flex items-center">
+              <MapPin size={14} className="mr-1" />
+              <span>{location}</span>
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
 };
-
 
 const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => {
   // Processar o conteúdo rico da descrição
@@ -112,7 +232,11 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
         title={item.title || ''}
         description={item.description || ''}
         mediaUrl={item.mediaUrl || ''}
-        mediaType={item.mediaType || 'image'} // Default to image if mediaType is missing
+        mediaType={item.mediaType || 'image'}
+        author={item.author}
+        authorImage={item.authorImage}
+        createdAt={item.createdAt}
+        location={item.location}
       />
     );
   } else {
