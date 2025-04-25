@@ -23,8 +23,7 @@ const MediaCard: React.FC<{
   authorImage?: string;
   createdAt?: string;
   location?: string;
-  orientation?: 'horizontal' | 'vertical';
-}> = ({ title, description, mediaUrl, mediaType, author, authorImage, createdAt, location, orientation }) => {
+}> = ({ title, description, mediaUrl, mediaType, author, authorImage, createdAt, location }) => {
   const [expanded, setExpanded] = useState(false);
   const [imageError, setImageError] = useState(false);
   
@@ -42,21 +41,13 @@ const MediaCard: React.FC<{
   const isYouTubeVideo = mediaUrl && isYoutubeUrl(mediaUrl);
   
   const renderMedia = () => {
-    // Detectar se a mídia é vertical (como Instagram)
-    const isVertical = orientation === 'vertical' || 
-                      (mediaType === 'image' && (
-                        mediaUrl.includes('vertical') || 
-                        mediaUrl.includes('instagram') || 
-                        mediaUrl.includes('portrait')
-                      ));
-    
     if (mediaType === 'video') {
       if (isYouTubeVideo) {
         // Extrair o ID do vídeo do YouTube
         const embedUrl = getYoutubeEmbedUrl(mediaUrl);
         
         return (
-          <div className={`${isVertical ? 'aspect-[3/4]' : 'aspect-video'} w-full overflow-hidden rounded-t-lg`}>
+          <div className="aspect-video w-full overflow-hidden rounded-t-lg">
             <iframe
               src={`${embedUrl}?rel=0&showinfo=0&controls=1`}
               className="w-full h-full"
@@ -68,7 +59,7 @@ const MediaCard: React.FC<{
         );
       } else {
         return (
-          <div className={`${isVertical ? 'aspect-[3/4]' : 'aspect-video'} w-full overflow-hidden rounded-t-lg`}>
+          <div className="aspect-video w-full overflow-hidden rounded-t-lg">
             <video 
               src={mediaUrl} 
               controls 
@@ -80,12 +71,12 @@ const MediaCard: React.FC<{
       }
     } else {
       return (
-        <div className={`${isVertical ? 'aspect-[3/4]' : 'aspect-video'} w-full flex items-center justify-center overflow-hidden rounded-t-lg`}>
+        <div className="aspect-video w-full flex items-center justify-center overflow-hidden rounded-t-lg">
           {!imageError ? (
             <img
               src={mediaUrl}
               alt={title}
-              className={`w-full h-full ${isVertical ? 'object-contain' : 'object-cover'}`}
+              className="w-full h-full object-cover"
               onError={() => setImageError(true)}
             />
           ) : (
@@ -257,7 +248,6 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
         authorImage={item.authorImage}
         createdAt={item.createdAt}
         location={item.location}
-        orientation={item.orientation}
       />
     );
   } else {

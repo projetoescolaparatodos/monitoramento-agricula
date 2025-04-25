@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,7 @@ interface MediaCardProps {
 const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, mediaType }) => {
   const [expanded, setExpanded] = useState(false);
   const isMobile = useIsMobile();
-
+  
   // Limitar a 100 caracteres em dispositivos móveis
   const previewLength = 100;
   const shouldTruncate = isMobile && description.length > previewLength;
@@ -24,61 +25,53 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
 
   // Verificar se é um URL do YouTube e obter o ID do vídeo
   const renderMedia = () => {
-    // Detectar se a mídia é vertical (como Instagram)
-    const isVertical = mediaType === 'image' && (
-      mediaUrl.includes('vertical') || 
-      mediaUrl.includes('instagram') || 
-      mediaUrl.includes('portrait')
-    );
-
     if (mediaType === 'video') {
       if (isYoutubeUrl(mediaUrl)) {
         // Extrair o ID do vídeo do YouTube
         const videoId = mediaUrl.includes('youtu.be') 
           ? mediaUrl.split('/').pop() 
           : new URLSearchParams(new URL(mediaUrl).search).get('v');
-
+        
         return (
-          <iframe
-            src={`https://www.youtube.com/embed/${videoId}?rel=0&showinfo=0&controls=1`}
-            className="w-full h-full"
-            title={title}
-            allowFullScreen
-            loading="lazy"
-          />
+          <div className="aspect-video w-full overflow-hidden rounded-t-lg">
+            <iframe
+              src={`https://www.youtube.com/embed/${videoId}?rel=0&showinfo=0&controls=1`}
+              className="w-full h-full"
+              title={title}
+              allowFullScreen
+              loading="lazy"
+            />
+          </div>
         );
       } else {
         return (
-          <video 
-            src={mediaUrl} 
-            controls 
-            className="w-full h-full object-cover"
-            title={title}
-          />
+          <div className="aspect-video w-full overflow-hidden rounded-t-lg">
+            <video 
+              src={mediaUrl} 
+              controls 
+              className="w-full h-full object-cover"
+              title={title}
+            />
+          </div>
         );
       }
     } else {
       return (
-        <img
-          src={mediaUrl}
-          alt={title}
-          className={`w-full h-full ${isVertical ? 'object-contain' : 'object-cover'}`}
-        />
+        <div className="aspect-video w-full flex items-center justify-center bg-muted/40 rounded-t-lg overflow-hidden">
+          <img
+            src={mediaUrl}
+            alt={title}
+            className="w-full h-full object-cover"
+          />
+        </div>
       );
     }
   };
 
-  // Detectar se a mídia é vertical (como Instagram)
-  const isVertical = mediaType === 'image' && mediaUrl.includes('vertical') || 
-                    (mediaUrl.includes('instagram') || mediaUrl.includes('portrait'));
-
   return (
-    <Card className={`overflow-hidden shadow-md border-0 transition-all duration-300 hover:shadow-lg 
-      ${isVertical ? 'media-vertical' : ''}`}>
-      <div className={`media-container ${isVertical ? 'aspect-[3/4]' : 'aspect-video'}`}>
-        {renderMedia()}
-      </div>
-      <CardContent className="p-4 bg-gradient-to-b from-white to-green-50 dark:from-zinc-900 dark:to-zinc-900/95">
+    <Card className="overflow-hidden shadow-md border-0 transition-all duration-300 hover:shadow-lg">
+      {renderMedia()}
+      <CardContent className="p-4 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95">
         {/<\/?[a-z][\s\S]*>/i.test(title) ? (
           <h3 
             className="font-semibold text-base mb-2 text-green-800 dark:text-green-300 media-title" 
@@ -87,7 +80,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
         ) : (
           <h3 className="font-semibold text-base mb-2 text-green-800 dark:text-green-300">{title}</h3>
         )}
-
+        
         <AnimatePresence initial={false}>
           {isMobile ? (
             <>
@@ -111,7 +104,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
                   }} />
                 )}
               </motion.div>
-
+              
               {shouldTruncate && (
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -147,7 +140,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
             </div>
           )}
         </AnimatePresence>
-
+        
         {mediaType === 'video' && (
           <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 flex items-center">
             <ExternalLink size={14} className="mr-1" />

@@ -1,4 +1,4 @@
-
+/* Estilos adicionais para conteúdo formatado nos cards de mídia */
 .media-card .rich-content strong,
 .media-display .rich-content strong {
   font-weight: 700;
@@ -50,6 +50,8 @@
   color: #6b7280;
 }
 
+
+/* Estilos para o editor Quill e conteúdo renderizado */
 .quill-container {
   margin-bottom: 1rem;
 }
@@ -73,6 +75,7 @@
   border-color: #e2e8f0;
 }
 
+/* Estilos para o modo escuro do editor */
 .dark .quill-container .ql-toolbar {
   background-color: #2d3748;
   border-color: #4a5568;
@@ -87,6 +90,7 @@
   color: #e2e8f0;
 }
 
+/* Estilos para conteúdo rico renderizado */
 .rich-content {
   font-size: 0.95rem;
   line-height: 1.5;
@@ -129,6 +133,7 @@
   margin: 0.5em 0;
 }
 
+/* Estilos específicos para conteúdo gerado pelo ReactQuill em cartões de mídia */
 .media-display .quill-content {
   font-size: 0.95rem;
   line-height: 1.6;
@@ -164,6 +169,8 @@
   margin-bottom: 0.75em;
 }
 
+
+/* Estilos para animações do Interactive Panel */
 .interactive-panel-transition {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -203,6 +210,7 @@
   font-weight: 500;
 }
 
+/* Ajustes para o tema escuro */
 .dark .media-display .quill-content a {
   color: #60a5fa;
 }
@@ -212,27 +220,30 @@
   color: #9ca3af;
 }
 
+/* Estilos para o editor ReactQuill no formulário de mídia */
 .quill-container {
   margin-bottom: 1rem;
 }
 
+/* Estilos específicos para o editor de título */
 .quill-container .ql-editor {
   min-height: 80px;
   background-color: white !important;
   color: #333 !important;
 }
 
+/* Tamanho reduzido para toolbar do editor de título */
 .quill-container .ql-toolbar.ql-snow {
   border-radius: 4px 4px 0 0;
   margin-bottom: 0.5rem;
   background-color: #f3f4f6 !important;
   border: 1px solid #d1d5db !important;
-  z-index: 50 !important;
+  z-index: 50 !important; /* Aumentar o z-index para evitar que fique escondido */
   display: flex;
   flex-wrap: wrap;
   gap: 2px;
   padding: 8px;
-  position: relative;
+  position: relative; /* Garantir posicionamento adequado */
 }
 
 .quill-container .ql-editor {
@@ -294,6 +305,7 @@
   margin: 0.5em 0;
 }
 
+/* Cores para texto formatado */
 .rich-content .ql-color-red {
   color: #ef4444;
 }
@@ -314,6 +326,7 @@
   color: #f97316;
 }
 
+/* Estilos para hashtags separados em um bloco de tags */
 .media-display .tags-container {
   display: flex;
   flex-wrap: wrap;
@@ -341,19 +354,18 @@
   color: #93c5fd;
 }
 
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer components {
-  .media-display {
-    @apply transform transition-all duration-300;
-  }
+/* Estilos para cards de mídia */
+.media-display {
+  @apply transition-all duration-300;
 }
 
 .media-display:hover {
-  transform: scale(1.05);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  @apply scale-105 shadow-lg;
 }
 
 .media-display .hashtag {
@@ -368,6 +380,7 @@
   @apply text-sm font-medium text-gray-800 dark:text-gray-200;
 }
 
+/* Animações específicas para os cards de mídia */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -377,6 +390,7 @@
   animation: fadeIn 0.5s ease-out;
 }
 
+/* Estilos para cards de mídia */
 .media-display {
   @apply rounded-2xl overflow-hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -387,6 +401,7 @@
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
+/* Estilos para melhorar a aparência do player do YouTube */
 .youtube-embed {
   border-radius: 0.5rem;
   overflow: hidden;
@@ -402,50 +417,45 @@
   display: block;
 }
 
+/* Classes para rich content em descrições */
 .rich-content a {
-  color: #3b82f6;
-  text-decoration: none;
-}
-
-.rich-content a:hover {
-  text-decoration: underline;
+  @apply text-blue-500 hover:underline;
 }
 
 .rich-content strong, 
 .rich-content b {
-  font-weight: bold;
+  @apply font-bold;
 }
 
 .rich-content em,
 .rich-content i {
-  font-style: italic;
+  @apply italic;
 }
 
+/* Animação para hashtags */
 .media-display .hashtag {
-  display: inline-block;
-  transition: color 0.2s;
+  @apply inline-block transition-colors duration-200;
 }
 
 .media-display .hashtag:hover {
-  color: #2563eb;
+  @apply text-blue-600;
 }
 
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
 .content-over-video {
   position: relative;
   z-index: 10;
 }
 
-.border-base {
-  border-color: var(--border);
-}
-
-.body-base {
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  background-color: var(--background);
-  color: var(--foreground);
-}
-
+/* Estilos melhorados para o conteúdo formatado */
 .media-display, .media-card {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s, box-shadow 0.2s;
@@ -516,11 +526,11 @@
 }
 
 .dark .quill-content a {
-  color: rgb(96 165 250);
+  color: #60a5fa;
 }
 
 .dark .quill-content a:hover {
-  color: rgb(147 197 253);
+  color: #93c5fd;
 }
 
 .rich-content blockquote {
@@ -536,6 +546,7 @@
   color: #9ca3af;
 }
 
+/* Estilos para títulos formatados em HTML */
 .media-card .media-title h1, 
 .media-card .media-title h2, 
 .media-card .media-title h3,
@@ -558,36 +569,4 @@
 
 .media-card .media-title span[style*="color"] {
   display: inline;
-}
-
-.media-vertical {
-  max-height: 85vh;
-  margin: 0 auto;
-}
-
-.media-container {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  border-top-left-radius: 0.5rem;
-  border-top-right-radius: 0.5rem;
-}
-
-.media-container.aspect-[3/4] {
-  max-height: 500px;
-}
-
-@media (max-width: 640px) {
-  .media-container.aspect-[3/4] img,
-  .media-container.aspect-[3/4] video {
-    height: 100%;
-    width: 100%;
-    object-fit: contain;
-    background-color: #f0f0f0;
-  }
-  
-  .dark .media-container.aspect-[3/4] img,
-  .dark .media-container.aspect-[3/4] video {
-    background-color: #1a1a1a;
-  }
 }

@@ -19,7 +19,7 @@ localPort = 5001
 externalPort = 3000
 
 [workflows]
-runButton = "Dev Server"
+runButton = "Run on Different Port"
 
 [[workflows.workflow]]
 name = "Project"
@@ -160,12 +160,3 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "PORT=5001 npm run dev"
-
-[[workflows.workflow]]
-name = "Dev Server"
-author = 40255565
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev"
