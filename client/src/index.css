@@ -570,3 +570,36 @@
 .media-card .media-title span[style*="color"] {
   display: inline;
 }
+
+/* Estilos para mídias em formato vertical (como Instagram) */
+.media-vertical {
+  max-height: 85vh;
+  margin: 0 auto;
+}
+
+.media-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.media-container.aspect-[3/4] {
+  max-height: 500px;
+}
+
+@media (max-width: 640px) {
+  .media-container.aspect-[3/4] img,
+  .media-container.aspect-[3/4] video {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    background-color: #f0f0f0;
+  }
+  
+  .dark .media-container.aspect-[3/4] img,
+  .dark .media-container.aspect-[3/4] video {
+    background-color: #1a1a1a;
+  }
+}

@@ -25,6 +25,13 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
 
   // Verificar se é um URL do YouTube e obter o ID do vídeo
   const renderMedia = () => {
+    // Detectar se a mídia é vertical (como Instagram)
+    const isVertical = mediaType === 'image' && (
+      mediaUrl.includes('vertical') || 
+      mediaUrl.includes('instagram') || 
+      mediaUrl.includes('portrait')
+    );
+    
     if (mediaType === 'video') {
       if (isYoutubeUrl(mediaUrl)) {
         // Extrair o ID do vídeo do YouTube
@@ -33,44 +40,45 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
           : new URLSearchParams(new URL(mediaUrl).search).get('v');
         
         return (
-          <div className="aspect-video w-full overflow-hidden rounded-t-lg">
-            <iframe
-              src={`https://www.youtube.com/embed/${videoId}?rel=0&showinfo=0&controls=1`}
-              className="w-full h-full"
-              title={title}
-              allowFullScreen
-              loading="lazy"
-            />
-          </div>
+          <iframe
+            src={`https://www.youtube.com/embed/${videoId}?rel=0&showinfo=0&controls=1`}
+            className="w-full h-full"
+            title={title}
+            allowFullScreen
+            loading="lazy"
+          />
         );
       } else {
         return (
-          <div className="aspect-video w-full overflow-hidden rounded-t-lg">
-            <video 
-              src={mediaUrl} 
-              controls 
-              className="w-full h-full object-cover"
-              title={title}
-            />
-          </div>
+          <video 
+            src={mediaUrl} 
+            controls 
+            className="w-full h-full object-cover"
+            title={title}
+          />
         );
       }
     } else {
       return (
-        <div className="aspect-video w-full flex items-center justify-center bg-muted/40 rounded-t-lg overflow-hidden">
-          <img
-            src={mediaUrl}
-            alt={title}
-            className="w-full h-full object-cover"
-          />
-        </div>
+        <img
+          src={mediaUrl}
+          alt={title}
+          className={`w-full h-full ${isVertical ? 'object-contain' : 'object-cover'}`}
+        />
       );
     }
   };
 
+  // Detectar se a mídia é vertical (como Instagram)
+  const isVertical = mediaType === 'image' && mediaUrl.includes('vertical') || 
+                    (mediaUrl.includes('instagram') || mediaUrl.includes('portrait'));
+  
   return (
-    <Card className="overflow-hidden shadow-md border-0 transition-all duration-300 hover:shadow-lg">
-      {renderMedia()}
+    <Card className={`overflow-hidden shadow-md border-0 transition-all duration-300 hover:shadow-lg 
+      ${isVertical ? 'media-vertical' : ''}`}>
+      <div className={`media-container ${isVertical ? 'aspect-[3/4]' : 'aspect-video'}`}>
+        {renderMedia()}
+      </div>
       <CardContent className="p-4 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95">
         {/<\/?[a-z][\s\S]*>/i.test(title) ? (
           <h3 
