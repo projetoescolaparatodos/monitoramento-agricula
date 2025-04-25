@@ -84,13 +84,17 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
                 transition={{ duration: 0.3 }}
               >
                 {expanded ? (
-                  <div className="prose prose-sm max-w-none dark:prose-invert">
-                    {description.split('\n').map((paragraph, i) => (
-                      <p key={i} className="mb-2">{paragraph}</p>
-                    ))}
-                  </div>
+                  <div 
+                    className="prose prose-sm max-w-none dark:prose-invert"
+                    dangerouslySetInnerHTML={{ __html: description.replace(/\n/g, '<br/>') }}
+                  />
                 ) : (
-                  <p>{previewText}</p>
+                  // Se o texto contém tags HTML, removê-las para a preview
+                  <p dangerouslySetInnerHTML={{ 
+                    __html: shouldTruncate 
+                      ? previewText.replace(/<[^>]*>/g, '') + '...'
+                      : previewText.replace(/\n/g, '<br/>') 
+                  }} />
                 )}
               </motion.div>
               
