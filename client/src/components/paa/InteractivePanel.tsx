@@ -113,7 +113,7 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
         {isMobile && currentPanel && (
           <button 
             onClick={() => setActivePanel(null)}
-            className="md:hidden flex items-center gap-2 mb-4 text-primary"
+            className="md:hidden flex items-center gap-2 mb-4 text-black font-medium"
           >
             <ArrowLeft size={16} />
             Voltar para lista
@@ -127,7 +127,7 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
             className={cn(
               "w-full justify-start text-left p-3 rounded-md relative overflow-hidden",
               activePanel === panel.categoryId
-                ? "border border-primary bg-primary/10 text-primary shadow-sm font-semibold" 
+                ? "border border-primary bg-[#e6f7e6] text-primary shadow-sm font-semibold" 
                 : "bg-muted text-muted-foreground hover:bg-muted/80 border border-transparent"
             )}
             whileHover={{ scale: 1.01 }}
