@@ -65,14 +65,13 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
       } else {
         return (
           <div className="w-full mx-auto">
-            <div className="w-full flex justify-center bg-black rounded-xl">
+            <div className="flex items-center justify-center w-full overflow-hidden bg-black rounded-xl">
               <video 
                 ref={videoRef}
                 src={mediaUrl} 
                 controls 
-                className={`h-auto object-contain ${isVideoPortrait ? 'portrait-video' : 'w-full'}`}
+                className="max-h-[80vh] max-w-full h-auto w-auto !object-contain"
                 title={title}
-                style={{ maxHeight: "90vh" }}
               />
             </div>
           </div>
@@ -81,12 +80,12 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
     } else {
       return (
         <div className="w-full mx-auto">
-          <div className="w-full flex justify-center bg-black/5 rounded-xl">
+          <div className="flex items-center justify-center w-full overflow-hidden bg-black/5 rounded-xl">
             <img
               src={mediaUrl}
               alt={title}
-              className="w-full h-auto object-contain"
-              style={{ maxHeight: "90vh" }}
+              className="max-h-[80vh] max-w-full h-auto w-auto !object-contain"
+              alt={title}
             />
           </div>
         </div>
