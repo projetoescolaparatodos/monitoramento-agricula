@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Map, BarChart3, Settings } from "lucide-react";
@@ -6,7 +5,7 @@ import { useState } from "react";
 
 const NavBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
+
   const handleNavLinkClick = () => {
     setIsMenuOpen(false); // Fecha o menu quando um link é clicado
   };
@@ -38,25 +37,25 @@ const NavBar = () => {
 
           {/* Menu de Navegação */}
           <div className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row absolute md:relative top-full left-0 w-full md:w-auto bg-white/80 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none gap-2 md:gap-4 p-4 md:p-0 border-b md:border-0`}>
-            <Link to="/agriculture">
+            <Link to="/agriculture" onClick={handleNavLinkClick}>
               <Button variant="ghost" className="w-full md:w-auto justify-start">
                 <Map className="h-4 w-4 mr-2" />
                 Agricultura
               </Button>
             </Link>
-            <Link to="/fishing">
+            <Link to="/fishing" onClick={handleNavLinkClick}>
               <Button variant="ghost" className="w-full md:w-auto justify-start">
                 <Map className="h-4 w-4 mr-2" />
                 Pesca
               </Button>
             </Link>
-            <Link to="/paa">
+            <Link to="/paa" onClick={handleNavLinkClick}>
               <Button variant="ghost" className="w-full md:w-auto justify-start">
                 <Map className="h-4 w-4 mr-2" />
                 PAA
               </Button>
             </Link>
-            <Link to="/admin">
+            <Link to="/admin" onClick={handleNavLinkClick}>
               <Button variant="ghost" className="w-full md:w-auto justify-start">
                 <Settings className="h-4 w-4 mr-2" />
                 Administração
