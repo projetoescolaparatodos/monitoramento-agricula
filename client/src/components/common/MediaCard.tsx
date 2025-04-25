@@ -65,13 +65,13 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
       } else {
         return (
           <div className="w-full mx-auto">
-            <div className="flex items-center justify-center w-full overflow-hidden bg-black rounded-xl">
-              <video 
+            <div className="w-full flex justify-center items-center bg-black rounded-xl overflow-hidden">
+              <video
                 ref={videoRef}
-                src={mediaUrl} 
-                controls 
-                className="max-h-[80vh] max-w-full h-auto w-auto !object-contain"
+                src={mediaUrl}
+                controls
                 title={title}
+                className="h-auto w-auto max-h-[80vh] max-w-full object-contain"
               />
             </div>
           </div>
