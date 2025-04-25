@@ -113,7 +113,7 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
         {isMobile && currentPanel && (
           <button 
             onClick={() => setActivePanel(null)}
-            className="md:hidden flex items-center gap-2 mb-4 text-black font-medium"
+            className="md:hidden flex items-center gap-2 mb-4 text-white font-bold"
           >
             <ArrowLeft size={16} />
             Voltar para lista
