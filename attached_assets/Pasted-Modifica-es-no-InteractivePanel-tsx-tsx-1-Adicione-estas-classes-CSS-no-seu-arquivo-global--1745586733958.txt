@@ -1,0 +1,127 @@
+Modificações no InteractivePanel.tsx
+tsx
+// 1. Adicione estas classes CSS no seu arquivo global:
+// globals.css
+.interactive-panel-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.panel-content-enter {
+  opacity: 0;
+  transform: translateX(10px);
+}
+.panel-content-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+// 2. Atualize o componente:
+const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className }) => {
+  // ... (mantenha seus estados existentes)
+
+  return (
+    <div className={cn("w-full flex flex-col md:flex-row gap-6", className)}>
+      {/* Barra de botões (lateral esquerda) */}
+      <div className="w-full md:w-64 space-y-2">
+        {activePanels.map((panel) => (
+          <button
+            key={panel.categoryId}
+            onClick={() => handlePanelChange(panel.categoryId)}
+            className={cn(
+              "interactive-panel-transition w-full justify-start text-left p-3 rounded-md relative",
+              activePanel === panel.categoryId
+                ? "bg-primary/10 border border-primary/20 shadow-sm"
+                : "hover:bg-muted/50 border border-transparent"
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <span className="shrink-0 text-primary">
+                {iconMap[panel.icon] || <Info size={18} />}
+              </span>
+              <span className="font-medium">{panel.title}</span>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* Conteúdo principal (com transição) */}
+      <div className="flex-1">
+        <AnimatePresence mode="wait">
+          {currentPanel && (
+            <motion.div
+              key={currentPanel.categoryId}
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={{ duration: 0.2 }}
+              className="h-full"
+            >
+              <Card className="shadow-md border-0 h-full" style={{ backgroundColor: '#f0fff4' }}>
+                <CardHeader className="pb-2 border-b">
+                  <CardTitle className="text-xl font-bold flex items-center gap-2">
+                    {currentPanel.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4 prose max-w-none">
+                  {parse(currentPanel.content)}
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+🎨 Detalhes da Implementação
+Bibliotecas Necessárias:
+
+bash
+npm install framer-motion
+tsx
+import { motion, AnimatePresence } from 'framer-motion';
+Efeitos Visuais:
+
+Entrada/Saída Suave: Conteúdo desliza horizontalmente com opacidade
+
+Destaque Visual: Botão ativo com fundo semi-transparente
+
+Transição Coordenada: Mesmo timing para todas animações (0.3s)
+
+Responsividade:
+
+Mantém layout original em mobile
+
+Transição mais sutil em telas pequenas (apenas opacidade)
+
+💡 Melhorias Adicionais (Opcionais)
+Botão de "Voltar" em Mobile:
+
+tsx
+{isMobile && currentPanel && (
+  <button 
+    onClick={() => setActivePanel(null)}
+    className="md:hidden flex items-center gap-2 mb-4 text-primary"
+  >
+    <ArrowLeft size={16} />
+    Voltar para lista
+  </button>
+)}
+Sombra Dinâmica:
+
+tsx
+<motion.div
+  whileHover={{ boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+>
+  {/* Seu card */}
+</motion.div>
+Carregamento Progressivo:
+
+tsx
+<motion.div
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ delay: 0.1 }}
+>
+  {parse(currentPanel.content)}
+</motion.div>
