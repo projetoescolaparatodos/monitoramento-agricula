@@ -116,6 +116,22 @@
   margin-bottom: 0.75em;
 }
 
+
+/* Estilos para animações do Interactive Panel */
+.interactive-panel-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.panel-content-enter {
+  opacity: 0;
+  transform: translateX(10px);
+}
+
+.panel-content-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+}
+
 .media-display .quill-content a {
   color: #3b82f6;
   text-decoration: underline;
