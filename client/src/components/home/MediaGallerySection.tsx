@@ -153,14 +153,6 @@ const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ variant = "de
           <p className="text-neutral-dark">Nenhuma mídia disponível no momento.</p>
         </div>
       )}
-      
-      <div className="mt-8 text-center">
-        <Link href="/media-gallery">
-          <button className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-full transition-colors">
-            Ver todas as mídias
-          </button>
-        </Link>
-      </div>
     </section>
   );
 };

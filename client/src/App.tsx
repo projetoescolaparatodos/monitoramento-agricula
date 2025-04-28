@@ -22,7 +22,7 @@ import { auth } from "./utils/firebase";
 import FishingInfo from "@/pages/FishingInfo";
 import AgricultureInfo from "./pages/AgricultureInfo";
 import BackgroundVideo from "./components/ui/BackgroundVideo";
-import MediaGallery from "@/pages/MediaGallery"; // Added import for MediaGallery
+//import MediaGallery from "@/pages/MediaGallery"; // Removed import
 
 // Formulários Setoriais - Importação lazy para melhor performance
 const FormAgricultura = lazy(() => import("./forms/agriculture/index"));
@@ -80,11 +80,10 @@ function Router() {
             <Route path="/forms/paa" component={FormPAA} />
             <Route
               path="/forms/agricultura-completo"
-              component={FormAgriculturaCompleto}
+              component={FormAgriculturaCompleto
             />
             <Route path="/forms/pesca-completo" component={FormPescaCompleto} />
-            <Route path="/media-gallery" component={MediaGallery} />{" "}
-            {/* Added MediaGallery route */}
+            {/* <Route path="/media-gallery" component={MediaGallery} />  Removed Route */}
             <Route component={NotFound} />
           </Switch>
         </Suspense>
