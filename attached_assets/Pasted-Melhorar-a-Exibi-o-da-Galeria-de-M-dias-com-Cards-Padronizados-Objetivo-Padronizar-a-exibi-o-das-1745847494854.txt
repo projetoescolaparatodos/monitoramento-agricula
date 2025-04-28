@@ -1,0 +1,112 @@
+Melhorar a Exibição da Galeria de Mídias com Cards Padronizados
+
+Objetivo:
+Padronizar a exibição das mídias na página inicial da galeria, apresentando-as em cards com tamanho fixo, sem usar um layout de mosaico desorganizado.
+Cada mídia continuará levando para sua página de origem (como já funciona hoje).
+
+
+---
+
+O que fazer:
+
+1. Criar um novo componente de "GalleryCard"
+
+Este componente vai receber as informações da mídia:
+
+title (título)
+
+thumbnailUrl (URL da imagem ou vídeo a ser exibido como miniatura)
+
+originPageUrl (URL de destino, a página de origem da mídia)
+
+description (opcional, para mostrar um pequeno resumo).
+
+
+Estrutura do card:
+
+Uma área fixa para a mídia (imagem ou vídeo miniatura), com altura e largura padronizadas (h-60, w-full).
+
+O título destacado abaixo da mídia.
+
+Um pequeno trecho da descrição (line-clamp-2 para limitar a 2 linhas).
+
+Todo o card deve ser clicável e redirecionar para originPageUrl.
+
+
+O thumbnail deve ser exibido usando object-cover ou object-contain para respeitar o formato da mídia sem distorções.
+
+
+
+---
+
+2. Alterar o Componente ou Página que exibe as mídias iniciais
+
+Onde atualmente você está listando as mídias (na home ou galeria inicial), substitua a exibição atual por uma lista de GalleryCards.
+
+Exemplo:
+
+
+import GalleryCard from './GalleryCard';
+
+{mediaList.map((media) => (
+  <GalleryCard
+    key={media.id}
+    title={media.title}
+    thumbnailUrl={media.thumbnailUrl}
+    originPageUrl={media.originPageUrl}
+    description={media.description}
+  />
+))}
+
+
+---
+
+3. Manter o Redirecionamento Atual
+
+Muito importante:
+O clique em cada GalleryCard deve redirecionar o usuário diretamente para a página de origem daquela mídia (originPageUrl),
+e não para uma "página geral de galeria".
+
+Exemplo:
+
+
+import { useRouter } from 'next/router';
+
+const GalleryCard = ({ title, thumbnailUrl, originPageUrl, description }) => {
+  const router = useRouter();
+
+  return (
+    <div
+      onClick={() => router.push(originPageUrl)}
+      className="cursor-pointer hover:shadow-lg transition rounded-xl overflow-hidden bg-white dark:bg-zinc-900"
+    >
+      <div className="w-full h-60 bg-black flex items-center justify-center overflow-hidden">
+        <img
+          src={thumbnailUrl}
+          alt={title}
+          className="object-cover w-full h-full"
+        />
+      </div>
+      <div className="p-4">
+        <h3 className="text-lg font-semibold text-green-800">{title}</h3>
+        <p className="text-sm text-gray-600 mt-2 line-clamp-2">{description}</p>
+      </div>
+    </div>
+  );
+};
+
+
+---
+
+Resumo Visual do Novo Comportamento:
+
+
+---
+
+Observações Extras:
+
+Use object-cover para imagens. Para vídeos, use thumbnails ou imagens de pré-visualização para evitar carregamento pesado na página inicial.
+
+As dimensões dos cards devem ser consistentes para todos os dispositivos (ajustáveis para mobile com Tailwind md:h-60, sm:h-48 etc.).
+
+Mantenha o carregamento preguiçoso (loading="lazy") em imagens e iframes para performance.
