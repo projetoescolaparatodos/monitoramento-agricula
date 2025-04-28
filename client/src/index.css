@@ -317,6 +317,107 @@
 }
 
 .rich-content img {
+
+/* Estilos para melhorar a exibição de conteúdo formatado nos painéis de informação */
+.rich-content-container {
+  width: 100%;
+}
+
+.rich-content-container p {
+  margin-bottom: 1rem;
+  white-space: pre-wrap;
+}
+
+.rich-content-container ul, 
+.rich-content-container ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.rich-content-container ul li {
+  list-style-type: disc;
+  margin-bottom: 0.5rem;
+}
+
+.rich-content-container ol li {
+  list-style-type: decimal;
+  margin-bottom: 0.5rem;
+}
+
+.rich-content-container h1,
+.rich-content-container h2,
+.rich-content-container h3,
+.rich-content-container h4,
+.rich-content-container h5,
+.rich-content-container h6 {
+  font-weight: bold;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.rich-content-container h1 { font-size: 1.8rem; }
+.rich-content-container h2 { font-size: 1.6rem; }
+.rich-content-container h3 { font-size: 1.4rem; }
+.rich-content-container h4 { font-size: 1.2rem; }
+.rich-content-container h5 { font-size: 1.1rem; }
+.rich-content-container h6 { font-size: 1rem; }
+
+.rich-content-container a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.rich-content-container blockquote {
+  border-left: 4px solid #e5e7eb;
+  padding-left: 1rem;
+  margin-left: 0;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.rich-content-container table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.rich-content-container table th,
+.rich-content-container table td {
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.rich-content-container table th {
+  background-color: #f9fafb;
+}
+
+.rich-content-container pre,
+.rich-content-container code {
+  font-family: monospace;
+  background-color: #f3f4f6;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+}
+
+.rich-content-container pre {
+  padding: 1rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.rich-content-container hr {
+  margin: 1.5rem 0;
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Preservar espaços em branco e quebras de linha */
+.whitespace-pre-wrap {
+  white-space: pre-wrap !important;
+}
+
   max-width: 100%;
   height: auto;
   border-radius: 0.375rem;

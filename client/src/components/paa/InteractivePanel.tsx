@@ -164,13 +164,20 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
                     {currentPanel.title}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4 prose prose-sm sm:prose lg:prose-lg max-w-none text-justify text-black leading-relaxed">
+                <CardContent className="pt-4 prose prose-sm sm:prose lg:prose-lg max-w-none text-black leading-relaxed whitespace-pre-wrap">
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.1 }}
+                    className="rich-content-container"
                   >
-                    {parse(currentPanel.content)}
+                    {parse(currentPanel.content || '', {
+                      replace: (domNode) => {
+                        if (domNode.type === 'tag' && domNode.name === 'pre') {
+                          return <pre className="whitespace-pre-wrap bg-gray-100 p-4 rounded-md">{domNode.children?.[0]?.data}</pre>;
+                        }
+                      }
+                    })}
                   </motion.div>
                 </CardContent>
               </Card>
