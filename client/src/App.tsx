@@ -80,7 +80,7 @@ function Router() {
             <Route path="/forms/paa" component={FormPAA} />
             <Route
               path="/forms/agricultura-completo"
-              component={FormAgriculturaCompleto
+              component={FormAgriculturaCompleto}
             />
             <Route path="/forms/pesca-completo" component={FormPescaCompleto} />
             {/* <Route path="/media-gallery" component={MediaGallery} />  Removed Route */}
