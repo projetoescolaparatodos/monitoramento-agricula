@@ -52,7 +52,7 @@ const InfoPanelList: React.FC<InfoPanelListProps> = ({ infoPanels, isLoading, on
   
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/info-panels/${id}`, 'DELETE');
+      return apiRequest('DELETE', `/api/info-panels/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/info-panels'] });
