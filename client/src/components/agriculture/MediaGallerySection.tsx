@@ -12,7 +12,7 @@ interface MediaGallerySectionProps {
 
 const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ mediaItems, isLoading }) => {
   return (
-    <section className="py-12 bg-neutral-50 dark:bg-zinc-900">
+    <section id="media" className="py-12 bg-neutral-50 dark:bg-zinc-900">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold mb-2 text-center">Galeria de Mídia</h2>
         <p className="text-gray-600 dark:text-gray-400 mb-8 text-center max-w-2xl mx-auto">

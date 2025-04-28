@@ -19,12 +19,12 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
   const isFirebaseImage = item.mediaType === 'image' && item.mediaUrl?.includes('firebasestorage.googleapis.com');
   const isYouTubeVideo = item.mediaUrl && isYoutubeUrl(item.mediaUrl);
   
-  // Determinar a página destino
+  // Determinar a página destino com âncora para a seção de galeria
   const getDestinationPage = (pageType: string) => {
     switch (pageType) {
-      case 'agriculture': return '/agriculture';
-      case 'fishing': return '/fishing';
-      case 'paa': return '/paa';
+      case 'agriculture': return '/agriculture#media';
+      case 'fishing': return '/fishing#media';
+      case 'paa': return '/paa#media';
       default: return '/';
     }
   };
@@ -42,7 +42,7 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
   }[item.pageType] || 'Geral';
   
   return (
-    <Link href={getDestinationPage(item.pageType)}>
+    <Link href={getDestinationPage(item.pageType)} onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
       <Card className="overflow-hidden bg-white/90 dark:bg-zinc-800/90 rounded-xl shadow-md cursor-pointer hover:shadow-lg transition-transform hover:scale-105 h-full flex flex-col">
         <div className="w-full h-60 relative overflow-hidden">
           {isYouTubeVideo ? (
