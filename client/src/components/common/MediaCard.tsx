@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,11 +18,11 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
   const [isVideoPortrait, setIsVideoPortrait] = useState(false);
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const isMobile = useIsMobile();
-  
+
   const previewLength = 100;
   const shouldTruncate = description.length > previewLength;
   const previewText = shouldTruncate ? description.slice(0, previewLength) + '...' : description;
-  
+
   // Detectar orientação do vídeo ao carregar
   React.useEffect(() => {
     if (mediaType === 'video' && videoRef.current) {
@@ -33,9 +32,9 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
           setIsVideoPortrait(videoHeight > videoWidth);
         }
       };
-      
+
       videoRef.current.addEventListener('loadedmetadata', handleMetadata);
-      
+
       return () => {
         if (videoRef.current) {
           videoRef.current.removeEventListener('loadedmetadata', handleMetadata);
@@ -50,7 +49,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
         const videoId = mediaUrl.includes('youtu.be') 
           ? mediaUrl.split('/').pop() 
           : new URLSearchParams(new URL(mediaUrl).search).get('v');
-        
+
         return (
           <div className="w-full bg-black flex items-center justify-center">
             <iframe
@@ -80,11 +79,11 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
     } else {
       return (
         <div className="w-full mx-auto">
-          <div className="w-full h-0 pb-[56.25%] relative overflow-hidden bg-black/5 rounded-xl">
+          <div className="w-full overflow-hidden bg-black/5 rounded-xl">
             <img
               src={mediaUrl}
               alt={title}
-              className="absolute inset-0 w-full h-full object-contain"
+              className="w-full h-auto object-contain max-h-[60vh]"
             />
           </div>
         </div>
@@ -104,7 +103,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
         ) : (
           <h3 className="font-semibold text-base mb-2 text-green-800 dark:text-green-300">{title}</h3>
         )}
-        
+
         <AnimatePresence initial={false}>
           <motion.div 
             className="text-sm text-gray-700 dark:text-gray-300"
@@ -126,7 +125,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
             )}
           </motion.div>
         </AnimatePresence>
-        
+
         {shouldTruncate && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -153,7 +152,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
             </Button>
           </motion.div>
         )}
-        
+
         {mediaType === 'video' && (
           <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 flex items-center">
             <ExternalLink size={14} className="mr-1" />

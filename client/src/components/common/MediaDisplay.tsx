@@ -72,16 +72,16 @@ const MediaCard: React.FC<{
     } else {
       return (
         <div className="w-full overflow-hidden rounded-t-lg bg-black/5">
-          <div className="w-full h-0 pb-[56.25%] relative">
+          <div className="w-full">
             {!imageError ? (
               <img
                 src={mediaUrl}
                 alt={title}
-                className="absolute inset-0 w-full h-full object-contain"
+                className="w-full h-auto object-contain max-h-[60vh]"
                 onError={() => setImageError(true)}
               />
             ) : (
-              <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-gray-200">
+              <div className="w-full h-40 flex items-center justify-center bg-gray-200">
                 <p className="text-gray-500">Não foi possível carregar a imagem</p>
               </div>
             )}
@@ -275,9 +275,9 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
                 allowFullScreen
               />
             ) : isFirebaseVideo ? (
-              <div className="w-full h-0 pb-[56.25%] relative">
+              <div className="w-full">
                 <video 
-                  className="absolute inset-0 w-full h-full rounded-t-lg object-contain"
+                  className="w-full h-auto rounded-t-lg object-contain max-h-[60vh]"
                   controls
                   src={item.mediaUrl}
                   poster={item.thumbnailUrl || ''}
@@ -367,11 +367,11 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
         <div className="relative">
           {!imageError ? (
             <div className="w-full mx-auto">
-              <div className="w-full h-0 pb-[56.25%] relative">
+              <div className="w-full">
                 <img 
                   src={item.mediaUrl || item.thumbnailUrl} 
                   alt={item.title || "Mídia"} 
-                  className="absolute inset-0 w-full h-full object-contain rounded-t-lg"
+                  className="w-full h-auto object-contain rounded-t-lg max-h-[60vh]"
                   onError={() => setImageError(true)}
                 />
               </div>
