@@ -92,7 +92,12 @@ const MediaCard: React.FC<{
   };
 
   // Detectar se é vídeo vertical
-  const isVerticalVideo = mediaType === 'video' && (item?.aspectRatio === "vertical" || title.toLowerCase().includes('vertical') || title.toLowerCase().includes('instagram'));
+  const isVerticalVideo = mediaType === 'video' && (
+    title.toLowerCase().includes('vertical') || 
+    title.toLowerCase().includes('instagram') || 
+    title.toLowerCase().includes('reels') ||
+    title.toLowerCase().includes('tiktok')
+  );
 
   return (
     <Card className={`media-card overflow-hidden shadow-md border-0 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95 rounded-xl transition-all duration-300 hover:shadow-lg ${isVerticalVideo ? 'max-w-[400px] mx-auto' : ''}`}>
