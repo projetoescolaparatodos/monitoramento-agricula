@@ -91,8 +91,11 @@ const MediaCard: React.FC<{
     }
   };
 
+  // Detectar se é vídeo vertical
+  const isVerticalVideo = mediaType === 'video' && (item?.aspectRatio === "vertical" || title.toLowerCase().includes('vertical') || title.toLowerCase().includes('instagram'));
+
   return (
-    <Card className="media-card overflow-hidden shadow-md border-0 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95 rounded-xl transition-all duration-300 hover:shadow-lg">
+    <Card className={`media-card overflow-hidden shadow-md border-0 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95 rounded-xl transition-all duration-300 hover:shadow-lg ${isVerticalVideo ? 'max-w-[400px] mx-auto' : ''}`}>
       {renderMedia()}
       <CardContent className="p-4">
         {/<\/?[a-z][\s\S]*>/i.test(title) ? (
@@ -265,19 +268,29 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
         <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className} flex flex-col`}>
           <div className="w-full relative">
             {isYouTubeVideo && embedUrl ? (
-              <iframe
-                className="w-full aspect-video rounded-t-lg"
-                src={embedUrl}
-                title={item.title || "Vídeo do YouTube"}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                loading="lazy"
-                allowFullScreen
-              />
+              <div className="relative w-full overflow-hidden" style={{ 
+                maxWidth: isYouTubeVideo && item.aspectRatio === "vertical" ? "56.25vh" : "100%" 
+              }}>
+                <iframe
+                  className={`w-full rounded-t-lg ${
+                    item.aspectRatio === "vertical" ? "aspect-[9/16]" : "aspect-video"
+                  }`}
+                  src={embedUrl}
+                  title={item.title || "Vídeo do YouTube"}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  loading="lazy"
+                  allowFullScreen
+                />
+              </div>
             ) : isFirebaseVideo ? (
-              <div className="w-full">
+              <div className="w-full flex justify-center">
                 <video 
-                  className="w-full h-auto rounded-t-lg object-contain max-h-[60vh]"
+                  className={`rounded-t-lg object-contain ${
+                    item.aspectRatio === "vertical" 
+                      ? "h-auto max-h-[70vh] w-auto max-w-[100%]" 
+                      : "w-full h-auto max-h-[60vh]"
+                  }`}
                   controls
                   src={item.mediaUrl}
                   poster={item.thumbnailUrl || ''}

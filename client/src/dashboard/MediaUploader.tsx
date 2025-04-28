@@ -41,6 +41,7 @@ const formSchema = z.object({
   thumbnailUrl: z.string().url("URL inválida").optional().or(z.literal("")),
   active: z.boolean().default(true),
   order: z.number().int().min(0),
+  aspectRatio: z.enum(["horizontal", "vertical", "square"]).default("horizontal"),
 });
 
 interface MediaUploaderProps {
@@ -71,6 +72,7 @@ const MediaUploader = ({
       thumbnailUrl: "",
       active: true,
       order: 0,
+      aspectRatio: "horizontal",
     },
   });
 
@@ -431,6 +433,40 @@ const MediaUploader = ({
                 )}
               />
             )}
+
+            <FormField
+              control={form.control}
+              name="aspectRatio"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Proporção do Conteúdo</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a proporção" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="horizontal">
+                        Horizontal (16:9)
+                      </SelectItem>
+                      <SelectItem value="vertical">
+                        Vertical (9:16 - Instagram/TikTok)
+                      </SelectItem>
+                      <SelectItem value="square">Quadrado (1:1)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                  <p className="text-sm text-gray-500 mt-1">
+                    Escolha "Vertical" para vídeos no formato Instagram/TikTok
+                  </p>
+                </FormItem>
+              )}
+            />
+
 
             {previewUrl && (
               <div className="border rounded-lg p-4">

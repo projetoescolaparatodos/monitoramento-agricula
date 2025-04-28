@@ -35,6 +35,7 @@ export interface MediaItem {
   views?: number;
   likes?: number;
   tags?: string[]; // Array opcional de tags para facilitar a busca
+  aspectRatio?: 'horizontal' | 'vertical' | 'square';
 }
 
 export interface StatisticItem {

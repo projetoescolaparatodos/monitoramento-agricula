@@ -146,6 +146,24 @@
 .media-display .quill-content h1,
 .media-display .quill-content h2,
 .media-display .quill-content h3 {
+
+/* Estilos para vídeos verticais (formato Instagram 9:16) */
+.aspect-[9\/16] {
+  aspect-ratio: 9/16;
+}
+
+.video-container-vertical {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Ajustes para melhor exibição em dispositivos móveis */
+@media (max-width: 768px) {
+  .video-container-vertical {
+    max-width: 85vw;
+  }
+}
+
   margin-top: 1em;
   margin-bottom: 0.5em;
   font-weight: 600;

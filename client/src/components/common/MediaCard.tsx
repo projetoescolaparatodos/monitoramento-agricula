@@ -43,6 +43,13 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
     }
   }, [mediaType, mediaUrl]);
 
+  // Detectar se é vídeo vertical a partir do título
+  const isVerticalVideo = mediaType === 'video' && 
+    (title.toLowerCase().includes('vertical') || 
+     title.toLowerCase().includes('instagram') ||
+     title.toLowerCase().includes('reels') ||
+     title.toLowerCase().includes('tiktok'));
+
   const renderMedia = () => {
     if (mediaType === 'video') {
       if (isYoutubeUrl(mediaUrl)) {
@@ -54,7 +61,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
           <div className="w-full bg-black flex items-center justify-center">
             <iframe
               src={`https://www.youtube.com/embed/${videoId}?rel=0&showinfo=0&controls=1`}
-              className="w-full aspect-video"
+              className={`w-full ${isVerticalVideo ? 'aspect-[9/16] max-w-[400px] mx-auto' : 'aspect-video'}`}
               title={title}
               allowFullScreen
               loading="lazy"
@@ -64,13 +71,13 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
       } else {
         return (
           <div className="w-full mx-auto">
-            <div className="w-full flex justify-center items-center bg-black rounded-xl overflow-hidden">
+            <div className={`${isVerticalVideo ? 'max-w-[400px] mx-auto' : 'w-full'} flex justify-center items-center bg-black rounded-xl overflow-hidden`}>
               <video
                 ref={videoRef}
                 src={mediaUrl}
                 controls
                 title={title}
-                className="w-full h-auto object-contain aspect-video"
+                className={`${isVerticalVideo ? 'aspect-[9/16] max-h-[70vh] w-auto' : 'w-full h-auto object-contain aspect-video'}`}
               />
             </div>
           </div>

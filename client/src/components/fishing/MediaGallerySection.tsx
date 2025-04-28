@@ -34,9 +34,18 @@ const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ mediaItems, i
           </div>
         ) : mediaItems && mediaItems.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mediaItems.map((item) => (
-              <MediaDisplay key={item.id} item={item} className="hover:scale-105 transition-transform" />
-            ))}
+            {mediaItems.map((item) => {
+              const isVerticalVideo = item.mediaType === 'video' && 
+                (item.aspectRatio === 'vertical' || 
+                (item.title && item.title.toLowerCase().includes('vertical')) ||
+                (item.title && item.title.toLowerCase().includes('instagram')));
+              
+              return (
+                <div key={item.id} className={`${isVerticalVideo ? 'md:col-span-1' : ''}`}>
+                  <MediaDisplay item={item} className="hover:scale-105 transition-transform" />
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-12 bg-white dark:bg-zinc-800 rounded-2xl shadow-md">
