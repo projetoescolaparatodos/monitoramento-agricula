@@ -71,7 +71,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
                 src={mediaUrl}
                 controls
                 title={title}
-                className="h-auto w-auto max-h-[80vh] max-w-full object-contain"
+                className="w-full h-auto object-contain aspect-video"
               />
             </div>
           </div>
@@ -80,12 +80,11 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
     } else {
       return (
         <div className="w-full mx-auto">
-          <div className="flex items-center justify-center w-full overflow-hidden bg-black/5 rounded-xl">
+          <div className="w-full h-0 pb-[56.25%] relative overflow-hidden bg-black/5 rounded-xl">
             <img
               src={mediaUrl}
               alt={title}
-              className="max-h-[80vh] max-w-full h-auto w-auto !object-contain"
-              alt={title}
+              className="absolute inset-0 w-full h-full object-contain"
             />
           </div>
         </div>

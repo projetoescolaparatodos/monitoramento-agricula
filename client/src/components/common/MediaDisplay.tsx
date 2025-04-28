@@ -71,19 +71,21 @@ const MediaCard: React.FC<{
       }
     } else {
       return (
-        <div className="w-full flex items-center justify-center overflow-hidden rounded-t-lg bg-black/5">
-          {!imageError ? (
-            <img
-              src={mediaUrl}
-              alt={title}
-              className="h-auto w-auto max-h-[80vh] max-w-full object-contain"
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-200">
-              <p className="text-gray-500">Não foi possível carregar a imagem</p>
-            </div>
-          )}
+        <div className="w-full overflow-hidden rounded-t-lg bg-black/5">
+          <div className="w-full h-0 pb-[56.25%] relative">
+            {!imageError ? (
+              <img
+                src={mediaUrl}
+                alt={title}
+                className="absolute inset-0 w-full h-full object-contain"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-gray-200">
+                <p className="text-gray-500">Não foi possível carregar a imagem</p>
+              </div>
+            )}
+          </div>
         </div>
       );
     }
@@ -273,15 +275,17 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
                 allowFullScreen
               />
             ) : isFirebaseVideo ? (
-              <video 
-                className="max-h-[80vh] max-w-full h-auto w-auto rounded-t-lg object-contain"
-                controls
-                src={item.mediaUrl}
-                poster={item.thumbnailUrl || ''}
-                title={item.title || "Vídeo"}
-              >
-                Seu navegador não suporta a reprodução de vídeos.
-              </video>
+              <div className="w-full h-0 pb-[56.25%] relative">
+                <video 
+                  className="absolute inset-0 w-full h-full rounded-t-lg object-contain"
+                  controls
+                  src={item.mediaUrl}
+                  poster={item.thumbnailUrl || ''}
+                  title={item.title || "Vídeo"}
+                >
+                  Seu navegador não suporta a reprodução de vídeos.
+                </video>
+              </div>
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gray-200 rounded-t-lg">
                 <p className="text-gray-500">Não foi possível carregar o vídeo</p>
@@ -363,12 +367,14 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
         <div className="relative">
           {!imageError ? (
             <div className="w-full mx-auto">
-              <img 
-                src={item.mediaUrl || item.thumbnailUrl} 
-                alt={item.title || "Mídia"} 
-                className="max-h-[80vh] max-w-full h-auto w-auto object-contain rounded-t-lg"
-                onError={() => setImageError(true)}
-              />
+              <div className="w-full h-0 pb-[56.25%] relative">
+                <img 
+                  src={item.mediaUrl || item.thumbnailUrl} 
+                  alt={item.title || "Mídia"} 
+                  className="absolute inset-0 w-full h-full object-contain rounded-t-lg"
+                  onError={() => setImageError(true)}
+                />
+              </div>
             </div>
           ) : (
             <div className="w-full aspect-video bg-gray-200 flex items-center justify-center rounded-t-lg">
