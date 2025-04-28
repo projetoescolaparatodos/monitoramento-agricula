@@ -180,16 +180,16 @@ const Agriculture = () => {
       <div style={backgroundStyle}></div>
       <div className="fixed inset-0 w-full min-h-screen bg-black/40 z-[1]"></div>
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
-        <div className="flex justify-end mb-6 gap-3">
-          <AgricultureTabButton className="shadow-md">
-            Serviços Agricultura
+        <div className="flex flex-col sm:flex-row justify-end mb-6 gap-3">
+          <AgricultureTabButton className="shadow-md text-sm sm:text-base w-full sm:w-auto">
+            <span className="truncate">Serviços Agricultura</span>
           </AgricultureTabButton>
           <Button
             onClick={() => setLocation("/agriculture/map")}
-            className="flex items-center gap-2"
+            className="flex items-center justify-center gap-2 text-sm sm:text-base w-full sm:w-auto"
           >
-            <Map className="h-4 w-4" />
-            Acompanhar Serviços
+            <Map className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate">Acompanhar Serviços</span>
           </Button>
         </div>
         <main className="space-y-12">
@@ -223,15 +223,15 @@ const Agriculture = () => {
               
               {/* Novos botões abaixo do painel */}
               <div className="flex flex-col md:flex-row justify-center gap-4 mt-8">
-                <AgricultureTabButton className="shadow-md text-lg py-3 px-6 rounded-lg">
-                  Sou Agricultor, Quero me Cadastrar
+                <AgricultureTabButton className="shadow-md text-sm md:text-lg py-3 px-4 md:px-6 rounded-lg w-full md:w-auto">
+                  <span className="truncate">Sou Agricultor, Quero me Cadastrar</span>
                 </AgricultureTabButton>
                 
                 <Button
                   onClick={() => setLocation("/agriculture/map")}
-                  className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-lg py-3 px-6 rounded-lg shadow-md"
+                  className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-sm md:text-lg py-3 px-4 md:px-6 rounded-lg shadow-md w-full md:w-auto"
                 >
-                  <Map className="h-5 w-5" />
+                  <Map className="h-4 w-4 flex-shrink-0"ssName="h-5 w-5" />
                   Acompanhe nossas Atividades em tempo real
                 </Button>
               </div>

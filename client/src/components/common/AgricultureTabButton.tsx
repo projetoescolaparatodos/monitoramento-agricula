@@ -69,10 +69,10 @@ const AgricultureTabButton: React.FC<AgricultureTabButtonProps> = ({ className =
   return (
     <Button 
       onClick={openChatAgricultureTab} 
-      className={`bg-primary hover:bg-primary/90 text-white flex items-center gap-2 ${className}`}
+      className={`bg-primary hover:bg-primary/90 text-white flex items-center justify-center gap-2 ${className}`}
     >
-      <Sprout size={18} />
-      {children || <span>Serviços Agricultura</span>}
+      <Sprout size={18} className="flex-shrink-0" />
+      {children || <span className="truncate">Serviços Agricultura</span>}
     </Button>
   );
 };

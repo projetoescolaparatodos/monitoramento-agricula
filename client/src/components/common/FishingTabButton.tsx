@@ -69,10 +69,10 @@ const FishingTabButton: React.FC<FishingTabButtonProps> = ({ className = "", chi
   return (
     <Button 
       onClick={openChatFishingTab} 
-      className={`bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 ${className}`}
+      className={`bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2 ${className}`}
     >
-      <Fish size={18} />
-      {children || <span>Serviços Pesca</span>}
+      <Fish size={18} className="flex-shrink-0" />
+      {children || <span className="truncate">Serviços Pesca</span>}
     </Button>
   );
 };

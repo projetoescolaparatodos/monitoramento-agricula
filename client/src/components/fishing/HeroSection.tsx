@@ -14,10 +14,10 @@ const HeroSection = () => {
       </p>
       <Button
         onClick={() => setLocation("/fishing/map")}
-        className="flex items-center gap-2"
+        className="flex items-center justify-center gap-2 text-sm sm:text-base w-full sm:w-auto max-w-xs mx-auto"
       >
-        <Map className="h-4 w-4" />
-        Acompanhar Atividades
+        <Map className="h-4 w-4 flex-shrink-0" />
+        <span className="truncate">Acompanhar Atividades</span>
       </Button>
     </section>
   );
