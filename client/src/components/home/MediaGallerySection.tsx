@@ -43,14 +43,73 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
   // Se a mídia for da página Home, não há necessidade de link/redirecionamento
   const isHomePage = item.pageType === 'home';
   
-  // Renderização condicional baseada na origem da mídia
-  const CardContent = () => (
+  // Conteúdo do card para reutilização
+  const cardContent = (
     <Card className="overflow-hidden bg-white/90 dark:bg-zinc-800/90 rounded-xl shadow-md cursor-pointer hover:shadow-lg transition-transform hover:scale-105 h-full flex flex-col">
+      <div className="w-full h-60 relative overflow-hidden">
+        {isYouTubeVideo ? (
+          <iframe
+            className="w-full h-full rounded-t-lg"
+            src={getYoutubeEmbedUrl(item.mediaUrl)}
+            title={item.title || "Vídeo do YouTube"}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            loading="lazy"
+            allowFullScreen
+          />
+        ) : isFirebaseVideo ? (
+          <video 
+            className="w-full h-full object-cover"
+            src={item.mediaUrl}
+            poster={item.thumbnailUrl || ''}
+            title={item.title || "Vídeo"}
+          >
+            Seu navegador não suporta a reprodução de vídeos.
+          </video>
+        ) : (
+          <img 
+            src={item.mediaUrl || item.thumbnailUrl} 
+            alt={item.title || "Mídia"} 
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        )}
+
+        <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs rounded-full px-2 py-1">
+          <span className="font-medium">{pageLabel}</span>
+        </div>
+      </div>
+
+      <div className="p-4 flex-grow flex flex-col">
+        <h3 className="font-medium text-green-800 dark:text-green-400 line-clamp-1 mb-1">
+          {/<\/?[a-z][\s\S]*>/i.test(item.title || "") ? (
+            <div dangerouslySetInnerHTML={{ __html: item.title || "Sem título" }} />
+          ) : (
+            item.title || "Sem título"
+          )}
+        </h3>
+
+        {item.description && (
+          <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-2">
+            {item.description.replace(/<[^>]*>/g, '')}
+          </p>
+        )}
+
+        <div className="flex justify-between items-center mt-auto text-xs text-gray-500 dark:text-gray-400">
+          {item.author && (
+            <span>{item.author}</span>
+          )}
+          {formattedDate && (
+            <span>{formattedDate}</span>
+          )}
+        </div>
+      </div>
+    </Card>
   );
   
   // Se for da página home, apenas renderiza o card sem link
   if (isHomePage) {
-    return <CardContent />;
+    return cardContent;
   }
   
   // Caso contrário, mantém o comportamento anterior com redirecionamento
@@ -62,10 +121,10 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
                       // Navega para a página e rola até a seção de mídia
                       window.location.href = `/${item.pageType}#media`;
                     }}>
-      <CardContent />
-        <div className="w-full h-60 relative overflow-hidden">
-          {isYouTubeVideo ? (
-            <iframe
+      {cardContent}
+    </Link>
+  );
+};
               className="w-full h-full rounded-t-lg"
               src={getYoutubeEmbedUrl(item.mediaUrl)}
               title={item.title || "Vídeo do YouTube"}
@@ -121,13 +180,7 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
             )}
           </div>
         </div>
-      </Card>
-    </Link>
-  );
-  
-  // Fechamento da função CardContent
-  };
-};
+      const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ variant = "default" }) => {
 
 const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ variant = "default" }) => {
   const { data: mediaItems, isLoading } = useQuery<MediaItem[]>({
