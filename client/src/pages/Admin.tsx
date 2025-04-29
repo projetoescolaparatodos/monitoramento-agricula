@@ -330,21 +330,44 @@ const AgriculturaForm = () => {
 
               // Localiza o mapa já inicializado no DOM
               const mapContainer = document.getElementById("admin-map-agricultura");
-              if (mapContainer && mapContainer._leaflet_id) {
-                // Acessa a instância do mapa diretamente pelo contêiner
-                const mapInstance = mapContainer._leaflet;
+              if (!mapContainer) {
+                console.error("Elemento do mapa não encontrado");
+                return;
+              }
 
-                if (mapInstance) {
-                  // Limpa marcadores anteriores
-                  mapInstance.eachLayer((layer) => {
-                    if (layer instanceof L.Marker) {
-                      mapInstance.removeLayer(layer);
-                    }
-                  });
+              // Tenta acessar a instância do mapa de várias formas (para compatibilidade)
+              const mapLeaflet = window.L.maps ? 
+                Object.values(window.L.maps).find(m => m._container === mapContainer) :
+                null;
+                
+              const mapInstance = mapContainer._leaflet || 
+                                 mapLeaflet || 
+                                 (mapContainer._leaflet_id && window.L.map(mapContainer));
 
-                  // Adiciona novo marcador e centraliza o mapa
-                  L.marker([lat, lng]).addTo(mapInstance);
-                  mapInstance.setView([lat, lng], 15);
+              if (mapInstance) {
+                console.log("Instância do mapa encontrada, atualizando...");
+                
+                // Limpa marcadores anteriores
+                mapInstance.eachLayer((layer) => {
+                  if (layer instanceof L.Marker) {
+                    mapInstance.removeLayer(layer);
+                  }
+                });
+
+                // Adiciona novo marcador e centraliza o mapa
+                L.marker([lat, lng]).addTo(mapInstance);
+                mapInstance.setView([lat, lng], 15);
+              } else {
+                console.error("Não foi possível acessar a instância do mapa");
+                // Fallback: recria o mapa
+                try {
+                  const newMap = L.map("admin-map-agricultura").setView([lat, lng], 15);
+                  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                  }).addTo(newMap);
+                  L.marker([lat, lng]).addTo(newMap);
+                } catch (e) {
+                  console.error("Erro ao criar novo mapa:", e);
                 }
               }
             }}
@@ -826,21 +849,44 @@ const PescaForm = () => {
 
               // Localiza o mapa já inicializado no DOM
               const mapContainer = document.getElementById("admin-map-pesca");
-              if (mapContainer && mapContainer._leaflet_id) {
-                // Acessa a instância do mapa diretamente pelo contêiner
-                const mapInstance = mapContainer._leaflet;
+              if (!mapContainer) {
+                console.error("Elemento do mapa não encontrado");
+                return;
+              }
 
-                if (mapInstance) {
-                  // Limpa marcadores anteriores
-                  mapInstance.eachLayer((layer) => {
-                    if (layer instanceof L.Marker) {
-                      mapInstance.removeLayer(layer);
-                    }
-                  });
+              // Tenta acessar a instância do mapa de várias formas (para compatibilidade)
+              const mapLeaflet = window.L.maps ? 
+                Object.values(window.L.maps).find(m => m._container === mapContainer) :
+                null;
+                
+              const mapInstance = mapContainer._leaflet || 
+                                 mapLeaflet || 
+                                 (mapContainer._leaflet_id && window.L.map(mapContainer));
 
-                  // Adiciona novo marcador e centraliza o mapa
-                  L.marker([lat, lng]).addTo(mapInstance);
-                  mapInstance.setView([lat, lng], 15);
+              if (mapInstance) {
+                console.log("Instância do mapa encontrada, atualizando...");
+                
+                // Limpa marcadores anteriores
+                mapInstance.eachLayer((layer) => {
+                  if (layer instanceof L.Marker) {
+                    mapInstance.removeLayer(layer);
+                  }
+                });
+
+                // Adiciona novo marcador e centraliza o mapa
+                L.marker([lat, lng]).addTo(mapInstance);
+                mapInstance.setView([lat, lng], 15);
+              } else {
+                console.error("Não foi possível acessar a instância do mapa");
+                // Fallback: recria o mapa
+                try {
+                  const newMap = L.map("admin-map-pesca").setView([lat, lng], 15);
+                  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                  }).addTo(newMap);
+                  L.marker([lat, lng]).addTo(newMap);
+                } catch (e) {
+                  console.error("Erro ao criar novo mapa:", e);
                 }
               }
             }}
@@ -1344,21 +1390,44 @@ const PAAForm = () => {
 
               // Localiza o mapa já inicializado no DOM
               const mapContainer = document.getElementById("admin-map-paa");
-              if (mapContainer && mapContainer._leaflet_id) {
-                // Acessa a instância do mapa diretamente pelo contêiner
-                const mapInstance = mapContainer._leaflet;
+              if (!mapContainer) {
+                console.error("Elemento do mapa não encontrado");
+                return;
+              }
 
-                if (mapInstance) {
-                  // Limpa marcadores anteriores
-                  mapInstance.eachLayer((layer) => {
-                    if (layer instanceof L.Marker) {
-                      mapInstance.removeLayer(layer);
-                    }
-                  });
+              // Tenta acessar a instância do mapa de várias formas (para compatibilidade)
+              const mapLeaflet = window.L.maps ? 
+                Object.values(window.L.maps).find(m => m._container === mapContainer) :
+                null;
+                
+              const mapInstance = mapContainer._leaflet || 
+                                 mapLeaflet || 
+                                 (mapContainer._leaflet_id && window.L.map(mapContainer));
 
-                  // Adiciona novo marcador e centraliza o mapa
-                  L.marker([lat, lng]).addTo(mapInstance);
-                  mapInstance.setView([lat, lng], 15);
+              if (mapInstance) {
+                console.log("Instância do mapa encontrada, atualizando...");
+                
+                // Limpa marcadores anteriores
+                mapInstance.eachLayer((layer) => {
+                  if (layer instanceof L.Marker) {
+                    mapInstance.removeLayer(layer);
+                  }
+                });
+
+                // Adiciona novo marcador e centraliza o mapa
+                L.marker([lat, lng]).addTo(mapInstance);
+                mapInstance.setView([lat, lng], 15);
+              } else {
+                console.error("Não foi possível acessar a instância do mapa");
+                // Fallback: recria o mapa
+                try {
+                  const newMap = L.map("admin-map-paa").setView([lat, lng], 15);
+                  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                  }).addTo(newMap);
+                  L.marker([lat, lng]).addTo(newMap);
+                } catch (e) {
+                  console.error("Erro ao criar novo mapa:", e);
                 }
               }
             }}
