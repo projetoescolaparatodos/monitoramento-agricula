@@ -246,7 +246,7 @@ const AgriculturaMap = () => {
                 </p>
                 <p>
                   <strong>Área para mecanização:</strong>{" "}
-                  {typeof trator.areaTrabalhada === 'number' ? (trator.areaTrabalhada / 10000).toFixed(2) : "-"} ha
+                  {typeof trator.areaTrabalhada === 'number' ? parseFloat(trator.areaTrabalhada.toString()).toFixed(2) : "-"} ha
                 </p>
                 <p>
                   <strong>Operador:</strong> {trator.piloto}

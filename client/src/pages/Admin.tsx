@@ -174,6 +174,7 @@ const AgriculturaForm = () => {
         ? parseFloat(String(tempoAtividade))
         : null;
       const horaMaquinaNum = parseFloat(String(horaMaquina));
+      // Área já está em hectares e será armazenada assim
       const areaTrabalhadaNum = parseFloat(String(areaTrabalhada));
 
       // Verificar se as mídias são válidas
@@ -468,13 +469,16 @@ const AgriculturaForm = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="areaTrabalhada">Área para Mecanização (m²)</Label>
+                <Label htmlFor="areaTrabalhada">Área para Mecanização (ha)</Label>
                 <Input
                   id="areaTrabalhada"
                   type="number"
                   value={areaTrabalhada}
                   onChange={(e) => setAreaTrabalhada(Number(e.target.value))}
                   required
+                  step="0.01"
+                  min="0"
+                  placeholder="Valor em hectares"
                 />
               </div>
 
@@ -576,7 +580,7 @@ const AgriculturaForm = () => {
                     <td className="p-2 border">{trator.operacao}</td>
                     <td className="p-2 border">{trator.piloto}</td>
                     <td className="p-2 border">{trator.horaMaquina || "-"}</td>
-                    <td className="p-2 border">{trator.areaTrabalhada ? (trator.areaTrabalhada / 10000).toFixed(2) : "-"} ha</td>
+                    <td className="p-2 border">{trator.areaTrabalhada ? parseFloat(trator.areaTrabalhada).toFixed(2) : "-"} ha</td>
                     <td className="p-2 border">
                       {new Date(trator.dataCadastro).toLocaleDateString()}
                     </td>
