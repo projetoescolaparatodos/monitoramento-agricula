@@ -321,20 +321,19 @@ const AgriculturaForm = () => {
             id="admin-map-agricultura"
             className="w-full h-[400px] mb-8 rounded-lg overflow-hidden"
           />
-          
+
           {/* Componente de seleção de coordenadas */}
           <IconSelector 
             onLocationSelect={(lat, lng) => {
               setLatitude(lat);
               setLongitude(lng);
-              
+
               // Localiza o mapa já inicializado no DOM
-              const mapElements = document.querySelectorAll('.leaflet-container');
-              if (mapElements.length > 0) {
-                // Encontra a instância do mapa no contexto atual
-                const mapInstance = L.DomUtil.get("admin-map-agricultura")?._leaflet_id ? 
-                  L.Map.getMap("admin-map-agricultura") : null;
-                
+              const mapContainer = document.getElementById("admin-map-agricultura");
+              if (mapContainer && mapContainer._leaflet_id) {
+                // Acessa a instância do mapa diretamente pelo contêiner
+                const mapInstance = mapContainer._leaflet;
+
                 if (mapInstance) {
                   // Limpa marcadores anteriores
                   mapInstance.eachLayer((layer) => {
@@ -342,7 +341,7 @@ const AgriculturaForm = () => {
                       mapInstance.removeLayer(layer);
                     }
                   });
-                  
+
                   // Adiciona novo marcador e centraliza o mapa
                   L.marker([lat, lng]).addTo(mapInstance);
                   mapInstance.setView([lat, lng], 15);
@@ -824,14 +823,13 @@ const PescaForm = () => {
             onLocationSelect={(lat, lng) => {
               setLatitude(lat);
               setLongitude(lng);
-              
+
               // Localiza o mapa já inicializado no DOM
-              const mapElements = document.querySelectorAll('.leaflet-container');
-              if (mapElements.length > 0) {
-                // Encontra a instância do mapa no contexto atual
-                const mapInstance = L.DomUtil.get("admin-map-pesca")?._leaflet_id ? 
-                  L.Map.getMap("admin-map-pesca") : null;
-                
+              const mapContainer = document.getElementById("admin-map-pesca");
+              if (mapContainer && mapContainer._leaflet_id) {
+                // Acessa a instância do mapa diretamente pelo contêiner
+                const mapInstance = mapContainer._leaflet;
+
                 if (mapInstance) {
                   // Limpa marcadores anteriores
                   mapInstance.eachLayer((layer) => {
@@ -839,7 +837,7 @@ const PescaForm = () => {
                       mapInstance.removeLayer(layer);
                     }
                   });
-                  
+
                   // Adiciona novo marcador e centraliza o mapa
                   L.marker([lat, lng]).addTo(mapInstance);
                   mapInstance.setView([lat, lng], 15);
@@ -1343,14 +1341,13 @@ const PAAForm = () => {
             onLocationSelect={(lat, lng) => {
               setLatitude(lat);
               setLongitude(lng);
-              
+
               // Localiza o mapa já inicializado no DOM
-              const mapElements = document.querySelectorAll('.leaflet-container');
-              if (mapElements.length > 0) {
-                // Encontra a instância do mapa no contexto atual
-                const mapInstance = L.DomUtil.get("admin-map-paa")?._leaflet_id ? 
-                  L.Map.getMap("admin-map-paa") : null;
-                
+              const mapContainer = document.getElementById("admin-map-paa");
+              if (mapContainer && mapContainer._leaflet_id) {
+                // Acessa a instância do mapa diretamente pelo contêiner
+                const mapInstance = mapContainer._leaflet;
+
                 if (mapInstance) {
                   // Limpa marcadores anteriores
                   mapInstance.eachLayer((layer) => {
@@ -1358,7 +1355,7 @@ const PAAForm = () => {
                       mapInstance.removeLayer(layer);
                     }
                   });
-                  
+
                   // Adiciona novo marcador e centraliza o mapa
                   L.marker([lat, lng]).addTo(mapInstance);
                   mapInstance.setView([lat, lng], 15);
