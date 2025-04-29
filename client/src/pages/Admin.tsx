@@ -8,7 +8,6 @@ import {
   doc,
   deleteDoc,
 } from "firebase/firestore";
-import IconSelector from "@/components/admin/IconSelector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -48,7 +47,6 @@ const AgriculturaForm = () => {
   const [tratoresCadastrados, setTratoresCadastrados] = useState<any[]>([]);
   const [tratorEmEdicao, setTratorEmEdicao] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
-  const [iconePersonalizado, setIconePersonalizado] = useState<string>("");
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [agriculturasAtividades, setAgriculturasAtividades] = useState<any[]>([]);
@@ -199,7 +197,6 @@ const AgriculturaForm = () => {
         tecnicoResponsavel: tecnicoResponsavel || null,
         horaMaquina: horaMaquinaNum,
         operacao,
-        iconePersonalizado: iconePersonalizado || null,
       };
 
       // Remover propriedades com valores null ou undefined
@@ -239,7 +236,6 @@ const AgriculturaForm = () => {
       setTempoAtividade(0);
       setAreaTrabalhada(0);
       setDataCadastro(new Date().toISOString().split("T")[0]);
-      setIconePersonalizado("");
       setTratorEmEdicao(null);
 
       // Atualiza a lista
@@ -284,7 +280,6 @@ const AgriculturaForm = () => {
     setTempoAtividade(trator.tempoAtividade);
     setAreaTrabalhada(trator.areaTrabalhada || 0);
     setDataCadastro(trator.dataCadastro);
-    setIconePersonalizado(trator.iconePersonalizado || "");
   };
 
   const handleExcluirTrator = async (id: string) => {
@@ -325,15 +320,6 @@ const AgriculturaForm = () => {
             id="admin-map-agricultura"
             className="w-full h-[400px] mb-8 rounded-lg overflow-hidden"
           />
-
-          {latitude && longitude && (
-            <IconSelector 
-              latitude={latitude} 
-              longitude={longitude} 
-              onIconSelect={(iconUrl) => setIconePersonalizado(iconUrl)} 
-              iconType="agricultura" 
-            />
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -610,7 +596,6 @@ const PescaForm = () => {
   const [pesqueirosCadastrados, setPesqueirosCadastrados] = useState<any[]>([]);
   const [pesqueiroEmEdicao, setPesqueiroEmEdicao] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
-  const [iconePescaPersonalizado, setIconePescaPersonalizado] = useState<string>("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -691,7 +676,6 @@ const PescaForm = () => {
           ? pesqueiroEmEdicao.dataCadastro
           : dataCadastro,
         concluido: false,
-        iconePersonalizado: iconePescaPersonalizado || null,
       };
 
       if (pesqueiroEmEdicao) {
@@ -722,7 +706,6 @@ const PescaForm = () => {
       setLongitude(null);
       setMidias([]);
       setDataCadastro(new Date().toISOString().split("T")[0]);
-      setIconePescaPersonalizado("");
       setPesqueiroEmEdicao(null);
 
       // Atualiza a lista
@@ -763,7 +746,6 @@ const PescaForm = () => {
     setLongitude(pesqueiro.longitude);
     setMidias(pesqueiro.midias || []);
     setDataCadastro(pesqueiro.dataCadastro);
-    setIconePescaPersonalizado(pesqueiro.iconePersonalizado || "");
   };
 
   const handleExcluirPesqueiro = async (id: string) => {
@@ -804,15 +786,6 @@ const PescaForm = () => {
             id="admin-map-pesca"
             className="w-full h-[400px] mb-8 rounded-lg overflow-hidden"
           />
-
-          {latitude && longitude && (
-            <IconSelector 
-              latitude={latitude} 
-              longitude={longitude} 
-              onIconSelect={(iconUrl) => setIconePescaPersonalizado(iconUrl)} 
-              iconType="pesca" 
-            />
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1047,7 +1020,6 @@ const PAAForm = () => {
   const [paaLocaisCadastrados, setPaaLocaisCadastrados] = useState<any[]>([]);
   const [paaLocalEmEdicao, setPaaLocalEmEdicao] =useState<any | null>(null);
   const [loading, setLoading] = useState(false);
-  const [iconePaaPersonalizado, setIconePaaPersonalizado] = useState<string>("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -1126,7 +1098,6 @@ const PAAForm = () => {
           ? paaLocalEmEdicao.dataCadastro
           : dataCadastro,
         concluido: false,
-        iconePersonalizado: iconePaaPersonalizado || null,
       };
 
       if (paaLocalEmEdicao) {
@@ -1155,7 +1126,6 @@ const PAAForm = () => {
       setLongitude(null);
       setMidias([]);
       setDataCadastro(new Date().toISOString().split("T")[0]);
-      setIconePaaPersonalizado("");
       setPaaLocalEmEdicao(null);
 
       // Atualiza a lista
@@ -1194,7 +1164,6 @@ const PAAForm = () => {
     setLongitude(paaLocal.longitude);
     setMidias(paaLocal.midias || []);
     setDataCadastro(paaLocal.dataCadastro);
-    setIconePaaPersonalizado(paaLocal.iconePersonalizado || "");
   };
 
   const handleExcluirPaaLocal = async (id: string) => {
@@ -1305,15 +1274,6 @@ const PAAForm = () => {
             id="admin-map-paa"
             className="w-full h-[400px] mb-8 rounded-lg overflow-hidden"
           />
-
-          {latitude && longitude && (
-            <IconSelector 
-              latitude={latitude} 
-              longitude={longitude} 
-              onIconSelect={(iconUrl) => setIconePaaPersonalizado(iconUrl)} 
-              iconType="paa" 
-            />
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
