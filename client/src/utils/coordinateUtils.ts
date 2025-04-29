@@ -68,3 +68,29 @@ export function formatCoordinate(value: number, isLatitude: boolean): string {
     
   return `${degrees}° ${minutes.toFixed(3)}'${direction}`;
 }
+
+/**
+ * Obtém uma instância de mapa Leaflet existente de forma segura
+ * @param container O elemento HTML container do mapa
+ * @returns A instância do mapa ou null se não encontrada
+ */
+export function getLeafletMapInstance(container: HTMLElement): any {
+  // Verifica se já existe uma instância Leaflet no container
+  if (container._leaflet) {
+    return container._leaflet;
+  }
+  
+  // Tenta acessar via coleção global do Leaflet (depende da versão)
+  if (window.L && window.L.maps) {
+    const maps = Object.values(window.L.maps);
+    const existingMap = maps.find(m => m._container === container);
+    if (existingMap) return existingMap;
+  }
+  
+  // Tenta obter usando o método get do Map (disponível em versões mais recentes)
+  if (container._leaflet_id && window.L && window.L.Map && window.L.Map.get) {
+    return window.L.Map.get(container._leaflet_id);
+  }
+  
+  return null;
+}

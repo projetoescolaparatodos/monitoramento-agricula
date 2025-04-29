@@ -335,18 +335,33 @@ const AgriculturaForm = () => {
                 return;
               }
 
-              // Tenta acessar a instância do mapa de várias formas (para compatibilidade)
-              const mapLeaflet = window.L.maps ? 
-                Object.values(window.L.maps).find(m => m._container === mapContainer) :
-                null;
-                
-              const mapInstance = mapContainer._leaflet || 
-                                 mapLeaflet || 
-                                 (mapContainer._leaflet_id && window.L.map(mapContainer));
+              // Função segura para obter instância do mapa
+              const getMapInstance = (container) => {
+                // Verifica se já existe uma instância Leaflet no container
+                if (container._leaflet) {
+                  return container._leaflet;
+                }
+
+                // Tenta acessar via coleção global do Leaflet (depende da versão)
+                if (window.L.maps) {
+                  const maps = Object.values(window.L.maps);
+                  const existingMap = maps.find(m => m._container === container);
+                  if (existingMap) return existingMap;
+                }
+
+                // Tenta obter usando o método get do Map (disponível em versões mais recentes)
+                if (container._leaflet_id && window.L.Map.get) {
+                  return window.L.Map.get(container._leaflet_id);
+                }
+
+                return null;
+              };
+
+              const mapInstance = getMapInstance(mapContainer);
 
               if (mapInstance) {
                 console.log("Instância do mapa encontrada, atualizando...");
-                
+
                 // Limpa marcadores anteriores
                 mapInstance.eachLayer((layer) => {
                   if (layer instanceof L.Marker) {
@@ -854,18 +869,33 @@ const PescaForm = () => {
                 return;
               }
 
-              // Tenta acessar a instância do mapa de várias formas (para compatibilidade)
-              const mapLeaflet = window.L.maps ? 
-                Object.values(window.L.maps).find(m => m._container === mapContainer) :
-                null;
-                
-              const mapInstance = mapContainer._leaflet || 
-                                 mapLeaflet || 
-                                 (mapContainer._leaflet_id && window.L.map(mapContainer));
+              // Função segura para obter instância do mapa
+              const getMapInstance = (container) => {
+                // Verifica se já existe uma instância Leaflet no container
+                if (container._leaflet) {
+                  return container._leaflet;
+                }
+
+                // Tenta acessar via coleção global do Leaflet (depende da versão)
+                if (window.L.maps) {
+                  const maps = Object.values(window.L.maps);
+                  const existingMap = maps.find(m => m._container === container);
+                  if (existingMap) return existingMap;
+                }
+
+                // Tenta obter usando o método get do Map (disponível em versões mais recentes)
+                if (container._leaflet_id && window.L.Map.get) {
+                  return window.L.Map.get(container._leaflet_id);
+                }
+
+                return null;
+              };
+
+              const mapInstance = getMapInstance(mapContainer);
 
               if (mapInstance) {
                 console.log("Instância do mapa encontrada, atualizando...");
-                
+
                 // Limpa marcadores anteriores
                 mapInstance.eachLayer((layer) => {
                   if (layer instanceof L.Marker) {
@@ -1395,18 +1425,33 @@ const PAAForm = () => {
                 return;
               }
 
-              // Tenta acessar a instância do mapa de várias formas (para compatibilidade)
-              const mapLeaflet = window.L.maps ? 
-                Object.values(window.L.maps).find(m => m._container === mapContainer) :
-                null;
-                
-              const mapInstance = mapContainer._leaflet || 
-                                 mapLeaflet || 
-                                 (mapContainer._leaflet_id && window.L.map(mapContainer));
+              // Função segura para obter instância do mapa
+              const getMapInstance = (container) => {
+                // Verifica se já existe uma instância Leaflet no container
+                if (container._leaflet) {
+                  return container._leaflet;
+                }
+
+                // Tenta acessar via coleção global do Leaflet (depende da versão)
+                if (window.L.maps) {
+                  const maps = Object.values(window.L.maps);
+                  const existingMap = maps.find(m => m._container === container);
+                  if (existingMap) return existingMap;
+                }
+
+                // Tenta obter usando o método get do Map (disponível em versões mais recentes)
+                if (container._leaflet_id && window.L.Map.get) {
+                  return window.L.Map.get(container._leaflet_id);
+                }
+
+                return null;
+              };
+
+              const mapInstance = getMapInstance(mapContainer);
 
               if (mapInstance) {
                 console.log("Instância do mapa encontrada, atualizando...");
-                
+
                 // Limpa marcadores anteriores
                 mapInstance.eachLayer((layer) => {
                   if (layer instanceof L.Marker) {
@@ -1812,8 +1857,7 @@ const Admin = () => {
                   ))}
                 </div>
               </div>
-              <PescaForm />
-            </CardContent>
+              <PescaForm />            </CardContent>
           </Card>
         </TabsContent>
 

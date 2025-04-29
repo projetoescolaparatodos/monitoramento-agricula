@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Map, MapPin, Info } from "lucide-react";
 import { parseDMS, isValidCoordinate, formatCoordinate } from "@/utils/coordinateUtils";
+import { toast } from "@/components/ui/use-toast";
 
 interface IconSelectorProps {
   onLocationSelect: (lat: number, lng: number) => void;
@@ -69,20 +69,20 @@ const IconSelector: React.FC<IconSelectorProps> = ({
       setError("Formato de latitude inválido. Ex: '2° 48.104'S' ou '-2.81'");
       return false;
     }
-    
+
     // Try to parse longitude
     const lngResult = parseDMS(longitude);
     if (lngResult === null) {
       setError("Formato de longitude inválido. Ex: '52° 4.229'O' ou '-52.07'");
       return false;
     }
-    
+
     // Check if within valid range
     if (!isValidCoordinate(latResult, lngResult)) {
       setError("Coordenadas fora dos limites válidos (lat: -90 a 90, lng: -180 a 180)");
       return false;
     }
-    
+
     // Everything is valid
     setParsedLat(latResult);
     setParsedLng(lngResult);
@@ -99,7 +99,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({
   return (
     <div className="space-y-4 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
       <h3 className="text-md font-medium">Definir Localização por Coordenadas</h3>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="latitude">
@@ -134,14 +134,14 @@ const IconSelector: React.FC<IconSelectorProps> = ({
           />
         </div>
       </div>
-      
+
       {error && (
         <div className="text-sm text-red-500 flex items-start gap-1 mt-1">
           <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
           <span>{error}</span>
         </div>
       )}
-      
+
       <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
         <p>Formatos aceitos:</p>
         <ul className="list-disc pl-5 mt-1">
@@ -149,7 +149,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({
           <li>Graus e minutos: 2° 52.752'S, 52° 0.528'O</li>
         </ul>
       </div>
-      
+
       <Button 
         type="button" 
         onClick={handleSetLocation}
@@ -159,7 +159,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({
         <MapPin className="mr-2 h-4 w-4" />
         Definir Localização
       </Button>
-      
+
       <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
         Clique no mapa para selecionar manualmente ou insira as coordenadas acima.
       </p>
