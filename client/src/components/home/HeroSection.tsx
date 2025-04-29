@@ -46,12 +46,30 @@ const HeroSection = () => {
               <div className="mt-auto mb-6 md:mb-10">
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Link href="#areas">
-                    <button className="bg-white text-green-700 font-semibold px-6 py-3 rounded-md hover:bg-neutral-100 transition-colors">
+                    <button 
+                      className="bg-white text-green-700 font-semibold px-6 py-3 rounded-md hover:bg-neutral-100 transition-colors"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const areasSection = document.getElementById('areas');
+                        if (areasSection) {
+                          areasSection.scrollIntoView({ behavior: 'smooth' });
+                        }
+                      }}
+                    >
                       Explorar áreas
                     </button>
                   </Link>
                   <Link href="#estatisticas">
-                    <button className="bg-white/20 text-white font-semibold px-6 py-3 rounded-md hover:bg-white/30 transition-colors">
+                    <button 
+                      className="bg-white/20 text-white font-semibold px-6 py-3 rounded-md hover:bg-white/30 transition-colors"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const statsSection = document.getElementById('estatisticas');
+                        if (statsSection) {
+                          statsSection.scrollIntoView({ behavior: 'smooth' });
+                        }
+                      }}
+                    >
                       Ver estatísticas
                     </button>
                   </Link>

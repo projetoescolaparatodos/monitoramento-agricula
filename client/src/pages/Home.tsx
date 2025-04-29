@@ -11,7 +11,10 @@ import BackgroundVideo from "@/components/ui/BackgroundVideo";
 const AreasSection = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <Link href="/agriculture" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
+      <Link href="/agriculture" onClick={(e) => {
+        e.preventDefault();
+        window.location.href = "/agriculture";
+      }}>
         <div className="relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer group">
           <div className="absolute -top-3 -right-3 w-12 h-12 bg-primary/10 rounded-full transform group-hover:scale-110 transition-transform"></div>
           <div className="absolute -top-5 -right-5 w-16 h-16 flex items-center justify-center">
@@ -21,7 +24,10 @@ const AreasSection = () => {
           <p className="text-gray-600">Informações sobre agricultura e produção rural</p>
         </div>
       </Link>
-      <Link href="/fishing" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
+      <Link href="/fishing" onClick={(e) => {
+        e.preventDefault();
+        window.location.href = "/fishing";
+      }}>
         <div className="relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer group">
           <div className="absolute -top-4 -right-4 w-16 h-16 bg-primary/10 rounded-full transform group-hover:scale-110 transition-transform"></div>
           <div className="absolute -top-5 -right-5 w-16 h-16 flex items-center justify-center">
@@ -31,7 +37,10 @@ const AreasSection = () => {
           <p className="text-gray-600">Dados sobre pesca e atividades pesqueiras</p>
         </div>
       </Link>
-      <Link href="/paa" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
+      <Link href="/paa" onClick={(e) => {
+        e.preventDefault();
+        window.location.href = "/paa";
+      }}>
         <div className="relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer group">
           <div className="absolute -top-4 -right-4 w-16 h-16 bg-primary/10 rounded-full transform group-hover:scale-110 transition-transform"></div>
           <div className="absolute -top-5 -right-5 w-16 h-16 flex items-center justify-center">
