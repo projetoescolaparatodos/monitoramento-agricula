@@ -40,6 +40,20 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
     'home': 'Home'
   }[item.pageType] || 'Geral';
 
+  // Se a mídia for da página Home, não há necessidade de link/redirecionamento
+  const isHomePage = item.pageType === 'home';
+  
+  // Renderização condicional baseada na origem da mídia
+  const CardContent = () => (
+    <Card className="overflow-hidden bg-white/90 dark:bg-zinc-800/90 rounded-xl shadow-md cursor-pointer hover:shadow-lg transition-transform hover:scale-105 h-full flex flex-col">
+  );
+  
+  // Se for da página home, apenas renderiza o card sem link
+  if (isHomePage) {
+    return <CardContent />;
+  }
+  
+  // Caso contrário, mantém o comportamento anterior com redirecionamento
   return (
     <Link href={getDestinationPage(item.pageType)} onClick={(e) => {
                       // Previne o comportamento padrão
@@ -48,7 +62,7 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
                       // Navega para a página e rola até a seção de mídia
                       window.location.href = `/${item.pageType}#media`;
                     }}>
-      <Card className="overflow-hidden bg-white/90 dark:bg-zinc-800/90 rounded-xl shadow-md cursor-pointer hover:shadow-lg transition-transform hover:scale-105 h-full flex flex-col">
+      <CardContent />
         <div className="w-full h-60 relative overflow-hidden">
           {isYouTubeVideo ? (
             <iframe
@@ -110,6 +124,9 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
       </Card>
     </Link>
   );
+  
+  // Fechamento da função CardContent
+  };
 };
 
 const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ variant = "default" }) => {
