@@ -8,6 +8,7 @@ import {
   doc,
   deleteDoc,
 } from "firebase/firestore";
+import IconSelector from "@/components/admin/IconSelector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -319,6 +320,28 @@ const AgriculturaForm = () => {
           <div
             id="admin-map-agricultura"
             className="w-full h-[400px] mb-8 rounded-lg overflow-hidden"
+          />
+          
+          {/* Componente de seleção de coordenadas */}
+          <IconSelector 
+            onLocationSelect={(lat, lng) => {
+              setLatitude(lat);
+              setLongitude(lng);
+              
+              // Limpa marcadores anteriores e adiciona um novo no mapa
+              const mapInstance = L.map("admin-map-agricultura");
+              mapInstance.eachLayer((layer) => {
+                if (layer instanceof L.Marker) {
+                  mapInstance.removeLayer(layer);
+                }
+              });
+              
+              // Adiciona novo marcador e centraliza o mapa
+              L.marker([lat, lng]).addTo(mapInstance);
+              mapInstance.setView([lat, lng], 15);
+            }}
+            initialLatitude={latitude}
+            initialLongitude={longitude}
           />
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -785,6 +808,28 @@ const PescaForm = () => {
           <div
             id="admin-map-pesca"
             className="w-full h-[400px] mb-8 rounded-lg overflow-hidden"
+          />
+
+          {/* Componente de seleção de coordenadas para Pesca */}
+          <IconSelector 
+            onLocationSelect={(lat, lng) => {
+              setLatitude(lat);
+              setLongitude(lng);
+              
+              // Limpa marcadores anteriores e adiciona um novo no mapa
+              const mapInstance = L.map("admin-map-pesca");
+              mapInstance.eachLayer((layer) => {
+                if (layer instanceof L.Marker) {
+                  mapInstance.removeLayer(layer);
+                }
+              });
+              
+              // Adiciona novo marcador e centraliza o mapa
+              L.marker([lat, lng]).addTo(mapInstance);
+              mapInstance.setView([lat, lng], 15);
+            }}
+            initialLatitude={latitude}
+            initialLongitude={longitude}
           />
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -1273,6 +1318,28 @@ const PAAForm = () => {
           <div
             id="admin-map-paa"
             className="w-full h-[400px] mb-8 rounded-lg overflow-hidden"
+          />
+
+          {/* Componente de seleção de coordenadas para PAA */}
+          <IconSelector 
+            onLocationSelect={(lat, lng) => {
+              setLatitude(lat);
+              setLongitude(lng);
+              
+              // Limpa marcadores anteriores e adiciona um novo no mapa
+              const mapInstance = L.map("admin-map-paa");
+              mapInstance.eachLayer((layer) => {
+                if (layer instanceof L.Marker) {
+                  mapInstance.removeLayer(layer);
+                }
+              });
+              
+              // Adiciona novo marcador e centraliza o mapa
+              L.marker([lat, lng]).addTo(mapInstance);
+              mapInstance.setView([lat, lng], 15);
+            }}
+            initialLatitude={latitude}
+            initialLongitude={longitude}
           />
 
           <form onSubmit={handleSubmit} className="space-y-4">
