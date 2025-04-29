@@ -119,7 +119,7 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
             Voltar para lista
           </button>
         )}
-        
+
         {activePanels.map((panel) => (
           <motion.button
             key={panel.categoryId}

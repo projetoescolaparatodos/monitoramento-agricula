@@ -68,6 +68,13 @@ export const defaultKeywordMap: KeywordMap = {
     action: "fluxoPAA",
     score: 3
   },
+  "laticínios": {
+    responses: [
+      "O PAA não aceita laticínios. O programa aceita apenas produtos hortifruti, grãos e outros alimentos in natura.",
+      "Infelizmente, produtos lácteos não são aceitos no PAA. O programa trabalha prioritariamente com hortifruti e grãos."
+    ],
+    score: 4
+  },
   "cadastrar no paa": {
     responses: [
       "Para se cadastrar no PAA quando as vagas forem abertas, você precisará de: RG e CPF, Comprovante de residência, CAF (Cadastro da Agricultura Familiar), CadÚnico atualizado e Cadastro na SEFA (para emissão de notas fiscais).",
@@ -89,8 +96,8 @@ export const defaultKeywordMap: KeywordMap = {
   },
   "pagamento paa": {
     responses: [
-      "O governo federal abre uma conta no Banco do Brasil para cada produtor aprovado no PAA. Você receberá um cartão para saques e o valor correspondente às suas vendas. Todo o processo é feito diretamente com o governo, sem intermediários da prefeitura.",
-      "No PAA, você receberá o pagamento diretamente em uma conta do Banco do Brasil aberta pelo governo federal."
+      "O governo federal abre uma conta no Banco do Brasil para cada produtor aprovado no PAA. Você receberá um cartão para saques e o valor correspondente às suas vendas em até 15 dias após a entrega. Todo o processo é feito diretamente com o governo, sem intermediários da prefeitura.",
+      "No PAA, você receberá o pagamento diretamente em uma conta do Banco do Brasil aberta pelo governo federal. O prazo para recebimento é de até 15 dias após a entrega dos produtos."
     ],
     score: 4
   },
