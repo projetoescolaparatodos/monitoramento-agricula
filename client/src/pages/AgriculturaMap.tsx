@@ -131,6 +131,14 @@ const AgriculturaMap = () => {
       const querySnapshot = await getDocs(collection(db, "tratores"));
       const tratoresData = querySnapshot.docs.map((doc) => {
         const data = doc.data();
+        // Garantir que areaTrabalhada seja sempre um número
+        let areaTrabalhada = undefined;
+        if (data.areaTrabalhada !== undefined && data.areaTrabalhada !== null) {
+          areaTrabalhada = typeof data.areaTrabalhada === 'number' 
+            ? data.areaTrabalhada 
+            : parseFloat(data.areaTrabalhada);
+        }
+        
         return {
           id: doc.id,
           nome: data.nome,
@@ -142,7 +150,7 @@ const AgriculturaMap = () => {
           latitude: data.latitude,
           longitude: data.longitude,
           tempoAtividade: data.tempoAtividade,
-          areaTrabalhada: data.areaTrabalhada ? parseFloat(data.areaTrabalhada) : undefined, //Parse areaTrabalhada to a number
+          areaTrabalhada: areaTrabalhada, // Valor já tratado
           midias: data.midias,
           localidade: data.localidade,
           proprietario: data.proprietario,
@@ -238,7 +246,7 @@ const AgriculturaMap = () => {
                 </p>
                 <p>
                   <strong>Área para mecanização:</strong>{" "}
-                  {trator.areaTrabalhada ? (trator.areaTrabalhada / 10000).toFixed(2) : "-"} ha
+                  {typeof trator.areaTrabalhada === 'number' ? (trator.areaTrabalhada / 10000).toFixed(2) : "-"} ha
                 </p>
                 <p>
                   <strong>Operador:</strong> {trator.piloto}
