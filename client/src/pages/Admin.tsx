@@ -341,7 +341,7 @@ const AgriculturaForm = () => {
 
               if (mapInstance) {
                 console.log("Instância do mapa encontrada, atualizando...");
-                
+
                 // Usa a função utilitária para adicionar o marcador de forma segura
                 addMarkerToMap(mapInstance, lat, lng, true);
               } else {
@@ -841,7 +841,7 @@ const PescaForm = () => {
 
               if (mapInstance) {
                 console.log("Instância do mapa encontrada, atualizando...");
-                
+
                 // Usa a função utilitária para adicionar o marcador de forma segura
                 addMarkerToMap(mapInstance, lat, lng, true);
               } else {
@@ -928,7 +928,7 @@ const PescaForm = () => {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y2">
                 <Label htmlFor="metodoAlimentacao">Método de Alimentação</Label>
                 <Input
                   id="metodoAlimentacao"
@@ -1363,7 +1363,7 @@ const PAAForm = () => {
 
               if (mapInstance) {
                 console.log("Instância do mapa encontrada, atualizando...");
-                
+
                 // Usa a função utilitária para adicionar o marcador de forma segura
                 addMarkerToMap(mapInstance, lat, lng, true);
               } else {
