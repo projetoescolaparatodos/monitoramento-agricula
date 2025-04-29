@@ -16,6 +16,21 @@ import InteractivePanel from "@/components/paa/InteractivePanel";
 import FishingTabButton from "@/components/common/FishingTabButton";
 
 const Fishing = () => {
+  // Detectar e rolar para âncoras na URL quando a página carrega
+  React.useEffect(() => {
+    // Verificar se há um hash na URL
+    if (window.location.hash) {
+      const id = window.location.hash.substring(1); // remover o caractere #
+      const element = document.getElementById(id);
+      if (element) {
+        // Adicionar pequeno atraso para garantir que a página carregou completamente
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
+      }
+    }
+  }, []);
+
   const { data: pescaData } = useQuery({
     queryKey: ["pesca"],
     queryFn: () =>

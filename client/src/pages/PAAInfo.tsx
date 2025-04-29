@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/utils/firebase";
 import { useQuery } from "@tanstack/react-query";
@@ -78,6 +78,21 @@ const PAAInfo = () => {
         snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
       ),
   });
+
+  // Detectar e rolar para âncoras na URL quando a página carrega
+  useEffect(() => {
+    // Verificar se há um hash na URL
+    if (window.location.hash) {
+      const id = window.location.hash.substring(1); // remover o caractere #
+      const element = document.getElementById(id);
+      if (element) {
+        // Adicionar pequeno atraso para garantir que a página carregou completamente
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
+      }
+    }
+  }, []);
 
   return (
     <>
