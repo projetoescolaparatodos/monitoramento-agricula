@@ -328,17 +328,26 @@ const AgriculturaForm = () => {
               setLatitude(lat);
               setLongitude(lng);
               
-              // Limpa marcadores anteriores e adiciona um novo no mapa
-              const mapInstance = L.map("admin-map-agricultura");
-              mapInstance.eachLayer((layer) => {
-                if (layer instanceof L.Marker) {
-                  mapInstance.removeLayer(layer);
+              // Localiza o mapa já inicializado no DOM
+              const mapElements = document.querySelectorAll('.leaflet-container');
+              if (mapElements.length > 0) {
+                // Encontra a instância do mapa no contexto atual
+                const mapInstance = L.DomUtil.get("admin-map-agricultura")?._leaflet_id ? 
+                  L.Map.getMap("admin-map-agricultura") : null;
+                
+                if (mapInstance) {
+                  // Limpa marcadores anteriores
+                  mapInstance.eachLayer((layer) => {
+                    if (layer instanceof L.Marker) {
+                      mapInstance.removeLayer(layer);
+                    }
+                  });
+                  
+                  // Adiciona novo marcador e centraliza o mapa
+                  L.marker([lat, lng]).addTo(mapInstance);
+                  mapInstance.setView([lat, lng], 15);
                 }
-              });
-              
-              // Adiciona novo marcador e centraliza o mapa
-              L.marker([lat, lng]).addTo(mapInstance);
-              mapInstance.setView([lat, lng], 15);
+              }
             }}
             initialLatitude={latitude}
             initialLongitude={longitude}
@@ -816,17 +825,26 @@ const PescaForm = () => {
               setLatitude(lat);
               setLongitude(lng);
               
-              // Limpa marcadores anteriores e adiciona um novo no mapa
-              const mapInstance = L.map("admin-map-pesca");
-              mapInstance.eachLayer((layer) => {
-                if (layer instanceof L.Marker) {
-                  mapInstance.removeLayer(layer);
+              // Localiza o mapa já inicializado no DOM
+              const mapElements = document.querySelectorAll('.leaflet-container');
+              if (mapElements.length > 0) {
+                // Encontra a instância do mapa no contexto atual
+                const mapInstance = L.DomUtil.get("admin-map-pesca")?._leaflet_id ? 
+                  L.Map.getMap("admin-map-pesca") : null;
+                
+                if (mapInstance) {
+                  // Limpa marcadores anteriores
+                  mapInstance.eachLayer((layer) => {
+                    if (layer instanceof L.Marker) {
+                      mapInstance.removeLayer(layer);
+                    }
+                  });
+                  
+                  // Adiciona novo marcador e centraliza o mapa
+                  L.marker([lat, lng]).addTo(mapInstance);
+                  mapInstance.setView([lat, lng], 15);
                 }
-              });
-              
-              // Adiciona novo marcador e centraliza o mapa
-              L.marker([lat, lng]).addTo(mapInstance);
-              mapInstance.setView([lat, lng], 15);
+              }
             }}
             initialLatitude={latitude}
             initialLongitude={longitude}
@@ -1326,17 +1344,26 @@ const PAAForm = () => {
               setLatitude(lat);
               setLongitude(lng);
               
-              // Limpa marcadores anteriores e adiciona um novo no mapa
-              const mapInstance = L.map("admin-map-paa");
-              mapInstance.eachLayer((layer) => {
-                if (layer instanceof L.Marker) {
-                  mapInstance.removeLayer(layer);
+              // Localiza o mapa já inicializado no DOM
+              const mapElements = document.querySelectorAll('.leaflet-container');
+              if (mapElements.length > 0) {
+                // Encontra a instância do mapa no contexto atual
+                const mapInstance = L.DomUtil.get("admin-map-paa")?._leaflet_id ? 
+                  L.Map.getMap("admin-map-paa") : null;
+                
+                if (mapInstance) {
+                  // Limpa marcadores anteriores
+                  mapInstance.eachLayer((layer) => {
+                    if (layer instanceof L.Marker) {
+                      mapInstance.removeLayer(layer);
+                    }
+                  });
+                  
+                  // Adiciona novo marcador e centraliza o mapa
+                  L.marker([lat, lng]).addTo(mapInstance);
+                  mapInstance.setView([lat, lng], 15);
                 }
-              });
-              
-              // Adiciona novo marcador e centraliza o mapa
-              L.marker([lat, lng]).addTo(mapInstance);
-              mapInstance.setView([lat, lng], 15);
+              }
             }}
             initialLatitude={latitude}
             initialLongitude={longitude}

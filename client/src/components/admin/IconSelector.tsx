@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,64 +7,65 @@ import { Map, MapPin } from "lucide-react";
 
 interface IconSelectorProps {
   onLocationSelect: (lat: number, lng: number) => void;
-  initialLatitude?: number | null;
-  initialLongitude?: number | null;
+  initialLatitude: number | null;
+  initialLongitude: number | null;
 }
 
-const IconSelector = ({ onLocationSelect, initialLatitude, initialLongitude }: IconSelectorProps) => {
+const IconSelector: React.FC<IconSelectorProps> = ({ 
+  onLocationSelect, 
+  initialLatitude, 
+  initialLongitude 
+}) => {
   const [latitude, setLatitude] = useState<string>(initialLatitude?.toString() || '');
   const [longitude, setLongitude] = useState<string>(initialLongitude?.toString() || '');
-  const [error, setError] = useState<string | null>(null);
+
+  // Atualizar os campos quando os valores iniciais mudarem
+  useEffect(() => {
+    if (initialLatitude !== null) {
+      setLatitude(initialLatitude.toString());
+    }
+    if (initialLongitude !== null) {
+      setLongitude(initialLongitude.toString());
+    }
+  }, [initialLatitude, initialLongitude]);
 
   const handleSetLocation = () => {
-    // Validar se os campos de latitude e longitude estão preenchidos e são válidos
-    if (!latitude || !longitude) {
-      setError("Preencha a latitude e longitude");
-      return;
-    }
-
     const lat = parseFloat(latitude);
     const lng = parseFloat(longitude);
-
-    if (isNaN(lat) || isNaN(lng)) {
-      setError("Valores de latitude e longitude inválidos");
-      return;
+    
+    if (!isNaN(lat) && !isNaN(lng)) {
+      // Validar latitude (-90 a 90)
+      if (lat < -90 || lat > 90) {
+        alert("Latitude deve estar entre -90 e 90");
+        return;
+      }
+      
+      // Validar longitude (-180 a 180)
+      if (lng < -180 || lng > 180) {
+        alert("Longitude deve estar entre -180 e 180");
+        return;
+      }
+      
+      onLocationSelect(lat, lng);
+    } else {
+      alert("Por favor, insira coordenadas válidas");
     }
-
-    // Validar os limites da latitude e longitude
-    if (lat < -90 || lat > 90) {
-      setError("Latitude deve estar entre -90 e 90");
-      return;
-    }
-
-    if (lng < -180 || lng > 180) {
-      setError("Longitude deve estar entre -180 e 180");
-      return;
-    }
-
-    setError(null);
-    onLocationSelect(lat, lng);
   };
 
   return (
-    <div className="border rounded-lg p-4 mb-4 space-y-3">
-      <h3 className="text-md font-medium mb-2 flex items-center">
-        <MapPin className="mr-2 h-5 w-5" />
-        Adicionar por Coordenadas
-      </h3>
-      
+    <div className="space-y-4 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+      <h3 className="text-md font-medium">Definir Localização por Coordenadas</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="latitude">Latitude</Label>
           <Input
             id="latitude"
             type="text"
-            placeholder="-2.87922"
+            placeholder="-2.8792"
             value={latitude}
             onChange={(e) => setLatitude(e.target.value)}
           />
         </div>
-        
         <div className="space-y-2">
           <Label htmlFor="longitude">Longitude</Label>
           <Input
@@ -76,20 +77,17 @@ const IconSelector = ({ onLocationSelect, initialLatitude, initialLongitude }: I
           />
         </div>
       </div>
-      
-      {error && (
-        <div className="text-red-500 text-sm mt-1">{error}</div>
-      )}
-      
       <Button 
         type="button" 
         onClick={handleSetLocation}
-        className="w-full"
-        variant="outline"
+        className="w-full flex items-center justify-center"
       >
-        <Map className="mr-2 h-4 w-4" />
+        <MapPin className="mr-2 h-4 w-4" />
         Definir Localização
       </Button>
+      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+        Clique no mapa para selecionar manualmente ou insira as coordenadas acima.
+      </p>
     </div>
   );
 };
