@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/home/HeroSection";
 import StatisticsSection from "@/components/home/StatisticsSection";
@@ -55,28 +55,7 @@ const AreasSection = () => {
 };
 
 const Home = () => {
-  return (
-    <>
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute min-w-full min-h-full object-cover"
-          style={{ opacity: 0.4 }}
-        >
-          <source src="/videos/BackgroundVideo.mp4" type="video/mp4" />
-          Seu navegador não suporta vídeos HTML5.
-        </video>
-        <div className="absolute top-0 left-0 w-full h-full bg-black opacity-60" />
-      </div>
-      <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
-        <HeroSection />
-        <section id="estatisticas" className="py-12">
-          <h2 className="text-3xl font-bold text-center mb-8 text-white">Estatísticas Principais</h2>
-          <StatisticsSection variant="transparent" />
-        </section>
+  const [, setLocation] = useLocation();
 
   // Função para lidar com a rolagem para a seção de mídia
   const scrollToMedia = (pageType: string) => {
@@ -101,6 +80,28 @@ const Home = () => {
     }, 300);
   };
 
+  return (
+    <>
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute min-w-full min-h-full object-cover"
+          style={{ opacity: 0.4 }}
+        >
+          <source src="/videos/BackgroundVideo.mp4" type="video/mp4" />
+          Seu navegador não suporta vídeos HTML5.
+        </video>
+        <div className="absolute top-0 left-0 w-full h-full bg-black opacity-60" />
+      </div>
+      <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
+        <HeroSection />
+        <section id="estatisticas" className="py-12">
+          <h2 className="text-3xl font-bold text-center mb-8 text-white">Estatísticas Principais</h2>
+          <StatisticsSection variant="transparent" />
+        </section>
         <section id="areas" className="py-12">
           <h2 className="text-3xl font-bold text-center mb-8 text-white">Áreas de Atuação</h2>
           <AreasSection />
