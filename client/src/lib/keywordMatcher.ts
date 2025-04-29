@@ -136,6 +136,21 @@ export const defaultKeywordMap: KeywordMap = {
     ],
     score: 4
   },
+  "participar do paa": {
+    responses: [
+      "No momento, não há vagas disponíveis para o PAA. As inscrições estão temporariamente suspensas. Assim que novas vagas forem abertas, divulgaremos aqui e nos canais oficiais da prefeitura.",
+      "Atualmente, o PAA está com inscrições encerradas. Para participar quando houver vagas, você precisará: ser agricultor familiar, possuir CAF (Cadastro da Agricultura Familiar) ativa, estar com o CadÚnico atualizado e ter conta na SEFA para emissão de notas fiscais.",
+      "O PAA não está recebendo novos cadastros no momento. Quando as inscrições reabrirem, você precisará ter: documentos pessoais (RG e CPF), comprovante de residência, CAF ativa, CadÚnico atualizado e cadastro na SEFA para emissão de notas fiscais."
+    ],
+    score: 4
+  },
+  "vagas paa": {
+    responses: [
+      "No momento, não há vagas disponíveis para o PAA. As inscrições estão temporariamente suspensas. Fique atento aos canais oficiais da prefeitura para saber quando novas vagas serão abertas.",
+      "Atualmente, o Programa de Aquisição de Alimentos está com inscrições encerradas. Novas vagas serão anunciadas através dos canais oficiais assim que estiverem disponíveis."
+    ],
+    score: 4
+  },
 
   // Genéricos
   "horário de atendimento": {

@@ -1676,20 +1676,23 @@ const ChatbotWidget: React.FC = () => {
                       <li>Limite anual de R$ 15.000,00 por produtor</li>
                       <li>Coleta dos produtos na sua propriedade</li>
                     </ul>
-                    
-                    <div className="mt-3 p-2 bg-white rounded-md border border-amber-200">
-                      <h5 className="font-medium text-amber-800 mb-1">
-                        Documentos necessários:
-                      </h5>
-                      <ul className="list-disc pl-5 space-y-1">
-                        <li>RG e CPF</li>
-                        <li>Comprovante de residência</li>
-                        <li>CAF (Cadastro da Agricultura Familiar) ativo</li>
-                        <li>CadÚnico atualizado</li>
-                        <li>Cadastro na SEFA (para emissão de notas fiscais)</li>
-                      </ul>
+
+                    <div className="mt-4 p-3 rounded-md bg-red-100 border border-red-300">
+                      <div className="flex items-center justify-between mb-1">
+                        <h5 className="font-bold text-red-800">
+                          Status do Programa:
+                        </h5>
+                        <span className="px-2 py-1 text-xs bg-red-500 text-white rounded-full font-medium">
+                          Sem vagas
+                        </span>
+                      </div>
+                      <p className="text-xs text-red-800">
+                        Atualmente o PAA está com inscrições encerradas. Quando novas vagas forem abertas, 
+                        você será notificado aqui. O programa atende agricultores familiares com CAF ativa 
+                        e CadÚnico atualizado.
+                      </p>
                     </div>
-                    
+
                     <div className="mt-2 p-2 bg-white rounded-md border border-amber-200">
                       <h5 className="font-medium text-amber-800 mb-1">
                         Como funciona:
@@ -1716,8 +1719,9 @@ const ChatbotWidget: React.FC = () => {
                   }}
                 >
                   <Button
-                    onClick={() => abrirFormulario("paa")}
-                    className="w-full bg-amber-600 hover:bg-amber-700"
+                    disabled={true}
+                    className="w-full bg-gray-400 cursor-not-allowed opacity-70"
+                    title="Inscrições temporariamente indisponíveis"
                   >
                     Participar do PAA
                   </Button>
