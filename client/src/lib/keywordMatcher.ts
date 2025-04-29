@@ -62,11 +62,72 @@ export const defaultKeywordMap: KeywordMap = {
   // PAA
   "vender para o governo": {
     responses: [
-      "Através do PAA, você pode vender seus produtos diretamente para instituições públicas.",
+      "Através do PAA, você pode vender seus produtos diretamente para instituições públicas até o limite anual de R$ 15.000,00 por produtor.",
       "O Programa de Aquisição de Alimentos (PAA) garante preços justos para agricultores familiares."
     ],
     action: "fluxoPAA",
     score: 3
+  },
+  "cadastrar no paa": {
+    responses: [
+      "Para se cadastrar no PAA quando as vagas forem abertas, você precisará de: RG e CPF, Comprovante de residência, CAF (Cadastro da Agricultura Familiar), CadÚnico atualizado e Cadastro na SEFA (para emissão de notas fiscais).",
+      "Para participar do PAA, é necessário ter documentos como CAF, CadÚnico atualizado e cadastro na SEFA para emissão de notas fiscais."
+    ],
+    action: "fluxoPAA",
+    score: 4
+  },
+  "documentos paa": {
+    responses: [
+      "Para o PAA, você precisará de: RG e CPF, Comprovante de residência, CAF (Cadastro da Agricultura Familiar), CadÚnico atualizado e Cadastro na SEFA (para emissão de notas fiscais).",
+      "O cadastro no PAA exige documentos pessoais, CAF, CadÚnico e cadastro na SEFA."
+    ],
+    suggestions: [
+      { text: "Como obter o CAF?", action: "Como obter o CAF?" },
+      { text: "Como atualizar CadÚnico?", action: "Como atualizar CadÚnico?" }
+    ],
+    score: 4
+  },
+  "pagamento paa": {
+    responses: [
+      "O governo federal abre uma conta no Banco do Brasil para cada produtor aprovado no PAA. Você receberá um cartão para saques e o valor correspondente às suas vendas. Todo o processo é feito diretamente com o governo, sem intermediários da prefeitura.",
+      "No PAA, você receberá o pagamento diretamente em uma conta do Banco do Brasil aberta pelo governo federal."
+    ],
+    score: 4
+  },
+  "entrega produtos paa": {
+    responses: [
+      "A equipe do PAA vai até sua propriedade semanalmente para fazer a pesagem dos produtos, verificar a qualidade, preencher a documentação e transportar os alimentos, sem nenhum custo para você.",
+      "No PAA, você não precisa se preocupar com o transporte. A equipe vai até sua propriedade para coletar os produtos."
+    ],
+    score: 4
+  },
+  "destino alimentos": {
+    responses: [
+      "Os alimentos do PAA ajudam diretamente o CRAS e outras entidades cadastradas, pessoas em vulnerabilidade alimentar e instituições que atendem comunidades carentes.",
+      "Seu trabalho no PAA faz a diferença na vida de muitas famílias em situação de vulnerabilidade."
+    ],
+    score: 3
+  },
+  "cadunico": {
+    responses: [
+      "A equipe da assistência social do PAA pode te ajudar a atualizar o CadÚnico, agendando atendimento no CRAS mais próximo, listando os documentos necessários e acompanhando o processo.",
+      "Para atualizar o CadÚnico, procure o CRAS mais próximo ou peça ajuda à equipe de assistência social do PAA."
+    ],
+    score: 3
+  },
+  "caf": {
+    responses: [
+      "O CAF (Cadastro da Agricultura Familiar) é emitido na EMATER de Vitória do Xingu. Você precisará levar documentos pessoais de todos da família, comprovante de residência, documentos da propriedade e imposto de renda ou notas fiscais de vendas.",
+      "Para obter o CAF, dirija-se à EMATER com seus documentos pessoais, de residência e da propriedade."
+    ],
+    score: 3
+  },
+  "limite vendas paa": {
+    responses: [
+      "Atualmente o limite anual por produtor no PAA é de R$ 15.000,00. Quando você atingir este valor, seu cadastro será pausado automaticamente, receberá avisos quando estiver próximo do limite e poderá voltar a vender quando houver nova atualização.",
+      "O PAA tem um limite anual de R$ 15.000,00 por produtor. Ao atingir este valor, seu cadastro é pausado."
+    ],
+    score: 4
   },
 
   // Genéricos

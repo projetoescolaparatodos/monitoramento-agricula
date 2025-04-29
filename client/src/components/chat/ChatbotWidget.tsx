@@ -99,12 +99,16 @@ const fluxoConversa = {
       "- Apoio à comercialização",
       "- Acesso a mercados",
       "- Preços justos e garantidos",
+      "- Limite anual de R$ 15.000,00 por produtor",
       "Deseja Mais Informações ou Participar do PAA?",
     ],
     acoes: {
       "Participar do PAA":
         "No momento não há vagas para o PAA, pois depende do orçamento disposto pelo Governo Federal",
       "Mais Informações": "detalhesPAA",
+      "Documentos Necessários": "documentosPAA",
+      "Como Funciona o Pagamento": "pagamentoPAA",
+      "Entrega dos Produtos": "entregaPAA",
     },
   },
   fluxoSecretaria: {
@@ -166,16 +170,133 @@ const fluxoConversa = {
   detalhesPAA: {
     informativo: [
       "📋 Detalhes do Programa de Aquisição de Alimentos:",
-      "1. Como Participar: Ser agricultor familiar com DAP/CAF ativa",
+      "1. Como Participar: Ser agricultor familiar com CAF ativa e CadÚnico atualizado",
       "2. Produtos Aceitos: Hortifruti, grãos, laticínios, etc.",
       "3. Preços: Baseados na tabela da CONAB atualizada",
-      "4. Entregas: Cronograma semanal em pontos específicos",
-      "5. Pagamentos: Em até 30 dias após entrega",
+      "4. Entregas: A equipe do PAA vai até sua propriedade semanalmente",
+      "5. Pagamentos: Direto em conta do Banco do Brasil aberta pelo governo federal",
+      "6. Limite: R$ 15.000,00 por produtor anualmente",
+      "7. Destino: CRAS e outras entidades que atendem pessoas em vulnerabilidade",
       "Deseja [Participar do PAA] ou tem mais alguma dúvida?",
     ],
     acoes: {
       "Participar do PAA": "abrirFormulario('paa')",
+      "Documentos Necessários": "documentosPAA",
+      "Sobre o Pagamento": "pagamentoPAA",
+      "Sobre as Entregas": "entregaPAA",
+      "Destino dos Alimentos": "destinoAlimentosPAA",
       Voltar: "fluxoPAA",
+    },
+  },
+  documentosPAA: {
+    informativo: [
+      "📋 Documentos necessários para participar do PAA:",
+      "- RG e CPF (do titular)",
+      "- Comprovante de residência",
+      "- CAF (Cadastro da Agricultura Familiar) ativo",
+      "- CadÚnico atualizado",
+      "- Cadastro na SEFA (para emissão de notas fiscais)",
+      "",
+      "Precisa de ajuda para obter algum desses documentos?",
+    ],
+    acoes: {
+      "Como obter o CAF": "obterCAF",
+      "Como atualizar o CadÚnico": "atualizarCadUnico",
+      "Voltar ao menu do PAA": "fluxoPAA",
+    },
+  },
+  obterCAF: {
+    informativo: [
+      "📄 Como obter o CAF (Cadastro da Agricultura Familiar):",
+      "",
+      "O CAF é emitido na EMATER de Vitória do Xingu. Você precisará levar:",
+      "- Documentos pessoais de todos da família",
+      "- Comprovante de residência",
+      "- Documentos da propriedade",
+      "- Imposto de renda ou notas fiscais de vendas (se houver)",
+      "",
+      "O CAF substitui a antiga DAP e é essencial para acessar políticas públicas para agricultura familiar.",
+    ],
+    acoes: {
+      "Voltar aos documentos": "documentosPAA",
+      "Menu principal do PAA": "fluxoPAA",
+    },
+  },
+  atualizarCadUnico: {
+    informativo: [
+      "📄 Como atualizar o CadÚnico:",
+      "",
+      "A equipe da assistência social do PAA pode te ajudar:",
+      "- Agendando atendimento no CRAS mais próximo",
+      "- Listando os documentos necessários",
+      "- Acompanhando o processo",
+      "",
+      "O CadÚnico precisa estar atualizado para participar do PAA.",
+    ],
+    acoes: {
+      "Voltar aos documentos": "documentosPAA",
+      "Menu principal do PAA": "fluxoPAA",
+    },
+  },
+  pagamentoPAA: {
+    informativo: [
+      "💰 Sobre o pagamento no PAA:",
+      "",
+      "O governo federal abre uma conta no Banco do Brasil para cada produtor aprovado. Você receberá:",
+      "- Um cartão para saques",
+      "- O valor correspondente às suas vendas",
+      "",
+      "Importante: Todo o processo é feito diretamente com o governo, sem intermediários da prefeitura.",
+    ],
+    acoes: {
+      "Sobre o limite de vendas": "limiteVendasPAA",
+      "Voltar ao menu do PAA": "fluxoPAA",
+    },
+  },
+  limiteVendasPAA: {
+    informativo: [
+      "💵 Limite de vendas no PAA:",
+      "",
+      "Atualmente o limite anual por produtor é de R$ 15.000,00. Quando você atingir:",
+      "- Seu cadastro será pausado automaticamente",
+      "- Receberá avisos quando estiver próximo do limite",
+      "- Poderá voltar a vender quando houver nova atualização",
+    ],
+    acoes: {
+      "Voltar ao pagamento": "pagamentoPAA",
+      "Menu principal do PAA": "fluxoPAA",
+    },
+  },
+  entregaPAA: {
+    informativo: [
+      "🚚 Sobre a entrega dos produtos:",
+      "",
+      "A equipe do PAA vai até sua propriedade semanalmente para:",
+      "- Fazer a pesagem dos produtos",
+      "- Verificar a qualidade",
+      "- Preencher a documentação",
+      "- Transportar os alimentos",
+      "",
+      "Tudo isso sem nenhum custo para você!",
+    ],
+    acoes: {
+      "Destino dos alimentos": "destinoAlimentosPAA",
+      "Voltar ao menu do PAA": "fluxoPAA",
+    },
+  },
+  destinoAlimentosPAA: {
+    informativo: [
+      "🏫 Para onde vão os alimentos do PAA:",
+      "",
+      "Seus alimentos ajudam diretamente:",
+      "- CRAS e outras entidades cadastradas",
+      "- Pessoas em vulnerabilidade alimentar",
+      "- Instituições que atendem comunidades carentes",
+      "",
+      "Seu trabalho está fazendo a diferença na vida de muitas famílias! ❤️",
+    ],
+    acoes: {
+      "Voltar ao menu do PAA": "fluxoPAA",
     },
   },
   contatoSecretario: {
@@ -1543,7 +1664,7 @@ const ChatbotWidget: React.FC = () => {
                   <h4 className="font-semibold text-amber-800 mb-2">
                     Programa de Aquisição de Alimentos
                   </h4>
-                  <div className="space-y-1 text-sm">
+                  <div className="space-y-2 text-sm">
                     <p>O PAA oferece:</p>
                     <ul className="list-disc pl-5 space-y-1">
                       <li>
@@ -1552,10 +1673,34 @@ const ChatbotWidget: React.FC = () => {
                       <li>Apoio à comercialização</li>
                       <li>Acesso a mercados</li>
                       <li>Preços justos e garantidos</li>
+                      <li>Limite anual de R$ 15.000,00 por produtor</li>
+                      <li>Coleta dos produtos na sua propriedade</li>
                     </ul>
-                    <p className="text-gray-600 text-xs">
-                      Requisitos: Ser agricultor familiar com DAP/CAF ativa
-                    </p>
+                    
+                    <div className="mt-3 p-2 bg-white rounded-md border border-amber-200">
+                      <h5 className="font-medium text-amber-800 mb-1">
+                        Documentos necessários:
+                      </h5>
+                      <ul className="list-disc pl-5 space-y-1">
+                        <li>RG e CPF</li>
+                        <li>Comprovante de residência</li>
+                        <li>CAF (Cadastro da Agricultura Familiar) ativo</li>
+                        <li>CadÚnico atualizado</li>
+                        <li>Cadastro na SEFA (para emissão de notas fiscais)</li>
+                      </ul>
+                    </div>
+                    
+                    <div className="mt-2 p-2 bg-white rounded-md border border-amber-200">
+                      <h5 className="font-medium text-amber-800 mb-1">
+                        Como funciona:
+                      </h5>
+                      <p className="text-xs">
+                        A equipe do PAA visita sua propriedade semanalmente para coletar os produtos. 
+                        O pagamento é feito diretamente pelo governo federal em uma conta do Banco do Brasil.
+                        Os alimentos são destinados a pessoas em vulnerabilidade social através do CRAS 
+                        e outras entidades cadastradas.
+                      </p>
+                    </div>
                   </div>
                 </div>
 
