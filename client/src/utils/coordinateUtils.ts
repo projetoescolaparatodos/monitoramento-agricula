@@ -75,22 +75,72 @@ export function formatCoordinate(value: number, isLatitude: boolean): string {
  * @returns A instância do mapa ou null se não encontrada
  */
 export function getLeafletMapInstance(container: HTMLElement): any {
-  // Verifica se já existe uma instância Leaflet no container
-  if (container._leaflet) {
-    return container._leaflet;
+  try {
+    // Verifica se já existe uma instância Leaflet no container
+    if (container._leaflet) {
+      return container._leaflet;
+    }
+    
+    // Tenta acessar via coleção global do Leaflet (depende da versão)
+    if (window.L && window.L.maps) {
+      const maps = Object.values(window.L.maps);
+      const existingMap = maps.find(m => m._container === container);
+      if (existingMap) return existingMap;
+    }
+    
+    // Tenta obter usando o ID do container
+    if (container._leaflet_id && window.L && window.L.Map && window.L.Map.get) {
+      const mapInstance = window.L.Map.get(container._leaflet_id);
+      if (mapInstance) return mapInstance;
+    }
+    
+    // Última tentativa: procura por mapas que possam estar associados a este container
+    if (window.L && window.L._leaflet_id_map) {
+      for (const id in window.L._leaflet_id_map) {
+        const obj = window.L._leaflet_id_map[id];
+        if (obj instanceof window.L.Map && obj._container === container) {
+          return obj;
+        }
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.error("Erro ao obter instância do mapa:", error);
+    return null;
   }
-  
-  // Tenta acessar via coleção global do Leaflet (depende da versão)
-  if (window.L && window.L.maps) {
-    const maps = Object.values(window.L.maps);
-    const existingMap = maps.find(m => m._container === container);
-    if (existingMap) return existingMap;
+}
+
+/**
+ * Função segura para adicionar marcador a um mapa
+ * @param map Instância do mapa Leaflet
+ * @param lat Latitude do marcador
+ * @param lng Longitude do marcador
+ * @param clearExisting Se deve limpar marcadores existentes
+ * @returns O marcador criado ou null em caso de erro
+ */
+export function addMarkerToMap(map: any, lat: number, lng: number, clearExisting: boolean = true): any {
+  try {
+    if (!map) return null;
+    
+    // Limpa marcadores existentes se solicitado
+    if (clearExisting) {
+      map.eachLayer((layer: any) => {
+        if (layer instanceof window.L.Marker) {
+          map.removeLayer(layer);
+        }
+      });
+    }
+    
+    // Adiciona novo marcador
+    const marker = window.L.marker([lat, lng]).addTo(map);
+    
+    // Centraliza o mapa no marcador
+    map.setView([lat, lng], map.getZoom());
+    
+    return marker;
+  } catch (error) {
+    console.error("Erro ao adicionar marcador:", error);
+    return null;
   }
-  
-  // Tenta obter usando o método get do Map (disponível em versões mais recentes)
-  if (container._leaflet_id && window.L && window.L.Map && window.L.Map.get) {
-    return window.L.Map.get(container._leaflet_id);
-  }
-  
-  return null;
 }

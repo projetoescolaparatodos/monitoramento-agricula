@@ -9,6 +9,7 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import IconSelector from "@/components/admin/IconSelector";
+import { getLeafletMapInstance, addMarkerToMap } from "@/utils/coordinateUtils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -335,55 +336,21 @@ const AgriculturaForm = () => {
                 return;
               }
 
-              // Função segura para obter instância do mapa
-              const getMapInstance = (container) => {
-                // Verifica se já existe uma instância Leaflet no container
-                if (container._leaflet) {
-                  return container._leaflet;
-                }
-
-                // Tenta acessar via coleção global do Leaflet (depende da versão)
-                if (window.L.maps) {
-                  const maps = Object.values(window.L.maps);
-                  const existingMap = maps.find(m => m._container === container);
-                  if (existingMap) return existingMap;
-                }
-
-                // Tenta obter usando o método get do Map (disponível em versões mais recentes)
-                if (container._leaflet_id && window.L.Map.get) {
-                  return window.L.Map.get(container._leaflet_id);
-                }
-
-                return null;
-              };
-
-              const mapInstance = getMapInstance(mapContainer);
+              // Usa a função utilitária aprimorada do coordinateUtils
+              const mapInstance = getLeafletMapInstance(mapContainer);
 
               if (mapInstance) {
                 console.log("Instância do mapa encontrada, atualizando...");
-
-                // Limpa marcadores anteriores
-                mapInstance.eachLayer((layer) => {
-                  if (layer instanceof L.Marker) {
-                    mapInstance.removeLayer(layer);
-                  }
-                });
-
-                // Adiciona novo marcador e centraliza o mapa
-                L.marker([lat, lng]).addTo(mapInstance);
-                mapInstance.setView([lat, lng], 15);
+                
+                // Usa a função utilitária para adicionar o marcador de forma segura
+                addMarkerToMap(mapInstance, lat, lng, true);
               } else {
                 console.error("Não foi possível acessar a instância do mapa");
-                // Fallback: recria o mapa
-                try {
-                  const newMap = L.map("admin-map-agricultura").setView([lat, lng], 15);
-                  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                  }).addTo(newMap);
-                  L.marker([lat, lng]).addTo(newMap);
-                } catch (e) {
-                  console.error("Erro ao criar novo mapa:", e);
-                }
+                toast({
+                  title: "Erro",
+                  description: "Houve um problema ao atualizar o mapa. Por favor, atualize a página.",
+                  variant: "destructive",
+                });
               }
             }}
             initialLatitude={latitude}
@@ -869,55 +836,21 @@ const PescaForm = () => {
                 return;
               }
 
-              // Função segura para obter instância do mapa
-              const getMapInstance = (container) => {
-                // Verifica se já existe uma instância Leaflet no container
-                if (container._leaflet) {
-                  return container._leaflet;
-                }
-
-                // Tenta acessar via coleção global do Leaflet (depende da versão)
-                if (window.L.maps) {
-                  const maps = Object.values(window.L.maps);
-                  const existingMap = maps.find(m => m._container === container);
-                  if (existingMap) return existingMap;
-                }
-
-                // Tenta obter usando o método get do Map (disponível em versões mais recentes)
-                if (container._leaflet_id && window.L.Map.get) {
-                  return window.L.Map.get(container._leaflet_id);
-                }
-
-                return null;
-              };
-
-              const mapInstance = getMapInstance(mapContainer);
+              // Usa a função utilitária aprimorada do coordinateUtils
+              const mapInstance = getLeafletMapInstance(mapContainer);
 
               if (mapInstance) {
                 console.log("Instância do mapa encontrada, atualizando...");
-
-                // Limpa marcadores anteriores
-                mapInstance.eachLayer((layer) => {
-                  if (layer instanceof L.Marker) {
-                    mapInstance.removeLayer(layer);
-                  }
-                });
-
-                // Adiciona novo marcador e centraliza o mapa
-                L.marker([lat, lng]).addTo(mapInstance);
-                mapInstance.setView([lat, lng], 15);
+                
+                // Usa a função utilitária para adicionar o marcador de forma segura
+                addMarkerToMap(mapInstance, lat, lng, true);
               } else {
                 console.error("Não foi possível acessar a instância do mapa");
-                // Fallback: recria o mapa
-                try {
-                  const newMap = L.map("admin-map-pesca").setView([lat, lng], 15);
-                  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                  }).addTo(newMap);
-                  L.marker([lat, lng]).addTo(newMap);
-                } catch (e) {
-                  console.error("Erro ao criar novo mapa:", e);
-                }
+                toast({
+                  title: "Erro",
+                  description: "Houve um problema ao atualizar o mapa. Por favor, atualize a página.",
+                  variant: "destructive",
+                });
               }
             }}
             initialLatitude={latitude}
@@ -1425,55 +1358,21 @@ const PAAForm = () => {
                 return;
               }
 
-              // Função segura para obter instância do mapa
-              const getMapInstance = (container) => {
-                // Verifica se já existe uma instância Leaflet no container
-                if (container._leaflet) {
-                  return container._leaflet;
-                }
-
-                // Tenta acessar via coleção global do Leaflet (depende da versão)
-                if (window.L.maps) {
-                  const maps = Object.values(window.L.maps);
-                  const existingMap = maps.find(m => m._container === container);
-                  if (existingMap) return existingMap;
-                }
-
-                // Tenta obter usando o método get do Map (disponível em versões mais recentes)
-                if (container._leaflet_id && window.L.Map.get) {
-                  return window.L.Map.get(container._leaflet_id);
-                }
-
-                return null;
-              };
-
-              const mapInstance = getMapInstance(mapContainer);
+              // Usa a função utilitária aprimorada do coordinateUtils
+              const mapInstance = getLeafletMapInstance(mapContainer);
 
               if (mapInstance) {
                 console.log("Instância do mapa encontrada, atualizando...");
-
-                // Limpa marcadores anteriores
-                mapInstance.eachLayer((layer) => {
-                  if (layer instanceof L.Marker) {
-                    mapInstance.removeLayer(layer);
-                  }
-                });
-
-                // Adiciona novo marcador e centraliza o mapa
-                L.marker([lat, lng]).addTo(mapInstance);
-                mapInstance.setView([lat, lng], 15);
+                
+                // Usa a função utilitária para adicionar o marcador de forma segura
+                addMarkerToMap(mapInstance, lat, lng, true);
               } else {
                 console.error("Não foi possível acessar a instância do mapa");
-                // Fallback: recria o mapa
-                try {
-                  const newMap = L.map("admin-map-paa").setView([lat, lng], 15);
-                  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                  }).addTo(newMap);
-                  L.marker([lat, lng]).addTo(newMap);
-                } catch (e) {
-                  console.error("Erro ao criar novo mapa:", e);
-                }
+                toast({
+                  title: "Erro",
+                  description: "Houve um problema ao atualizar o mapa. Por favor, atualize a página.",
+                  variant: "destructive",
+                });
               }
             }}
             initialLatitude={latitude}

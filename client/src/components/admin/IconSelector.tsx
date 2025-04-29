@@ -93,6 +93,12 @@ const IconSelector: React.FC<IconSelectorProps> = ({
   const handleSetLocation = () => {
     if (validateCoordinates() && parsedLat !== null && parsedLng !== null) {
       onLocationSelect(parsedLat, parsedLng);
+      
+      // Adicionamos um feedback visual para o usuário
+      toast({
+        title: "Localização definida",
+        description: `Coordenadas: ${formatCoordinate(parsedLat, true)}, ${formatCoordinate(parsedLng, false)}`,
+      });
     }
   };
 
