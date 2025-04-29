@@ -77,6 +77,30 @@ const Home = () => {
           <h2 className="text-3xl font-bold text-center mb-8 text-white">Estatísticas Principais</h2>
           <StatisticsSection variant="transparent" />
         </section>
+
+  // Função para lidar com a rolagem para a seção de mídia
+  const scrollToMedia = (pageType: string) => {
+    // Navegar para a página correspondente se não estiver nela
+    if (pageType === 'agriculture') {
+      setLocation('/agriculture');
+    } else if (pageType === 'fishing') {
+      setLocation('/fishing');
+    } else if (pageType === 'paa') {
+      setLocation('/paa');
+    }
+    
+    // Pequeno atraso para garantir que a navegação ocorra primeiro
+    setTimeout(() => {
+      const mediaSection = document.getElementById('media');
+      if (mediaSection) {
+        mediaSection.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    }, 300);
+  };
+
         <section id="areas" className="py-12">
           <h2 className="text-3xl font-bold text-center mb-8 text-white">Áreas de Atuação</h2>
           <AreasSection />

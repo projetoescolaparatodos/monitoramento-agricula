@@ -48,14 +48,24 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
                       // Navega para a página
                       window.location.href = `/${item.pageType}`;
 
-                      // Após o carregamento da página, role até a seção de mídia
-                      setTimeout(() => {
-                        const mediaSection = document.getElementById('media');
-                        if (mediaSection) {
-                          mediaSection.scrollIntoView({ behavior: 'smooth' });
-                        }
-                      }, 500);
-                    }}>
+                      // Role até a seção de mídia
+                      onClick={(e) => {
+                        e.preventDefault(); // Impedir navegação padrão
+                        
+                        // Busque a página para onde estamos navegando
+                        const targetPage = item.pageType || '';
+                        
+                        // Pequeno atraso para garantir que a navegação ocorra primeiro
+                        setTimeout(() => {
+                          const mediaSection = document.getElementById('media');
+                          if (mediaSection) {
+                            mediaSection.scrollIntoView({ 
+                              behavior: 'smooth',
+                              block: 'start'
+                            });
+                          }
+                        }, 100);
+                      }}>
       <Card className="overflow-hidden bg-white/90 dark:bg-zinc-800/90 rounded-xl shadow-md cursor-pointer hover:shadow-lg transition-transform hover:scale-105 h-full flex flex-col">
         <div className="w-full h-60 relative overflow-hidden">
           {isYouTubeVideo ? (
