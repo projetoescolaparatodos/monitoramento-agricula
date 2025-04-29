@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Map, MapPin, Info } from "lucide-react";
 import { parseDMS, isValidCoordinate, formatCoordinate } from "@/utils/coordinateUtils";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface IconSelectorProps {
   onLocationSelect: (lat: number, lng: number) => void;
@@ -17,6 +17,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({
   initialLatitude, 
   initialLongitude 
 }) => {
+  const { toast } = useToast();
   const [latitude, setLatitude] = useState<string>(initialLatitude?.toString() || '');
   const [longitude, setLongitude] = useState<string>(initialLongitude?.toString() || '');
   const [parsedLat, setParsedLat] = useState<number | null>(initialLatitude);
