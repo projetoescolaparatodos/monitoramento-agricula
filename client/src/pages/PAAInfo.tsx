@@ -81,16 +81,32 @@ const PAAInfo = () => {
 
   // Detectar e rolar para âncoras na URL quando a página carrega
   useEffect(() => {
-    // Verificar se há um hash na URL
-    if (window.location.hash) {
-      const id = window.location.hash.substring(1); // remover o caractere #
-      const element = document.getElementById(id);
-      if (element) {
-        // Adicionar pequeno atraso para garantir que a página carregou completamente
-        setTimeout(() => {
+    // Função para tentar realizar a rolagem
+    const scrollToHashElement = () => {
+      if (window.location.hash) {
+        const id = window.location.hash.substring(1); // remover o caractere #
+        const element = document.getElementById(id);
+        
+        if (element) {
+          // Quando o elemento for encontrado, rolar até ele
           element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 300);
+          return true; // Rolagem realizada com sucesso
+        }
+        return false; // Elemento não encontrado
       }
+      return true; // Não há hash, não é necessário rolar
+    };
+
+    // Tentar rolar imediatamente
+    if (!scrollToHashElement()) {
+      // Se não conseguir, tentar várias vezes com intervalos crescentes
+      const attempts = [500, 1000, 1500, 2000]; // tempos em ms
+      
+      attempts.forEach((delay, index) => {
+        setTimeout(() => {
+          scrollToHashElement();
+        }, delay);
+      });
     }
   }, []);
 
