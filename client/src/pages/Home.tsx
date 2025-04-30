@@ -6,7 +6,10 @@ import HeroSection from "@/components/home/HeroSection";
 import StatisticsSection from "@/components/home/StatisticsSection";
 import DataVisualizationSection from "@/components/home/DataVisualizationSection";
 import MediaGallerySection from "@/components/home/MediaGallerySection";
+import HomeMediaGallerySection from "@/components/home/HomeMediaGallerySection";
 import BackgroundVideo from "@/components/ui/BackgroundVideo";
+import { useQuery } from "@tanstack/react-query";
+import { MediaItem } from "@/types";
 
 const AreasSection = () => {
   return (
@@ -57,6 +60,16 @@ const AreasSection = () => {
 const Home = () => {
   const [, setLocation] = useLocation();
 
+  // Buscar mídias da página home
+  const { data: allMediaItems, isLoading: isLoadingMedia } = useQuery<MediaItem[]>({
+    queryKey: ['/api/media-items'],
+  });
+
+  // Filtrar apenas mídias da página home
+  const homeMediaItems = allMediaItems?.filter(item => 
+    item.active !== false && item.pageType === 'home'
+  );
+
   // Função para lidar com a rolagem para a seção de mídia
   const scrollToMedia = (pageType: string) => {
     // Navegar para a página correspondente se não estiver nela
@@ -106,12 +119,19 @@ const Home = () => {
           <h2 className="text-3xl font-bold text-center mb-8 text-white">Áreas de Atuação</h2>
           <AreasSection />
         </section>
+        <section id="home-media" className="py-12">
+          <HomeMediaGallerySection 
+            mediaItems={homeMediaItems} 
+            isLoading={isLoadingMedia} 
+            variant="transparent" 
+          />
+        </section>
         <section id="visualization" className="py-12">
           <h2 className="text-3xl font-bold text-center mb-8 text-white">Visualização de Dados</h2>
           <DataVisualizationSection variant="transparent" />
         </section>
         <section id="media" className="py-12">
-          <h2 className="text-3xl font-bold text-center mb-8 text-white">Galeria de Mídia</h2>
+          <h2 className="text-3xl font-bold text-center mb-8 text-white">Mídias de Todos os Setores</h2>
           <MediaGallerySection variant="transparent" />
         </section>
       </main>
