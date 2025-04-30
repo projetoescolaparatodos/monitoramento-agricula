@@ -14,20 +14,13 @@ interface HomeMediaGallerySectionProps {
 const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({ mediaItems, isLoading, variant = "default" }) => {
   return (
     <section id="home-media" className="py-12">
-      <div className="container mx-auto px-4">
-        <h2 className={`text-3xl font-bold mb-2 text-center ${variant === "transparent" ? "text-white" : ""}`}>Destaques da Semapa</h2>
-        <p className={`${variant === "transparent" ? "text-white/80" : "text-gray-600 dark:text-gray-400"} mb-8 text-center max-w-2xl mx-auto`}>
-          Conheça as principais ações e iniciativas da Secretaria Municipal de Agricultura, Pesca e Abastecimento. Fique por dentro dos projetos que estão transformando o setor agropecuário e pesqueiro do nosso município.
-        </p>
-      </div>
-      
-      <div className="w-full bg-gradient-to-r from-green-700/90 via-green-600 to-green-700/90 py-3 mb-8 shadow-md">
-        <div className="container mx-auto px-4 flex items-center">
-          <div className="w-1/6 border-t border-white/30 mr-4 hidden md:block"></div>
-          <div className="flex-grow text-center">
-            <span className="text-white text-sm uppercase tracking-wider font-medium">Últimas Atualizações</span>
-          </div>
-          <div className="w-1/6 border-t border-white/30 ml-4 hidden md:block"></div>
+      <div className="relative mb-10">
+        <div className="absolute inset-0 bg-gradient-to-r from-green-700/90 via-green-600 to-green-700/90 rounded-lg shadow-md"></div>
+        <div className="container mx-auto px-4 py-8 relative">
+          <h2 className={`text-3xl font-bold mb-3 text-center text-white`}>Destaques da Semapa</h2>
+          <p className={`text-white/90 mb-2 text-center max-w-2xl mx-auto`}>
+            Conheça as principais ações e iniciativas da Secretaria Municipal de Agricultura, Pesca e Abastecimento. Fique por dentro dos projetos que estão transformando o setor agropecuário e pesqueiro do nosso município.
+          </p>
         </div>
       </div>
 
