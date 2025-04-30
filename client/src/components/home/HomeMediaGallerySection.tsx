@@ -15,9 +15,9 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({ media
   return (
     <section id="home-media" className="py-12">
       <div className="container mx-auto px-4">
-        <h2 className={`text-3xl font-bold mb-2 text-center ${variant === "transparent" ? "text-white" : ""}`}>Galeria de Mídia</h2>
+        <h2 className={`text-3xl font-bold mb-2 text-center ${variant === "transparent" ? "text-white" : ""}`}>Destaques da Semapa</h2>
         <p className={`${variant === "transparent" ? "text-white/80" : "text-gray-600 dark:text-gray-400"} mb-8 text-center max-w-2xl mx-auto`}>
-          Imagens e vídeos das ações da SEMAPA e conteúdos informativos
+          Conheça as principais ações e iniciativas da Secretaria Municipal de Agricultura, Pesca e Abastecimento. Fique por dentro dos projetos que estão transformando o setor agropecuário e pesqueiro do nosso município.
         </p>
 
         {isLoading ? (
