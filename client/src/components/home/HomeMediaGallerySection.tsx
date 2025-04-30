@@ -14,11 +14,12 @@ interface HomeMediaGallerySectionProps {
 const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({ mediaItems, isLoading, variant = "default" }) => {
   return (
     <section id="home-media" className="py-12">
-      <div className="relative mb-10">
-        <div className="absolute inset-0 bg-gradient-to-r from-green-700/90 via-green-600 to-green-700/90 rounded-lg shadow-md"></div>
-        <div className="container mx-auto px-4 py-8 relative">
-          <h2 className={`text-3xl font-bold mb-3 text-center text-white`}>Destaques da Semapa</h2>
-          <p className={`text-white/90 mb-2 text-center max-w-2xl mx-auto`}>
+      <div className="container mx-auto px-4 mb-12">
+        <h2 className={`text-4xl font-bold mb-4 text-center ${variant === "transparent" ? "text-white" : "text-gray-800 dark:text-white"}`}>
+          Destaques da Semapa
+        </h2>
+        <div className="max-w-3xl mx-auto">
+          <p className={`text-lg leading-relaxed ${variant === "transparent" ? "text-white/90" : "text-gray-600 dark:text-gray-300"} mb-6 text-center border-l-4 border-r-4 border-green-600/40 px-6 py-3`}>
             Conheça as principais ações e iniciativas da Secretaria Municipal de Agricultura, Pesca e Abastecimento. Fique por dentro dos projetos que estão transformando o setor agropecuário e pesqueiro do nosso município.
           </p>
         </div>
