@@ -30,9 +30,8 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({ media
           <div className="w-1/6 border-t border-white/30 ml-4 hidden md:block"></div>
         </div>
       </div>
-          Conheça as principais ações e iniciativas da Secretaria Municipal de Agricultura, Pesca e Abastecimento. Fique por dentro dos projetos que estão transformando o setor agropecuário e pesqueiro do nosso município.
-        </p>
 
+      <div className="container mx-auto px-4">
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array(3).fill(0).map((_, index) => (
