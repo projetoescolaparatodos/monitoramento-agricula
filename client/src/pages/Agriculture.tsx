@@ -325,15 +325,10 @@ const Agriculture = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-3xl font-bold">
-                    {(tratoresData?.reduce((sum, t) => {
-                      if (typeof t.areaTrabalhada === 'number') {
-                        return sum + t.areaTrabalhada;
-                      } else if (typeof t.areaTrabalhada === 'string') {
-                        const parsed = parseFloat(t.areaTrabalhada);
-                        return sum + (isNaN(parsed) ? 0 : parsed);
-                      }
-                      return sum;
-                    }, 0) / 10000).toFixed(2)} ha
+                    {tratoresData?.reduce((sum, t) => {
+                      const area = typeof t.areaTrabalhada === 'number' ? t.areaTrabalhada : 0;
+                      return sum + area;
+                    }, 0).toFixed(2) || '0'} ha
                   </p>
                 </CardContent>
               </Card>
