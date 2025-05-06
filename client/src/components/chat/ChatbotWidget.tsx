@@ -374,6 +374,8 @@ const servicosSugestoes: SuggestionButton[] = [
 ];
 
 const ChatbotWidget: React.FC = () => {
+  // Verificar se está em uma página de mapa
+  const isMapPage = window.location.pathname.includes('Map');
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -1257,7 +1259,7 @@ const ChatbotWidget: React.FC = () => {
   }, []);
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className={`fixed bottom-4 right-4 z-50 ${isMapPage ? 'hidden md:block' : ''}`}>
       {!isOpen ? (
         <Button
           onClick={() => setIsOpen(true)}
