@@ -331,9 +331,6 @@ const Agriculture = () => {
                     }, 0).toFixed(2) || '0'} ha
                   </p>
                 </CardContent>
-              </Card>Fixed(2)} horas
-                  </p>
-                </CardContent>
               </Card>
               <Card>
                 <CardHeader>
