@@ -1,6 +1,4 @@
-import { useState, useEffect } from 'react';
-import { kml } from '@mapbox/togeojson';
-import { DOMParser } from '@xmldom/xmldom';
+import { useState, useMemo } from 'react';
 
 interface LatLng {
   lat: number;
@@ -23,9 +21,8 @@ export function ensureClockwise(path: LatLng[]): LatLng[] {
   return isClockwise(path) ? path : [...path].reverse();
 }
 
-// Coordenadas precisas do município de Vitória do Xingu
-// Estas coordenadas são extraídas do arquivo KML e são usadas para a máscara invertida
-const FIXED_MUNICIPALITY_COORDINATES: LatLng[] = [
+// Coordenadas do município de Vitória do Xingu
+const MUNICIPALITY_COORDINATES: LatLng[] = [
   { lat: -2.8017371803446, lng: -52.0350368520088 },
   { lat: -2.81587473183036, lng: -52.0297256549434 },
   { lat: -2.82760124890713, lng: -52.0178157461208 },
@@ -212,76 +209,14 @@ const FIXED_MUNICIPALITY_COORDINATES: LatLng[] = [
   { lat: -2.80204607047003, lng: -52.1215861819478},
   { lat: -2.79446643082999, lng: -52.1048778474175 },
   { lat: -2.79250589297019, lng: -52.0438535536805 },
-  { lat: -2.8017371803446, lng: -52.0350368520088 }, // Fechando o polígono
+  { lat: -2.8017371803446, lng: -52.0350368520088 },
 ];
 
-export function useKmlBoundary(kmlUrl: string) {
-  const [boundaryCoordinates, setBoundaryCoordinates] = useState<LatLng[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [usingFixedCoordinates, setUsingFixedCoordinates] = useState(false);
-
-  useEffect(() => {
-    const parseKml = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        setUsingFixedCoordinates(false);
-
-        const response = await fetch(kmlUrl, {
-          headers: {
-            'Accept': 'application/xml, text/xml, */*'
-          },
-          mode: 'cors',
-          cache: 'no-cache'
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const kmlText = await response.text();
-        if (!kmlText) {
-          throw new Error('KML file is empty');
-        }
-
-        const kmlDoc = new DOMParser().parseFromString(kmlText, 'text/xml');
-        const geoJson = kml(kmlDoc);
-
-        // Extrai as coordenadas do GeoJSON
-        if (geoJson.features.length > 0 && geoJson.features[0].geometry) {
-          const geometry = geoJson.features[0].geometry;
-
-          if (geometry.type === 'Polygon' && geometry.coordinates.length > 0) {
-            const coordinates = geometry.coordinates[0];
-            const formattedCoords = coordinates.map(([lng, lat]: number[]) => ({ lat, lng }));
-            setBoundaryCoordinates(formattedCoords);
-          } else {
-            throw new Error('Formato de geometria não suportado no KML');
-          }
-        } else {
-          throw new Error('Nenhuma feature encontrada no KML');
-        }
-      } catch (err) {
-        console.error('Erro ao processar KML:', err);
-        // Em caso de erro, use as coordenadas fixas
-        setError('Falha ao processar o arquivo KML. Usando coordenadas fixas.');
-        setBoundaryCoordinates(FIXED_MUNICIPALITY_COORDINATES);
-        setUsingFixedCoordinates(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (kmlUrl) {
-      parseKml();
-    } else {
-      // Se não houver URL de KML, use coordenadas fixas imediatamente
-      setBoundaryCoordinates(FIXED_MUNICIPALITY_COORDINATES);
-      setUsingFixedCoordinates(true);
-      setLoading(false);
-    }
-  }, [kmlUrl]);
+export function useKmlBoundary() {
+  const boundaryCoordinates = useMemo(() => MUNICIPALITY_COORDINATES, []);
+  const loading = false;
+  const error = null;
+  const usingFixedCoordinates = true;
 
   return { 
     boundaryCoordinates, 
