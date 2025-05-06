@@ -310,11 +310,28 @@ const Agriculture = () => {
                 <CardContent>
                   <p className="text-3xl font-bold">
                     {tratoresData?.reduce((sum, t) => {
-                      // Certifica que tempoAtividade existe e é número
                       const tempo = typeof t.tempoAtividade === 'number' ? t.tempoAtividade : 0;
-                      // Convertendo de minutos para horas se necessário
-                      return sum + (tempo > 100 ? tempo / 60 : tempo);
-                    }, 0).toFixed(2)} horas
+                      return sum + tempo;
+                    }, 0).toFixed(2) || '0'} h
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FilePieChart className="h-5 w-5 text-green-500" />
+                    Área Trabalhada
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-bold">
+                    {tratoresData?.reduce((sum, t) => {
+                      const area = typeof t.areaTrabalhada === 'number' ? t.areaTrabalhada : 0;
+                      return sum + area;
+                    }, 0).toFixed(2) || '0'} ha
+                  </p>
+                </CardContent>
+              </Card>Fixed(2)} horas
                   </p>
                 </CardContent>
               </Card>
