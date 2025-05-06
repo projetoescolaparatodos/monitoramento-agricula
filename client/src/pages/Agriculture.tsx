@@ -325,28 +325,10 @@ const Agriculture = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-3xl font-bold">
-                    {tratoresData?.reduce((sum, t) => {
-                      const area = typeof t.areaTrabalhada === 'number' ? t.areaTrabalhada : 0;
-                      return sum + area;
-                    }, 0).toFixed(2) || '0'} ha
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FilePieChart className="h-5 w-5 text-green-500" />
-                    Área Trabalhada
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">
                     {(tratoresData?.reduce((sum, t) => {
-                      // Verifica se areaTrabalhada existe e verifica seu tipo
                       if (typeof t.areaTrabalhada === 'number') {
                         return sum + t.areaTrabalhada;
                       } else if (typeof t.areaTrabalhada === 'string') {
-                        // Tenta converter string para número
                         const parsed = parseFloat(t.areaTrabalhada);
                         return sum + (isNaN(parsed) ? 0 : parsed);
                       }
@@ -395,7 +377,7 @@ const Agriculture = () => {
                               : typeof trator.tempoAtividade === 'string' 
                                 ? parseFloat(trator.tempoAtividade) 
                                 : 0;
-                            return (tempo > 100 ? tempo / 60 : tempo).toFixed(2);
+                            return tempo.toFixed(2) + ' h';
                           })()}
                         </TableCell>
                         <TableCell>
@@ -405,7 +387,7 @@ const Agriculture = () => {
                               : typeof trator.areaTrabalhada === 'string' 
                                 ? parseFloat(trator.areaTrabalhada) 
                                 : 0;
-                            return (area / 10000).toFixed(2);
+                            return (area / 10000).toFixed(2) + ' ha';
                           })()}
                         </TableCell>
                       </TableRow>
