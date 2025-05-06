@@ -54,6 +54,10 @@
   .mobile-filter {
     display: none !important;
   }
+  
+  .hide-chat {
+    display: none !important;
+  }
 }
 
 
