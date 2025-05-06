@@ -50,6 +50,12 @@
   background-color: white;
 }
 
+@media (max-width: 768px) {
+  .mobile-filter {
+    display: none !important;
+  }
+}
+
 
   display: flex;
   flex-direction: row;
