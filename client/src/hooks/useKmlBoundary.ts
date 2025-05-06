@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { kml } from '@mapbox/togeojson';
 import { DOMParser } from '@xmldom/xmldom';
@@ -210,7 +209,7 @@ const FIXED_MUNICIPALITY_COORDINATES: LatLng[] = [
   { lat: -2.81300865613122, lng: -52.2564582253542 },
   { lat: -2.81018095219951, lng: -52.2270252787592 },
   { lat: -2.81302299936669, lng: -52.1774588933382 },
-  { lat: -2.80204607047003, lng: -52.1215861819478 },
+  { lat: -2.80204607047003, lng: -52.1215861819478},
   { lat: -2.79446643082999, lng: -52.1048778474175 },
   { lat: -2.79250589297019, lng: -52.0438535536805 },
   { lat: -2.8017371803446, lng: -52.0350368520088 }, // Fechando o polígono
@@ -228,16 +227,31 @@ export function useKmlBoundary(kmlUrl: string) {
         setLoading(true);
         setError(null);
         setUsingFixedCoordinates(false);
-        
-        const response = await fetch(kmlUrl);
+
+        const response = await fetch(kmlUrl, {
+          headers: {
+            'Accept': 'application/xml, text/xml, */*'
+          },
+          mode: 'cors',
+          cache: 'no-cache'
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const kmlText = await response.text();
+        if (!kmlText) {
+          throw new Error('KML file is empty');
+        }
+
         const kmlDoc = new DOMParser().parseFromString(kmlText, 'text/xml');
         const geoJson = kml(kmlDoc);
-        
+
         // Extrai as coordenadas do GeoJSON
         if (geoJson.features.length > 0 && geoJson.features[0].geometry) {
           const geometry = geoJson.features[0].geometry;
-          
+
           if (geometry.type === 'Polygon' && geometry.coordinates.length > 0) {
             const coordinates = geometry.coordinates[0];
             const formattedCoords = coordinates.map(([lng, lat]: number[]) => ({ lat, lng }));
