@@ -366,24 +366,10 @@ const Agriculture = () => {
                           </span>
                         </TableCell>
                         <TableCell>
-                          {(() => {
-                            const tempo = typeof trator.tempoAtividade === 'number' 
-                              ? trator.tempoAtividade 
-                              : typeof trator.tempoAtividade === 'string' 
-                                ? parseFloat(trator.tempoAtividade) 
-                                : 0;
-                            return tempo.toFixed(2) + ' h';
-                          })()}
+                          {trator.tempoAtividade || '0'} h
                         </TableCell>
                         <TableCell>
-                          {(() => {
-                            const area = typeof trator.areaTrabalhada === 'number' 
-                              ? trator.areaTrabalhada 
-                              : typeof trator.areaTrabalhada === 'string' 
-                                ? parseFloat(trator.areaTrabalhada) 
-                                : 0;
-                            return (area / 10000).toFixed(2) + ' ha';
-                          })()}
+                          {trator.areaTrabalhada || '0'} ha
                         </TableCell>
                       </TableRow>
                     ))}
