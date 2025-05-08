@@ -161,7 +161,7 @@ const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ variant = "de
         </div>
       ) : displayItems?.length ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {displayItems.map((item) => (
+          {(window.innerWidth <= 640 ? displayItems.slice(-4) : displayItems).map((item) => (
             <div key={item.id} className="h-full">
               <MediaPreviewCard item={item} />
             </div>
