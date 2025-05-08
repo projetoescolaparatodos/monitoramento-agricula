@@ -107,7 +107,7 @@ const Home = () => {
           <source src="/videos/BackgroundVideo.mp4" type="video/mp4" />
           Seu navegador não suporta vídeos HTML5.
         </video>
-        <div className="absolute top-0 left-0 w-full h-full bg-green-900 opacity-40" />
+        <div className="absolute top-0 left-0 w-full h-full bg-green-900 opacity-50" />
       </div>
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
         <HeroSection />
