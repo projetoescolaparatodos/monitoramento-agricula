@@ -115,14 +115,16 @@ const PAAInfo = () => {
       <div style={backgroundStyle} />
       <div className="fixed inset-0 w-full min-h-screen bg-black/40 z-[1]"></div>
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
-        <div className="flex justify-end mb-6 gap-4">
-          <PAATabButton className="shadow-md" />
+        <div className="flex flex-wrap justify-end items-center mb-6 gap-3">
+          <PAATabButton className="shadow-md whitespace-nowrap" />
           <Button
             onClick={() => setLocation("/paa/map")}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 whitespace-nowrap"
+            size="sm"
           >
             <Map className="h-4 w-4" />
-            Acompanhar Serviços
+            <span className="hidden md:inline">Acompanhar Serviços</span>
+            <span className="md:hidden">Mapa</span>
           </Button>
         </div>
         <main className="space-y-12">
