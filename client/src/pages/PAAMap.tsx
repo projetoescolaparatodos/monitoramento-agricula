@@ -369,7 +369,7 @@ const PAAMap = () => {
 
   return (
     <div className="pt-16 relative h-screen">
-      <Card className={`absolute left-4 top-1/2 transform -translate-y-1/2 z-[1000] p-4 bg-white/95 shadow-lg ${styles['mobile-filter']}`}>
+      <Card className="absolute left-4 top-1/2 transform -translate-y-1/2 z-[1000] p-4 bg-white/95 shadow-lg hidden md:block">
         <RadioGroup value={filtro} onValueChange={setFiltro}>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="todos" id="todos-paa" />
