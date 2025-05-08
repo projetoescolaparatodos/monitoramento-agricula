@@ -19,7 +19,7 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({ media
           Destaques da Semapa
         </h2>
         <div className="max-w-3xl mx-auto">
-          <p className={`text-lg leading-relaxed font-bold ${variant === "transparent" ? "text-white/90" : "text-gray-600 dark:text-gray-300"} mb-6 text-center border-l-4 border-r-4 border-green-600/40 px-6 py-3`}>
+          <p className={`text-xl md:text-2xl font-medium tracking-wide max-w-3xl mx-auto ${variant === "transparent" ? "text-white" : "text-gray-700 dark:text-gray-200"} mb-6 text-center border-l-4 border-r-4 border-green-600/40 px-6 py-3`}>
             Conheça as principais ações e iniciativas da Secretaria Municipal de Agricultura, Pesca e Abastecimento. Fique por dentro dos projetos que estão transformando o setor agropecuário e pesqueiro do nosso município.
           </p>
         </div>
