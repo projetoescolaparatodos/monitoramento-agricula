@@ -1,23 +1,19 @@
 
 import { Button } from "@/components/ui/button";
-import { Map } from "lucide-react";
-import { useLocation } from "wouter";
+import { ClipboardList } from "lucide-react";
 
 const HeroSection = () => {
-  const [, setLocation] = useLocation();
-
   return (
     <section id="hero" className="py-12 text-center">
-      <h1 className="text-4xl font-bold mb-4">Programa de Aquisição de Alimentos</h1>
-      <p className="text-lg text-muted-foreground mb-8">
-        Informações e dados sobre o PAA em Vitória do Xingu
+      <h1 className="text-4xl font-bold mb-4 text-white">Serviço de Inspeção Municipal</h1>
+      <p className="text-lg text-white/90 mb-8">
+        Sistema de inspeção e controle de qualidade dos produtos de origem animal
       </p>
       <Button
-        onClick={() => setLocation("/paa/map")}
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm"
       >
-        <Map className="h-4 w-4" />
-        Acompanhar Programa
+        <ClipboardList className="h-4 w-4" />
+        Solicitar Inspeção
       </Button>
     </section>
   );
