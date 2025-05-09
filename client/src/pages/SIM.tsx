@@ -107,7 +107,6 @@ const SIM = () => {
     <>
       <div style={backgroundStyle} />
       <div className="fixed inset-0 w-full min-h-screen bg-black/40 z-[1]"></div>
-      <Navbar />
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
         <HeroSection />
 
