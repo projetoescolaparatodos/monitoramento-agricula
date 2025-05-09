@@ -26,6 +26,9 @@ export default function Navbar() {
             <Link to="/paa" className="ml-8 flex items-center" onClick={handleNavLinkClick}>
               PAA
             </Link>
+            <Link to="/sim" className="ml-8 flex items-center" onClick={handleNavLinkClick}>
+              SIM
+            </Link>
           </div>
           <div className="flex items-center">
             <Link to="/dashboard" className="flex items-center" onClick={handleNavLinkClick}>
