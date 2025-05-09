@@ -172,6 +172,7 @@ export const ContentForm = ({ contentData, isEdit = false, onSuccess }: ContentF
                         <option value="agriculture">Agricultura</option>
                         <option value="fishing">Pesca</option>
                         <option value="paa">PAA</option>
+                        <option value="sim">SIM</option>
                       </select>
                     </FormControl>
                     <FormMessage />

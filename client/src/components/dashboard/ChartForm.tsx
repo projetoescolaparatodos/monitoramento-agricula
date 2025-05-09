@@ -249,6 +249,7 @@ const ChartForm: React.FC<ChartFormProps> = ({
                         <SelectItem value="agriculture">Agricultura</SelectItem>
                         <SelectItem value="fishing">Pesca</SelectItem>
                         <SelectItem value="paa">PAA</SelectItem>
+                        <SelectItem value="sim">SIM</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
