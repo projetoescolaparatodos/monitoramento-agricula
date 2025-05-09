@@ -147,6 +147,7 @@ const InfoPanelForm: React.FC<InfoPanelFormProps> = ({
                     <SelectItem value="paa">PAA</SelectItem>
                     <SelectItem value="agriculture">Agricultura</SelectItem>
                     <SelectItem value="fishing">Pesca</SelectItem>
+                    <SelectItem value="sim">SIM</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormDescription>

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -86,7 +85,7 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
         });
       }
       queryClient.invalidateQueries({ queryKey: ['/api/media-items'] });
-      
+
       if (onSuccess) {
         onSuccess();
       }
