@@ -5,8 +5,8 @@ export const AreasSection = () => {
     <section className="py-16">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-12">Áreas de Atuação</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <Link to="/agriculture" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <Link href="/agriculture" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
             <div className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow">
               <h3 className="text-xl font-semibold mb-4">Agricultura</h3>
               <p className="text-gray-600">Informações sobre a agricultura local, programas e iniciativas.</p>
@@ -26,16 +26,9 @@ export const AreasSection = () => {
               <p className="text-gray-600">Programa de Aquisição de Alimentos e seus benefícios.</p>
             </div>
           </Link>
-
-            <Link href="/sim" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
-              <div className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow">
-                <h3 className="text-xl font-semibold mb-4">SIM</h3>
-                <p className="text-gray-600">Serviço de Inspeção Municipal e fiscalização sanitária.</p>
-              </div>
-            </Link>
-          </div>
         </div>
-      </section>
+      </div>
+    </section>
   );
 };
 

@@ -2,7 +2,7 @@ export interface ContentItem {
   id: string;
   title: string;
   content: string;
-  pageType: 'home' | 'agriculture' | 'fishing' | 'paa' | 'sim';
+  pageType: 'home' | 'agriculture' | 'fishing' | 'paa';
   sectionType: string;
   createdAt: Date;
   updatedAt: Date;
@@ -14,7 +14,7 @@ export interface ChartItem {
   title: string;
   chartType: 'bar' | 'line' | 'pie';
   chartData: any;
-  pageType: 'home' | 'agriculture' | 'fishing' | 'paa' | 'sim';
+  pageType: 'home' | 'agriculture' | 'fishing' | 'paa';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,7 +26,7 @@ export interface MediaItem {
   title?: string; // Pode conter HTML formatado do ReactQuill
   description?: string; // Contém HTML formatado do ReactQuill
   mediaType: 'image' | 'video';
-  pageType?: 'home' | 'agriculture' | 'fishing' | 'paa' | 'sim';
+  pageType?: 'home' | 'agriculture' | 'fishing' | 'paa';
   active?: boolean;
   createdAt?: string;
   author?: string;
