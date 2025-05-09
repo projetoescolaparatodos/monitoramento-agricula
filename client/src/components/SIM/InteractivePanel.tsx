@@ -158,13 +158,13 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
               transition={{ duration: 0.2 }}
               className="h-full"
             >
-              <Card className="shadow-md border-0" style={{ backgroundColor: '#f0fff4' }}>
+              <Card className="shadow-md border-0 bg-white/10 backdrop-blur-sm">
                 <CardHeader className="pb-2 border-b">
-                  <CardTitle className="text-xl font-bold flex items-center gap-2 text-black">
+                  <CardTitle className="text-xl font-bold flex items-center gap-2 text-white">
                     {currentPanel.title}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4 prose prose-sm sm:prose lg:prose-lg max-w-none text-black leading-relaxed whitespace-pre-wrap">
+                <CardContent className="pt-4 prose prose-sm sm:prose lg:prose-lg max-w-none text-white/90 leading-relaxed whitespace-pre-wrap prose-headings:text-white prose-strong:text-white">
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
