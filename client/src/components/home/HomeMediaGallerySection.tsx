@@ -20,7 +20,7 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({ media
         </h2>
         <div className="max-w-3xl mx-auto">
           <p className={`text-xl md:text-2xl font-medium tracking-wide max-w-3xl mx-auto ${variant === "transparent" ? "text-white" : "text-gray-700 dark:text-gray-200"} mb-6 text-center border-l-4 border-r-4 border-green-600/40 px-12 py-6`}>
-            Conheça as principais ações e iniciativas da Secretaria Municipal de Agricultura, Pesca e Abastecimento.<br /><br />Fique por dentro dos projetos que estão transformando o setor agropecuário e pesqueiro do nosso município.
+            Fique por dentro dos projetos que estão transformando o setor agropecuário e pesqueiro do nosso município.
           </p>
         </div>
       </div>
