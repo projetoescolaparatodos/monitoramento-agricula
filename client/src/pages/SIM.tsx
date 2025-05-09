@@ -147,59 +147,7 @@ const SIM = () => {
           </section>
         )}
 
-        {/* Documentação Necessária */}
-        <section className="mt-16">
-          <h2 className="text-3xl font-bold text-center mb-8 text-white">Documentação Necessária</h2>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="bg-white/10 backdrop-blur-sm p-6 rounded-lg">
-              <h3 className="text-2xl font-bold mb-4 text-white drop-shadow-sm">Produtor Familiar DAP/CAF</h3>
-              <ul className="list-disc pl-5 text-white space-y-2">
-                <li>RG</li>
-                <li>CPF</li>
-                <li>Requerimento de ingresso (modelo fornecido pelo SIM)</li>
-                <li>Comprovante de endereço do estabelecimento</li>
-                <li>Declaração de aptidão do PRONAF-DAP (ou CAF)</li>
-                <li>Inscrição Estadual</li>
-                <li>Planta baixa do estabelecimento</li>
-                <li>2 Vias Memorial Econômico-Sanitário do estabelecimento</li>
-                <li>2 Vias Memorial Descritivo do Processo de Fabricação e Rotulagem</li>
-                <li>Comprovação de contratação de Responsável Técnico</li>
-                <li>Certificado de conformidade junto aos bombeiros (Se for o caso)</li>
-                <li>Certificado de dedetização do estabelecimento (Com data de validade)</li>
-                <li>Licença ambiental (Se for o caso)</li>
-                <li>2 Vias Análise da água da indústria (parceria com VISA)</li>
-                <li>Cópia do Documento do automóvel utilizado para transporte da mercadoria</li>
-                <li>2 Vias da etiqueta de cada produto cadastrado</li>
-              </ul>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-sm p-6 rounded-lg">
-              <h3 className="text-2xl font-bold mb-4 text-white drop-shadow-sm">Pessoa Jurídica</h3>
-              <ul className="list-disc pl-5 text-white space-y-2">
-                <li>RG do(s) proprietário(s)</li>
-                <li>CPF do(s) proprietário(s)</li>
-                <li>CNPJ</li>
-                <li>Requerimento de ingresso (modelo fornecido pelo SIM)</li>
-                <li>Comprovante de endereço do estabelecimento</li>
-                <li>Contrato social da empresa</li>
-                <li>Extrato de cadastro junto ao SEFAZ</li>
-                <li>Planta baixa do estabelecimento</li>
-                <li>Memorial Econômico-Sanitário do estabelecimento</li>
-                <li>Memorial Descritivo do Processo de Fabricação e Rotulagem</li>
-                <li>Comprovação de contratação de Responsável Técnico Veterinário – RT</li>
-                <li>Alvará de funcionamento</li>
-                <li>Alvará sanitário (Se realizado comercialização no local)</li>
-                <li>Certificado de conformidade junto aos bombeiros (Se for o caso)</li>
-                <li>Licença ambiental</li>
-                <li>Certificado de dedetização do estabelecimento (Com data de validade)</li>
-                <li>Análise da água da indústria (parceria com VISA)</li>
-                <li>Cópia do Documento do automóvel utilizado para transporte da mercadoria</li>
-                <li>2 Vias da etiqueta de cada produto cadastrado</li>
-              </ul>
-            </div>
-          </div>
-        </section>
+        
 
         {/* Seção de Galeria de Mídia */}
         {mediaItems && mediaItems.length > 0 && (
