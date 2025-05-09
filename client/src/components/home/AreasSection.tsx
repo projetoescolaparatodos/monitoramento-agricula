@@ -26,9 +26,16 @@ export const AreasSection = () => {
               <p className="text-gray-600">Programa de Aquisição de Alimentos e seus benefícios.</p>
             </div>
           </Link>
+
+            <Link href="/sim" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
+              <div className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow">
+                <h3 className="text-xl font-semibold mb-4">SIM</h3>
+                <p className="text-gray-600">Serviço de Inspeção Municipal e fiscalização sanitária.</p>
+              </div>
+            </Link>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
   );
 };
 
