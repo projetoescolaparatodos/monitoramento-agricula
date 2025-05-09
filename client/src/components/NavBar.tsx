@@ -64,6 +64,15 @@ const NavBar = () => {
                 PAA
               </Button>
             </Link>
+            <Link to="/sim" onClick={() => {
+              handleNavLinkClick();
+              setTimeout(() => window.scrollTo(0, 0), 100);
+            }}>
+              <Button variant="ghost" className="w-full md:w-auto justify-start">
+                <BarChart3 className="h-4 w-4 mr-2" />
+                SIM
+              </Button>
+            </Link>
             <Link to="/admin" onClick={handleNavLinkClick}>
               <Button variant="ghost" className="w-full md:w-auto justify-start">
                 <Settings className="h-4 w-4 mr-2" />
