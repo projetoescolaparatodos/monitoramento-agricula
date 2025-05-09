@@ -42,6 +42,7 @@ const AdminPanels = () => {
                 <TabsTrigger value="agriculture">Agricultura</TabsTrigger>
                 <TabsTrigger value="fishing">Pesca</TabsTrigger>
                 <TabsTrigger value="paa">PAA</TabsTrigger>
+                <TabsTrigger value="sim">SIM</TabsTrigger>
               </TabsList>
               
               <TabsContent value="agriculture">
@@ -54,6 +55,10 @@ const AdminPanels = () => {
               
               <TabsContent value="paa">
                 <InfoPanelManager pageType="paa" />
+              </TabsContent>
+
+              <TabsContent value="sim">
+                <InfoPanelManager pageType="sim" />
               </TabsContent>
             </Tabs>
           </CardContent>
