@@ -1,32 +1,26 @@
 
-import { ChartItem } from "@/types";
-import ChartComponent from "../common/ChartComponent";
-import { Card } from "@/components/ui/card";
+import React from 'react';
+import { FirebaseChartItem } from '@/types';
+import Chart from '@/components/common/Chart';
 
 interface DataVisualizationSectionProps {
-  charts: ChartItem[];
+  charts: FirebaseChartItem[];
   isLoading: boolean;
 }
 
-const DataVisualizationSection = ({ charts, isLoading }: DataVisualizationSectionProps) => {
+const DataVisualizationSection: React.FC<DataVisualizationSectionProps> = ({ charts, isLoading }) => {
   if (isLoading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {[1, 2].map((i) => (
-          <Card key={i} className="p-6 bg-white/10 backdrop-blur-sm">
-            <div className="h-64 animate-pulse bg-white/20 rounded-lg"></div>
-          </Card>
-        ))}
-      </div>
-    );
+    return <div>Carregando...</div>;
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
       {charts.map((chart) => (
-        <Card key={chart.id} className="p-6 bg-white/10 backdrop-blur-sm border-0">
-          <ChartComponent chartData={chart} />
-        </Card>
+        <div key={chart.id} className="bg-white/10 backdrop-blur-sm p-6 rounded-lg">
+          <h3 className="text-xl font-semibold mb-4 text-white">{chart.title}</h3>
+          <p className="text-white/80 mb-4">{chart.description}</p>
+          <Chart data={chart.chartData} type={chart.chartType} />
+        </div>
       ))}
     </div>
   );

@@ -1,12 +1,11 @@
-
 import React from 'react';
-import { MediaItem } from '@/types';
+import { FirebaseMediaItem } from '@/types';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaDisplay from '@/components/common/MediaDisplay';
 
 interface MediaGallerySectionProps {
-  mediaItems?: MediaItem[];
+  mediaItems?: FirebaseMediaItem[];
   isLoading?: boolean;
 }
 
