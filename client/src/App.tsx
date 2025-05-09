@@ -10,6 +10,7 @@ import Report from "@/pages/Report";
 import AgriculturaMap from "@/pages/AgriculturaMap";
 import PescaMap from "@/pages/PescaMap";
 import PAAMap from "@/pages/PAAMap";
+import SIM from "@/pages/SIM";
 import Agriculture from "@/pages/Agriculture";
 import Fishing from "@/pages/Fishing";
 import PAAInfo from "@/pages/PAAInfo";
@@ -61,6 +62,7 @@ function Router() {
             <Route path="/fishing/map" component={PescaMap} />
             <Route path="/paa" component={PAAInfo} />
             <Route path="/paa/map" component={PAAMap} />
+            <Route path="/sim" component={SIM} />
             <Route path="/dashboard/:section?" component={Dashboard} />
             <Route path="/login" component={Login} />
             <Route path="/admin">
