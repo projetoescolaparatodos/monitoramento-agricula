@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { ContentItem } from "@/types";
 import { Link } from "wouter";
@@ -35,9 +34,9 @@ const HeroSection = () => {
                       }}
                     />
                     <div 
-                      className="text-lg md:text-2xl text-white/90 font-medium tracking-wide mb-6 md:mb-8 max-w-xl text-justify border-l-4 border-white/40 pl-4 py-2"
-                      dangerouslySetInnerHTML={{ 
-                        __html: content?.content || "Dados Sobre a produção em Vitória do Xingu" 
+                      className="text-lg md:text-2xl text-white/90 font-medium tracking-wide mb-6 md:mb-8 max-w-xl text-justify border-l-4 border-white/40 pl-6 py-4"
+                      dangerouslySetInnerHTML={{
+                        __html: content?.content || `Conheça as principais ações e iniciativas da Secretaria Municipal de Agricultura, Pesca e Abastecimento.<br><br>Fique por dentro dos projetos que estão transformando o setor agropecuário e pesqueiro do nosso município.`
                       }}
                     />
                   </>
