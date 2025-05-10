@@ -13,7 +13,7 @@ const HeroSection = () => {
         className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm"
       >
         <ClipboardList className="h-4 w-4" />
-        Solicitar Inspeção
+        Solicitar Inspeção SIM
       </Button>
     </section>
   );

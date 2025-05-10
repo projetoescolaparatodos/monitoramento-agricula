@@ -14,7 +14,7 @@ import { useToast } from "../../hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 
 const formSchema = z.object({
-  pageType: z.string(),
+  pageType: z.enum(["home", "agriculture", "fishing", "paa", "sim"]),
   title: z.string().min(2, "Título deve ter pelo menos 2 caracteres"),
   description: z.string().optional(),
   mediaType: z.string(),
