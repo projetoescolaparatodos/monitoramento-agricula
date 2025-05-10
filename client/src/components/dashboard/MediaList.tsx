@@ -70,6 +70,7 @@ export const MediaList = ({ onEdit }: MediaListProps) => {
       case 'agriculture': return 'Agricultura';
       case 'fishing': return 'Pesca';
       case 'paa': return 'PAA';
+      case 'sim': return 'SIM';
       default: return pageType;
     }
   };
