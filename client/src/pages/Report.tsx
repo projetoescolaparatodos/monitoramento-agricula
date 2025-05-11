@@ -645,7 +645,7 @@ const Report = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Fish className="h-5 w-5 text-green-500" />
-                  Tipos de Tanques
+                  Estruturas Aquícolas
                 </CardTitle>
               </CardHeader>
               <CardContent>

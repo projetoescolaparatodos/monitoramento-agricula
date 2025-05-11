@@ -894,7 +894,7 @@ const PescaForm = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="tipoTanque">Tipo de Tanque</Label>
+                <Label htmlFor="tipoTanque">Estrutura Aquícola</Label>
                 <Input
                   id="tipoTanque"
                   value={tipoTanque}
