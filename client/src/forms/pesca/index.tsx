@@ -261,6 +261,7 @@ const FormPesca = () => {
                 <option value="Análise da água">Análise da água</option>
                 <option value="Distribuição de alevinos">Distribuição de alevinos</option>
                 <option value="Capacitação">Capacitação</option>
+                <option value="Estrutura Aquícola">Estrutura Aquícola</option>
                 <option value="Licenciamento ambiental">Licenciamento ambiental</option>
                 <option value="Outro">Outro serviço</option>
               </select>
