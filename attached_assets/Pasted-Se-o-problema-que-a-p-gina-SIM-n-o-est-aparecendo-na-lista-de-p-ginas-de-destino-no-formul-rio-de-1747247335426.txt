@@ -1,0 +1,69 @@
+Se o problema é que a página SIM não está aparecendo na lista de páginas de destino no formulário de upload de mídia, vamos verificar e ajustar o código para garantir que ela seja exibida corretamente.
+
+Possíveis causas do problema:
+O enum no zod ou no PageType não está atualizado corretamente.
+
+O select no formulário pode estar com valores fixos e não refletindo o enum definido.
+
+O backend ou a API pode estar filtrando os valores permitidos.
+
+Solução: Verificar e corrigir o código
+1. Atualizar o formSchema (Zod) e PageType
+Verifique se o enum no schema de validação inclui "sim":
+
+typescript
+const formSchema = z.object({
+  pageType: z.enum(["home", "agriculture", "fishing", "paa", "sim"]), // ✅ Certifique-se de que "sim" está aqui
+  // ... outros campos
+});
+E no arquivo types.ts (se usado):
+
+typescript
+export type PageType = "home" | "agriculture" | "fishing" | "paa" | "sim"; // ✅ Inclua "sim"
+2. Verificar o select no formulário
+O select deve listar todas as opções, incluindo SIM:
+
+tsx
+<FormField
+  control={form.control}
+  name="pageType"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Página</FormLabel>
+      <FormControl>
+        <select {...field} className="w-full p-2 border rounded-md">
+          <option value="home">Página Inicial</option>
+          <option value="agriculture">Agricultura</option>
+          <option value="fishing">Pesca</option>
+          <option value="paa">PAA</option>
+          <option value="sim">SIM</option> {/* ✅ Garanta que está presente */}
+        </select>
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+3. Verificar o backend (API)
+Se o SIM não está sendo salvo, pode ser que o backend não esteja aceitando esse valor.
+Verifique no seu endpoint /api/media-items se:
+
+O pageType permite "sim".
+
+Não há filtros removendo essa opção.
+
+Exemplo (Node.js):
+
+javascript
+// Exemplo de validação no backend
+const validPageTypes = ["home", "agriculture", "fishing", "paa", "sim"];
+if (!validPageTypes.includes(req.body.pageType)) {
+  return res.status(400).json({ error: "Tipo de página inválido" });
+}
+4. Testar o fluxo completo
+Abra o formulário de "Nova Mídia".
+
+Verifique se SIM aparece no dropdown.
+
+Tente selecionar SIM, preencher os campos e enviar.
+
+Verifique no banco de dados se a mídia foi salva com pageType: "sim"
