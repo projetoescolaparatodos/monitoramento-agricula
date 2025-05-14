@@ -216,6 +216,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Endpoint para obter uma estatística específica
+  app.get('/api/statistics/:id', async (req, res) => {
+    try {
+      const id = req.params.id;
+      const statDoc = await getDoc(doc(db, 'statistics', id));
+      
+      if (!statDoc.exists()) {
+        return res.status(404).json({ error: true, message: 'Estatística não encontrada' });
+      }
+      
+      res.json({ id: statDoc.id, ...statDoc.data() });
+    } catch (error) {
+      console.error('Error fetching statistic:', error);
+      res.status(500).json({ error: true, message: 'Erro ao buscar estatística' });
+    }
+  });
+
+  // Endpoint para atualizar uma estatística
+  app.put('/api/statistics/:id', async (req, res) => {
+    try {
+      const id = req.params.id;
+      const statData = req.body;
+      
+      await updateDoc(doc(db, 'statistics', id), {
+        ...statData,
+        updatedAt: new Date().toISOString()
+      });
+      
+      res.json({ id, ...statData });
+    } catch (error) {
+      console.error('Error updating statistic:', error);
+      res.status(500).json({ error: true, message: 'Erro ao atualizar estatística' });
+    }
+  });
+
+  // Endpoint para excluir uma estatística
+  app.delete('/api/statistics/:id', async (req, res) => {
+    try {
+      const id = req.params.id;
+      await deleteDoc(doc(db, 'statistics', id));
+      
+      console.log('Deleted statistic:', id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting statistic:', error);
+      res.status(500).json({ error: true, message: 'Erro ao excluir estatística' });
+    }
+  });
+
   // Chatbot messages endpoint
   app.post('/api/chatbot/mensagens', async (req, res) => {
     try {

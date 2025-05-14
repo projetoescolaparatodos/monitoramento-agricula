@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -15,18 +16,17 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Loader2, Pencil, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { StatisticItem } from "@/types";
 
-interface StatisticItem {
-  id: string;
-  label: string;
-  value: string;
-  trend?: string;
-  trendValue?: string;
-  isPositive?: boolean;
-  pageType: string;
-  active: boolean;
-  order: number;
-}
+const getPageTypeLabel = (pageType: string) => {
+  switch (pageType) {
+    case 'home': return 'Página Inicial';
+    case 'agriculture': return 'Agricultura';
+    case 'fishing': return 'Pesca';
+    case 'paa': return 'PAA';
+    default: return pageType;
+  }
+};
 
 interface StatisticListProps {
   onEdit: (id: string) => void;
@@ -64,6 +64,7 @@ export const StatisticList = ({ onEdit }: StatisticListProps) => {
       });
       setIsDeleteDialogOpen(false);
     } catch (error) {
+      console.error("Erro ao excluir estatística:", error);
       toast({
         title: "Erro ao excluir",
         description: "Ocorreu um erro ao excluir a estatística.",
@@ -71,30 +72,36 @@ export const StatisticList = ({ onEdit }: StatisticListProps) => {
       });
     } finally {
       setIsDeleting(false);
+      setStatisticToDelete(null);
     }
-  };
-
-  const getPageTypeLabel = (type: string) => {
-    const types = {
-      home: "Página Inicial",
-      agriculture: "Agricultura",
-      fishing: "Pesca",
-      paa: "PAA"
-    };
-    return types[type as keyof typeof types] || type;
   };
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="space-y-4">
+        <Card className="p-4">
+          <div className="flex justify-between items-center">
+            <div className="space-y-2 w-full">
+              <div className="h-5 bg-gray-200 rounded animate-pulse w-1/3"></div>
+              <div className="h-8 bg-gray-200 rounded animate-pulse w-1/2"></div>
+            </div>
+          </div>
+        </Card>
       </div>
+    );
+  }
+
+  if (!statistics || statistics.length === 0) {
+    return (
+      <Card className="p-6">
+        <p className="text-center text-gray-500">Nenhuma estatística encontrada.</p>
+      </Card>
     );
   }
 
   return (
     <div className="space-y-4">
-      {statistics?.map((statistic) => (
+      {statistics.map((statistic) => (
         <Card key={statistic.id} className="p-4">
           <div className="flex justify-between items-start">
             <div className="space-y-2">
@@ -108,7 +115,7 @@ export const StatisticList = ({ onEdit }: StatisticListProps) => {
               <p className="text-2xl font-bold">{statistic.value}</p>
               {statistic.trend && (
                 <p className={`text-sm ${statistic.isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                  {statistic.trend} {statistic.trendValue}
+                  {statistic.trendValue && `${statistic.trendValue} `}{statistic.trend}
                 </p>
               )}
             </div>
