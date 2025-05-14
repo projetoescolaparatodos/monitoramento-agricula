@@ -234,6 +234,15 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
                 )}
               />
             )}
+            
+            {/* Componente de upload com passagem correta do pageType */}
+            <div className="mt-4">
+              <MediaFileUploader 
+                onFileUploaded={(url) => form.setValue('mediaUrl', url)}
+                acceptTypes={mediaType === "image" ? "image/*" : "video/*"}
+                folderPath={`midias/${mediaType}`}
+                pageType={form.watch("pageType") as 'home' | 'agriculture' | 'fishing' | 'paa' | 'sim'}
+              />
             {mediaUrl && (
               <div className="border p-4 rounded-md">
                 <h3 className="font-medium mb-2">Pré-visualização</h3>
