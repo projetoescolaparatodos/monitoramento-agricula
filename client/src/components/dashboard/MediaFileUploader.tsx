@@ -13,6 +13,7 @@ interface MediaFileUploaderProps {
   label?: string;
   acceptTypes?: string;
   folderPath?: string;
+  pageType?: 'home' | 'agriculture' | 'fishing' | 'paa' | 'sim';
 }
 
 const MediaFileUploader = ({
@@ -20,7 +21,8 @@ const MediaFileUploader = ({
   label = "Arquivo de Mídia",
   acceptTypes = "image/*,video/*",
   folderPath = "midias",
-}: MediaFileUploaderProps) => {
+  pageType = "home",
+}: MediaFileUploaderProps & { pageType?: string }) => {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const { toast } = useToast();
@@ -36,7 +38,7 @@ const MediaFileUploader = ({
       // Criar uma referência de storage para o arquivo
       const fileType = file.type.split('/')[0]; // 'image' ou 'video'
       const timestamp = Date.now();
-      const fileRef = ref(storage, `${folderPath}/${fileType}/${timestamp}_${file.name}`);
+      const fileRef = ref(storage, `${folderPath}/${fileType}/${pageType}/${timestamp}_${file.name}`);
       
       setProgress(30);
       // Fazer upload do arquivo
