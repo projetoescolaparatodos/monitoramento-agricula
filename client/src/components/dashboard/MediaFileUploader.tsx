@@ -13,7 +13,7 @@ interface MediaFileUploaderProps {
   label?: string;
   acceptTypes?: string;
   folderPath?: string;
-  pageType?: 'home' | 'agriculture' | 'fishing' | 'paa' | 'sim';
+  pageType?: 'home' | 'agriculture' | 'fishing' | 'paa';
 }
 
 const MediaFileUploader = ({

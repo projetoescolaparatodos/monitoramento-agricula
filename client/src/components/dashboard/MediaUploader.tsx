@@ -14,7 +14,7 @@ import { useToast } from "../../hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 
 const formSchema = z.object({
-  pageType: z.enum(["home", "agriculture", "fishing", "paa", "sim"]),
+  pageType: z.enum(["home", "agriculture", "fishing", "paa"]),
   title: z.string().min(2, "Título deve ter pelo menos 2 caracteres"),
   description: z.string().optional(),
   mediaType: z.string(),
@@ -23,9 +23,6 @@ const formSchema = z.object({
   active: z.boolean().default(true),
   order: z.number().int().min(0)
 });
-
-// Verificação para garantir que o schema está correto
-console.log("Schema pageType inclui 'sim':", formSchema.shape.pageType._def.values.includes("sim"));
 
 interface MediaUploaderProps {
   mediaData?: MediaFormData;
@@ -157,7 +154,6 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
                         <option value="agriculture">Agricultura</option>
                         <option value="fishing">Pesca</option>
                         <option value="paa">PAA</option>
-                        <option value="sim">SIM</option>
                       </select>
                     </FormControl>
                     <FormMessage />
