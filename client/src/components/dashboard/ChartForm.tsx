@@ -173,20 +173,40 @@ const ChartForm: React.FC<ChartFormProps> = ({
   };
 
   const onSubmit = (data: ChartFormData) => {
+    // Verificar se é gráfico de pizza/rosca com cores personalizadas
+    const isPieChart = ['pie', 'doughnut', 'polarArea'].includes(data.chartType);
+    
     const preparedData = {
       ...data,
       chartData: {
         labels: data.chartData.labels,
-        datasets: data.chartData.datasets.map(dataset => ({
-          label: dataset.label || 'Dados',
-          data: dataset.data,
-          backgroundColor: dataset.backgroundColor || '#4CAF50',
-          borderColor: dataset.borderColor || '#388E3C',
-          borderWidth: dataset.borderWidth || 1
-        }))
+        datasets: data.chartData.datasets.map(dataset => {
+          // Para gráficos de pizza com cores personalizadas
+          if (isPieChart && useCustomColors && Array.isArray(dataset.backgroundColor)) {
+            return {
+              ...dataset,
+              label: dataset.label || 'Dados',
+              data: dataset.data,
+              // Preservar o array de cores
+              backgroundColor: dataset.backgroundColor,
+              borderColor: dataset.borderColor || '#388E3C',
+              borderWidth: dataset.borderWidth || 1
+            };
+          }
+          
+          // Para outros gráficos ou sem personalização de cores
+          return {
+            label: dataset.label || 'Dados',
+            data: dataset.data,
+            backgroundColor: dataset.backgroundColor || '#4CAF50',
+            borderColor: dataset.borderColor || '#388E3C',
+            borderWidth: dataset.borderWidth || 1
+          };
+        })
       }
     };
-
+    
+    console.log("Enviando dados para API:", preparedData);
     mutation.mutate(preparedData);
   };
 
@@ -442,7 +462,19 @@ const ChartForm: React.FC<ChartFormProps> = ({
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                onClick={() => setUseCustomColors(!useCustomColors)}
+                                onClick={() => {
+                                  // Se estiver ativando cores personalizadas, inicializar o array
+                                  if (!useCustomColors) {
+                                    const colors = labelFields.map((_, idx) => 
+                                      colorPalette[idx % colorPalette.length]
+                                    );
+                                    form.setValue('chartData.datasets.0.backgroundColor', colors);
+                                  } else {
+                                    // Voltando para cores automáticas, remover array
+                                    form.setValue('chartData.datasets.0.backgroundColor', colorPalette[0]);
+                                  }
+                                  setUseCustomColors(!useCustomColors);
+                                }}
                               >
                                 {useCustomColors ? "Usar cores automáticas" : "Personalizar cores"}
                               </Button>
@@ -471,13 +503,20 @@ const ChartForm: React.FC<ChartFormProps> = ({
                                                   {...field} 
                                                   value={field.value || colorPalette[labelIndex % colorPalette.length]}
                                                   onChange={(e) => {
+                                                    // Inicializar array de cores se ainda não for um array
                                                     if (!Array.isArray(form.getValues('chartData.datasets.0.backgroundColor'))) {
                                                       const colors = labelFields.map((_, idx) => 
                                                         colorPalette[idx % colorPalette.length]
                                                       );
                                                       form.setValue('chartData.datasets.0.backgroundColor', colors);
                                                     }
-                                                    field.onChange(e.target.value);
+                                                    
+                                                    // Criar uma cópia do array atual para modificar
+                                                    const currentColors = [...form.getValues('chartData.datasets.0.backgroundColor')];
+                                                    currentColors[labelIndex] = e.target.value;
+                                                    
+                                                    // Atualizar o array completo no formulário
+                                                    form.setValue('chartData.datasets.0.backgroundColor', currentColors);
                                                   }}
                                                   className="w-12 h-7"
                                                 />
