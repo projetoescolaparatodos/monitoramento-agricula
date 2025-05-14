@@ -410,6 +410,7 @@ const MediaUploader = ({
                     watchMediaType === "image" ? "image/*" : "video/*"
                   }
                   folderPath={`midias/${watchMediaType}`}
+                  pageType={form.watch("pageType") as 'home' | 'agriculture' | 'fishing' | 'paa' | 'sim'}
                 />
               </div>
             </div>

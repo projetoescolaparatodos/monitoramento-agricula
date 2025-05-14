@@ -48,9 +48,11 @@ export interface StatisticItem {
   updatedAt: Date;
 }
 
+export type PageType = 'home' | 'agriculture' | 'fishing' | 'paa' | 'sim';
+
 export interface MediaFormData {
   id?: string;
-  pageType: string;
+  pageType: PageType;
   title: string;
   description?: string; // Contém HTML formatado do ReactQuill
   mediaType: string;
