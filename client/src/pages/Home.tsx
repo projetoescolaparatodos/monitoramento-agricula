@@ -112,7 +112,6 @@ const Home = () => {
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
         <HeroSection />
         <section id="estatisticas" className="py-12">
-          <h2 className="text-3xl font-bold text-center mb-8 text-white">Estatísticas Principais</h2>
           <StatisticsSection variant="transparent" />
         </section>
         <section id="areas" className="py-12">
