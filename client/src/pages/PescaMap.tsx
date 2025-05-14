@@ -20,6 +20,8 @@ interface Pesca {
   id: string;
   numeroRegistro?: string;
   localidade: string;
+  nomeImovel?: string;
+  proprietario?: string;
   tipoTanque: string;
   areaImovel?: number;
   areaAlagada?: number;
@@ -136,6 +138,8 @@ const PescaMap = () => {
           id: doc.id,
           numeroRegistro: data.numeroRegistro,
           localidade: data.localidade,
+          nomeImovel: data.nomeImovel,
+          proprietario: data.proprietario,
           tipoTanque: data.tipoTanque,
           areaImovel: data.areaImovel,
           areaAlagada: data.areaAlagada,
@@ -220,42 +224,14 @@ const PescaMap = () => {
                   <strong>Localidade:</strong> {pesca.localidade}
                 </p>
                 <p>
-                  <strong>Tipo de Ambiente de Cultivo:</strong>{" "}
+                  <strong>Nome do Imóvel Rural:</strong> {pesca.nomeImovel || "-"}
+                </p>
+                <p>
+                  <strong>Nome do Proprietário:</strong> {pesca.proprietario || "-"}
+                </p>
+                <p>
+                  <strong>Estrutura Aquícola:</strong>{" "}
                   {pesca.tipoTanque}
-                </p>
-                <p>
-                  <strong>Área do imóvel:</strong>{" "}
-                  {(() => {
-                    const area = typeof pesca.areaImovel === 'number' 
-                      ? pesca.areaImovel 
-                      : typeof pesca.areaImovel === 'string' 
-                        ? parseFloat(pesca.areaImovel) 
-                        : null;
-
-                    if (area === null) return "-";
-                    return area.toFixed(2) + " ha";
-                  })()}
-                </p>
-                <p>
-                  <strong>Área Alagada:</strong>{" "}
-                  {(() => {
-                    const area = typeof pesca.areaAlagada === 'number' 
-                      ? pesca.areaAlagada 
-                      : typeof pesca.areaAlagada === 'string' 
-                        ? parseFloat(pesca.areaAlagada) 
-                        : null;
-
-                    if (area === null) return "-";
-                    return area.toFixed(2) + " ha";
-                  })()}
-                </p>
-                <p>
-                  <strong>Ciclo de produção:</strong>{" "}
-                  {pesca.cicloProdução || "-"}
-                </p>
-                <p>
-                  <strong>Sistema de cultivo:</strong>{" "}
-                  {pesca.sistemaCultivo || "-"}
                 </p>
                 <p>
                   <strong>Espécie:</strong> {pesca.especiePeixe}
