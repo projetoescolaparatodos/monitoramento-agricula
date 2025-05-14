@@ -45,7 +45,7 @@ const StatisticsSection = ({ variant = "default" }: { variant?: "default" | "tra
                   <div className="flex items-center justify-center text-sm font-medium">
                     <span className={`flex items-center ${stat.isPositive ? "text-green-600" : "text-red-600"}`}>
                       {stat.isPositive ? <ChevronUp className="w-4 h-4 mr-1" /> : <ChevronDown className="w-4 h-4 mr-1" />}
-                      {stat.trend} {stat.trendValue && <span className="ml-1">{stat.trendValue}</span>}
+                      {stat.trendValue && <span className="mr-1">{stat.trendValue}</span>} {stat.trend}
                     </span>
                   </div>
                 )}

@@ -20,7 +20,7 @@ const StatisticsSection = () => {
               <p className="text-3xl font-bold mt-2">{stat.value}</p>
               {stat.trend && (
                 <p className={`text-sm mt-2 ${stat.isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                  {stat.trend} ({stat.trendValue})
+                  {stat.trendValue && `${stat.trendValue} `}{stat.trend}
                 </p>
               )}
             </Card>
