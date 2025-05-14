@@ -37,7 +37,7 @@ const StatisticsSection = ({ variant = "default" }: { variant?: "default" | "tra
         ) : (
           activeStatistics?.map((stat) => (
             <Card key={stat.id} className={`${variant === "transparent" ? "bg-white/90 backdrop-blur-sm" : "bg-white"} rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1`}>
-              <div className="border-t-4 border-primary"></div>
+              <div className="border-t-4 border-[#00ff4c]"></div>
               <CardContent className="p-6 text-center">
                 <div className="text-4xl font-bold text-primary-dark mb-3">{stat.value}</div>
                 <div className="text-sm uppercase font-semibold tracking-wider mb-3 text-gray-700">{stat.label}</div>
