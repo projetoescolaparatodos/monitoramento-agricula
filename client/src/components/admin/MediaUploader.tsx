@@ -146,6 +146,7 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
                         <option value="agriculture">Agricultura</option>
                         <option value="fishing">Pesca</option>
                         <option value="paa">PAA</option>
+                        <option value="sim">SIM</option>
                       </select>
                     </FormControl>
                     <FormMessage />
