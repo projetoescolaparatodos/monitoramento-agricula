@@ -24,6 +24,9 @@ const formSchema = z.object({
   order: z.number().int().min(0)
 });
 
+// Verificação para garantir que o schema está correto
+console.log("Schema pageType inclui 'sim':", formSchema.shape.pageType._def.values.includes("sim"));
+
 interface MediaUploaderProps {
   mediaData?: MediaFormData;
   isEdit?: boolean;
@@ -62,6 +65,9 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
     resolver: zodResolver(formSchema),
     defaultValues: fetchedMedia || mediaData || defaultValues,
   });
+  
+  // Log para debug do pageType selecionado
+  console.log("Valor atual de pageType:", form.watch("pageType"));
 
   if (isEdit && fetchedMedia && !form.formState.isDirty) {
     form.reset(fetchedMedia);
@@ -69,6 +75,7 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
 
   const onSubmit = async (data: MediaFormData) => {
     try {
+      console.log("Dados a serem enviados:", data);
       setIsSubmitting(true);
       if (isEdit && mediaData?.id) {
         await apiRequest("PUT", `/api/media-items/${mediaData.id}`, data);
@@ -86,6 +93,11 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
       }
       queryClient.invalidateQueries({ queryKey: ['/api/media-items'] });
 
+      // Invalidar todas as queries relacionadas a media para garantir dados atualizados
+      queryClient.invalidateQueries({ queryKey: ['/api/media-items'] });
+      queryClient.invalidateQueries({ queryKey: ['media'] });
+      queryClient.invalidateQueries({ queryKey: ['media', 'sim'] });
+      
       if (onSuccess) {
         onSuccess();
       }
