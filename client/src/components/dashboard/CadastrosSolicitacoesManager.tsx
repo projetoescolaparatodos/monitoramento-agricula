@@ -856,16 +856,124 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                     </>
                   ) : (
                     <>
-                      {/* Campos para solicitações simples */}
-                      <div className="grid grid-cols-3 gap-1">
-                        <span className="text-sm font-medium">Serviço:</span>
-                        <span className="text-sm col-span-2">{solicitacaoSelecionada.servico}</span>
-                      </div>
-                      {solicitacaoSelecionada.descricao && (
-                        <div className="grid grid-cols-3 gap-1">
-                          <span className="text-sm font-medium">Descrição:</span>
-                          <span className="text-sm col-span-2">{solicitacaoSelecionada.descricao}</span>
+                      {/* Campos específicos para formulários completos */}
+                      {solicitacaoSelecionada.origem.includes('completo') ? (
+                        <div className="grid grid-cols-1 gap-4">
+                          {/* Propriedade */}
+                          {(solicitacaoSelecionada.nomePropriedade || solicitacaoSelecionada.enderecoPropriedade || solicitacaoSelecionada.tamanhoPropriedade) && (
+                            <div className="border p-3 rounded-md">
+                              <h4 className="font-medium mb-2">Dados da Propriedade</h4>
+                              <div className="space-y-2">
+                                {solicitacaoSelecionada.nomePropriedade && (
+                                  <div className="grid grid-cols-3 gap-1">
+                                    <span className="text-sm font-medium">Nome:</span>
+                                    <span className="text-sm col-span-2">{solicitacaoSelecionada.nomePropriedade}</span>
+                                  </div>
+                                )}
+                                {solicitacaoSelecionada.enderecoPropriedade && (
+                                  <div className="grid grid-cols-3 gap-1">
+                                    <span className="text-sm font-medium">Endereço:</span>
+                                    <span className="text-sm col-span-2">{solicitacaoSelecionada.enderecoPropriedade}</span>
+                                  </div>
+                                )}
+                                {solicitacaoSelecionada.tamanhoPropriedade && (
+                                  <div className="grid grid-cols-3 gap-1">
+                                    <span className="text-sm font-medium">Tamanho:</span>
+                                    <span className="text-sm col-span-2">{solicitacaoSelecionada.tamanhoPropriedade} ha</span>
+                                  </div>
+                                )}
+                                {solicitacaoSelecionada.situacaoLegal && (
+                                  <div className="grid grid-cols-3 gap-1">
+                                    <span className="text-sm font-medium">Situação Legal:</span>
+                                    <span className="text-sm col-span-2">{solicitacaoSelecionada.situacaoLegal}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Culturas (Agricultura) */}
+                          {solicitacaoSelecionada.culturas && (
+                            <div className="border p-3 rounded-md">
+                              <h4 className="font-medium mb-2">Culturas</h4>
+                              <div className="space-y-2">
+                                {Object.entries(solicitacaoSelecionada.culturas)
+                                  .filter(([_, value]) => value.selecionado)
+                                  .map(([cultura, dados]) => (
+                                    <div key={cultura} className="grid grid-cols-3 gap-1">
+                                      <span className="text-sm font-medium">{cultura}:</span>
+                                      <span className="text-sm col-span-2">
+                                        Área: {dados.area} ha, Produção: {dados.producao} kg/ano
+                                      </span>
+                                    </div>
+                                  ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Estruturas (Pesca) */}
+                          {solicitacaoSelecionada.estruturas && (
+                            <div className="border p-3 rounded-md">
+                              <h4 className="font-medium mb-2">Estruturas</h4>
+                              <div className="space-y-2">
+                                {Object.entries(solicitacaoSelecionada.estruturas)
+                                  .filter(([_, value]) => value === true)
+                                  .map(([estrutura]) => (
+                                    <div key={estrutura} className="grid grid-cols-3 gap-1">
+                                      <span className="text-sm font-medium">{estrutura.replace(/_/g, ' ')}:</span>
+                                      <span className="text-sm col-span-2">Presente</span>
+                                    </div>
+                                  ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Recursos */}
+                          {(solicitacaoSelecionada.maquinario || solicitacaoSelecionada.maodeobra) && (
+                            <div className="border p-3 rounded-md">
+                              <h4 className="font-medium mb-2">Recursos</h4>
+                              {solicitacaoSelecionada.maquinario && (
+                                <div className="mb-2">
+                                  <h5 className="text-sm font-medium mb-1">Maquinário:</h5>
+                                  {Object.entries(solicitacaoSelecionada.maquinario)
+                                    .filter(([_, value]) => value === true)
+                                    .map(([maquina]) => (
+                                      <Badge key={maquina} className="mr-2 mb-1">
+                                        {maquina.replace(/_/g, ' ')}
+                                      </Badge>
+                                    ))}
+                                </div>
+                              )}
+                              {solicitacaoSelecionada.maodeobra && (
+                                <div>
+                                  <h5 className="text-sm font-medium mb-1">Mão de obra:</h5>
+                                  {Object.entries(solicitacaoSelecionada.maodeobra)
+                                    .filter(([_, value]) => value.selecionado)
+                                    .map(([tipo, dados]) => (
+                                      <div key={tipo} className="grid grid-cols-3 gap-1">
+                                        <span className="text-sm font-medium">{tipo.replace(/_/g, ' ')}:</span>
+                                        <span className="text-sm col-span-2">{dados.quantidade} pessoas</span>
+                                      </div>
+                                    ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
+                      ) : (
+                        // Campos para solicitações simples
+                        <>
+                          <div className="grid grid-cols-3 gap-1">
+                            <span className="text-sm font-medium">Serviço:</span>
+                            <span className="text-sm col-span-2">{solicitacaoSelecionada.servico}</span>
+                          </div>
+                          {solicitacaoSelecionada.descricao && (
+                            <div className="grid grid-cols-3 gap-1">
+                              <span className="text-sm font-medium">Descrição:</span>
+                              <span className="text-sm col-span-2">{solicitacaoSelecionada.descricao}</span>
+                            </div>
+                          )}
+                        </>
                       )}
                     </>
                   )}
