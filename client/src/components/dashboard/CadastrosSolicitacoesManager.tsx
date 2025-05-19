@@ -162,20 +162,28 @@ export const CadastrosSolicitacoesManager = () => {
         let todasSolicitacoes: Solicitacao[] = [];
 
         for (const colecao of colecoes) {
+          console.log(`Buscando solicitações da coleção: ${colecao}`);
           const q = query(
-            collection(db, colecao),
-            orderBy('dataCriacao', 'desc')
+            collection(db, colecao)
           );
 
           const querySnapshot = await getDocs(q);
-          const solicitacoesSetor = querySnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          })) as Solicitacao[];
+          console.log(`Encontradas ${querySnapshot.size} solicitações em ${colecao}`);
+          
+          const solicitacoesSetor = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            console.log(`Documento ${doc.id}:`, data);
+            return {
+              id: doc.id,
+              tipo: colecao === 'solicitacoes_agricultura' ? 'agricultura' : 'pesca',
+              ...data
+            } as Solicitacao;
+          });
 
           todasSolicitacoes = [...todasSolicitacoes, ...solicitacoesSetor];
         }
 
+        console.log('Total de solicitações encontradas:', todasSolicitacoes.length);
         setSolicitacoes(todasSolicitacoes);
       } catch (error) {
         console.error("Erro ao buscar solicitações:", error);
