@@ -169,7 +169,7 @@ export const CadastrosSolicitacoesManager = () => {
 
           const querySnapshot = await getDocs(q);
           console.log(`Encontradas ${querySnapshot.size} solicitações em ${colecao}`);
-          
+
           const solicitacoesSetor = querySnapshot.docs.map(doc => {
             const data = doc.data();
             console.log(`Documento ${doc.id}:`, data);
@@ -265,7 +265,7 @@ export const CadastrosSolicitacoesManager = () => {
         yPos += lineHeight;
       });
     }
-    
+
 
     // 3.2 Espécies
     if (solicitacao.especiesConfinadas) {
@@ -362,15 +362,17 @@ export const CadastrosSolicitacoesManager = () => {
               {solicitacoesFiltradas.map((solicitacao) => (
                 <Card key={solicitacao.id} className="p-4">
                   <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="font-bold">{solicitacao.dadosPessoais.nomeCompleto}</h3>
-                      <p className="text-sm text-gray-500">
-                        {formatarData(solicitacao.dataCriacao)}
-                      </p>
-                      <Badge variant="outline" className="mt-2">
-                        {solicitacao.tipo === 'agricultura' ? 'Agricultura' : 'Pesca'}
-                      </Badge>
-                    </div>
+                      <div>
+                        <h3 className="font-bold">
+                          {solicitacao.dadosPessoais?.nomeCompleto || 'Nome não informado'}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          {solicitacao.dataCriacao ? formatarData(solicitacao.dataCriacao) : 'Data não informada'}
+                        </p>
+                        <Badge variant="outline" className="mt-2">
+                          {solicitacao.tipo === 'agricultura' ? 'Agricultura' : 'Pesca'}
+                        </Badge>
+                      </div>
                     <div className="flex gap-2">
                       <Button
                         variant="outline"
