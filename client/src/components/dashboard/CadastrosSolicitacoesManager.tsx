@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -189,7 +188,7 @@ export const CadastrosSolicitacoesManager = () => {
     // 3. Classificação
     yPos += lineHeight;
     addSection('3. Classificação', '');
-    
+
     // 3.1 Obras
     doc.text('3.1 Obras:', 20, yPos);
     yPos += lineHeight;
@@ -212,12 +211,12 @@ export const CadastrosSolicitacoesManager = () => {
       doc.addPage();
       yPos = 20;
     }
-    
+
     addSection('4. Detalhamento', '');
     addSection('Distância da Sede:', `${solicitacao.detalhamento.distanciaSede} km`);
     addSection('Situação Legal:', solicitacao.detalhamento.situacaoLegal);
     addSection('Área Total:', `${solicitacao.detalhamento.areaTotal} ha`);
-    
+
     // Recursos Hídricos
     doc.text('Recursos Hídricos:', 20, yPos);
     yPos += lineHeight;
@@ -239,7 +238,7 @@ export const CadastrosSolicitacoesManager = () => {
       doc.addPage();
       yPos = 20;
     }
-    
+
     addSection('5. Recursos', '');
     addSection('Número de Empregados:', solicitacao.recursos.numeroEmpregados.toString());
     addSection('Trabalho Familiar:', solicitacao.recursos.trabalhoFamiliar.toString());
@@ -269,7 +268,7 @@ export const CadastrosSolicitacoesManager = () => {
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">Gerenciar Solicitações</h2>
-      
+
       {/* Lista de Solicitações */}
       <div className="grid gap-4">
         {solicitacoes?.map((solicitacao) => (
@@ -366,7 +365,7 @@ export const CadastrosSolicitacoesManager = () => {
               {/* 3. Classificação */}
               <section>
                 <h3 className="text-lg font-bold mb-2">3. Classificação</h3>
-                
+
                 {/* 3.1 Obras */}
                 <div className="mb-4">
                   <h4 className="font-semibold mb-2">3.1 Obras</h4>
@@ -546,9 +545,9 @@ const generateAgriculturaReport = (solicitacao: Solicitacao) => {
       doc.addPage();
       yPos = 20;
     }
-    
+
     addSection('3. DADOS AGROPECUÁRIOS', '');
-    
+
     // Cacau
     if (solicitacao.dadosAgropecuarios.cacau?.cultiva) {
       addSection('Cacau:', `
