@@ -1,0 +1,202 @@
+1- Identificação do empreendedor: 
+		- Nome Completo: 
+		- Endereço:
+		- Travessão: 
+		- CPF:
+		- Identidade: 
+		- Emissor/UF: 
+		- Sexo:
+		- Número de Celular para contato: 
+2- Identificação da Atividade/Empreendimento
+		- Atividade: 
+		- Endereço:
+		- Coordenadas geográficas da propriedade: (talvez um mapa onde  agricultor possa selecionar a sua propriedade) 
+		- Estrutura Aquícola: (- Viveiros escavados; Açudes; Tanques; Estruturas flutuantes)
+3- Classificação: 
+	3.1 Obras a serem analisadas e situação atual das mesmas:  (múltipla seleção e pergunta dependente da resposta anterior, por exemplo, se marcar canal de igarapé, deve aparer as opções de situação (botões) caso cntrário mudar para viveiro escavado e assim consecultivamente)
+			Canal de igarapé ( )    se selecionado peguntar o m² e situação em seguida: (Obras não iniciadas; Em Construção; Construído; Em manutenção;) esses devem ser botões de resposta rápida.
+			Viveiro Escavado ( )   se selecionado peguntar o ha (hectare) e situação em seguida: (Obras não iniciadas; Em Construção; Construído; Em manutenção;) esses devem ser botões de resposta rápida.
+			Barragem ( )  se selecionado peguntar o m² e situação em seguida: (Obras não iniciadas; Em Construção; Construído; Em manutenção;) esses devem ser botões de resposta rápida.
+			Viveiro Suspenso ( ) selecionado peguntar o m² e situação em seguida: (Obras não iniciadas; Em Construção; Construído; Em manutenção;) esses devem ser botões de resposta rápida.
+	3.2 Espécies confinadas: (múltipla seleção e pergunta dependente da resposta anterior, se selecinada a opção perguntar a quantidade referente aquela opção)
+			Tambaqui ( )  se selecionado perguntar Quantidade:
+			Tambatinga ( ) se selecionado perguntar Quantidade:
+			Matrinxã ( ) se selecionado perguntar Quantidade:
+			Curimatã ( ) se selecionado perguntar Quantidade:
+			Pirarucu ( ) se selecionado perguntar Quantidade:
+			Tilápia ( ) se selecionado perguntar Quantidade:
+4.0 - Detalhamento: 
+			- Localização do empreendimento: (distancia da sede municipal em Km) Referencial para localização: (estrada/ posto de abastecimento, logradouro público, etc)
+			- Dados da propriedade: 
+				- Situação Legal: Proprietário; Arrendatário; Parceiro; Outros (abrir opção para especificar)
+				- Área total da propriedade:  ha
+			-Recursos Hídricos existentes na área: 
+				opções: a) Rio, Nascente/Grota (nome):   b) barragem/ Açude (nome):  c) Outros (abrir opção para especificar):
+			Usos multiplos da água: ( )aquicultura ( )Irrigação ( )Abastecimento Público ( )Lazer
+5.0 - Recursos:
+		- Mão-de-obra (nº de empregados):____________
+		- Trabalho familiar: ___________ nº de pessoas
+		- Recursos Financeiros: ( ) Próprios ( ) Financiamento (caso selecionada perguntar a Fonte:)
+		- Perguntar se Há Assitência Técnica por Profissionais habilitados; Permanente( ) Eventual ( ) Não tem
+6.0 - Area para observações (opcional)
+
+
+
+#### **1. Identificação do Empreendedor**
+
+Use perguntas diretas, com validação básica:
+
+- Qual o seu nome completo?
+    
+- Qual o seu endereço?
+    
+- Qual o nome do travessão?
+    
+- CPF (validar formato ###.###.###-##)
+    
+- RG
+    
+- Órgão Emissor/UF
+    
+- Sexo (opções: Masculino / Feminino / Prefiro não informar)
+    
+- Número de celular para contato (formato: (##) #####-####)
+    
+
+---
+
+#### **2. Identificação da Atividade/Empreendimento**
+
+- Qual a atividade desenvolvida? (campo de texto)
+    
+- Endereço do local da atividade
+    
+
+##### **Estrutura Aquícola (múltipla escolha):**
+
+- Viveiros escavados ( )
+    
+- Açudes ( )
+    
+- Tanques ( )
+    
+- Estruturas flutuantes ( )
+	- Próxima Questão ( ) botão
+
+---
+
+#### **3. Classificação**
+
+##### **3.1 Obras (com lógica condicional):**
+
+Exibir opções de obras (múltipla escolha) e, com base nas selecionadas, perguntar:
+
+- **Canal de Igarapé**
+    
+    - Área em m²:
+        
+    - Situação da obra (botões): Obras não iniciadas / Em construção / Construído / Em manutenção
+        
+- **Viveiro Escavado**
+    
+    - Área em ha:
+        
+    - Situação da obra (idem)
+        
+- **Barragem**
+    
+    - Área em m²:
+        
+    - Situação da obra (idem)
+        
+- **Viveiro Suspenso**
+    
+    - Área em m²:
+        
+    - Situação da obra (idem)
+        
+
+##### **3.2 Espécies Confinadas (múltipla escolha):**
+
+Para cada opção selecionada, perguntar a quantidade:
+
+- Tambaqui ( ) → Quantidade:
+    
+- Tambatinga ( ) → Quantidade:
+    
+- Matrinxã ( ) → Quantidade:
+    
+- Curimatã ( ) → Quantidade:
+    
+- Pirarucu ( ) → Quantidade:
+    
+- Tilápia ( ) → Quantidade:
+    
+
+---
+
+#### **4. Detalhamento**
+
+- Distância da sede municipal (em Km):
+    
+- Referência de localização (texto aberto)
+    
+
+##### **Dados da propriedade**
+
+- Situação legal (botões): Proprietário / Arrendatário / Parceiro / Outros → Se "Outros", abrir campo de texto.
+    
+- Área total da propriedade (em ha):
+    
+
+##### **Recursos Hídricos existentes (múltipla escolha):**
+
+- Rio / Nascente / Grota – permitir informar o nome
+    
+- Barragem / Açude – permitir informar o nome
+    
+- Outros – abrir campo de especificação
+    
+
+##### **Usos múltiplos da água (múltipla escolha):**
+
+- Aquicultura ( )
+    
+- Irrigação ( )
+    
+- Abastecimento Público ( )
+    
+- Lazer ( )
+    
+
+---
+
+#### **5. Recursos**
+
+- Número de empregados (campo numérico)
+    
+- Número de pessoas da família que trabalham na propriedade
+    
+- Recursos financeiros:
+    
+    - ( ) Próprios
+        
+    - ( ) Financiamento → Se selecionado, perguntar a **Fonte do financiamento**
+        
+
+##### **Assistência Técnica:**
+
+- Há assistência técnica por profissional habilitado?
+    
+    - Permanente ( )
+        
+    - Eventual ( )
+        
+    - Não tem ( )
+        
+
+---
+
+#### **6. Observações Finais (opcional)**
+
+- Deseja adicionar alguma observação sobre seu empreendimento? (campo de texto)
