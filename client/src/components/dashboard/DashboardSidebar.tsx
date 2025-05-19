@@ -13,8 +13,9 @@ const DashboardSidebar = ({ activeSection, onSectionChange }: DashboardSidebarPr
     { id: 'charts', label: 'Gráficos', Icon: PieChart },
     { id: 'media', label: 'Mídias', Icon: Image },
     { id: 'statistics', label: 'Estatísticas', Icon: BarChart2 },
-    { id: 'panels', label: 'Painéis Interativos', Icon: LayoutGrid }, // Seção de painéis interativos
-    { id: 'chatbot', label: 'Chatbot IA', Icon: MessageSquare }
+    { id: 'panels', label: 'Painéis Interativos', Icon: LayoutGrid },
+    { id: 'chatbot', label: 'Chatbot IA', Icon: MessageSquare },
+    { id: 'cadastros', label: 'Cadastros e Solicitações', Icon: FileText }
   ];
 
   return (

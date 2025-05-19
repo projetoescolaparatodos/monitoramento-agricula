@@ -16,6 +16,7 @@ import StatisticForm from "@/components/dashboard/StatisticForm";
 import ChatbotSolicitacoes from "@/components/dashboard/ChatbotSolicitacoes";
 import ChatbotAdmin from "@/components/dashboard/ChatbotAdmin";
 import InfoPanelManager from "@/components/dashboard/InfoPanelManager";
+import CadastrosSolicitacoesManager from "@/components/dashboard/CadastrosSolicitacoesManager";
 
 const Dashboard = () => {
   const [, setLocation] = useLocation();
@@ -139,6 +140,7 @@ const Dashboard = () => {
             {section === "panels" && <InfoPanelManager />}
             {section === "chatbot" && <ChatbotAdmin />}
             {section === "solicitacoes" && <ChatbotSolicitacoes />}
+            {section === "cadastros" && <CadastrosSolicitacoesManager />}
 
             {showForm && (
               <div className="flex justify-end mt-4">
