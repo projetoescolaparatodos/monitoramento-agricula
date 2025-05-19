@@ -1120,29 +1120,98 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                   doc.setFontSize(12);
                   let yPos = 40;
 
-                  doc.text('Dados do Solicitante:', 20, yPos);
+                  // Dados Pessoais
+                  doc.text('Dados Pessoais:', 20, yPos);
                   yPos += 10;
-                  doc.text(`Nome: ${solicitacaoSelecionada.nome}`, 20, yPos);
+                  doc.text(`Nome Completo: ${solicitacaoSelecionada.nome}`, 20, yPos);
                   yPos += 7;
                   doc.text(`CPF: ${solicitacaoSelecionada.cpf}`, 20, yPos);
                   yPos += 7;
+                  doc.text(`Identidade: ${solicitacaoSelecionada.identidade || 'Não informado'}`, 20, yPos);
+                  yPos += 7;
+                  doc.text(`Emissor/UF: ${solicitacaoSelecionada.emissor || 'Não informado'}`, 20, yPos);
+                  yPos += 7;
+                  doc.text(`Sexo: ${solicitacaoSelecionada.sexo || 'Não informado'}`, 20, yPos);
+                  yPos += 7;
                   doc.text(`Telefone: ${solicitacaoSelecionada.telefone}`, 20, yPos);
                   yPos += 7;
-                  doc.text(`Email: ${solicitacaoSelecionada.email || 'Não informado'}`, 20, yPos);
+                  doc.text(`Celular: ${solicitacaoSelecionada.celular || solicitacaoSelecionada.telefone}`, 20, yPos);
+                  yPos += 7;
+                  doc.text(`E-mail: ${solicitacaoSelecionada.email || 'Não informado'}`, 20, yPos);
+                  yPos += 7;
+                  doc.text(`Endereço: ${solicitacaoSelecionada.endereco || 'Não informado'}`, 20, yPos);
                   yPos += 10;
 
-                  // Dados da propriedade
+                  // Dados da Propriedade
                   if (solicitacaoSelecionada.nomePropriedade) {
                     doc.text('Dados da Propriedade:', 20, yPos);
                     yPos += 7;
-                    doc.text(`Nome: ${solicitacaoSelecionada.nomePropriedade}`, 20, yPos);
+                    doc.text(`Nome da Propriedade: ${solicitacaoSelecionada.nomePropriedade}`, 20, yPos);
                     yPos += 7;
-                    doc.text(`Endereço: ${solicitacaoSelecionada.enderecoPropriedade}`, 20, yPos);
+                    doc.text(`Endereço da Propriedade: ${solicitacaoSelecionada.enderecoPropriedade}`, 20, yPos);
                     yPos += 7;
-                    doc.text(`Tamanho: ${solicitacaoSelecionada.tamanhoPropriedade} ha`, 20, yPos);
+                    doc.text(`Tamanho da Propriedade: ${solicitacaoSelecionada.tamanhoPropriedade} hectares`, 20, yPos);
+                    yPos += 7;
+                    doc.text(`Distância da sede municipal: ${solicitacaoSelecionada.distanciaMunicipio || 'Não informado'} km`, 20, yPos);
                     yPos += 7;
                     doc.text(`Situação Legal: ${solicitacaoSelecionada.situacaoLegal}`, 20, yPos);
                     yPos += 10;
+                  }
+
+                  // Culturas (se for agricultura)
+                  if (solicitacaoSelecionada.culturas) {
+                    doc.text('Culturas Produzidas:', 20, yPos);
+                    yPos += 7;
+                    
+                    const culturas = [
+                      'Hortaliças', 'Mandioca', 'Milho', 'Feijão', 
+                      'Banana', 'Cítricos', 'Café', 'Cacau'
+                    ];
+
+                    culturas.forEach(cultura => {
+                      if (solicitacaoSelecionada.culturas[cultura]?.selecionado) {
+                        doc.text(`${cultura}:`, 20, yPos);
+                        yPos += 7;
+                        doc.text(`  Área plantada: ${solicitacaoSelecionada.culturas[cultura].area} ha`, 30, yPos);
+                        yPos += 7;
+                        doc.text(`  Produção estimada: ${solicitacaoSelecionada.culturas[cultura].producao} kg/ano`, 30, yPos);
+                        yPos += 7;
+                      }
+                    });
+                    yPos += 5;
+                  }
+
+                  // Verificar se precisa de nova página
+                  if (yPos > 250) {
+                    doc.addPage();
+                    yPos = 20;
+                  }
+
+                  // Maquinário
+                  if (solicitacaoSelecionada.maquinario) {
+                    doc.text('Maquinário Disponível:', 20, yPos);
+                    yPos += 7;
+                    const maquinas = ['Trator', 'Plantadeira', 'Colheitadeira', 'Pulverizador', 'Sistema de Irrigação'];
+                    maquinas.forEach(maquina => {
+                      if (solicitacaoSelecionada.maquinario[maquina]) {
+                        doc.text(`- ${maquina}`, 30, yPos);
+                        yPos += 7;
+                      }
+                    });
+                    yPos += 5;
+                  }
+
+                  // Mão de obra
+                  if (solicitacaoSelecionada.maodeobra) {
+                    doc.text('Mão de Obra:', 20, yPos);
+                    yPos += 7;
+                    Object.entries(solicitacaoSelecionada.maodeobra).forEach(([tipo, dados]) => {
+                      if (dados.selecionado) {
+                        doc.text(`${tipo.replace(/_/g, ' ')}: ${dados.quantidade} pessoas`, 30, yPos);
+                        yPos += 7;
+                      }
+                    });
+                    yPos += 5;
                   }
 
                   // Dados específicos de agricultura
