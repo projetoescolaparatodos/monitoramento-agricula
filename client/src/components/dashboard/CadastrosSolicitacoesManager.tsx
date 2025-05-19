@@ -157,11 +157,11 @@ const CadastrosSolicitacoesManager: React.FC = () => {
     setLoading(true);
     try {
       // Obter solicitações dos três setores
-      const colecoes = ['solicitacoes_agricultura', 'solicitacoes_pesca', 'solicitacoes_paa', 'formulario_web_completo_agricultura', 'formulario_web_completo_pesca', 'formulario_web_completo_paa'];
+      const colecoes = ['solicitacoes_agricultura', 'solicitacoes_pesca', 'solicitacoes_paa', 'solicitacoes_agricultura_completo', 'solicitacoes_pesca_completo', 'solicitacoes_paa_completo'];
       let todasSolicitacoes: Solicitacao[] = [];
 
       for (const colecao of colecoes) {
-        const setor = colecao.split('_')[1];
+        const setor = colecao.includes('_completo') ? colecao.split('_')[1] : colecao.split('_')[1];
         const q = query(
           collection(db, colecao),
           orderBy('timestamp', 'desc')
