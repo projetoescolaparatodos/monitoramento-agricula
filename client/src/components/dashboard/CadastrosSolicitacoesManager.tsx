@@ -68,6 +68,7 @@ import {
 } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
+import jsPDF from 'jspdf';
 
 interface Solicitacao {
   id: string;
@@ -87,6 +88,15 @@ interface Solicitacao {
     data: Timestamp;
     comentario?: string;
   }>;
+  email?: string;
+  nomePropriedade?: string;
+  enderecoPropriedade?: string;
+  tamanhoPropriedade?: string;
+  situacaoLegal?: string;
+  culturas?: Record<string, any>;
+  estruturas?: Record<string, any>;
+  maquinario?: Record<string, any>;
+  maodeobra?: Record<string, any>;
 }
 
 interface DashboardStat {
@@ -1071,7 +1081,124 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                 Fechar
               </Button>
 
-              <Button variant="outline">
+              
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  if (!solicitacaoSelecionada) return;
+
+                  const doc = new jsPDF();
+
+                  // Cabeçalho
+                  doc.setFontSize(16);
+                  doc.text(`Detalhes da Solicitação - ${solicitacaoSelecionada.id}`, 20, 20);
+
+                  // Dados básicos
+                  doc.setFontSize(12);
+                  let yPos = 40;
+
+                  doc.text('Dados do Solicitante:', 20, yPos);
+                  yPos += 10;
+                  doc.text(`Nome: ${solicitacaoSelecionada.nome}`, 20, yPos);
+                  yPos += 7;
+                  doc.text(`CPF: ${solicitacaoSelecionada.cpf}`, 20, yPos);
+                  yPos += 7;
+                  doc.text(`Telefone: ${solicitacaoSelecionada.telefone}`, 20, yPos);
+                  yPos += 7;
+                  doc.text(`Email: ${solicitacaoSelecionada.email || 'Não informado'}`, 20, yPos);
+                  yPos += 10;
+
+                  // Dados da propriedade
+                  if (solicitacaoSelecionada.nomePropriedade) {
+                    doc.text('Dados da Propriedade:', 20, yPos);
+                    yPos += 7;
+                    doc.text(`Nome: ${solicitacaoSelecionada.nomePropriedade}`, 20, yPos);
+                    yPos += 7;
+                    doc.text(`Endereço: ${solicitacaoSelecionada.enderecoPropriedade}`, 20, yPos);
+                    yPos += 7;
+                    doc.text(`Tamanho: ${solicitacaoSelecionada.tamanhoPropriedade} ha`, 20, yPos);
+                    yPos += 7;
+                    doc.text(`Situação Legal: ${solicitacaoSelecionada.situacaoLegal}`, 20, yPos);
+                    yPos += 10;
+                  }
+
+                  // Dados específicos de agricultura
+                  if (solicitacaoSelecionada.culturas) {
+                    doc.text('Culturas:', 20, yPos);
+                    yPos += 7;
+                    Object.entries(solicitacaoSelecionada.culturas)
+                      .filter(([_, value]) => value.selecionado)
+                      .forEach(([cultura, dados]) => {
+                        doc.text(`${cultura}: Área ${dados.area} ha, Produção ${dados.producao} kg/ano`, 20, yPos);
+                        yPos += 7;
+                      });
+                    yPos += 5;
+                  }
+
+                  // Dados específicos de pesca
+                  if (solicitacaoSelecionada.estruturas) {
+                    doc.text('Estruturas:', 20, yPos);
+                    yPos += 7;
+                    Object.entries(solicitacaoSelecionada.estruturas)
+                      .filter(([_, value]) => value === true)
+                      .forEach(([estrutura]) => {
+                        doc.text(`- ${estrutura.replace(/_/g, ' ')}`, 20, yPos);
+                        yPos += 7;
+                      });
+                    yPos += 5;
+                  }
+
+                  // Recursos
+                  if (solicitacaoSelecionada.maquinario || solicitacaoSelecionada.maodeobra) {
+                    doc.text('Recursos:', 20, yPos);
+                    yPos += 7;
+
+                    if (solicitacaoSelecionada.maquinario) {
+                      doc.text('Maquinário:', 20, yPos);
+                      yPos += 7;
+                      Object.entries(solicitacaoSelecionada.maquinario)
+                        .filter(([_, value]) => value === true)
+                        .forEach(([maquina]) => {
+                          doc.text(`- ${maquina.replace(/_/g, ' ')}`, 20, yPos);
+                          yPos += 7;
+                        });
+                    }
+
+                    if (solicitacaoSelecionada.maodeobra) {
+                      doc.text('Mão de obra:', 20, yPos);
+                      yPos += 7;
+                      Object.entries(solicitacaoSelecionada.maodeobra)
+                        .filter(([_, value]) => value.selecionado)
+                        .forEach(([tipo, dados]) => {
+                          doc.text(`${tipo.replace(/_/g, ' ')}: ${dados.quantidade} pessoas`, 20, yPos);
+                          yPos += 7;
+                        });
+                    }
+                  }
+
+                  // Status e histórico
+                  yPos += 10;
+                  doc.text(`Status atual: ${statusLabels[solicitacaoSelecionada.status]}`, 20, yPos);
+                  yPos += 10;
+
+                  if (solicitacaoSelecionada.historico && solicitacaoSelecionada.historico.length > 0) {
+                    doc.text('Histórico:', 20, yPos);
+                    yPos += 7;
+                    solicitacaoSelecionada.historico.forEach((evento) => {
+                      const data = new Date(evento.data.seconds * 1000).toLocaleString();
+                      doc.text(`${data} - ${statusLabels[evento.acao]} por ${evento.por}`, 20, yPos);
+                      yPos += 7;
+                      if (evento.comentario) {
+                        doc.text(`Comentário: ${evento.comentario}`, 25, yPos);
+                        yPos += 7;
+                      }
+                    });
+                  }
+
+                  // Salvar o PDF
+                  doc.save(`solicitacao_${solicitacaoSelecionada.id}.pdf`);
+                }}
+              >
                 <Download className="mr-2 h-4 w-4" />
                 Exportar PDF
               </Button>
