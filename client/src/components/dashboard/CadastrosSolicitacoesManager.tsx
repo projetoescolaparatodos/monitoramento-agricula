@@ -79,7 +79,7 @@ interface Solicitacao {
   status: 'pendente' | 'em_andamento' | 'concluido' | 'cancelado' | 'aprovado' | 'rejeitado';
   timestamp: { seconds: number, nanoseconds: number };
   setor: string;
-  origem: 'chatbot' | 'formulario_web';
+  origem: 'chatbot' | 'formulario_web' | 'formulario_web_completo_agricultura' | 'formulario_web_completo_pesca' | 'formulario_web_completo_paa';
   detalhes?: Record<string, any>;
   historico?: Array<{
     acao: string;
@@ -157,7 +157,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
     setLoading(true);
     try {
       // Obter solicitações dos três setores
-      const colecoes = ['solicitacoes_agricultura', 'solicitacoes_pesca', 'solicitacoes_paa'];
+      const colecoes = ['solicitacoes_agricultura', 'solicitacoes_pesca', 'solicitacoes_paa', 'formulario_web_completo_agricultura', 'formulario_web_completo_pesca', 'formulario_web_completo_paa'];
       let todasSolicitacoes: Solicitacao[] = [];
 
       for (const colecao of colecoes) {
@@ -171,7 +171,8 @@ const CadastrosSolicitacoesManager: React.FC = () => {
         const solicitacoesSetor = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
-          setor
+          setor,
+          origem: colecao
         })) as Solicitacao[];
 
         todasSolicitacoes = [...todasSolicitacoes, ...solicitacoesSetor];
@@ -630,7 +631,16 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                                 </Badge>
                               </TableCell>
                               <TableCell>
-                                Tipo
+                                <Badge 
+                                  variant="outline" 
+                                  className={
+                                    item.origem.includes('completo')
+                                      ? 'bg-purple-50 text-purple-800 border-purple-200'
+                                      : 'bg-blue-50 text-blue-800 border-blue-200'
+                                  }
+                                >
+                                  {item.origem.includes('completo') ? 'Cadastro Completo' : 'Solicitação Simples'}
+                                </Badge>
                               </TableCell>
                               <TableCell>
                                 <Badge className={statusColors[item.status]}>
