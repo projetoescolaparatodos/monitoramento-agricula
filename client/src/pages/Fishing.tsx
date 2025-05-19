@@ -162,10 +162,10 @@ const Fishing = () => {
 
                 <Button
                   onClick={() => setLocation("/fishing/map")}
-                  className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-sm sm:text-base py-3 px-6 rounded-lg shadow-md"
+                  className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-lg py-3 px-6 rounded-lg shadow-md"
                 >
                   <Map className="h-5 w-5 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm">Acompanhe nossas Atividades em tempo real</span>
+                  <span className="text-xs sm:text-lg">Acompanhe nossas Atividades em tempo real</span>
                 </Button>
               </div>
             </div>
