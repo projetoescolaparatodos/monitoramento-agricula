@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { collection, query, orderBy, getDocs } from 'firebase/firestore';
+import { db } from "@/utils/firebase";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
@@ -138,8 +140,49 @@ interface Solicitacao {
 }
 
 export const CadastrosSolicitacoesManager = () => {
+  const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
   const [selectedSolicitacao, setSelectedSolicitacao] = useState<Solicitacao | null>(null);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchSolicitacoes = async () => {
+      setLoading(true);
+      try {
+        // Busca solicitações de agricultura e pesca
+        const colecoes = ['solicitacoes_agricultura', 'solicitacoes_pesca'];
+        let todasSolicitacoes: Solicitacao[] = [];
+
+        for (const colecao of colecoes) {
+          const q = query(
+            collection(db, colecao),
+            orderBy('dataCriacao', 'desc')
+          );
+          
+          const querySnapshot = await getDocs(q);
+          const solicitacoesSetor = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          })) as Solicitacao[];
+          
+          todasSolicitacoes = [...todasSolicitacoes, ...solicitacoesSetor];
+        }
+
+        setSolicitacoes(todasSolicitacoes);
+      } catch (error) {
+        console.error("Erro ao buscar solicitações:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar as solicitações.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSolicitacoes();
+  }, [toast]);
 
   const formatarData = (data: string) => {
     return new Date(data).toLocaleDateString('pt-BR');
