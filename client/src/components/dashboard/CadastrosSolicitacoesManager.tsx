@@ -70,6 +70,29 @@ import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import jsPDF from 'jspdf';
 
+interface DadosPessoais {
+  nome: string;
+  cpf: string;
+  identidade: string;
+  emissor: string;
+  sexo: string;
+  telefone: string;
+  celular: string;
+  email?: string;
+  endereco: string;
+  travessao: string;
+}
+
+interface DadosPropriedade {
+  nomePropriedade: string;
+  enderecoPropriedade: string;
+  tamanhoPropriedade: string;
+  distanciaMunicipio: string;
+  coordenadas?: { lat: number; lng: number };
+  situacaoLegal: string;
+  outraSituacaoLegal?: string;
+}
+
 interface Solicitacao {
   id: string;
   nome: string;
@@ -1081,7 +1104,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                 Fechar
               </Button>
 
-              
+
               <Button 
                 variant="outline"
                 onClick={() => {
