@@ -5,6 +5,8 @@ import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { db } from "@/utils/firebase";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import jsPDF from 'jspdf';
 
@@ -123,9 +125,15 @@ interface DadosRecursos {
   assistenciaTecnica: string;
 }
 
+interface DadosEmpreendimento {
+  atividade: string;
+  endereco: string;
+  estruturaAquicola: string[];
+}
+
 interface Solicitacao {
   id: string;
-  tipo: 'pesca' | 'agricultura';
+  tipo: 'agricultura' | 'pesca';
   status: string;
   dataCriacao: string;
   dadosPessoais: DadosPessoais;
@@ -143,13 +151,13 @@ export const CadastrosSolicitacoesManager = () => {
   const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
   const [selectedSolicitacao, setSelectedSolicitacao] = useState<Solicitacao | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('todas');
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchSolicitacoes = async () => {
       setLoading(true);
       try {
-        // Busca solicitações de agricultura e pesca
         const colecoes = ['solicitacoes_agricultura', 'solicitacoes_pesca'];
         let todasSolicitacoes: Solicitacao[] = [];
 
@@ -158,13 +166,13 @@ export const CadastrosSolicitacoesManager = () => {
             collection(db, colecao),
             orderBy('dataCriacao', 'desc')
           );
-          
+
           const querySnapshot = await getDocs(q);
           const solicitacoesSetor = querySnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
           })) as Solicitacao[];
-          
+
           todasSolicitacoes = [...todasSolicitacoes, ...solicitacoesSetor];
         }
 
@@ -187,6 +195,10 @@ export const CadastrosSolicitacoesManager = () => {
   const formatarData = (data: string) => {
     return new Date(data).toLocaleDateString('pt-BR');
   };
+
+  const solicitacoesFiltradas = activeTab === 'todas' 
+    ? solicitacoes 
+    : solicitacoes.filter(s => s.tipo === activeTab);
 
   const generatePDF = (solicitacao: Solicitacao) => {
     if (solicitacao.tipo === 'agricultura') {
@@ -217,79 +229,92 @@ export const CadastrosSolicitacoesManager = () => {
     addSection('Nome:', solicitacao.dadosPessoais.nomeCompleto);
     addSection('CPF:', solicitacao.dadosPessoais.cpf);
     addSection('RG:', `${solicitacao.dadosPessoais.identidade} - ${solicitacao.dadosPessoais.emissor}`);
-    addSection('Endereço:', solicitacao.dadosPessoais.endereco);
-    addSection('Travessão:', solicitacao.dadosPessoais.travessao);
-    addSection('Contato:', solicitacao.dadosPessoais.celular);
+    addSection('Data Nascimento:', solicitacao.dadosPessoais.dataNascimento);
+    addSection('Naturalidade:', solicitacao.dadosPessoais.naturalidade);
+    addSection('Nome da Mãe:', solicitacao.dadosPessoais.nomeMae);
+    addSection('Escolaridade:', solicitacao.dadosPessoais.escolaridade);
+    addSection('Contato:', solicitacao.dadosPessoais.telefone);
 
     // 2. Identificação da Atividade
     yPos += lineHeight;
     addSection('2. Identificação da Atividade/Empreendimento', '');
-    addSection('Atividade:', solicitacao.dadosEmpreendimento.atividade);
-    addSection('Endereço:', solicitacao.dadosEmpreendimento.endereco);
-    addSection('Estruturas Aquícolas:', solicitacao.dadosEmpreendimento.estruturaAquicola.join(', '));
+    if (solicitacao.dadosEmpreendimento) {
+        addSection('Atividade:', solicitacao.dadosEmpreendimento.atividade);
+        addSection('Endereço:', solicitacao.dadosEmpreendimento.endereco);
+        addSection('Estruturas Aquícolas:', solicitacao.dadosEmpreendimento.estruturaAquicola.join(', '));
+    }
 
     // 3. Classificação
     yPos += lineHeight;
     addSection('3. Classificação', '');
 
     // 3.1 Obras
-    doc.text('3.1 Obras:', 20, yPos);
-    yPos += lineHeight;
-    solicitacao.obras.forEach(obra => {
-      doc.text(`- ${obra.tipo}: ${obra.area}${obra.unidade} - ${obra.situacao}`, 25, yPos);
+    if (solicitacao.obras) {
+      doc.text('3.1 Obras:', 20, yPos);
       yPos += lineHeight;
-    });
+      solicitacao.obras.forEach(obra => {
+        doc.text(`- ${obra.tipo}: ${obra.area}${obra.unidade} - ${obra.situacao}`, 25, yPos);
+        yPos += lineHeight;
+      });
+    }
+    
 
     // 3.2 Espécies
-    yPos += lineHeight;
-    doc.text('3.2 Espécies Confinadas:', 20, yPos);
-    yPos += lineHeight;
-    solicitacao.especiesConfinadas.forEach(especie => {
-      doc.text(`- ${especie.nome}: ${especie.quantidade} unidades`, 25, yPos);
-      yPos += lineHeight;
-    });
+    if (solicitacao.especiesConfinadas) {
+        yPos += lineHeight;
+        doc.text('3.2 Espécies Confinadas:', 20, yPos);
+        yPos += lineHeight;
+        solicitacao.especiesConfinadas.forEach(especie => {
+          doc.text(`- ${especie.nome}: ${especie.quantidade} unidades`, 25, yPos);
+          yPos += lineHeight;
+        });
+    }
 
     // 4. Detalhamento
-    if (yPos > 250) {
-      doc.addPage();
-      yPos = 20;
+    if (solicitacao.detalhamento) {
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      addSection('4. Detalhamento', '');
+      addSection('Distância da Sede:', `${solicitacao.detalhamento.distanciaSede} km`);
+      addSection('Situação Legal:', solicitacao.detalhamento.situacaoLegal);
+      addSection('Área Total:', `${solicitacao.detalhamento.areaTotal} ha`);
+
+      // Recursos Hídricos
+      doc.text('Recursos Hídricos:', 20, yPos);
+      yPos += lineHeight;
+      solicitacao.detalhamento.recursosHidricos.forEach(recurso => {
+        doc.text(`- ${recurso.tipo}: ${recurso.nome}`, 25, yPos);
+        yPos += lineHeight;
+      });
+
+      // Usos da Água
+      doc.text('Usos da Água:', 20, yPos);
+      yPos += lineHeight;
+      solicitacao.detalhamento.usosAgua.forEach(uso => {
+        doc.text(`- ${uso}`, 25, yPos);
+        yPos += lineHeight;
+      });
     }
-
-    addSection('4. Detalhamento', '');
-    addSection('Distância da Sede:', `${solicitacao.detalhamento.distanciaSede} km`);
-    addSection('Situação Legal:', solicitacao.detalhamento.situacaoLegal);
-    addSection('Área Total:', `${solicitacao.detalhamento.areaTotal} ha`);
-
-    // Recursos Hídricos
-    doc.text('Recursos Hídricos:', 20, yPos);
-    yPos += lineHeight;
-    solicitacao.detalhamento.recursosHidricos.forEach(recurso => {
-      doc.text(`- ${recurso.tipo}: ${recurso.nome}`, 25, yPos);
-      yPos += lineHeight;
-    });
-
-    // Usos da Água
-    doc.text('Usos da Água:', 20, yPos);
-    yPos += lineHeight;
-    solicitacao.detalhamento.usosAgua.forEach(uso => {
-      doc.text(`- ${uso}`, 25, yPos);
-      yPos += lineHeight;
-    });
 
     // 5. Recursos
-    if (yPos > 250) {
-      doc.addPage();
-      yPos = 20;
-    }
+    if (solicitacao.recursos) {
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
 
-    addSection('5. Recursos', '');
-    addSection('Número de Empregados:', solicitacao.recursos.numeroEmpregados.toString());
-    addSection('Trabalho Familiar:', solicitacao.recursos.trabalhoFamiliar.toString());
-    addSection('Recursos Financeiros:', solicitacao.recursos.recursosFinanceiros);
-    if (solicitacao.recursos.fonteFinanciamento) {
-      addSection('Fonte do Financiamento:', solicitacao.recursos.fonteFinanciamento);
+      addSection('5. Recursos', '');
+      addSection('Número de Empregados:', solicitacao.recursos.numeroEmpregados.toString());
+      addSection('Trabalho Familiar:', solicitacao.recursos.trabalhoFamiliar.toString());
+      addSection('Recursos Financeiros:', solicitacao.recursos.recursosFinanceiros);
+      if (solicitacao.recursos.fonteFinanciamento) {
+        addSection('Fonte do Financiamento:', solicitacao.recursos.fonteFinanciamento);
+      }
+      addSection('Assistência Técnica:', solicitacao.recursos.assistenciaTecnica);
     }
-    addSection('Assistência Técnica:', solicitacao.recursos.assistenciaTecnica);
 
     // 6. Observações
     if (solicitacao.observacoes) {
@@ -310,39 +335,56 @@ export const CadastrosSolicitacoesManager = () => {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold">Gerenciar Solicitações</h2>
+      <h2 className="text-2xl font-bold">Gerenciar Cadastros e Solicitações</h2>
 
-      {/* Lista de Solicitações */}
-      <div className="grid gap-4">
-        {solicitacoes?.map((solicitacao) => (
-          <Card key={solicitacao.id} className="p-4">
-            <div className="flex justify-between items-center">
-              <div>
-                <h3 className="font-bold">{solicitacao.dadosPessoais.nomeCompleto}</h3>
-                <p className="text-sm text-gray-500">
-                  Data: {formatarData(solicitacao.dataCriacao)}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setSelectedSolicitacao(solicitacao)}
-                >
-                  Visualizar
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => generatePDF(solicitacao)}
-                >
-                  Gerar PDF
-                </Button>
-              </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="todas">Todas</TabsTrigger>
+          <TabsTrigger value="agricultura">Agricultura</TabsTrigger>
+          <TabsTrigger value="pesca">Pesca</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value={activeTab}>
+          {loading ? (
+            <div className="text-center py-4">Carregando...</div>
+          ) : solicitacoesFiltradas.length === 0 ? (
+            <div className="text-center py-4">Nenhuma solicitação encontrada</div>
+          ) : (
+            <div className="grid gap-4">
+              {solicitacoesFiltradas.map((solicitacao) => (
+                <Card key={solicitacao.id} className="p-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="font-bold">{solicitacao.dadosPessoais.nomeCompleto}</h3>
+                      <p className="text-sm text-gray-500">
+                        {formatarData(solicitacao.dataCriacao)}
+                      </p>
+                      <Badge variant="outline" className="mt-2">
+                        {solicitacao.tipo === 'agricultura' ? 'Agricultura' : 'Pesca'}
+                      </Badge>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => setSelectedSolicitacao(solicitacao)}
+                      >
+                        Visualizar
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => generatePDF(solicitacao)}
+                      >
+                        Gerar PDF
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
             </div>
-          </Card>
-        ))}
-      </div>
+          )}
+        </TabsContent>
+      </Tabs>
 
-      {/* Modal de Visualização */}
       <Dialog open={!!selectedSolicitacao} onOpenChange={() => setSelectedSolicitacao(null)}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -375,138 +417,150 @@ export const CadastrosSolicitacoesManager = () => {
                     <p className="font-semibold">Endereço:</p>
                     <p>{selectedSolicitacao.dadosPessoais.endereco}</p>
                   </div>
-                  <div>
-                    <p className="font-semibold">Travessão:</p>
-                    <p>{selectedSolicitacao.dadosPessoais.travessao}</p>
-                  </div>
+                  { selectedSolicitacao.dadosPessoais.travessao && (
+                    <div>
+                      <p className="font-semibold">Travessão:</p>
+                      <p>{selectedSolicitacao.dadosPessoais.travessao}</p>
+                    </div>
+                  )}
                   <div>
                     <p className="font-semibold">Contato:</p>
-                    <p>{selectedSolicitacao.dadosPessoais.celular}</p>
+                    <p>{selectedSolicitacao.dadosPessoais.telefone}</p>
                   </div>
                 </div>
               </section>
 
               {/* 2. Identificação da Atividade */}
-              <section>
-                <h3 className="text-lg font-bold mb-2">2. Identificação da Atividade</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="font-semibold">Atividade:</p>
-                    <p>{selectedSolicitacao.dadosEmpreendimento.atividade}</p>
+              {selectedSolicitacao.dadosEmpreendimento && (
+                <section>
+                  <h3 className="text-lg font-bold mb-2">2. Identificação da Atividade</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="font-semibold">Atividade:</p>
+                      <p>{selectedSolicitacao.dadosEmpreendimento.atividade}</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold">Endereço:</p>
+                      <p>{selectedSolicitacao.dadosEmpreendimento.endereco}</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold">Estruturas Aquícolas:</p>
+                      <p>{selectedSolicitacao.dadosEmpreendimento.estruturaAquicola.join(', ')}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-semibold">Endereço:</p>
-                    <p>{selectedSolicitacao.dadosEmpreendimento.endereco}</p>
-                  </div>
-                  <div>
-                    <p className="font-semibold">Estruturas Aquícolas:</p>
-                    <p>{selectedSolicitacao.dadosEmpreendimento.estruturaAquicola.join(', ')}</p>
-                  </div>
-                </div>
-              </section>
+                </section>
+              )}
 
               {/* 3. Classificação */}
               <section>
                 <h3 className="text-lg font-bold mb-2">3. Classificação</h3>
 
                 {/* 3.1 Obras */}
-                <div className="mb-4">
-                  <h4 className="font-semibold mb-2">3.1 Obras</h4>
-                  <div className="grid gap-2">
-                    {selectedSolicitacao.obras.map((obra, index) => (
-                      <div key={index} className="border p-2 rounded">
-                        <p>
-                          {obra.tipo}: {obra.area}{obra.unidade} - {obra.situacao}
-                        </p>
-                      </div>
-                    ))}
+                {selectedSolicitacao.obras && (
+                  <div className="mb-4">
+                    <h4 className="font-semibold mb-2">3.1 Obras</h4>
+                    <div className="grid gap-2">
+                      {selectedSolicitacao.obras.map((obra, index) => (
+                        <div key={index} className="border p-2 rounded">
+                          <p>
+                            {obra.tipo}: {obra.area}{obra.unidade} - {obra.situacao}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* 3.2 Espécies */}
-                <div>
-                  <h4 className="font-semibold mb-2">3.2 Espécies Confinadas</h4>
-                  <div className="grid gap-2">
-                    {selectedSolicitacao.especiesConfinadas.map((especie, index) => (
-                      <div key={index} className="border p-2 rounded">
-                        <p>
-                          {especie.nome}: {especie.quantidade} unidades
-                        </p>
-                      </div>
-                    ))}
+                {selectedSolicitacao.especiesConfinadas && (
+                  <div>
+                    <h4 className="font-semibold mb-2">3.2 Espécies Confinadas</h4>
+                    <div className="grid gap-2">
+                      {selectedSolicitacao.especiesConfinadas.map((especie, index) => (
+                        <div key={index} className="border p-2 rounded">
+                          <p>
+                            {especie.nome}: {especie.quantidade} unidades
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </section>
 
               {/* 4. Detalhamento */}
-              <section>
-                <h3 className="text-lg font-bold mb-2">4. Detalhamento</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="font-semibold">Distância da Sede:</p>
-                    <p>{selectedSolicitacao.detalhamento.distanciaSede} km</p>
+              {selectedSolicitacao.detalhamento && (
+                <section>
+                  <h3 className="text-lg font-bold mb-2">4. Detalhamento</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="font-semibold">Distância da Sede:</p>
+                      <p>{selectedSolicitacao.detalhamento.distanciaSede} km</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold">Situação Legal:</p>
+                      <p>{selectedSolicitacao.detalhamento.situacaoLegal}</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold">Área Total:</p>
+                      <p>{selectedSolicitacao.detalhamento.areaTotal} ha</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-semibold">Situação Legal:</p>
-                    <p>{selectedSolicitacao.detalhamento.situacaoLegal}</p>
-                  </div>
-                  <div>
-                    <p className="font-semibold">Área Total:</p>
-                    <p>{selectedSolicitacao.detalhamento.areaTotal} ha</p>
-                  </div>
-                </div>
 
-                <div className="mt-4">
-                  <h4 className="font-semibold mb-2">Recursos Hídricos:</h4>
-                  <div className="grid gap-2">
-                    {selectedSolicitacao.detalhamento.recursosHidricos.map((recurso, index) => (
-                      <div key={index} className="border p-2 rounded">
-                        <p>{recurso.tipo}: {recurso.nome}</p>
-                      </div>
-                    ))}
+                  <div className="mt-4">
+                    <h4 className="font-semibold mb-2">Recursos Hídricos:</h4>
+                    <div className="grid gap-2">
+                      {selectedSolicitacao.detalhamento.recursosHidricos.map((recurso, index) => (
+                        <div key={index} className="border p-2 rounded">
+                          <p>{recurso.tipo}: {recurso.nome}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                <div className="mt-4">
-                  <h4 className="font-semibold mb-2">Usos da Água:</h4>
-                  <div className="grid gap-2">
-                    {selectedSolicitacao.detalhamento.usosAgua.map((uso, index) => (
-                      <div key={index} className="border p-2 rounded">
-                        <p>{uso}</p>
-                      </div>
-                    ))}
+                  <div className="mt-4">
+                    <h4 className="font-semibold mb-2">Usos da Água:</h4>
+                    <div className="grid gap-2">
+                      {selectedSolicitacao.detalhamento.usosAgua.map((uso, index) => (
+                        <div key={index} className="border p-2 rounded">
+                          <p>{uso}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </section>
+                </section>
+              )}
 
               {/* 5. Recursos */}
-              <section>
-                <h3 className="text-lg font-bold mb-2">5. Recursos</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="font-semibold">Número de Empregados:</p>
-                    <p>{selectedSolicitacao.recursos.numeroEmpregados}</p>
-                  </div>
-                  <div>
-                    <p className="font-semibold">Trabalho Familiar:</p>
-                    <p>{selectedSolicitacao.recursos.trabalhoFamiliar} pessoas</p>
-                  </div>
-                  <div>
-                    <p className="font-semibold">Recursos Financeiros:</p>
-                    <p>{selectedSolicitacao.recursos.recursosFinanceiros}</p>
-                  </div>
-                  {selectedSolicitacao.recursos.fonteFinanciamento && (
+              {selectedSolicitacao.recursos && (
+                <section>
+                  <h3 className="text-lg font-bold mb-2">5. Recursos</h3>
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="font-semibold">Fonte do Financiamento:</p>
-                      <p>{selectedSolicitacao.recursos.fonteFinanciamento}</p>
+                      <p className="font-semibold">Número de Empregados:</p>
+                      <p>{selectedSolicitacao.recursos.numeroEmpregados}</p>
                     </div>
-                  )}
-                  <div>
-                    <p className="font-semibold">Assistência Técnica:</p>
-                    <p>{selectedSolicitacao.recursos.assistenciaTecnica}</p>
+                    <div>
+                      <p className="font-semibold">Trabalho Familiar:</p>
+                      <p>{selectedSolicitacao.recursos.trabalhoFamiliar} pessoas</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold">Recursos Financeiros:</p>
+                      <p>{selectedSolicitacao.recursos.recursosFinanceiros}</p>
+                    </div>
+                    {selectedSolicitacao.recursos.fonteFinanciamento && (
+                      <div>
+                        <p className="font-semibold">Fonte do Financiamento:</p>
+                        <p>{selectedSolicitacao.recursos.fonteFinanciamento}</p>
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-semibold">Assistência Técnica:</p>
+                      <p>{selectedSolicitacao.recursos.assistenciaTecnica}</p>
+                    </div>
                   </div>
-                </div>
-              </section>
+                </section>
+              )}
 
               {/* 6. Observações */}
               {selectedSolicitacao.observacoes && (
@@ -539,6 +593,7 @@ export const CadastrosSolicitacoesManager = () => {
 };
 
 export default CadastrosSolicitacoesManager;
+
 const generateAgriculturaReport = (solicitacao: Solicitacao) => {
   const doc = new jsPDF();
   let yPos = 20;
