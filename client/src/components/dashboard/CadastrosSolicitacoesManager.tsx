@@ -9,20 +9,84 @@ import jsPDF from 'jspdf';
 
 interface DadosPessoais {
   nomeCompleto: string;
-  endereco: string;
-  travessao: string;
   cpf: string;
   identidade: string;
   emissor: string;
   sexo: string;
-  celular: string;
+  dataNascimento: string;
+  naturalidade: string;
+  nomeMae: string;
+  escolaridade: string;
+  telefone: string;
+  instituicaoAssociada?: string;
 }
 
-interface DadosEmpreendimento {
-  atividade: string;
+interface DadosPropriedade {
+  nome: string;
+  tipoPessoa: 'fisica' | 'juridica';
   endereco: string;
-  coordenadas?: { lat: number; lng: number };
-  estruturaAquicola: string[];
+  tamanhoHa: number;
+  escriturada: boolean;
+  dapCaf: boolean;
+  car: boolean;
+  financiamentoRural: boolean;
+  coordenadas: {
+    latitude: string;
+    longitude: string;
+  };
+}
+
+interface DadosAgropecuarios {
+  cacau?: {
+    cultiva: boolean;
+    quantidadePes?: number;
+    safreiro?: boolean;
+    idade?: number;
+    sementesCeplac?: boolean;
+    producaoAnual?: number;
+    clonado?: {
+      possui: boolean;
+      quantidadePes?: number;
+      safreiro?: boolean;
+      idade?: number;
+      producaoAnual?: number;
+      materialClonal?: string[];
+    };
+  };
+  frutiferas?: {
+    cultiva: boolean;
+    tipos?: string[];
+    destino?: string[];
+    producaoKg?: number;
+    precoMedioKg?: number;
+  };
+  lavouras?: {
+    milho?: {
+      produz: boolean;
+      finalidade?: string[];
+      destino?: string[];
+      producaoKg?: number;
+      areaPlantada?: number;
+    };
+    mandioca?: {
+      produz: boolean;
+      tipo?: string;
+      finalidade?: string[];
+      subprodutos?: string[];
+      areaCultivada?: number;
+      mecanizada?: boolean;
+    };
+  };
+  pecuaria?: {
+    bovino?: {
+      possui: boolean;
+      quantidade?: number;
+      leite?: boolean;
+      fase?: string;
+      sistemaManejo?: string;
+      acessoMercado?: string;
+    };
+  };
 }
 
 interface Obra {
@@ -60,15 +124,17 @@ interface DadosRecursos {
 
 interface Solicitacao {
   id: string;
-  tipo: 'pesca';
+  tipo: 'pesca' | 'agricultura';
   status: string;
   dataCriacao: string;
   dadosPessoais: DadosPessoais;
-  dadosEmpreendimento: DadosEmpreendimento;
-  obras: Obra[];
-  especiesConfinadas: EspecieConfinada[];
-  detalhamento: DadosDetalhamento;
-  recursos: DadosRecursos;
+  dadosPropriedade?: DadosPropriedade;
+  dadosEmpreendimento?: DadosEmpreendimento;
+  dadosAgropecuarios?: DadosAgropecuarios;
+  obras?: Obra[];
+  especiesConfinadas?: EspecieConfinada[];
+  detalhamento?: DadosDetalhamento;
+  recursos?: DadosRecursos;
   observacoes?: string;
 }
 
@@ -81,6 +147,9 @@ export const CadastrosSolicitacoesManager = () => {
   };
 
   const generatePDF = (solicitacao: Solicitacao) => {
+    if (solicitacao.tipo === 'agricultura') {
+      return generateAgriculturaReport(solicitacao);
+    }
     const doc = new jsPDF();
     let yPos = 20;
     const lineHeight = 7;
@@ -428,3 +497,92 @@ export const CadastrosSolicitacoesManager = () => {
 };
 
 export default CadastrosSolicitacoesManager;
+const generateAgriculturaReport = (solicitacao: Solicitacao) => {
+  const doc = new jsPDF();
+  let yPos = 20;
+  const lineHeight = 7;
+
+  // Função auxiliar para adicionar seções
+  const addSection = (title: string, content: string) => {
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.text(title, 20, yPos);
+    yPos += lineHeight;
+    doc.setFont(undefined, 'normal');
+    doc.text(content, 20, yPos);
+    yPos += lineHeight;
+  };
+
+  // 1. Dados da Propriedade
+  addSection('1. DADOS DA PROPRIEDADE', '');
+  if (solicitacao.dadosPropriedade) {
+    addSection('Nome:', solicitacao.dadosPropriedade.nome);
+    addSection('Tipo:', solicitacao.dadosPropriedade.tipoPessoa);
+    addSection('Endereço:', solicitacao.dadosPropriedade.endereco);
+    addSection('Tamanho (ha):', solicitacao.dadosPropriedade.tamanhoHa.toString());
+    addSection('Documentação:', `
+      Escriturada: ${solicitacao.dadosPropriedade.escriturada ? 'Sim' : 'Não'}
+      DAP/CAF: ${solicitacao.dadosPropriedade.dapCaf ? 'Sim' : 'Não'}
+      CAR: ${solicitacao.dadosPropriedade.car ? 'Sim' : 'Não'}
+      Financiamento: ${solicitacao.dadosPropriedade.financiamentoRural ? 'Sim' : 'Não'}
+    `);
+  }
+
+  // 2. Dados do Proprietário
+  yPos += lineHeight;
+  addSection('2. DADOS DO PROPRIETÁRIO', '');
+  addSection('Nome:', solicitacao.dadosPessoais.nomeCompleto);
+  addSection('CPF:', solicitacao.dadosPessoais.cpf);
+  addSection('RG:', `${solicitacao.dadosPessoais.identidade} - ${solicitacao.dadosPessoais.emissor}`);
+  addSection('Data Nascimento:', solicitacao.dadosPessoais.dataNascimento);
+  addSection('Naturalidade:', solicitacao.dadosPessoais.naturalidade);
+  addSection('Nome da Mãe:', solicitacao.dadosPessoais.nomeMae);
+  addSection('Escolaridade:', solicitacao.dadosPessoais.escolaridade);
+  addSection('Contato:', solicitacao.dadosPessoais.telefone);
+
+  // 3. Dados Agropecuários
+  if (solicitacao.dadosAgropecuarios) {
+    if (yPos > 250) {
+      doc.addPage();
+      yPos = 20;
+    }
+    
+    addSection('3. DADOS AGROPECUÁRIOS', '');
+    
+    // Cacau
+    if (solicitacao.dadosAgropecuarios.cacau?.cultiva) {
+      addSection('Cacau:', `
+        Quantidade de pés: ${solicitacao.dadosAgropecuarios.cacau.quantidadePes}
+        Safreiro: ${solicitacao.dadosAgropecuarios.cacau.safreiro ? 'Sim' : 'Não'}
+        Produção Anual: ${solicitacao.dadosAgropecuarios.cacau.producaoAnual} kg
+      `);
+    }
+
+    // Frutíferas
+    if (solicitacao.dadosAgropecuarios.frutiferas?.cultiva) {
+      addSection('Frutíferas:', `
+        Tipos: ${solicitacao.dadosAgropecuarios.frutiferas.tipos?.join(', ')}
+        Produção: ${solicitacao.dadosAgropecuarios.frutiferas.producaoKg} kg
+      `);
+    }
+
+    // Pecuária
+    if (solicitacao.dadosAgropecuarios.pecuaria?.bovino?.possui) {
+      addSection('Bovinos:', `
+        Quantidade: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.quantidade}
+        Tipo: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.leite ? 'Leite' : 'Corte'}
+        Sistema: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.sistemaManejo}
+      `);
+    }
+  }
+
+  // Rodapé
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(10);
+    doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.getWidth() - 40, doc.internal.pageSize.getHeight() - 10);
+  }
+
+  doc.save(`solicitacao-agricultura-${solicitacao.id}.pdf`);
+};
