@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Fish } from "lucide-react";
@@ -40,17 +39,17 @@ const FishingTabButton: React.FC<FishingTabButtonProps> = ({ className = "", chi
   // Função para abrir o chat na aba Pesca
   const openChatFishingTab = () => {
     // Método otimizado para abrir o chat diretamente na aba pesca sem fechamentos intermediários
-    
+
     // 1. Definir aba no localStorage para garantir persistência
     localStorage.setItem('open_chat_tab', 'pesca');
     console.log("FishingTab: Definindo aba no localStorage:", 'pesca');
-    
+
     // 2. Disparar evento especial para abrir na aba pesca
     const fishingEvent = new CustomEvent('direct_paa_open', {
       detail: { directTab: 'pesca' }
     });
     window.dispatchEvent(fishingEvent);
-    
+
     // 3. Abrir o chat com evento simplificado
     const openEvent = new CustomEvent('chat_instance_toggle', { 
       detail: { 
@@ -62,17 +61,17 @@ const FishingTabButton: React.FC<FishingTabButtonProps> = ({ className = "", chi
       } 
     });
     window.dispatchEvent(openEvent);
-    
+
     setChatOpened(true);
   };
 
   return (
     <Button 
       onClick={openChatFishingTab} 
-      className={`bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2 ${className}`}
+      className={`bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2 w-full md:w-auto px-6 py-3 rounded-lg shadow-md transition-transform duration-150 hover:scale-105 truncate ${className}`}
     >
       <Fish size={18} className="flex-shrink-0" />
-      {children || <span className="truncate">Serviços Pesca</span>}
+      {children || <span className="whitespace-nowrap truncate">Serviços Pesca</span>}
     </Button>
   );
 };

@@ -23,7 +23,7 @@ const Fishing = () => {
       if (window.location.hash) {
         const id = window.location.hash.substring(1); // remover o caractere #
         const element = document.getElementById(id);
-        
+
         if (element) {
           // Quando o elemento for encontrado, rolar até ele
           element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -38,7 +38,7 @@ const Fishing = () => {
     if (!scrollToHashElement()) {
       // Se não conseguir, tentar várias vezes com intervalos crescentes
       const attempts = [500, 1000, 1500, 2000]; // tempos em ms
-      
+
       attempts.forEach((delay, index) => {
         setTimeout(() => {
           scrollToHashElement();
@@ -119,12 +119,10 @@ const Fishing = () => {
           </FishingTabButton>
           <Button
             onClick={() => setLocation("/fishing/map")}
-            className="flex items-center gap-2 whitespace-nowrap"
-            size="sm"
+            className="flex items-center justify-center gap-2 w-full text-sm sm:text-base md:w-auto px-6 py-3 bg-primary text-white rounded-lg shadow-md overflow-hidden transition-transform duration-150 hover:scale-105"
           >
-            <Map className="h-4 w-4" />
-            <span className="hidden md:inline">Acompanhar Serviços</span>
-            <span className="md:hidden">Mapa</span>
+            <Map className="h-4 w-4 flex-shrink-0" />
+            <span className="whitespace-nowrap truncate">Acompanhar Serviços</span>
           </Button>
         </div>
         <main className="space-y-12">
@@ -147,7 +145,7 @@ const Fishing = () => {
               ))}
             </div>
           )}
-          
+
           {/* Seção de Painéis Interativos */}
           <section className="mt-16">
             <div className="p-6">
@@ -155,13 +153,13 @@ const Fishing = () => {
                 pageType="fishing" 
                 className="text-white"
               />
-              
+
               {/* Novos botões abaixo do painel */}
               <div className="flex flex-col md:flex-row justify-center gap-4 mt-8">
                 <FishingTabButton className="shadow-md text-lg py-3 px-6 rounded-lg">
                   Iniciar Cadastro na Psicultura
                 </FishingTabButton>
-                
+
                 <Button
                   onClick={() => setLocation("/fishing/map")}
                   className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-lg py-3 px-6 rounded-lg shadow-md"
