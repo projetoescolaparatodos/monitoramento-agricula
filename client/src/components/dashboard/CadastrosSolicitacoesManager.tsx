@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import {
   Card,
@@ -120,12 +119,12 @@ const CadastrosSolicitacoesManager: React.FC = () => {
   const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("todas");
-  
+
   // Filtros
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("todos");
   const [dateRange, setDateRange] = useState<{start?: Date; end?: Date}>({});
-  
+
   // Modal de detalhes
   const [detalhesModalOpen, setDetalhesModalOpen] = useState(false);
   const [solicitacaoSelecionada, setSolicitacaoSelecionada] = useState<Solicitacao | null>(null);
@@ -167,14 +166,14 @@ const CadastrosSolicitacoesManager: React.FC = () => {
           collection(db, colecao),
           orderBy('timestamp', 'desc')
         );
-        
+
         const querySnapshot = await getDocs(q);
         const solicitacoesSetor = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
           setor
         })) as Solicitacao[];
-        
+
         todasSolicitacoes = [...todasSolicitacoes, ...solicitacoesSetor];
       }
 
@@ -184,13 +183,13 @@ const CadastrosSolicitacoesManager: React.FC = () => {
       });
 
       setSolicitacoes(todasSolicitacoes);
-      
+
       // Calcular estatísticas para o dashboard
       calcularEstatisticas(todasSolicitacoes);
-      
+
       // Preparar dados para o gráfico
       prepararDadosGrafico(todasSolicitacoes);
-      
+
     } catch (error) {
       console.error("Erro ao buscar solicitações:", error);
       toast({
@@ -227,7 +226,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
     // Agrupar solicitações por semana (últimas 6 semanas)
     const hoje = new Date();
     const ultimasSemanas: Record<string, {agricultura: number, pesca: number, paa: number}> = {};
-    
+
     // Inicializar semanas (6 semanas anteriores)
     for (let i = 5; i >= 0; i--) {
       const dataInicio = new Date();
@@ -235,12 +234,12 @@ const CadastrosSolicitacoesManager: React.FC = () => {
       const nomeSemana = `Semana ${5-i+1}`;
       ultimasSemanas[nomeSemana] = { agricultura: 0, pesca: 0, paa: 0 };
     }
-    
+
     // Agrupar solicitações
     solicitacoes.forEach(s => {
       const dataSolicitacao = new Date(s.timestamp.seconds * 1000);
       const diffDias = Math.floor((hoje.getTime() - dataSolicitacao.getTime()) / (1000 * 60 * 60 * 24));
-      
+
       if (diffDias <= 42) { // Dentro das últimas 6 semanas
         const semanaIndex = Math.floor(diffDias / 7);
         if (semanaIndex >= 0 && semanaIndex < 6) {
@@ -251,7 +250,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
         }
       }
     });
-    
+
     // Converter para formato do gráfico
     const dados = Object.entries(ultimasSemanas).map(([name, values]) => ({
       name,
@@ -259,7 +258,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
       pesca: values.pesca,
       paa: values.paa,
     }));
-    
+
     setDadosGrafico(dados);
   };
 
@@ -267,15 +266,15 @@ const CadastrosSolicitacoesManager: React.FC = () => {
     try {
       const colecao = `solicitacoes_${setor}`;
       const docRef = doc(db, colecao, id);
-      
+
       // Obter documento atual para poder atualizar o histórico
       const docSnap = await getDoc(docRef);
       if (!docSnap.exists()) {
         throw new Error("Documento não encontrado");
       }
-      
+
       const dadosAtuais = docSnap.data();
-      
+
       // Criar entrada de histórico
       const novaAcao = {
         acao: novoStatus,
@@ -283,11 +282,11 @@ const CadastrosSolicitacoesManager: React.FC = () => {
         data: Timestamp.now(),
         comentario: comentario || ""
       };
-      
+
       // Atualizar histórico
       const historicoAtual = dadosAtuais.historico || [];
       const historicoAtualizado = [...historicoAtual, novaAcao];
-      
+
       // Atualizar documento
       await updateDoc(docRef, {
         status: novoStatus,
@@ -306,12 +305,12 @@ const CadastrosSolicitacoesManager: React.FC = () => {
             : item
         )
       );
-      
+
       toast({
         title: "Status atualizado",
         description: `Solicitação ${statusLabels[novoStatus].toLowerCase()} com sucesso.`,
       });
-      
+
       // Recalcular estatísticas
       calcularEstatisticas(
         solicitacoes.map(item => 
@@ -323,12 +322,12 @@ const CadastrosSolicitacoesManager: React.FC = () => {
             : item
         )
       );
-      
+
       // Fechar modal se necessário
       if (detalhesModalOpen) {
         setDetalhesModalOpen(false);
       }
-      
+
     } catch (error) {
       console.error("Erro ao atualizar status:", error);
       toast({
@@ -341,20 +340,20 @@ const CadastrosSolicitacoesManager: React.FC = () => {
 
   const handleRejeitar = () => {
     if (!solicitacaoSelecionada) return;
-    
+
     setConfirmRejectDialogOpen(true);
   };
-  
+
   const confirmarRejeicao = async () => {
     if (!solicitacaoSelecionada) return;
-    
+
     await atualizarStatus(
       solicitacaoSelecionada.id, 
       'rejeitado', 
       solicitacaoSelecionada.setor,
       motivoRejeicao
     );
-    
+
     setConfirmRejectDialogOpen(false);
     setMotivoRejeicao("");
   };
@@ -376,12 +375,12 @@ const CadastrosSolicitacoesManager: React.FC = () => {
       if (activeTab !== "todas" && s.setor !== activeTab) {
         return false;
       }
-      
+
       // Filtro por status
       if (statusFilter !== "todos" && s.status !== statusFilter) {
         return false;
       }
-      
+
       // Filtro por data
       if (dateRange.start) {
         const dataInicio = dateRange.start;
@@ -390,7 +389,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
           return false;
         }
       }
-      
+
       if (dateRange.end) {
         const dataFim = dateRange.end;
         dataFim.setHours(23, 59, 59);
@@ -399,7 +398,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
           return false;
         }
       }
-      
+
       // Busca por nome ou CPF
       if (searchTerm) {
         return (
@@ -408,7 +407,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
           s.id.toLowerCase().includes(searchTerm.toLowerCase())
         );
       }
-      
+
       return true;
     });
 
@@ -473,7 +472,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                   </Card>
                 ))}
               </div>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Evolução Semanal de Solicitações</CardTitle>
@@ -520,7 +519,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                           />
                         </div>
                       </div>
-                      
+
                       <div>
                         <Label htmlFor="status">Status</Label>
                         <Select 
@@ -541,7 +540,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                           </SelectContent>
                         </Select>
                       </div>
-                      
+
                       <div>
                         <Label>Setor</Label>
                         <Tabs 
@@ -557,7 +556,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                           </TabsList>
                         </Tabs>
                       </div>
-                      
+
                       <div className="flex items-end">
                         <Button 
                           variant="outline" 
@@ -595,6 +594,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                             <TableHead>Nome</TableHead>
                             <TableHead>Serviço/Solicitação</TableHead>
                             <TableHead>Setor</TableHead>
+                            <TableHead>Tipo</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Origem</TableHead>
                             <TableHead>Ações</TableHead>
@@ -630,6 +630,9 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                                 </Badge>
                               </TableCell>
                               <TableCell>
+                                Tipo
+                              </TableCell>
+                              <TableCell>
                                 <Badge className={statusColors[item.status]}>
                                   {statusLabels[item.status]}
                                 </Badge>
@@ -647,7 +650,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                                   >
                                     Detalhes
                                   </Button>
-                                  
+
                                   {item.status === 'pendente' && (
                                     <Button 
                                       size="sm" 
@@ -683,7 +686,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                 ID: {solicitacaoSelecionada.id}
               </DialogDescription>
             </DialogHeader>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
               <div>
                 <h3 className="font-semibold mb-2">Dados do Solicitante</h3>
@@ -710,7 +713,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                             ? 'bg-green-50 text-green-800 border-green-200'
                             : solicitacaoSelecionada.setor === 'pesca'
                             ? 'bg-blue-50 text-blue-800 border-blue-200'
-                            : 'bg-amber-50 text-amber-800 border-amber-200'
+                            : solicitacaoSelecionada.setor === 'paa'
                         }
                       >
                         {solicitacaoSelecionada.setor.charAt(0).toUpperCase() + solicitacaoSelecionada.setor.slice(1)}
@@ -739,7 +742,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div>
                 <h3 className="font-semibold mb-2">Detalhes da Solicitação</h3>
                 <div className="space-y-2">
@@ -753,7 +756,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                       <span className="text-sm col-span-2">{solicitacaoSelecionada.descricao}</span>
                     </div>
                   )}
-                  
+
                   {/* Mostrar outros campos de detalhes se disponíveis */}
                   {solicitacaoSelecionada.detalhes && Object.entries(solicitacaoSelecionada.detalhes).map(([key, value]) => (
                     <div className="grid grid-cols-3 gap-1" key={key}>
@@ -766,7 +769,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Histórico de ações */}
             {solicitacaoSelecionada.historico && solicitacaoSelecionada.historico.length > 0 && (
               <div className="mt-4">
@@ -795,7 +798,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                 </div>
               </div>
             )}
-            
+
             <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
               {/* Botões baseados no status atual */}
               {solicitacaoSelecionada.status === 'pendente' && (
@@ -821,7 +824,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                   </Button>
                 </>
               )}
-              
+
               {solicitacaoSelecionada.status === 'em_andamento' && (
                 <>
                   <Button 
@@ -839,14 +842,14 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                   </Button>
                 </>
               )}
-              
+
               <Button 
                 variant="outline"
                 onClick={() => setDetalhesModalOpen(false)}
               >
                 Fechar
               </Button>
-              
+
               <Button variant="outline">
                 <Download className="mr-2 h-4 w-4" />
                 Exportar PDF
@@ -855,7 +858,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
           </DialogContent>
         </Dialog>
       )}
-      
+
       {/* Modal de Confirmação de Rejeição */}
       <Dialog open={confirmRejectDialogOpen} onOpenChange={setConfirmRejectDialogOpen}>
         <DialogContent>
@@ -865,7 +868,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
               Por favor, informe o motivo da rejeição da solicitação.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="py-4">
             <Label htmlFor="motivoRejeicao">Motivo da Rejeição</Label>
             <Textarea
@@ -877,7 +880,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
               rows={4}
             />
           </div>
-          
+
           <DialogFooter>
             <Button 
               variant="outline" 
