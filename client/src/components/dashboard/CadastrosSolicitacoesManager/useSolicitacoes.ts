@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { collection, getDocs, query, where, orderBy, updateDoc, doc, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy, updateDoc, doc, Timestamp, limit } from 'firebase/firestore';
 import { db } from '../../../utils/firebase';
 import { Solicitacao, FiltroSolicitacoes } from './types';
 
@@ -41,121 +41,148 @@ export const useSolicitacoes = () => {
       for (const colecao of colecoesParaBuscar) {
         const tipoSolicitacao = colecao.split('_')[1] as 'agricultura' | 'pesca' | 'paa' | 'servicos';
         
-        let q;
+        console.log(`Buscando documentos na coleção: ${colecao}`);
+        
+        // Buscar documentos sem ordenação ou filtros inicialmente
+        // para garantir que recuperamos todos os documentos
+        let q = collection(db, colecao);
         
         try {
-          // Vamos determinar qual campo usar para ordenação com base na coleção
-          let timestampField = 'timestamp'; // Padrão para todas as coleções baseado no exemplo
+          const querySnapshot = await getDocs(q);
+          console.log(`Encontrados ${querySnapshot.size} documentos na coleção ${colecao}`);
           
-          // Verificamos qual campo usar para cada coleção específica
-          if (colecao.includes('_completo')) {
-            timestampField = 'criadoEm';
-          }
-          
-          console.log(`Usando campo de data '${timestampField}' para coleção ${colecao}`);
-          
-          // Adicionar filtro de status se não for 'todas'
-          if (filtros.status !== 'todas') {
-            q = query(collection(db, colecao), where('status', '==', filtros.status), orderBy(timestampField, 'desc'));
-          } else {
-            q = query(collection(db, colecao), orderBy(timestampField, 'desc'));
-          }
-          
-          console.log(`Consulta para ${colecao} usando campo de timestamp: ${timestampField}`);
-        } catch (err) {
-          // Fallback para consulta sem ordenação caso o campo de timestamp não exista
-          console.warn(`Erro ao configurar ordenação para ${colecao}:`, err);
-          
-          if (filtros.status !== 'todas') {
-            q = query(collection(db, colecao), where('status', '==', filtros.status));
-          } else {
-            q = query(collection(db, colecao));
-          }
-        }
-        
-        const querySnapshot = await getDocs(q);
-        
-        querySnapshot.forEach((doc) => {
-          try {
-            const data = doc.data();
-            console.log(`Documento encontrado na coleção ${colecao}:`, doc.id, data);
-            
-            // Verificamos se o documento tem dados
-            if (data) {
-              // Estrutura base para mapeamento
-              const solicitacaoObj: any = {
-                id: doc.id,
-                tipo: tipoSolicitacao,
-                colecao: colecao,
-                status: data.status || 'pendente',
-              };
-              
-              // Mapeamento para o formato esperado pelo componente
-              if (colecao.includes('agricultura')) {
-                // Se for agricultura, vamos criar a estrutura esperada
-                solicitacaoObj.dadosPessoais = {
-                  nome: data.nome || 'Nome não disponível',
-                  cpf: data.cpf || 'Não informado',
-                  telefone: data.telefone,
-                  email: data.email,
-                  endereco: data.endereco
-                };
+          if (!querySnapshot.empty) {
+            querySnapshot.forEach((docSnapshot) => {
+              try {
+                const data = docSnapshot.data();
+                console.log(`Documento ${docSnapshot.id} da coleção ${colecao}:`, data);
                 
-                solicitacaoObj.dadosPropriedade = {
-                  nome: data.nomePropriedade,
-                  tamanho: data.tamanho,
-                };
-                
-                solicitacaoObj.tipoServico = data.servico;
-                solicitacaoObj.urgencia = data.urgencia;
-                solicitacaoObj.detalhes = data.descricao;
-                solicitacaoObj.criadoEm = data.timestamp;
-              } else {
-                // Para outros tipos, mantemos o comportamento atual
-                Object.assign(solicitacaoObj, data);
-                
-                // Se não tiver dadosPessoais, tentamos criar a partir de outros campos
-                if (!data.dadosPessoais) {
-                  solicitacaoObj.dadosPessoais = {
-                    nome: data.nome || data.nomeCompleto || data.nomeProdutor || 'Nome não disponível',
-                    cpf: data.cpf || data.documento || data.cpfProdutor || 'Não informado'
+                if (data) {
+                  // Verificar filtro de status aqui se necessário
+                  if (filtros.status !== 'todas' && data.status !== filtros.status) {
+                    console.log(`Documento ${docSnapshot.id} filtrado pelo status: ${data.status} ≠ ${filtros.status}`);
+                    return;
+                  }
+                  
+                  // Base da solicitação
+                  const solicitacaoObj: any = {
+                    id: docSnapshot.id,
+                    tipo: tipoSolicitacao,
+                    colecao: colecao,
+                    status: data.status || 'pendente',
                   };
-                  console.log(`Adaptando estrutura para documento ${doc.id} em ${colecao}`);
+                  
+                  // Verificar se há timestamp e adicionar
+                  if (data.timestamp) {
+                    solicitacaoObj.criadoEm = data.timestamp;
+                  } else if (data.criadoEm) {
+                    solicitacaoObj.criadoEm = data.criadoEm;
+                  } else if (data.dataCriacao) {
+                    solicitacaoObj.criadoEm = data.dataCriacao;
+                  }
+                  
+                  // Mapeamento para estruturas específicas
+                  if (colecao.includes('agricultura')) {
+                    // Mapear campos específicos de agricultura
+                    solicitacaoObj.dadosPessoais = {
+                      nome: data.nome || data.nomeCompleto || 'Nome não disponível',
+                      cpf: data.cpf || data.documento || 'Não informado',
+                      telefone: data.telefone,
+                      email: data.email,
+                      endereco: data.endereco
+                    };
+                    
+                    solicitacaoObj.dadosPropriedade = {
+                      nome: data.nomePropriedade || data.propriedadeNome,
+                      tamanho: data.tamanho || data.area,
+                    };
+                    
+                    solicitacaoObj.tipoServico = data.servico || data.tipoServico;
+                    solicitacaoObj.urgencia = data.urgencia;
+                    solicitacaoObj.detalhes = data.descricao || data.detalhes;
+                  } else if (colecao.includes('pesca')) {
+                    // Mapear campos específicos de pesca
+                    if (!data.dadosPessoais) {
+                      solicitacaoObj.dadosPessoais = {
+                        nome: data.nome || data.nomeCompleto || data.nomeProdutor || 'Nome não disponível',
+                        cpf: data.cpf || data.documento || data.cpfProdutor || 'Não informado',
+                        telefone: data.telefone || data.contato,
+                        email: data.email,
+                        endereco: data.endereco || data.localizacao
+                      };
+                    } else {
+                      solicitacaoObj.dadosPessoais = data.dadosPessoais;
+                    }
+                    
+                    // Dados específicos de pesca, se existirem
+                    if (data.dadosEmpreendimento) {
+                      solicitacaoObj.dadosEmpreendimento = data.dadosEmpreendimento;
+                    }
+                    
+                    solicitacaoObj.tipoServico = data.servico || data.tipoServico;
+                  } else {
+                    // Para outros tipos, preservar estrutura original
+                    Object.assign(solicitacaoObj, data);
+                    
+                    // Garantir que dadosPessoais sempre exista
+                    if (!solicitacaoObj.dadosPessoais) {
+                      solicitacaoObj.dadosPessoais = {
+                        nome: data.nome || data.nomeCompleto || data.nomeProdutor || 'Nome não disponível',
+                        cpf: data.cpf || data.documento || data.cpfProdutor || 'Não informado'
+                      };
+                    }
+                  }
+                  
+                  console.log(`Documento mapeado para solicitação:`, solicitacaoObj);
+                  todasSolicitacoes.push(solicitacaoObj);
                 }
+              } catch (err) {
+                console.error(`Erro ao processar documento ${docSnapshot.id} da coleção ${colecao}:`, err);
               }
-              
-              console.log(`Documento mapeado: `, solicitacaoObj);
-              todasSolicitacoes.push(solicitacaoObj);
-            } else {
-              console.warn(`Documento ${doc.id} na coleção ${colecao} não tem dados:`, data);
-            }
-          } catch (err) {
-            console.error(`Erro ao processar documento ${doc.id} da coleção ${colecao}:`, err);
+            });
+          } else {
+            console.log(`Nenhum documento encontrado na coleção ${colecao}`);
           }
-        });
+        } catch (err) {
+          console.error(`Erro ao buscar documentos da coleção ${colecao}:`, err);
+        }
       }
+
+      // Ordenar solicitações por data (mais recentes primeiro)
+      const solicitacoesOrdenadas = todasSolicitacoes.sort((a, b) => {
+        // Verificar se as datas existem e convertê-las para o mesmo formato
+        const dateA = a.criadoEm ? 
+          (a.criadoEm instanceof Timestamp ? a.criadoEm.toMillis() : new Date(a.criadoEm).getTime()) : 0;
+        const dateB = b.criadoEm ? 
+          (b.criadoEm instanceof Timestamp ? b.criadoEm.toMillis() : new Date(b.criadoEm).getTime()) : 0;
+        
+        return dateB - dateA;
+      });
 
       // Aplicar filtro de pesquisa se existir
       const solicitacoesFiltradas = filtros.pesquisa 
-        ? todasSolicitacoes.filter(sol => {
+        ? solicitacoesOrdenadas.filter(sol => {
             try {
               // Verificar se os dados necessários existem antes de acessá-los
-              if (sol.dadosPessoais && sol.dadosPessoais.nome) {
-                const nome = sol.dadosPessoais.nome.toLowerCase();
-                const cpf = sol.dadosPessoais.cpf || '';
-                const termo = (filtros.pesquisa || '').toLowerCase();
-                return nome.includes(termo) || cpf.includes(termo);
-              }
-              return false;
+              const nome = sol.dadosPessoais?.nome?.toLowerCase() || '';
+              const cpf = sol.dadosPessoais?.cpf?.toLowerCase() || '';
+              const termo = (filtros.pesquisa || '').toLowerCase();
+              return nome.includes(termo) || cpf.includes(termo);
             } catch (err) {
               console.error('Erro ao filtrar solicitação:', err, sol);
               return false;
             }
           })
-        : todasSolicitacoes;
+        : solicitacoesOrdenadas;
       
       console.log(`Total de solicitações encontradas: ${todasSolicitacoes.length}`);
       console.log(`Solicitações após filtro: ${solicitacoesFiltradas.length}`);
+      
+      if (solicitacoesFiltradas.length === 0) {
+        console.log(`Nenhuma solicitação encontrada após filtros aplicados`);
+      } else {
+        console.log(`Primeiras 3 solicitações:`, solicitacoesFiltradas.slice(0, 3));
+      }
 
       setSolicitacoes(solicitacoesFiltradas);
     } catch (err) {

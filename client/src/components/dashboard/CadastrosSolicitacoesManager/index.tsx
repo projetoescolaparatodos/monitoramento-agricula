@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
@@ -8,10 +8,12 @@ import { useSolicitacoes } from './useSolicitacoes';
 import SolicitacaoCard from './SolicitacaoCard';
 import SolicitacaoModal from './SolicitacaoModal';
 import { useToast } from '../../../hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
 
 const CadastrosSolicitacoesManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('todas');
   const [selectedSolicitacao, setSelectedSolicitacao] = useState<Solicitacao | null>(null);
+  const [debugMode, setDebugMode] = useState<boolean>(false);
   const { toast } = useToast();
   
   const { 
@@ -59,9 +61,32 @@ const CadastrosSolicitacoesManager: React.FC = () => {
     });
   };
 
+  // Manipular filtro de status
+  const handleStatusFilter = (value: string) => {
+    setFiltros({
+      ...filtros,
+      status: value as FiltroSolicitacoes['status']
+    });
+  };
+
+  // Efeito para carregar solicitações quando o componente montar
+  useEffect(() => {
+    console.log("CadastrosSolicitacoesManager montado - buscando solicitações iniciais");
+    refreshSolicitacoes();
+  }, []);
+
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold">Gerenciar Cadastros e Solicitações</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Gerenciar Cadastros e Solicitações</h2>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => setDebugMode(!debugMode)}
+        >
+          {debugMode ? "Ocultar Debug" : "Modo Debug"}
+        </Button>
+      </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList>
@@ -72,13 +97,30 @@ const CadastrosSolicitacoesManager: React.FC = () => {
           <TabsTrigger value="servicos">Serviços</TabsTrigger>
         </TabsList>
 
-        <div className="mt-4 flex items-center gap-2">
+        <div className="mt-4 flex flex-wrap items-center gap-2">
           <Input
             placeholder="Buscar por nome ou CPF..."
             value={filtros.pesquisa || ''}
             onChange={handleSearch}
             className="max-w-xs"
           />
+          
+          <Select 
+            value={filtros.status} 
+            onValueChange={handleStatusFilter}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todas">Todos os status</SelectItem>
+              <SelectItem value="pendente">Pendente</SelectItem>
+              <SelectItem value="em_andamento">Em andamento</SelectItem>
+              <SelectItem value="concluido">Concluído</SelectItem>
+              <SelectItem value="cancelado">Cancelado</SelectItem>
+            </SelectContent>
+          </Select>
+          
           <Button 
             variant="outline" 
             size="sm"
@@ -91,6 +133,15 @@ const CadastrosSolicitacoesManager: React.FC = () => {
         {error && (
           <div className="bg-red-50 text-red-700 p-3 rounded-md mt-2">
             {error}
+          </div>
+        )}
+
+        {debugMode && (
+          <div className="mt-4 p-4 border rounded bg-gray-50 overflow-auto max-h-40">
+            <h3 className="font-semibold">Informações de Debug:</h3>
+            <p>Filtros atuais: Tipo: {filtros.tipo}, Status: {filtros.status}, Pesquisa: {filtros.pesquisa || '(vazio)'}</p>
+            <p>Total de solicitações carregadas: {solicitacoes.length}</p>
+            <p>Estado de carregamento: {loading ? 'Carregando...' : 'Completo'}</p>
           </div>
         )}
 
@@ -124,6 +175,18 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                     </li>
                   ))}
                 </ul>
+                <div className="mt-3">
+                  <Button 
+                    variant="default" 
+                    size="sm" 
+                    onClick={() => {
+                      console.log("Forçando nova busca de solicitações");
+                      refreshSolicitacoes();
+                    }}
+                  >
+                    Tentar Novamente
+                  </Button>
+                </div>
               </div>
             </div>
           ) : (
@@ -134,7 +197,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                   solicitacao={solicitacao}
                   onVerDetalhes={() => setSelectedSolicitacao(solicitacao)}
                   onChangeStatus={(sol, status) => 
-                    handleStatusChange(sol.id, status, sol.tipo)
+                    handleStatusChange(sol.id, status, sol.tipo, sol.colecao)
                   }
                 />
               ))}
