@@ -636,7 +636,7 @@ const ChatbotWidget: React.FC = () => {
     addMessage(
       "Você pode continuar nossa conversa aqui após preencher o formulário.",
       false,
-    );
+      );
 
     return false; // Impede processamento adicional
   };
@@ -852,7 +852,7 @@ const ChatbotWidget: React.FC = () => {
       return { shouldRespond: true, response: bestMatch.answer };
     }
 
-    // Verificar fluxos de conversa predefinidos antes de passar para IA
+    // Verificarfluxos de conversa predefinidos antes de passar para IA
     console.log("🔍 HIERARQUIA 2: Verificando fluxos de conversa predefinidos");
 
     // Processar ações do fluxo de conversa
