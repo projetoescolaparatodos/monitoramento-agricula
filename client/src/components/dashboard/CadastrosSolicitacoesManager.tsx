@@ -1,14 +1,38 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { collection, query, orderBy, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, doc, updateDoc, where, limit, startAfter, Timestamp } from 'firebase/firestore';
 import { db } from "@/utils/firebase";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { BarChart } from "lucide-react";
 import jsPDF from 'jspdf';
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart as RechartsBarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
+
+// Configuração dinâmica de coleções
+const colecoesConfig = [
+  { nome: 'solicitacoes_agricultura', tipo: 'agricultura', label: 'Agricultura' },
+  { nome: 'solicitacoes_pesca', tipo: 'pesca', label: 'Pesca' },
+  { nome: 'solicitacoes_agricultura_completo', tipo: 'agricultura', label: 'Agricultura (Completo)' },
+  // Adicione novas coleções aqui conforme necessário
+];
+
+// Status de solicitações suportados
+const statusOptions = [
+  { value: 'pendente', label: 'Pendente', color: 'bg-yellow-100 text-yellow-800' },
+  { value: 'em_analise', label: 'Em Análise', color: 'bg-blue-100 text-blue-800' },
+  { value: 'aprovado', label: 'Aprovado', color: 'bg-green-100 text-green-800' },
+  { value: 'concluido', label: 'Concluído', color: 'bg-green-100 text-green-800' },
+  { value: 'cancelado', label: 'Cancelado', color: 'bg-red-100 text-red-800' },
+  { value: 'rejeitado', label: 'Rejeitado', color: 'bg-red-100 text-red-800' },
+];
 
 interface DadosPessoais {
   nomeCompleto: string;
@@ -22,6 +46,10 @@ interface DadosPessoais {
   escolaridade: string;
   telefone: string;
   instituicaoAssociada?: string;
+  endereco?: string;
+  email?: string;
+  celular?: string;
+  travessao?: string;
 }
 
 interface DadosPropriedade {
@@ -133,7 +161,7 @@ interface DadosEmpreendimento {
 
 interface Solicitacao {
   id: string;
-  tipo: 'agricultura' | 'pesca';
+  tipo: 'agricultura' | 'pesca' | 'paa';
   status: string;
   dataCriacao: string;
   dadosPessoais: DadosPessoais;
@@ -161,6 +189,22 @@ interface Solicitacao {
   periodoDesejado?: string;
   urgencia?: string;
   detalhes?: string;
+  // Campos para controle de processo
+  dataUltimaAtualizacao?: string;
+  responsavel?: string;
+  historicoAtualizacoes?: {
+    data: string;
+    status: string;
+    responsavel: string;
+    observacao?: string;
+  }[];
+}
+
+interface MetricasGerais {
+  total: number;
+  porTipo: { [key: string]: number };
+  porStatus: { [key: string]: number };
+  porMes: { [key: string]: number };
 }
 
 export const CadastrosSolicitacoesManager = () => {
@@ -168,62 +212,343 @@ export const CadastrosSolicitacoesManager = () => {
   const [selectedSolicitacao, setSelectedSolicitacao] = useState<Solicitacao | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('todas');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showStatistics, setShowStatistics] = useState(false);
+  const [metricas, setMetricas] = useState<MetricasGerais>({
+    total: 0,
+    porTipo: {},
+    porStatus: {},
+    porMes: {}
+  });
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [lastVisible, setLastVisible] = useState<any>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [statusAtualizar, setStatusAtualizar] = useState<string>('');
+  const [observacaoAtualizar, setObservacaoAtualizar] = useState('');
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  
   const { toast } = useToast();
+  const ITEMS_PER_PAGE = 10;
 
-  useEffect(() => {
-    const fetchSolicitacoes = async () => {
-      setLoading(true);
-      try {
-        const colecoes = ['solicitacoes_agricultura', 'solicitacoes_pesca', 'solicitacoes_agricultura_completo'];
-        let todasSolicitacoes: Solicitacao[] = [];
-
-        for (const colecao of colecoes) {
-          console.log(`Buscando solicitações da coleção: ${colecao}`);
-          const q = query(
-            collection(db, colecao)
+  // Função para buscar solicitações com paginação
+  const fetchSolicitacoes = async (novaConsulta = true) => {
+    if (novaConsulta) setLoading(true);
+    try {
+      let todasSolicitacoes: Solicitacao[] = [];
+      
+      for (const colecao of colecoesConfig) {
+        console.log(`Buscando solicitações da coleção: ${colecao.nome}`);
+        let q;
+        
+        if (novaConsulta) {
+          // Nova consulta - reinicia paginação
+          q = query(
+            collection(db, colecao.nome),
+            orderBy('dataCriacao', 'desc'),
+            limit(ITEMS_PER_PAGE)
           );
-
-          const querySnapshot = await getDocs(q);
-          console.log(`Encontradas ${querySnapshot.size} solicitações em ${colecao}`);
-
-          const solicitacoesSetor = querySnapshot.docs.map(doc => {
-            const data = doc.data();
-            console.log(`Documento ${doc.id}:`, data);
-            return {
-              id: doc.id,
-              tipo: colecao === 'solicitacoes_agricultura' ? 'agricultura' : (colecao === 'solicitacoes_pesca' ? 'pesca' : 'agricultura'),
-              ...data
-            } as Solicitacao;
-          });
-
-          todasSolicitacoes = [...todasSolicitacoes, ...solicitacoesSetor];
+        } else if (lastVisible) {
+          // Paginação - continua de onde parou
+          q = query(
+            collection(db, colecao.nome),
+            orderBy('dataCriacao', 'desc'),
+            startAfter(lastVisible),
+            limit(ITEMS_PER_PAGE)
+          );
+        } else {
+          continue; // Sem lastVisible para paginação, pula esta coleção
         }
 
-        console.log('Total de solicitações encontradas:', todasSolicitacoes.length);
-        setSolicitacoes(todasSolicitacoes);
-      } catch (error) {
-        console.error("Erro ao buscar solicitações:", error);
-        toast({
-          title: "Erro",
-          description: "Não foi possível carregar as solicitações.",
-          variant: "destructive",
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) {
+          if (!novaConsulta) {
+            setHasMore(false);
+          }
+          continue;
+        }
+        
+        // Armazena o último documento para paginação
+        const lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
+        if (novaConsulta) {
+          setLastVisible(lastDoc);
+        } else {
+          setLastVisible(lastDoc);
+        }
+        
+        const solicitacoesSetor = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            tipo: colecao.tipo,
+            ...data
+          } as Solicitacao;
         });
-      } finally {
-        setLoading(false);
+
+        todasSolicitacoes = [...todasSolicitacoes, ...solicitacoesSetor];
       }
-    };
-
-    fetchSolicitacoes();
-  }, [toast]);
-
-  const formatarData = (data: string) => {
-    return new Date(data).toLocaleDateString('pt-BR');
+      
+      if (novaConsulta) {
+        // Se for uma nova consulta, substitui as solicitações existentes
+        setSolicitacoes(todasSolicitacoes);
+        calcularMetricas(todasSolicitacoes);
+      } else {
+        // Se for paginação, adiciona às solicitações existentes
+        setSolicitacoes(prev => [...prev, ...todasSolicitacoes]);
+        calcularMetricas([...solicitacoes, ...todasSolicitacoes]);
+      }
+      
+      console.log('Total de solicitações encontradas:', todasSolicitacoes.length);
+    } catch (error) {
+      console.error("Erro ao buscar solicitações:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar as solicitações.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Função de pesquisa
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) {
+      // Se o termo de pesquisa estiver vazio, busca todas as solicitações
+      fetchSolicitacoes();
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      let resultados: Solicitacao[] = [];
+      
+      for (const colecao of colecoesConfig) {
+        // Busca por CPF (correspondência exata)
+        const cpfQuery = query(
+          collection(db, colecao.nome),
+          where('dadosPessoais.cpf', '==', searchTerm.trim())
+        );
+        
+        // Busca por nome (usando caracteres curinga seria ideal, mas o Firestore não suporta
+        // então teremos que buscar tudo e filtrar no client-side)
+        const nameQuery = query(
+          collection(db, colecao.nome),
+          limit(100) // Limite para não buscar tudo
+        );
+        
+        const [cpfSnapshot, nameSnapshot] = await Promise.all([
+          getDocs(cpfQuery),
+          getDocs(nameQuery)
+        ]);
+        
+        // Resultados da busca por CPF
+        const cpfResults = cpfSnapshot.docs.map(doc => ({
+          id: doc.id,
+          tipo: colecao.tipo,
+          ...doc.data()
+        } as Solicitacao));
+        
+        // Filtra resultados por nome
+        const nameResults = nameSnapshot.docs
+          .filter(doc => {
+            const data = doc.data();
+            const nome = data.dadosPessoais?.nomeCompleto || data.nome || '';
+            return nome.toLowerCase().includes(searchTerm.toLowerCase());
+          })
+          .map(doc => ({
+            id: doc.id,
+            tipo: colecao.tipo,
+            ...doc.data()
+          } as Solicitacao));
+        
+        // Combina resultados evitando duplicatas
+        const allResults = [...cpfResults];
+        nameResults.forEach(result => {
+          if (!allResults.some(r => r.id === result.id)) {
+            allResults.push(result);
+          }
+        });
+        
+        resultados = [...resultados, ...allResults];
+      }
+      
+      setSolicitacoes(resultados);
+      calcularMetricas(resultados);
+      setHasMore(false); // Desativa paginação em resultados de busca
+      
+    } catch (error) {
+      console.error("Erro na pesquisa:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível realizar a pesquisa.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Cálculo de métricas para o dashboard
+  const calcularMetricas = (solicitacoes: Solicitacao[]) => {
+    const metricas: MetricasGerais = {
+      total: solicitacoes.length,
+      porTipo: {},
+      porStatus: {},
+      porMes: {}
+    };
+    
+    solicitacoes.forEach(s => {
+      // Contagem por tipo
+      metricas.porTipo[s.tipo] = (metricas.porTipo[s.tipo] || 0) + 1;
+      
+      // Contagem por status
+      const status = s.status || 'pendente';
+      metricas.porStatus[status] = (metricas.porStatus[status] || 0) + 1;
+      
+      // Contagem por mês
+      if (s.dataCriacao) {
+        const data = new Date(s.dataCriacao);
+        const mesAno = `${data.getMonth() + 1}/${data.getFullYear()}`;
+        metricas.porMes[mesAno] = (metricas.porMes[mesAno] || 0) + 1;
+      }
+    });
+    
+    setMetricas(metricas);
+  };
+
+  // Manipulação de seleção para ações em lote
+  const toggleSelecionarItem = (id: string) => {
+    setSelectedItems(prev => {
+      if (prev.includes(id)) {
+        return prev.filter(item => item !== id);
+      } else {
+        return [...prev, id];
+      }
+    });
+  };
+
+  const toggleSelecionarTodos = () => {
+    if (selectedItems.length === solicitacoesFiltradas.length) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(solicitacoesFiltradas.map(s => s.id));
+    }
+  };
+
+  // Atualização de status
+  const atualizarStatus = async (id: string, novoStatus: string, observacao: string = '') => {
+    setIsUpdatingStatus(true);
+    try {
+      // Determinar a coleção correta
+      const solicitacao = solicitacoes.find(s => s.id === id);
+      if (!solicitacao) {
+        throw new Error("Solicitação não encontrada");
+      }
+      
+      // Encontrar a coleção correspondente
+      const colecao = colecoesConfig.find(c => c.tipo === solicitacao.tipo)?.nome;
+      if (!colecao) {
+        throw new Error("Coleção não encontrada");
+      }
+      
+      const now = new Date().toISOString();
+      const historicoItem = {
+        data: now,
+        status: novoStatus,
+        responsavel: "Admin", // Idealmente, isso seria o usuário atual
+        observacao: observacao || undefined
+      };
+      
+      // Atualizar o documento
+      const docRef = doc(db, colecao, id);
+      await updateDoc(docRef, {
+        status: novoStatus,
+        dataUltimaAtualizacao: now,
+        historicoAtualizacoes: Timestamp.fromDate(new Date()) // Adicionar ao array existente
+      });
+      
+      // Atualizar a lista local
+      setSolicitacoes(prev => prev.map(s => {
+        if (s.id === id) {
+          return {
+            ...s,
+            status: novoStatus,
+            dataUltimaAtualizacao: now,
+            historicoAtualizacoes: s.historicoAtualizacoes ? 
+              [...s.historicoAtualizacoes, historicoItem] : 
+              [historicoItem]
+          };
+        }
+        return s;
+      }));
+      
+      toast({
+        title: "Status atualizado",
+        description: `Status alterado para ${novoStatus}`,
+      });
+      
+      // Recalcular métricas
+      calcularMetricas(solicitacoes);
+      
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o status.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingStatus(false);
+      setStatusAtualizar('');
+      setObservacaoAtualizar('');
+    }
+  };
+
+  // Geração de PDFs em lote
+  const gerarPDFsEmLote = () => {
+    if (selectedItems.length === 0) {
+      toast({
+        title: "Nenhum item selecionado",
+        description: "Selecione pelo menos uma solicitação para gerar relatórios.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    selectedItems.forEach(id => {
+      const solicitacao = solicitacoes.find(s => s.id === id);
+      if (solicitacao) {
+        generatePDF(solicitacao);
+      }
+    });
+    
+    toast({
+      title: "PDFs gerados",
+      description: `${selectedItems.length} relatórios foram gerados com sucesso.`,
+    });
+  };
+
+  // Efeito para buscar solicitações na inicialização
+  useEffect(() => {
+    fetchSolicitacoes();
+  }, []);
+
+  const formatarData = (data: string) => {
+    if (!data) return 'Data não informada';
+    try {
+      return new Date(data).toLocaleDateString('pt-BR');
+    } catch (e) {
+      return 'Data inválida';
+    }
+  };
+
+  // Filtro de solicitações com base na aba ativa e termo de pesquisa
   const solicitacoesFiltradas = activeTab === 'todas' 
     ? solicitacoes 
     : solicitacoes.filter(s => s.tipo === activeTab);
 
+  // Geração de PDF para uma solicitação individual
   const generatePDF = (solicitacao: Solicitacao) => {
     if (solicitacao.tipo === 'agricultura') {
       return generateAgriculturaReport(solicitacao);
@@ -360,15 +685,219 @@ export const CadastrosSolicitacoesManager = () => {
     doc.save(`solicitacao-pesca-${solicitacao.id}.pdf`);
   };
 
+  // Renderização do componente de dashboard de métricas
+  const renderDashboard = () => {
+    if (!showStatistics) return null;
+
+    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#FF6B6B'];
+    
+    // Dados para gráfico de pizza de status
+    const statusData = Object.entries(metricas.porStatus).map(([status, quantidade]) => ({
+      name: statusOptions.find(s => s.value === status)?.label || status,
+      value: quantidade
+    }));
+    
+    // Dados para gráfico de barras por tipo
+    const tipoData = Object.entries(metricas.porTipo).map(([tipo, quantidade]) => ({
+      name: colecoesConfig.find(c => c.tipo === tipo)?.label || tipo,
+      quantidade
+    }));
+    
+    // Dados para gráfico de linhas por mês
+    const mesData = Object.entries(metricas.porMes)
+      .sort((a, b) => {
+        const [mesA, anoA] = a[0].split('/').map(Number);
+        const [mesB, anoB] = b[0].split('/').map(Number);
+        if (anoA !== anoB) return anoA - anoB;
+        return mesA - mesB;
+      })
+      .map(([mesAno, quantidade]) => ({
+        name: mesAno,
+        quantidade
+      }));
+    
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <Card className="p-4">
+          <h3 className="text-lg font-bold mb-4">Distribuição por Status</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <PieChart>
+              <Pie
+                data={statusData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+                label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+              >
+                {statusData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </Card>
+        
+        <Card className="p-4">
+          <h3 className="text-lg font-bold mb-4">Solicitações por Tipo</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <RechartsBarChart
+              data={tipoData}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="quantidade" fill="#0088FE" />
+            </RechartsBarChart>
+          </ResponsiveContainer>
+        </Card>
+        
+        <Card className="p-4 md:col-span-2">
+          <h3 className="text-lg font-bold mb-4">Evolução Mensal</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <RechartsBarChart data={mesData}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="quantidade" fill="#82ca9d" />
+            </RechartsBarChart>
+          </ResponsiveContainer>
+        </Card>
+      </div>
+    );
+  };
+
+  // Diálogo para atualização de status
+  const renderDialogoAtualizarStatus = () => {
+    return (
+      <Dialog open={!!statusAtualizar} onOpenChange={() => setStatusAtualizar('')}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Atualizar Status da Solicitação</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Novo Status</label>
+              <Select 
+                value={statusAtualizar} 
+                onValueChange={setStatusAtualizar}
+                disabled={isUpdatingStatus}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {statusOptions.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Observação (opcional)</label>
+              <Textarea
+                value={observacaoAtualizar}
+                onChange={(e) => setObservacaoAtualizar(e.target.value)}
+                placeholder="Adicione uma observação sobre esta atualização..."
+                disabled={isUpdatingStatus}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setStatusAtualizar('')}
+              disabled={isUpdatingStatus}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => {
+                if (selectedSolicitacao) {
+                  atualizarStatus(selectedSolicitacao.id, statusAtualizar, observacaoAtualizar);
+                }
+              }}
+              disabled={!statusAtualizar || isUpdatingStatus}
+            >
+              {isUpdatingStatus ? "Atualizando..." : "Confirmar"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold">Gerenciar Cadastros e Solicitações</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Gerenciar Cadastros e Solicitações</h2>
+        <Button
+          variant="outline"
+          onClick={() => setShowStatistics(!showStatistics)}
+          className="flex items-center gap-2"
+        >
+          <BarChart className="h-4 w-4" />
+          {showStatistics ? "Ocultar Estatísticas" : "Mostrar Estatísticas"}
+        </Button>
+      </div>
+
+      {/* Dashboard de métricas */}
+      {renderDashboard()}
+
+      {/* Barra de ferramentas: pesquisa e ações em lote */}
+      <div className="flex flex-col sm:flex-row gap-3 justify-between">
+        <div className="flex gap-2 flex-1">
+          <Input
+            placeholder="Buscar por nome ou CPF..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="max-w-md"
+          />
+          <Button onClick={handleSearch} disabled={loading}>
+            Buscar
+          </Button>
+          {searchTerm && (
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setSearchTerm('');
+                fetchSolicitacoes();
+              }}
+            >
+              Limpar
+            </Button>
+          )}
+        </div>
+        
+        {selectedItems.length > 0 && (
+          <div className="flex gap-2 items-center">
+            <span className="text-sm text-gray-500">
+              {selectedItems.length} {selectedItems.length === 1 ? 'item selecionado' : 'itens selecionados'}
+            </span>
+            <Button 
+              variant="outline" 
+              onClick={gerarPDFsEmLote}
+              className="whitespace-nowrap"
+            >
+              Gerar PDFs em Lote
+            </Button>
+          </div>
+        )}
+      </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="todas">Todas</TabsTrigger>
           <TabsTrigger value="agricultura">Agricultura</TabsTrigger>
           <TabsTrigger value="pesca">Pesca</TabsTrigger>
+          {/* Adicione novas abas aqui conforme necessário */}
         </TabsList>
 
         <TabsContent value={activeTab}>
@@ -377,51 +906,146 @@ export const CadastrosSolicitacoesManager = () => {
           ) : solicitacoesFiltradas.length === 0 ? (
             <div className="text-center py-4">Nenhuma solicitação encontrada</div>
           ) : (
-            <div className="grid gap-4">
-              {solicitacoesFiltradas.map((solicitacao) => (
-                <Card key={solicitacao.id} className="p-4">
-                  <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="font-bold">
+            <div className="space-y-4">
+              {/* Cabeçalho da tabela com checkbox para selecionar todos */}
+              <div className="flex items-center p-2 bg-gray-50 rounded-md">
+                <div className="w-12 flex justify-center">
+                  <Checkbox 
+                    checked={selectedItems.length === solicitacoesFiltradas.length && solicitacoesFiltradas.length > 0}
+                    onCheckedChange={toggleSelecionarTodos}
+                  />
+                </div>
+                <div className="flex-1 font-medium">Solicitante</div>
+                <div className="w-32 text-center">Status</div>
+                <div className="w-32 text-center">Data</div>
+                <div className="w-32 text-center">Tipo</div>
+                <div className="w-48 text-center">Ações</div>
+              </div>
+              
+              {/* Lista de solicitações */}
+              <div className="grid gap-2">
+                {solicitacoesFiltradas.map((solicitacao) => (
+                  <Card key={solicitacao.id} className="p-3">
+                    <div className="flex items-center">
+                      <div className="w-12 flex justify-center">
+                        <Checkbox 
+                          checked={selectedItems.includes(solicitacao.id)}
+                          onCheckedChange={() => toggleSelecionarItem(solicitacao.id)}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-medium">
                           {solicitacao.dadosPessoais?.nomeCompleto || 'Nome não informado'}
                         </h3>
                         <p className="text-sm text-gray-500">
-                          {solicitacao.dataCriacao ? formatarData(solicitacao.dataCriacao) : 'Data não informada'}
+                          CPF: {solicitacao.dadosPessoais?.cpf || 'Não informado'}
                         </p>
-                        <Badge variant="outline" className="mt-2">
+                      </div>
+                      <div className="w-32 text-center">
+                        <Badge variant="outline" className={`${
+                          statusOptions.find(s => s.value === solicitacao.status)?.color || 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {statusOptions.find(s => s.value === solicitacao.status)?.label || solicitacao.status || 'Pendente'}
+                        </Badge>
+                      </div>
+                      <div className="w-32 text-center text-sm">
+                        {solicitacao.dataCriacao ? formatarData(solicitacao.dataCriacao) : 'Não informada'}
+                      </div>
+                      <div className="w-32 text-center">
+                        <Badge variant="outline">
                           {solicitacao.tipo === 'agricultura' ? 'Agricultura' : 'Pesca'}
                         </Badge>
                       </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => setSelectedSolicitacao(solicitacao)}
-                      >
-                        Visualizar
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => generatePDF(solicitacao)}
-                      >
-                        Gerar PDF
-                      </Button>
+                      <div className="w-48 flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedSolicitacao(solicitacao);
+                            setStatusAtualizar('');
+                          }}
+                        >
+                          Visualizar
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedSolicitacao(solicitacao);
+                            setStatusAtualizar(solicitacao.status || 'pendente');
+                          }}
+                        >
+                          Status
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => generatePDF(solicitacao)}
+                        >
+                          PDF
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                ))}
+              </div>
+              
+              {/* Botão para carregar mais */}
+              {hasMore && !searchTerm && (
+                <div className="flex justify-center mt-4">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => fetchSolicitacoes(false)}
+                    disabled={loading}
+                  >
+                    {loading ? "Carregando..." : "Carregar Mais"}
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </TabsContent>
       </Tabs>
 
+      {/* Modal de detalhes da solicitação */}
       <Dialog open={!!selectedSolicitacao} onOpenChange={() => setSelectedSolicitacao(null)}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Detalhes da Solicitação</DialogTitle>
+            <DialogTitle className="flex justify-between items-center">
+              <span>Detalhes da Solicitação</span>
+              <Badge variant="outline" className={`${
+                selectedSolicitacao?.status ? 
+                (statusOptions.find(s => s.value === selectedSolicitacao.status)?.color || 'bg-gray-100') : 
+                'bg-yellow-100 text-yellow-800'
+              }`}>
+                {selectedSolicitacao?.status ? 
+                  (statusOptions.find(s => s.value === selectedSolicitacao.status)?.label || selectedSolicitacao.status) : 
+                  'Pendente'
+                }
+              </Badge>
+            </DialogTitle>
           </DialogHeader>
 
           {selectedSolicitacao && (
             <div className="space-y-6">
+              {/* Barra de ações rápidas */}
+              <div className="flex justify-end gap-2 border-b pb-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setStatusAtualizar(selectedSolicitacao.status || 'pendente')}
+                >
+                  Atualizar Status
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => generatePDF(selectedSolicitacao)}
+                >
+                  Gerar PDF
+                </Button>
+              </div>
+
               {/* 1. Identificação do Empreendedor */}
               <section>
                 <h3 className="text-lg font-bold mb-2">1. Identificação do Empreendedor</h3>
@@ -715,41 +1339,43 @@ export const CadastrosSolicitacoesManager = () => {
               )}
 
               {/* 3. Classificação */}
-              <section>
-                <h3 className="text-lg font-bold mb-2">3. Classificação</h3>
+              {selectedSolicitacao.obras || selectedSolicitacao.especiesConfinadas ? (
+                <section>
+                  <h3 className="text-lg font-bold mb-2">3. Classificação</h3>
 
-                {/* 3.1 Obras */}
-                {selectedSolicitacao.obras && (
-                  <div className="mb-4">
-                    <h4 className="font-semibold mb-2">3.1 Obras</h4>
-                    <div className="grid gap-2">
-                      {selectedSolicitacao.obras.map((obra, index) => (
-                        <div key={index} className="border p-2 rounded">
-                          <p>
-                            {obra.tipo}: {obra.area}{obra.unidade} - {obra.situacao}
-                          </p>
-                        </div>
-                      ))}
+                  {/* 3.1 Obras */}
+                  {selectedSolicitacao.obras && (
+                    <div className="mb-4">
+                      <h4 className="font-semibold mb-2">3.1 Obras</h4>
+                      <div className="grid gap-2">
+                        {selectedSolicitacao.obras.map((obra, index) => (
+                          <div key={index} className="border p-2 rounded">
+                            <p>
+                              {obra.tipo}: {obra.area}{obra.unidade} - {obra.situacao}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* 3.2 Espécies */}
-                {selectedSolicitacao.especiesConfinadas && (
-                  <div>
-                    <h4 className="font-semibold mb-2">3.2 Espécies Confinadas</h4>
-                    <div className="grid gap-2">
-                      {selectedSolicitacao.especiesConfinadas.map((especie, index) => (
-                        <div key={index} className="border p-2 rounded">
-                          <p>
-                            {especie.nome}: {especie.quantidade} unidades
-                          </p>
-                        </div>
-                      ))}
+                  {/* 3.2 Espécies */}
+                  {selectedSolicitacao.especiesConfinadas && (
+                    <div>
+                      <h4 className="font-semibold mb-2">3.2 Espécies Confinadas</h4>
+                      <div className="grid gap-2">
+                        {selectedSolicitacao.especiesConfinadas.map((especie, index) => (
+                          <div key={index} className="border p-2 rounded">
+                            <p>
+                              {especie.nome}: {especie.quantidade} unidades
+                            </p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </section>
+                  )}
+                </section>
+              ) : null}
 
               {/* 4. Detalhamento */}
               {selectedSolicitacao.detalhamento && (
@@ -836,6 +1462,27 @@ export const CadastrosSolicitacoesManager = () => {
                 </section>
               )}
 
+              {/* 7. Histórico de atualizações (se existir) */}
+              {selectedSolicitacao.historicoAtualizacoes && selectedSolicitacao.historicoAtualizacoes.length > 0 && (
+                <section>
+                  <h3 className="text-lg font-bold mb-2">7. Histórico de Atualizações</h3>
+                  <div className="space-y-2">
+                    {selectedSolicitacao.historicoAtualizacoes.map((historico, index) => (
+                      <div key={index} className="border p-3 rounded-md">
+                        <div className="flex justify-between">
+                          <p className="font-medium">{historico.status}</p>
+                          <p className="text-sm text-gray-500">{formatarData(historico.data)}</p>
+                        </div>
+                        <p className="text-sm">Responsável: {historico.responsavel}</p>
+                        {historico.observacao && (
+                          <p className="text-sm mt-1">{historico.observacao}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
               <div className="flex justify-end gap-2 mt-4">
                 <Button
                   variant="outline"
@@ -854,6 +1501,9 @@ export const CadastrosSolicitacoesManager = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Diálogo para atualização de status */}
+      {renderDialogoAtualizarStatus()}
     </div>
   );
 };
