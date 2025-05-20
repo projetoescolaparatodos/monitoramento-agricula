@@ -44,8 +44,15 @@ export const useSolicitacoes = () => {
         let q;
         
         try {
-          // Vamos verificar primeiro se a coleção usa 'criadoEm' ou 'timestamp' ou outro campo para data
-          const timestampField = colecao.includes('servicos') ? 'timestamp' : 'criadoEm';
+          // Vamos determinar qual campo usar para ordenação com base na coleção
+          let timestampField = 'timestamp'; // Padrão para todas as coleções baseado no exemplo
+          
+          // Verificamos qual campo usar para cada coleção específica
+          if (colecao.includes('_completo')) {
+            timestampField = 'criadoEm';
+          }
+          
+          console.log(`Usando campo de data '${timestampField}' para coleção ${colecao}`);
           
           // Adicionar filtro de status se não for 'todas'
           if (filtros.status !== 'todas') {
@@ -73,26 +80,51 @@ export const useSolicitacoes = () => {
             const data = doc.data();
             console.log(`Documento encontrado na coleção ${colecao}:`, doc.id, data);
             
-            // Verificamos se o documento tem a estrutura esperada
+            // Verificamos se o documento tem dados
             if (data) {
-              // Criamos um objeto base para o documento
+              // Estrutura base para mapeamento
               const solicitacaoObj: any = {
                 id: doc.id,
                 tipo: tipoSolicitacao,
                 colecao: colecao,
                 status: data.status || 'pendente',
-                ...data
               };
               
-              // Se não tiver dadosPessoais, tentamos criar a partir de outros campos
-              if (!data.dadosPessoais) {
+              // Mapeamento para o formato esperado pelo componente
+              if (colecao.includes('agricultura')) {
+                // Se for agricultura, vamos criar a estrutura esperada
                 solicitacaoObj.dadosPessoais = {
-                  nome: data.nome || data.nomeCompleto || data.nomeProdutor || 'Nome não disponível',
-                  cpf: data.cpf || data.documento || data.cpfProdutor || 'Não informado'
+                  nome: data.nome || 'Nome não disponível',
+                  cpf: data.cpf || 'Não informado',
+                  telefone: data.telefone,
+                  email: data.email,
+                  endereco: data.endereco
                 };
-                console.log(`Adaptando estrutura para documento ${doc.id} em ${colecao}`);
+                
+                solicitacaoObj.dadosPropriedade = {
+                  nome: data.nomePropriedade,
+                  tamanho: data.tamanho,
+                };
+                
+                solicitacaoObj.tipoServico = data.servico;
+                solicitacaoObj.urgencia = data.urgencia;
+                solicitacaoObj.detalhes = data.descricao;
+                solicitacaoObj.criadoEm = data.timestamp;
+              } else {
+                // Para outros tipos, mantemos o comportamento atual
+                Object.assign(solicitacaoObj, data);
+                
+                // Se não tiver dadosPessoais, tentamos criar a partir de outros campos
+                if (!data.dadosPessoais) {
+                  solicitacaoObj.dadosPessoais = {
+                    nome: data.nome || data.nomeCompleto || data.nomeProdutor || 'Nome não disponível',
+                    cpf: data.cpf || data.documento || data.cpfProdutor || 'Não informado'
+                  };
+                  console.log(`Adaptando estrutura para documento ${doc.id} em ${colecao}`);
+                }
               }
               
+              console.log(`Documento mapeado: `, solicitacaoObj);
               todasSolicitacoes.push(solicitacaoObj);
             } else {
               console.warn(`Documento ${doc.id} na coleção ${colecao} não tem dados:`, data);
@@ -140,18 +172,40 @@ export const useSolicitacoes = () => {
       const colecao = colecaoOrigem || `solicitacoes_${tipo}`;
       const solicitacaoRef = doc(db, colecao, solicitacaoId);
       
-      await updateDoc(solicitacaoRef, {
-        status: novoStatus,
-        atualizadoEm: Timestamp.now()
-      });
+      // Determinar o nome do campo a ser atualizado (atualizadoEm ou timestamp)
+      const isCompleto = colecao.includes('_completo');
+      const updateData: any = { status: novoStatus };
+      
+      // Atualizar o campo de data adequado
+      if (isCompleto) {
+        updateData.atualizadoEm = Timestamp.now();
+      } else {
+        // Para formulários simples, usar o mesmo campo de data original
+        updateData.timestamp = Timestamp.now();
+      }
+      
+      console.log(`Atualizando documento em ${colecao} com dados:`, updateData);
+      
+      await updateDoc(solicitacaoRef, updateData);
       
       // Atualizar localmente
       setSolicitacoes(prev => 
-        prev.map(sol => 
-          sol.id === solicitacaoId 
-            ? { ...sol, status: novoStatus as any, atualizadoEm: Timestamp.now() } 
-            : sol
-        )
+        prev.map(sol => {
+          if (sol.id === solicitacaoId) {
+            // Criar uma cópia atualizada da solicitação
+            const updated = { ...sol, status: novoStatus as any };
+            
+            // Atualizar o campo de data correspondente
+            if (isCompleto) {
+              updated.atualizadoEm = Timestamp.now();
+            } else {
+              updated.timestamp = Timestamp.now();
+            }
+            
+            return updated;
+          }
+          return sol;
+        })
       );
       
       return true;

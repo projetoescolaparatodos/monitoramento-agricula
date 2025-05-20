@@ -99,32 +99,39 @@ const SolicitacaoModal: React.FC<SolicitacaoModalProps> = ({
           <section>
             <h3 className="text-lg font-bold mb-2">1. Dados Pessoais</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="font-semibold">Nome:</p>
-                <p>{solicitacao.dadosPessoais?.nome || 'Não informado'}</p>
-              </div>
-              <div>
-                <p className="font-semibold">CPF:</p>
-                <p>{solicitacao.dadosPessoais?.cpf || 'Não informado'}</p>
-              </div>
+                <div>
+                  <p className="font-semibold">Nome:</p>
+                  <p>{solicitacao.dadosPessoais?.nome || solicitacao.nome || "Não informado"}</p>
+                </div>
+                <div>
+                  <p className="font-semibold">CPF:</p>
+                  <p>{solicitacao.dadosPessoais?.cpf || solicitacao.cpf || "Não informado"}</p>
+                </div>
+                {(solicitacao.dadosPessoais?.telefone || solicitacao.telefone) && (
+                  <div>
+                    <p className="font-semibold">Telefone:</p>
+                    <p>{solicitacao.dadosPessoais?.telefone || solicitacao.telefone}</p>
+                  </div>
+                )}
+                {(solicitacao.dadosPessoais?.email || solicitacao.email) && (
+                  <div>
+                    <p className="font-semibold">Email:</p>
+                    <p>{solicitacao.dadosPessoais?.email || solicitacao.email}</p>
+                  </div>
+                )}
+                {(solicitacao.dadosPessoais?.endereco || solicitacao.endereco) && (
+                  <div>
+                    <p className="font-semibold">Endereço:</p>
+                    <p>{solicitacao.dadosPessoais?.endereco || solicitacao.endereco}</p>
+                  </div>
+                )}
               {solicitacao.dadosPessoais?.rg && (
                 <div>
                   <p className="font-semibold">RG:</p>
                   <p>{solicitacao.dadosPessoais.rg}</p>
                 </div>
               )}
-              <div>
-                <p className="font-semibold">Telefone:</p>
-                <p>{solicitacao.dadosPessoais?.telefone || 'Não informado'}</p>
-              </div>
-              <div>
-                <p className="font-semibold">Email:</p>
-                <p>{solicitacao.dadosPessoais?.email || 'Não informado'}</p>
-              </div>
-              <div>
-                <p className="font-semibold">Endereço:</p>
-                <p>{solicitacao.dadosPessoais?.endereco || 'Não informado'}</p>
-              </div>
+              
               {solicitacao.dadosPessoais?.travessao && (
                 <div>
                   <p className="font-semibold">Travessão:</p>
