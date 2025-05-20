@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
@@ -48,13 +47,13 @@ const SolicitacaoCard: React.FC<SolicitacaoCardProps> = ({
 }) => {
   const formatarData = (timestamp: any) => {
     if (!timestamp) return 'Data não disponível';
-    
+
     try {
       // Tratar tanto Timestamp do Firebase quanto string ISO
       const data = typeof timestamp === 'string' 
         ? new Date(timestamp) 
         : timestamp.toDate ? timestamp.toDate() : new Date();
-      
+
       return new Intl.DateTimeFormat('pt-BR', {
         day: '2-digit',
         month: '2-digit',
@@ -121,7 +120,7 @@ const SolicitacaoCard: React.FC<SolicitacaoCardProps> = ({
         >
           Ver Detalhes
         </Button>
-        
+
         <div className="w-full flex gap-2 mt-1">
           {solicitacao.status !== 'pendente' && (
             <Button 
@@ -133,7 +132,7 @@ const SolicitacaoCard: React.FC<SolicitacaoCardProps> = ({
               Pendente
             </Button>
           )}
-          
+
           {solicitacao.status !== 'em_andamento' && (
             <Button 
               variant="ghost" 
@@ -144,7 +143,7 @@ const SolicitacaoCard: React.FC<SolicitacaoCardProps> = ({
               Em andamento
             </Button>
           )}
-          
+
           {solicitacao.status !== 'concluido' && (
             <Button 
               variant="ghost" 
@@ -155,7 +154,7 @@ const SolicitacaoCard: React.FC<SolicitacaoCardProps> = ({
               Concluído
             </Button>
           )}
-          
+
           {solicitacao.status !== 'cancelado' && (
             <Button 
               variant="ghost" 

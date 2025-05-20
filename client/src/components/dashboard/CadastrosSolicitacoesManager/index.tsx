@@ -34,8 +34,8 @@ const CadastrosSolicitacoesManager: React.FC = () => {
   };
 
   // Manipular mudança de status
-  const handleStatusChange = async (solicitacaoId: string, novoStatus: string, tipo: string) => {
-    const success = await atualizarStatus(solicitacaoId, novoStatus, tipo);
+  const handleStatusChange = async (solicitacaoId: string, novoStatus: string, tipo: string, colecao?: string) => {
+    const success = await atualizarStatus(solicitacaoId, novoStatus, tipo, colecao);
     
     if (success) {
       toast({

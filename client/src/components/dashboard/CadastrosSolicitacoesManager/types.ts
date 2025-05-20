@@ -1,4 +1,3 @@
-
 import { Timestamp } from 'firebase/firestore';
 
 // Tipos básicos para solicitações
@@ -64,6 +63,7 @@ export interface Recursos {
 export interface Solicitacao {
   id: string;
   tipo: 'agricultura' | 'pesca' | 'paa';
+  colecao?: string; // Adicionado para rastrear a origem da solicitação
   status: 'pendente' | 'em_andamento' | 'concluido' | 'cancelado';
   criadoEm: Timestamp | string;
   atualizadoEm?: Timestamp | string;

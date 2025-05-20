@@ -16,14 +16,20 @@ export const useSolicitacoes = () => {
       setError(null);
 
       // Buscar solicitações de cada coleção
-      const colecoes = ['solicitacoes_agricultura', 'solicitacoes_pesca', 'solicitacoes_paa'];
+      const colecoes = [
+        'solicitacoes_agricultura', 
+        'solicitacoes_agricultura_completo', 
+        'solicitacoes_pesca', 
+        'solicitacoes_pesca_completo',
+        'solicitacoes_paa'
+      ];
       
       // Filtrar por tipo se necessário
       const colecoesParaBuscar = filtros.tipo === 'todas' 
         ? colecoes 
         : colecoes.filter(col => {
-            if (filtros.tipo === 'agricultura') return col === 'solicitacoes_agricultura';
-            if (filtros.tipo === 'pesca') return col === 'solicitacoes_pesca';
+            if (filtros.tipo === 'agricultura') return col.includes('agricultura');
+            if (filtros.tipo === 'pesca') return col.includes('pesca');
             if (filtros.tipo === 'paa') return col === 'solicitacoes_paa';
             return false;
           });
@@ -43,11 +49,12 @@ export const useSolicitacoes = () => {
         const querySnapshot = await getDocs(q);
         
         querySnapshot.forEach((doc) => {
-          const data = doc.data() as Omit<Solicitacao, 'id' | 'tipo'>;
+          const data = doc.data() as Omit<Solicitacao, 'id' | 'tipo' | 'colecao'>;
           todasSolicitacoes.push({
             ...data,
             id: doc.id,
             tipo: tipoSolicitacao,
+            colecao: colecao
           });
         });
       }
@@ -69,9 +76,10 @@ export const useSolicitacoes = () => {
     }
   }, [filtros]);
 
-  const atualizarStatus = async (solicitacaoId: string, novoStatus: string, tipo: string) => {
+  const atualizarStatus = async (solicitacaoId: string, novoStatus: string, tipo: string, colecaoOrigem?: string) => {
     try {
-      const colecao = `solicitacoes_${tipo}`;
+      // Usar a coleção de origem se fornecida, caso contrário voltar ao padrão
+      const colecao = colecaoOrigem || `solicitacoes_${tipo}`;
       const solicitacaoRef = doc(db, colecao, solicitacaoId);
       
       await updateDoc(solicitacaoRef, {

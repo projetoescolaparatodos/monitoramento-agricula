@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '../../ui/button';
 import { 
@@ -27,12 +26,12 @@ const SolicitacaoModal: React.FC<SolicitacaoModalProps> = ({
 
   const formatarData = (timestamp: any) => {
     if (!timestamp) return 'Data não disponível';
-    
+
     try {
       const data = typeof timestamp === 'string' 
         ? new Date(timestamp) 
         : timestamp.toDate ? timestamp.toDate() : new Date();
-      
+
       return new Intl.DateTimeFormat('pt-BR', {
         day: '2-digit',
         month: '2-digit',
@@ -79,7 +78,14 @@ const SolicitacaoModal: React.FC<SolicitacaoModalProps> = ({
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            <span>Detalhes da Solicitação - {getTipoFormatado(solicitacao.tipo)}</span>
+            <span>
+                Detalhes da Solicitação 
+                {solicitacao.colecao?.includes('completo') && 
+                  <span className="ml-2 text-xs font-normal bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+                    Cadastro Completo
+                  </span>
+                }
+              </span>
             {getStatusBadge(solicitacao.status)}
           </DialogTitle>
           <div className="text-sm text-gray-500 mt-1">
@@ -198,7 +204,7 @@ const SolicitacaoModal: React.FC<SolicitacaoModalProps> = ({
           {solicitacao.tipo === 'agricultura' && solicitacao.dadosAgropecuarios && (
             <section>
               <h3 className="text-lg font-bold mb-2">3. Dados Agropecuários</h3>
-              
+
               {solicitacao.dadosAgropecuarios.agricultura && (
                 <div className="mb-4">
                   <h4 className="font-semibold mb-2">Agricultura</h4>
@@ -215,7 +221,7 @@ const SolicitacaoModal: React.FC<SolicitacaoModalProps> = ({
                   )}
                 </div>
               )}
-              
+
               {solicitacao.dadosAgropecuarios.pecuaria && 
                solicitacao.dadosAgropecuarios.pecuaria.bovino && (
                 <div>
@@ -278,7 +284,7 @@ const SolicitacaoModal: React.FC<SolicitacaoModalProps> = ({
                       );
                     })}
                   </div>
-                  
+
                   {solicitacao.maquinario.outros && (
                     <div>
                       <p className="font-semibold">Outros maquinários:</p>
@@ -437,7 +443,7 @@ const SolicitacaoModal: React.FC<SolicitacaoModalProps> = ({
             <>
               <section>
                 <h3 className="text-lg font-bold mb-2">3. Produção</h3>
-                
+
                 {solicitacao.producao.produtos && solicitacao.producao.produtos.length > 0 && (
                   <div className="mb-4">
                     <h4 className="font-semibold mb-2">Produtos</h4>
@@ -453,14 +459,14 @@ const SolicitacaoModal: React.FC<SolicitacaoModalProps> = ({
                     </div>
                   </div>
                 )}
-                
+
                 {solicitacao.producao.certificacoes && (
                   <div className="mb-2">
                     <p className="font-semibold">Certificações:</p>
                     <p>{solicitacao.producao.certificacoes}</p>
                   </div>
                 )}
-                
+
                 {solicitacao.producao.periodicidade && (
                   <div>
                     <p className="font-semibold">Periodicidade:</p>
@@ -468,7 +474,7 @@ const SolicitacaoModal: React.FC<SolicitacaoModalProps> = ({
                   </div>
                 )}
               </section>
-              
+
               {solicitacao.logistica && (
                 <section>
                   <h3 className="text-lg font-bold mb-2">4. Logística</h3>
@@ -479,14 +485,14 @@ const SolicitacaoModal: React.FC<SolicitacaoModalProps> = ({
                         <p>{solicitacao.logistica.meioTransporte}</p>
                       </div>
                     )}
-                    
+
                     {solicitacao.logistica.distanciaEntrega && (
                       <div>
                         <p className="font-semibold">Distância de Entrega:</p>
                         <p>{solicitacao.logistica.distanciaEntrega} km</p>
                       </div>
                     )}
-                    
+
                     {solicitacao.logistica.necessidadesEspeciais && (
                       <div className="col-span-2">
                         <p className="font-semibold">Necessidades Especiais:</p>
@@ -576,7 +582,7 @@ const SolicitacaoModal: React.FC<SolicitacaoModalProps> = ({
               Cancelar
             </Button>
           </div>
-          
+
           <div className="flex gap-2">
             <Button 
               variant="outline" 
