@@ -434,14 +434,50 @@ export const CadastrosSolicitacoesManager = () => {
                     </div>
                   )}
                   <div>
-                    <p className="font-semibold">Contato:</p>
+                    <p className="font-semibold">Telefone:</p>
                     <p>{selectedSolicitacao.dadosPessoais?.telefone || 'Não informado'}</p>
                   </div>
+                  { selectedSolicitacao.dadosPessoais?.celular && (
+                    <div>
+                      <p className="font-semibold">Celular:</p>
+                      <p>{selectedSolicitacao.dadosPessoais.celular}</p>
+                    </div>
+                  )}
+                  { selectedSolicitacao.dadosPessoais?.email && (
+                    <div>
+                      <p className="font-semibold">E-mail:</p>
+                      <p>{selectedSolicitacao.dadosPessoais.email}</p>
+                    </div>
+                  )}
+                  { selectedSolicitacao.dadosPessoais?.dataNascimento && (
+                    <div>
+                      <p className="font-semibold">Data de Nascimento:</p>
+                      <p>{selectedSolicitacao.dadosPessoais.dataNascimento}</p>
+                    </div>
+                  )}
+                  { selectedSolicitacao.dadosPessoais?.naturalidade && (
+                    <div>
+                      <p className="font-semibold">Naturalidade:</p>
+                      <p>{selectedSolicitacao.dadosPessoais.naturalidade}</p>
+                    </div>
+                  )}
+                  { selectedSolicitacao.dadosPessoais?.nomeMae && (
+                    <div>
+                      <p className="font-semibold">Nome da Mãe:</p>
+                      <p>{selectedSolicitacao.dadosPessoais.nomeMae}</p>
+                    </div>
+                  )}
+                  { selectedSolicitacao.dadosPessoais?.escolaridade && (
+                    <div>
+                      <p className="font-semibold">Escolaridade:</p>
+                      <p>{selectedSolicitacao.dadosPessoais.escolaridade}</p>
+                    </div>
+                  )}
                 </div>
               </section>
 
-              {/* 2. Identificação da Atividade */}
-              {selectedSolicitacao.dadosEmpreendimento && (
+              {/* 2. Identificação da Atividade para pesca */}
+              {selectedSolicitacao.tipo === 'pesca' && selectedSolicitacao.dadosEmpreendimento && (
                 <section>
                   <h3 className="text-lg font-bold mb-2">2. Identificação da Atividade</h3>
                   <div className="grid grid-cols-2 gap-4">
@@ -458,6 +494,204 @@ export const CadastrosSolicitacoesManager = () => {
                       <p>{selectedSolicitacao.dadosEmpreendimento.estruturaAquicola?.join(', ') || 'Não informado'}</p>
                     </div>
                   </div>
+                </section>
+              )}
+
+              {/* 2. Dados da Propriedade para agricultura */}
+              {selectedSolicitacao.tipo === 'agricultura' && (
+                <section>
+                  <h3 className="text-lg font-bold mb-2">2. Dados da Propriedade</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {selectedSolicitacao.dadosPropriedade && (
+                      <>
+                        <div>
+                          <p className="font-semibold">Nome da Propriedade:</p>
+                          <p>{selectedSolicitacao.dadosPropriedade.nome || 'Não informado'}</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Tipo:</p>
+                          <p>{selectedSolicitacao.dadosPropriedade.tipoPessoa || 'Não informado'}</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Endereço:</p>
+                          <p>{selectedSolicitacao.dadosPropriedade.endereco || 'Não informado'}</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Tamanho:</p>
+                          <p>{selectedSolicitacao.dadosPropriedade.tamanhoHa || '0'} ha</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Coordenadas:</p>
+                          <p>
+                            {selectedSolicitacao.dadosPropriedade.coordenadas ? 
+                              `Lat: ${selectedSolicitacao.dadosPropriedade.coordenadas.latitude}, Long: ${selectedSolicitacao.dadosPropriedade.coordenadas.longitude}` : 
+                              'Não informadas'}
+                          </p>
+                        </div>
+                      </>
+                    )}
+                    {/* Propriedade no formato do formulário completo */}
+                    {selectedSolicitacao.nomePropriedade && (
+                      <>
+                        <div>
+                          <p className="font-semibold">Nome da Propriedade:</p>
+                          <p>{selectedSolicitacao.nomePropriedade}</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Endereço da Propriedade:</p>
+                          <p>{selectedSolicitacao.enderecoPropriedade || 'Não informado'}</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Tamanho:</p>
+                          <p>{selectedSolicitacao.tamanhoPropriedade || '0'} ha</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Distância do Município:</p>
+                          <p>{selectedSolicitacao.distanciaMunicipio || '0'} km</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold">Situação Legal:</p>
+                          <p>{selectedSolicitacao.situacaoLegal || 'Não informada'}</p>
+                        </div>
+                        {selectedSolicitacao.outraSituacaoLegal && (
+                          <div>
+                            <p className="font-semibold">Outra Situação:</p>
+                            <p>{selectedSolicitacao.outraSituacaoLegal}</p>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </section>
+              )}
+
+              {/* 3. Produção Agrícola para formulário completo */}
+              {selectedSolicitacao.tipo === 'agricultura' && selectedSolicitacao.culturas && (
+                <section>
+                  <h3 className="text-lg font-bold mb-2">3. Produção Agrícola</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {Object.entries(selectedSolicitacao.culturas).map(([key, cultura]: [string, any]) => {
+                      if (!cultura.selecionado) return null;
+                      
+                      const nomeCultura = {
+                        'hortalicas': 'Hortaliças',
+                        'mandioca': 'Mandioca',
+                        'milho': 'Milho',
+                        'feijao': 'Feijão',
+                        'banana': 'Banana',
+                        'citricos': 'Cítricos',
+                        'cafe': 'Café',
+                        'cacau': 'Cacau'
+                      }[key] || key;
+                      
+                      return (
+                        <div key={key} className="border p-4 rounded-md">
+                          <p className="font-semibold">{nomeCultura}</p>
+                          <p>Área plantada: {cultura.area || '0'} ha</p>
+                          <p>Produção estimada: {cultura.producao || '0'} kg/ano</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+              )}
+
+              {/* 4. Recursos Disponíveis para formulário completo */}
+              {selectedSolicitacao.tipo === 'agricultura' && (selectedSolicitacao.maquinario || selectedSolicitacao.maodeobra) && (
+                <section>
+                  <h3 className="text-lg font-bold mb-2">4. Recursos Disponíveis</h3>
+                  
+                  {selectedSolicitacao.maquinario && (
+                    <div className="mb-4">
+                      <h4 className="font-semibold mb-2">Maquinário disponível</h4>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {Object.entries(selectedSolicitacao.maquinario).map(([key, value]) => {
+                          if (!value) return null;
+                          
+                          const nomeMaquina = {
+                            'trator': 'Trator',
+                            'plantadeira': 'Plantadeira',
+                            'colheitadeira': 'Colheitadeira',
+                            'pulverizador': 'Pulverizador',
+                            'irrigacao': 'Sistema de Irrigação'
+                          }[key] || key;
+                          
+                          return (
+                            <span key={key} className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                              {nomeMaquina}
+                            </span>
+                          );
+                        })}
+                        {Object.values(selectedSolicitacao.maquinario).every(v => !v) && 
+                          <p className="text-gray-500">Nenhum maquinário informado</p>
+                        }
+                      </div>
+                    </div>
+                  )}
+                  
+                  {selectedSolicitacao.maodeobra && (
+                    <div>
+                      <h4 className="font-semibold mb-2">Mão de obra</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {Object.entries(selectedSolicitacao.maodeobra).map(([key, info]: [string, any]) => {
+                          if (!info.selecionado) return null;
+                          
+                          const tipoMaoDeObra = {
+                            'familiar': 'Familiar',
+                            'contratada_permanente': 'Contratada Permanente',
+                            'contratada_temporaria': 'Contratada Temporária'
+                          }[key] || key;
+                          
+                          return (
+                            <div key={key} className="border p-3 rounded-md">
+                              <p className="font-medium">{tipoMaoDeObra}</p>
+                              <p>Quantidade: {info.quantidade || '0'} pessoas</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </section>
+              )}
+
+              {/* 5. Serviço Solicitado para formulário completo */}
+              {selectedSolicitacao.tipo === 'agricultura' && selectedSolicitacao.tipoServico && (
+                <section>
+                  <h3 className="text-lg font-bold mb-2">5. Serviço Solicitado</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="font-semibold">Tipo de Serviço:</p>
+                      <p>{selectedSolicitacao.tipoServico}</p>
+                    </div>
+                    {selectedSolicitacao.periodoDesejado && (
+                      <div>
+                        <p className="font-semibold">Período Desejado:</p>
+                        <p>{selectedSolicitacao.periodoDesejado}</p>
+                      </div>
+                    )}
+                    {selectedSolicitacao.urgencia && (
+                      <div>
+                        <p className="font-semibold">Nível de Urgência:</p>
+                        <p className={`${
+                          selectedSolicitacao.urgencia === 'urgente' ? 'text-red-600 font-medium' : 
+                          selectedSolicitacao.urgencia === 'alta' ? 'text-orange-600' : 
+                          selectedSolicitacao.urgencia === 'baixa' ? 'text-green-600' : ''
+                        }`}>
+                          {selectedSolicitacao.urgencia.charAt(0).toUpperCase() + selectedSolicitacao.urgencia.slice(1)}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {selectedSolicitacao.detalhes && (
+                    <div className="mt-4">
+                      <p className="font-semibold">Detalhes da Solicitação:</p>
+                      <div className="mt-2 p-3 bg-gray-50 rounded-md whitespace-pre-line">
+                        {selectedSolicitacao.detalhes}
+                      </div>
+                    </div>
+                  )}
                 </section>
               )}
 
@@ -620,84 +854,527 @@ const generateAgriculturaReport = (solicitacao: Solicitacao) => {
     doc.text(title, 20, yPos);
     yPos += lineHeight;
     doc.setFont(undefined, 'normal');
-    doc.text(content, 20, yPos);
+    
+    // Quebra de linha para conteúdos longos
+    if (content && content.length > 80) {
+      const words = content.split(' ');
+      let line = '';
+      for (let i = 0; i < words.length; i++) {
+        if ((line + words[i] + ' ').length > 80) {
+          doc.text(line, 20, yPos);
+          yPos += lineHeight;
+          line = words[i] + ' ';
+        } else {
+          line += words[i] + ' ';
+        }
+      }
+      if (line.trim()) {
+        doc.text(line, 20, yPos);
+      }
+    } else {
+      doc.text(content || 'Não informado', 20, yPos);
+    }
     yPos += lineHeight;
   };
 
-  // 1. Dados da Propriedade
-  addSection('1. DADOS DA PROPRIEDADE', '');
-  if (solicitacao.dadosPropriedade) {
-    addSection('Nome:', solicitacao.dadosPropriedade.nome || 'Não informado');
-    addSection('Tipo:', solicitacao.dadosPropriedade.tipoPessoa || 'Não informado');
-    addSection('Endereço:', solicitacao.dadosPropriedade.endereco || 'Não informado');
-    addSection('Tamanho (ha):', (solicitacao.dadosPropriedade.tamanhoHa || 0).toString());
-    addSection('Documentação:', `
-      Escriturada: ${solicitacao.dadosPropriedade.escriturada ? 'Sim' : 'Não'}
-      DAP/CAF: ${solicitacao.dadosPropriedade.dapCaf ? 'Sim' : 'Não'}
-      CAR: ${solicitacao.dadosPropriedade.car ? 'Sim' : 'Não'}
-      Financiamento: ${solicitacao.dadosPropriedade.financiamentoRural ? 'Sim' : 'Não'}
-    `);
-  }
+  // Título do Relatório
+  doc.setFontSize(16);
+  doc.setFont(undefined, 'bold');
+  doc.text('RELATÓRIO DE CADASTRO COMPLETO - AGRICULTURA', 20, yPos);
+  yPos += lineHeight * 2;
+  doc.setFontSize(12);
 
-  // 2. Dados do Proprietário
-  yPos += lineHeight;
-  addSection('2. DADOS DO PROPRIETÁRIO', '');
+  // 1. Dados do Produtor
+  addSection('1. DADOS DO PRODUTOR', '');
   if (solicitacao.dadosPessoais) {
-    addSection('Nome:', solicitacao.dadosPessoais.nomeCompleto || 'Não informado');
+    addSection('Nome Completo:', solicitacao.dadosPessoais.nomeCompleto || 'Não informado');
     addSection('CPF:', solicitacao.dadosPessoais.cpf || 'Não informado');
     addSection('RG:', `${solicitacao.dadosPessoais.identidade || 'Não informado'} - ${solicitacao.dadosPessoais.emissor || 'Não informado'}`);
-    addSection('Data Nascimento:', solicitacao.dadosPessoais.dataNascimento || 'Não informado');
-    addSection('Naturalidade:', solicitacao.dadosPessoais.naturalidade || 'Não informado');
-    addSection('Nome da Mãe:', solicitacao.dadosPessoais.nomeMae || 'Não informado');
-    addSection('Escolaridade:', solicitacao.dadosPessoais.escolaridade || 'Não informado');
-    addSection('Contato:', solicitacao.dadosPessoais.telefone || 'Não informado');
+    addSection('Sexo:', solicitacao.dadosPessoais.sexo || 'Não informado');
+    
+    // Incluir dados de contato
+    addSection('Telefone:', solicitacao.dadosPessoais.telefone || 'Não informado');
+    if (solicitacao.dadosPessoais.celular) {
+      addSection('Celular:', solicitacao.dadosPessoais.celular);
+    }
+    if (solicitacao.dadosPessoais.email) {
+      addSection('E-mail:', solicitacao.dadosPessoais.email);
+    }
+    
+    // Dados adicionais
+    addSection('Endereço:', solicitacao.dadosPessoais.endereco || 'Não informado');
+    if (solicitacao.dadosPessoais.travessao) {
+      addSection('Travessão:', solicitacao.dadosPessoais.travessao);
+    }
+    
+    if (solicitacao.dadosPessoais.dataNascimento) {
+      addSection('Data Nascimento:', solicitacao.dadosPessoais.dataNascimento);
+    }
+    if (solicitacao.dadosPessoais.naturalidade) {
+      addSection('Naturalidade:', solicitacao.dadosPessoais.naturalidade);
+    }
+    if (solicitacao.dadosPessoais.nomeMae) {
+      addSection('Nome da Mãe:', solicitacao.dadosPessoais.nomeMae);
+    }
+    if (solicitacao.dadosPessoais.escolaridade) {
+      addSection('Escolaridade:', solicitacao.dadosPessoais.escolaridade);
+    }
+    if (solicitacao.dadosPessoais.instituicaoAssociada) {
+      addSection('Instituição Associada:', solicitacao.dadosPessoais.instituicaoAssociada);
+    }
   } else {
     addSection('Dados Pessoais:', 'Não disponíveis');
   }
 
-  // 3. Dados Agropecuários
-  if (solicitacao.dadosAgropecuarios) {
-    if (yPos > 250) {
-      doc.addPage();
-      yPos = 20;
+  // 2. Dados da Propriedade
+  if (yPos > 230) {
+    doc.addPage();
+    yPos = 20;
+  }
+  
+  yPos += lineHeight;
+  addSection('2. DADOS DA PROPRIEDADE', '');
+  if (solicitacao.dadosPropriedade) {
+    addSection('Nome da Propriedade:', solicitacao.dadosPropriedade.nome || 'Não informado');
+    addSection('Tipo de Pessoa:', solicitacao.dadosPropriedade.tipoPessoa || 'Não informado');
+    addSection('Endereço da Propriedade:', solicitacao.dadosPropriedade.endereco || 'Não informado');
+    addSection('Tamanho (ha):', (solicitacao.dadosPropriedade.tamanhoHa || 0).toString());
+    
+    // Documentação
+    doc.setFont(undefined, 'bold');
+    doc.text('Documentação:', 20, yPos);
+    yPos += lineHeight;
+    doc.setFont(undefined, 'normal');
+    
+    doc.text(`Escriturada: ${solicitacao.dadosPropriedade.escriturada ? 'Sim' : 'Não'}`, 30, yPos);
+    yPos += lineHeight;
+    doc.text(`DAP/CAF: ${solicitacao.dadosPropriedade.dapCaf ? 'Sim' : 'Não'}`, 30, yPos);
+    yPos += lineHeight;
+    doc.text(`CAR: ${solicitacao.dadosPropriedade.car ? 'Sim' : 'Não'}`, 30, yPos);
+    yPos += lineHeight;
+    doc.text(`Financiamento Rural: ${solicitacao.dadosPropriedade.financiamentoRural ? 'Sim' : 'Não'}`, 30, yPos);
+    yPos += lineHeight;
+    
+    // Coordenadas geográficas
+    if (solicitacao.dadosPropriedade.coordenadas) {
+      addSection('Coordenadas:', `Latitude: ${solicitacao.dadosPropriedade.coordenadas.latitude}, Longitude: ${solicitacao.dadosPropriedade.coordenadas.longitude}`);
     }
+    
+    // Dados complementares da propriedade
+    if (solicitacao.detalhamento) {
+      if (solicitacao.detalhamento.distanciaSede) {
+        addSection('Distância da Sede (km):', solicitacao.detalhamento.distanciaSede.toString());
+      }
+      if (solicitacao.detalhamento.situacaoLegal) {
+        addSection('Situação Legal:', solicitacao.detalhamento.situacaoLegal);
+        if (solicitacao.detalhamento.outraSituacao) {
+          addSection('Outra Situação:', solicitacao.detalhamento.outraSituacao);
+        }
+      }
+    }
+  } else {
+    addSection('Dados da Propriedade:', 'Não disponíveis');
+  }
 
-    addSection('3. DADOS AGROPECUÁRIOS', '');
-
+  // 3. Produção Agrícola
+  if (yPos > 230) {
+    doc.addPage();
+    yPos = 20;
+  }
+  
+  yPos += lineHeight;
+  addSection('3. PRODUÇÃO AGRÍCOLA', '');
+  
+  // Verificar se existe o objeto culturas
+  if (solicitacao.culturas) {
+    const culturas = solicitacao.culturas;
+    
+    // Lista de culturas possíveis e seus nomes formatados
+    const tiposCulturas = [
+      { key: 'hortalicas', nome: 'Hortaliças' },
+      { key: 'mandioca', nome: 'Mandioca' },
+      { key: 'milho', nome: 'Milho' },
+      { key: 'feijao', nome: 'Feijão' },
+      { key: 'banana', nome: 'Banana' },
+      { key: 'citricos', nome: 'Cítricos' },
+      { key: 'cafe', nome: 'Café' },
+      { key: 'cacau', nome: 'Cacau' }
+    ];
+    
+    let temCultura = false;
+    
+    // Percorrer as culturas potenciais
+    tiposCulturas.forEach(tipo => {
+      if (culturas[tipo.key]?.selecionado) {
+        temCultura = true;
+        
+        doc.setFont(undefined, 'bold');
+        doc.text(`${tipo.nome}:`, 20, yPos);
+        yPos += lineHeight;
+        doc.setFont(undefined, 'normal');
+        
+        doc.text(`Área plantada: ${culturas[tipo.key].area || '0'} ha`, 30, yPos);
+        yPos += lineHeight;
+        doc.text(`Produção estimada: ${culturas[tipo.key].producao || '0'} kg/ano`, 30, yPos);
+        yPos += lineHeight;
+      }
+    });
+    
+    if (!temCultura) {
+      addSection('Culturas:', 'Nenhuma cultura selecionada');
+    }
+  } else if (solicitacao.dadosAgropecuarios) {
+    // Retro-compatibilidade com o formato antigo
+    
     // Cacau
     if (solicitacao.dadosAgropecuarios.cacau?.cultiva) {
-      addSection('Cacau:', `
-        Quantidade de pés: ${solicitacao.dadosAgropecuarios.cacau.quantidadePes || 0}
-        Safreiro: ${solicitacao.dadosAgropecuarios.cacau.safreiro ? 'Sim' : 'Não'}
-        Produção Anual: ${solicitacao.dadosAgropecuarios.cacau.producaoAnual || 0} kg
-      `);
+      doc.setFont(undefined, 'bold');
+      doc.text('Cacau:', 20, yPos);
+      yPos += lineHeight;
+      doc.setFont(undefined, 'normal');
+      
+      doc.text(`Quantidade de pés: ${solicitacao.dadosAgropecuarios.cacau.quantidadePes || 0}`, 30, yPos);
+      yPos += lineHeight;
+      doc.text(`Safreiro: ${solicitacao.dadosAgropecuarios.cacau.safreiro ? 'Sim' : 'Não'}`, 30, yPos);
+      yPos += lineHeight;
+      doc.text(`Produção Anual: ${solicitacao.dadosAgropecuarios.cacau.producaoAnual || 0} kg`, 30, yPos);
+      yPos += lineHeight;
+      
+      // Dados de cacau clonado
+      if (solicitacao.dadosAgropecuarios.cacau.clonado?.possui) {
+        doc.text('Cacau Clonado:', 30, yPos);
+        yPos += lineHeight;
+        doc.text(`  Quantidade de pés: ${solicitacao.dadosAgropecuarios.cacau.clonado.quantidadePes || 0}`, 30, yPos);
+        yPos += lineHeight;
+        doc.text(`  Safreiro: ${solicitacao.dadosAgropecuarios.cacau.clonado.safreiro ? 'Sim' : 'Não'}`, 30, yPos);
+        yPos += lineHeight;
+        doc.text(`  Produção Anual: ${solicitacao.dadosAgropecuarios.cacau.clonado.producaoAnual || 0} kg`, 30, yPos);
+        yPos += lineHeight;
+        
+        if (solicitacao.dadosAgropecuarios.cacau.clonado.materialClonal?.length) {
+          doc.text(`  Material Clonal: ${solicitacao.dadosAgropecuarios.cacau.clonado.materialClonal.join(', ')}`, 30, yPos);
+          yPos += lineHeight;
+        }
+      }
     }
 
     // Frutíferas
     if (solicitacao.dadosAgropecuarios.frutiferas?.cultiva) {
-      addSection('Frutíferas:', `
-        Tipos: ${solicitacao.dadosAgropecuarios.frutiferas.tipos?.join(', ') || 'Não informado'}
-        Produção: ${solicitacao.dadosAgropecuarios.frutiferas.producaoKg || 0} kg
-      `);
+      doc.setFont(undefined, 'bold');
+      doc.text('Frutíferas:', 20, yPos);
+      yPos += lineHeight;
+      doc.setFont(undefined, 'normal');
+      
+      if (solicitacao.dadosAgropecuarios.frutiferas.tipos?.length) {
+        doc.text(`Tipos: ${solicitacao.dadosAgropecuarios.frutiferas.tipos.join(', ')}`, 30, yPos);
+        yPos += lineHeight;
+      }
+      
+      if (solicitacao.dadosAgropecuarios.frutiferas.destino?.length) {
+        doc.text(`Destino: ${solicitacao.dadosAgropecuarios.frutiferas.destino.join(', ')}`, 30, yPos);
+        yPos += lineHeight;
+      }
+      
+      doc.text(`Produção: ${solicitacao.dadosAgropecuarios.frutiferas.producaoKg || 0} kg`, 30, yPos);
+      yPos += lineHeight;
+      
+      if (solicitacao.dadosAgropecuarios.frutiferas.precoMedioKg) {
+        doc.text(`Preço médio por kg: R$ ${solicitacao.dadosAgropecuarios.frutiferas.precoMedioKg}`, 30, yPos);
+        yPos += lineHeight;
+      }
+    }
+
+    // Lavouras
+    if (solicitacao.dadosAgropecuarios.lavouras) {
+      // Milho
+      if (solicitacao.dadosAgropecuarios.lavouras.milho?.produz) {
+        doc.setFont(undefined, 'bold');
+        doc.text('Milho:', 20, yPos);
+        yPos += lineHeight;
+        doc.setFont(undefined, 'normal');
+        
+        if (solicitacao.dadosAgropecuarios.lavouras.milho.finalidade?.length) {
+          doc.text(`Finalidade: ${solicitacao.dadosAgropecuarios.lavouras.milho.finalidade.join(', ')}`, 30, yPos);
+          yPos += lineHeight;
+        }
+        
+        if (solicitacao.dadosAgropecuarios.lavouras.milho.destino?.length) {
+          doc.text(`Destino: ${solicitacao.dadosAgropecuarios.lavouras.milho.destino.join(', ')}`, 30, yPos);
+          yPos += lineHeight;
+        }
+        
+        if (solicitacao.dadosAgropecuarios.lavouras.milho.producaoKg) {
+          doc.text(`Produção: ${solicitacao.dadosAgropecuarios.lavouras.milho.producaoKg} kg`, 30, yPos);
+          yPos += lineHeight;
+        }
+        
+        if (solicitacao.dadosAgropecuarios.lavouras.milho.areaPlantada) {
+          doc.text(`Área plantada: ${solicitacao.dadosAgropecuarios.lavouras.milho.areaPlantada} ha`, 30, yPos);
+          yPos += lineHeight;
+        }
+      }
+      
+      // Mandioca
+      if (solicitacao.dadosAgropecuarios.lavouras.mandioca?.produz) {
+        doc.setFont(undefined, 'bold');
+        doc.text('Mandioca:', 20, yPos);
+        yPos += lineHeight;
+        doc.setFont(undefined, 'normal');
+        
+        if (solicitacao.dadosAgropecuarios.lavouras.mandioca.tipo) {
+          doc.text(`Tipo: ${solicitacao.dadosAgropecuarios.lavouras.mandioca.tipo}`, 30, yPos);
+          yPos += lineHeight;
+        }
+        
+        if (solicitacao.dadosAgropecuarios.lavouras.mandioca.finalidade?.length) {
+          doc.text(`Finalidade: ${solicitacao.dadosAgropecuarios.lavouras.mandioca.finalidade.join(', ')}`, 30, yPos);
+          yPos += lineHeight;
+        }
+        
+        if (solicitacao.dadosAgropecuarios.lavouras.mandioca.subprodutos?.length) {
+          doc.text(`Subprodutos: ${solicitacao.dadosAgropecuarios.lavouras.mandioca.subprodutos.join(', ')}`, 30, yPos);
+          yPos += lineHeight;
+        }
+        
+        if (solicitacao.dadosAgropecuarios.lavouras.mandioca.areaCultivada) {
+          doc.text(`Área cultivada: ${solicitacao.dadosAgropecuarios.lavouras.mandioca.areaCultivada} ha`, 30, yPos);
+          yPos += lineHeight;
+        }
+        
+        doc.text(`Mecanizada: ${solicitacao.dadosAgropecuarios.lavouras.mandioca.mecanizada ? 'Sim' : 'Não'}`, 30, yPos);
+        yPos += lineHeight;
+      }
     }
 
     // Pecuária
     if (solicitacao.dadosAgropecuarios.pecuaria?.bovino?.possui) {
-      addSection('Bovinos:', `
-        Quantidade: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.quantidade || 0}
-        Tipo: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.leite ? 'Leite' : 'Corte'}
-        Sistema: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.sistemaManejo || 'Não informado'}
-      `);
+      if (yPos > 230) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.setFont(undefined, 'bold');
+      doc.text('Pecuária Bovina:', 20, yPos);
+      yPos += lineHeight;
+      doc.setFont(undefined, 'normal');
+      
+      doc.text(`Quantidade: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.quantidade || 0} cabeças`, 30, yPos);
+      yPos += lineHeight;
+      doc.text(`Tipo: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.leite ? 'Leite' : 'Corte'}`, 30, yPos);
+      yPos += lineHeight;
+      
+      if (solicitacao.dadosAgropecuarios.pecuaria.bovino.fase) {
+        doc.text(`Fase: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.fase}`, 30, yPos);
+        yPos += lineHeight;
+      }
+      
+      if (solicitacao.dadosAgropecuarios.pecuaria.bovino.sistemaManejo) {
+        doc.text(`Sistema de Manejo: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.sistemaManejo}`, 30, yPos);
+        yPos += lineHeight;
+      }
+      
+      if (solicitacao.dadosAgropecuarios.pecuaria.bovino.acessoMercado) {
+        doc.text(`Acesso ao Mercado: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.acessoMercado}`, 30, yPos);
+        yPos += lineHeight;
+      }
     }
   }
 
-  // Rodapé
+  // 4. Recursos Disponíveis
+  if (yPos > 230) {
+    doc.addPage();
+    yPos = 20;
+  }
+  
+  yPos += lineHeight;
+  addSection('4. RECURSOS DISPONÍVEIS', '');
+  
+  // Maquinário
+  if (solicitacao.maquinario) {
+    doc.setFont(undefined, 'bold');
+    doc.text('Maquinário disponível:', 20, yPos);
+    yPos += lineHeight;
+    doc.setFont(undefined, 'normal');
+    
+    const maquinas = [];
+    if (solicitacao.maquinario.trator) maquinas.push('Trator');
+    if (solicitacao.maquinario.plantadeira) maquinas.push('Plantadeira');
+    if (solicitacao.maquinario.colheitadeira) maquinas.push('Colheitadeira');
+    if (solicitacao.maquinario.pulverizador) maquinas.push('Pulverizador');
+    if (solicitacao.maquinario.irrigacao) maquinas.push('Sistema de Irrigação');
+    
+    if (maquinas.length > 0) {
+      doc.text(maquinas.join(', '), 30, yPos);
+    } else {
+      doc.text('Nenhum maquinário disponível', 30, yPos);
+    }
+    yPos += lineHeight;
+  }
+  
+  // Mão de obra
+  if (solicitacao.maodeobra) {
+    yPos += lineHeight;
+    doc.setFont(undefined, 'bold');
+    doc.text('Mão de Obra:', 20, yPos);
+    yPos += lineHeight;
+    doc.setFont(undefined, 'normal');
+    
+    if (solicitacao.maodeobra.familiar?.selecionado) {
+      doc.text(`Familiar: ${solicitacao.maodeobra.familiar.quantidade || '0'} pessoas`, 30, yPos);
+      yPos += lineHeight;
+    }
+    
+    if (solicitacao.maodeobra.contratada_permanente?.selecionado) {
+      doc.text(`Contratada Permanente: ${solicitacao.maodeobra.contratada_permanente.quantidade || '0'} pessoas`, 30, yPos);
+      yPos += lineHeight;
+    }
+    
+    if (solicitacao.maodeobra.contratada_temporaria?.selecionado) {
+      doc.text(`Contratada Temporária: ${solicitacao.maodeobra.contratada_temporaria.quantidade || '0'} pessoas`, 30, yPos);
+      yPos += lineHeight;
+    }
+  } else if (solicitacao.recursos) {
+    // Retro-compatibilidade
+    yPos += lineHeight;
+    doc.setFont(undefined, 'bold');
+    doc.text('Recursos:', 20, yPos);
+    yPos += lineHeight;
+    doc.setFont(undefined, 'normal');
+    
+    if (solicitacao.recursos.numeroEmpregados) {
+      doc.text(`Número de Empregados: ${solicitacao.recursos.numeroEmpregados}`, 30, yPos);
+      yPos += lineHeight;
+    }
+    
+    if (solicitacao.recursos.trabalhoFamiliar) {
+      doc.text(`Trabalho Familiar: ${solicitacao.recursos.trabalhoFamiliar} pessoas`, 30, yPos);
+      yPos += lineHeight;
+    }
+    
+    if (solicitacao.recursos.recursosFinanceiros) {
+      doc.text(`Recursos Financeiros: ${solicitacao.recursos.recursosFinanceiros}`, 30, yPos);
+      yPos += lineHeight;
+    }
+    
+    if (solicitacao.recursos.fonteFinanciamento) {
+      doc.text(`Fonte do Financiamento: ${solicitacao.recursos.fonteFinanciamento}`, 30, yPos);
+      yPos += lineHeight;
+    }
+    
+    if (solicitacao.recursos.assistenciaTecnica) {
+      doc.text(`Assistência Técnica: ${solicitacao.recursos.assistenciaTecnica}`, 30, yPos);
+      yPos += lineHeight;
+    }
+  }
+
+  // 5. Serviço Solicitado
+  if (yPos > 230) {
+    doc.addPage();
+    yPos = 20;
+  }
+  
+  yPos += lineHeight;
+  addSection('5. SERVIÇO SOLICITADO', '');
+  
+  if (solicitacao.tipoServico) {
+    addSection('Tipo de Serviço:', solicitacao.tipoServico);
+    
+    if (solicitacao.periodoDesejado) {
+      addSection('Período Desejado:', solicitacao.periodoDesejado);
+    }
+    
+    if (solicitacao.urgencia) {
+      addSection('Nível de Urgência:', solicitacao.urgencia);
+    }
+    
+    if (solicitacao.detalhes) {
+      addSection('Detalhes da Solicitação:', '');
+      
+      // Tratamento para texto longo - quebra de linhas
+      const linhas = solicitacao.detalhes.split('\n');
+      for (let i = 0; i < linhas.length; i++) {
+        const words = linhas[i].split(' ');
+        let linha = '';
+        
+        for (let j = 0; j < words.length; j++) {
+          if ((linha + words[j] + ' ').length > 80) {
+            doc.text(linha, 30, yPos);
+            yPos += lineHeight;
+            linha = words[j] + ' ';
+          } else {
+            linha += words[j] + ' ';
+          }
+        }
+        
+        if (linha.trim()) {
+          doc.text(linha, 30, yPos);
+          yPos += lineHeight;
+        }
+      }
+    }
+  } else {
+    addSection('Serviço Solicitado:', 'Não especificado');
+  }
+  
+  // 6. Observações (se existir)
+  if (solicitacao.observacoes) {
+    if (yPos > 230) {
+      doc.addPage();
+      yPos = 20;
+    }
+    
+    yPos += lineHeight;
+    addSection('6. OBSERVAÇÕES', '');
+    
+    // Tratamento para texto longo - quebra de linhas
+    const linhas = solicitacao.observacoes.split('\n');
+    for (let i = 0; i < linhas.length; i++) {
+      const words = linhas[i].split(' ');
+      let linha = '';
+      
+      for (let j = 0; j < words.length; j++) {
+        if ((linha + words[j] + ' ').length > 80) {
+          doc.text(linha, 30, yPos);
+          yPos += lineHeight;
+          linha = words[j] + ' ';
+        } else {
+          linha += words[j] + ' ';
+        }
+      }
+      
+      if (linha.trim()) {
+        doc.text(linha, 30, yPos);
+        yPos += lineHeight;
+      }
+    }
+  }
+
+  // 7. Dados do sistema
+  if (yPos > 230) {
+    doc.addPage();
+    yPos = 20;
+  }
+  
+  yPos += lineHeight * 2;
+  doc.setFontSize(10);
+  doc.setTextColor(100, 100, 100);
+  
+  addSection('Data de Cadastro:', solicitacao.dataCriacao ? new Date(solicitacao.dataCriacao).toLocaleString() : 'Não informado');
+  addSection('ID do Cadastro:', solicitacao.id || 'Não informado');
+  addSection('Status:', solicitacao.status || 'Não informado');
+  
+  // Restaurar a cor do texto
+  doc.setTextColor(0, 0, 0);
+
+  // Rodapé em todas as páginas
   const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
     doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.getWidth() - 40, doc.internal.pageSize.getHeight() - 10);
+    doc.text(`Gerado em: ${new Date().toLocaleString()}`, 20, doc.internal.pageSize.getHeight() - 10);
   }
 
-  doc.save(`solicitacao-agricultura-${solicitacao.id}.pdf`);
+  doc.save(`cadastro-agricultura-${solicitacao.id}.pdf`);
 };
