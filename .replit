@@ -11,12 +11,8 @@ run = ["sh", "-c", "node server/index.ts"]
 build = ["sh", "-c", "npm run build"]
 
 [[ports]]
-localPort = 5000
-externalPort = 80
-
-[[ports]]
 localPort = 5001
-externalPort = 3000
+externalPort = 80
 
 [workflows]
 runButton = "Run on Different Port"
