@@ -41,33 +41,89 @@ export const useSolicitacoes = () => {
       for (const colecao of colecoesParaBuscar) {
         const tipoSolicitacao = colecao.split('_')[1] as 'agricultura' | 'pesca' | 'paa' | 'servicos';
         
-        let q = query(collection(db, colecao), orderBy('criadoEm', 'desc'));
+        let q;
         
-        // Adicionar filtro de status se não for 'todas'
-        if (filtros.status !== 'todas') {
-          q = query(collection(db, colecao), where('status', '==', filtros.status), orderBy('criadoEm', 'desc'));
+        try {
+          // Vamos verificar primeiro se a coleção usa 'criadoEm' ou 'timestamp' ou outro campo para data
+          const timestampField = colecao.includes('servicos') ? 'timestamp' : 'criadoEm';
+          
+          // Adicionar filtro de status se não for 'todas'
+          if (filtros.status !== 'todas') {
+            q = query(collection(db, colecao), where('status', '==', filtros.status), orderBy(timestampField, 'desc'));
+          } else {
+            q = query(collection(db, colecao), orderBy(timestampField, 'desc'));
+          }
+          
+          console.log(`Consulta para ${colecao} usando campo de timestamp: ${timestampField}`);
+        } catch (err) {
+          // Fallback para consulta sem ordenação caso o campo de timestamp não exista
+          console.warn(`Erro ao configurar ordenação para ${colecao}:`, err);
+          
+          if (filtros.status !== 'todas') {
+            q = query(collection(db, colecao), where('status', '==', filtros.status));
+          } else {
+            q = query(collection(db, colecao));
+          }
         }
         
         const querySnapshot = await getDocs(q);
         
         querySnapshot.forEach((doc) => {
-          const data = doc.data() as Omit<Solicitacao, 'id' | 'tipo' | 'colecao'>;
-          todasSolicitacoes.push({
-            ...data,
-            id: doc.id,
-            tipo: tipoSolicitacao,
-            colecao: colecao
-          });
+          try {
+            const data = doc.data();
+            console.log(`Documento encontrado na coleção ${colecao}:`, doc.id, data);
+            
+            // Verificamos se o documento tem a estrutura esperada
+            if (data) {
+              // Criamos um objeto base para o documento
+              const solicitacaoObj: any = {
+                id: doc.id,
+                tipo: tipoSolicitacao,
+                colecao: colecao,
+                status: data.status || 'pendente',
+                ...data
+              };
+              
+              // Se não tiver dadosPessoais, tentamos criar a partir de outros campos
+              if (!data.dadosPessoais) {
+                solicitacaoObj.dadosPessoais = {
+                  nome: data.nome || data.nomeCompleto || data.nomeProdutor || 'Nome não disponível',
+                  cpf: data.cpf || data.documento || data.cpfProdutor || 'Não informado'
+                };
+                console.log(`Adaptando estrutura para documento ${doc.id} em ${colecao}`);
+              }
+              
+              todasSolicitacoes.push(solicitacaoObj);
+            } else {
+              console.warn(`Documento ${doc.id} na coleção ${colecao} não tem dados:`, data);
+            }
+          } catch (err) {
+            console.error(`Erro ao processar documento ${doc.id} da coleção ${colecao}:`, err);
+          }
         });
       }
 
       // Aplicar filtro de pesquisa se existir
       const solicitacoesFiltradas = filtros.pesquisa 
-        ? todasSolicitacoes.filter(sol => 
-            sol.dadosPessoais.nome.toLowerCase().includes(filtros.pesquisa?.toLowerCase() || '') || 
-            sol.dadosPessoais.cpf.includes(filtros.pesquisa || '')
-          )
+        ? todasSolicitacoes.filter(sol => {
+            try {
+              // Verificar se os dados necessários existem antes de acessá-los
+              if (sol.dadosPessoais && sol.dadosPessoais.nome) {
+                const nome = sol.dadosPessoais.nome.toLowerCase();
+                const cpf = sol.dadosPessoais.cpf || '';
+                const termo = (filtros.pesquisa || '').toLowerCase();
+                return nome.includes(termo) || cpf.includes(termo);
+              }
+              return false;
+            } catch (err) {
+              console.error('Erro ao filtrar solicitação:', err, sol);
+              return false;
+            }
+          })
         : todasSolicitacoes;
+      
+      console.log(`Total de solicitações encontradas: ${todasSolicitacoes.length}`);
+      console.log(`Solicitações após filtro: ${solicitacoesFiltradas.length}`);
 
       setSolicitacoes(solicitacoesFiltradas);
     } catch (err) {

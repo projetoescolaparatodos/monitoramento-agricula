@@ -115,6 +115,16 @@ const CadastrosSolicitacoesManager: React.FC = () => {
                   ? "Nenhum resultado para a sua pesquisa. Tente outros termos." 
                   : `Não há solicitações ${activeTab !== 'todas' ? `de ${activeTab}` : ''} para exibir.`}
               </p>
+              <div className="mt-4 text-left p-4 bg-gray-100 rounded-md overflow-auto max-h-48 text-xs">
+                <p className="font-semibold">Coleções verificadas:</p>
+                <ul className="list-disc list-inside">
+                  {['solicitacoes_agricultura', 'solicitacoes_agricultura_completo', 'solicitacoes_pesca', 'solicitacoes_pesca_completo', 'solicitacoes_paa', 'solicitacoes_servicos'].map(col => (
+                    <li key={col} className={activeTab === 'todas' || col.includes(activeTab) ? '' : 'text-gray-400'}>
+                      {col} {activeTab === 'todas' || col.includes(activeTab) ? '(verificada)' : '(ignorada pelo filtro)'}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           ) : (
             <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
