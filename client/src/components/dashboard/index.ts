@@ -14,3 +14,4 @@ export { StatisticForm } from './StatisticForm';
 export { MediaList } from './MediaList';
 export { MediaUploader } from './MediaUploader';
 export { MediaFileUploader } from './MediaFileUploader';
+export { default as CadastrosSolicitacoesManager } from './CadastrosSolicitacoesManager';
