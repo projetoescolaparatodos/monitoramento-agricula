@@ -1,0 +1,108 @@
+Perfeito, isso indica que o problema está na forma como os dados estão sendo buscados ou combinados no useSolicitacoes.ts, especialmente se as coleções no Firebase têm dados, mas o frontend não os exibe.
+
+Vamos resolver isso em etapas claras:
+
+✅ PASSO 1 – Confirme o nome das coleções
+Primeiro, verifique no Firebase se os nomes das coleções estão exatamente como esperado no código, por exemplo:
+
+ts
+Copiar
+Editar
+solicitacoes_agricultura
+solicitacoes_agricultura_completo
+solicitacoes_pesca
+solicitacoes_pesca_completo
+solicitacoes_paa
+solicitacoes_servicos
+Cuidado com:
+
+Plural/singular trocado
+
+Underscores faltando
+
+Letras maiúsculas (Firebase é case sensitive)
+
+✅ PASSO 2 – Inspecione o useSolicitacoes.ts
+Garanta que o hook está realmente buscando de todas as coleções e que o retorno está sendo combinado corretamente.
+
+Aqui está um esqueleto robusto que você pode usar como base (com suporte a todas as coleções):
+
+ts
+Copiar
+Editar
+import { useEffect, useState } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/firebase/config';
+
+export function useSolicitacoes() {
+  const [solicitacoes, setSolicitacoes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchSolicitacoes = async () => {
+    setLoading(true);
+    try {
+      const colecoes = [
+        'solicitacoes_agricultura',
+        'solicitacoes_agricultura_completo',
+        'solicitacoes_pesca',
+        'solicitacoes_pesca_completo',
+        'solicitacoes_paa',
+        'solicitacoes_servicos'
+      ];
+
+      const todasSolicitacoes: any[] = [];
+
+      for (const nomeColecao of colecoes) {
+        const snapshot = await getDocs(collection(db, nomeColecao));
+        const docs = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          tipoOrigem: nomeColecao
+        }));
+        todasSolicitacoes.push(...docs);
+      }
+
+      setSolicitacoes(todasSolicitacoes);
+    } catch (err) {
+      console.error('Erro ao buscar solicitações:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSolicitacoes();
+  }, []);
+
+  return { solicitacoes, loading, refetch: fetchSolicitacoes };
+}
+Se você estiver usando TanStack Query, posso reescrever isso em formato useQuery() com queryKey e queryFn.
+
+✅ PASSO 3 – Verifique no Componente
+No componente CadastrosSolicitacoesManager/index.tsx, verifique se:
+
+Está realmente recebendo o array solicitacoes
+
+Está mapeando os dados para SolicitacaoCard corretamente
+
+O filtro de busca ou o filtro de aba não está eliminando tudo por engano
+
+⚠️ Muito comum: um filtro mal implementado pode estar ocultando os dados mesmo que eles estejam carregados.
+
+✅ PASSO 4 – Teste mínimo
+Crie uma pequena logica dentro do index.tsx apenas para testar a leitura:
+
+ts
+Copiar
+Editar
+const { solicitacoes, loading } = useSolicitacoes();
+
+useEffect(() => {
+  if (!loading) {
+    console.log('Solicitações carregadas:', solicitacoes);
+  }
+}, [loading]);
+Se o console mostrar um array vazio: o problema está no hook.
+Se o console mostrar os dados mas eles não aparecem na tela: o problema está no mapeamento/filtros/render.
+
+✅ Quer que eu analise seu useSolicitacoes.ts atual?
