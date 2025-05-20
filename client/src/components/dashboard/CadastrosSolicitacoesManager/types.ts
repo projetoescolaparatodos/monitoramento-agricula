@@ -62,7 +62,7 @@ export interface Recursos {
 // Interface base para solicitações
 export interface Solicitacao {
   id: string;
-  tipo: 'agricultura' | 'pesca' | 'paa';
+  tipo: 'agricultura' | 'pesca' | 'paa' | 'servicos';
   colecao?: string; // Adicionado para rastrear a origem da solicitação
   status: 'pendente' | 'em_andamento' | 'concluido' | 'cancelado';
   criadoEm: Timestamp | string;
@@ -84,7 +84,7 @@ export interface Solicitacao {
 
 // Tipo para filtros
 export interface FiltroSolicitacoes {
-  tipo?: 'agricultura' | 'pesca' | 'paa' | 'todas';
+  tipo?: 'agricultura' | 'pesca' | 'paa' | 'servicos' | 'todas';
   status?: 'pendente' | 'em_andamento' | 'concluido' | 'cancelado' | 'todas';
   pesquisa?: string;
 }

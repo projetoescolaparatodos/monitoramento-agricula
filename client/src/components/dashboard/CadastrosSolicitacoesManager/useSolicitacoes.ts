@@ -21,7 +21,8 @@ export const useSolicitacoes = () => {
         'solicitacoes_agricultura_completo', 
         'solicitacoes_pesca', 
         'solicitacoes_pesca_completo',
-        'solicitacoes_paa'
+        'solicitacoes_paa',
+        'solicitacoes_servicos'
       ];
       
       // Filtrar por tipo se necessário
@@ -31,13 +32,14 @@ export const useSolicitacoes = () => {
             if (filtros.tipo === 'agricultura') return col.includes('agricultura');
             if (filtros.tipo === 'pesca') return col.includes('pesca');
             if (filtros.tipo === 'paa') return col === 'solicitacoes_paa';
+            if (filtros.tipo === 'servicos') return col === 'solicitacoes_servicos';
             return false;
           });
 
       const todasSolicitacoes: Solicitacao[] = [];
 
       for (const colecao of colecoesParaBuscar) {
-        const tipoSolicitacao = colecao.split('_')[1] as 'agricultura' | 'pesca' | 'paa';
+        const tipoSolicitacao = colecao.split('_')[1] as 'agricultura' | 'pesca' | 'paa' | 'servicos';
         
         let q = query(collection(db, colecao), orderBy('criadoEm', 'desc'));
         

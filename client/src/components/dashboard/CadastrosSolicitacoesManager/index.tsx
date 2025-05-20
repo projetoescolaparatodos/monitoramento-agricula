@@ -69,6 +69,7 @@ const CadastrosSolicitacoesManager: React.FC = () => {
           <TabsTrigger value="agricultura">Agricultura</TabsTrigger>
           <TabsTrigger value="pesca">Pesca</TabsTrigger>
           <TabsTrigger value="paa">PAA</TabsTrigger>
+          <TabsTrigger value="servicos">Serviços</TabsTrigger>
         </TabsList>
 
         <div className="mt-4 flex items-center gap-2">
