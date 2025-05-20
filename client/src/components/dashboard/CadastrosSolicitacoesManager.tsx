@@ -409,25 +409,25 @@ export const CadastrosSolicitacoesManager = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="font-semibold">Nome:</p>
-                    <p>{selectedSolicitacao.dadosPessoais.nomeCompleto}</p>
+                    <p>{selectedSolicitacao.dadosPessoais?.nomeCompleto || 'Não informado'}</p>
                   </div>
                   <div>
                     <p className="font-semibold">CPF:</p>
-                    <p>{selectedSolicitacao.dadosPessoais.cpf}</p>
+                    <p>{selectedSolicitacao.dadosPessoais?.cpf || 'Não informado'}</p>
                   </div>
                   <div>
                     <p className="font-semibold">RG:</p>
-                    <p>{selectedSolicitacao.dadosPessoais.identidade} - {selectedSolicitacao.dadosPessoais.emissor}</p>
+                    <p>{selectedSolicitacao.dadosPessoais?.identidade || 'Não informado'} - {selectedSolicitacao.dadosPessoais?.emissor || 'Não informado'}</p>
                   </div>
                   <div>
                     <p className="font-semibold">Sexo:</p>
-                    <p>{selectedSolicitacao.dadosPessoais.sexo}</p>
+                    <p>{selectedSolicitacao.dadosPessoais?.sexo || 'Não informado'}</p>
                   </div>
                   <div>
                     <p className="font-semibold">Endereço:</p>
-                    <p>{selectedSolicitacao.dadosPessoais.endereco}</p>
+                    <p>{selectedSolicitacao.dadosPessoais?.endereco || 'Não informado'}</p>
                   </div>
-                  { selectedSolicitacao.dadosPessoais.travessao && (
+                  { selectedSolicitacao.dadosPessoais?.travessao && (
                     <div>
                       <p className="font-semibold">Travessão:</p>
                       <p>{selectedSolicitacao.dadosPessoais.travessao}</p>
@@ -435,7 +435,7 @@ export const CadastrosSolicitacoesManager = () => {
                   )}
                   <div>
                     <p className="font-semibold">Contato:</p>
-                    <p>{selectedSolicitacao.dadosPessoais.telefone}</p>
+                    <p>{selectedSolicitacao.dadosPessoais?.telefone || 'Não informado'}</p>
                   </div>
                 </div>
               </section>
@@ -447,15 +447,15 @@ export const CadastrosSolicitacoesManager = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="font-semibold">Atividade:</p>
-                      <p>{selectedSolicitacao.dadosEmpreendimento.atividade}</p>
+                      <p>{selectedSolicitacao.dadosEmpreendimento.atividade || 'Não informado'}</p>
                     </div>
                     <div>
                       <p className="font-semibold">Endereço:</p>
-                      <p>{selectedSolicitacao.dadosEmpreendimento.endereco}</p>
+                      <p>{selectedSolicitacao.dadosEmpreendimento.endereco || 'Não informado'}</p>
                     </div>
                     <div>
                       <p className="font-semibold">Estruturas Aquícolas:</p>
-                      <p>{selectedSolicitacao.dadosEmpreendimento.estruturaAquicola.join(', ')}</p>
+                      <p>{selectedSolicitacao.dadosEmpreendimento.estruturaAquicola?.join(', ') || 'Não informado'}</p>
                     </div>
                   </div>
                 </section>
@@ -505,39 +505,43 @@ export const CadastrosSolicitacoesManager = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="font-semibold">Distância da Sede:</p>
-                      <p>{selectedSolicitacao.detalhamento.distanciaSede} km</p>
+                      <p>{selectedSolicitacao.detalhamento.distanciaSede || 0} km</p>
                     </div>
                     <div>
                       <p className="font-semibold">Situação Legal:</p>
-                      <p>{selectedSolicitacao.detalhamento.situacaoLegal}</p>
+                      <p>{selectedSolicitacao.detalhamento.situacaoLegal || 'Não informado'}</p>
                     </div>
                     <div>
                       <p className="font-semibold">Área Total:</p>
-                      <p>{selectedSolicitacao.detalhamento.areaTotal} ha</p>
+                      <p>{selectedSolicitacao.detalhamento.areaTotal || 0} ha</p>
                     </div>
                   </div>
 
-                  <div className="mt-4">
-                    <h4 className="font-semibold mb-2">Recursos Hídricos:</h4>
-                    <div className="grid gap-2">
-                      {selectedSolicitacao.detalhamento.recursosHidricos.map((recurso, index) => (
-                        <div key={index} className="border p-2 rounded">
-                          <p>{recurso.tipo}: {recurso.nome}</p>
-                        </div>
-                      ))}
+                  {selectedSolicitacao.detalhamento.recursosHidricos && selectedSolicitacao.detalhamento.recursosHidricos.length > 0 && (
+                    <div className="mt-4">
+                      <h4 className="font-semibold mb-2">Recursos Hídricos:</h4>
+                      <div className="grid gap-2">
+                        {selectedSolicitacao.detalhamento.recursosHidricos.map((recurso, index) => (
+                          <div key={index} className="border p-2 rounded">
+                            <p>{recurso?.tipo || 'Tipo não informado'}: {recurso?.nome || 'Nome não informado'}</p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div className="mt-4">
-                    <h4 className="font-semibold mb-2">Usos da Água:</h4>
-                    <div className="grid gap-2">
-                      {selectedSolicitacao.detalhamento.usosAgua.map((uso, index) => (
-                        <div key={index} className="border p-2 rounded">
-                          <p>{uso}</p>
-                        </div>
-                      ))}
+                  {selectedSolicitacao.detalhamento.usosAgua && selectedSolicitacao.detalhamento.usosAgua.length > 0 && (
+                    <div className="mt-4">
+                      <h4 className="font-semibold mb-2">Usos da Água:</h4>
+                      <div className="grid gap-2">
+                        {selectedSolicitacao.detalhamento.usosAgua.map((uso, index) => (
+                          <div key={index} className="border p-2 rounded">
+                            <p>{uso || 'Não informado'}</p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </section>
               )}
 
@@ -548,15 +552,15 @@ export const CadastrosSolicitacoesManager = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="font-semibold">Número de Empregados:</p>
-                      <p>{selectedSolicitacao.recursos.numeroEmpregados}</p>
+                      <p>{selectedSolicitacao.recursos.numeroEmpregados || 0}</p>
                     </div>
                     <div>
                       <p className="font-semibold">Trabalho Familiar:</p>
-                      <p>{selectedSolicitacao.recursos.trabalhoFamiliar} pessoas</p>
+                      <p>{selectedSolicitacao.recursos.trabalhoFamiliar || 0} pessoas</p>
                     </div>
                     <div>
                       <p className="font-semibold">Recursos Financeiros:</p>
-                      <p>{selectedSolicitacao.recursos.recursosFinanceiros}</p>
+                      <p>{selectedSolicitacao.recursos.recursosFinanceiros || 'Não informado'}</p>
                     </div>
                     {selectedSolicitacao.recursos.fonteFinanciamento && (
                       <div>
@@ -566,7 +570,7 @@ export const CadastrosSolicitacoesManager = () => {
                     )}
                     <div>
                       <p className="font-semibold">Assistência Técnica:</p>
-                      <p>{selectedSolicitacao.recursos.assistenciaTecnica}</p>
+                      <p>{selectedSolicitacao.recursos.assistenciaTecnica || 'Não informado'}</p>
                     </div>
                   </div>
                 </section>
