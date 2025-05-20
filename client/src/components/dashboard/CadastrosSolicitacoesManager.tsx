@@ -627,10 +627,10 @@ const generateAgriculturaReport = (solicitacao: Solicitacao) => {
   // 1. Dados da Propriedade
   addSection('1. DADOS DA PROPRIEDADE', '');
   if (solicitacao.dadosPropriedade) {
-    addSection('Nome:', solicitacao.dadosPropriedade.nome);
-    addSection('Tipo:', solicitacao.dadosPropriedade.tipoPessoa);
-    addSection('Endereço:', solicitacao.dadosPropriedade.endereco);
-    addSection('Tamanho (ha):', solicitacao.dadosPropriedade.tamanhoHa.toString());
+    addSection('Nome:', solicitacao.dadosPropriedade.nome || 'Não informado');
+    addSection('Tipo:', solicitacao.dadosPropriedade.tipoPessoa || 'Não informado');
+    addSection('Endereço:', solicitacao.dadosPropriedade.endereco || 'Não informado');
+    addSection('Tamanho (ha):', (solicitacao.dadosPropriedade.tamanhoHa || 0).toString());
     addSection('Documentação:', `
       Escriturada: ${solicitacao.dadosPropriedade.escriturada ? 'Sim' : 'Não'}
       DAP/CAF: ${solicitacao.dadosPropriedade.dapCaf ? 'Sim' : 'Não'}
@@ -642,14 +642,18 @@ const generateAgriculturaReport = (solicitacao: Solicitacao) => {
   // 2. Dados do Proprietário
   yPos += lineHeight;
   addSection('2. DADOS DO PROPRIETÁRIO', '');
-  addSection('Nome:', solicitacao.dadosPessoais.nomeCompleto);
-  addSection('CPF:', solicitacao.dadosPessoais.cpf);
-  addSection('RG:', `${solicitacao.dadosPessoais.identidade} - ${solicitacao.dadosPessoais.emissor}`);
-  addSection('Data Nascimento:', solicitacao.dadosPessoais.dataNascimento);
-  addSection('Naturalidade:', solicitacao.dadosPessoais.naturalidade);
-  addSection('Nome da Mãe:', solicitacao.dadosPessoais.nomeMae);
-  addSection('Escolaridade:', solicitacao.dadosPessoais.escolaridade);
-  addSection('Contato:', solicitacao.dadosPessoais.telefone);
+  if (solicitacao.dadosPessoais) {
+    addSection('Nome:', solicitacao.dadosPessoais.nomeCompleto || 'Não informado');
+    addSection('CPF:', solicitacao.dadosPessoais.cpf || 'Não informado');
+    addSection('RG:', `${solicitacao.dadosPessoais.identidade || 'Não informado'} - ${solicitacao.dadosPessoais.emissor || 'Não informado'}`);
+    addSection('Data Nascimento:', solicitacao.dadosPessoais.dataNascimento || 'Não informado');
+    addSection('Naturalidade:', solicitacao.dadosPessoais.naturalidade || 'Não informado');
+    addSection('Nome da Mãe:', solicitacao.dadosPessoais.nomeMae || 'Não informado');
+    addSection('Escolaridade:', solicitacao.dadosPessoais.escolaridade || 'Não informado');
+    addSection('Contato:', solicitacao.dadosPessoais.telefone || 'Não informado');
+  } else {
+    addSection('Dados Pessoais:', 'Não disponíveis');
+  }
 
   // 3. Dados Agropecuários
   if (solicitacao.dadosAgropecuarios) {
@@ -663,26 +667,26 @@ const generateAgriculturaReport = (solicitacao: Solicitacao) => {
     // Cacau
     if (solicitacao.dadosAgropecuarios.cacau?.cultiva) {
       addSection('Cacau:', `
-        Quantidade de pés: ${solicitacao.dadosAgropecuarios.cacau.quantidadePes}
+        Quantidade de pés: ${solicitacao.dadosAgropecuarios.cacau.quantidadePes || 0}
         Safreiro: ${solicitacao.dadosAgropecuarios.cacau.safreiro ? 'Sim' : 'Não'}
-        Produção Anual: ${solicitacao.dadosAgropecuarios.cacau.producaoAnual} kg
+        Produção Anual: ${solicitacao.dadosAgropecuarios.cacau.producaoAnual || 0} kg
       `);
     }
 
     // Frutíferas
     if (solicitacao.dadosAgropecuarios.frutiferas?.cultiva) {
       addSection('Frutíferas:', `
-        Tipos: ${solicitacao.dadosAgropecuarios.frutiferas.tipos?.join(', ')}
-        Produção: ${solicitacao.dadosAgropecuarios.frutiferas.producaoKg} kg
+        Tipos: ${solicitacao.dadosAgropecuarios.frutiferas.tipos?.join(', ') || 'Não informado'}
+        Produção: ${solicitacao.dadosAgropecuarios.frutiferas.producaoKg || 0} kg
       `);
     }
 
     // Pecuária
     if (solicitacao.dadosAgropecuarios.pecuaria?.bovino?.possui) {
       addSection('Bovinos:', `
-        Quantidade: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.quantidade}
+        Quantidade: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.quantidade || 0}
         Tipo: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.leite ? 'Leite' : 'Corte'}
-        Sistema: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.sistemaManejo}
+        Sistema: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.sistemaManejo || 'Não informado'}
       `);
     }
   }
