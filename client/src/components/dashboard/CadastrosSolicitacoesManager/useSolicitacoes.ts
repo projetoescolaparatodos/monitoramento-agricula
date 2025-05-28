@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
 import { db } from '@/utils/firebase';
 
 export interface Solicitacao {
@@ -9,6 +9,7 @@ export interface Solicitacao {
   telefone?: string;
   email?: string;
   endereco?: string;
+  enderecoPropriedade?: string;
   nomePropriedade?: string;
   tamanho?: string;
   servico?: string;
@@ -20,6 +21,7 @@ export interface Solicitacao {
   timestamp: any;
   origem: string;
   tipoOrigem: string;
+  tipo: string;
   userLocation?: {
     latitude: number;
     longitude: number;
@@ -33,62 +35,54 @@ export interface Solicitacao {
   quantidadeEstimada?: string;
   observacoes?: string;
   // Campos específicos da agricultura completa
-  nomePropriedade?: string;
   situacaoLegal?: string;
   culturas?: any;
   maquinario?: any;
   maodeobra?: any;
   periodoDesejado?: string;
-  tipo?: string;
+  // Dados crus para inspeção detalhada
+  raw?: any;
 }
 
-// Função de normalização para garantir consistência dos dados
-const normalizarSolicitacao = (doc: any, nomeColecao: string): Solicitacao => {
-  const data = doc.data();
-  
+// Função de normalização robusta
+const normalizarSolicitacao = (data: any, tipo: string): Solicitacao => {
   return {
-    id: doc.id,
+    id: data.id,
     
-    // Campos obrigatórios normalizados
+    // Campos obrigatórios sempre preenchidos
     nome: data.nome || 'Não informado',
     cpf: data.cpf || 'Não informado',
     status: data.status || 'pendente',
     urgencia: data.urgencia || 'normal',
     timestamp: data.timestamp || new Date(),
     origem: data.origem || 'formulario_web',
-    tipoOrigem: nomeColecao,
+    tipoOrigem: data.tipoOrigem || tipo,
+    tipo,
     
-    // Dados pessoais com múltiplas fontes possíveis
+    // Contatos com fallbacks
     telefone: data.telefone || data.celular || '',
     email: data.email || '',
     endereco: data.endereco || '',
-    identidade: data.identidade || data.rg || '',
-    emissor: data.emissor || '',
-    sexo: data.sexo || '',
-    travessao: data.travessao || '',
     
-    // Dados da propriedade
-    nomePropriedade: data.nomePropriedade || data.nome || '',
-    enderecoPropriedade: data.enderecoPropriedade || data.endereco || '',
+    // Propriedade com múltiplas fontes
+    nomePropriedade: data.nomePropriedade || data.nome || 'Não informado',
+    enderecoPropriedade: data.enderecoPropriedade || data.endereco || 'Não informado',
     tamanho: data.tamanho || data.tamanhoPropriedade || '',
-    distanciaMunicipio: data.distanciaMunicipio || '',
     situacaoLegal: data.situacaoLegal || '',
-    outraSituacaoLegal: data.outraSituacaoLegal || '',
     
-    // Serviços com múltiplas fontes
-    servico: data.servico || data.tipoServico || '',
-    tipoServico: data.tipoServico || data.servico || '',
+    // Serviços normalizados
+    servico: data.servico || data.tipoServico || data.interesse || 'Não informado',
+    tipoServico: data.tipoServico || data.servico || data.interesse || 'Não informado',
     descricao: data.descricao || data.detalhes || data.observacoes || '',
     detalhes: data.detalhes || data.descricao || '',
     periodoDesejado: data.periodoDesejado || '',
     
-    // Dados específicos da Agricultura Completa
+    // Dados específicos preservados
     culturas: data.culturas || {},
     maquinario: data.maquinario || {},
     maodeobra: data.maodeobra || {},
-    tipo: data.tipo || '',
     
-    // Dados específicos do PAA
+    // PAA específicos
     dapCaf: data.dapCaf || '',
     localidade: data.localidade || '',
     produtos: data.produtos || '',
@@ -97,8 +91,9 @@ const normalizarSolicitacao = (doc: any, nomeColecao: string): Solicitacao => {
     quantidadeEstimada: data.quantidadeEstimada || '',
     observacoes: data.observacoes || '',
     
-    // Localização
-    userLocation: data.userLocation || undefined
+    // Localização e dados crus
+    userLocation: data.userLocation || undefined,
+    raw: data // Mantém dados originais para inspeção
   };
 };
 
@@ -107,49 +102,59 @@ export function useSolicitacoes() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Configuração unificada das coleções
+  const colecoes = [
+    { nome: 'solicitacoes_agricultura_completo', tipo: 'agricultura_completo' },
+    { nome: 'solicitacoes_agricultura', tipo: 'agricultura' },
+    { nome: 'solicitacoes_pesca_completo', tipo: 'pesca_completo' },
+    { nome: 'solicitacoes_pesca', tipo: 'pesca' },
+    { nome: 'solicitacoes_paa', tipo: 'paa' },
+    { nome: 'solicitacoes_servicos', tipo: 'servicos' }
+  ];
+
   const fetchSolicitacoes = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const colecoes = [
-        'solicitacoes_agricultura',
-        'solicitacoes_agricultura_completo', 
-        'solicitacoes_pesca',
-        'solicitacoes_pesca_completo',
-        'solicitacoes_paa',
-        'solicitacoes_servicos'
-      ];
-
       const todasSolicitacoes: Solicitacao[] = [];
 
-      // Buscar dados de cada coleção com normalização
-      for (const nomeColecao of colecoes) {
+      // Buscar com query ordenada e normalização robusta
+      for (const { nome, tipo } of colecoes) {
         try {
-          console.log(`Buscando dados da coleção: ${nomeColecao}`);
-          const snapshot = await getDocs(collection(db, nomeColecao));
+          console.log(`🔍 Buscando coleção: ${nome}`);
+          
+          const q = query(collection(db, nome), orderBy('timestamp', 'desc'));
+          const snapshot = await getDocs(q);
 
-          const docs = snapshot.docs.map(doc => normalizarSolicitacao(doc, nomeColecao));
+          const docs = snapshot.docs.map(doc => 
+            normalizarSolicitacao({ id: doc.id, ...doc.data() }, tipo)
+          );
 
-          console.log(`Encontrados ${docs.length} documentos em ${nomeColecao}:`, docs);
+          console.log(`✅ Encontrados ${docs.length} docs em ${nome}`);
           todasSolicitacoes.push(...docs);
         } catch (err) {
-          console.error(`Erro ao buscar ${nomeColecao}:`, err);
+          console.error(`❌ Erro ao buscar ${nome}:`, err);
+          // Continua mesmo com erro em uma coleção
         }
       }
 
-      // Ordenar por timestamp mais recente
+      // Ordenação final por timestamp
       todasSolicitacoes.sort((a, b) => {
-        const timestampA = a.timestamp?.toDate ? a.timestamp.toDate() : new Date(a.timestamp);
-        const timestampB = b.timestamp?.toDate ? b.timestamp.toDate() : new Date(b.timestamp);
-        return timestampB.getTime() - timestampA.getTime();
+        const getTimestamp = (ts: any) => {
+          if (ts?.toDate) return ts.toDate();
+          if (ts instanceof Date) return ts;
+          return new Date(ts || 0);
+        };
+        
+        return getTimestamp(b.timestamp).getTime() - getTimestamp(a.timestamp).getTime();
       });
 
-      console.log(`Total de solicitações carregadas e normalizadas: ${todasSolicitacoes.length}`);
+      console.log(`🎯 Total normalizado: ${todasSolicitacoes.length} solicitações`);
       setSolicitacoes(todasSolicitacoes);
-    } catch (err) {
-      console.error('Erro geral ao buscar solicitações:', err);
-      setError('Erro ao carregar solicitações');
+    } catch (err: any) {
+      console.error('💥 Erro geral:', err);
+      setError(err.message || 'Erro ao carregar solicitações');
     } finally {
       setLoading(false);
     }

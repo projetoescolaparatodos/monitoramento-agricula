@@ -52,15 +52,15 @@ export function SolicitacaoCard({
     }
   };
 
-  const getTipoOrigemLabel = (tipoOrigem: string) => {
-    switch (tipoOrigem) {
-      case 'solicitacoes_agricultura': return 'Agricultura';
-      case 'solicitacoes_agricultura_completo': return 'Agricultura Completa';
-      case 'solicitacoes_pesca': return 'Pesca';
-      case 'solicitacoes_pesca_completo': return 'Pesca Completa';
-      case 'solicitacoes_paa': return 'PAA';
-      case 'solicitacoes_servicos': return 'Serviços';
-      default: return tipoOrigem;
+  const getTipoOrigemLabel = (tipo: string) => {
+    switch (tipo) {
+      case 'agricultura_completo': return 'Agricultura Completa';
+      case 'agricultura': return 'Agricultura';
+      case 'pesca_completo': return 'Pesca Completa';
+      case 'pesca': return 'Pesca';
+      case 'paa': return 'PAA';
+      case 'servicos': return 'Serviços';
+      default: return tipo;
     }
   };
 
@@ -138,22 +138,22 @@ export function SolicitacaoCard({
           <div className="flex items-center gap-2">
             <Briefcase className="h-4 w-4 text-gray-500" />
             <span className="font-medium">Tipo:</span>
-            <span>{getTipoOrigemLabel(solicitacao.tipoOrigem)}</span>
+            <span>{getTipoOrigemLabel(solicitacao.tipo)}</span>
           </div>
           
-          {(solicitacao.servico || solicitacao.tipoServico || solicitacao.interesse) && (
+          {solicitacao.tipoServico && solicitacao.tipoServico !== 'Não informado' && (
             <div className="flex items-center gap-2">
               <Briefcase className="h-4 w-4 text-gray-500" />
               <span className="font-medium">Serviço:</span>
-              <span>{solicitacao.servico || solicitacao.tipoServico || solicitacao.interesse}</span>
+              <span>{solicitacao.tipoServico}</span>
             </div>
           )}
           
-          {solicitacao.nomePropriedade && solicitacao.nomePropriedade !== 'Não informado' && (
+          {solicitacao.enderecoPropriedade && solicitacao.enderecoPropriedade !== 'Não informado' && (
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-gray-500" />
               <span className="font-medium">Propriedade:</span>
-              <span className="truncate">{solicitacao.nomePropriedade}</span>
+              <span className="truncate">{solicitacao.enderecoPropriedade}</span>
             </div>
           )}
           
@@ -175,7 +175,7 @@ export function SolicitacaoCard({
         )}
 
         {/* Dados específicos por tipo */}
-        {solicitacao.tipoOrigem === 'solicitacoes_paa' && (
+        {solicitacao.tipo === 'paa' && (
           <div className="text-sm bg-amber-50 p-3 rounded-lg">
             <span className="font-medium text-amber-800">PAA:</span>
             {solicitacao.interesse && solicitacao.interesse !== 'Não informado' && (
@@ -190,7 +190,7 @@ export function SolicitacaoCard({
           </div>
         )}
 
-        {(solicitacao.tipoOrigem === 'solicitacoes_agricultura_completo') && solicitacao.culturas && (
+        {solicitacao.tipo === 'agricultura_completo' && solicitacao.culturas && (
           <div className="text-sm bg-green-50 p-3 rounded-lg">
             <span className="font-medium text-green-800">Agricultura:</span>
             {Object.entries(solicitacao.culturas).some(([_, cultura]) => cultura?.selecionado) && (
@@ -204,7 +204,7 @@ export function SolicitacaoCard({
           </div>
         )}
 
-        {(solicitacao.tipoOrigem.includes('pesca')) && (
+        {solicitacao.tipo.includes('pesca') && (
           <div className="text-sm bg-blue-50 p-3 rounded-lg">
             <span className="font-medium text-blue-800">Pesca:</span>
             {solicitacao.tipoServico && (

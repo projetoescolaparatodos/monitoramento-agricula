@@ -282,8 +282,25 @@ export function SolicitacaoModal({
       );
     }
 
-    // Dados específicos da agricultura completa
-    if (solicitacao.tipoOrigem === 'solicitacoes_agricultura_completo') {
+    // Dados crus para inspeção e relatórios
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <FileText className="h-5 w-5" />
+          Dados Técnicos (Inspeção)
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <pre className="text-xs overflow-auto max-h-60">
+            {JSON.stringify(solicitacao.raw, null, 2)}
+          </pre>
+        </div>
+      </CardContent>
+    </Card>
+
+    {/* Dados específicos da agricultura completa */}
+    if (solicitacao.tipo === 'agricultura_completo') {
       return (
         <div className="space-y-4">
           {/* Culturas */}
