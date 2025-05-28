@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -33,6 +34,26 @@ export function CadastrosSolicitacoesManager() {
     tipoOrigem: 'todos',
     busca: ''
   });
+
+  // Log para debug - verificar se os dados estão chegando
+  useEffect(() => {
+    console.log('🔍 CadastrosSolicitacoesManager - Estado atual:');
+    console.log('Loading:', loading);
+    console.log('Error:', error);
+    console.log('Solicitações recebidas:', solicitacoes);
+    console.log('Total de solicitações:', solicitacoes.length);
+    
+    if (solicitacoes.length > 0) {
+      console.log('Primeira solicitação de exemplo:', solicitacoes[0]);
+      
+      // Verificar tipos específicos
+      const porTipo = solicitacoes.reduce((acc, s) => {
+        acc[s.tipoOrigem] = (acc[s.tipoOrigem] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      console.log('Distribuição por tipo:', porTipo);
+    }
+  }, [loading, error, solicitacoes]);
 
   // Calcular estatísticas
   const estatisticas = useMemo((): EstatisticasSolicitacoes => {
@@ -162,23 +183,33 @@ export function CadastrosSolicitacoesManager() {
     );
   }
 
-  // Log para debug
-  useEffect(() => {
-    if (!loading) {
-      console.log('Solicitações carregadas:', solicitacoes);
-      console.log('Estatísticas calculadas:', estatisticas);
-
-      // Log detalhado de cada tipo
-      const porTipo = solicitacoes.reduce((acc, s) => {
-        acc[s.tipoOrigem] = (acc[s.tipoOrigem] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-      console.log('Solicitações por tipo:', porTipo);
-    }
-  }, [loading, solicitacoes, estatisticas]);
-
   return (
     <div className="space-y-6">
+      {/* Debug Info - Remover em produção */}
+      <Card className="bg-blue-50 border-blue-200">
+        <CardHeader>
+          <CardTitle className="text-blue-800">Debug - Status dos Dados</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-sm text-blue-700 space-y-1">
+            <p>Total de solicitações carregadas: <strong>{solicitacoes.length}</strong></p>
+            <p>Solicitações após filtros: <strong>{solicitacoesFiltradas.length}</strong></p>
+            <p>Status loading: <strong>{loading ? 'true' : 'false'}</strong></p>
+            <p>Erro: <strong>{error || 'nenhum'}</strong></p>
+            {solicitacoes.length > 0 && (
+              <div>
+                <p>Tipos encontrados:</p>
+                <ul className="ml-4">
+                  {Object.entries(estatisticas.porTipo).map(([tipo, count]) => (
+                    <li key={tipo}>{tipo}: {count}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card>
@@ -324,8 +355,34 @@ export function CadastrosSolicitacoesManager() {
         </CardHeader>
         <CardContent>
           {solicitacoesFiltradas.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              Nenhuma solicitação encontrada com os filtros aplicados.
+            <div className="text-center py-8">
+              {solicitacoes.length === 0 ? (
+                <div className="text-gray-500">
+                  <p className="text-lg font-medium">Nenhuma solicitação encontrada</p>
+                  <p className="text-sm mt-2">As solicitações aparecerão aqui quando forem criadas através dos formulários.</p>
+                  <Button onClick={refetch} className="mt-4">
+                    <Search className="h-4 w-4 mr-2" />
+                    Verificar novamente
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-gray-500">
+                  <p>Nenhuma solicitação encontrada com os filtros aplicados.</p>
+                  <Button 
+                    onClick={() => setFiltros({
+                      status: 'todos',
+                      urgencia: 'todos',
+                      origem: 'todos',
+                      tipoOrigem: 'todos',
+                      busca: ''
+                    })}
+                    className="mt-2"
+                    variant="outline"
+                  >
+                    Limpar Filtros
+                  </Button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-4">

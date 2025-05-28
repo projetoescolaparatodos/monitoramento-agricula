@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
 import { db } from '@/utils/firebase';
@@ -46,7 +47,9 @@ export interface Solicitacao {
 
 // Função de normalização robusta
 const normalizarSolicitacao = (data: any, tipo: string): Solicitacao => {
-  return {
+  console.log(`📝 Normalizando solicitação ${data.id} do tipo ${tipo}:`, data);
+  
+  const normalizada = {
     id: data.id,
     
     // Campos obrigatórios sempre preenchidos
@@ -56,8 +59,8 @@ const normalizarSolicitacao = (data: any, tipo: string): Solicitacao => {
     urgencia: data.urgencia || 'normal',
     timestamp: data.timestamp || new Date(),
     origem: data.origem || 'formulario_web',
-    tipoOrigem: data.tipoOrigem || tipo,
-    tipo,
+    tipoOrigem: tipo, // Usar o tipo da coleção
+    tipo: tipo.replace('solicitacoes_', ''), // Remover prefixo
     
     // Contatos com fallbacks
     telefone: data.telefone || data.celular || '',
@@ -95,6 +98,9 @@ const normalizarSolicitacao = (data: any, tipo: string): Solicitacao => {
     userLocation: data.userLocation || undefined,
     raw: data // Mantém dados originais para inspeção
   };
+
+  console.log(`✅ Solicitação normalizada:`, normalizada);
+  return normalizada;
 };
 
 export function useSolicitacoes() {
@@ -104,15 +110,16 @@ export function useSolicitacoes() {
 
   // Configuração unificada das coleções
   const colecoes = [
-    { nome: 'solicitacoes_agricultura_completo', tipo: 'agricultura_completo' },
-    { nome: 'solicitacoes_agricultura', tipo: 'agricultura' },
-    { nome: 'solicitacoes_pesca_completo', tipo: 'pesca_completo' },
-    { nome: 'solicitacoes_pesca', tipo: 'pesca' },
-    { nome: 'solicitacoes_paa', tipo: 'paa' },
-    { nome: 'solicitacoes_servicos', tipo: 'servicos' }
+    { nome: 'solicitacoes_agricultura_completo', tipo: 'solicitacoes_agricultura_completo' },
+    { nome: 'solicitacoes_agricultura', tipo: 'solicitacoes_agricultura' },
+    { nome: 'solicitacoes_pesca_completo', tipo: 'solicitacoes_pesca_completo' },
+    { nome: 'solicitacoes_pesca', tipo: 'solicitacoes_pesca' },
+    { nome: 'solicitacoes_paa', tipo: 'solicitacoes_paa' },
+    { nome: 'solicitacoes_servicos', tipo: 'solicitacoes_servicos' }
   ];
 
   const fetchSolicitacoes = async () => {
+    console.log('🚀 Iniciando busca de solicitações...');
     setLoading(true);
     setError(null);
 
@@ -124,18 +131,32 @@ export function useSolicitacoes() {
         try {
           console.log(`🔍 Buscando coleção: ${nome}`);
           
-          const q = query(collection(db, nome), orderBy('timestamp', 'desc'));
+          // Verificar se a coleção existe
+          const colecaoRef = collection(db, nome);
+          const q = query(colecaoRef, orderBy('timestamp', 'desc'));
           const snapshot = await getDocs(q);
 
-          const docs = snapshot.docs.map(doc => 
-            normalizarSolicitacao({ id: doc.id, ...doc.data() }, tipo)
-          );
+          console.log(`📊 Snapshot para ${nome}:`, {
+            empty: snapshot.empty,
+            size: snapshot.size,
+            docs: snapshot.docs.length
+          });
 
-          console.log(`✅ Encontrados ${docs.length} docs em ${nome}`);
-          todasSolicitacoes.push(...docs);
+          if (!snapshot.empty) {
+            const docs = snapshot.docs.map(doc => {
+              const data = { id: doc.id, ...doc.data() };
+              console.log(`📄 Documento ${doc.id} de ${nome}:`, data);
+              return normalizarSolicitacao(data, tipo);
+            });
+
+            console.log(`✅ ${docs.length} documentos processados de ${nome}`);
+            todasSolicitacoes.push(...docs);
+          } else {
+            console.log(`⚠️ Coleção ${nome} está vazia`);
+          }
         } catch (err) {
           console.error(`❌ Erro ao buscar ${nome}:`, err);
-          // Continua mesmo com erro em uma coleção
+          // Continua mesmo com erro em uma coleção específica
         }
       }
 
@@ -150,34 +171,48 @@ export function useSolicitacoes() {
         return getTimestamp(b.timestamp).getTime() - getTimestamp(a.timestamp).getTime();
       });
 
-      console.log(`🎯 Total normalizado: ${todasSolicitacoes.length} solicitações`);
+      console.log(`🎯 Total de solicitações encontradas: ${todasSolicitacoes.length}`);
+      console.log('📋 Resumo por tipo:', todasSolicitacoes.reduce((acc, s) => {
+        acc[s.tipoOrigem] = (acc[s.tipoOrigem] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>));
+
       setSolicitacoes(todasSolicitacoes);
+      
+      if (todasSolicitacoes.length === 0) {
+        console.log('⚠️ Nenhuma solicitação encontrada. Verifique se existem dados nas coleções do Firebase.');
+      }
     } catch (err: any) {
-      console.error('💥 Erro geral:', err);
+      console.error('💥 Erro geral ao buscar solicitações:', err);
       setError(err.message || 'Erro ao carregar solicitações');
     } finally {
       setLoading(false);
+      console.log('🏁 Busca de solicitações finalizada');
     }
   };
 
   const updateSolicitacao = async (id: string, tipoOrigem: string, updates: Partial<Solicitacao>) => {
     try {
+      console.log(`📝 Atualizando solicitação ${id} em ${tipoOrigem}:`, updates);
       await updateDoc(doc(db, tipoOrigem, id), updates);
       await fetchSolicitacoes(); // Recarregar dados
+      console.log('✅ Solicitação atualizada com sucesso');
       return true;
     } catch (err) {
-      console.error('Erro ao atualizar solicitação:', err);
+      console.error('❌ Erro ao atualizar solicitação:', err);
       return false;
     }
   };
 
   const deleteSolicitacao = async (id: string, tipoOrigem: string) => {
     try {
+      console.log(`🗑️ Deletando solicitação ${id} de ${tipoOrigem}`);
       await deleteDoc(doc(db, tipoOrigem, id));
       await fetchSolicitacoes(); // Recarregar dados
+      console.log('✅ Solicitação deletada com sucesso');
       return true;
     } catch (err) {
-      console.error('Erro ao deletar solicitação:', err);
+      console.error('❌ Erro ao deletar solicitação:', err);
       return false;
     }
   };
@@ -185,13 +220,6 @@ export function useSolicitacoes() {
   useEffect(() => {
     fetchSolicitacoes();
   }, []);
-
-  // Log para debug
-  useEffect(() => {
-    if (!loading) {
-      console.log('Solicitações carregadas:', solicitacoes);
-    }
-  }, [loading, solicitacoes]);
 
   return { 
     solicitacoes, 
