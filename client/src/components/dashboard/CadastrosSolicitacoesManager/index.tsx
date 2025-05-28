@@ -1,229 +1,346 @@
 
-import React, { useState, useEffect } from 'react';
-import { Input } from "../../ui/input";
-import { Button } from "../../ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
-import { Solicitacao, FiltroSolicitacoes } from './types';
+import React, { useState, useMemo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, Search, Filter, Download } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
 import { useSolicitacoes } from './useSolicitacoes';
-import SolicitacaoCard from './SolicitacaoCard';
-import SolicitacaoModal from './SolicitacaoModal';
-import { useToast } from '../../../hooks/use-toast';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
+import { SolicitacaoCard } from './SolicitacaoCard';
+import { SolicitacaoModal } from './SolicitacaoModal';
+import { 
+  Solicitacao, 
+  FiltrosAtivos, 
+  StatusFiltro, 
+  UrgenciaFiltro, 
+  OrigemFiltro, 
+  TipoOrigemFiltro,
+  EstatisticasSolicitacoes
+} from './types';
 
-const CadastrosSolicitacoesManager: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('todas');
-  const [selectedSolicitacao, setSelectedSolicitacao] = useState<Solicitacao | null>(null);
-  const [debugMode, setDebugMode] = useState<boolean>(false);
-  const { toast } = useToast();
+export function CadastrosSolicitacoesManager() {
+  const { solicitacoes, loading, error, refetch, updateSolicitacao, deleteSolicitacao } = useSolicitacoes();
   
-  const { 
-    solicitacoes, 
-    loading, 
-    error, 
-    filtros, 
-    setFiltros,
-    refreshSolicitacoes,
-    atualizarStatus
-  } = useSolicitacoes();
+  const [solicitacaoSelecionada, setSolicitacaoSelecionada] = useState<Solicitacao | null>(null);
+  const [modalAberto, setModalAberto] = useState(false);
+  
+  const [filtros, setFiltros] = useState<FiltrosAtivos>({
+    status: 'todos',
+    urgencia: 'todos',
+    origem: 'todos',
+    tipoOrigem: 'todos',
+    busca: ''
+  });
 
-  // Atualizar filtro quando a aba mudar
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    setFiltros({
-      ...filtros,
-      tipo: value as FiltroSolicitacoes['tipo']
+  // Calcular estatísticas
+  const estatisticas = useMemo((): EstatisticasSolicitacoes => {
+    const total = solicitacoes.length;
+    const pendentes = solicitacoes.filter(s => s.status === 'pendente').length;
+    const emAndamento = solicitacoes.filter(s => s.status === 'em_andamento').length;
+    const concluidas = solicitacoes.filter(s => s.status === 'concluido').length;
+    const canceladas = solicitacoes.filter(s => s.status === 'cancelado').length;
+
+    const porUrgencia = solicitacoes.reduce((acc, s) => {
+      acc[s.urgencia] = (acc[s.urgencia] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const porOrigem = solicitacoes.reduce((acc, s) => {
+      acc[s.origem] = (acc[s.origem] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const porTipo = solicitacoes.reduce((acc, s) => {
+      acc[s.tipoOrigem] = (acc[s.tipoOrigem] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return {
+      total,
+      pendentes,
+      emAndamento,
+      concluidas,
+      canceladas,
+      porUrgencia,
+      porOrigem,
+      porTipo
+    };
+  }, [solicitacoes]);
+
+  // Filtrar solicitações
+  const solicitacoesFiltradas = useMemo(() => {
+    return solicitacoes.filter(solicitacao => {
+      // Filtro por status
+      if (filtros.status !== 'todos' && solicitacao.status !== filtros.status) {
+        return false;
+      }
+
+      // Filtro por urgência
+      if (filtros.urgencia !== 'todos' && solicitacao.urgencia !== filtros.urgencia) {
+        return false;
+      }
+
+      // Filtro por origem
+      if (filtros.origem !== 'todos' && solicitacao.origem !== filtros.origem) {
+        return false;
+      }
+
+      // Filtro por tipo de origem
+      if (filtros.tipoOrigem !== 'todos' && solicitacao.tipoOrigem !== filtros.tipoOrigem) {
+        return false;
+      }
+
+      // Filtro por busca
+      if (filtros.busca) {
+        const termoBusca = filtros.busca.toLowerCase();
+        const buscaEm = [
+          solicitacao.nome,
+          solicitacao.cpf,
+          solicitacao.telefone,
+          solicitacao.email,
+          solicitacao.servico,
+          solicitacao.tipoServico,
+          solicitacao.nomePropriedade,
+          solicitacao.descricao,
+          solicitacao.detalhes
+        ].filter(Boolean).join(' ').toLowerCase();
+
+        if (!buscaEm.includes(termoBusca)) {
+          return false;
+        }
+      }
+
+      return true;
     });
+  }, [solicitacoes, filtros]);
+
+  const handleAbrirModal = (solicitacao: Solicitacao) => {
+    setSolicitacaoSelecionada(solicitacao);
+    setModalAberto(true);
   };
 
-  // Manipular mudança de status
-  const handleStatusChange = async (solicitacaoId: string, novoStatus: string, tipo: string, colecao?: string) => {
-    const success = await atualizarStatus(solicitacaoId, novoStatus, tipo, colecao);
-    
-    if (success) {
-      toast({
-        title: "Status atualizado",
-        description: `A solicitação foi marcada como "${novoStatus.replace('_', ' ')}".`,
-      });
-    } else {
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o status da solicitação.",
-        variant: "destructive",
-      });
+  const handleFecharModal = () => {
+    setSolicitacaoSelecionada(null);
+    setModalAberto(false);
+  };
+
+  const handleAtualizarStatus = async (id: string, tipoOrigem: string, novoStatus: string) => {
+    const sucesso = await updateSolicitacao(id, tipoOrigem, { status: novoStatus });
+    if (sucesso) {
+      console.log('Status atualizado com sucesso');
     }
   };
 
-  // Manipular pesquisa
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFiltros({
-      ...filtros,
-      pesquisa: e.target.value
-    });
-  };
-
-  // Manipular filtro de status
-  const handleStatusFilter = (value: string) => {
-    setFiltros({
-      ...filtros,
-      status: value as FiltroSolicitacoes['status']
-    });
-  };
-
-  // Logs de debug melhorados
-  useEffect(() => {
-    console.log("🚀 CadastrosSolicitacoesManager montado - buscando solicitações iniciais");
-    refreshSolicitacoes();
-  }, [refreshSolicitacoes]);
-  
-  // Log de debug para monitorar mudanças de solicitações
-  useEffect(() => {
-    if (!loading) {
-      console.log(`📊 Status das solicitações: ${solicitacoes.length} itens carregados`);
-      if (solicitacoes.length > 0) {
-        console.log(`📊 Tipos de solicitações carregadas:`, 
-          [...new Set(solicitacoes.map(s => s.colecao))].join(', '));
+  const handleExcluir = async (id: string, tipoOrigem: string) => {
+    if (window.confirm('Tem certeza que deseja excluir esta solicitação?')) {
+      const sucesso = await deleteSolicitacao(id, tipoOrigem);
+      if (sucesso) {
+        console.log('Solicitação excluída com sucesso');
       }
     }
-  }, [solicitacoes, loading]);
+  };
 
-  return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Gerenciar Cadastros e Solicitações</h2>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => setDebugMode(!debugMode)}
-        >
-          {debugMode ? "Ocultar Debug" : "Modo Debug"}
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">Carregando solicitações...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-red-600 p-8">
+        <p>Erro ao carregar solicitações: {error}</p>
+        <Button onClick={refetch} className="mt-4">
+          Tentar novamente
         </Button>
       </div>
+    );
+  }
 
-      <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList>
-          <TabsTrigger value="todas">Todas</TabsTrigger>
-          <TabsTrigger value="agricultura">Agricultura</TabsTrigger>
-          <TabsTrigger value="pesca">Pesca</TabsTrigger>
-          <TabsTrigger value="paa">PAA</TabsTrigger>
-          <TabsTrigger value="servicos">Serviços</TabsTrigger>
-        </TabsList>
+  return (
+    <div className="space-y-6">
+      {/* Estatísticas */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold">{estatisticas.total}</div>
+            <p className="text-sm text-gray-600">Total</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-yellow-600">{estatisticas.pendentes}</div>
+            <p className="text-sm text-gray-600">Pendentes</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-blue-600">{estatisticas.emAndamento}</div>
+            <p className="text-sm text-gray-600">Em Andamento</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-green-600">{estatisticas.concluidas}</div>
+            <p className="text-sm text-gray-600">Concluídas</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-red-600">{estatisticas.canceladas}</div>
+            <p className="text-sm text-gray-600">Canceladas</p>
+          </CardContent>
+        </Card>
+      </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <Input
-            placeholder="Buscar por nome ou CPF..."
-            value={filtros.pesquisa || ''}
-            onChange={handleSearch}
-            className="max-w-xs"
-          />
-          
-          <Select 
-            value={filtros.status} 
-            onValueChange={handleStatusFilter}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todas">Todos os status</SelectItem>
-              <SelectItem value="pendente">Pendente</SelectItem>
-              <SelectItem value="em_andamento">Em andamento</SelectItem>
-              <SelectItem value="concluido">Concluído</SelectItem>
-              <SelectItem value="cancelado">Cancelado</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => refreshSolicitacoes()}
-          >
-            Atualizar
-          </Button>
-        </div>
-
-        {error && (
-          <div className="bg-red-50 text-red-700 p-3 rounded-md mt-2">
-            {error}
-          </div>
-        )}
-
-        {debugMode && (
-          <div className="mt-4 p-4 border rounded bg-gray-50 overflow-auto max-h-40">
-            <h3 className="font-semibold">Informações de Debug:</h3>
-            <p>Filtros atuais: Tipo: {filtros.tipo}, Status: {filtros.status}, Pesquisa: {filtros.pesquisa || '(vazio)'}</p>
-            <p>Total de solicitações carregadas: {solicitacoes.length}</p>
-            <p>Estado de carregamento: {loading ? 'Carregando...' : 'Completo'}</p>
-          </div>
-        )}
-
-        <TabsContent value={activeTab}>
-          {loading ? (
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="border rounded-lg p-4 h-64 animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-5/6 mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-4/6 mb-6"></div>
-                  <div className="h-10 bg-gray-200 rounded w-full mt-auto"></div>
-                </div>
-              ))}
+      {/* Filtros */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Filtros
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            {/* Busca */}
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Buscar por nome, CPF, etc..."
+                value={filtros.busca}
+                onChange={(e) => setFiltros(prev => ({ ...prev, busca: e.target.value }))}
+                className="pl-10"
+              />
             </div>
-          ) : solicitacoes.length === 0 ? (
-            <div className="text-center p-8 border rounded-lg mt-4">
-              <h3 className="font-semibold text-lg">Nenhuma solicitação encontrada</h3>
-              <p className="text-gray-500 mt-2">
-                {filtros.pesquisa 
-                  ? "Nenhum resultado para a sua pesquisa. Tente outros termos." 
-                  : `Não há solicitações ${activeTab !== 'todas' ? `de ${activeTab}` : ''} para exibir.`}
-              </p>
-              <div className="mt-4 text-left p-4 bg-gray-100 rounded-md overflow-auto max-h-48 text-xs">
-                <p className="font-semibold">Coleções verificadas:</p>
-                <ul className="list-disc list-inside">
-                  {['solicitacoes_agricultura', 'solicitacoes_agricultura_completo', 'solicitacoes_pesca', 'solicitacoes_pesca_completo', 'solicitacoes_paa', 'solicitacoes_servicos'].map(col => (
-                    <li key={col} className={activeTab === 'todas' || col.includes(activeTab) ? '' : 'text-gray-400'}>
-                      {col} {activeTab === 'todas' || col.includes(activeTab) ? '(verificada)' : '(ignorada pelo filtro)'}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-3">
-                  <Button 
-                    variant="default" 
-                    size="sm" 
-                    onClick={() => {
-                      console.log("Forçando nova busca de solicitações");
-                      refreshSolicitacoes();
-                    }}
-                  >
-                    Tentar Novamente
-                  </Button>
-                </div>
-              </div>
+
+            {/* Status */}
+            <Select
+              value={filtros.status}
+              onValueChange={(value: StatusFiltro) => setFiltros(prev => ({ ...prev, status: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os Status</SelectItem>
+                <SelectItem value="pendente">Pendente</SelectItem>
+                <SelectItem value="em_andamento">Em Andamento</SelectItem>
+                <SelectItem value="concluido">Concluído</SelectItem>
+                <SelectItem value="cancelado">Cancelado</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Urgência */}
+            <Select
+              value={filtros.urgencia}
+              onValueChange={(value: UrgenciaFiltro) => setFiltros(prev => ({ ...prev, urgencia: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Urgência" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todas as Urgências</SelectItem>
+                <SelectItem value="baixa">Baixa</SelectItem>
+                <SelectItem value="normal">Normal</SelectItem>
+                <SelectItem value="alta">Alta</SelectItem>
+                <SelectItem value="urgente">Urgente</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Origem */}
+            <Select
+              value={filtros.origem}
+              onValueChange={(value: OrigemFiltro) => setFiltros(prev => ({ ...prev, origem: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Origem" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todas as Origens</SelectItem>
+                <SelectItem value="formulario_web">Formulário Web</SelectItem>
+                <SelectItem value="chat">Chat</SelectItem>
+                <SelectItem value="presencial">Presencial</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Tipo */}
+            <Select
+              value={filtros.tipoOrigem}
+              onValueChange={(value: TipoOrigemFiltro) => setFiltros(prev => ({ ...prev, tipoOrigem: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os Tipos</SelectItem>
+                <SelectItem value="solicitacoes_agricultura">Agricultura</SelectItem>
+                <SelectItem value="solicitacoes_agricultura_completo">Agricultura Completa</SelectItem>
+                <SelectItem value="solicitacoes_pesca">Pesca</SelectItem>
+                <SelectItem value="solicitacoes_pesca_completo">Pesca Completa</SelectItem>
+                <SelectItem value="solicitacoes_paa">PAA</SelectItem>
+                <SelectItem value="solicitacoes_servicos">Serviços</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Lista de Solicitações */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>
+            Solicitações ({solicitacoesFiltradas.length})
+          </CardTitle>
+          <div className="flex gap-2">
+            <Button onClick={refetch} variant="outline" size="sm">
+              Atualizar
+            </Button>
+            <Button variant="outline" size="sm">
+              <Download className="h-4 w-4 mr-2" />
+              Exportar
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {solicitacoesFiltradas.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              Nenhuma solicitação encontrada com os filtros aplicados.
             </div>
           ) : (
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {solicitacoes.map((solicitacao) => (
+            <div className="space-y-4">
+              {solicitacoesFiltradas.map((solicitacao) => (
                 <SolicitacaoCard
-                  key={solicitacao.id}
+                  key={`${solicitacao.tipoOrigem}-${solicitacao.id}`}
                   solicitacao={solicitacao}
-                  onVerDetalhes={() => setSelectedSolicitacao(solicitacao)}
-                  onChangeStatus={(sol, status) => 
-                    handleStatusChange(sol.id, status, sol.tipo, sol.colecao)
-                  }
+                  onVisualizarDetalhes={() => handleAbrirModal(solicitacao)}
+                  onAtualizarStatus={handleAtualizarStatus}
+                  onExcluir={handleExcluir}
                 />
               ))}
             </div>
           )}
-        </TabsContent>
-      </Tabs>
+        </CardContent>
+      </Card>
 
-      <SolicitacaoModal
-        solicitacao={selectedSolicitacao}
-        onClose={() => setSelectedSolicitacao(null)}
-        onChangeStatus={handleStatusChange}
-      />
+      {/* Modal de Detalhes */}
+      {solicitacaoSelecionada && (
+        <SolicitacaoModal
+          solicitacao={solicitacaoSelecionada}
+          isOpen={modalAberto}
+          onClose={handleFecharModal}
+          onAtualizarStatus={handleAtualizarStatus}
+          onExcluir={handleExcluir}
+        />
+      )}
     </div>
   );
-};
+}
 
 export default CadastrosSolicitacoesManager;

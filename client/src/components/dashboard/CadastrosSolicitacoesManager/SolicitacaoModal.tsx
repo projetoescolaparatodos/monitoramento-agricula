@@ -1,613 +1,480 @@
 import React from 'react';
-import { Button } from '../../ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogFooter 
-} from '../../ui/dialog';
-import { Badge } from '../../ui/badge';
+  User, 
+  Phone, 
+  Mail, 
+  MapPin, 
+  Calendar, 
+  Briefcase,
+  AlertTriangle,
+  FileText,
+  Home,
+  Tractor,
+  Users,
+  X
+} from 'lucide-react';
 import { Solicitacao } from './types';
-import { generatePDF } from './generatePdf';
 
 interface SolicitacaoModalProps {
-  solicitacao: Solicitacao | null;
+  solicitacao: Solicitacao;
+  isOpen: boolean;
   onClose: () => void;
-  onChangeStatus: (solicitacaoId: string, novoStatus: string, tipo: string) => void;
+  onAtualizarStatus: (id: string, tipoOrigem: string, novoStatus: string) => void;
+  onExcluir: (id: string, tipoOrigem: string) => void;
 }
 
-const SolicitacaoModal: React.FC<SolicitacaoModalProps> = ({ 
+export function SolicitacaoModal({ 
   solicitacao, 
-  onClose,
-  onChangeStatus
-}) => {
-  if (!solicitacao) return null;
+  isOpen, 
+  onClose, 
+  onAtualizarStatus, 
+  onExcluir 
+}: SolicitacaoModalProps) {
 
-  const formatarData = (timestamp: any) => {
-    if (!timestamp) return 'Data não disponível';
+  const formatTimestamp = (timestamp: any) => {
+    if (!timestamp) return 'Data não informada';
 
     try {
-      const data = typeof timestamp === 'string' 
-        ? new Date(timestamp) 
-        : timestamp.toDate ? timestamp.toDate() : new Date();
+      let date: Date;
+      if (timestamp.toDate) {
+        date = timestamp.toDate();
+      } else if (timestamp instanceof Date) {
+        date = timestamp;
+      } else {
+        date = new Date(timestamp);
+      }
 
-      return new Intl.DateTimeFormat('pt-BR', {
+      return date.toLocaleDateString('pt-BR', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
-      }).format(data);
+      });
     } catch (error) {
-      console.error('Erro ao formatar data:', error);
       return 'Data inválida';
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pendente':
-        return <Badge className="bg-yellow-100 text-yellow-800">Pendente</Badge>;
-      case 'em_andamento':
-        return <Badge className="bg-blue-100 text-blue-800">Em andamento</Badge>;
-      case 'concluido':
-        return <Badge className="bg-green-100 text-green-800">Concluído</Badge>;
-      case 'cancelado':
-        return <Badge className="bg-red-100 text-red-800">Cancelado</Badge>;
-      default:
-        return <Badge>Desconhecido</Badge>;
+      case 'pendente': return 'bg-yellow-100 text-yellow-800';
+      case 'em_andamento': return 'bg-blue-100 text-blue-800';
+      case 'concluido': return 'bg-green-100 text-green-800';
+      case 'cancelado': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getTipoFormatado = (tipo: string) => {
-    switch (tipo) {
-      case 'agricultura':
-        return 'Agricultura';
-      case 'pesca':
-        return 'Pesca';
-      case 'paa':
-        return 'PAA';
-      default:
-        return tipo;
+  const getUrgenciaColor = (urgencia: string) => {
+    switch (urgencia) {
+      case 'baixa': return 'bg-green-100 text-green-800';
+      case 'normal': return 'bg-blue-100 text-blue-800';
+      case 'alta': return 'bg-orange-100 text-orange-800';
+      case 'urgente': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  return (
-    <Dialog open={!!solicitacao} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <span>
-                Detalhes da Solicitação 
-                {solicitacao.colecao?.includes('completo') && 
-                  <span className="ml-2 text-xs font-normal bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
-                    Cadastro Completo
-                  </span>
-                }
-              </span>
-            {getStatusBadge(solicitacao.status)}
-          </DialogTitle>
-          <div className="text-sm text-gray-500 mt-1">
-            ID: {solicitacao.id} • Criado em: {formatarData(solicitacao.criadoEm)}
-            {solicitacao.atualizadoEm && ` • Atualizado em: ${formatarData(solicitacao.atualizadoEm)}`}
+  const renderDadosPessoais = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <User className="h-5 w-5" />
+          Dados Pessoais
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-gray-700">Nome</label>
+            <p className="text-sm text-gray-900">{solicitacao.nome}</p>
           </div>
-        </DialogHeader>
-
-        <div className="mt-4 space-y-6">
-          {/* 1. Dados Pessoais */}
-          <section>
-            <h3 className="text-lg font-bold mb-2">1. Dados Pessoais</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="font-semibold">Nome:</p>
-                  <p>{solicitacao.dadosPessoais?.nome || solicitacao.nome || "Não informado"}</p>
-                </div>
-                <div>
-                  <p className="font-semibold">CPF:</p>
-                  <p>{solicitacao.dadosPessoais?.cpf || solicitacao.cpf || "Não informado"}</p>
-                </div>
-                {(solicitacao.dadosPessoais?.telefone || solicitacao.telefone) && (
-                  <div>
-                    <p className="font-semibold">Telefone:</p>
-                    <p>{solicitacao.dadosPessoais?.telefone || solicitacao.telefone}</p>
-                  </div>
-                )}
-                {(solicitacao.dadosPessoais?.email || solicitacao.email) && (
-                  <div>
-                    <p className="font-semibold">Email:</p>
-                    <p>{solicitacao.dadosPessoais?.email || solicitacao.email}</p>
-                  </div>
-                )}
-                {(solicitacao.dadosPessoais?.endereco || solicitacao.endereco) && (
-                  <div>
-                    <p className="font-semibold">Endereço:</p>
-                    <p>{solicitacao.dadosPessoais?.endereco || solicitacao.endereco}</p>
-                  </div>
-                )}
-              {solicitacao.dadosPessoais?.rg && (
-                <div>
-                  <p className="font-semibold">RG:</p>
-                  <p>{solicitacao.dadosPessoais.rg}</p>
-                </div>
-              )}
-              
-              {solicitacao.dadosPessoais?.travessao && (
-                <div>
-                  <p className="font-semibold">Travessão:</p>
-                  <p>{solicitacao.dadosPessoais.travessao}</p>
-                </div>
-              )}
-              {solicitacao.dadosPessoais?.dataNascimento && (
-                <div>
-                  <p className="font-semibold">Data Nascimento:</p>
-                  <p>{solicitacao.dadosPessoais.dataNascimento}</p>
-                </div>
-              )}
-              {solicitacao.dadosPessoais?.naturalidade && (
-                <div>
-                  <p className="font-semibold">Naturalidade:</p>
-                  <p>{solicitacao.dadosPessoais.naturalidade}</p>
-                </div>
-              )}
-              {solicitacao.dadosPessoais?.nomeMae && (
-                <div>
-                  <p className="font-semibold">Nome da Mãe:</p>
-                  <p>{solicitacao.dadosPessoais.nomeMae}</p>
-                </div>
-              )}
-              {solicitacao.dadosPessoais?.escolaridade && (
-                <div>
-                  <p className="font-semibold">Escolaridade:</p>
-                  <p>{solicitacao.dadosPessoais.escolaridade}</p>
-                </div>
-              )}
-              {solicitacao.dadosPessoais?.instituicaoAssociada && (
-                <div>
-                  <p className="font-semibold">Instituição Associada:</p>
-                  <p>{solicitacao.dadosPessoais.instituicaoAssociada}</p>
-                </div>
-              )}
+          <div>
+            <label className="text-sm font-medium text-gray-700">CPF</label>
+            <p className="text-sm text-gray-900">{solicitacao.cpf}</p>
+          </div>
+          {solicitacao.telefone && (
+            <div>
+              <label className="text-sm font-medium text-gray-700">Telefone</label>
+              <p className="text-sm text-gray-900 flex items-center gap-1">
+                <Phone className="h-4 w-4" />
+                {solicitacao.telefone}
+              </p>
             </div>
-          </section>
-
-          {/* 2. Dados da Propriedade */}
-          {solicitacao.dadosPropriedade && (
-            <section>
-              <h3 className="text-lg font-bold mb-2">2. Dados da Propriedade</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="font-semibold">Nome da Propriedade:</p>
-                  <p>{solicitacao.dadosPropriedade.nome || 'Não informado'}</p>
-                </div>
-                <div>
-                  <p className="font-semibold">Tipo de Pessoa:</p>
-                  <p>{solicitacao.dadosPropriedade.tipoPessoa || 'Não informado'}</p>
-                </div>
-                <div>
-                  <p className="font-semibold">Endereço:</p>
-                  <p>{solicitacao.dadosPropriedade.endereco || 'Não informado'}</p>
-                </div>
-                {solicitacao.dadosPropriedade.tamanho && (
-                  <div>
-                    <p className="font-semibold">Tamanho (ha):</p>
-                    <p>{solicitacao.dadosPropriedade.tamanho}</p>
-                  </div>
-                )}
-                {solicitacao.dadosPropriedade.coordenadas && (
-                  <div>
-                    <p className="font-semibold">Coordenadas:</p>
-                    <p>
-                      Latitude: {solicitacao.dadosPropriedade.coordenadas.latitude}, 
-                      Longitude: {solicitacao.dadosPropriedade.coordenadas.longitude}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </section>
           )}
-
-          {/* Seções específicas por tipo */}
-          {solicitacao.tipo === 'agricultura' && solicitacao.dadosAgropecuarios && (
-            <section>
-              <h3 className="text-lg font-bold mb-2">3. Dados Agropecuários</h3>
-
-              {solicitacao.dadosAgropecuarios.agricultura && (
-                <div className="mb-4">
-                  <h4 className="font-semibold mb-2">Agricultura</h4>
-                  {solicitacao.dadosAgropecuarios.agricultura.culturas && 
-                   solicitacao.dadosAgropecuarios.agricultura.culturas.length > 0 && (
-                    <div className="grid gap-2 mb-2">
-                      <h5 className="font-medium">Culturas:</h5>
-                      {solicitacao.dadosAgropecuarios.agricultura.culturas.map((cultura, index) => (
-                        <div key={index} className="border p-2 rounded">
-                          <p>{cultura.nome}: {cultura.area} {cultura.unidade}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {solicitacao.dadosAgropecuarios.pecuaria && 
-               solicitacao.dadosAgropecuarios.pecuaria.bovino && (
-                <div>
-                  <h4 className="font-semibold mb-2">Pecuária - Bovino</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {solicitacao.dadosAgropecuarios.pecuaria.bovino.quantidade && (
-                      <div>
-                        <p className="font-medium">Quantidade:</p>
-                        <p>{solicitacao.dadosAgropecuarios.pecuaria.bovino.quantidade}</p>
-                      </div>
-                    )}
-                    {solicitacao.dadosAgropecuarios.pecuaria.bovino.finalidade && (
-                      <div>
-                        <p className="font-medium">Finalidade:</p>
-                        <p>{solicitacao.dadosAgropecuarios.pecuaria.bovino.finalidade}</p>
-                      </div>
-                    )}
-                    {solicitacao.dadosAgropecuarios.pecuaria.bovino.sistemaManejo && (
-                      <div>
-                        <p className="font-medium">Sistema de Manejo:</p>
-                        <p>{solicitacao.dadosAgropecuarios.pecuaria.bovino.sistemaManejo}</p>
-                      </div>
-                    )}
-                    {solicitacao.dadosAgropecuarios.pecuaria.bovino.acessoMercado && (
-                      <div>
-                        <p className="font-medium">Acesso ao Mercado:</p>
-                        <p>{solicitacao.dadosAgropecuarios.pecuaria.bovino.acessoMercado}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </section>
+          {solicitacao.email && (
+            <div>
+              <label className="text-sm font-medium text-gray-700">Email</label>
+              <p className="text-sm text-gray-900 flex items-center gap-1">
+                <Mail className="h-4 w-4" />
+                {solicitacao.email}
+              </p>
+            </div>
           )}
-
-          {/* 4. Recursos Disponíveis para formulário completo */}
-          {solicitacao.tipo === 'agricultura' && (solicitacao.maquinario || solicitacao.maodeobra) && (
-            <section>
-              <h3 className="text-lg font-bold mb-2">4. Recursos Disponíveis</h3>
-
-              {solicitacao.maquinario && (
-                <div className="mb-4">
-                  <h4 className="font-semibold mb-2">Maquinário disponível</h4>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {Object.entries(solicitacao.maquinario).map(([key, value]) => {
-                      if (!value || key === 'outros') return null;
-
-                      const nomeMaquina = {
-                        'trator': 'Trator',
-                        'plantadeira': 'Plantadeira',
-                        'colheitadeira': 'Colheitadeira',
-                        'pulverizador': 'Pulverizador',
-                        'irrigacao': 'Sistema de Irrigação'
-                      }[key] || key;
-
-                      return (
-                        <Badge key={key} variant="outline" className="px-3 py-1">
-                          {nomeMaquina}
-                        </Badge>
-                      );
-                    })}
-                  </div>
-
-                  {solicitacao.maquinario.outros && (
-                    <div>
-                      <p className="font-semibold">Outros maquinários:</p>
-                      <p>{solicitacao.maquinario.outros}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {solicitacao.maodeobra && (
-                <div>
-                  <h4 className="font-semibold mb-2">Mão de Obra</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {solicitacao.maodeobra.familiar?.selecionado && (
-                      <div>
-                        <p className="font-medium">Familiar:</p>
-                        <p>{solicitacao.maodeobra.familiar.quantidade || 0} pessoas</p>
-                      </div>
-                    )}
-                    {solicitacao.maodeobra.contratada_permanente?.selecionado && (
-                      <div>
-                        <p className="font-medium">Contratada Permanente:</p>
-                        <p>{solicitacao.maodeobra.contratada_permanente.quantidade || 0} pessoas</p>
-                      </div>
-                    )}
-                    {solicitacao.maodeobra.contratada_temporaria?.selecionado && (
-                      <div>
-                        <p className="font-medium">Contratada Temporária:</p>
-                        <p>{solicitacao.maodeobra.contratada_temporaria.quantidade || 0} pessoas</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Suporte para modelo de dados antigo */}
-              {solicitacao.recursos && (
-                <div>
-                  <h4 className="font-semibold mb-2">Recursos</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <p className="font-medium">Número de Empregados:</p>
-                      <p>{solicitacao.recursos.numeroEmpregados || 0}</p>
-                    </div>
-                    <div>
-                      <p className="font-medium">Trabalho Familiar:</p>
-                      <p>{solicitacao.recursos.trabalhoFamiliar || 0} pessoas</p>
-                    </div>
-                    <div>
-                      <p className="font-medium">Recursos Financeiros:</p>
-                      <p>{solicitacao.recursos.recursosFinanceiros || 'Não informado'}</p>
-                    </div>
-                    <div>
-                      <p className="font-medium">Fonte do Financiamento:</p>
-                      <p>{solicitacao.recursos.fonteFinanciamento || 'Não informado'}</p>
-                    </div>
-                    <div>
-                      <p className="font-medium">Assistência Técnica:</p>
-                      <p>{solicitacao.recursos.assistenciaTecnica || 'Não informado'}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </section>
+          {solicitacao.endereco && (
+            <div className="md:col-span-2">
+              <label className="text-sm font-medium text-gray-700">Endereço</label>
+              <p className="text-sm text-gray-900 flex items-center gap-1">
+                <MapPin className="h-4 w-4" />
+                {solicitacao.endereco}
+              </p>
+            </div>
           )}
+        </div>
+      </CardContent>
+    </Card>
+  );
 
-          {/* Mostrar campos específicos de Pesca */}
-          {solicitacao.tipo === 'pesca' && (
-            <>
-              {/* 3. Classificação */}
-              <section>
-                <h3 className="text-lg font-bold mb-2">3. Classificação</h3>
+  const renderDadosPropriedade = () => {
+    if (!solicitacao.nomePropriedade && !solicitacao.tamanho && !solicitacao.enderecoPropriedade) {
+      return null;
+    }
 
-                {/* 3.1 Obras */}
-                {solicitacao.obras && (
-                  <div className="mb-4">
-                    <h4 className="font-semibold mb-2">3.1 Obras</h4>
-                    <div className="grid gap-2">
-                      {solicitacao.obras.map((obra, index) => (
-                        <div key={index} className="border p-2 rounded">
-                          <p>
-                            {obra.tipo}: {obra.area}{obra.unidade} - {obra.situacao}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* 3.2 Espécies */}
-                {solicitacao.especiesConfinadas && (
-                  <div>
-                    <h4 className="font-semibold mb-2">3.2 Espécies Confinadas</h4>
-                    <div className="grid gap-2">
-                      {solicitacao.especiesConfinadas.map((especie, index) => (
-                        <div key={index} className="border p-2 rounded">
-                          <p>{especie.nome}: {especie.quantidade} unidades</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </section>
-
-              {/* 4. Detalhamento */}
-              {solicitacao.detalhamento && (
-                <section>
-                  <h3 className="text-lg font-bold mb-2">4. Detalhamento</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="font-semibold">Distância da Sede:</p>
-                      <p>{solicitacao.detalhamento.distanciaSede || 0} km</p>
-                    </div>
-                    <div>
-                      <p className="font-semibold">Situação Legal:</p>
-                      <p>{solicitacao.detalhamento.situacaoLegal || 'Não informado'}</p>
-                    </div>
-                    <div>
-                      <p className="font-semibold">Área Total:</p>
-                      <p>{solicitacao.detalhamento.areaTotal || 0} ha</p>
-                    </div>
-                  </div>
-
-                  {solicitacao.detalhamento.recursosHidricos && solicitacao.detalhamento.recursosHidricos.length > 0 && (
-                    <div className="mt-4">
-                      <h4 className="font-semibold mb-2">Recursos Hídricos:</h4>
-                      <div className="grid gap-2">
-                        {solicitacao.detalhamento.recursosHidricos.map((recurso, index) => (
-                          <div key={index} className="border p-2 rounded">
-                            <p>{recurso?.tipo || 'Tipo não informado'}: {recurso?.nome || 'Nome não informado'}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {solicitacao.detalhamento.usosAgua && solicitacao.detalhamento.usosAgua.length > 0 && (
-                    <div className="mt-4">
-                      <h4 className="font-semibold mb-2">Usos da Água:</h4>
-                      <div className="grid gap-2">
-                        {solicitacao.detalhamento.usosAgua.map((uso, index) => (
-                          <div key={index} className="border p-2 rounded">
-                            <p>{uso || 'Não informado'}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </section>
-              )}
-            </>
-          )}
-
-          {/* Mostrar campos específicos de PAA */}
-          {solicitacao.tipo === 'paa' && solicitacao.producao && (
-            <>
-              <section>
-                <h3 className="text-lg font-bold mb-2">3. Produção</h3>
-
-                {solicitacao.producao.produtos && solicitacao.producao.produtos.length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="font-semibold mb-2">Produtos</h4>
-                    <div className="grid gap-2">
-                      {solicitacao.producao.produtos.map((produto, index) => (
-                        <div key={index} className="border p-2 rounded">
-                          <p>
-                            {produto.nome}: {produto.quantidade} {produto.unidade} - 
-                            R$ {produto.valorUnitario}/unidade
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {solicitacao.producao.certificacoes && (
-                  <div className="mb-2">
-                    <p className="font-semibold">Certificações:</p>
-                    <p>{solicitacao.producao.certificacoes}</p>
-                  </div>
-                )}
-
-                {solicitacao.producao.periodicidade && (
-                  <div>
-                    <p className="font-semibold">Periodicidade:</p>
-                    <p>{solicitacao.producao.periodicidade}</p>
-                  </div>
-                )}
-              </section>
-
-              {solicitacao.logistica && (
-                <section>
-                  <h3 className="text-lg font-bold mb-2">4. Logística</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {solicitacao.logistica.meioTransporte && (
-                      <div>
-                        <p className="font-semibold">Meio de Transporte:</p>
-                        <p>{solicitacao.logistica.meioTransporte}</p>
-                      </div>
-                    )}
-
-                    {solicitacao.logistica.distanciaEntrega && (
-                      <div>
-                        <p className="font-semibold">Distância de Entrega:</p>
-                        <p>{solicitacao.logistica.distanciaEntrega} km</p>
-                      </div>
-                    )}
-
-                    {solicitacao.logistica.necessidadesEspeciais && (
-                      <div className="col-span-2">
-                        <p className="font-semibold">Necessidades Especiais:</p>
-                        <p>{solicitacao.logistica.necessidadesEspeciais}</p>
-                      </div>
-                    )}
-                  </div>
-                </section>
-              )}
-            </>
-          )}
-
-          {/* 5. Serviço Solicitado */}
-          <section>
-            <h3 className="text-lg font-bold mb-2">5. Serviço Solicitado</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Home className="h-5 w-5" />
+            Dados da Propriedade
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {solicitacao.nomePropriedade && (
               <div>
-                <p className="font-semibold">Tipo de Serviço:</p>
-                <p>{solicitacao.tipoServico || 'Não informado'}</p>
-              </div>
-
-              {solicitacao.periodoDesejado && (
-                <div>
-                  <p className="font-semibold">Período Desejado:</p>
-                  <p>{solicitacao.periodoDesejado}</p>
-                </div>
-              )}
-
-              {solicitacao.urgencia && (
-                <div>
-                  <p className="font-semibold">Nível de Urgência:</p>
-                  <p className="capitalize">
-                    {solicitacao.urgencia.charAt(0).toUpperCase() + solicitacao.urgencia.slice(1)}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {solicitacao.detalhes && (
-              <div className="mt-4">
-                <p className="font-semibold">Detalhes da Solicitação:</p>
-                <div className="mt-2 p-3 bg-gray-50 rounded-md whitespace-pre-line">
-                  {solicitacao.detalhes}
-                </div>
+                <label className="text-sm font-medium text-gray-700">Nome da Propriedade</label>
+                <p className="text-sm text-gray-900">{solicitacao.nomePropriedade}</p>
               </div>
             )}
-          </section>
+            {solicitacao.tamanho && (
+              <div>
+                <label className="text-sm font-medium text-gray-700">Tamanho</label>
+                <p className="text-sm text-gray-900">{solicitacao.tamanho} hectares</p>
+              </div>
+            )}
+            {solicitacao.enderecoPropriedade && (
+              <div className="md:col-span-2">
+                <label className="text-sm font-medium text-gray-700">Endereço da Propriedade</label>
+                <p className="text-sm text-gray-900">{solicitacao.enderecoPropriedade}</p>
+              </div>
+            )}
+            {solicitacao.situacaoLegal && (
+              <div>
+                <label className="text-sm font-medium text-gray-700">Situação Legal</label>
+                <p className="text-sm text-gray-900">{solicitacao.situacaoLegal}</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
-          {/* 6. Observações */}
-          {solicitacao.observacoes && (
-            <section>
-              <h3 className="text-lg font-bold mb-2">6. Observações</h3>
-              <p className="whitespace-pre-line">{solicitacao.observacoes}</p>
-            </section>
+  const renderDadosServico = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Briefcase className="h-5 w-5" />
+          Serviço Solicitado
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {(solicitacao.servico || solicitacao.tipoServico) && (
+            <div>
+              <label className="text-sm font-medium text-gray-700">Tipo de Serviço</label>
+              <p className="text-sm text-gray-900">{solicitacao.servico || solicitacao.tipoServico}</p>
+            </div>
+          )}
+          <div>
+            <label className="text-sm font-medium text-gray-700">Urgência</label>
+            <Badge className={getUrgenciaColor(solicitacao.urgencia)}>
+              {solicitacao.urgencia === 'urgente' && <AlertTriangle className="h-3 w-3 mr-1" />}
+              <span className="capitalize">{solicitacao.urgencia}</span>
+            </Badge>
+          </div>
+          {solicitacao.periodoDesejado && (
+            <div>
+              <label className="text-sm font-medium text-gray-700">Período Desejado</label>
+              <p className="text-sm text-gray-900">{solicitacao.periodoDesejado}</p>
+            </div>
           )}
         </div>
 
-        <DialogFooter className="flex flex-wrap justify-between gap-2 mt-6">
+        {(solicitacao.descricao || solicitacao.detalhes) && (
+          <div>
+            <label className="text-sm font-medium text-gray-700">Descrição</label>
+            <p className="text-sm text-gray-900 bg-gray-50 p-3 rounded-lg">
+              {solicitacao.descricao || solicitacao.detalhes}
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const renderDadosEspecificos = () => {
+    // Dados específicos do PAA
+    if (solicitacao.tipoOrigem === 'solicitacoes_paa') {
+      return (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Dados do PAA
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {solicitacao.dapCaf && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700">DAP/CAF</label>
+                  <p className="text-sm text-gray-900">{solicitacao.dapCaf}</p>
+                </div>
+              )}
+              {solicitacao.localidade && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Localidade</label>
+                  <p className="text-sm text-gray-900">{solicitacao.localidade}</p>
+                </div>
+              )}
+              {solicitacao.produtos && (
+                <div className="md:col-span-2">
+                  <label className="text-sm font-medium text-gray-700">Produtos</label>
+                  <p className="text-sm text-gray-900">{solicitacao.produtos}</p>
+                </div>
+              )}
+              {solicitacao.interesse && (
+                <div className="md:col-span-2">
+                  <label className="text-sm font-medium text-gray-700">Interesse no PAA</label>
+                  <p className="text-sm text-gray-900">{solicitacao.interesse}</p>
+                </div>
+              )}
+              {solicitacao.quantidadeEstimada && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Quantidade Estimada</label>
+                  <p className="text-sm text-gray-900">{solicitacao.quantidadeEstimada}</p>
+                </div>
+              )}
+            </div>
+            {solicitacao.observacoes && (
+              <div>
+                <label className="text-sm font-medium text-gray-700">Observações</label>
+                <p className="text-sm text-gray-900 bg-gray-50 p-3 rounded-lg">
+                  {solicitacao.observacoes}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      );
+    }
+
+    // Dados específicos da agricultura completa
+    if (solicitacao.tipoOrigem === 'solicitacoes_agricultura_completo') {
+      return (
+        <div className="space-y-4">
+          {/* Culturas */}
+          {solicitacao.culturas && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Culturas Produzidas
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {Object.entries(solicitacao.culturas).map(([key, cultura]) => {
+                    if (cultura?.selecionado) {
+                      return (
+                        <div key={key} className="bg-green-50 p-3 rounded-lg">
+                          <h4 className="font-medium text-green-800 capitalize">{key}</h4>
+                          {cultura.area && <p className="text-sm text-green-700">Área: {cultura.area} ha</p>}
+                          {cultura.producao && <p className="text-sm text-green-700">Produção: {cultura.producao} kg/ano</p>}
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Maquinário */}
+          {solicitacao.maquinario && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Tractor className="h-5 w-5" />
+                  Maquinário Disponível
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(solicitacao.maquinario).map(([key, value]) => {
+                    if (value) {
+                      return (
+                        <Badge key={key} variant="secondary" className="capitalize">
+                          {key.replace('_', ' ')}
+                        </Badge>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Mão de obra */}
+          {solicitacao.maodeobra && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Mão de Obra
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {Object.entries(solicitacao.maodeobra).map(([key, mao]) => {
+                    if (mao?.selecionado) {
+                      return (
+                        <div key={key} className="flex justify-between items-center bg-blue-50 p-2 rounded">
+                          <span className="capitalize font-medium">{key.replace('_', ' ')}</span>
+                          {mao.quantidade && <span className="text-blue-700">{mao.quantidade} pessoas</span>}
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  const renderLocalizacao = () => {
+    if (!solicitacao.userLocation) return null;
+
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MapPin className="h-5 w-5" />
+            Localização
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="bg-blue-50 p-3 rounded-lg">
+            <p className="text-sm font-medium text-blue-800">Coordenadas GPS</p>
+            <p className="text-sm text-blue-700">
+              Latitude: {solicitacao.userLocation.latitude.toFixed(6)}
+            </p>
+            <p className="text-sm text-blue-700">
+              Longitude: {solicitacao.userLocation.longitude.toFixed(6)}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <div className="flex items-start justify-between">
+            <div>
+              <DialogTitle className="text-xl">
+                Detalhes da Solicitação - {solicitacao.nome}
+              </DialogTitle>
+              <div className="flex items-center gap-2 mt-2">
+                <Badge className={getStatusColor(solicitacao.status)}>
+                  <span className="capitalize">{solicitacao.status.replace('_', ' ')}</span>
+                </Badge>
+                <Badge variant="outline">
+                  {solicitacao.tipoOrigem.replace('solicitacoes_', '').replace('_', ' ')}
+                </Badge>
+                <span className="text-sm text-gray-500">
+                  <Calendar className="h-4 w-4 inline mr-1" />
+                  {formatTimestamp(solicitacao.timestamp)}
+                </span>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" onClick={onClose}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </DialogHeader>
+
+        <div className="space-y-6">
+          {renderDadosPessoais()}
+          {renderDadosPropriedade()}
+          {renderDadosServico()}
+          {renderDadosEspecificos()}
+          {renderLocalizacao()}
+        </div>
+
+        <DialogFooter className="flex gap-2">
           <div className="flex gap-2">
+            {solicitacao.status === 'pendente' && (
+              <Button 
+                onClick={() => {
+                  onAtualizarStatus(solicitacao.id, solicitacao.tipoOrigem, 'em_andamento');
+                  onClose();
+                }}
+              >
+                Iniciar Atendimento
+              </Button>
+            )}
+
+            {solicitacao.status === 'em_andamento' && (
+              <Button 
+                onClick={() => {
+                  onAtualizarStatus(solicitacao.id, solicitacao.tipoOrigem, 'concluido');
+                  onClose();
+                }}
+              >
+                Marcar como Concluído
+              </Button>
+            )}
+
             <Button 
-              onClick={() => onChangeStatus(solicitacao.id, 'pendente', solicitacao.tipo)}
-              variant={solicitacao.status === 'pendente' ? 'default' : 'outline'}
-              disabled={solicitacao.status === 'pendente'}
+              variant="destructive"
+              onClick={() => {
+                onExcluir(solicitacao.id, solicitacao.tipoOrigem);
+                onClose();
+              }}
             >
-              Pendente
-            </Button>
-            <Button 
-              onClick={() => onChangeStatus(solicitacao.id, 'em_andamento', solicitacao.tipo)}
-              variant={solicitacao.status === 'em_andamento' ? 'default' : 'outline'}
-              disabled={solicitacao.status === 'em_andamento'}
-            >
-              Em andamento
-            </Button>
-            <Button 
-              onClick={() => onChangeStatus(solicitacao.id, 'concluido', solicitacao.tipo)}
-              variant={solicitacao.status === 'concluido' ? 'default' : 'outline'}
-              disabled={solicitacao.status === 'concluido'}
-            >
-              Concluído
-            </Button>
-            <Button 
-              onClick={() => onChangeStatus(solicitacao.id, 'cancelado', solicitacao.tipo)}
-              variant={solicitacao.status === 'cancelado' ? 'destructive' : 'outline'}
-              className={solicitacao.status === 'cancelado' ? '' : 'text-red-500 hover:text-red-700'}
-              disabled={solicitacao.status === 'cancelado'}
-            >
-              Cancelar
+              Excluir Solicitação
             </Button>
           </div>
 
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              onClick={onClose}
-            >
-              Fechar
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => generatePDF(solicitacao)}
-            >
-              Gerar PDF
-            </Button>
-          </div>
+          <Button variant="outline" onClick={onClose}>
+            Fechar
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-};
-
-export default SolicitacaoModal;
+}

@@ -1,57 +1,39 @@
+
 import React from 'react';
-import { Solicitacao } from './types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { 
-  Card, 
-  CardContent, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from '../../ui/card';
-import { Button } from '../../ui/button';
-import { Badge } from '../../ui/badge';
+  Eye, 
+  Clock, 
+  User, 
+  Phone, 
+  MapPin, 
+  Briefcase,
+  Calendar,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  PlayCircle
+} from 'lucide-react';
+import { Solicitacao } from './types';
 
 interface SolicitacaoCardProps {
   solicitacao: Solicitacao;
-  onVerDetalhes: () => void;
-  onChangeStatus: (solicitacao: Solicitacao, novoStatus: string) => void;
+  onVisualizarDetalhes: () => void;
+  onAtualizarStatus: (id: string, tipoOrigem: string, novoStatus: string) => void;
+  onExcluir: (id: string, tipoOrigem: string) => void;
 }
 
-const SolicitacaoCard: React.FC<SolicitacaoCardProps> = ({ 
+export function SolicitacaoCard({ 
   solicitacao, 
-  onVerDetalhes,
-  onChangeStatus 
-}) => {
-  // Função para formatar data (timestamp do Firebase ou string)
-  const formatarData = (data: any) => {
-    if (!data) return 'Data não disponível';
-
-    try {
-      // Verificar se é um timestamp do Firebase (tem método toDate)
-      if (data && typeof data.toDate === 'function') {
-        return data.toDate().toLocaleDateString('pt-BR');
-      } 
-      // Verificar se é um objeto Date
-      else if (data instanceof Date) {
-        return data.toLocaleDateString('pt-BR');
-      }
-      // Verificar se é uma string ISO ou timestamp em milissegundos
-      else if (typeof data === 'string' || typeof data === 'number') {
-        return new Date(data).toLocaleDateString('pt-BR');
-      }
-      // Se for um objeto com seconds (formato alternativo do Firestore)
-      else if (data && data.seconds) {
-        return new Date(data.seconds * 1000).toLocaleDateString('pt-BR');
-      }
-      return 'Data inválida';
-    } catch (error) {
-      console.error('Erro ao formatar data:', error, 'Tipo:', typeof data, 'Valor:', data);
-      return 'Data inválida';
-    }
-  };
-
-  // Definir cor do badge baseado no status
+  onVisualizarDetalhes, 
+  onAtualizarStatus, 
+  onExcluir 
+}: SolicitacaoCardProps) {
+  
   const getStatusColor = (status: string) => {
-    switch(status) {
+    switch (status) {
       case 'pendente': return 'bg-yellow-100 text-yellow-800';
       case 'em_andamento': return 'bg-blue-100 text-blue-800';
       case 'concluido': return 'bg-green-100 text-green-800';
@@ -60,168 +42,207 @@ const SolicitacaoCard: React.FC<SolicitacaoCardProps> = ({
     }
   };
 
-  // Formatar status para exibição
-  const formatarStatus = (status: string) => {
-    switch(status) {
-      case 'pendente': return 'Pendente';
-      case 'em_andamento': return 'Em andamento';
-      case 'concluido': return 'Concluído';
-      case 'cancelado': return 'Cancelado';
-      default: return status;
+  const getUrgenciaColor = (urgencia: string) => {
+    switch (urgencia) {
+      case 'baixa': return 'bg-green-100 text-green-800';
+      case 'normal': return 'bg-blue-100 text-blue-800';
+      case 'alta': return 'bg-orange-100 text-orange-800';
+      case 'urgente': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  // Acessar os dados de maneira segura
-  const getNome = () => {
+  const getTipoOrigemLabel = (tipoOrigem: string) => {
+    switch (tipoOrigem) {
+      case 'solicitacoes_agricultura': return 'Agricultura';
+      case 'solicitacoes_agricultura_completo': return 'Agricultura Completa';
+      case 'solicitacoes_pesca': return 'Pesca';
+      case 'solicitacoes_pesca_completo': return 'Pesca Completa';
+      case 'solicitacoes_paa': return 'PAA';
+      case 'solicitacoes_servicos': return 'Serviços';
+      default: return tipoOrigem;
+    }
+  };
+
+  const formatTimestamp = (timestamp: any) => {
+    if (!timestamp) return 'Data não informada';
+    
     try {
-      return solicitacao.dadosPessoais?.nome || 
-             solicitacao.nome || 
-             solicitacao.nomeCompleto || 
-             'Nome não disponível';
+      let date: Date;
+      if (timestamp.toDate) {
+        date = timestamp.toDate();
+      } else if (timestamp instanceof Date) {
+        date = timestamp;
+      } else {
+        date = new Date(timestamp);
+      }
+      
+      return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
     } catch (error) {
-      console.error('Erro ao obter nome:', error);
-      return 'Nome não disponível';
+      return 'Data inválida';
     }
   };
 
-  const getCpf = () => {
-    try {
-      return solicitacao.dadosPessoais?.cpf || 
-             solicitacao.cpf || 
-             solicitacao.documento || 
-             'Não informado';
-    } catch (error) {
-      console.error('Erro ao obter CPF:', error);
-      return 'Não informado';
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'pendente': return <Clock className="h-4 w-4" />;
+      case 'em_andamento': return <PlayCircle className="h-4 w-4" />;
+      case 'concluido': return <CheckCircle className="h-4 w-4" />;
+      case 'cancelado': return <XCircle className="h-4 w-4" />;
+      default: return <Clock className="h-4 w-4" />;
     }
   };
-
-  const getTipoServico = () => {
-    try {
-      return solicitacao.tipoServico || 
-             solicitacao.servico || 
-             (solicitacao.tipo === 'servicos' ? 'Serviço municipal' : null);
-    } catch (error) {
-      console.error('Erro ao obter tipo de serviço:', error);
-      return null;
-    }
-  };
-
-  const getNomePropriedade = () => {
-    try {
-      return solicitacao.dadosPropriedade?.nome || 
-             solicitacao.nomePropriedade || 
-             solicitacao.propriedade?.nome;
-    } catch (error) {
-      console.error('Erro ao obter nome da propriedade:', error);
-      return null;
-    }
-  };
-
-  const getTipoFormatado = () => {
-    switch(solicitacao.tipo) {
-      case 'agricultura': return 'Agricultura';
-      case 'pesca': return 'Pesca';
-      case 'paa': return 'PAA';
-      case 'servicos': return 'Serviços';
-      default: return 'Outro';
-    }
-  };
-
-  // Informação detalhada de debug para facilitar identificação de problemas
-  console.log('📇 Renderizando card:', {
-    id: solicitacao.id, 
-    nome: getNome(), 
-    tipo: solicitacao.tipo,
-    colecao: solicitacao.colecao,
-    status: solicitacao.status
-  });
 
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader>
-        <CardTitle className="text-lg">
-          {getNome() || 'Nome indisponível'}
-        </CardTitle>
-        <div className="flex items-center gap-2 mt-1">
-          <Badge className={getStatusColor(solicitacao.status)}>
-            {formatarStatus(solicitacao.status)}
-          </Badge>
-          <Badge variant="outline">
-            {getTipoFormatado()}
-          </Badge>
-          {solicitacao.colecao && (
-            <Badge variant="outline" className="text-xs bg-gray-100 text-gray-700">
-              {solicitacao.colecao.split('_').pop()}
+    <Card className="hover:shadow-md transition-shadow">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <User className="h-5 w-5" />
+              {solicitacao.nome}
+            </CardTitle>
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <span>CPF: {solicitacao.cpf}</span>
+              {solicitacao.telefone && (
+                <>
+                  <span>•</span>
+                  <Phone className="h-4 w-4" />
+                  <span>{solicitacao.telefone}</span>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="flex flex-col items-end gap-2">
+            <Badge className={getStatusColor(solicitacao.status)}>
+              {getStatusIcon(solicitacao.status)}
+              <span className="ml-1 capitalize">{solicitacao.status.replace('_', ' ')}</span>
             </Badge>
-          )}
+            <Badge className={getUrgenciaColor(solicitacao.urgencia)}>
+              {solicitacao.urgencia === 'urgente' && <AlertTriangle className="h-3 w-3 mr-1" />}
+              <span className="capitalize">{solicitacao.urgencia}</span>
+            </Badge>
+          </div>
         </div>
       </CardHeader>
-      <CardContent className="flex-grow">
-        <div className="space-y-2 text-sm">
-          <div>
-            <span className="font-semibold">CPF:</span>{' '}
-            {getCpf()}
+      
+      <CardContent className="space-y-3">
+        {/* Informações principais */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+          <div className="flex items-center gap-2">
+            <Briefcase className="h-4 w-4 text-gray-500" />
+            <span className="font-medium">Tipo:</span>
+            <span>{getTipoOrigemLabel(solicitacao.tipoOrigem)}</span>
           </div>
-
-          {getTipoServico() && (
-            <div>
-              <span className="font-semibold">Serviço:</span>{' '}
-              {getTipoServico()}
+          
+          {(solicitacao.servico || solicitacao.tipoServico) && (
+            <div className="flex items-center gap-2">
+              <Briefcase className="h-4 w-4 text-gray-500" />
+              <span className="font-medium">Serviço:</span>
+              <span>{solicitacao.servico || solicitacao.tipoServico}</span>
             </div>
           )}
-
-          {getNomePropriedade() && (
-            <div>
-              <span className="font-semibold">Propriedade:</span>{' '}
-              {getNomePropriedade()}
+          
+          {solicitacao.nomePropriedade && (
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-gray-500" />
+              <span className="font-medium">Propriedade:</span>
+              <span>{solicitacao.nomePropriedade}</span>
             </div>
           )}
-
-          <div>
-            <span className="font-semibold">Criado em:</span>{' '}
-            {formatarData(solicitacao.criadoEm)}
+          
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-gray-500" />
+            <span className="font-medium">Data:</span>
+            <span>{formatTimestamp(solicitacao.timestamp)}</span>
           </div>
+        </div>
 
-          <div className="text-xs text-gray-500 mt-1">
-            ID: {solicitacao.id.substring(0, 8)}...
+        {/* Descrição resumida */}
+        {(solicitacao.descricao || solicitacao.detalhes) && (
+          <div className="text-sm">
+            <span className="font-medium text-gray-700">Descrição:</span>
+            <p className="text-gray-600 line-clamp-2 mt-1">
+              {solicitacao.descricao || solicitacao.detalhes}
+            </p>
+          </div>
+        )}
+
+        {/* Dados específicos por tipo */}
+        {solicitacao.tipoOrigem === 'solicitacoes_paa' && (
+          <div className="text-sm bg-amber-50 p-3 rounded-lg">
+            <span className="font-medium text-amber-800">PAA:</span>
+            {solicitacao.interesse && (
+              <p className="text-amber-700">Interesse: {solicitacao.interesse}</p>
+            )}
+            {solicitacao.localidade && (
+              <p className="text-amber-700">Localidade: {solicitacao.localidade}</p>
+            )}
+          </div>
+        )}
+
+        {/* Localização */}
+        {solicitacao.userLocation && (
+          <div className="text-sm bg-blue-50 p-2 rounded">
+            <span className="font-medium text-blue-800">Localização disponível</span>
+            <p className="text-blue-600 text-xs">
+              Lat: {solicitacao.userLocation.latitude.toFixed(6)}, 
+              Lng: {solicitacao.userLocation.longitude.toFixed(6)}
+            </p>
+          </div>
+        )}
+
+        {/* Ações */}
+        <div className="flex items-center justify-between pt-3 border-t">
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={onVisualizarDetalhes}
+            >
+              <Eye className="h-4 w-4 mr-1" />
+              Ver Detalhes
+            </Button>
+          </div>
+          
+          <div className="flex gap-1">
+            {solicitacao.status === 'pendente' && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => onAtualizarStatus(solicitacao.id, solicitacao.tipoOrigem, 'em_andamento')}
+              >
+                Iniciar
+              </Button>
+            )}
+            
+            {solicitacao.status === 'em_andamento' && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => onAtualizarStatus(solicitacao.id, solicitacao.tipoOrigem, 'concluido')}
+              >
+                Concluir
+              </Button>
+            )}
+            
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onExcluir(solicitacao.id, solicitacao.tipoOrigem)}
+              className="text-red-600 hover:text-red-700"
+            >
+              Excluir
+            </Button>
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex gap-2 pt-2 justify-end">
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={onVerDetalhes}
-        >
-          Ver Detalhes
-        </Button>
-        <Button 
-          variant="default" 
-          size="sm"
-          onClick={() => {
-            // Próximo status baseado no atual
-            let proximoStatus = '';
-            switch(solicitacao.status) {
-              case 'pendente': 
-                proximoStatus = 'em_andamento'; 
-                break;
-              case 'em_andamento': 
-                proximoStatus = 'concluido'; 
-                break;
-              default: 
-                proximoStatus = 'pendente';
-            }
-            onChangeStatus(solicitacao, proximoStatus);
-          }}
-        >
-          {solicitacao.status === 'pendente' ? 'Iniciar' : 
-           solicitacao.status === 'em_andamento' ? 'Concluir' : 
-           'Reabrir'}
-        </Button>
-      </CardFooter>
     </Card>
   );
-};
-
-export default SolicitacaoCard;
+}
