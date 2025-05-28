@@ -141,19 +141,19 @@ export function SolicitacaoCard({
             <span>{getTipoOrigemLabel(solicitacao.tipoOrigem)}</span>
           </div>
           
-          {(solicitacao.servico || solicitacao.tipoServico) && (
+          {(solicitacao.servico || solicitacao.tipoServico || solicitacao.interesse) && (
             <div className="flex items-center gap-2">
               <Briefcase className="h-4 w-4 text-gray-500" />
               <span className="font-medium">Serviço:</span>
-              <span>{solicitacao.servico || solicitacao.tipoServico}</span>
+              <span>{solicitacao.servico || solicitacao.tipoServico || solicitacao.interesse}</span>
             </div>
           )}
           
-          {solicitacao.nomePropriedade && (
+          {solicitacao.nomePropriedade && solicitacao.nomePropriedade !== 'Não informado' && (
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-gray-500" />
               <span className="font-medium">Propriedade:</span>
-              <span>{solicitacao.nomePropriedade}</span>
+              <span className="truncate">{solicitacao.nomePropriedade}</span>
             </div>
           )}
           
@@ -178,11 +178,37 @@ export function SolicitacaoCard({
         {solicitacao.tipoOrigem === 'solicitacoes_paa' && (
           <div className="text-sm bg-amber-50 p-3 rounded-lg">
             <span className="font-medium text-amber-800">PAA:</span>
-            {solicitacao.interesse && (
+            {solicitacao.interesse && solicitacao.interesse !== 'Não informado' && (
               <p className="text-amber-700">Interesse: {solicitacao.interesse}</p>
             )}
             {solicitacao.localidade && (
               <p className="text-amber-700">Localidade: {solicitacao.localidade}</p>
+            )}
+            {solicitacao.produtos && (
+              <p className="text-amber-700">Produtos: {solicitacao.produtos}</p>
+            )}
+          </div>
+        )}
+
+        {(solicitacao.tipoOrigem === 'solicitacoes_agricultura_completo') && solicitacao.culturas && (
+          <div className="text-sm bg-green-50 p-3 rounded-lg">
+            <span className="font-medium text-green-800">Agricultura:</span>
+            {Object.entries(solicitacao.culturas).some(([_, cultura]) => cultura?.selecionado) && (
+              <p className="text-green-700">
+                Culturas: {Object.entries(solicitacao.culturas)
+                  .filter(([_, cultura]) => cultura?.selecionado)
+                  .map(([nome]) => nome)
+                  .join(', ')}
+              </p>
+            )}
+          </div>
+        )}
+
+        {(solicitacao.tipoOrigem.includes('pesca')) && (
+          <div className="text-sm bg-blue-50 p-3 rounded-lg">
+            <span className="font-medium text-blue-800">Pesca:</span>
+            {solicitacao.tipoServico && (
+              <p className="text-blue-700">Tipo: {solicitacao.tipoServico}</p>
             )}
           </div>
         )}

@@ -1,5 +1,4 @@
-
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -23,10 +22,10 @@ import {
 
 export function CadastrosSolicitacoesManager() {
   const { solicitacoes, loading, error, refetch, updateSolicitacao, deleteSolicitacao } = useSolicitacoes();
-  
+
   const [solicitacaoSelecionada, setSolicitacaoSelecionada] = useState<Solicitacao | null>(null);
   const [modalAberto, setModalAberto] = useState(false);
-  
+
   const [filtros, setFiltros] = useState<FiltrosAtivos>({
     status: 'todos',
     urgencia: 'todos',
@@ -162,6 +161,21 @@ export function CadastrosSolicitacoesManager() {
       </div>
     );
   }
+
+  // Log para debug
+  useEffect(() => {
+    if (!loading) {
+      console.log('Solicitações carregadas:', solicitacoes);
+      console.log('Estatísticas calculadas:', estatisticas);
+
+      // Log detalhado de cada tipo
+      const porTipo = solicitacoes.reduce((acc, s) => {
+        acc[s.tipoOrigem] = (acc[s.tipoOrigem] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      console.log('Solicitações por tipo:', porTipo);
+    }
+  }, [loading, solicitacoes, estatisticas]);
 
   return (
     <div className="space-y-6">

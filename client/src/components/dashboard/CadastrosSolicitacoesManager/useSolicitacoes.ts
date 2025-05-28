@@ -42,6 +42,66 @@ export interface Solicitacao {
   tipo?: string;
 }
 
+// Função de normalização para garantir consistência dos dados
+const normalizarSolicitacao = (doc: any, nomeColecao: string): Solicitacao => {
+  const data = doc.data();
+  
+  return {
+    id: doc.id,
+    
+    // Campos obrigatórios normalizados
+    nome: data.nome || 'Não informado',
+    cpf: data.cpf || 'Não informado',
+    status: data.status || 'pendente',
+    urgencia: data.urgencia || 'normal',
+    timestamp: data.timestamp || new Date(),
+    origem: data.origem || 'formulario_web',
+    tipoOrigem: nomeColecao,
+    
+    // Dados pessoais com múltiplas fontes possíveis
+    telefone: data.telefone || data.celular || '',
+    email: data.email || '',
+    endereco: data.endereco || '',
+    identidade: data.identidade || data.rg || '',
+    emissor: data.emissor || '',
+    sexo: data.sexo || '',
+    travessao: data.travessao || '',
+    
+    // Dados da propriedade
+    nomePropriedade: data.nomePropriedade || data.nome || '',
+    enderecoPropriedade: data.enderecoPropriedade || data.endereco || '',
+    tamanho: data.tamanho || data.tamanhoPropriedade || '',
+    distanciaMunicipio: data.distanciaMunicipio || '',
+    situacaoLegal: data.situacaoLegal || '',
+    outraSituacaoLegal: data.outraSituacaoLegal || '',
+    
+    // Serviços com múltiplas fontes
+    servico: data.servico || data.tipoServico || '',
+    tipoServico: data.tipoServico || data.servico || '',
+    descricao: data.descricao || data.detalhes || data.observacoes || '',
+    detalhes: data.detalhes || data.descricao || '',
+    periodoDesejado: data.periodoDesejado || '',
+    
+    // Dados específicos da Agricultura Completa
+    culturas: data.culturas || {},
+    maquinario: data.maquinario || {},
+    maodeobra: data.maodeobra || {},
+    tipo: data.tipo || '',
+    
+    // Dados específicos do PAA
+    dapCaf: data.dapCaf || '',
+    localidade: data.localidade || '',
+    produtos: data.produtos || '',
+    areaMecanizacao: data.areaMecanizacao || data.areaMecanization || '',
+    interesse: data.interesse || '',
+    quantidadeEstimada: data.quantidadeEstimada || '',
+    observacoes: data.observacoes || '',
+    
+    // Localização
+    userLocation: data.userLocation || undefined
+  };
+};
+
 export function useSolicitacoes() {
   const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,39 +123,29 @@ export function useSolicitacoes() {
 
       const todasSolicitacoes: Solicitacao[] = [];
 
-      // Buscar dados de cada coleção
+      // Buscar dados de cada coleção com normalização
       for (const nomeColecao of colecoes) {
         try {
           console.log(`Buscando dados da coleção: ${nomeColecao}`);
           const snapshot = await getDocs(collection(db, nomeColecao));
 
-          const docs = snapshot.docs.map(doc => {
-            const data = doc.data();
+          const docs = snapshot.docs.map(doc => normalizarSolicitacao(doc, nomeColecao));
 
-            return {
-              id: doc.id,
-              ...data,
-              tipoOrigem: nomeColecao,
-              // Normalizar campos comuns
-              nome: data.nome || '',
-              cpf: data.cpf || '',
-              telefone: data.telefone || data.celular || '',
-              email: data.email || '',
-              urgencia: data.urgencia || 'normal',
-              status: data.status || 'pendente',
-              timestamp: data.timestamp,
-              origem: data.origem || 'formulario_web'
-            } as Solicitacao;
-          });
-
-          console.log(`Encontrados ${docs.length} documentos em ${nomeColecao}`);
+          console.log(`Encontrados ${docs.length} documentos em ${nomeColecao}:`, docs);
           todasSolicitacoes.push(...docs);
         } catch (err) {
           console.error(`Erro ao buscar ${nomeColecao}:`, err);
         }
       }
 
-      console.log(`Total de solicitações carregadas: ${todasSolicitacoes.length}`);
+      // Ordenar por timestamp mais recente
+      todasSolicitacoes.sort((a, b) => {
+        const timestampA = a.timestamp?.toDate ? a.timestamp.toDate() : new Date(a.timestamp);
+        const timestampB = b.timestamp?.toDate ? b.timestamp.toDate() : new Date(b.timestamp);
+        return timestampB.getTime() - timestampA.getTime();
+      });
+
+      console.log(`Total de solicitações carregadas e normalizadas: ${todasSolicitacoes.length}`);
       setSolicitacoes(todasSolicitacoes);
     } catch (err) {
       console.error('Erro geral ao buscar solicitações:', err);
