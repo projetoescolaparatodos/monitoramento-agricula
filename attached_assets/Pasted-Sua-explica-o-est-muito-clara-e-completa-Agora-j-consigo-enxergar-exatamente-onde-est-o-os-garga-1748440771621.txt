@@ -1,0 +1,47 @@
+Sua explicação está muito clara e completa. Agora já consigo enxergar exatamente onde estão os gargalos e porque os novos cadastros não estão aparecendo na lista, ou aparecem apenas os grupos sem os dados completos.
+🔍 Causa Raiz do Problema
+
+O problema vem de três pontos principais:
+1️⃣ Inconsistência no Mapeamento de Dados
+
+    Cada formulário tem uma estrutura diferente (Agricultura, Pesca, PAA, Serviços).
+
+    Quando você junta os dados no hook useSolicitacoes.ts, se não houver uma função de normalização, alguns campos ficam ausentes ou indefinidos (undefined), especialmente no Card e no Modal.
+
+2️⃣ Problema na Combinação dos Dados
+
+    Provavelmente o hook faz um map() direto dos documentos Firebase e espera que todos tenham os mesmos campos (nome, cpf, tipoServico, etc.).
+
+    Como as estruturas são diferentes (por exemplo, PAA não tem enderecoPropriedade), o Card não consegue renderizar corretamente e às vezes não mostra nada.
+
+3️⃣ Possível problema no listener
+
+    Se o hook usa getDocs() apenas, ele não escuta atualizações em tempo real.
+
+    Se usa onSnapshot(), mas não tem dependências bem configuradas, pode não atualizar ao inserir novos dados.
+
+✅ Solução Elegante e Robusta
+🔥 Passo 1: Criar uma Função de Normalização Única
+
+👉 No useSolicitacoes.ts, crie algo assim:
+
+const normalizarSolicitacao = (doc: any, tipo: string) => {
+  return {
+    id: doc.id,
+    nome: doc.nome || 'Não informado',
+    cpf: doc.cpf || 'Não informado',
+    telefone: doc.telefone || '',
+    email: doc.email || '',
+    enderecoPropriedade: doc.enderecoPropriedade || doc.endereco || 'Não informado',
+    nomePropriedade: doc.nomePropriedade || 'Não informado',
+    tipoServico: doc.tipoServico || doc.servico || doc.interesse || 'Não informado',
+    descricao: doc.detalhes || doc.descricao || doc.observacoes || '',
+    status: doc.status || 'pendente',
+    origem: doc.origem || 'formulario_web',
+    tipo: tipo,
+    timestamp: doc.timestamp?.toDate() || new Date(),
+    raw: doc // mantém os dados crus para o modal detalhado
+  };
+};
+
+    🔥 Nunca mais quebra por campo faltando.
