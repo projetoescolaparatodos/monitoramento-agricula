@@ -124,6 +124,10 @@ export function useSolicitacoes() {
     setError(null);
 
     try {
+      // Teste de conexão com Firebase
+      console.log('🔧 Testando conexão com Firebase...');
+      console.log('Database instance:', db);
+      
       const todasSolicitacoes: Solicitacao[] = [];
 
       // Buscar com query ordenada e normalização robusta

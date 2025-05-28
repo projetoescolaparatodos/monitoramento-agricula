@@ -21,7 +21,7 @@ import {
   EstatisticasSolicitacoes
 } from './types';
 
-export function CadastrosSolicitacoesManager() {
+function CadastrosSolicitacoesManager() {
   const { solicitacoes, loading, error, refetch, updateSolicitacao, deleteSolicitacao } = useSolicitacoes();
 
   const [solicitacaoSelecionada, setSolicitacaoSelecionada] = useState<Solicitacao | null>(null);
