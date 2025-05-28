@@ -128,13 +128,20 @@ const SolicitacaoCard: React.FC<SolicitacaoCardProps> = ({
     }
   };
 
-  console.log('Renderizando solicitação:', solicitacao.id, 'Nome:', getNome(), 'Tipo:', solicitacao.tipo);
+  // Informação detalhada de debug para facilitar identificação de problemas
+  console.log('📇 Renderizando card:', {
+    id: solicitacao.id, 
+    nome: getNome(), 
+    tipo: solicitacao.tipo,
+    colecao: solicitacao.colecao,
+    status: solicitacao.status
+  });
 
   return (
     <Card className="h-full flex flex-col">
       <CardHeader>
         <CardTitle className="text-lg">
-          {getNome()}
+          {getNome() || 'Nome indisponível'}
         </CardTitle>
         <div className="flex items-center gap-2 mt-1">
           <Badge className={getStatusColor(solicitacao.status)}>
@@ -143,6 +150,11 @@ const SolicitacaoCard: React.FC<SolicitacaoCardProps> = ({
           <Badge variant="outline">
             {getTipoFormatado()}
           </Badge>
+          {solicitacao.colecao && (
+            <Badge variant="outline" className="text-xs bg-gray-100 text-gray-700">
+              {solicitacao.colecao.split('_').pop()}
+            </Badge>
+          )}
         </div>
       </CardHeader>
       <CardContent className="flex-grow">

@@ -69,11 +69,22 @@ const CadastrosSolicitacoesManager: React.FC = () => {
     });
   };
 
-  // Efeito para carregar solicitações quando o componente montar
+  // Logs de debug melhorados
   useEffect(() => {
-    console.log("CadastrosSolicitacoesManager montado - buscando solicitações iniciais");
+    console.log("🚀 CadastrosSolicitacoesManager montado - buscando solicitações iniciais");
     refreshSolicitacoes();
-  }, []);
+  }, [refreshSolicitacoes]);
+  
+  // Log de debug para monitorar mudanças de solicitações
+  useEffect(() => {
+    if (!loading) {
+      console.log(`📊 Status das solicitações: ${solicitacoes.length} itens carregados`);
+      if (solicitacoes.length > 0) {
+        console.log(`📊 Tipos de solicitações carregadas:`, 
+          [...new Set(solicitacoes.map(s => s.colecao))].join(', '));
+      }
+    }
+  }, [solicitacoes, loading]);
 
   return (
     <div className="space-y-4">
