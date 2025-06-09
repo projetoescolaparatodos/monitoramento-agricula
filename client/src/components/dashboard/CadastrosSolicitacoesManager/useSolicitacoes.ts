@@ -10,7 +10,10 @@ export interface Solicitacao {
   telefone?: string;
   email?: string;
   endereco?: string;
+  identidade?: string;
+  travessao?: string;
   enderecoPropriedade?: string;
+  distanciaMunicipio?: string;
   nomePropriedade?: string;
   tamanho?: string;
   servico?: string;
@@ -67,11 +70,16 @@ const normalizarSolicitacao = (data: any, tipo: string): Solicitacao => {
     email: data.email || '',
     endereco: data.endereco || '',
     
+    // Dados pessoais adicionais
+    identidade: data.identidade || data.rg || '',
+    travessao: data.travessao || '',
+    
     // Propriedade com múltiplas fontes
     nomePropriedade: data.nomePropriedade || data.nome || 'Não informado',
     enderecoPropriedade: data.enderecoPropriedade || data.endereco || 'Não informado',
     tamanho: data.tamanho || data.tamanhoPropriedade || '',
     situacaoLegal: data.situacaoLegal || '',
+    distanciaMunicipio: data.distanciaMunicipio || '',
     
     // Serviços normalizados
     servico: data.servico || data.tipoServico || data.interesse || 'Não informado',

@@ -123,12 +123,27 @@ export function SolicitacaoModal({
               </p>
             </div>
           )}
+          {solicitacao.identidade && (
+            <div>
+              <label className="text-sm font-medium text-gray-700">Identidade</label>
+              <p className="text-sm text-gray-900">{solicitacao.identidade}</p>
+            </div>
+          )}
           {solicitacao.endereco && (
             <div className="md:col-span-2">
               <label className="text-sm font-medium text-gray-700">Endereço</label>
               <p className="text-sm text-gray-900 flex items-center gap-1">
                 <MapPin className="h-4 w-4" />
                 {solicitacao.endereco}
+              </p>
+            </div>
+          )}
+          {solicitacao.travessao && (
+            <div className="md:col-span-2">
+              <label className="text-sm font-medium text-gray-700">Travessão</label>
+              <p className="text-sm text-gray-900 flex items-center gap-1">
+                <MapPin className="h-4 w-4" />
+                {solicitacao.travessao}
               </p>
             </div>
           )}
@@ -174,6 +189,12 @@ export function SolicitacaoModal({
               <div>
                 <label className="text-sm font-medium text-gray-700">Situação Legal</label>
                 <p className="text-sm text-gray-900">{solicitacao.situacaoLegal}</p>
+              </div>
+            )}
+            {solicitacao.distanciaMunicipio && (
+              <div>
+                <label className="text-sm font-medium text-gray-700">Distância do Município</label>
+                <p className="text-sm text-gray-900">{solicitacao.distanciaMunicipio} km</p>
               </div>
             )}
           </div>
