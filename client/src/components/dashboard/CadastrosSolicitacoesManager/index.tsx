@@ -1,11 +1,10 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Search, Filter, Download } from 'lucide-react';
+import { Loader2, Search, Filter, Download, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 import { useSolicitacoes } from './useSolicitacoes';
@@ -42,10 +41,10 @@ function CadastrosSolicitacoesManager() {
     console.log('Error:', error);
     console.log('Solicitações recebidas:', solicitacoes);
     console.log('Total de solicitações:', solicitacoes.length);
-    
+
     if (solicitacoes.length > 0) {
       console.log('Primeira solicitação de exemplo:', solicitacoes[0]);
-      
+
       // Verificar tipos específicos
       const porTipo = solicitacoes.reduce((acc, s) => {
         acc[s.tipoOrigem] = (acc[s.tipoOrigem] || 0) + 1;

@@ -22,9 +22,11 @@ import {
   Home,
   Tractor,
   Users,
-  X
+  X,
+  Download
 } from 'lucide-react';
 import { Solicitacao } from './types';
+import { generatePDF } from './generatePdf';
 
 interface SolicitacaoModalProps {
   solicitacao: Solicitacao;
@@ -41,6 +43,14 @@ export function SolicitacaoModal({
   onAtualizarStatus, 
   onExcluir 
 }: SolicitacaoModalProps) {
+
+  const handleGerarPdf = () => {
+    try {
+      generatePDF(solicitacao);
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+    }
+  };
 
   const formatTimestamp = (timestamp: any) => {
     if (!timestamp) return 'Data não informada';
@@ -473,7 +483,16 @@ export function SolicitacaoModal({
           {renderLocalizacao()}
         </div>
 
-        <DialogFooter className="flex gap-2">
+        <DialogFooter className="flex justify-between">
+          <Button 
+            variant="outline"
+            onClick={handleGerarPdf}
+            className="flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Gerar PDF
+          </Button>
+
           <div className="flex gap-2">
             {solicitacao.status === 'pendente' && (
               <Button 
@@ -506,11 +525,11 @@ export function SolicitacaoModal({
             >
               Excluir Solicitação
             </Button>
-          </div>
 
-          <Button variant="outline" onClick={onClose}>
-            Fechar
-          </Button>
+            <Button variant="outline" onClick={onClose}>
+              Fechar
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

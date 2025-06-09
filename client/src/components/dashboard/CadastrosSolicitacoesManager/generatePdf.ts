@@ -64,60 +64,57 @@ export const gerarPdfBase = (
   yPos += lineHeight;
   addSection('1. DADOS PESSOAIS', '');
   
-  if (solicitacao.dadosPessoais) {
-    addSection('Nome:', solicitacao.dadosPessoais.nome || 'Não informado');
-    addSection('CPF:', solicitacao.dadosPessoais.cpf || 'Não informado');
-    
-    if (solicitacao.dadosPessoais.rg) {
-      addSection('RG:', solicitacao.dadosPessoais.rg);
-    }
-    
-    addSection('Telefone:', solicitacao.dadosPessoais.telefone || 'Não informado');
-    addSection('Email:', solicitacao.dadosPessoais.email || 'Não informado');
-    addSection('Endereço:', solicitacao.dadosPessoais.endereco || 'Não informado');
-    
-    if (solicitacao.dadosPessoais.travessao) {
-      addSection('Travessão:', solicitacao.dadosPessoais.travessao);
-    }
-
-    if (solicitacao.dadosPessoais.dataNascimento) {
-      addSection('Data Nascimento:', solicitacao.dadosPessoais.dataNascimento);
-    }
-    
-    if (solicitacao.dadosPessoais.naturalidade) {
-      addSection('Naturalidade:', solicitacao.dadosPessoais.naturalidade);
-    }
-    
-    if (solicitacao.dadosPessoais.nomeMae) {
-      addSection('Nome da Mãe:', solicitacao.dadosPessoais.nomeMae);
-    }
-    
-    if (solicitacao.dadosPessoais.escolaridade) {
-      addSection('Escolaridade:', solicitacao.dadosPessoais.escolaridade);
-    }
-    
-    if (solicitacao.dadosPessoais.instituicaoAssociada) {
-      addSection('Instituição Associada:', solicitacao.dadosPessoais.instituicaoAssociada);
-    }
-  } else {
-    addSection('Dados Pessoais:', 'Não disponíveis');
+  addSection('Nome:', solicitacao.nome || 'Não informado');
+  addSection('CPF:', solicitacao.cpf || 'Não informado');
+  
+  if (solicitacao.identidade) {
+    addSection('Identidade:', solicitacao.identidade);
+  }
+  
+  if (solicitacao.telefone) {
+    addSection('Telefone:', solicitacao.telefone);
+  }
+  
+  if (solicitacao.email) {
+    addSection('Email:', solicitacao.email);
+  }
+  
+  if (solicitacao.endereco) {
+    addSection('Endereço:', solicitacao.endereco);
+  }
+  
+  if (solicitacao.travessao) {
+    addSection('Travessão:', solicitacao.travessao);
   }
 
   // 2. Dados da Propriedade
-  if (solicitacao.dadosPropriedade) {
+  if (solicitacao.nomePropriedade || solicitacao.enderecoPropriedade || solicitacao.tamanho) {
     yPos += lineHeight;
     addSection('2. DADOS DA PROPRIEDADE', '');
-    addSection('Nome da Propriedade:', solicitacao.dadosPropriedade.nome || 'Não informado');
-    addSection('Tipo de Pessoa:', solicitacao.dadosPropriedade.tipoPessoa || 'Não informado');
-    addSection('Endereço da Propriedade:', solicitacao.dadosPropriedade.endereco || 'Não informado');
     
-    if (solicitacao.dadosPropriedade.tamanho) {
-      addSection('Tamanho (ha):', solicitacao.dadosPropriedade.tamanho.toString());
+    if (solicitacao.nomePropriedade) {
+      addSection('Nome da Propriedade:', solicitacao.nomePropriedade);
     }
     
-    if (solicitacao.dadosPropriedade.coordenadas) {
-      addSection('Coordenadas:', 
-        `Latitude: ${solicitacao.dadosPropriedade.coordenadas.latitude}, Longitude: ${solicitacao.dadosPropriedade.coordenadas.longitude}`
+    if (solicitacao.enderecoPropriedade) {
+      addSection('Endereço da Propriedade:', solicitacao.enderecoPropriedade);
+    }
+    
+    if (solicitacao.tamanho) {
+      addSection('Tamanho:', `${solicitacao.tamanho} hectares`);
+    }
+    
+    if (solicitacao.situacaoLegal) {
+      addSection('Situação Legal:', solicitacao.situacaoLegal);
+    }
+    
+    if (solicitacao.distanciaMunicipio) {
+      addSection('Distância do Município:', `${solicitacao.distanciaMunicipio} km`);
+    }
+    
+    if (solicitacao.userLocation) {
+      addSection('Coordenadas GPS:', 
+        `Latitude: ${solicitacao.userLocation.latitude.toFixed(6)}, Longitude: ${solicitacao.userLocation.longitude.toFixed(6)}`
       );
     }
   }
@@ -125,30 +122,30 @@ export const gerarPdfBase = (
   // Renderizar seções específicas para cada tipo
   yPos = renderSecoes(doc, solicitacao, yPos, lineHeight);
 
-  // 5. Serviço Solicitado
+  // 3. Serviço Solicitado
   if (yPos > 230) {
     doc.addPage();
     yPos = 20;
   }
 
   yPos += lineHeight;
-  addSection('5. SERVIÇO SOLICITADO', '');
+  addSection('3. SERVIÇO SOLICITADO', '');
 
-  if (solicitacao.tipoServico) {
-    addSection('Tipo de Serviço:', solicitacao.tipoServico);
+  if (solicitacao.servico || solicitacao.tipoServico) {
+    addSection('Tipo de Serviço:', solicitacao.servico || solicitacao.tipoServico || 'Não informado');
+  }
 
-    if (solicitacao.periodoDesejado) {
-      addSection('Período Desejado:', solicitacao.periodoDesejado);
-    }
+  if (solicitacao.urgencia) {
+    addSection('Nível de Urgência:', solicitacao.urgencia.charAt(0).toUpperCase() + solicitacao.urgencia.slice(1));
+  }
 
-    if (solicitacao.urgencia) {
-      addSection('Nível de Urgência:', solicitacao.urgencia);
-    }
+  if (solicitacao.periodoDesejado) {
+    addSection('Período Desejado:', solicitacao.periodoDesejado);
+  }
 
-    if (solicitacao.detalhes) {
-      addSection('Detalhes da Solicitação:', '');
-      yPos = adicionarTextoComQuebraLinha(doc, solicitacao.detalhes, 30, yPos, 150);
-    }
+  if (solicitacao.descricao || solicitacao.detalhes) {
+    addSection('Descrição:', '');
+    yPos = adicionarTextoComQuebraLinha(doc, solicitacao.descricao || solicitacao.detalhes || '', 30, yPos, 150);
   }
 
   // 6. Observações
@@ -511,13 +508,16 @@ export const gerarPdfPaa = (solicitacao: Solicitacao) => {
 
 // Função para identificar tipo e chamar a função correta
 export const generatePDF = (solicitacao: Solicitacao) => {
-  if (solicitacao.tipo === 'agricultura') {
+  // Determinar tipo baseado na origem
+  if (solicitacao.tipoOrigem.includes('agricultura')) {
     return gerarPdfAgricultura(solicitacao);
-  } else if (solicitacao.tipo === 'pesca') {
+  } else if (solicitacao.tipoOrigem.includes('pesca')) {
     return gerarPdfPesca(solicitacao);
-  } else if (solicitacao.tipo === 'paa') {
+  } else if (solicitacao.tipoOrigem.includes('paa')) {
     return gerarPdfPaa(solicitacao);
   } else {
-    console.error('Tipo de solicitação não reconhecido:', solicitacao.tipo);
+    // Fallback: gerar PDF básico
+    const pdf = gerarPdfBase(solicitacao, 'SOLICITAÇÃO DE SERVIÇO', () => 100);
+    pdf.save(`solicitacao-${solicitacao.id}.pdf`);
   }
 };
