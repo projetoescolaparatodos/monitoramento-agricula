@@ -2,7 +2,7 @@
 import jsPDF from 'jspdf';
 import { Solicitacao } from './types';
 
-// Função para adicionar texto com quebra de linha
+// Função melhorada para adicionar texto com quebra de linha e controle de altura
 const adicionarTextoComQuebraLinha = (
   doc: jsPDF, 
   texto: string, 
@@ -10,50 +10,65 @@ const adicionarTextoComQuebraLinha = (
   y: number, 
   maxWidth: number
 ): number => {
+  if (!texto) {
+    doc.text('---', x, y);
+    return y + 7;
+  }
+  
   const linhas = doc.splitTextToSize(texto, maxWidth);
   doc.text(linhas, x, y);
-  return y + (linhas.length * 7); // 7 é aproximadamente a altura da linha
+  return y + (linhas.length * 7) + 3; // 7 altura da linha + 3 espaçamento extra
 };
 
-// Função base para geração de PDF que pode ser estendida para cada tipo
+// Função base para geração de PDF melhorada
 export const gerarPdfBase = (
   solicitacao: Solicitacao, 
   titulo: string,
-  renderSecoes: (doc: jsPDF, solicitacao: Solicitacao, yPos: number, lineHeight: number) => number
+  renderSecoes: (doc: jsPDF, solicitacao: Solicitacao, yPos: number, addSection: Function) => number
 ) => {
   const doc = new jsPDF();
   const lineHeight = 7;
   let yPos = 20;
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 20;
+  const maxLineWidth = pageWidth - margin * 2;
 
-  // Função auxiliar para adicionar seções
-  const addSection = (title: string, content: string) => {
-    if (yPos > 270) {
+  // Função auxiliar melhorada para adicionar seções
+  const addSection = (title: string, content: string, isTitle = false) => {
+    // Verificar se precisa de nova página
+    if (yPos > doc.internal.pageSize.getHeight() - 40) {
       doc.addPage();
       yPos = 20;
     }
 
-    doc.setFont(undefined, 'bold');
-    doc.text(title, 20, yPos);
-    doc.setFont(undefined, 'normal');
-    
-    if (content) {
-      if (content.length > 70) {
-        yPos = adicionarTextoComQuebraLinha(doc, content, 20, yPos + lineHeight, 170);
-      } else {
-        doc.text(content, content.startsWith('- ') ? 20 : 20, yPos + lineHeight);
-        yPos += lineHeight;
-      }
-    } else {
-      yPos += lineHeight;
+    if (isTitle) {
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      yPos = adicionarTextoComQuebraLinha(doc, title, margin, yPos, maxLineWidth);
+      yPos += 5; // Espaçamento extra após títulos
+      return;
     }
+
+    // Título da seção
+    doc.setFontSize(11);
+    doc.setFont(undefined, 'bold');
+    yPos = adicionarTextoComQuebraLinha(doc, title, margin, yPos, maxLineWidth);
+    
+    // Conteúdo da seção
+    doc.setFont(undefined, 'normal');
+    if (content && content.trim()) {
+      yPos = adicionarTextoComQuebraLinha(doc, content, margin + 5, yPos, maxLineWidth - 5);
+    } else {
+      yPos = adicionarTextoComQuebraLinha(doc, 'Não informado', margin + 5, yPos, maxLineWidth - 5);
+    }
+    yPos += 3; // Espaçamento entre seções
   };
 
   // Cabeçalho
   doc.setFontSize(16);
   doc.setFont(undefined, 'bold');
-  doc.text(titulo, 105, yPos, { align: 'center' });
-  doc.setFontSize(12);
-  yPos += 15;
+  yPos = adicionarTextoComQuebraLinha(doc, titulo, margin, yPos, maxLineWidth);
+  yPos += 10;
 
   // Informações básicas
   addSection('Data de Criação:', new Date(solicitacao.criadoEm as any).toLocaleDateString('pt-BR'));
@@ -61,8 +76,8 @@ export const gerarPdfBase = (
   addSection('Usuário ID:', solicitacao.usuarioId);
 
   // 1. Dados Pessoais
-  yPos += lineHeight;
-  addSection('1. DADOS PESSOAIS', '');
+  yPos += 5;
+  addSection('1. DADOS PESSOAIS', '', true);
   
   addSection('Nome:', solicitacao.nome || 'Não informado');
   addSection('CPF:', solicitacao.cpf || 'Não informado');
@@ -89,8 +104,8 @@ export const gerarPdfBase = (
 
   // 2. Dados da Propriedade
   if (solicitacao.nomePropriedade || solicitacao.enderecoPropriedade || solicitacao.tamanho) {
-    yPos += lineHeight;
-    addSection('2. DADOS DA PROPRIEDADE', '');
+    yPos += 5;
+    addSection('2. DADOS DA PROPRIEDADE', '', true);
     
     if (solicitacao.nomePropriedade) {
       addSection('Nome da Propriedade:', solicitacao.nomePropriedade);
@@ -120,16 +135,16 @@ export const gerarPdfBase = (
   }
 
   // Renderizar seções específicas para cada tipo
-  yPos = renderSecoes(doc, solicitacao, yPos, lineHeight);
+  yPos = renderSecoes(doc, solicitacao, yPos, addSection);
 
   // 3. Serviço Solicitado
-  if (yPos > 230) {
+  if (yPos > doc.internal.pageSize.getHeight() - 60) {
     doc.addPage();
     yPos = 20;
   }
 
-  yPos += lineHeight;
-  addSection('3. SERVIÇO SOLICITADO', '');
+  yPos += 5;
+  addSection('3. SERVIÇO SOLICITADO', '', true);
 
   if (solicitacao.servico || solicitacao.tipoServico) {
     addSection('Tipo de Serviço:', solicitacao.servico || solicitacao.tipoServico || 'Não informado');
@@ -144,14 +159,14 @@ export const gerarPdfBase = (
   }
 
   if (solicitacao.descricao || solicitacao.detalhes) {
-    addSection('Descrição:', '');
-    yPos = adicionarTextoComQuebraLinha(doc, solicitacao.descricao || solicitacao.detalhes || '', 30, yPos, 150);
+    addSection('Descrição:', solicitacao.descricao || solicitacao.detalhes || '');
   }
 
-  // 6. Observações
+  // 4. Observações
   if (solicitacao.observacoes) {
-    yPos += lineHeight;
-    addSection('6. Observações', solicitacao.observacoes);
+    yPos += 5;
+    addSection('4. OBSERVAÇÕES', '', true);
+    addSection('Observações:', solicitacao.observacoes);
   }
 
   // Rodapé
@@ -159,6 +174,7 @@ export const gerarPdfBase = (
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
     doc.text(`Página ${i} de ${pageCount}`, doc.internal.pageSize.getWidth() - 40, doc.internal.pageSize.getHeight() - 10);
   }
 
@@ -167,79 +183,59 @@ export const gerarPdfBase = (
 
 // Funções específicas para cada tipo de solicitação
 export const gerarPdfAgricultura = (solicitacao: Solicitacao) => {
-  const renderSecoesAgricultura = (doc: jsPDF, solicitacao: Solicitacao, yPos: number, lineHeight: number) => {
-    // Implementar seções específicas de agricultura
+  const renderSecoesAgricultura = (doc: jsPDF, solicitacao: Solicitacao, yPos: number, addSection: Function) => {
+    // 4. Dados Agropecuários
     if (solicitacao.dadosAgropecuarios) {
-      yPos += lineHeight;
-      doc.setFont(undefined, 'bold');
-      doc.text('3. DADOS AGROPECUÁRIOS', 20, yPos);
-      yPos += lineHeight;
-      doc.setFont(undefined, 'normal');
+      yPos += 5;
+      addSection('4. DADOS AGROPECUÁRIOS', '', true);
       
       // Agricultura
       if (solicitacao.dadosAgropecuarios.agricultura) {
-        doc.text('Agricultura:', 20, yPos);
-        yPos += lineHeight;
+        addSection('Agricultura:', '');
         
         // Culturas
         if (solicitacao.dadosAgropecuarios.agricultura.culturas) {
+          let culturasText = '';
           solicitacao.dadosAgropecuarios.agricultura.culturas.forEach(cultura => {
-            doc.text(`- ${cultura.nome}: ${cultura.area} ${cultura.unidade}`, 30, yPos);
-            yPos += lineHeight;
+            culturasText += `• ${cultura.nome}: ${cultura.area} ${cultura.unidade}\n`;
           });
+          addSection('Culturas:', culturasText);
         }
       }
       
       // Pecuária
-      if (solicitacao.dadosAgropecuarios.pecuaria) {
-        doc.text('Pecuária:', 20, yPos);
-        yPos += lineHeight;
+      if (solicitacao.dadosAgropecuarios.pecuaria?.bovino) {
+        addSection('Pecuária - Bovino:', '');
         
-        // Bovino
-        if (solicitacao.dadosAgropecuarios.pecuaria.bovino) {
-          doc.text('Bovino:', 30, yPos);
-          yPos += lineHeight;
-          
-          if (solicitacao.dadosAgropecuarios.pecuaria.bovino.quantidade) {
-            doc.text(`Quantidade: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.quantidade}`, 40, yPos);
-            yPos += lineHeight;
-          }
-          
-          if (solicitacao.dadosAgropecuarios.pecuaria.bovino.finalidade) {
-            doc.text(`Finalidade: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.finalidade}`, 40, yPos);
-            yPos += lineHeight;
-          }
-          
-          if (solicitacao.dadosAgropecuarios.pecuaria.bovino.sistemaManejo) {
-            doc.text(`Sistema de Manejo: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.sistemaManejo}`, 40, yPos);
-            yPos += lineHeight;
-          }
-          
-          if (solicitacao.dadosAgropecuarios.pecuaria.bovino.acessoMercado) {
-            doc.text(`Acesso ao Mercado: ${solicitacao.dadosAgropecuarios.pecuaria.bovino.acessoMercado}`, 40, yPos);
-            yPos += lineHeight;
-          }
+        if (solicitacao.dadosAgropecuarios.pecuaria.bovino.quantidade) {
+          addSection('Quantidade:', solicitacao.dadosAgropecuarios.pecuaria.bovino.quantidade);
+        }
+        
+        if (solicitacao.dadosAgropecuarios.pecuaria.bovino.finalidade) {
+          addSection('Finalidade:', solicitacao.dadosAgropecuarios.pecuaria.bovino.finalidade);
+        }
+        
+        if (solicitacao.dadosAgropecuarios.pecuaria.bovino.sistemaManejo) {
+          addSection('Sistema de Manejo:', solicitacao.dadosAgropecuarios.pecuaria.bovino.sistemaManejo);
+        }
+        
+        if (solicitacao.dadosAgropecuarios.pecuaria.bovino.acessoMercado) {
+          addSection('Acesso ao Mercado:', solicitacao.dadosAgropecuarios.pecuaria.bovino.acessoMercado);
         }
       }
     }
     
-    // 4. Recursos Disponíveis
-    if (yPos > 230) {
+    // 5. Recursos Disponíveis
+    if (yPos > doc.internal.pageSize.getHeight() - 60) {
       doc.addPage();
       yPos = 20;
     }
 
-    yPos += lineHeight;
-    doc.setFont(undefined, 'bold');
-    doc.text('4. RECURSOS DISPONÍVEIS', 20, yPos);
-    yPos += lineHeight;
-    doc.setFont(undefined, 'normal');
+    yPos += 5;
+    addSection('5. RECURSOS DISPONÍVEIS', '', true);
 
     // Maquinário
     if (solicitacao.maquinario) {
-      doc.text('Maquinário disponível:', 20, yPos);
-      yPos += lineHeight;
-
       const maquinas = [];
       if (solicitacao.maquinario.trator) maquinas.push('Trator');
       if (solicitacao.maquinario.plantadeira) maquinas.push('Plantadeira');
@@ -248,62 +244,57 @@ export const gerarPdfAgricultura = (solicitacao: Solicitacao) => {
       if (solicitacao.maquinario.irrigacao) maquinas.push('Sistema de Irrigação');
 
       if (maquinas.length > 0) {
-        doc.text(maquinas.join(', '), 30, yPos);
+        addSection('Maquinário disponível:', maquinas.join(', '));
       } else {
-        doc.text('Nenhum maquinário disponível', 30, yPos);
+        addSection('Maquinário disponível:', 'Nenhum maquinário disponível');
       }
-      yPos += lineHeight;
     }
 
     // Mão de obra
     if (solicitacao.maodeobra) {
-      yPos += lineHeight;
-      doc.text('Mão de Obra:', 20, yPos);
-      yPos += lineHeight;
+      let maoObraText = '';
 
       if (solicitacao.maodeobra.familiar?.selecionado) {
-        doc.text(`Familiar: ${solicitacao.maodeobra.familiar.quantidade || '0'} pessoas`, 30, yPos);
-        yPos += lineHeight;
+        maoObraText += `• Familiar: ${solicitacao.maodeobra.familiar.quantidade || '0'} pessoas\n`;
       }
 
       if (solicitacao.maodeobra.contratada_permanente?.selecionado) {
-        doc.text(`Contratada Permanente: ${solicitacao.maodeobra.contratada_permanente.quantidade || '0'} pessoas`, 30, yPos);
-        yPos += lineHeight;
+        maoObraText += `• Contratada Permanente: ${solicitacao.maodeobra.contratada_permanente.quantidade || '0'} pessoas\n`;
       }
 
       if (solicitacao.maodeobra.contratada_temporaria?.selecionado) {
-        doc.text(`Contratada Temporária: ${solicitacao.maodeobra.contratada_temporaria.quantidade || '0'} pessoas`, 30, yPos);
-        yPos += lineHeight;
+        maoObraText += `• Contratada Temporária: ${solicitacao.maodeobra.contratada_temporaria.quantidade || '0'} pessoas\n`;
+      }
+
+      if (maoObraText) {
+        addSection('Mão de Obra:', maoObraText);
       }
     } else if (solicitacao.recursos) {
       // Retro-compatibilidade
-      yPos += lineHeight;
-      doc.text('Recursos:', 20, yPos);
-      yPos += lineHeight;
+      let recursosText = '';
 
       if (solicitacao.recursos.numeroEmpregados) {
-        doc.text(`Número de Empregados: ${solicitacao.recursos.numeroEmpregados}`, 30, yPos);
-        yPos += lineHeight;
+        recursosText += `• Número de Empregados: ${solicitacao.recursos.numeroEmpregados}\n`;
       }
 
       if (solicitacao.recursos.trabalhoFamiliar) {
-        doc.text(`Trabalho Familiar: ${solicitacao.recursos.trabalhoFamiliar} pessoas`, 30, yPos);
-        yPos += lineHeight;
+        recursosText += `• Trabalho Familiar: ${solicitacao.recursos.trabalhoFamiliar} pessoas\n`;
       }
 
       if (solicitacao.recursos.recursosFinanceiros) {
-        doc.text(`Recursos Financeiros: ${solicitacao.recursos.recursosFinanceiros}`, 30, yPos);
-        yPos += lineHeight;
+        recursosText += `• Recursos Financeiros: ${solicitacao.recursos.recursosFinanceiros}\n`;
       }
 
       if (solicitacao.recursos.fonteFinanciamento) {
-        doc.text(`Fonte do Financiamento: ${solicitacao.recursos.fonteFinanciamento}`, 30, yPos);
-        yPos += lineHeight;
+        recursosText += `• Fonte do Financiamento: ${solicitacao.recursos.fonteFinanciamento}\n`;
       }
 
       if (solicitacao.recursos.assistenciaTecnica) {
-        doc.text(`Assistência Técnica: ${solicitacao.recursos.assistenciaTecnica}`, 30, yPos);
-        yPos += lineHeight;
+        recursosText += `• Assistência Técnica: ${solicitacao.recursos.assistenciaTecnica}\n`;
+      }
+
+      if (recursosText) {
+        addSection('Recursos:', recursosText);
       }
     }
     
@@ -315,120 +306,96 @@ export const gerarPdfAgricultura = (solicitacao: Solicitacao) => {
 };
 
 export const gerarPdfPesca = (solicitacao: Solicitacao) => {
-  const renderSecoesPesca = (doc: jsPDF, solicitacao: Solicitacao, yPos: number, lineHeight: number) => {
-    // 3. Classificação (para pesca)
-    yPos += lineHeight;
-    doc.setFont(undefined, 'bold');
-    doc.text('3. CLASSIFICAÇÃO', 20, yPos);
-    yPos += lineHeight;
-    doc.setFont(undefined, 'normal');
+  const renderSecoesPesca = (doc: jsPDF, solicitacao: Solicitacao, yPos: number, addSection: Function) => {
+    // 4. Classificação (para pesca)
+    yPos += 5;
+    addSection('4. CLASSIFICAÇÃO', '', true);
 
-    // 3.1 Obras
+    // 4.1 Obras
     if (solicitacao.obras && solicitacao.obras.length > 0) {
-      doc.text('3.1 Obras:', 20, yPos);
-      yPos += lineHeight;
-      
+      let obrasText = '';
       solicitacao.obras.forEach(obra => {
-        doc.text(`- ${obra.tipo}: ${obra.area}${obra.unidade} - ${obra.situacao}`, 25, yPos);
-        yPos += lineHeight;
+        obrasText += `• ${obra.tipo}: ${obra.area}${obra.unidade} - ${obra.situacao}\n`;
       });
+      addSection('Obras:', obrasText);
     }
 
-    // 3.2 Espécies
+    // 4.2 Espécies
     if (solicitacao.especiesConfinadas && solicitacao.especiesConfinadas.length > 0) {
-      yPos += lineHeight;
-      doc.text('3.2 Espécies Confinadas:', 20, yPos);
-      yPos += lineHeight;
-      
+      let especiesText = '';
       solicitacao.especiesConfinadas.forEach(especie => {
-        doc.text(`- ${especie.nome}: ${especie.quantidade} unidades`, 25, yPos);
-        yPos += lineHeight;
+        especiesText += `• ${especie.nome}: ${especie.quantidade} unidades\n`;
       });
+      addSection('Espécies Confinadas:', especiesText);
     }
 
-    // 4. Detalhamento
+    // 5. Detalhamento
     if (solicitacao.detalhamento) {
-      if (yPos > 250) {
+      if (yPos > doc.internal.pageSize.getHeight() - 60) {
         doc.addPage();
         yPos = 20;
       }
 
-      yPos += lineHeight;
-      doc.setFont(undefined, 'bold');
-      doc.text('4. DETALHAMENTO', 20, yPos);
-      yPos += lineHeight;
-      doc.setFont(undefined, 'normal');
+      yPos += 5;
+      addSection('5. DETALHAMENTO', '', true);
       
-      doc.text(`Distância da Sede: ${solicitacao.detalhamento.distanciaSede} km`, 20, yPos);
-      yPos += lineHeight;
-      
-      doc.text(`Situação Legal: ${solicitacao.detalhamento.situacaoLegal}`, 20, yPos);
-      yPos += lineHeight;
-      
-      doc.text(`Área Total: ${solicitacao.detalhamento.areaTotal} ha`, 20, yPos);
-      yPos += lineHeight;
+      addSection('Distância da Sede:', `${solicitacao.detalhamento.distanciaSede} km`);
+      addSection('Situação Legal:', solicitacao.detalhamento.situacaoLegal);
+      addSection('Área Total:', `${solicitacao.detalhamento.areaTotal} ha`);
 
       // Recursos Hídricos
       if (solicitacao.detalhamento.recursosHidricos && solicitacao.detalhamento.recursosHidricos.length > 0) {
-        yPos += lineHeight;
-        doc.text('Recursos Hídricos:', 20, yPos);
-        yPos += lineHeight;
-        
+        let recursosText = '';
         solicitacao.detalhamento.recursosHidricos.forEach(recurso => {
-          doc.text(`- ${recurso.tipo}: ${recurso.nome}`, 25, yPos);
-          yPos += lineHeight;
+          recursosText += `• ${recurso.tipo}: ${recurso.nome}\n`;
         });
+        addSection('Recursos Hídricos:', recursosText);
       }
 
       // Usos da Água
       if (solicitacao.detalhamento.usosAgua && solicitacao.detalhamento.usosAgua.length > 0) {
-        yPos += lineHeight;
-        doc.text('Usos da Água:', 20, yPos);
-        yPos += lineHeight;
-        
+        let usosText = '';
         solicitacao.detalhamento.usosAgua.forEach(uso => {
-          doc.text(`- ${uso}`, 25, yPos);
-          yPos += lineHeight;
+          usosText += `• ${uso}\n`;
         });
+        addSection('Usos da Água:', usosText);
       }
     }
 
-    // 5. Recursos
+    // 6. Recursos
     if (solicitacao.recursos) {
-      if (yPos > 250) {
+      if (yPos > doc.internal.pageSize.getHeight() - 60) {
         doc.addPage();
         yPos = 20;
       }
 
-      yPos += lineHeight;
-      doc.setFont(undefined, 'bold');
-      doc.text('5. RECURSOS', 20, yPos);
-      yPos += lineHeight;
-      doc.setFont(undefined, 'normal');
+      yPos += 5;
+      addSection('6. RECURSOS', '', true);
+      
+      let recursosText = '';
       
       if (solicitacao.recursos.numeroEmpregados) {
-        doc.text(`Número de Empregados: ${solicitacao.recursos.numeroEmpregados}`, 20, yPos);
-        yPos += lineHeight;
+        recursosText += `• Número de Empregados: ${solicitacao.recursos.numeroEmpregados}\n`;
       }
       
       if (solicitacao.recursos.trabalhoFamiliar) {
-        doc.text(`Trabalho Familiar: ${solicitacao.recursos.trabalhoFamiliar}`, 20, yPos);
-        yPos += lineHeight;
+        recursosText += `• Trabalho Familiar: ${solicitacao.recursos.trabalhoFamiliar}\n`;
       }
       
       if (solicitacao.recursos.recursosFinanceiros) {
-        doc.text(`Recursos Financeiros: ${solicitacao.recursos.recursosFinanceiros}`, 20, yPos);
-        yPos += lineHeight;
+        recursosText += `• Recursos Financeiros: ${solicitacao.recursos.recursosFinanceiros}\n`;
       }
       
       if (solicitacao.recursos.fonteFinanciamento) {
-        doc.text(`Fonte do Financiamento: ${solicitacao.recursos.fonteFinanciamento}`, 20, yPos);
-        yPos += lineHeight;
+        recursosText += `• Fonte do Financiamento: ${solicitacao.recursos.fonteFinanciamento}\n`;
       }
       
       if (solicitacao.recursos.assistenciaTecnica) {
-        doc.text(`Assistência Técnica: ${solicitacao.recursos.assistenciaTecnica}`, 20, yPos);
-        yPos += lineHeight;
+        recursosText += `• Assistência Técnica: ${solicitacao.recursos.assistenciaTecnica}\n`;
+      }
+      
+      if (recursosText) {
+        addSection('Recursos:', recursosText);
       }
     }
     
@@ -440,62 +407,49 @@ export const gerarPdfPesca = (solicitacao: Solicitacao) => {
 };
 
 export const gerarPdfPaa = (solicitacao: Solicitacao) => {
-  const renderSecoesPaa = (doc: jsPDF, solicitacao: Solicitacao, yPos: number, lineHeight: number) => {
-    // 3. Produção
+  const renderSecoesPaa = (doc: jsPDF, solicitacao: Solicitacao, yPos: number, addSection: Function) => {
+    // 4. Produção
     if (solicitacao.producao) {
-      yPos += lineHeight;
-      doc.setFont(undefined, 'bold');
-      doc.text('3. PRODUÇÃO', 20, yPos);
-      yPos += lineHeight;
-      doc.setFont(undefined, 'normal');
+      yPos += 5;
+      addSection('4. PRODUÇÃO', '', true);
       
       if (solicitacao.producao.produtos && solicitacao.producao.produtos.length > 0) {
-        doc.text('Produtos:', 20, yPos);
-        yPos += lineHeight;
-        
+        let produtosText = '';
         solicitacao.producao.produtos.forEach(produto => {
-          doc.text(`- ${produto.nome}: ${produto.quantidade} ${produto.unidade} - R$ ${produto.valorUnitario}/unidade`, 30, yPos);
-          yPos += lineHeight;
+          produtosText += `• ${produto.nome}: ${produto.quantidade} ${produto.unidade} - R$ ${produto.valorUnitario}/unidade\n`;
         });
+        addSection('Produtos:', produtosText);
       }
       
       if (solicitacao.producao.certificacoes) {
-        doc.text(`Certificações: ${solicitacao.producao.certificacoes}`, 20, yPos);
-        yPos += lineHeight;
+        addSection('Certificações:', solicitacao.producao.certificacoes);
       }
       
       if (solicitacao.producao.periodicidade) {
-        doc.text(`Periodicidade: ${solicitacao.producao.periodicidade}`, 20, yPos);
-        yPos += lineHeight;
+        addSection('Periodicidade:', solicitacao.producao.periodicidade);
       }
     }
     
-    // 4. Logística
+    // 5. Logística
     if (solicitacao.logistica) {
-      if (yPos > 250) {
+      if (yPos > doc.internal.pageSize.getHeight() - 60) {
         doc.addPage();
         yPos = 20;
       }
 
-      yPos += lineHeight;
-      doc.setFont(undefined, 'bold');
-      doc.text('4. LOGÍSTICA', 20, yPos);
-      yPos += lineHeight;
-      doc.setFont(undefined, 'normal');
+      yPos += 5;
+      addSection('5. LOGÍSTICA', '', true);
       
       if (solicitacao.logistica.meioTransporte) {
-        doc.text(`Meio de Transporte: ${solicitacao.logistica.meioTransporte}`, 20, yPos);
-        yPos += lineHeight;
+        addSection('Meio de Transporte:', solicitacao.logistica.meioTransporte);
       }
       
       if (solicitacao.logistica.distanciaEntrega) {
-        doc.text(`Distância de Entrega: ${solicitacao.logistica.distanciaEntrega} km`, 20, yPos);
-        yPos += lineHeight;
+        addSection('Distância de Entrega:', `${solicitacao.logistica.distanciaEntrega} km`);
       }
       
       if (solicitacao.logistica.necessidadesEspeciais) {
-        doc.text(`Necessidades Especiais: ${solicitacao.logistica.necessidadesEspeciais}`, 20, yPos);
-        yPos += lineHeight;
+        addSection('Necessidades Especiais:', solicitacao.logistica.necessidadesEspeciais);
       }
     }
     
