@@ -16,7 +16,8 @@ import StatisticForm from "@/components/dashboard/StatisticForm";
 import ChatbotSolicitacoes from "@/components/dashboard/ChatbotSolicitacoes";
 import ChatbotAdmin from "@/components/dashboard/ChatbotAdmin";
 import InfoPanelManager from "@/components/dashboard/InfoPanelManager";
-import CadastrosSolicitacoesManager from "@/components/dashboard/CadastrosSolicitacoesManager";
+import CadastrosSolicitacoesManager from '@/components/dashboard/CadastrosSolicitacoesManager';
+import FirebaseTest from '@/components/debug/FirebaseTest';
 
 const Dashboard = () => {
   const [, setLocation] = useLocation();

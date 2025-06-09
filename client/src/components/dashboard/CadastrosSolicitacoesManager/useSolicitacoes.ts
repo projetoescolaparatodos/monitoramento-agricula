@@ -127,39 +127,80 @@ export function useSolicitacoes() {
       // Teste de conexão com Firebase
       console.log('🔧 Testando conexão com Firebase...');
       console.log('Database instance:', db);
+      console.log('Firebase app:', db.app);
+      console.log('Firebase app name:', db.app.name);
+      console.log('Firebase project ID:', db.app.options.projectId);
+      
+      // Teste básico de conectividade
+      try {
+        const testeRef = collection(db, 'teste_conexao');
+        console.log('✅ Conseguiu criar referência de teste');
+      } catch (testeErr) {
+        console.error('❌ Erro ao criar referência de teste:', testeErr);
+      }
       
       const todasSolicitacoes: Solicitacao[] = [];
 
       // Buscar com query ordenada e normalização robusta
       for (const { nome, tipo } of colecoes) {
         try {
-          console.log(`🔍 Buscando coleção: ${nome}`);
+          console.log(`🔍 Buscando coleção: ${nome} (tipo: ${tipo})`);
           
           // Verificar se a coleção existe
           const colecaoRef = collection(db, nome);
-          const q = query(colecaoRef, orderBy('timestamp', 'desc'));
-          const snapshot = await getDocs(q);
+          console.log(`📦 Referência da coleção ${nome} criada:`, colecaoRef);
 
-          console.log(`📊 Snapshot para ${nome}:`, {
-            empty: snapshot.empty,
-            size: snapshot.size,
-            docs: snapshot.docs.length
+          // Primeiro, tentar buscar sem ordenação para verificar se existem documentos
+          const snapshotSimples = await getDocs(colecaoRef);
+          console.log(`📊 Busca simples em ${nome}:`, {
+            empty: snapshotSimples.empty,
+            size: snapshotSimples.size,
+            docs: snapshotSimples.docs.length
           });
 
-          if (!snapshot.empty) {
-            const docs = snapshot.docs.map(doc => {
-              const data = { id: doc.id, ...doc.data() };
-              console.log(`📄 Documento ${doc.id} de ${nome}:`, data);
-              return normalizarSolicitacao(data, tipo);
-            });
+          if (!snapshotSimples.empty) {
+            // Se existem documentos, tentar com ordenação
+            try {
+              const q = query(colecaoRef, orderBy('timestamp', 'desc'));
+              const snapshot = await getDocs(q);
+              
+              console.log(`📊 Busca ordenada em ${nome}:`, {
+                empty: snapshot.empty,
+                size: snapshot.size,
+                docs: snapshot.docs.length
+              });
 
-            console.log(`✅ ${docs.length} documentos processados de ${nome}`);
-            todasSolicitacoes.push(...docs);
+              const docs = snapshot.docs.map(doc => {
+                const data = { id: doc.id, ...doc.data() };
+                console.log(`📄 Documento ${doc.id} de ${nome}:`, data);
+                return normalizarSolicitacao(data, tipo);
+              });
+
+              console.log(`✅ ${docs.length} documentos processados de ${nome}`);
+              todasSolicitacoes.push(...docs);
+            } catch (orderErr) {
+              console.warn(`⚠️ Erro na ordenação de ${nome}, usando ordem natural:`, orderErr);
+              
+              // Fallback: usar documentos sem ordenação
+              const docs = snapshotSimples.docs.map(doc => {
+                const data = { id: doc.id, ...doc.data() };
+                console.log(`📄 Documento ${doc.id} de ${nome} (sem ordenação):`, data);
+                return normalizarSolicitacao(data, tipo);
+              });
+
+              console.log(`✅ ${docs.length} documentos processados de ${nome} (sem ordenação)`);
+              todasSolicitacoes.push(...docs);
+            }
           } else {
-            console.log(`⚠️ Coleção ${nome} está vazia`);
+            console.log(`⚠️ Coleção ${nome} está realmente vazia`);
           }
         } catch (err) {
           console.error(`❌ Erro ao buscar ${nome}:`, err);
+          console.error('Detalhes do erro:', {
+            message: err.message,
+            code: err.code,
+            stack: err.stack
+          });
           // Continua mesmo com erro em uma coleção específica
         }
       }

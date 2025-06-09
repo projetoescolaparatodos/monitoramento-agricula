@@ -1,6 +1,6 @@
-import { initializeApp } from "firebase/app";
-import { getFirestore, enableMultiTabIndexedDbPersistence } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
+import { initializeApp } from 'firebase/app';
+import { getFirestore, enableMultiTabIndexedDbPersistence } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 import { getAuth } from "firebase/auth";
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 
@@ -14,28 +14,32 @@ const firebaseConfig = {
   measurementId: "G-335VMCKSLN",
 };
 
-// Inicializa o Firebase
-const app = initializeApp(firebaseConfig);
-
-// Exporta as funcionalidades que vamos usar
-const db = getFirestore(app);
-export const storage = getStorage(app);
-storage.cors = [
-  {
-    origin: ['*'],
-    method: ['GET', 'POST', 'PUT', 'DELETE', 'HEAD'],
-    maxAgeSeconds: 3600
-  }
-];
-enableMultiTabIndexedDbPersistence(db).catch((err) => {
-    if (err.code === 'failed-precondition') {
-        console.warn('Persistence failed - multiple tabs open');
-    } else if (err.code === 'unimplemented') {
-        console.warn('Persistence not available');
-    }
+console.log('🔧 Inicializando Firebase com config:', {
+  projectId: firebaseConfig.projectId,
+  authDomain: firebaseConfig.authDomain
 });
 
-export { db };
+// Inicializar o Firebase
+const app = initializeApp(firebaseConfig);
+console.log('✅ Firebase app inicializada:', app.name);
+
+// Inicializar o Firestore
+const db = getFirestore(app);
+console.log('✅ Firestore inicializado para projeto:', db.app.options.projectId);
+
+// Habilitar persistência offline
+enableMultiTabIndexedDbPersistence(db).catch((err) => {
+  if (err.code === 'failed-precondition') {
+    console.warn('Persistência offline não pôde ser habilitada: múltiplas abas abertas');
+  } else if (err.code === 'unimplemented') {
+    console.warn('Persistência offline não é suportada neste navegador');
+  }
+});
+
+// Inicializar o Storage
+const storage = getStorage(app);
+
+export { db, storage };
 export const auth = getAuth(app);
 
 
