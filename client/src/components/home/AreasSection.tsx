@@ -24,7 +24,7 @@ export const AreasSection = () => {
           >
             <Link href="/agriculture" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
               <div
-                className="group relative bg-gray-800/70 backdrop-blur-sm rounded-2xl shadow-md p-8 cursor-pointer hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-600/50 hover:border-green-300 overflow-hidden"
+                className="group relative bg-gray-100/90 backdrop-blur-sm rounded-2xl shadow-md p-8 cursor-pointer hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-200/50 hover:border-green-300 overflow-hidden"
                 role="link"
                 aria-label="Explorar Agricultura"
               >
@@ -44,10 +44,10 @@ export const AreasSection = () => {
                     />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-green-400 transition-colors duration-300 tracking-wide">
+                <h3 className="text-2xl font-semibold mb-4 text-gray-800 group-hover:text-green-600 transition-colors duration-300 tracking-wide">
                   Agricultura
                 </h3>
-                <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors text-base">
+                <p className="text-gray-600 leading-relaxed group-hover:text-gray-800 transition-colors text-base">
                   Informações sobre agricultura e produção rural
                 </p>
                 <div className="mt-6 flex items-center text-green-600 font-semibold group-hover:text-green-700 transition-colors">
@@ -78,7 +78,7 @@ export const AreasSection = () => {
           >
             <Link href="/fishing" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
               <div
-                className="group relative bg-gray-800/70 backdrop-blur-sm rounded-2xl shadow-md p-8 cursor-pointer hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-600/50 hover:border-blue-300 overflow-hidden"
+                className="group relative bg-gray-100/90 backdrop-blur-sm rounded-2xl shadow-md p-8 cursor-pointer hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-200/50 hover:border-blue-300 overflow-hidden"
                 role="link"
                 aria-label="Explorar Pesca"
               >
@@ -93,10 +93,10 @@ export const AreasSection = () => {
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-blue-400 transition-colors duration-300 tracking-wide">
+                <h3 className="text-2xl font-semibold mb-4 text-gray-800 group-hover:text-blue-600 transition-colors duration-300 tracking-wide">
                   Pesca
                 </h3>
-                <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors text-base">
+                <p className="text-gray-600 leading-relaxed group-hover:text-gray-800 transition-colors text-base">
                   Dados sobre pesca e atividades pesqueiras
                 </p>
                 <div className="mt-6 flex items-center text-blue-600 font-semibold group-hover:text-blue-700 transition-colors">
@@ -127,7 +127,7 @@ export const AreasSection = () => {
           >
             <Link href="/paa" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
               <div
-                className="group relative bg-gray-800/70 backdrop-blur-sm rounded-2xl shadow-md p-8 cursor-pointer hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-600/50 hover:border-orange-300 overflow-hidden"
+                className="group relative bg-gray-100/90 backdrop-blur-sm rounded-2xl shadow-md p-8 cursor-pointer hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-200/50 hover:border-orange-300 overflow-hidden"
                 role="link"
                 aria-label="Explorar PAA"
               >
@@ -142,10 +142,10 @@ export const AreasSection = () => {
                     <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-orange-400 transition-colors duration-300 tracking-wide">
+                <h3 className="text-2xl font-semibold mb-4 text-gray-800 group-hover:text-orange-600 transition-colors duration-300 tracking-wide">
                   PAA
                 </h3>
-                <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors text-base">
+                <p className="text-gray-600 leading-relaxed group-hover:text-gray-800 transition-colors text-base">
                   Programa de Aquisição de Alimentos
                 </p>
                 <div className="mt-6 flex items-center text-orange-600 font-semibold group-hover:text-orange-700 transition-colors">
