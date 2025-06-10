@@ -78,6 +78,16 @@ const ChartForm: React.FC<ChartFormProps> = ({
   const queryClient = useQueryClient();
   const [previewData, setPreviewData] = useState<ChartFormData | null>(null);
   const [useCustomColors, setUseCustomColors] = useState(false); // Added state for custom colors
+  const [chartType, setChartType] = useState('bar');
+  const [pageType, setPageType] = useState('home');
+  const [labels, setLabels] = useState('');
+  const [data, setData] = useState('');
+  const [description, setDescription] = useState('');
+  const [source, setSource] = useState('');
+  const [lastUpdated, setLastUpdated] = useState('');
+  const [units, setUnits] = useState('');
+  const [period, setPeriod] = useState('');
+  const [loading, setLoading] = useState(false);
 
 
   const defaultValues: ChartFormData = {
@@ -175,7 +185,7 @@ const ChartForm: React.FC<ChartFormProps> = ({
   const onSubmit = (data: ChartFormData) => {
     // Verificar se é gráfico de pizza/rosca com cores personalizadas
     const isPieChart = ['pie', 'doughnut', 'polarArea'].includes(data.chartType);
-    
+
     const preparedData = {
       ...data,
       chartData: {
@@ -193,7 +203,7 @@ const ChartForm: React.FC<ChartFormProps> = ({
               borderWidth: dataset.borderWidth || 1
             };
           }
-          
+
           // Para outros gráficos ou sem personalização de cores
           return {
             label: dataset.label || 'Dados',
@@ -205,7 +215,7 @@ const ChartForm: React.FC<ChartFormProps> = ({
         })
       }
     };
-    
+
     console.log("Enviando dados para API:", preparedData);
     mutation.mutate(preparedData);
   };
@@ -510,11 +520,11 @@ const ChartForm: React.FC<ChartFormProps> = ({
                                                       );
                                                       form.setValue('chartData.datasets.0.backgroundColor', colors);
                                                     }
-                                                    
+
                                                     // Criar uma cópia do array atual para modificar
                                                     const currentColors = [...form.getValues('chartData.datasets.0.backgroundColor')];
                                                     currentColors[labelIndex] = e.target.value;
-                                                    
+
                                                     // Atualizar o array completo no formulário
                                                     form.setValue('chartData.datasets.0.backgroundColor', currentColors);
                                                   }}
@@ -621,6 +631,74 @@ const ChartForm: React.FC<ChartFormProps> = ({
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2">Dados (separados por vírgula)</label>
+          <textarea
+            value={data}
+            onChange={(e) => setData(e.target.value)}
+            className="w-full p-2 border rounded"
+            rows="3"
+            placeholder="10, 20, 30, 40"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Descrição (opcional)</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full p-2 border rounded"
+            rows="2"
+            placeholder="Descrição do gráfico..."
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">Fonte dos Dados</label>
+            <input
+              type="text"
+              value={source}
+              onChange={(e) => setSource(e.target.value)}
+              className="w-full p-2 border rounded"
+              placeholder="Ex: Secretaria Municipal"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Última Atualização</label>
+            <input
+              type="text"
+              value={lastUpdated}
+              onChange={(e) => setLastUpdated(e.target.value)}
+              className="w-full p-2 border rounded"
+              placeholder="Ex: Janeiro 2024"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Unidade de Medida</label>
+            <input
+              type="text"
+              value={units}
+              onChange={(e) => setUnits(e.target.value)}
+              className="w-full p-2 border rounded"
+              placeholder="Ex: Toneladas, Hectares, Unidades"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Período</label>
+            <input
+              type="text"
+              value={period}
+              onChange={(e) => setPeriod(e.target.value)}
+              className="w-full p-2 border rounded"
+              placeholder="Ex: Produção anual, Mensal"
+            />
           </div>
         </div>
         <div className="flex flex-col md:flex-row gap-4 justify-end">

@@ -102,7 +102,6 @@ interface ChartComponentProps {
   title?: string;
   description?: string;
   showSidebar?: boolean;
-  insights?: string[];
   metadata?: {
     source?: string;
     lastUpdated?: string;
@@ -118,7 +117,6 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
   title,
   description,
   showSidebar = true,
-  insights,
   metadata
 }) => {
   console.log(`Renderizando gráfico tipo ${chartType}:`, chartData);
@@ -402,7 +400,6 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
             chartType,
             metadata
           }}
-          insights={insights}
         />
       )}
     </div>
