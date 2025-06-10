@@ -14,17 +14,27 @@ const PAAIcon = () => (
           transform-origin: center;
         }
         .group:hover .fruit-1 {
-          animation: pulse 1.2s ease-in-out infinite;
+          animation: fruitJump 1.8s ease-in-out infinite;
         }
         .group:hover .fruit-2 {
-          animation: pulse 1.2s ease-in-out infinite 0.2s;
+          animation: fruitJump 1.8s ease-in-out infinite 0.3s;
         }
         .group:hover .fruit-3 {
-          animation: pulse 1.2s ease-in-out infinite 0.4s;
+          animation: fruitJump 1.8s ease-in-out infinite 0.6s;
         }
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.1); }
+        @keyframes fruitJump {
+          0%, 100% { 
+            transform: translateY(0) scale(1); 
+          }
+          25% { 
+            transform: translateY(-4px) scale(1.05); 
+          }
+          50% { 
+            transform: translateY(-6px) scale(1.1); 
+          }
+          75% { 
+            transform: translateY(-2px) scale(1.02); 
+          }
         }
       `}
     </style>
