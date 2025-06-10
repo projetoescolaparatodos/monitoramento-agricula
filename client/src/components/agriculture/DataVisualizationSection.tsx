@@ -51,8 +51,20 @@ const DataVisualizationSection: React.FC<DataVisualizationSectionProps> = ({
             <Card key={chart.id} className="bg-white/70 rounded-lg shadow-md">
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-4">{chart.title}</h3>
-                <div className="h-[300px] relative">
-                  <ChartComponent chartData={chart.chartData} chartType={chart.chartType} />
+                <div className="relative">
+                  <ChartComponent 
+                    chartData={chart.chartData} 
+                    chartType={chart.chartType}
+                    title={chart.title}
+                    description={chart.description}
+                    height={300}
+                    metadata={{
+                      source: "Secretaria Municipal de Agricultura",
+                      lastUpdated: "Janeiro 2024",
+                      units: "Unidades",
+                      period: "Período de coleta"
+                    }}
+                  />
                 </div>
               </CardContent>
             </Card>

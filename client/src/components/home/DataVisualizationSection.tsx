@@ -11,8 +11,8 @@ const DataVisualizationSection = () => {
 
   return (
     <section className="mb-16">
-      
-      
+
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {isLoading ? (
           // Loading skeletons
@@ -31,13 +31,21 @@ const DataVisualizationSection = () => {
                 {chart.title}
               </h3>
               <div className="h-[300px] relative">
-                <ChartComponent chartData={chart.chartData} chartType={chart.chartType} />
+                <ChartComponent chartData={chart.chartData} chartType={chart.chartType} title={chart.title}
+                    description={chart.description}
+                    height={300}
+                    metadata={{
+                      source: "Secretaria Municipal",
+                      lastUpdated: "Janeiro 2024",
+                      units: "Unidades",
+                      period: "Dados consolidados"
+                    }} />
               </div>
             </div>
           ))
         )}
       </div>
-      
+
       <div className="text-center mt-8">
         </div>
     </section>

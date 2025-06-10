@@ -27,6 +27,7 @@ import {
   SubTitle
 } from 'chart.js';
 import { Bar, Bubble, Doughnut, Line, Pie, PolarArea, Radar, Scatter } from 'react-chartjs-2';
+import ChartSidebar from './ChartSidebar';
 
 ChartJS.register(
   ArcElement,
@@ -98,12 +99,27 @@ interface ChartComponentProps {
     }>;
   };
   height?: number;
-}
+  title?: string;
+  description?: string;
+  showSidebar?: boolean;
+  insights?: string[];
+  metadata?: {
+    source?: string;
+    lastUpdated?: string;
+    units?: string;
+    period?: string;
+  };
+}</interface>
 
 const ChartComponent: React.FC<ChartComponentProps> = ({ 
   chartType, 
   chartData,
-  height = 300
+  height = 300,
+  title,
+  description,
+  showSidebar = true,
+  insights,
+  metadata
 }) => {
   console.log(`Renderizando gráfico tipo ${chartType}:`, chartData);
 
@@ -372,8 +388,23 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
   };
 
   return (
-    <div style={{ height: `${height}px`, width: '100%' }}>
-      {renderChart()}
+    <div className="w-full">
+      <div style={{ height: `${height}px`, width: '100%' }}>
+        {renderChart()}
+      </div>
+      
+      {showSidebar && (
+        <ChartSidebar
+          chart={{
+            title: title || 'Gráfico',
+            description,
+            chartData,
+            chartType,
+            metadata
+          }}
+          insights={insights}
+        />
+      )}
     </div>
   );
 };
