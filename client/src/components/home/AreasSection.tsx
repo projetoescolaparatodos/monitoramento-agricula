@@ -1,4 +1,3 @@
-
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 
@@ -48,7 +47,7 @@ export const AreasSection = () => {
                 <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-green-400 transition-colors duration-300 tracking-wide">
                   Agricultura
                 </h3>
-                <p className="text-gray-300 leading-relaxed group-hover:text-gray-200 transition-colors text-base">
+                <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors text-base">
                   Informações sobre agricultura e produção rural
                 </p>
                 <div className="mt-6 flex items-center text-green-600 font-semibold group-hover:text-green-700 transition-colors">
@@ -97,7 +96,7 @@ export const AreasSection = () => {
                 <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-blue-400 transition-colors duration-300 tracking-wide">
                   Pesca
                 </h3>
-                <p className="text-gray-300 leading-relaxed group-hover:text-gray-200 transition-colors text-base">
+                <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors text-base">
                   Dados sobre pesca e atividades pesqueiras
                 </p>
                 <div className="mt-6 flex items-center text-blue-600 font-semibold group-hover:text-blue-700 transition-colors">
@@ -146,7 +145,7 @@ export const AreasSection = () => {
                 <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-orange-400 transition-colors duration-300 tracking-wide">
                   PAA
                 </h3>
-                <p className="text-gray-300 leading-relaxed group-hover:text-gray-200 transition-colors text-base">
+                <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors text-base">
                   Programa de Aquisição de Alimentos
                 </p>
                 <div className="mt-6 flex items-center text-orange-600 font-semibold group-hover:text-orange-700 transition-colors">
