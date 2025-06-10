@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, LightBulb, Info, Download, Calendar, Database } from 'lucide-react';
+import { ChevronDown, ChevronUp, Lightbulb, Info, Download, Calendar, Database } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -68,7 +67,7 @@ const ChartSidebar: React.FC<ChartSidebarProps> = ({
       const firstValue = values[0];
       const lastValue = values[values.length - 1];
       const change = ((lastValue - firstValue) / firstValue * 100);
-      
+
       if (Math.abs(change) > 5) {
         const trend = change > 0 ? 'crescimento' : 'redução';
         insights.push(`Observa-se ${trend} de ${Math.abs(change).toFixed(1)}% do início ao fim do período.`);
@@ -148,7 +147,7 @@ const ChartSidebar: React.FC<ChartSidebarProps> = ({
                     : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
-                <LightBulb className="w-4 h-4 inline mr-1" />
+                <Lightbulb className="w-4 h-4 inline mr-1" />
                 Insights
               </button>
               <button
@@ -180,7 +179,7 @@ const ChartSidebar: React.FC<ChartSidebarProps> = ({
               <div className="space-y-4">
                 <div>
                   <h4 className="flex items-center text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
-                    <LightBulb className="w-4 h-4 mr-2 text-yellow-500" />
+                    <Lightbulb className="w-4 h-4 mr-2 text-yellow-500" />
                     Principais Insights
                   </h4>
                   {insights.length > 0 ? (
@@ -217,7 +216,7 @@ const ChartSidebar: React.FC<ChartSidebarProps> = ({
                     Exportar CSV
                   </Button>
                 </div>
-                
+
                 <div className="max-h-40 overflow-y-auto border rounded-lg">
                   <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead className="bg-gray-50 dark:bg-gray-800 sticky top-0">
@@ -253,7 +252,7 @@ const ChartSidebar: React.FC<ChartSidebarProps> = ({
                   <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
                     Informações do Gráfico
                   </h4>
-                  
+
                   {chart.description && (
                     <div className="mb-4">
                       <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -273,7 +272,7 @@ const ChartSidebar: React.FC<ChartSidebarProps> = ({
                         </Badge>
                       </dd>
                     </div>
-                    
+
                     {chart.metadata?.source && (
                       <div className="flex justify-between items-center">
                         <dt className="text-sm text-gray-500 dark:text-gray-400">Fonte dos Dados</dt>
@@ -282,7 +281,7 @@ const ChartSidebar: React.FC<ChartSidebarProps> = ({
                         </dd>
                       </div>
                     )}
-                    
+
                     {chart.metadata?.lastUpdated && (
                       <div className="flex justify-between items-center">
                         <dt className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
@@ -294,7 +293,7 @@ const ChartSidebar: React.FC<ChartSidebarProps> = ({
                         </dd>
                       </div>
                     )}
-                    
+
                     {chart.metadata?.units && (
                       <div className="flex justify-between items-center">
                         <dt className="text-sm text-gray-500 dark:text-gray-400">Unidade de Medida</dt>
@@ -303,7 +302,7 @@ const ChartSidebar: React.FC<ChartSidebarProps> = ({
                         </dd>
                       </div>
                     )}
-                    
+
                     {chart.metadata?.period && (
                       <div className="flex justify-between items-center">
                         <dt className="text-sm text-gray-500 dark:text-gray-400">Período</dt>
