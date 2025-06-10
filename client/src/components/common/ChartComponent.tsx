@@ -109,7 +109,7 @@ interface ChartComponentProps {
     units?: string;
     period?: string;
   };
-}</interface>
+}
 
 const ChartComponent: React.FC<ChartComponentProps> = ({ 
   chartType, 
