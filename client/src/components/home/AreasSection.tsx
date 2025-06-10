@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import AgricultureTractorIcon from "./AgricultureTractorIcon";
 import FishingIcon from "./FishingIcon";
+import PAAIcon from "./PAAIcon";
 
 export const AreasSection = () => {
   // Animation variants for cards
@@ -116,15 +117,8 @@ export const AreasSection = () => {
                 aria-label="Explorar PAA"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-400/10 to-transparent opacity-0 group-hover:opacity-30 transition-opacity duration-500" />
-                <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full mb-6 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
-                  <svg
-                    className="w-8 h-8 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    aria-hidden="true"
-                  >
-                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
-                  </svg>
+                <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full mb-6">
+                  <PAAIcon />
                 </div>
                 <h3 className="text-2xl font-semibold mb-4 text-gray-800 group-hover:text-orange-600 transition-colors duration-300 tracking-wide">
                   PAA
