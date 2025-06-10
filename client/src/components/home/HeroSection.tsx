@@ -43,10 +43,10 @@ const HeroSection = () => {
                 )}
               </div>
               <div className="mt-auto mb-6 md:mb-10">
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                   <Link href="#areas">
                     <button 
-                      className="bg-white text-green-700 font-semibold px-6 py-3 rounded-md hover:bg-neutral-100 transition-colors"
+                      className="group bg-white text-green-700 font-semibold px-8 py-4 rounded-lg hover:bg-green-50 hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center gap-3 min-w-[180px] justify-center w-full sm:w-auto"
                       onClick={(e) => {
                         e.preventDefault();
                         const areasSection = document.getElementById('areas');
@@ -55,15 +55,28 @@ const HeroSection = () => {
                         }
                       }}
                     >
+                      <svg className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 2v8h10V6H5z" clipRule="evenodd" />
+                        <path d="M6 8h8v2H6V8zm0 3h8v1H6v-1z" />
+                      </svg>
                       Explorar áreas
                     </button>
                   </Link>
                   <Link href="#estatisticas">
                     <button 
-                      className="bg-white/20 text-white font-semibold px-6 py-3 rounded-md hover:bg-white/30 transition-colors"
+                      className="group bg-white/20 backdrop-blur-sm text-white font-semibold px-8 py-4 rounded-lg hover:bg-white/30 hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center gap-3 min-w-[180px] justify-center border border-white/20 w-full sm:w-auto"
                       onClick={(e) => {
                         e.preventDefault();
                         const statsSection = document.getElementById('estatisticas');
+                        if (statsSection) {
+                          statsSection.scrollIntoView({ behavior: 'smooth' });
+                        }
+                      }}
+                    >
+                      <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+                      </svg>
+                      Ver estatísticasicas');
                         if (statsSection) {
                           statsSection.scrollIntoView({ behavior: 'smooth' });
                         }
