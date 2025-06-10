@@ -3,17 +3,11 @@ import React from 'react';
 
 const FishingIcon = () => (
   <svg
-    className="w-8 h-8 text-white group-hover:scale-110 transition-all duration-300"
-    fill="url(#fishGradient)"
+    className="w-12 h-12 text-white group-hover:scale-110 transition-all duration-300"
+    fill="white"
     viewBox="0 0 24 24"
     aria-hidden="true"
   >
-    <defs>
-      <linearGradient id="fishGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style={{ stopColor: '#60a5fa' }} /> {/* blue-400 */}
-        <stop offset="100%" style={{ stopColor: '#2563eb' }} /> {/* blue-600 */}
-      </linearGradient>
-    </defs>
     <style>
       {`
         .wave-line {
@@ -39,9 +33,9 @@ const FishingIcon = () => (
     {/* Cauda do peixe */}
     <path d="M16 12l4-3v6l-4-3z" />
     {/* Linhas de água */}
-    <path className="wave-line wave-line-1" d="M4 8c1.5 0 2 .5 3.5.5s2-.5 3.5-.5" fill="none" stroke="url(#fishGradient)" strokeWidth="1" />
-    <path className="wave-line wave-line-2" d="M4 10c1.5 0 2 .5 3.5.5s2-.5 3.5-.5" fill="none" stroke="url(#fishGradient)" strokeWidth="1" />
-    <path className="wave-line wave-line-3" d="M4 12c1.5 0 2 .5 3.5.5s2-.5 3.5-.5" fill="none" stroke="url(#fishGradient)" strokeWidth="1" />
+    <path className="wave-line wave-line-1" d="M4 8c1.5 0 2 .5 3.5.5s2-.5 3.5-.5" fill="none" stroke="white" strokeWidth="1" />
+    <path className="wave-line wave-line-2" d="M4 10c1.5 0 2 .5 3.5.5s2-.5 3.5-.5" fill="none" stroke="white" strokeWidth="1" />
+    <path className="wave-line wave-line-3" d="M4 12c1.5 0 2 .5 3.5.5s2-.5 3.5-.5" fill="none" stroke="white" strokeWidth="1" />
   </svg>
 );
 
