@@ -3,17 +3,11 @@ import React from 'react';
 
 const AgricultureTractorIcon = () => (
   <svg
-    className="w-8 h-8 text-white group-hover:scale-110 group-hover:rotate-12 transition-all duration-300"
-    fill="url(#tractorGradient)"
+    className="w-12 h-12 text-white group-hover:scale-110 group-hover:rotate-12 transition-all duration-300"
+    fill="white"
     viewBox="0 0 24 24"
     aria-hidden="true"
   >
-    <defs>
-      <linearGradient id="tractorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style={{ stopColor: '#34d399' }} /> {/* green-400 */}
-        <stop offset="100%" style={{ stopColor: '#059669' }} /> {/* green-600 */}
-      </linearGradient>
-    </defs>
     {/* Corpo do trator */}
     <rect x="4" y="10" width="16" height="6" rx="1" />
     {/* Roda traseira maior */}
