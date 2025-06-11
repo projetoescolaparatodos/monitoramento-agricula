@@ -4,7 +4,7 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useToast } from '../hooks/use-toast';
-import { isGoogleDriveLink, convertGoogleDriveLink } from '../utils/driveHelper';
+import { isGoogleDriveLink } from '../utils/driveHelper';
 
 interface MediaLinkUploaderProps {
   onLinkSubmit: (url: string) => void;

@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/utils/firebase";
-import { isGoogleDriveLink, convertGoogleDriveLink } from "@/utils/driveHelper";
+import { isGoogleDriveLink } from "@/utils/driveHelper";
 
 interface UploadProps {
   onUpload: (url: string) => void;
