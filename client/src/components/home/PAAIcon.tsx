@@ -24,16 +24,20 @@ const PAAIcon = () => (
         }
         @keyframes fruitJump {
           0%, 100% { 
-            transform: translateY(0) scale(1); 
+            transform: translateY(0) scale(1);
+            fill: white;
           }
           25% { 
-            transform: translateY(-4px) scale(1.05); 
+            transform: translateY(-4px) scale(1.05);
+            fill: #9CA3AF;
           }
           50% { 
-            transform: translateY(-6px) scale(1.1); 
+            transform: translateY(-6px) scale(1.1);
+            fill: #6B7280;
           }
           75% { 
-            transform: translateY(-2px) scale(1.02); 
+            transform: translateY(-2px) scale(1.02);
+            fill: #9CA3AF;
           }
         }
       `}
