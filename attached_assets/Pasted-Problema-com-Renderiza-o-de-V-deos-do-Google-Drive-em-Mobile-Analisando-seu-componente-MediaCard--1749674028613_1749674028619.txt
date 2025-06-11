@@ -1,0 +1,163 @@
+Problema com Renderização de Vídeos do Google Drive em Mobile
+Analisando seu componente MediaCard, identifiquei alguns problemas específicos na renderização de vídeos do Google Drive em dispositivos móveis. Vamos corrigir e otimizar essa implementação.
+
+Principais Problemas Identificados
+Iframe do Google Drive não está carregando corretamente em mobile
+
+Falta de fallback adequado quando o iframe falha
+
+Problemas com políticas de segurança e sandboxing
+
+Dimensões incorretas para vídeos verticais
+
+Solução Atualizada para o Componente Mobile
+Aqui está a versão corrigida do trecho responsável pela renderização de vídeos do Google Drive:
+
+typescript
+const renderMedia = () => {
+  if (mediaType === 'video') {
+    if (isGoogleDriveLink(mediaUrl)) {
+      const fileId = getGoogleDriveFileId(mediaUrl);
+      const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+      const directUrl = `https://drive.google.com/file/d/${fileId}/view`;
+
+      // Implementação otimizada para mobile
+      return (
+        <div className="w-full bg-black flex flex-col items-center justify-center relative" 
+          style={{
+            aspectRatio: isVerticalVideo ? '9/16' : '16/9',
+            maxWidth: isVerticalVideo ? '400px' : '100%'
+          }}>
+          
+          {/* Iframe principal com fallback */}
+          <iframe
+            key={`drive-iframe-${fileId}`}
+            src={previewUrl}
+            className="w-full h-full rounded-t-xl"
+            title={title}
+            allow="autoplay; encrypted-media; fullscreen"
+            allowFullScreen
+            frameBorder="0"
+            loading="lazy"
+            sandbox="allow-scripts allow-same-origin"
+            style={{ 
+              border: 'none',
+              minHeight: isVerticalVideo ? '400px' : '200px'
+            }}
+            onError={() => {
+              // Fallback para imagem thumbnail se o iframe falhar
+              return (
+                <div className="w-full h-full flex items-center justify-center bg-gray-800">
+                  <img
+                    src={`https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`}
+                    alt={`Thumbnail do vídeo: ${title}`}
+                    className="w-full h-auto max-h-[70vh] object-contain"
+                  />
+                  <a
+                    href={directUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute inset-0 flex items-center justify-center bg-black/50 text-white p-4 text-center"
+                  >
+                    <div>
+                      <p>Não foi possível carregar o vídeo.</p>
+                      <p className="mt-2 underline">Clique para abrir no Google Drive</p>
+                    </div>
+                  </a>
+                </div>
+              );
+            }}
+          />
+
+          {/* Overlay de controles para mobile */}
+          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/80 to-transparent flex items-end justify-center pb-2">
+            <a
+              href={directUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white text-black px-3 py-1 rounded-full text-sm flex items-center gap-1"
+            >
+              <ExternalLink size={14} />
+              <span>Abrir no Drive</span>
+            </a>
+          </div>
+        </div>
+      );
+    }
+    // ... restante do código para outros tipos de vídeo
+  }
+  // ... restante do código para imagens
+};
+Melhorias Implementadas
+Dimensões Responsivas Corretas:
+
+Uso de aspectRatio via CSS inline para melhor controle
+
+Lógica específica para vídeos verticais
+
+Fallback Robustecido:
+
+Exibição de thumbnail quando o iframe falha
+
+Link direto para o Google Drive como fallback interativo
+
+Otimização para Mobile:
+
+Overlay de controles sempre visível
+
+Melhor tratamento de erros
+
+Sandbox mais permissivo (mas ainda seguro)
+
+Experiência do Usuário:
+
+Feedback visual claro quando o vídeo não carrega
+
+Botão de ação sempre disponível
+
+Arquivo driveHelper.ts Atualizado
+Certifique-se que seu utilitário tem estas funções:
+
+typescript
+// utils/driveHelper.ts
+export const isGoogleDriveLink = (url: string): boolean => {
+  return url.includes('drive.google.com') && 
+    (url.includes('/file/d/') || 
+     url.includes('/open?id=') || 
+     url.includes('/uc?export=view'));
+};
+
+export const getGoogleDriveFileId = (url: string): string => {
+  // Extrai o ID em diferentes formatos de URL
+  if (url.includes('/file/d/')) {
+    return url.split('/file/d/')[1].split('/')[0];
+  }
+  if (url.includes('id=')) {
+    return url.split('id=')[1].split('&')[0];
+  }
+  if (url.includes('uc?export=view&id=')) {
+    return url.split('uc?export=view&id=')[1];
+  }
+  throw new Error('Formato de URL do Google Drive não reconhecido');
+};
+Dicas Adicionais para Mobile
+Adicione este CSS global para iframes:
+
+css
+iframe {
+  max-width: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+Considere usar a API do Google Drive para:
+
+Verificar permissões antes de tentar exibir
+
+Obter metadados do vídeo (duração, dimensões)
+
+Gerar URLs temporárias com token de acesso
+
+Para casos extremos:
+Se ainda houver problemas, você pode implementar um WebView específico para vídeos do Drive em aplicativos móveis.
