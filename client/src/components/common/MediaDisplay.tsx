@@ -355,12 +355,12 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
                 isVerticalAspect
                   ? "aspect-[9/16] w-full h-[600px]" 
                   : "w-full h-auto max-h-[60vh]"
-              }`}>
+              } overflow-hidden`}>
                 <GoogleDrivePlayer
                   mediaUrl={item.mediaUrl || ''}
                   title={item.title || 'Mídia do Google Drive'}
                   aspectRatio={isVerticalAspect ? '9:16' : (item.aspectRatio || 'horizontal')}
-                  className="w-full h-full"
+                  className="w-full h-full max-w-full"
                 />
               </div>
             </div>

@@ -172,11 +172,12 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
           <iframe
             src={streamingUrl}
             title={title}
-            className="w-full h-full border-0"
+            className="w-full h-full border-0 max-w-full max-h-full"
             allowFullScreen
             sandbox="allow-scripts allow-same-origin allow-presentation"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
             loading="lazy"
+            style={{ width: '100%', height: '100%', maxWidth: '100%', maxHeight: '100%' }}
           />
         </div>
 
@@ -196,9 +197,10 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
           <img
             src={streamingUrl}
             alt={title}
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain max-w-full max-h-full"
             loading="lazy"
             onError={() => setError('Erro ao carregar imagem')}
+            style={{ width: '100%', height: '100%', maxWidth: '100%', maxHeight: '100%' }}
           />
         </div>
 
