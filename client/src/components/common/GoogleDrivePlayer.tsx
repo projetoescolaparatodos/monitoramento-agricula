@@ -167,7 +167,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
 
   if (isVideo && streamingUrl) {
     return (
-      <div className={`w-full ${className} ${isVerticalAspect ? 'max-w-[400px] mx-auto' : ''}`}>
+      <div className={`w-full ${className}`}>
         <div className={`w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-black`}>
           <iframe
             src={streamingUrl}
@@ -191,7 +191,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
 
   if (!isVideo && streamingUrl) {
     return (
-      <div className={`w-full ${className} ${isVerticalAspect ? 'max-w-[400px] mx-auto' : ''}`}>
+      <div className={`w-full ${className}`}>
         <div className={`w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-gray-100`}>
           <img
             src={streamingUrl}
