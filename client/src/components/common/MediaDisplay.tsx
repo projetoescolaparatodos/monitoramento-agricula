@@ -299,13 +299,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
                   className="rounded-t-lg object-cover w-full h-auto max-h-[60vh]"
                   src={item.mediaUrl}
                   alt={item.title || "Imagem do Google Drive"}
-                  onError={(e) => {
-                    // Fallback para thumbnail do Drive
-                    const fileId = getGoogleDriveFileId(item.mediaUrl || '');
-                    if (fileId) {
-                      e.currentTarget.src = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
-                    }
-                  }}
+                  onError={() => setImageError(true)}
                 />
               </div>
             )}

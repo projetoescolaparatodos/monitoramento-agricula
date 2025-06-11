@@ -173,29 +173,3 @@ export const checkGoogleDriveFileAccess = async (fileId: string): Promise<boolea
 export const getGoogleDriveThumbnail = (fileId: string, size: number = 1000): string => {
   return `https://drive.google.com/thumbnail?id=${fileId}&sz=w${size}`;
 };
-
-// Legacy functions for backward compatibility
-export const convertGoogleDriveLink = async (url: string): Promise<string> => {
-  const fileId = getGoogleDriveFileId(url);
-  if (!fileId) throw new Error("Unrecognized Google Drive link format");
-
-  const streamingUrl = await getGoogleDriveStreamingUrl(fileId);
-  if (streamingUrl) return streamingUrl;
-
-  // Fallback to preview URL
-  return `https://drive.google.com/file/d/${fileId}/preview`;
-};
-
-// Check if it's a video file based on Drive API
-export const isGoogleDriveVideoFile = async (url: string): Promise<boolean> => {
-  try {
-    const fileId = getGoogleDriveFileId(url);
-    if (!fileId) return false;
-
-    const metadata = await getGoogleDriveFileMetadata(fileId);
-    return metadata?.mimeType?.startsWith('video/') || false;
-  } catch (error) {
-    console.error('Error checking if file is video:', error);
-    return true; // Default to true for fallback behavior
-  }
-};

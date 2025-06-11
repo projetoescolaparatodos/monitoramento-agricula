@@ -58,99 +58,13 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
     if (mediaType === 'video') {
       // 1. Primeiro verifica se é Google Drive
       if (isGoogleDriveLink(mediaUrl)) {
-        // Em dispositivos móveis, usa o componente específico
-        if (isMobile) {
-          return (
-            <GoogleDriveVideoPlayer
-              mediaUrl={mediaUrl}
-              title={title}
-              aspectRatio={isVerticalVideo ? 'vertical' : 'horizontal'}
-            />
-          );
-        }
-
-        // Em desktop, mantém o iframe
-        const fileId = getGoogleDriveFileId(mediaUrl);
-        const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
-        const directUrl = `https://drive.google.com/file/d/${fileId}/view`;
-
+        // Usar sempre o componente especializado para Google Drive
         return (
-          <div 
-            className={`relative w-full bg-black ${
-              isVerticalVideo ? 'aspect-[9/16] max-w-[400px] mx-auto' : 'aspect-video'
-            }`}
-            style={{
-              minHeight: isVerticalVideo ? '400px' : '200px'
-            }}
-          >
-            <iframe
-              key={`drive-iframe-${fileId}`}
-              ref={iframeRef}
-              src={previewUrl}
-              className="absolute top-0 left-0 w-full h-full border-0 rounded-t-xl"
-              title={title}
-              allow="autoplay; encrypted-media; fullscreen; picture-in-picture; accelerometer; gyroscope"
-              allowFullScreen
-              frameBorder="0"
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
-              playsInline
-              webkit-playsinline="true"
-              style={{ 
-                border: 'none',
-                transform: 'translateZ(0)',
-                WebkitTransform: 'translateZ(0)',
-                backfaceVisibility: 'hidden',
-                WebkitBackfaceVisibility: 'hidden'
-              }}
-              onLoad={() => {
-                console.log('Iframe do Google Drive carregado com sucesso');
-                setIframeLoaded(true);
-              }}
-              onError={() => {
-                console.error('Erro ao carregar iframe do Google Drive');
-                setIframeLoaded(false);
-              }}
-            />
-
-            {/* Fallback quando iframe falha */}
-            {!iframeLoaded && (
-              <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-gray-800">
-                <img
-                  src={`https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`}
-                  alt={`Thumbnail do vídeo: ${title}`}
-                  className="w-full h-auto max-h-[70vh] object-contain"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-                <a
-                  href={directUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="absolute inset-0 flex items-center justify-center bg-black/50 text-white p-4 text-center"
-                >
-                  <div>
-                    <p>Não foi possível carregar o vídeo.</p>
-                    <p className="mt-2 underline">Clique para abrir no Google Drive</p>
-                  </div>
-                </a>
-              </div>
-            )}
-
-            {/* Botão de fallback sempre visível */}
-            <div className="absolute bottom-4 right-4 z-10">
-              <a
-                href={directUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-white/90 text-black px-3 py-1 rounded-full text-sm flex items-center gap-1 shadow-lg hover:bg-white transition-colors"
-              >
-                <ExternalLink size={14} />
-                <span>Abrir vídeo</span>
-              </a>
-            </div>
-          </div>
+          <GoogleDriveVideoPlayer
+            mediaUrl={mediaUrl}
+            title={title}
+            aspectRatio={isVerticalVideo ? 'vertical' : 'horizontal'}
+          />
         );
       } 
       // 2. Depois verifica YouTube

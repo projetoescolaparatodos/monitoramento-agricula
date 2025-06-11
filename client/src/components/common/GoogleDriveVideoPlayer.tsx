@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   isGoogleDriveLink, 
@@ -50,7 +49,7 @@ const GoogleDriveVideoPlayer: React.FC<GoogleDriveVideoPlayerProps> = ({
         // Verificar se a chave da API está configurada
         const apiKey = import.meta.env.VITE_GOOGLE_DRIVE_API_KEY;
         console.log('API Key Status:', apiKey ? 'Configurada' : 'Não configurada');
-        
+
         if (!apiKey || apiKey === 'your_google_drive_api_key_here') {
           console.warn('Google Drive API key not configured, using fallback methods');
           setApiReady(false);
@@ -62,7 +61,7 @@ const GoogleDriveVideoPlayer: React.FC<GoogleDriveVideoPlayerProps> = ({
         console.log('Inicializando Google Drive API...');
         const initialized = await initializeGoogleDriveAPI();
         console.log('API inicializada:', initialized);
-        
+
         setApiReady(initialized);
         setUseAPI(initialized);
         if (!initialized) {
@@ -90,12 +89,12 @@ const GoogleDriveVideoPlayer: React.FC<GoogleDriveVideoPlayerProps> = ({
       try {
         setLoading(true);
         const fileId = getGoogleDriveFileId(mediaUrl);
-        
+
         // Get file metadata using API
         const fileMetadata = await getGoogleDriveFileMetadata(fileId);
         if (fileMetadata) {
           setMetadata(fileMetadata);
-          
+
           // Get optimized streaming URL
           const url = await getGoogleDriveStreamingUrl(fileId);
           setStreamingUrl(url);
@@ -149,6 +148,57 @@ const GoogleDriveVideoPlayer: React.FC<GoogleDriveVideoPlayerProps> = ({
     );
   }
 
+  const renderVideo = () => {
+    if (videoError) {
+      return (
+        <div className="w-full h-48 bg-gray-200 flex items-center justify-center rounded-lg">
+          <p className="text-gray-500">Não foi possível carregar o vídeo</p>
+        </div>
+      );
+    }
+
+    if (loading) {
+      return (
+        <div className="w-full h-48 bg-gray-100 flex items-center justify-center rounded-lg animate-pulse">
+          <p className="text-gray-500">Carregando vídeo...</p>
+        </div>
+      );
+    }
+
+    // Usar apenas a API do Google Drive
+    if (streamingUrl && useAPI && metadata) {
+      return (
+        <video
+          src={streamingUrl}
+          controls
+          className={`w-full ${aspectRatio === 'vertical' ? 'aspect-[9/16]' : 'aspect-video'} object-cover rounded-lg`}
+          poster={metadata.thumbnailLink || thumbnailUrl}
+          onError={() => setVideoError(true)}
+        >
+          Seu navegador não suporta a reprodução de vídeos.
+        </video>
+      );
+    }
+
+    // Se a API não estiver disponível ou não funcionou
+    if (!useAPI || !apiReady) {
+      return (
+        <div className="w-full h-48 bg-yellow-100 flex items-center justify-center rounded-lg border border-yellow-300">
+          <div className="text-center">
+            <p className="text-yellow-700 font-medium">API do Google Drive não disponível</p>
+            <p className="text-yellow-600 text-sm">Configure a API key para visualizar vídeos</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="w-full h-48 bg-gray-200 flex items-center justify-center rounded-lg">
+        <p className="text-gray-500">Erro ao carregar vídeo</p>
+      </div>
+    );
+  };
+
   return (
     <div className={containerClass}>
       {useAPI && streamingUrl && !videoError ? (
@@ -164,7 +214,7 @@ const GoogleDriveVideoPlayer: React.FC<GoogleDriveVideoPlayerProps> = ({
             title={metadata?.name || title || 'Vídeo do Google Drive'}
             onError={() => setVideoError(true)}
           />
-          
+
           {/* Video info overlay */}
           {metadata && (
             <div className="absolute bottom-4 left-4 bg-black/70 text-white text-xs rounded px-2 py-1">
@@ -181,7 +231,7 @@ const GoogleDriveVideoPlayer: React.FC<GoogleDriveVideoPlayerProps> = ({
               )}
             </div>
           )}
-          
+
           {/* External link button */}
           <div className="absolute bottom-4 right-4 z-10">
             <a
@@ -211,7 +261,7 @@ const GoogleDriveVideoPlayer: React.FC<GoogleDriveVideoPlayerProps> = ({
             loading="lazy"
             onError={() => setVideoError(true)}
           />
-          
+
           <div className="absolute bottom-4 right-4 z-10">
             <a
               href={viewUrl}
