@@ -3,7 +3,7 @@ import React from 'react';
 
 const FishingIcon = () => (
   <svg
-    className="w-8 h-8 text-white group-hover:scale-110 transition-all duration-300"
+    className="w-12 h-12 text-white group-hover:scale-110 transition-all duration-300"
     fill="white"
     viewBox="0 0 24 24"
     aria-hidden="true"
