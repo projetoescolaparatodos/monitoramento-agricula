@@ -1,0 +1,173 @@
+Analisando os componentes desktop e mobile, identifiquei as principais diferenças que podem estar causando o problema de carregamento dos vídeos do Google Drive em dispositivos móveis:
+
+Diferenças Críticas Identificadas
+1. Tratamento do Google Drive
+No componente desktop:
+
+typescript
+if (isGoogleDriveMedia) {
+  const fileId = getGoogleDriveFileId(item.mediaUrl || '');
+  const isVideo = item.mediaType === 'video';
+  const previewUrl = isVideo 
+    ? `https://drive.google.com/file/d/${fileId}/preview` 
+    : item.mediaUrl;
+
+  return (
+    // Estrutura completa com iframe
+    <iframe
+      className="w-full rounded-t-lg aspect-video"
+      src={previewUrl}
+      title={item.title || "Vídeo do Google Drive"}
+      allow="autoplay; encrypted-media; fullscreen; accelerometer; gyroscope; picture-in-picture"
+      allowFullScreen
+      frameBorder="0"
+      loading="lazy"
+      sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
+    />
+  );
+}
+No componente mobile (MediaCard):
+
+typescript
+// Apenas trata YouTube e vídeos genéricos
+if (isYouTubeVideo) {
+  // Tratamento para YouTube
+} else {
+  // Vídeo genérico sem tratamento especial para Drive
+  return (
+    <video
+      src={mediaUrl}
+      controls
+      title={title}
+      className="h-auto w-auto max-h-[80vh] max-w-full object-contain"
+    />
+  );
+}
+2. Problemas Específicos no Mobile
+Falta de tratamento específico para Google Drive - O componente mobile não está detectando e tratando links do Drive como o desktop faz
+
+Tentativa de usar a URL direta - Quando um link do Drive é passado, o mobile tenta usar como src de video/html, o que não funciona
+
+Ausência do iframe - A solução do desktop com iframe não está sendo replicada no mobile
+
+Solução para o Componente Mobile
+Atualize a função renderMedia() no componente MediaCard para incluir o tratamento específico para Google Drive:
+
+typescript
+const renderMedia = () => {
+  if (mediaType === 'video') {
+    // 1. Verifica primeiro se é Google Drive
+    if (isGoogleDriveLink(mediaUrl)) {
+      const fileId = getGoogleDriveFileId(mediaUrl);
+      const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+      const directUrl = `https://drive.google.com/file/d/${fileId}/view`;
+
+      return (
+        <div className={`relative ${isVerticalMedia ? 'aspect-[9/16]' : 'aspect-video'} w-full bg-black`}>
+          <iframe
+            src={previewUrl}
+            className="absolute top-0 left-0 w-full h-full border-0"
+            allow="autoplay; fullscreen"
+            allowFullScreen
+            sandbox="allow-scripts allow-same-origin"
+            playsInline
+            webkit-playsinline="true"
+          />
+          
+          {/* Fallback para mobile */}
+          <div className="absolute bottom-4 right-4 z-10">
+            <a
+              href={directUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white/90 text-black px-3 py-1 rounded-full text-sm flex items-center gap-1 shadow-lg"
+            >
+              <ExternalLink size={14} />
+              Abrir vídeo
+            </a>
+          </div>
+        </div>
+      );
+    }
+    // 2. Depois verifica YouTube
+    else if (isYouTubeVideo) {
+      const embedUrl = getYoutubeEmbedUrl(mediaUrl);
+      return (
+        <div className="aspect-video w-full overflow-hidden rounded-t-lg">
+          <iframe
+            src={`${embedUrl}?rel=0&showinfo=0&controls=1`}
+            className="w-full h-full"
+            title={title}
+            allowFullScreen
+          />
+        </div>
+      );
+    }
+    // 3. Por último, vídeo genérico
+    else {
+      return (
+        <div className="w-full flex justify-center items-center bg-black rounded-t-lg overflow-hidden">
+          <video
+            src={mediaUrl}
+            controls
+            title={title}
+            className="h-auto w-auto max-h-[80vh] max-w-full object-contain"
+          />
+        </div>
+      );
+    }
+  } else {
+    // Tratamento para imagens (mantido igual)
+  }
+};
+Melhorias Adicionais Necessárias
+Atualize o utilitário driveHelper.ts:
+
+typescript
+export const isGoogleDriveLink = (url: string): boolean => {
+  return url?.includes('drive.google.com') && 
+    (url.includes('/file/d/') || 
+     url.includes('/open?id=') || 
+     url.includes('/uc?export=view'));
+};
+
+export const getGoogleDriveFileId = (url: string): string => {
+  if (!url) return '';
+  
+  // Extrai o ID em diferentes formatos de URL
+  if (url.includes('/file/d/')) {
+    return url.split('/file/d/')[1].split('/')[0];
+  }
+  if (url.includes('id=')) {
+    return url.split('id=')[1].split('&')[0];
+  }
+  if (url.includes('uc?export=view&id=')) {
+    return url.split('uc?export=view&id=')[1];
+  }
+  return '';
+};
+Adicione estilos CSS:
+
+css
+/* Garante que os iframes sejam responsivos */
+iframe {
+  max-width: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Melhora a aparência dos vídeos verticais */
+.aspect-\[9\/16\] {
+  aspect-ratio: 9/16;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+Por Que Isso Resolve o Problema?
+Consistência com o Desktop: O mobile agora usa a mesma abordagem de iframe que funciona no desktop
+
+Atributos Específicos para Mobile: Adição de playsInline e webkit-playsinline essenciais para iOS
+
+Hierarquia de Verificação: Primeiro verifica Drive, depois YouTube, depois vídeos genéricos
+
+Fallback Explícito: Botão de abrir no Drive sempre visível como fallback
