@@ -102,11 +102,11 @@ const MediaUploader = ({
     try {
       setIsSubmitting(true);
 
-      // Validate YouTube URL if media type is video
-      if (data.mediaType === "video" && !isValidYoutubeUrl(data.mediaUrl)) {
+      // Validação básica de URL
+      if (!data.mediaUrl || !data.mediaUrl.startsWith('http')) {
         toast({
           title: "Erro",
-          description: "Por favor, insira uma URL válida do YouTube.",
+          description: "Por favor, insira uma URL válida começando com http:// ou https://",
           variant: "destructive",
         });
         return;
