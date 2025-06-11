@@ -42,6 +42,7 @@ const formSchema = z.object({
   active: z.boolean().default(true),
   order: z.number().int().min(0),
   aspectRatio: z.enum(["horizontal", "vertical", "square"]).default("horizontal"),
+  instagramUrl: z.string().url("URL inválida").optional().or(z.literal("")),
 });
 
 interface MediaUploaderProps {
@@ -73,6 +74,7 @@ const MediaUploader = ({
       active: true,
       order: 0,
       aspectRatio: "horizontal",
+      instagramUrl: "",
     },
   });
 
@@ -468,6 +470,27 @@ const MediaUploader = ({
                   <FormMessage />
                   <p className="text-sm text-gray-500 mt-1">
                     Escolha "Vertical" para vídeos no formato Instagram/TikTok
+                  </p>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="instagramUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Link do Instagram (opcional)</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="https://www.instagram.com/p/..."
+                      value={field.value || ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                  <p className="text-sm text-gray-500">
+                    Cole o link do post do Instagram relacionado a esta mídia
                   </p>
                 </FormItem>
               )}

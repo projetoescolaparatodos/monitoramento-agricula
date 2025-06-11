@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { MediaItem } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
@@ -31,12 +30,12 @@ const MediaCard: React.FC<{
 }> = ({ title, description, mediaUrl, mediaType, author, authorImage, createdAt, location, aspectRatio }) => {
   const [expanded, setExpanded] = useState(false);
   const [imageError, setImageError] = useState(false);
-  
+
   // Limitar a descrição para exibição inicial
   const previewLength = 100;
   const shouldTruncate = description.length > previewLength;
   const previewText = shouldTruncate ? description.slice(0, previewLength) + '...' : description;
-  
+
   // Formatar data se disponível
   const formattedDate = createdAt 
     ? format(new Date(createdAt), "d 'de' MMMM 'de' yyyy", { locale: ptBR })
@@ -44,13 +43,13 @@ const MediaCard: React.FC<{
 
   // Detecta o tipo de mídia com base na URL
   const isYouTubeVideo = mediaUrl && isYoutubeUrl(mediaUrl);
-  
+
   const renderMedia = () => {
     if (mediaType === 'video') {
       if (isYouTubeVideo) {
         // Extrair o ID do vídeo do YouTube
         const embedUrl = getYoutubeEmbedUrl(mediaUrl);
-        
+
         return (
           <div className="aspect-video w-full overflow-hidden rounded-t-lg">
             <iframe
@@ -119,7 +118,7 @@ const MediaCard: React.FC<{
         ) : (
           <h3 className="font-semibold text-lg mb-2 text-green-800 dark:text-green-300">{title}</h3>
         )}
-        
+
         <AnimatePresence initial={false}>
           <motion.div 
             className="text-sm text-gray-700 dark:text-gray-300"
@@ -142,7 +141,7 @@ const MediaCard: React.FC<{
             )}
           </motion.div>
         </AnimatePresence>
-        
+
         {shouldTruncate && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -167,7 +166,7 @@ const MediaCard: React.FC<{
             </button>
           </motion.div>
         )}
-        
+
         {/* Metadados (autor, data, localização) */}
         <div className="flex flex-wrap items-center gap-3 mt-4 pt-3 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
           {author && (
@@ -176,14 +175,14 @@ const MediaCard: React.FC<{
               <span>{author}</span>
             </div>
           )}
-          
+
           {formattedDate && (
             <div className="flex items-center">
               <Calendar size={14} className="mr-1" />
               <span>{formattedDate}</span>
             </div>
           )}
-          
+
           {location && (
             <div className="flex items-center">
               <MapPin size={14} className="mr-1" />
@@ -266,6 +265,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
             title={item.title || 'Mídia do Google Drive'}
             aspectRatio={item.aspectRatio || 'horizontal'}
             className="w-full"
+            instagramUrl={item.instagramUrl}
           />
           <CardContent className="p-4">
             {item.title && (
@@ -277,7 +277,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
                 )}
               </h3>
             )}
-            
+
             {item.description && (
               <div className="text-sm text-gray-700 dark:text-gray-300 mb-3">
                 <div dangerouslySetInnerHTML={{ __html: item.description.replace(/\n/g, '<br/>') }} />
@@ -292,14 +292,14 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
                   <span>{item.author}</span>
                 </div>
               )}
-              
+
               {formattedDate && (
                 <div className="flex items-center">
                   <Calendar size={14} className="mr-1" />
                   <span>{formattedDate}</span>
                 </div>
               )}
-              
+
               {item.location && (
                 <div className="flex items-center">
                   <MapPin size={14} className="mr-1" />
@@ -336,13 +336,13 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
        item.aspectRatio === 'vertical' || 
        item.aspectRatio === '9:16' ||
        item.aspectRatio === '9:18'); // Incluir 9:18 para padronizar como 9:16
-    
+
     // Renderização de mídias do Google Drive
     if (isGoogleDriveMedia) {
       const isVerticalAspect = item.aspectRatio === 'vertical' || 
                               item.aspectRatio === '9:16' || 
                               item.aspectRatio === '9:18'; // Padronizar como 9:16
-      
+
       return (
         <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className} flex flex-col ${
           isVerticalAspect ? "max-w-[400px] mx-auto" : ""
@@ -361,11 +361,12 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
                   title={item.title || 'Mídia do Google Drive'}
                   aspectRatio={isVerticalAspect ? '9:16' : (item.aspectRatio || 'horizontal')}
                   className="w-full h-full max-w-full"
+                  instagramUrl={item.instagramUrl}
                 />
               </div>
             </div>
           </div>
-          
+
           <CardContent className="p-5 space-y-4">
             {item.title && (
               <div className="media-title">
@@ -434,7 +435,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
         </Card>
       );
     }
-    
+
     // Renderização de vídeos (YouTube ou Firebase Storage)
     if (isYouTubeVideo || isFirebaseVideo) {
       // Para YouTube, obtenha a URL de incorporação

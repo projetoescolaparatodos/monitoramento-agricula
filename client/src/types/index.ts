@@ -36,6 +36,7 @@ export interface MediaItem {
   likes?: number;
   tags?: string[]; // Array opcional de tags para facilitar a busca
   aspectRatio?: 'horizontal' | 'vertical' | 'square';
+  instagramUrl?: string; // Link para o post do Instagram
 }
 
 export interface StatisticItem {
@@ -64,6 +65,7 @@ export interface MediaFormData {
   authorImage?: string;
   tags?: string;
   createdAt?: string;
+  instagramUrl?: string; // Link para o post do Instagram
 }
 
 export interface InfoPanelItem {

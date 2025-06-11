@@ -7,20 +7,22 @@ import {
   isGoogleDriveLink 
 } from '@/utils/driveHelper';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertCircle, Play } from 'lucide-react';
+import { AlertCircle, Play, Instagram } from 'lucide-react';
 
 interface GoogleDrivePlayerProps {
   mediaUrl: string;
   title?: string;
   className?: string;
   aspectRatio?: 'horizontal' | 'vertical' | 'square' | '9:16' | '16:9' | string;
+  instagramUrl?: string;
 }
 
 const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   mediaUrl,
   title = 'Mídia do Google Drive',
   className = '',
-  aspectRatio = 'horizontal'
+  aspectRatio = 'horizontal',
+  instagramUrl
 }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -169,6 +171,15 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
     return (
       <div className={`w-full ${className}`}>
         <div className={`w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-black`}>
+          {instagramUrl && (
+            <button
+              onClick={() => window.open(instagramUrl, '_blank')}
+              className="absolute top-3 right-3 z-10 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
+              title="Ver no Instagram"
+            >
+              <Instagram size={18} />
+            </button>
+          )}
           <iframe
             src={streamingUrl}
             title={title}
@@ -194,6 +205,15 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
     return (
       <div className={`w-full ${className}`}>
         <div className={`w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-gray-100`}>
+          {instagramUrl && (
+            <button
+              onClick={() => window.open(instagramUrl, '_blank')}
+              className="absolute top-3 right-3 z-10 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
+              title="Ver no Instagram"
+            >
+              <Instagram size={18} />
+            </button>
+          )}
           <img
             src={streamingUrl}
             alt={title}
