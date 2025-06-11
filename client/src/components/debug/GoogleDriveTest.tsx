@@ -52,11 +52,16 @@ const GoogleDriveTest: React.FC = () => {
       const streamingUrl = await getGoogleDriveStreamingUrl(fileId);
       console.log('Streaming URL:', streamingUrl);
 
+      // Teste adicional: verificar se o arquivo é acessível via URL pública
+      const publicUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
+      
       setResult({
         fileId,
         metadata,
         streamingUrl,
-        apiInitialized: initialized
+        apiInitialized: initialized,
+        publicUrl,
+        accessibleViaPublicUrl: metadata !== null
       });
 
     } catch (err: any) {

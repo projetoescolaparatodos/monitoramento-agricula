@@ -102,14 +102,29 @@ export const getGoogleDriveFileMetadata = async (fileId: string) => {
       if (!initialized) throw new Error('Failed to initialize Google Drive API');
     }
 
+    console.log('Tentando buscar metadados para arquivo:', fileId);
+    
     const response = await gapi.client.drive.files.get({
       fileId: fileId,
       fields: 'id,name,mimeType,size,thumbnailLink,videoMediaMetadata,imageMediaMetadata,webViewLink,webContentLink'
     });
 
+    console.log('Resposta da API:', response);
     return response.result;
-  } catch (error) {
-    console.error('Error fetching file metadata:', error);
+  } catch (error: any) {
+    console.error('Erro detalhado ao buscar metadados:', {
+      error: error,
+      status: error.status,
+      statusText: error.statusText,
+      details: error.result?.error
+    });
+    
+    if (error.status === 403) {
+      console.error('Erro 403: Verifique se o arquivo é público e se a API key tem permissões adequadas');
+    } else if (error.status === 404) {
+      console.error('Erro 404: Arquivo não encontrado ou não acessível');
+    }
+    
     return null;
   }
 };
