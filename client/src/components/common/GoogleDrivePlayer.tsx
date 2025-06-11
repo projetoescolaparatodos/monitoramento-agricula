@@ -121,7 +121,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
       const [width, height] = aspectRatio.split(':');
       return `aspect-[${width}/${height}]`;
     }
-    
+
     // Proporções nomeadas
     switch (aspectRatio) {
       case 'vertical':
@@ -177,7 +177,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
               className="absolute top-3 right-3 z-10 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
               title="Ver no Instagram"
             >
-              <Instagram size={18} />
+              <Instagram size={24} />
             </button>
           )}
           <iframe
@@ -211,7 +211,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
               className="absolute top-3 right-3 z-10 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
               title="Ver no Instagram"
             >
-              <Instagram size={18} />
+              <Instagram size={24} />
             </button>
           )}
           <img
