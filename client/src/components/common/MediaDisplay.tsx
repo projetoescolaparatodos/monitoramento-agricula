@@ -23,7 +23,10 @@ const MediaCard: React.FC<{
   authorImage?: string;
   createdAt?: string;
   location?: string;
-}> = ({ title, description, mediaUrl, mediaType, author, authorImage, createdAt, location }) => {
+  aspectRatio?: string;
+  displayMode?: string;
+  customAspectRatio?: string;
+}> = ({ title, description, mediaUrl, mediaType, author, authorImage, createdAt, location, aspectRatio, displayMode, customAspectRatio }) => {
   const [expanded, setExpanded] = useState(false);
   const [imageError, setImageError] = useState(false);
   
@@ -42,7 +45,7 @@ const MediaCard: React.FC<{
   
   // Função para converter proporção em classe CSS
   const getAspectRatioClass = () => {
-    const ratio = item.aspectRatio;
+    const ratio = aspectRatio;
     switch(ratio) {
       case '9:16':
         return 'aspect-[9/16]';
@@ -51,8 +54,8 @@ const MediaCard: React.FC<{
       case '4:5':
         return 'aspect-[4/5]';
       case 'custom':
-        if (item.customAspectRatio) {
-          const [w, h] = item.customAspectRatio.split(':');
+        if (customAspectRatio) {
+          const [w, h] = customAspectRatio.split(':');
           return `aspect-[${w}/${h}]`;
         }
         return 'aspect-video';
@@ -68,7 +71,7 @@ const MediaCard: React.FC<{
   };
 
   const getObjectFitClass = () => {
-    switch(item.displayMode) {
+    switch(displayMode) {
       case 'cover':
         return 'object-cover';
       case 'fill':
@@ -78,7 +81,7 @@ const MediaCard: React.FC<{
     }
   };
 
-  const isVerticalMedia = item.aspectRatio === '9:16' || item.aspectRatio === 'vertical' || item.aspectRatio === '4:5';
+  const isVerticalMedia = aspectRatio === '9:16' || aspectRatio === 'vertical' || aspectRatio === '4:5';
   
   const renderMedia = () => {
     if (mediaType === 'video') {
@@ -299,6 +302,9 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
           authorImage={item.authorImage}
           createdAt={item.createdAt}
           location={item.location}
+          aspectRatio={item.aspectRatio}
+          displayMode={item.displayMode}
+          customAspectRatio={item.customAspectRatio}
         />
       </div>
     );
