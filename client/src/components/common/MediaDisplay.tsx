@@ -281,37 +281,132 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
       const fileId = getGoogleDriveFileId(item.mediaUrl || '');
       const isVideo = item.mediaType === 'video';
       const previewUrl = isVideo ? `https://drive.google.com/file/d/${fileId}/preview` : item.mediaUrl;
+      const directUrl = `https://drive.google.com/file/d/${fileId}/view`;
+      const embedUrl = `https://drive.google.com/file/d/${fileId}/preview?usp=sharing&autoplay=0`;
       
       return (
         <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className} flex flex-col`}>
           <div className="w-full relative">
             {isVideo ? (
               // Vídeo do Google Drive
-              <div className="relative w-full">
-                <iframe
-                  className="w-full rounded-t-lg aspect-video"
-                  src={previewUrl}
-                  title={item.title || "Vídeo do Google Drive"}
-                  allow="autoplay; encrypted-media; fullscreen; accelerometer; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  frameBorder="0"
-                  loading="lazy"
-                  sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
-                  style={{ border: 'none' }}
-                />
-                {/* Botão de fallback para mobile */}
-                <div className="absolute top-2 right-2 md:hidden">
-                  <a
-                    href={item.mediaUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-black/70 text-white p-2 rounded-full shadow-lg"
-                    title="Abrir no Google Drive"
-                  >
-                    <ExternalLink size={16} />
-                  </a>
+              isMobile ? (
+                // Versão mobile otimizada
+                <div className="relative w-full aspect-video bg-gradient-to-br from-gray-900 to-black">
+                  {/* Thumbnail como background */}
+                  <div className="absolute inset-0 w-full h-full">
+                    <img
+                      src={`https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`}
+                      alt={`Thumbnail: ${item.title}`}
+                      className="w-full h-full object-cover rounded-t-lg opacity-80"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
+
+                  {/* Overlay com controles */}
+                  <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center p-4 rounded-t-lg">
+                    {/* Ícone de play */}
+                    <div className="mb-3">
+                      <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
+                        <svg className="w-6 h-6 text-gray-800 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z"/>
+                        </svg>
+                      </div>
+                    </div>
+
+                    {/* Botões de ação */}
+                    <div className="space-y-2 w-full max-w-[180px]">
+                      <a
+                        href={directUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm flex items-center justify-center gap-2 font-medium transition-colors"
+                      >
+                        <ExternalLink size={14} />
+                        <span>Assistir</span>
+                      </a>
+                      
+                      <button
+                        onClick={() => {
+                          const iframe = document.createElement('iframe');
+                          iframe.src = embedUrl;
+                          iframe.style.cssText = `
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100vw;
+                            height: 100vh;
+                            z-index: 9999;
+                            border: none;
+                            background: black;
+                          `;
+                          iframe.allow = "autoplay; encrypted-media; fullscreen; picture-in-picture";
+                          iframe.allowFullscreen = true;
+                          
+                          const closeBtn = document.createElement('button');
+                          closeBtn.innerHTML = '✕';
+                          closeBtn.style.cssText = `
+                            position: fixed;
+                            top: 20px;
+                            right: 20px;
+                            z-index: 10000;
+                            background: rgba(0,0,0,0.8);
+                            color: white;
+                            border: none;
+                            width: 40px;
+                            height: 40px;
+                            border-radius: 50%;
+                            font-size: 18px;
+                            cursor: pointer;
+                          `;
+                          closeBtn.onclick = () => {
+                            document.body.removeChild(iframe);
+                            document.body.removeChild(closeBtn);
+                            document.body.style.overflow = '';
+                          };
+
+                          document.body.style.overflow = 'hidden';
+                          document.body.appendChild(iframe);
+                          document.body.appendChild(closeBtn);
+                        }}
+                        className="w-full bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm flex items-center justify-center gap-2 transition-colors"
+                      >
+                        <span>📱</span>
+                        <span>Player</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                // Versão desktop com iframe
+                <div className="relative w-full">
+                  <iframe
+                    className="w-full rounded-t-lg aspect-video"
+                    src={embedUrl}
+                    title={item.title || "Vídeo do Google Drive"}
+                    allow="autoplay; encrypted-media; fullscreen; accelerometer; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    frameBorder="0"
+                    loading="lazy"
+                    sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
+                    style={{ border: 'none' }}
+                  />
+                  
+                  {/* Botão de fallback para desktop */}
+                  <div className="absolute bottom-2 right-2">
+                    <a
+                      href={directUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-black/70 text-white p-2 rounded-full shadow-lg hover:bg-black/80 transition-colors"
+                      title="Abrir no Google Drive"
+                    >
+                      <ExternalLink size={16} />
+                    </a>
+                  </div>
+                </div>
+              )
             ) : (
               // Imagem do Google Drive
               <div className="w-full">
