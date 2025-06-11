@@ -41,52 +41,69 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
         setLoading(true);
         setError(null);
 
-        // Inicializar API se necessário
-        const initialized = await initializeGoogleDriveAPI();
-        if (!initialized) {
-          throw new Error('Falha ao inicializar Google Drive API');
-        }
-
         // Extrair ID do arquivo
         const fileId = getGoogleDriveFileId(mediaUrl);
         if (!fileId) {
           throw new Error('Não foi possível extrair ID do arquivo');
         }
 
-        // Buscar metadados
-        const metadata = await getGoogleDriveFileMetadata(fileId);
-        if (!metadata) {
-          throw new Error('Arquivo não encontrado ou inacessível');
-        }
+        // Tentar inicializar API
+        const initialized = await initializeGoogleDriveAPI();
+        
+        if (initialized) {
+          // Se a API foi inicializada, tentar buscar metadados
+          try {
+            const metadata = await getGoogleDriveFileMetadata(fileId);
+            if (metadata) {
+              setFileMetadata(metadata);
+              setIsVideo(metadata.mimeType?.startsWith('video/') || false);
 
-        setFileMetadata(metadata);
-        setIsVideo(metadata.mimeType?.startsWith('video/') || false);
-
-        // Buscar URL de streaming/visualização
-        const url = await getGoogleDriveStreamingUrl(fileId);
-        if (url) {
-          setStreamingUrl(url);
-        } else {
-          // Fallback para URLs de visualização padrão
-          if (metadata.mimeType?.startsWith('video/')) {
-            setStreamingUrl(`https://drive.google.com/file/d/${fileId}/preview`);
-          } else if (metadata.mimeType?.startsWith('image/')) {
-            setStreamingUrl(`https://drive.google.com/uc?export=view&id=${fileId}`);
-          } else {
-            throw new Error('Tipo de arquivo não suportado');
+              // Buscar URL de streaming/visualização
+              const url = await getGoogleDriveStreamingUrl(fileId);
+              if (url) {
+                setStreamingUrl(url);
+                return;
+              }
+            }
+          } catch (apiError) {
+            console.warn('Erro na API, usando fallback:', apiError);
           }
         }
 
+        // Fallback: usar URLs diretas sem API
+        console.log('Usando URLs diretas como fallback');
+        
+        // Assumir que é vídeo se a URL contém indicadores comuns
+        const isLikelyVideo = mediaUrl.includes('video') || 
+                             mediaUrl.includes('.mp4') || 
+                             mediaUrl.includes('.avi') ||
+                             mediaUrl.includes('.mov');
+        
+        setIsVideo(isLikelyVideo);
+        
+        if (isLikelyVideo) {
+          setStreamingUrl(`https://drive.google.com/file/d/${fileId}/preview`);
+        } else {
+          setStreamingUrl(`https://drive.google.com/uc?export=view&id=${fileId}`);
+        }
+
+        // Definir metadados básicos
+        setFileMetadata({
+          id: fileId,
+          name: title || 'Arquivo do Google Drive',
+          mimeType: isLikelyVideo ? 'video/mp4' : 'image/jpeg'
+        });
+
       } catch (err: any) {
         console.error('Erro ao carregar mídia do Google Drive:', err);
-        setError(err.message || 'Erro desconhecido');
+        setError('Erro ao carregar mídia. Verifique se o arquivo é público.');
       } finally {
         setLoading(false);
       }
     };
 
     loadGoogleDriveMedia();
-  }, [mediaUrl]);
+  }, [mediaUrl, title]);
 
   const getAspectRatioClass = () => {
     switch (aspectRatio) {

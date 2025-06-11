@@ -1,4 +1,3 @@
-
 // Google Drive API configuration
 const GOOGLE_DRIVE_API_KEY = import.meta.env.VITE_GOOGLE_DRIVE_API_KEY;
 const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
@@ -10,13 +9,13 @@ let gapiInitialized = false;
 // Initialize Google Drive API
 export const initializeGoogleDriveAPI = async (): Promise<boolean> => {
   if (gapiInitialized) return true;
-  
+
   try {
     // Load Google API script if not already loaded
     if (!window.gapi) {
       await loadGoogleAPIScript();
     }
-    
+
     gapi = window.gapi;
     await gapi.load('client', async () => {
       await gapi.client.init({
@@ -24,7 +23,7 @@ export const initializeGoogleDriveAPI = async (): Promise<boolean> => {
         discoveryDocs: [DISCOVERY_DOC],
       });
     });
-    
+
     gapiInitialized = true;
     return true;
   } catch (error) {
@@ -40,7 +39,7 @@ const loadGoogleAPIScript = (): Promise<void> => {
       resolve();
       return;
     }
-    
+
     const script = document.createElement('script');
     script.id = 'google-api-script';
     script.src = 'https://apis.google.com/js/api.js';
@@ -63,7 +62,7 @@ export const isGoogleDriveLink = (url: string): boolean => {
 
 export const getGoogleDriveFileId = (url: string): string => {
   if (!url) return '';
-  
+
   try {
     // Extract ID from different URL formats
     if (url.includes('/file/d/')) {
@@ -103,7 +102,7 @@ export const getGoogleDriveFileMetadata = async (fileId: string) => {
     }
 
     console.log('Tentando buscar metadados para arquivo:', fileId);
-    
+
     const response = await gapi.client.drive.files.get({
       fileId: fileId,
       fields: 'id,name,mimeType,size,thumbnailLink,videoMediaMetadata,imageMediaMetadata,webViewLink,webContentLink'
@@ -118,13 +117,13 @@ export const getGoogleDriveFileMetadata = async (fileId: string) => {
       statusText: error.statusText,
       details: error.result?.error
     });
-    
+
     if (error.status === 403) {
       console.error('Erro 403: Verifique se o arquivo é público e se a API key tem permissões adequadas');
     } else if (error.status === 404) {
       console.error('Erro 404: Arquivo não encontrado ou não acessível');
     }
-    
+
     return null;
   }
 };
@@ -141,7 +140,7 @@ export const getGoogleDriveStreamingUrl = async (fileId: string): Promise<string
       if (metadata.webContentLink) {
         return metadata.webContentLink;
       }
-      
+
       // Fallback to preview URL
       return `https://drive.google.com/file/d/${fileId}/preview`;
     }
