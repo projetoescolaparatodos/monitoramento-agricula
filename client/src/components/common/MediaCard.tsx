@@ -43,13 +43,12 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
     }
   }, [mediaType, mediaUrl]);
 
-  // Detectar se é vídeo vertical a partir do título ou outras indicações
+  // Detectar se é vídeo vertical a partir do título
   const isVerticalVideo = mediaType === 'video' && 
     (title.toLowerCase().includes('vertical') || 
      title.toLowerCase().includes('instagram') ||
      title.toLowerCase().includes('reels') ||
-     title.toLowerCase().includes('tiktok') ||
-     title.toLowerCase().includes('9:16'));
+     title.toLowerCase().includes('tiktok'));
 
   const renderMedia = () => {
     if (mediaType === 'video') {
@@ -93,7 +92,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
                 src={mediaUrl}
                 controls
                 title={title}
-                className={`${isVerticalVideo ? 'aspect-[9/16] max-h-[60vh] w-full object-contain' : 'w-full h-auto object-contain aspect-video max-h-[50vh]'}`}
+                className={`${isVerticalVideo ? 'aspect-[9/16] max-h-[70vh] w-auto' : 'w-full h-auto object-contain aspect-video'}`}
               />
             </div>
           </div>

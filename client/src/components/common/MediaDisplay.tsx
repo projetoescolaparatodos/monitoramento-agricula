@@ -330,8 +330,8 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
       </div>
     );
   } else {
-    // Em desktop: verificar se é realmente vertical baseado no aspectRatio
-    const shouldTreatAsVertical = (item.aspectRatio === 'vertical' || item.aspectRatio === '9:16') && item.mediaType === 'video';
+    // Em desktop: tratar vídeos do Firebase como verticais (Instagram)
+    const shouldTreatAsVertical = isFirebaseVideo && item.mediaType === 'video';
     
     // Renderização de mídias do Google Drive
     if (isGoogleDriveMedia) {
@@ -427,7 +427,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
 
       return (
         <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className} flex flex-col ${
-          shouldTreatAsVertical ? "max-w-[420px] mx-auto" : ""
+          shouldTreatAsVertical ? "max-w-[400px] mx-auto h-fit" : ""
         }`}>
           <div className="w-full relative">
             {isYouTubeVideo && embedUrl ? (
@@ -452,13 +452,15 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
                 />
               </div>
             ) : isFirebaseVideo ? (
-              // Vídeos do Firebase: ajustar proporção baseada no aspectRatio
-              <div className="w-full flex justify-center">
+              // Vídeos do Firebase: tratar como verticais (Instagram) em desktop
+              <div className={`w-full flex justify-center ${
+                shouldTreatAsVertical ? "h-full" : ""
+              }`}>
                 <video 
-                  className={`rounded-t-lg object-contain ${
-                    item.aspectRatio === 'vertical' || item.aspectRatio === '9:16'
-                      ? "aspect-[9/16] w-full max-w-[400px] max-h-[70vh]" 
-                      : "w-full h-auto max-h-[60vh] aspect-video"
+                  className={`rounded-t-lg object-cover ${
+                    shouldTreatAsVertical
+                      ? "aspect-[9/16] w-full h-[600px]" 
+                      : "w-full h-auto max-h-[60vh]"
                   }`}
                   controls
                   src={item.mediaUrl}
