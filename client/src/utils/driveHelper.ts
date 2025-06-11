@@ -11,23 +11,50 @@ export const initializeGoogleDriveAPI = async (): Promise<boolean> => {
   if (gapiInitialized) return true;
 
   try {
+    // Verificar se a API key está configurada
+    if (!GOOGLE_DRIVE_API_KEY) {
+      console.warn('Google Drive API key not configured');
+      return false;
+    }
+
     // Load Google API script if not already loaded
     if (!window.gapi) {
       await loadGoogleAPIScript();
     }
 
+    // Verificar se o gapi foi carregado corretamente
+    if (!window.gapi) {
+      throw new Error('Google API script failed to load');
+    }
+
     gapi = window.gapi;
-    await gapi.load('client', async () => {
-      await gapi.client.init({
-        apiKey: GOOGLE_DRIVE_API_KEY,
-        discoveryDocs: [DISCOVERY_DOC],
+
+    // Aguardar o carregamento do cliente de forma mais robusta
+    await new Promise<void>((resolve, reject) => {
+      gapi.load('client', {
+        callback: async () => {
+          try {
+            await gapi.client.init({
+              apiKey: GOOGLE_DRIVE_API_KEY,
+              discoveryDocs: [DISCOVERY_DOC],
+            });
+            resolve();
+          } catch (initError) {
+            reject(initError);
+          }
+        },
+        onerror: () => {
+          reject(new Error('Failed to load Google API client'));
+        }
       });
     });
 
     gapiInitialized = true;
+    console.log('Google Drive API initialized successfully');
     return true;
   } catch (error) {
     console.error('Failed to initialize Google Drive API:', error);
+    gapiInitialized = false;
     return false;
   }
 };
@@ -35,8 +62,24 @@ export const initializeGoogleDriveAPI = async (): Promise<boolean> => {
 // Load Google API script dynamically
 const loadGoogleAPIScript = (): Promise<void> => {
   return new Promise((resolve, reject) => {
-    if (document.getElementById('google-api-script')) {
+    // Se o script já existe e gapi está disponível, resolver imediatamente
+    if (window.gapi && document.getElementById('google-api-script')) {
       resolve();
+      return;
+    }
+
+    // Verificar se o script já existe mas ainda não carregou
+    const existingScript = document.getElementById('google-api-script');
+    if (existingScript) {
+      // Aguardar o carregamento do script existente
+      const checkGapi = () => {
+        if (window.gapi) {
+          resolve();
+        } else {
+          setTimeout(checkGapi, 100);
+        }
+      };
+      checkGapi();
       return;
     }
 
@@ -45,7 +88,18 @@ const loadGoogleAPIScript = (): Promise<void> => {
     script.src = 'https://apis.google.com/js/api.js';
     script.async = true;
     script.defer = true;
-    script.onload = () => resolve();
+    
+    script.onload = () => {
+      // Aguardar um pouco para garantir que gapi esteja disponível
+      setTimeout(() => {
+        if (window.gapi) {
+          resolve();
+        } else {
+          reject(new Error('Google API script loaded but gapi is not available'));
+        }
+      }, 100);
+    };
+    
     script.onerror = () => reject(new Error('Failed to load Google API script'));
     document.head.appendChild(script);
   });
@@ -101,6 +155,11 @@ export const getGoogleDriveFileMetadata = async (fileId: string) => {
       if (!initialized) throw new Error('Failed to initialize Google Drive API');
     }
 
+    // Verificar se gapi.client.drive está disponível
+    if (!gapi?.client?.drive) {
+      throw new Error('Google Drive client not available');
+    }
+
     console.log('Tentando buscar metadados para arquivo:', fileId);
 
     const response = await gapi.client.drive.files.get({
@@ -115,13 +174,16 @@ export const getGoogleDriveFileMetadata = async (fileId: string) => {
       error: error,
       status: error.status,
       statusText: error.statusText,
-      details: error.result?.error
+      details: error.result?.error,
+      message: error.message
     });
 
     if (error.status === 403) {
       console.error('Erro 403: Verifique se o arquivo é público e se a API key tem permissões adequadas');
     } else if (error.status === 404) {
       console.error('Erro 404: Arquivo não encontrado ou não acessível');
+    } else if (error.message?.includes('gapi')) {
+      console.error('Erro na inicialização da API Google');
     }
 
     return null;

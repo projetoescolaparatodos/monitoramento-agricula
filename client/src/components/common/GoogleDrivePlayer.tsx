@@ -47,13 +47,17 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
         }
 
         // Tentar inicializar API
+        console.log('Tentando inicializar Google Drive API...');
         const initialized = await initializeGoogleDriveAPI();
+        console.log('API inicializada:', initialized);
 
         if (initialized) {
           // Se a API foi inicializada, tentar buscar metadados
           try {
+            console.log('Buscando metadados do arquivo...');
             const metadata = await getGoogleDriveFileMetadata(fileId);
             if (metadata) {
+              console.log('Metadados encontrados:', metadata);
               setFileMetadata(metadata);
               setIsVideo(metadata.mimeType?.startsWith('video/') || false);
 
@@ -61,12 +65,17 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
               const url = await getGoogleDriveStreamingUrl(fileId);
               if (url) {
                 setStreamingUrl(url);
+                setLoading(false);
                 return;
               }
+            } else {
+              console.log('Nenhum metadado retornado, usando fallback');
             }
           } catch (apiError) {
             console.warn('Erro na API, usando fallback:', apiError);
           }
+        } else {
+          console.log('Falha na inicialização da API, usando fallback');
         }
 
         // Fallback: usar URLs diretas sem API
