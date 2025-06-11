@@ -49,6 +49,8 @@ const GoogleDriveVideoPlayer: React.FC<GoogleDriveVideoPlayerProps> = ({
       try {
         // Verificar se a chave da API está configurada
         const apiKey = import.meta.env.VITE_GOOGLE_DRIVE_API_KEY;
+        console.log('API Key Status:', apiKey ? 'Configurada' : 'Não configurada');
+        
         if (!apiKey || apiKey === 'your_google_drive_api_key_here') {
           console.warn('Google Drive API key not configured, using fallback methods');
           setApiReady(false);
@@ -57,7 +59,10 @@ const GoogleDriveVideoPlayer: React.FC<GoogleDriveVideoPlayerProps> = ({
           return;
         }
 
+        console.log('Inicializando Google Drive API...');
         const initialized = await initializeGoogleDriveAPI();
+        console.log('API inicializada:', initialized);
+        
         setApiReady(initialized);
         setUseAPI(initialized);
         if (!initialized) {

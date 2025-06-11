@@ -23,6 +23,7 @@ import FishingInfo from "@/pages/FishingInfo";
 import AgricultureInfo from "./pages/AgricultureInfo";
 import BackgroundVideo from "./components/ui/BackgroundVideo";
 //import MediaGallery from "@/pages/MediaGallery"; // Removed import
+import GoogleDriveTest from "@/components/debug/GoogleDriveTest";
 
 // Formulários Setoriais - Importação lazy para melhor performance
 const FormAgricultura = lazy(() => import("./forms/agriculture/index"));
@@ -84,6 +85,7 @@ function Router() {
             />
             <Route path="/forms/pesca-completo" component={FormPescaCompleto} />
             {/* <Route path="/media-gallery" component={MediaGallery} />  Removed Route */}
+            <Route path="/test-drive" component={GoogleDriveTest} />
             <Route component={NotFound} />
           </Switch>
         </Suspense>
