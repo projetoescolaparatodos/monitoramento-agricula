@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { isYoutubeUrl } from '@/utils/isYoutubeUrl';
+import { isGoogleDriveLink } from '@/utils/driveHelper';
+import GoogleDrivePlayer from './GoogleDrivePlayer';
 import { ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -50,6 +52,20 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
 
   const renderMedia = () => {
     if (mediaType === 'video') {
+      // 1. Primeiro verifica Google Drive
+      if (isGoogleDriveLink(mediaUrl)) {
+        return (
+          <div className="w-full">
+            <GoogleDrivePlayer
+              mediaUrl={mediaUrl}
+              title={title}
+              aspectRatio={isVerticalVideo ? 'vertical' : 'horizontal'}
+              className="w-full"
+            />
+          </div>
+        );
+      }
+      
       // 2. Depois verifica YouTube
       if (isYoutubeUrl(mediaUrl)) {
         const videoId = mediaUrl.includes('youtu.be') 
@@ -83,6 +99,20 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
         );
       }
     } else {
+      // Para imagens, verificar se é Google Drive
+      if (isGoogleDriveLink(mediaUrl)) {
+        return (
+          <div className="w-full">
+            <GoogleDrivePlayer
+              mediaUrl={mediaUrl}
+              title={title}
+              aspectRatio="horizontal"
+              className="w-full"
+            />
+          </div>
+        );
+      }
+      
       return (
         <div className="w-full mx-auto">
           <div className="w-full overflow-hidden bg-black/5 rounded-t-xl">
