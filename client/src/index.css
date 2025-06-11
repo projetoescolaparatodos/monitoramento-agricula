@@ -824,4 +824,15 @@ iframe[src*="drive.google.com"] {
   outline: none;
   -webkit-border-radius: 0;
   border-radius: 0;
+  /* Melhora a renderização em dispositivos móveis */
+  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
+}
+
+/* Garante que os iframes sejam responsivos */
+.aspect-\[9\/16\] {
+  aspect-ratio: 9/16;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
 }

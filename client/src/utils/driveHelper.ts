@@ -1,4 +1,5 @@
 export const isGoogleDriveLink = (url: string): boolean => {
+  if (!url) return false;
   return url.includes('drive.google.com') && 
     (url.includes('/file/d/') || 
      url.includes('/open?id=') || 
@@ -43,6 +44,8 @@ const isVideoFile = async (url: string): Promise<boolean> => {
 };
 
 export const getGoogleDriveFileId = (url: string): string => {
+  if (!url) return '';
+  
   try {
     // Extrai o ID em diferentes formatos de URL
     if (url.includes('/file/d/')) {
