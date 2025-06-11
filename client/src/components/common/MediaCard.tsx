@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { isYoutubeUrl } from '@/utils/isYoutubeUrl';
+import { isGoogleDriveLink, getGoogleDriveFileId } from '@/utils/driveHelper';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -52,7 +53,19 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
 
   const renderMedia = () => {
     if (mediaType === 'video') {
-      if (isYoutubeUrl(mediaUrl)) {
+      if (isGoogleDriveLink(mediaUrl)) {
+        return (
+          <div className="w-full bg-black flex items-center justify-center">
+            <iframe
+              src={mediaUrl}
+              className={`w-full ${isVerticalVideo ? 'aspect-[9/16] max-w-[400px] mx-auto' : 'aspect-video'}`}
+              title={title}
+              allow="autoplay"
+              loading="lazy"
+            />
+          </div>
+        );
+      } else if (isYoutubeUrl(mediaUrl)) {
         const videoId = mediaUrl.includes('youtu.be') 
           ? mediaUrl.split('/').pop() 
           : new URLSearchParams(new URL(mediaUrl).search).get('v');
@@ -91,6 +104,15 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
               src={mediaUrl}
               alt={title}
               className="w-full h-auto object-contain max-h-[60vh]"
+              onError={(e) => {
+                // Fallback para Google Drive
+                if (isGoogleDriveLink(mediaUrl)) {
+                  const fileId = getGoogleDriveFileId(mediaUrl);
+                  if (fileId) {
+                    e.currentTarget.src = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+                  }
+                }
+              }}
             />
           </div>
         </div>

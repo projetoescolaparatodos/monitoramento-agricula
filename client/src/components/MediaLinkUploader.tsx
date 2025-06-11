@@ -4,6 +4,7 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useToast } from '../hooks/use-toast';
+import { isGoogleDriveLink, convertGoogleDriveLink } from '../utils/driveHelper';
 
 interface MediaLinkUploaderProps {
   onLinkSubmit: (url: string) => void;
@@ -36,6 +37,33 @@ const MediaLinkUploader = ({ onLinkSubmit, title = "Adicionar mídia por link" }
       return;
     }
     
+    // Verificar se é Google Drive e processar
+    if (isGoogleDriveLink(url)) {
+      toast({
+        title: "Google Drive detectado",
+        description: "Processando link do Google Drive...",
+      });
+      
+      try {
+        const directLink = await convertGoogleDriveLink(url);
+        onLinkSubmit(directLink);
+        setUrl('');
+        
+        toast({
+          title: "Sucesso",
+          description: "Link do Google Drive adicionado com sucesso. Certifique-se de que está configurado como público.",
+        });
+        return;
+      } catch (error) {
+        toast({
+          title: "Erro no link do Google Drive",
+          description: "Verifique se o link está configurado como 'Qualquer pessoa com o link pode visualizar'",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
     // Verificar se é um vídeo para informar ao usuário
     const isVideo = 
       url.endsWith(".mp4") || 
@@ -101,7 +129,7 @@ const MediaLinkUploader = ({ onLinkSubmit, title = "Adicionar mídia por link" }
         <form onSubmit={handleSubmit} className="flex flex-col space-y-2">
           <Input
             type="url"
-            placeholder="https://exemplo.com/imagem.jpg"
+            placeholder="https://exemplo.com/imagem.jpg ou https://drive.google.com/file/d/..."
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             className="flex-1"

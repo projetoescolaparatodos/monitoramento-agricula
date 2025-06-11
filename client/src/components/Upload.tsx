@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/utils/firebase";
+import { isGoogleDriveLink, convertGoogleDriveLink } from "@/utils/driveHelper";
 
 interface UploadProps {
   onUpload: (url: string) => void;
@@ -57,9 +58,32 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
     }
   };
 
-  const handleUrlSubmit = (e: React.FormEvent) => {
+  const handleUrlSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); // Isso evita que a página seja recarregada
     if (uploadUrl.trim() && (uploadUrl.startsWith("http://") || uploadUrl.startsWith("https://"))) {
+      
+      // Processar links do Google Drive
+      if (isGoogleDriveLink(uploadUrl)) {
+        try {
+          const directLink = await convertGoogleDriveLink(uploadUrl);
+          onUpload(directLink);
+          setUploadUrl("");
+          
+          toast({
+            title: "Google Drive adicionado",
+            description: "Link do Google Drive processado com sucesso."
+          });
+          return;
+        } catch (error) {
+          toast({
+            title: "Erro no Google Drive",
+            description: "Verifique se o link está configurado como público.",
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+      
       // Enviar URL e prevenir navegação
       onUpload(uploadUrl);
       setUploadUrl("");
