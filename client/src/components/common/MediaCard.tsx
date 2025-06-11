@@ -60,122 +60,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
         const fileId = getGoogleDriveFileId(mediaUrl);
         const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
         const directUrl = `https://drive.google.com/file/d/${fileId}/view`;
-        const embedUrl = `https://drive.google.com/file/d/${fileId}/preview?usp=sharing&autoplay=0`;
 
-        // Em dispositivos móveis, prioriza abordagem diferente
-        if (isMobile) {
-          return (
-            <div 
-              className={`relative w-full bg-gradient-to-br from-gray-900 to-black ${
-                isVerticalVideo ? 'aspect-[9/16] max-w-[400px] mx-auto' : 'aspect-video'
-              }`}
-              style={{
-                minHeight: isVerticalVideo ? '400px' : '250px'
-              }}
-            >
-              {/* Thumbnail como background */}
-              <div className="absolute inset-0 w-full h-full">
-                <img
-                  src={`https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`}
-                  alt={`Thumbnail: ${title}`}
-                  className="w-full h-full object-cover rounded-t-xl opacity-80"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-              </div>
-
-              {/* Overlay com informações e botões */}
-              <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center p-4 rounded-t-xl">
-                {/* Ícone de play grande */}
-                <div className="mb-4">
-                  <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
-                    <svg className="w-8 h-8 text-gray-800 ml-1" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z"/>
-                    </svg>
-                  </div>
-                </div>
-
-                {/* Título do vídeo */}
-                <h4 className="text-white text-center text-sm font-medium mb-4 max-w-[250px]">
-                  {title}
-                </h4>
-
-                {/* Botões de ação */}
-                <div className="space-y-2 w-full max-w-[200px]">
-                  {/* Botão principal - Abrir no Drive */}
-                  <a
-                    href={directUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2 font-medium transition-colors"
-                  >
-                    <ExternalLink size={16} />
-                    <span>Assistir no Drive</span>
-                  </a>
-
-                  {/* Botão secundário - Tentar iframe */}
-                  <button
-                    onClick={() => {
-                      const iframe = document.createElement('iframe');
-                      iframe.src = embedUrl;
-                      iframe.style.cssText = `
-                        position: fixed;
-                        top: 0;
-                        left: 0;
-                        width: 100vw;
-                        height: 100vh;
-                        z-index: 9999;
-                        border: none;
-                        background: black;
-                      `;
-                      iframe.allow = "autoplay; encrypted-media; fullscreen; picture-in-picture";
-                      iframe.allowFullscreen = true;
-                      
-                      // Adicionar botão de fechar
-                      const closeBtn = document.createElement('button');
-                      closeBtn.innerHTML = '✕';
-                      closeBtn.style.cssText = `
-                        position: fixed;
-                        top: 20px;
-                        right: 20px;
-                        z-index: 10000;
-                        background: rgba(0,0,0,0.8);
-                        color: white;
-                        border: none;
-                        width: 40px;
-                        height: 40px;
-                        border-radius: 50%;
-                        font-size: 18px;
-                        cursor: pointer;
-                      `;
-                      closeBtn.onclick = () => {
-                        document.body.removeChild(iframe);
-                        document.body.removeChild(closeBtn);
-                        document.body.style.overflow = '';
-                      };
-
-                      document.body.style.overflow = 'hidden';
-                      document.body.appendChild(iframe);
-                      document.body.appendChild(closeBtn);
-                    }}
-                    className="w-full bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2 transition-colors"
-                  >
-                    <span>📱</span>
-                    <span>Player Mobile</span>
-                  </button>
-                </div>
-
-                {/* Aviso */}
-                <p className="text-white/70 text-xs text-center mt-3 max-w-[250px]">
-                  Vídeos do Google Drive podem ter limitações em dispositivos móveis
-                </p>
-              </div>
-            </div>
-          );
-        }
-
-        // Para desktop, mantém a abordagem original com iframe
         return (
           <div 
             className={`relative w-full bg-black ${
@@ -188,7 +73,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
             <iframe
               key={`drive-iframe-${fileId}`}
               ref={iframeRef}
-              src={embedUrl}
+              src={previewUrl}
               className="absolute top-0 left-0 w-full h-full border-0 rounded-t-xl"
               title={title}
               allow="autoplay; encrypted-media; fullscreen; picture-in-picture; accelerometer; gyroscope"
@@ -196,6 +81,8 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
               frameBorder="0"
               loading="lazy"
               sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
+              playsInline
+              webkit-playsinline="true"
               style={{ 
                 border: 'none',
                 transform: 'translateZ(0)',
