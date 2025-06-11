@@ -562,6 +562,30 @@
   /* Específico para containers de vídeo do Google Drive */
   .media-card .w-full.bg-black {
     isolation: isolate;
+  }
+
+  /* Força renderização correta dos iframes do Google Drive */
+  iframe[src*="drive.google.com/file"] {
+    border: none !important;
+    background: #000;
+    /* Força hardware acceleration */
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    /* Melhora compatibilidade */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    /* Otimização para mobile */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Específico para preview do Google Drive */
+  iframe[src*="/preview"] {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 200px;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }late;
     contain: layout style paint;
   }
 }

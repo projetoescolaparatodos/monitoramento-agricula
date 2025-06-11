@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   getGoogleDriveFileId, 
@@ -49,7 +48,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
 
         // Tentar inicializar API
         const initialized = await initializeGoogleDriveAPI();
-        
+
         if (initialized) {
           // Se a API foi inicializada, tentar buscar metadados
           try {
@@ -72,15 +71,15 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
 
         // Fallback: usar URLs diretas sem API
         console.log('Usando URLs diretas como fallback');
-        
+
         // Assumir que é vídeo se a URL contém indicadores comuns
         const isLikelyVideo = mediaUrl.includes('video') || 
                              mediaUrl.includes('.mp4') || 
                              mediaUrl.includes('.avi') ||
                              mediaUrl.includes('.mov');
-        
+
         setIsVideo(isLikelyVideo);
-        
+
         if (isLikelyVideo) {
           setStreamingUrl(`https://drive.google.com/file/d/${fileId}/preview`);
         } else {
@@ -151,14 +150,14 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             loading="lazy"
           />
-          
+
           {/* Overlay com informações do arquivo */}
           <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded flex items-center">
             <Play className="w-3 h-3 mr-1" />
             Vídeo do Google Drive
           </div>
         </div>
-        
+
         {fileMetadata?.name && (
           <p className="text-sm text-gray-600 mt-2 truncate">
             {fileMetadata.name}
@@ -180,7 +179,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
             onError={() => setError('Erro ao carregar imagem')}
           />
         </div>
-        
+
         {fileMetadata?.name && (
           <p className="text-sm text-gray-600 mt-2 truncate">
             {fileMetadata.name}
