@@ -3,8 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { MediaItem } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { isYoutubeUrl, getYoutubeEmbedUrl } from '@/utils/mediaUtils';
-import { isGoogleDriveLink, getGoogleDriveFileId } from '@/utils/driveHelper';
-import GoogleDriveVideoPlayer from './GoogleDriveVideoPlayer';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -251,7 +249,6 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
   const isFirebaseVideo = item.mediaType === 'video' && item.mediaUrl?.includes('firebasestorage.googleapis.com');
   const isFirebaseImage = item.mediaType === 'image' && item.mediaUrl?.includes('firebasestorage.googleapis.com');
   const isYouTubeVideo = item.mediaUrl && isYoutubeUrl(item.mediaUrl);
-  const isGoogleDriveMedia = item.mediaUrl && isGoogleDriveLink(item.mediaUrl);
 
   // Renderização de vídeos (YouTube ou Firebase Storage)
   const isMobile = useIsMobile();
@@ -277,102 +274,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
   } else {
     // Em desktop: tratar vídeos do Firebase como verticais (Instagram)
     const shouldTreatAsVertical = isFirebaseVideo && item.mediaType === 'video';
-    // Renderização de mídias do Google Drive
-    if (isGoogleDriveMedia) {
-      const isVideo = item.mediaType === 'video';
-      
-      return (
-        <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className} flex flex-col`}>
-          <div className="w-full relative">
-            {isVideo ? (
-              // Vídeo do Google Drive usando o componente especializado
-              <GoogleDriveVideoPlayer
-                mediaUrl={item.mediaUrl || ''}
-                thumbnailUrl={item.thumbnailUrl}
-                title={item.title || "Vídeo do Google Drive"}
-                aspectRatio={item.aspectRatio === 'vertical' || item.aspectRatio === '9:16' ? 'vertical' : 'horizontal'}
-              />
-            ) : (
-              // Imagem do Google Drive
-              <div className="w-full">
-                <img
-                  className="rounded-t-lg object-cover w-full h-auto max-h-[60vh]"
-                  src={item.mediaUrl}
-                  alt={item.title || "Imagem do Google Drive"}
-                  onError={() => setImageError(true)}
-                />
-              </div>
-            )}
-          </div>
-          <CardContent className="p-5 space-y-4">
-            {item.title && (
-              <div className="media-title">
-                {/<\/?[a-z][\s\S]*>/i.test(item.title) ? (
-                  <div className="font-heading text-xl text-gray-900 dark:text-gray-100" dangerouslySetInnerHTML={{ __html: item.title }} />
-                ) : (
-                  <h3 className="font-semibold text-xl text-gray-900 dark:text-gray-100">{item.title}</h3>
-                )}
-              </div>
-            )}
-            {renderDescription(item.description)}
-
-            {/* Extrair e exibir hashtags separadamente */}
-            {item.description && (
-              (() => {
-                const hashtagRegex = /#(\w+)/g;
-                const matches = [...item.description.matchAll(hashtagRegex)];
-
-                if (matches.length > 0) {
-                  const hashtags = matches.map(match => match[1]);
-                  return (
-                    <div className="tags-container">
-                      {hashtags.map((tag, index) => (
-                        <span key={index} className="tag">#{tag}</span>
-                      ))}
-                    </div>
-                  );
-                }
-                return null;
-              })()
-            )}
-
-            <div className="flex flex-wrap items-center justify-between mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
-              <div className="flex items-center space-x-2">
-                {item.author && (
-                  <div className="flex items-center">
-                    {item.authorImage ? (
-                      <img 
-                        src={item.authorImage} 
-                        alt={item.author} 
-                        className="w-6 h-6 rounded-full mr-2"
-                      />
-                    ) : (
-                      <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white mr-2">
-                        {item.author.charAt(0)}
-                      </div>
-                    )}
-                    <span className="author">{item.author}</span>
-                  </div>
-                )}
-              </div>
-
-              {formattedDate && (
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {formattedDate}
-                </span>
-              )}
-            </div>
-
-            {item.location && (
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                📍 {item.location}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      );
-    }
-
+    
     // Renderização de vídeos (YouTube ou Firebase Storage)
     if (isYouTubeVideo || isFirebaseVideo) {
       // Para YouTube, obtenha a URL de incorporação
