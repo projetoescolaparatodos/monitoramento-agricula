@@ -13,7 +13,7 @@ interface GoogleDrivePlayerProps {
   mediaUrl: string;
   title?: string;
   className?: string;
-  aspectRatio?: 'horizontal' | 'vertical' | 'square';
+  aspectRatio?: 'horizontal' | 'vertical' | 'square' | '9:16' | '16:9' | string;
 }
 
 const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
@@ -114,15 +114,33 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   }, [mediaUrl, title]);
 
   const getAspectRatioClass = () => {
+    // Verificar se é proporção específica (ex: "9:16", "16:9")
+    if (aspectRatio?.includes(':')) {
+      const [width, height] = aspectRatio.split(':');
+      return `aspect-[${width}/${height}]`;
+    }
+    
+    // Proporções nomeadas
     switch (aspectRatio) {
       case 'vertical':
+      case '9:16':
         return 'aspect-[9/16]';
       case 'square':
+      case '1:1':
         return 'aspect-square';
+      case 'horizontal':
+      case '16:9':
       default:
         return 'aspect-video';
     }
   };
+
+  // Verificar se é vídeo vertical para ajustar container
+  const isVerticalAspect = aspectRatio === 'vertical' || 
+                          aspectRatio === '9:16' || 
+                          aspectRatio?.includes('9/16') ||
+                          (aspectRatio?.includes(':') && 
+                           parseInt(aspectRatio.split(':')[1]) > parseInt(aspectRatio.split(':')[0]));
 
   if (loading) {
     return (
@@ -149,7 +167,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
 
   if (isVideo && streamingUrl) {
     return (
-      <div className={`w-full ${className}`}>
+      <div className={`w-full ${className} ${isVerticalAspect ? 'max-w-[400px] mx-auto' : ''}`}>
         <div className={`w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-black`}>
           <iframe
             src={streamingUrl}
@@ -173,7 +191,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
 
   if (!isVideo && streamingUrl) {
     return (
-      <div className={`w-full ${className}`}>
+      <div className={`w-full ${className} ${isVerticalAspect ? 'max-w-[400px] mx-auto' : ''}`}>
         <div className={`w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-gray-100`}>
           <img
             src={streamingUrl}

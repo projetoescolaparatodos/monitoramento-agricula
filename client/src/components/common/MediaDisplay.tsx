@@ -264,7 +264,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
           <GoogleDrivePlayer
             mediaUrl={item.mediaUrl || ''}
             title={item.title || 'Mídia do Google Drive'}
-            aspectRatio={item.aspectRatio}
+            aspectRatio={item.aspectRatio || 'horizontal'}
             className="w-full"
           />
           <CardContent className="p-4">
@@ -345,7 +345,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
             <GoogleDrivePlayer
               mediaUrl={item.mediaUrl || ''}
               title={item.title || 'Mídia do Google Drive'}
-              aspectRatio={item.aspectRatio}
+              aspectRatio={item.aspectRatio || 'horizontal'}
               className="w-full"
             />
           </div>
