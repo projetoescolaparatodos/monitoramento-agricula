@@ -247,28 +247,22 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
   // Renderização de vídeos (YouTube ou Firebase Storage)
   const isMobile = useIsMobile();
 
-  // Usar sempre o componente MediaCard para consistência
-  return (
-    <div className="w-full h-auto">
-      <MediaCard
-        title={item.title || ''}
-        description={item.description || ''}
-        mediaUrl={item.mediaUrl || ''}
-        mediaType={item.mediaType || 'image'}
-        author={item.author}
-        authorImage={item.authorImage}
-        createdAt={item.createdAt}
-        location={item.location}
-        aspectRatio={item.aspectRatio}
-        displayMode={item.displayMode}
-        customAspectRatio={item.customAspectRatio}
-      />
-    </div>
-  );
-
-  // Código antigo do desktop comentado:
-  /*
-  if (false) { // Removido para unificar com mobile
+  if (isMobile) {
+    return (
+      <div className="w-full h-auto">
+        <MediaCard
+          title={item.title || ''}
+          description={item.description || ''}
+          mediaUrl={item.mediaUrl || ''}
+          mediaType={item.mediaType || 'image'}
+          author={item.author}
+          authorImage={item.authorImage}
+          createdAt={item.createdAt}
+          location={item.location}
+        />
+      </div>
+    );
+  } else {
     // Renderização de vídeos (YouTube ou Firebase Storage)
     if (isYouTubeVideo || isFirebaseVideo) {
       // Para YouTube, obtenha a URL de incorporação
@@ -487,7 +481,6 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
       </Card>
     );
   }
-  */
 };
 
 export default MediaDisplay;
