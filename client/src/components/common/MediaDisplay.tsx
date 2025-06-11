@@ -7,7 +7,7 @@ import { isGoogleDriveLink, getGoogleDriveFileId } from '@/utils/driveHelper';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { ChevronDown, ChevronUp, Calendar, MapPin, User } from 'lucide-react';
+import { ChevronDown, ChevronUp, Calendar, MapPin, User, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface MediaDisplayProps {
@@ -287,16 +287,31 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
           <div className="w-full relative">
             {isVideo ? (
               // Vídeo do Google Drive
-              <iframe
-                className="w-full rounded-t-lg aspect-video"
-                src={previewUrl}
-                title={item.title || "Vídeo do Google Drive"}
-                allow="autoplay; encrypted-media; fullscreen"
-                allowFullScreen
-                frameBorder="0"
-                loading="lazy"
-                sandbox="allow-scripts allow-same-origin allow-presentation"
-              />
+              <div className="relative w-full">
+                <iframe
+                  className="w-full rounded-t-lg aspect-video"
+                  src={previewUrl}
+                  title={item.title || "Vídeo do Google Drive"}
+                  allow="autoplay; encrypted-media; fullscreen; accelerometer; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  frameBorder="0"
+                  loading="lazy"
+                  sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
+                  style={{ border: 'none' }}
+                />
+                {/* Botão de fallback para mobile */}
+                <div className="absolute top-2 right-2 md:hidden">
+                  <a
+                    href={item.mediaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-black/70 text-white p-2 rounded-full shadow-lg"
+                    title="Abrir no Google Drive"
+                  >
+                    <ExternalLink size={16} />
+                  </a>
+                </div>
+              </div>
             ) : (
               // Imagem do Google Drive
               <div className="w-full">

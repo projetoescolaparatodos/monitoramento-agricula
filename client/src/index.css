@@ -520,11 +520,28 @@
   .media-display iframe[src*="drive.google.com"] {
     min-height: 200px;
     border-radius: 0.75rem 0.75rem 0 0;
+    /* Otimizações para mobile */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
   }
   
   .media-display video {
     max-height: 50vh;
     border-radius: 0.75rem 0.75rem 0 0;
+  }
+  
+  /* Força aceleração de hardware em mobile */
+  .media-display iframe {
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+  }
+  
+  /* Melhor suporte a touch em mobile */
+  .media-display {
+    -webkit-overflow-scrolling: touch;
+    touch-action: manipulation;
   }
 }
 

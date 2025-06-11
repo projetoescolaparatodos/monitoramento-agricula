@@ -56,6 +56,42 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
       if (isGoogleDriveLink(mediaUrl)) {
         const fileId = getGoogleDriveFileId(mediaUrl);
         const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+        const directUrl = `https://drive.google.com/file/d/${fileId}/view`;
+
+        // Em dispositivos móveis, oferecer opção de abrir diretamente no Google Drive
+        if (isMobile) {
+          return (
+            <div className="w-full bg-black flex flex-col items-center justify-center relative">
+              <iframe
+                src={previewUrl}
+                className={`w-full ${isVerticalVideo ? 'aspect-[9/16] max-w-[400px] mx-auto' : 'aspect-video'}`}
+                title={title}
+                allow="autoplay; encrypted-media; fullscreen; accelerometer; gyroscope; picture-in-picture"
+                allowFullScreen
+                frameBorder="0"
+                loading="lazy"
+                sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
+                style={{ border: 'none' }}
+                onError={() => {
+                  // Se o iframe falhar, mostrar botão para abrir no Google Drive
+                  console.log('Erro ao carregar iframe do Google Drive');
+                }}
+              />
+              {/* Botão de fallback para abrir no Google Drive */}
+              <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                <a
+                  href={directUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white/90 text-black px-4 py-2 rounded-lg font-medium shadow-lg flex items-center gap-2"
+                >
+                  <ExternalLink size={16} />
+                  Abrir no Drive
+                </a>
+              </div>
+            </div>
+          );
+        }
 
         return (
           <div className="w-full bg-black flex items-center justify-center">
@@ -63,11 +99,12 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
               src={previewUrl}
               className={`w-full ${isVerticalVideo ? 'aspect-[9/16] max-w-[400px] mx-auto' : 'aspect-video'}`}
               title={title}
-              allow="autoplay; encrypted-media; fullscreen"
+              allow="autoplay; encrypted-media; fullscreen; accelerometer; gyroscope; picture-in-picture"
               allowFullScreen
               frameBorder="0"
               loading="lazy"
-              sandbox="allow-scripts allow-same-origin allow-presentation"
+              sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
+              style={{ border: 'none' }}
             />
           </div>
         );
