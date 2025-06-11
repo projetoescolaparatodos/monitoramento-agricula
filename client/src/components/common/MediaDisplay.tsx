@@ -40,6 +40,46 @@ const MediaCard: React.FC<{
   // Detecta o tipo de mídia com base na URL
   const isYouTubeVideo = mediaUrl && isYoutubeUrl(mediaUrl);
   
+  // Função para converter proporção em classe CSS
+  const getAspectRatioClass = () => {
+    const ratio = item.aspectRatio;
+    switch(ratio) {
+      case '9:16':
+        return 'aspect-[9/16]';
+      case '1:1':
+        return 'aspect-square';
+      case '4:5':
+        return 'aspect-[4/5]';
+      case 'custom':
+        if (item.customAspectRatio) {
+          const [w, h] = item.customAspectRatio.split(':');
+          return `aspect-[${w}/${h}]`;
+        }
+        return 'aspect-video';
+      case 'vertical':
+        return 'aspect-[9/16]';
+      case 'square':
+        return 'aspect-square';
+      case 'horizontal':
+      case '16:9':
+      default:
+        return 'aspect-video';
+    }
+  };
+
+  const getObjectFitClass = () => {
+    switch(item.displayMode) {
+      case 'cover':
+        return 'object-cover';
+      case 'fill':
+        return 'object-fill';
+      default:
+        return 'object-contain';
+    }
+  };
+
+  const isVerticalMedia = item.aspectRatio === '9:16' || item.aspectRatio === 'vertical' || item.aspectRatio === '4:5';
+  
   const renderMedia = () => {
     if (mediaType === 'video') {
       if (isYouTubeVideo) {
@@ -47,10 +87,10 @@ const MediaCard: React.FC<{
         const embedUrl = getYoutubeEmbedUrl(mediaUrl);
         
         return (
-          <div className="aspect-video w-full overflow-hidden rounded-t-lg">
+          <div className={`${getAspectRatioClass()} w-full overflow-hidden rounded-t-lg ${isVerticalMedia ? 'max-w-md mx-auto' : ''}`}>
             <iframe
               src={`${embedUrl}?rel=0&showinfo=0&controls=1`}
-              className="w-full h-full"
+              className={`w-full h-full ${getObjectFitClass()}`}
               title={title}
               allowFullScreen
               loading="lazy"
@@ -59,29 +99,29 @@ const MediaCard: React.FC<{
         );
       } else {
         return (
-          <div className="w-full flex justify-center items-center bg-black rounded-t-lg overflow-hidden">
+          <div className={`w-full flex justify-center items-center bg-black rounded-t-lg overflow-hidden ${isVerticalMedia ? 'max-w-md mx-auto' : ''}`}>
             <video
               src={mediaUrl}
               controls
               title={title}
-              className="h-auto w-auto max-h-[80vh] max-w-full object-contain"
+              className={`${getAspectRatioClass()} ${getObjectFitClass()} max-h-[80vh] max-w-full`}
             />
           </div>
         );
       }
     } else {
       return (
-        <div className="w-full overflow-hidden rounded-t-lg bg-black/5">
+        <div className={`w-full overflow-hidden rounded-t-lg bg-black/5 ${isVerticalMedia ? 'max-w-md mx-auto' : ''}`}>
           <div className="w-full">
             {!imageError ? (
               <img
                 src={mediaUrl}
                 alt={title}
-                className="w-full h-auto object-contain max-h-[60vh]"
+                className={`w-full ${getAspectRatioClass()} ${getObjectFitClass()} max-h-[60vh]`}
                 onError={() => setImageError(true)}
               />
             ) : (
-              <div className="w-full h-40 flex items-center justify-center bg-gray-200">
+              <div className={`w-full ${getAspectRatioClass()} flex items-center justify-center bg-gray-200`}>
                 <p className="text-gray-500">Não foi possível carregar a imagem</p>
               </div>
             )}
@@ -100,7 +140,7 @@ const MediaCard: React.FC<{
   );
 
   return (
-    <Card className={`media-card overflow-hidden shadow-md border-0 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95 rounded-xl transition-all duration-300 hover:shadow-lg ${isVerticalVideo ? 'max-w-[400px] mx-auto' : ''}`}>
+    <Card className={`media-card overflow-hidden shadow-md border-0 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95 rounded-xl transition-all duration-300 hover:shadow-lg ${isVerticalMedia ? 'max-w-[400px] mx-auto vertical-media' : ''}`}>
       {renderMedia()}
       <CardContent className="p-4">
         {/<\/?[a-z][\s\S]*>/i.test(title) ? (

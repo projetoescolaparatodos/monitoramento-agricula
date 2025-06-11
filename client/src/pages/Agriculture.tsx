@@ -23,7 +23,7 @@ const Agriculture = () => {
       if (window.location.hash) {
         const id = window.location.hash.substring(1); // remover o caractere #
         const element = document.getElementById(id);
-        
+
         if (element) {
           // Quando o elemento for encontrado, rolar até ele
           element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -38,7 +38,7 @@ const Agriculture = () => {
     if (!scrollToHashElement()) {
       // Se não conseguir, tentar várias vezes com intervalos crescentes
       const attempts = [500, 1000, 1500, 2000]; // tempos em ms
-      
+
       attempts.forEach((delay, index) => {
         setTimeout(() => {
           scrollToHashElement();
@@ -243,7 +243,7 @@ const Agriculture = () => {
               ))}
             </div>
           )}
-          
+
           {/* Seção de Painéis Interativos */}
           <section className="mt-16">
             <div className="p-6">
@@ -251,13 +251,13 @@ const Agriculture = () => {
                 pageType="agriculture" 
                 className="text-white"
               />
-              
+
               {/* Novos botões abaixo do painel */}
               <div className="flex flex-col md:flex-row justify-center gap-4 mt-8">
                 <AgricultureTabButton className="shadow-md text-sm md:text-lg py-3 px-4 md:px-6 rounded-lg w-full md:w-auto">
                   <span className="truncate">Sou Agricultor, Quero me Cadastrar</span>
                 </AgricultureTabButton>
-                
+
                 <Button
                   onClick={() => setLocation("/agriculture/map")}
                   className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-sm md:text-lg py-3 px-4 md:px-6 rounded-lg shadow-md w-full md:w-auto"
@@ -275,9 +275,9 @@ const Agriculture = () => {
           />
 
           {mediaItems && mediaItems.length > 0 && (
-            <section id="media" className="mt-16">
+            <section className="mt-16">
               <h2 className="text-3xl font-bold text-center mb-8 text-white">Galeria de Mídia</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="media-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {mediaItems.map((item) => (
                   <MediaDisplay key={item.id} item={item} className="bg-opacity-90 backdrop-blur-sm" />
                 ))}

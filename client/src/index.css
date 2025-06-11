@@ -521,7 +521,7 @@
     max-width: 100%;
     margin: 0 auto;
   }
-  
+
   .media-display video,
   .media-display img {
     width: 100%;
@@ -529,7 +529,7 @@
     max-height: 80vh;
     object-fit: contain;
   }
-  
+
   .media-card video,
   .media-card img {
     width: 100%;
@@ -537,7 +537,7 @@
     max-height: 80vh;
     object-fit: contain;
   }
-  
+
   /* Específico para vídeos em formato retrato (aspect ratio < 1) */
   .media-card video[style*="aspect-ratio"] {
     max-width: 100%;
@@ -726,4 +726,57 @@ video.portrait-video {
 
 .media-card .media-title span[style*="color"] {
   display: inline;
+}
+
+@layer utilities {
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes glow {
+    from {
+      text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #0ea5e9, 0 0 20px #0ea5e9;
+    }
+    to {
+      text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #0ea5e9, 0 0 40px #0ea5e9;
+    }
+  }
+
+  /* Vertical media styles */
+  .vertical-media {
+    @apply max-w-md mx-auto;
+  }
+
+  /* Custom aspect ratio classes */
+  .aspect-\[9\/16\] {
+    aspect-ratio: 9/16;
+  }
+
+  .aspect-\[4\/5\] {
+    aspect-ratio: 4/5;
+  }
+
+  .aspect-\[3\/4\] {
+    aspect-ratio: 3/4;
+  }
+
+  /* Grid adjustments for vertical media */
+  @media (min-width: 768px) {
+    .media-grid .vertical-media {
+      grid-row: span 2;
+    }
+  }
+
+  /* Object fit utilities */
+  .object-contain {
+    object-fit: contain;
+  }
+
+  .object-cover {
+    object-fit: cover;
+  }
+
+  .object-fill {
+    object-fit: fill;
+  }
 }

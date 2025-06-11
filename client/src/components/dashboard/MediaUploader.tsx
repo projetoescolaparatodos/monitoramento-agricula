@@ -14,14 +14,18 @@ import { useToast } from "../../hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 
 const formSchema = z.object({
-  pageType: z.enum(["home", "agriculture", "fishing", "paa"]),
+  pageType: z.string(),
   title: z.string().min(2, "Título deve ter pelo menos 2 caracteres"),
   description: z.string().optional(),
   mediaType: z.string(),
   mediaUrl: z.string().url("URL inválida"),
   thumbnailUrl: z.string().url("URL inválida").optional().or(z.literal('')),
   active: z.boolean().default(true),
-  order: z.number().int().min(0)
+  order: z.number().int().min(0),
+  aspectRatio: z.string().optional(),
+  customAspectRatio: z.string().optional(),
+  displayMode: z.string().optional(),
+  verticalPadding: z.number().optional()
 });
 
 interface MediaUploaderProps {
@@ -55,14 +59,16 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
     mediaUrl: "",
     thumbnailUrl: "",
     active: true,
-    order: 0
+    order: 0,
+    aspectRatio: "16:9",
+    displayMode: "contain"
   };
 
   const form = useForm<MediaFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: fetchedMedia || mediaData || defaultValues,
   });
-  
+
   // Log para debug do pageType selecionado
   console.log("Valor atual de pageType:", form.watch("pageType"));
 
@@ -94,7 +100,7 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
       queryClient.invalidateQueries({ queryKey: ['/api/media-items'] });
       queryClient.invalidateQueries({ queryKey: ['media'] });
       queryClient.invalidateQueries({ queryKey: ['media', 'sim'] });
-      
+
       if (onSuccess) {
         onSuccess();
       }
@@ -154,6 +160,7 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
                         <option value="agriculture">Agricultura</option>
                         <option value="fishing">Pesca</option>
                         <option value="paa">PAA</option>
+                        <option value="sim">SIM</option>
                       </select>
                     </FormControl>
                     <FormMessage />
@@ -180,6 +187,75 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
                 )}
               />
             </div>
+
+            {/* Controles de Proporção e Exibição */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="aspectRatio"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Proporção da Mídia</FormLabel>
+                    <FormControl>
+                      <select
+                        {...field}
+                        className="w-full p-2 border rounded-md"
+                        value={field.value || '16:9'}
+                      >
+                        <option value="16:9">Horizontal (16:9)</option>
+                        <option value="9:16">Vertical (9:16)</option>
+                        <option value="1:1">Quadrada (1:1)</option>
+                        <option value="4:5">Retrato (4:5)</option>
+                        <option value="custom">Personalizada</option>
+                      </select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="displayMode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Modo de Exibição</FormLabel>
+                    <FormControl>
+                      <select
+                        {...field}
+                        className="w-full p-2 border rounded-md"
+                        value={field.value || 'contain'}
+                      >
+                        <option value="contain">Ajustar (contain)</option>
+                        <option value="cover">Preencher (cover)</option>
+                        <option value="fill">Esticar (fill)</option>
+                      </select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {form.watch('aspectRatio') === 'custom' && (
+              <FormField
+                control={form.control}
+                name="customAspectRatio"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Proporção Personalizada</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        placeholder="width:height (ex: 3:4)"
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <FormField
               control={form.control}
               name="title"
@@ -242,7 +318,7 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
                 )}
               />
             )}
-            
+
             {/* Componente de upload com passagem correta do pageType */}
             <div className="mt-4">
               <MediaFileUploader 
