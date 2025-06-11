@@ -4,6 +4,7 @@ import { MediaItem } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { isYoutubeUrl, getYoutubeEmbedUrl } from '@/utils/mediaUtils';
 import { isGoogleDriveLink, getGoogleDriveFileId } from '@/utils/driveHelper';
+import GoogleDriveVideoPlayer from './GoogleDriveVideoPlayer';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -278,40 +279,19 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
     const shouldTreatAsVertical = isFirebaseVideo && item.mediaType === 'video';
     // Renderização de mídias do Google Drive
     if (isGoogleDriveMedia) {
-      const fileId = getGoogleDriveFileId(item.mediaUrl || '');
       const isVideo = item.mediaType === 'video';
-      const previewUrl = isVideo ? `https://drive.google.com/file/d/${fileId}/preview` : item.mediaUrl;
       
       return (
         <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className} flex flex-col`}>
           <div className="w-full relative">
             {isVideo ? (
-              // Vídeo do Google Drive
-              <div className="relative w-full">
-                <iframe
-                  className="w-full rounded-t-lg aspect-video"
-                  src={previewUrl}
-                  title={item.title || "Vídeo do Google Drive"}
-                  allow="autoplay; encrypted-media; fullscreen; accelerometer; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  frameBorder="0"
-                  loading="lazy"
-                  sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
-                  style={{ border: 'none' }}
-                />
-                {/* Botão de fallback para mobile */}
-                <div className="absolute top-2 right-2 md:hidden">
-                  <a
-                    href={item.mediaUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-black/70 text-white p-2 rounded-full shadow-lg"
-                    title="Abrir no Google Drive"
-                  >
-                    <ExternalLink size={16} />
-                  </a>
-                </div>
-              </div>
+              // Vídeo do Google Drive usando o componente especializado
+              <GoogleDriveVideoPlayer
+                mediaUrl={item.mediaUrl || ''}
+                thumbnailUrl={item.thumbnailUrl}
+                title={item.title || "Vídeo do Google Drive"}
+                aspectRatio={item.aspectRatio === 'vertical' || item.aspectRatio === '9:16' ? 'vertical' : 'horizontal'}
+              />
             ) : (
               // Imagem do Google Drive
               <div className="w-full">
