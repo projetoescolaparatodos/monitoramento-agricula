@@ -3,7 +3,7 @@ import React from 'react';
 
 const PAAIcon = () => (
   <svg
-    className="w-16 h-16 text-white group-hover:scale-110 transition-all duration-300"
+    className="w-8 h-8 text-white group-hover:scale-110 transition-all duration-300"
     fill="white"
     viewBox="0 0 24 24"
     aria-hidden="true"

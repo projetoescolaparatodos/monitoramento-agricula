@@ -27,21 +27,23 @@ export const AreasSection = () => {
           >
             <Link href="/agriculture" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
               <div
-                className="group relative bg-gray-100/90 backdrop-blur-sm rounded-2xl shadow-md p-8 cursor-pointer hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-200/50 hover:border-green-300 overflow-hidden"
+                className="group relative bg-gray-100/90 backdrop-blur-sm rounded-2xl shadow-md p-6 cursor-pointer hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-200/50 hover:border-green-300 overflow-hidden min-h-[200px]"
                 role="link"
                 aria-label="Explorar Agricultura"
               >
                 {/* Subtle background overlay on hover */}
                 <div className="absolute inset-0 bg-gradient-to-br from-green-400/10 to-transparent opacity-0 group-hover:opacity-30 transition-opacity duration-500" />
-                <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-full mb-6">
+                <div className="absolute top-4 right-4 flex items-center justify-center w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full">
                   <AgricultureTractorIcon />
                 </div>
-                <h3 className="text-2xl font-semibold mb-4 text-gray-800 group-hover:text-green-600 transition-colors duration-300 tracking-wide">
-                  Agricultura
-                </h3>
-                <p className="text-gray-600 leading-relaxed group-hover:text-gray-800 transition-colors text-base">
-                  Informações sobre agricultura e produção rural
-                </p>
+                <div className="pt-8">
+                  <h3 className="text-xl font-semibold mb-3 text-gray-800 group-hover:text-green-600 transition-colors duration-300 tracking-wide">
+                    Agricultura
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed group-hover:text-gray-800 transition-colors text-sm">
+                    Informações sobre agricultura e produção rural
+                  </p>
+                </div>
                 <div className="mt-6 flex items-center text-green-600 font-semibold group-hover:text-green-700 transition-colors">
                   <span className="mr-2 text-sm uppercase tracking-wider">Explorar</span>
                   <svg
@@ -70,20 +72,22 @@ export const AreasSection = () => {
           >
             <Link href="/fishing" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
               <div
-                className="group relative bg-gray-100/90 backdrop-blur-sm rounded-2xl shadow-md p-8 cursor-pointer hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-200/50 hover:border-blue-300 overflow-hidden"
+                className="group relative bg-gray-100/90 backdrop-blur-sm rounded-2xl shadow-md p-6 cursor-pointer hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-200/50 hover:border-blue-300 overflow-hidden min-h-[200px]"
                 role="link"
                 aria-label="Explorar Pesca"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-transparent opacity-0 group-hover:opacity-30 transition-opacity duration-500" />
-                <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full mb-6">
+                <div className="absolute top-4 right-4 flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full">
                   <FishingIcon />
                 </div>
-                <h3 className="text-2xl font-semibold mb-4 text-gray-800 group-hover:text-blue-600 transition-colors duration-300 tracking-wide">
-                  Pesca
-                </h3>
-                <p className="text-gray-600 leading-relaxed group-hover:text-gray-800 transition-colors text-base">
-                  Dados sobre pesca e atividades pesqueiras
-                </p>
+                <div className="pt-8">
+                  <h3 className="text-xl font-semibold mb-3 text-gray-800 group-hover:text-blue-600 transition-colors duration-300 tracking-wide">
+                    Pesca
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed group-hover:text-gray-800 transition-colors text-sm">
+                    Dados sobre pesca e atividades pesqueiras
+                  </p>
+                </div>
                 <div className="mt-6 flex items-center text-blue-600 font-semibold group-hover:text-blue-700 transition-colors">
                   <span className="mr-2 text-sm uppercase tracking-wider">Explorar</span>
                   <svg
@@ -112,20 +116,22 @@ export const AreasSection = () => {
           >
             <Link href="/paa" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
               <div
-                className="group relative bg-gray-100/90 backdrop-blur-sm rounded-2xl shadow-md p-8 cursor-pointer hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-200/50 hover:border-orange-300 overflow-hidden"
+                className="group relative bg-gray-100/90 backdrop-blur-sm rounded-2xl shadow-md p-6 cursor-pointer hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-200/50 hover:border-orange-300 overflow-hidden min-h-[200px]"
                 role="link"
                 aria-label="Explorar PAA"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-400/10 to-transparent opacity-0 group-hover:opacity-30 transition-opacity duration-500" />
-                <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full mb-6">
+                <div className="absolute top-4 right-4 flex items-center justify-center w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full">
                   <PAAIcon />
                 </div>
-                <h3 className="text-2xl font-semibold mb-4 text-gray-800 group-hover:text-orange-600 transition-colors duration-300 tracking-wide">
-                  PAA
-                </h3>
-                <p className="text-gray-600 leading-relaxed group-hover:text-gray-800 transition-colors text-base">
-                  Programa de Aquisição de Alimentos
-                </p>
+                <div className="pt-8">
+                  <h3 className="text-xl font-semibold mb-3 text-gray-800 group-hover:text-orange-600 transition-colors duration-300 tracking-wide">
+                    PAA
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed group-hover:text-gray-800 transition-colors text-sm">
+                    Programa de Aquisição de Alimentos
+                  </p>
+                </div>
                 <div className="mt-6 flex items-center text-orange-600 font-semibold group-hover:text-orange-700 transition-colors">
                   <span className="mr-2 text-sm uppercase tracking-wider">Explorar</span>
                   <svg
