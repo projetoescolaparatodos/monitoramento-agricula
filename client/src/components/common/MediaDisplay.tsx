@@ -278,17 +278,24 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
     const shouldTreatAsVertical = isFirebaseVideo && item.mediaType === 'video';
     // Renderização de mídias do Google Drive
     if (isGoogleDriveMedia) {
+      const fileId = getGoogleDriveFileId(item.mediaUrl || '');
+      const isVideo = item.mediaType === 'video';
+      const previewUrl = isVideo ? `https://drive.google.com/file/d/${fileId}/preview` : item.mediaUrl;
+      
       return (
         <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className} flex flex-col`}>
           <div className="w-full relative">
-            {item.mediaUrl?.includes('/preview') ? (
+            {isVideo ? (
               // Vídeo do Google Drive
               <iframe
                 className="w-full rounded-t-lg aspect-video"
-                src={item.mediaUrl}
+                src={previewUrl}
                 title={item.title || "Vídeo do Google Drive"}
-                allow="autoplay"
+                allow="autoplay; encrypted-media; fullscreen"
+                allowFullScreen
+                frameBorder="0"
                 loading="lazy"
+                sandbox="allow-scripts allow-same-origin allow-presentation"
               />
             ) : (
               // Imagem do Google Drive

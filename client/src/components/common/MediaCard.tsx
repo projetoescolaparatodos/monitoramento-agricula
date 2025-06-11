@@ -54,14 +54,20 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
   const renderMedia = () => {
     if (mediaType === 'video') {
       if (isGoogleDriveLink(mediaUrl)) {
+        const fileId = getGoogleDriveFileId(mediaUrl);
+        const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+        
         return (
           <div className="w-full bg-black flex items-center justify-center">
             <iframe
-              src={mediaUrl}
+              src={previewUrl}
               className={`w-full ${isVerticalVideo ? 'aspect-[9/16] max-w-[400px] mx-auto' : 'aspect-video'}`}
               title={title}
-              allow="autoplay"
+              allow="autoplay; encrypted-media; fullscreen"
+              allowFullScreen
+              frameBorder="0"
               loading="lazy"
+              sandbox="allow-scripts allow-same-origin allow-presentation"
             />
           </div>
         );

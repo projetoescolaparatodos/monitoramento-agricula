@@ -27,8 +27,17 @@ export const convertGoogleDriveLink = async (url: string): Promise<string> => {
 
 const isVideoFile = async (url: string): Promise<boolean> => {
   // Verifica extensões de vídeo na URL original
-  const videoExtensions = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.m4v'];
-  return videoExtensions.some(ext => url.toLowerCase().includes(ext));
+  const videoExtensions = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.m4v', '.flv', '.wmv'];
+  const hasVideoExtension = videoExtensions.some(ext => url.toLowerCase().includes(ext));
+  
+  // Se não tem extensão na URL, assume que pode ser vídeo se for um link de compartilhamento
+  if (!hasVideoExtension && url.includes('drive.google.com')) {
+    // Por padrão, retorna true para permitir que seja tratado como vídeo
+    // O iframe do Google Drive consegue detectar automaticamente o tipo
+    return true;
+  }
+  
+  return hasVideoExtension;
 };
 
 export const getGoogleDriveFileId = (url: string): string => {
