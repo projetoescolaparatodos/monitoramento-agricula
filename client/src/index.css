@@ -517,7 +517,8 @@
 
 /* Estilos específicos para mobile */
 @media (max-width: 768px) {
-  .media-display iframe[src*="drive.google.com"] {
+  .media-display iframe[src*="drive.google.com"],
+  .media-card iframe[src*="drive.google.com"] {
     min-height: 200px;
     border-radius: 0.75rem 0.75rem 0 0;
     /* Otimizações para mobile */
@@ -525,23 +526,43 @@
     transform: translateZ(0);
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    /* Força carregamento adequado em mobile */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
   }
   
-  .media-display video {
+  .media-display video,
+  .media-card video {
     max-height: 50vh;
     border-radius: 0.75rem 0.75rem 0 0;
   }
   
   /* Força aceleração de hardware em mobile */
-  .media-display iframe {
+  .media-display iframe,
+  .media-card iframe {
     will-change: transform;
     transform: translate3d(0, 0, 0);
+    /* Melhora compatibilidade com navegadores mobile */
+    -webkit-transform: translate3d(0, 0, 0);
+    -webkit-perspective: 1000px;
+    perspective: 1000px;
   }
   
   /* Melhor suporte a touch em mobile */
-  .media-display {
+  .media-display,
+  .media-card {
     -webkit-overflow-scrolling: touch;
     touch-action: manipulation;
+    /* Força repaint para melhor renderização */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  
+  /* Específico para containers de vídeo do Google Drive */
+  .media-card .w-full.bg-black {
+    isolation: isolate;
+    contain: layout style paint;
   }
 }
 
