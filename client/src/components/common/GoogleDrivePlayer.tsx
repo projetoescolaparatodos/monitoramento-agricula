@@ -160,12 +160,6 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
             loading="lazy"
           />
-
-          {/* Overlay com informações do arquivo */}
-          <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded flex items-center">
-            <Play className="w-3 h-3 mr-1" />
-            Vídeo do Google Drive
-          </div>
         </div>
 
         {fileMetadata?.name && (
