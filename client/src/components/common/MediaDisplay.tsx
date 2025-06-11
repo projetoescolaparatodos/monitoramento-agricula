@@ -43,13 +43,14 @@ const MediaCard: React.FC<{
   const renderMedia = () => {
     if (mediaType === 'video') {
       if (isYouTubeVideo) {
+        // Extrair o ID do vídeo do YouTube
         const embedUrl = getYoutubeEmbedUrl(mediaUrl);
         
         return (
           <div className="aspect-video w-full overflow-hidden rounded-t-lg">
             <iframe
               src={`${embedUrl}?rel=0&showinfo=0&controls=1`}
-              className="w-full h-full object-contain"
+              className="w-full h-full"
               title={title}
               allowFullScreen
               loading="lazy"
@@ -63,7 +64,7 @@ const MediaCard: React.FC<{
               src={mediaUrl}
               controls
               title={title}
-              className="aspect-video object-contain max-h-[60vh] w-full"
+              className="h-auto w-auto max-h-[80vh] max-w-full object-contain"
             />
           </div>
         );
@@ -76,11 +77,11 @@ const MediaCard: React.FC<{
               <img
                 src={mediaUrl}
                 alt={title}
-                className="w-full aspect-video object-contain max-h-[60vh]"
+                className="w-full h-auto object-contain max-h-[60vh]"
                 onError={() => setImageError(true)}
               />
             ) : (
-              <div className="w-full aspect-video flex items-center justify-center bg-gray-200">
+              <div className="w-full h-40 flex items-center justify-center bg-gray-200">
                 <p className="text-gray-500">Não foi possível carregar a imagem</p>
               </div>
             )}
@@ -90,8 +91,16 @@ const MediaCard: React.FC<{
     }
   };
 
+  // Detectar se é vídeo vertical
+  const isVerticalVideo = mediaType === 'video' && (
+    title.toLowerCase().includes('vertical') || 
+    title.toLowerCase().includes('instagram') || 
+    title.toLowerCase().includes('reels') ||
+    title.toLowerCase().includes('tiktok')
+  );
+
   return (
-    <Card className="media-card overflow-hidden shadow-md border-0 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95 rounded-xl transition-all duration-300 hover:shadow-lg">
+    <Card className={`media-card overflow-hidden shadow-md border-0 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95 rounded-xl transition-all duration-300 hover:shadow-lg ${isVerticalVideo ? 'max-w-[400px] mx-auto' : ''}`}>
       {renderMedia()}
       <CardContent className="p-4">
         {/<\/?[a-z][\s\S]*>/i.test(title) ? (

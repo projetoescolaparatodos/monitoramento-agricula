@@ -23,10 +23,10 @@ export interface MediaItem {
   id: string;
   mediaUrl: string;
   thumbnailUrl?: string;
-  title?: string;
-  description?: string;
+  title?: string; // Pode conter HTML formatado do ReactQuill
+  description?: string; // Contém HTML formatado do ReactQuill
   mediaType: 'image' | 'video';
-  pageType?: 'home' | 'agriculture' | 'fishing' | 'paa' | 'sim';
+  pageType?: 'home' | 'agriculture' | 'fishing' | 'paa';
   active?: boolean;
   createdAt?: string;
   author?: string;
@@ -34,11 +34,8 @@ export interface MediaItem {
   location?: string;
   views?: number;
   likes?: number;
-  tags?: string[];
-  aspectRatio?: '1:1' | '16:9' | '9:16' | '4:5' | 'custom' | 'horizontal' | 'vertical' | 'square'; // Mantém compatibilidade
-  customAspectRatio?: string;
-  displayMode?: 'contain' | 'cover' | 'fill';
-  verticalPadding?: number;
+  tags?: string[]; // Array opcional de tags para facilitar a busca
+  aspectRatio?: 'horizontal' | 'vertical' | 'square';
 }
 
 export interface StatisticItem {
@@ -54,19 +51,19 @@ export interface StatisticItem {
 export type PageType = 'home' | 'agriculture' | 'fishing' | 'paa';
 
 export interface MediaFormData {
+  id?: string;
   pageType: PageType;
   title: string;
-  description?: string;
+  description?: string; // Contém HTML formatado do ReactQuill
   mediaType: string;
   mediaUrl: string;
   thumbnailUrl?: string;
   active: boolean;
   order: number;
-  id?: string;
-  aspectRatio?: '1:1' | '16:9' | '9:16' | '4:5' | 'custom' | 'horizontal' | 'vertical' | 'square';
-  customAspectRatio?: string;
-  displayMode?: 'contain' | 'cover' | 'fill';
-  verticalPadding?: number;
+  author?: string;
+  authorImage?: string;
+  tags?: string;
+  createdAt?: string;
 }
 
 export interface InfoPanelItem {
