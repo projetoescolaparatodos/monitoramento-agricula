@@ -2,11 +2,8 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { isYoutubeUrl } from '@/utils/isYoutubeUrl';
-import { isGoogleDriveLink, getGoogleDriveFileId } from '@/utils/driveHelper';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import GoogleDriveVideoPlayer from './GoogleDriveVideoPlayer';
 
 interface MediaCardProps {
   title: string;
@@ -18,10 +15,7 @@ interface MediaCardProps {
 const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, mediaType }) => {
   const [expanded, setExpanded] = useState(false);
   const [isVideoPortrait, setIsVideoPortrait] = useState(false);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
   const videoRef = React.useRef<HTMLVideoElement>(null);
-  const iframeRef = React.useRef<HTMLIFrameElement>(null);
-  const isMobile = useIsMobile();
 
   const previewLength = 100;
   const shouldTruncate = description.length > previewLength;
@@ -56,19 +50,8 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
 
   const renderMedia = () => {
     if (mediaType === 'video') {
-      // 1. Primeiro verifica se é Google Drive
-      if (isGoogleDriveLink(mediaUrl)) {
-        // Usar sempre o componente especializado para Google Drive
-        return (
-          <GoogleDriveVideoPlayer
-            mediaUrl={mediaUrl}
-            title={title}
-            aspectRatio={isVerticalVideo ? 'vertical' : 'horizontal'}
-          />
-        );
-      } 
       // 2. Depois verifica YouTube
-      else if (isYoutubeUrl(mediaUrl)) {
+      if (isYoutubeUrl(mediaUrl)) {
         const videoId = mediaUrl.includes('youtu.be') 
           ? mediaUrl.split('/').pop() 
           : new URLSearchParams(new URL(mediaUrl).search).get('v');
@@ -106,16 +89,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
             <img
               src={mediaUrl}
               alt={title}
-              className={`w-full h-auto object-contain ${isMobile ? 'max-h-[50vh]' : 'max-h-[60vh]'}`}
-              onError={(e) => {
-                // Fallback para Google Drive
-                if (isGoogleDriveLink(mediaUrl)) {
-                  const fileId = getGoogleDriveFileId(mediaUrl);
-                  if (fileId) {
-                    e.currentTarget.src = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
-                  }
-                }
-              }}
+              className={`w-full h-auto object-contain`}
             />
           </div>
         </div>
