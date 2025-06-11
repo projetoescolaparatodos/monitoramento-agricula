@@ -531,13 +531,13 @@
     -moz-appearance: none;
     appearance: none;
   }
-  
+
   .media-display video,
   .media-card video {
     max-height: 50vh;
     border-radius: 0.75rem 0.75rem 0 0;
   }
-  
+
   /* Força aceleração de hardware em mobile */
   .media-display iframe,
   .media-card iframe {
@@ -548,7 +548,7 @@
     -webkit-perspective: 1000px;
     perspective: 1000px;
   }
-  
+
   /* Melhor suporte a touch em mobile */
   .media-display,
   .media-card {
@@ -558,7 +558,7 @@
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
   }
-  
+
   /* Específico para containers de vídeo do Google Drive */
   .media-card .w-full.bg-black {
     isolation: isolate;
@@ -588,7 +588,7 @@
     max-width: 100%;
     margin: 0 auto;
   }
-  
+
   .media-display video,
   .media-display img {
     width: 100%;
@@ -596,7 +596,7 @@
     max-height: 80vh;
     object-fit: contain;
   }
-  
+
   .media-card video,
   .media-card img {
     width: 100%;
@@ -604,7 +604,7 @@
     max-height: 80vh;
     object-fit: contain;
   }
-  
+
   /* Específico para vídeos em formato retrato (aspect ratio < 1) */
   .media-card video[style*="aspect-ratio"] {
     max-width: 100%;
@@ -793,4 +793,35 @@ video.portrait-video {
 
 .media-card .media-title span[style*="color"] {
   display: inline;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .media-card-mobile {
+    max-height: 70vh;
+    aspect-ratio: auto;
+  }
+
+  .media-card-mobile.vertical {
+    aspect-ratio: 9/16;
+    max-width: 90vw;
+    margin: 0 auto;
+  }
+}
+
+/* Iframe optimizations for all devices */
+iframe {
+  max-width: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* Specific optimizations for Google Drive iframes */
+iframe[src*="drive.google.com"] {
+  border: none !important;
+  outline: none;
+  -webkit-border-radius: 0;
+  border-radius: 0;
 }

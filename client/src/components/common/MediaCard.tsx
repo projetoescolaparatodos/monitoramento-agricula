@@ -60,23 +60,30 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
         const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
         const directUrl = `https://drive.google.com/file/d/${fileId}/view`;
 
-        // Em dispositivos móveis, usar implementação otimizada
+        // Implementação otimizada para mobile
         if (isMobile) {
           return (
-            <div className="w-full bg-black flex flex-col items-center justify-center relative min-h-[200px]">
+            <div 
+              className="w-full bg-black flex flex-col items-center justify-center relative"
+              style={{
+                aspectRatio: isVerticalVideo ? '9/16' : '16/9',
+                maxWidth: isVerticalVideo ? '400px' : '100%',
+                minHeight: isVerticalVideo ? '400px' : '200px'
+              }}
+            >
               <iframe
+                key={`drive-iframe-${fileId}`}
                 ref={iframeRef}
                 src={previewUrl}
-                className={`w-full ${isVerticalVideo ? 'aspect-[9/16] max-w-[400px] mx-auto' : 'aspect-video'} rounded-t-xl`}
+                className="w-full h-full rounded-t-xl"
                 title={title}
                 allow="autoplay; encrypted-media; fullscreen; picture-in-picture; accelerometer; gyroscope"
                 allowFullScreen
                 frameBorder="0"
                 loading="lazy"
-                sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox allow-forms"
+                sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
                 style={{ 
                   border: 'none',
-                  minHeight: '200px',
                   transform: 'translateZ(0)',
                   WebkitTransform: 'translateZ(0)',
                   backfaceVisibility: 'hidden',
@@ -86,30 +93,58 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
                   console.log('Iframe do Google Drive carregado com sucesso em mobile');
                   setIframeLoaded(true);
                 }}
-                onError={(e) => {
-                  console.error('Erro ao carregar iframe do Google Drive em mobile:', e);
+                onError={() => {
+                  console.error('Erro ao carregar iframe do Google Drive em mobile');
                   setIframeLoaded(false);
                 }}
               />
-              {/* Botão de fallback sempre visível em mobile para melhor UX */}
-              <div className="absolute bottom-2 right-2 z-10">
+
+              {/* Fallback quando iframe falha */}
+              {!iframeLoaded && (
+                <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-gray-800">
+                  <img
+                    src={`https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`}
+                    alt={`Thumbnail do vídeo: ${title}`}
+                    className="w-full h-auto max-h-[70vh] object-contain"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                  <a
+                    href={directUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute inset-0 flex items-center justify-center bg-black/50 text-white p-4 text-center"
+                  >
+                    <div>
+                      <p>Não foi possível carregar o vídeo.</p>
+                      <p className="mt-2 underline">Clique para abrir no Google Drive</p>
+                    </div>
+                  </a>
+                </div>
+              )}
+
+              {/* Overlay de controles para mobile */}
+              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/80 to-transparent flex items-end justify-center pb-2">
                 <a
                   href={directUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-black/70 text-white p-2 rounded-full shadow-lg backdrop-blur-sm flex items-center justify-center"
-                  title="Abrir no Google Drive"
+                  className="bg-white text-black px-3 py-1 rounded-full text-sm flex items-center gap-1 shadow-lg"
                 >
                   <ExternalLink size={14} />
+                  <span>Abrir no Drive</span>
                 </a>
               </div>
             </div>
           );
         }
 
+        // Desktop version
         return (
           <div className="w-full bg-black flex items-center justify-center">
             <iframe
+              key={`drive-iframe-desktop-${fileId}`}
               src={previewUrl}
               className={`w-full ${isVerticalVideo ? 'aspect-[9/16] max-w-[400px] mx-auto' : 'aspect-video'}`}
               title={title}
@@ -118,7 +153,19 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
               frameBorder="0"
               loading="lazy"
               sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
-              style={{ border: 'none' }}
+              style={{ 
+                border: 'none',
+                transform: 'translateZ(0)',
+                WebkitTransform: 'translateZ(0)',
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden'
+              }}
+              onLoad={() => {
+                console.log('Iframe do Google Drive carregado com sucesso em desktop');
+              }}
+              onError={() => {
+                console.error('Erro ao carregar iframe do Google Drive em desktop');
+              }}
             />
           </div>
         );
