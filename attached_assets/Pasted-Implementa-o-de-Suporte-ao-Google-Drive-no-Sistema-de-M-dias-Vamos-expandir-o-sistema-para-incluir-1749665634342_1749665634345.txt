@@ -1,0 +1,187 @@
+Implementação de Suporte ao Google Drive no Sistema de Mídias
+Vamos expandir o sistema para incluir suporte ao Google Drive, tanto para upload por link quanto para visualização.
+
+1. Modificações no MediaLinkUploader.tsx
+Primeiro, vamos atualizar o componente de upload por link para reconhecer links do Google Drive:
+
+typescript
+const isGoogleDriveLink = (url: string) => {
+  return url.includes('drive.google.com') && 
+         (url.includes('/file/d/') || url.includes('/open?id='));
+};
+
+const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault();
+  
+  // Validações existentes...
+  
+  // Adicionar detecção do Google Drive
+  if (isGoogleDriveLink(url)) {
+    toast({
+      title: "Google Drive detectado",
+      description: "Processando link do Google Drive...",
+    });
+    
+    try {
+      const directLink = await convertGoogleDriveLink(url);
+      onLinkSubmit(directLink);
+      setUrl('');
+      return;
+    } catch (error) {
+      toast({
+        title: "Erro no link do Google Drive",
+        description: error.message,
+        variant: "destructive"
+      });
+      return;
+    }
+  }
+  
+  // Restante da lógica existente...
+};
+2. Função para Conversão de Links do Google Drive
+Crie um utilitário para transformar links compartilhados do Drive em links diretos:
+
+typescript
+// utils/driveHelper.ts
+export const convertGoogleDriveLink = async (url: string): Promise<string> => {
+  // Padroniza o formato do link
+  let fileId = '';
+  
+  // Extrai o ID do arquivo de diferentes formatos de URL
+  if (url.includes('/file/d/')) {
+    fileId = url.split('/file/d/')[1].split('/')[0];
+  } else if (url.includes('id=')) {
+    fileId = url.split('id=')[1].split('&')[0];
+  } else {
+    throw new Error("Formato de link do Google Drive não reconhecido");
+  }
+  
+  // Verifica se é um link público (não funciona para links restritos)
+  const directLink = `https://drive.google.com/uc?export=view&id=${fileId}`;
+  
+  // Para vídeos, precisamos de um tratamento diferente
+  if (await isVideoFile(fileId)) {
+    return `https://drive.google.com/file/d/${fileId}/preview`;
+  }
+  
+  return directLink;
+};
+
+const isVideoFile = async (fileId: string): Promise<boolean> => {
+  // Aqui você pode implementar uma verificação real da API do Google Drive
+  // ou simplesmente verificar pela extensão se já tiver essa informação
+  
+  // Implementação simplificada - verifica pela extensão na URL
+  const videoExtensions = ['.mp4', '.mov', '.avi', '.mkv', '.webm'];
+  return videoExtensions.some(ext => fileId.includes(ext));
+};
+3. Atualização do MediaDisplay.tsx
+Adicione suporte para visualização de mídias do Google Drive:
+
+typescript
+// Adicione esta função de detecção
+const isGoogleDriveLink = (url: string) => {
+  return url.includes('drive.google.com');
+};
+
+// No componente de renderização
+if (isGoogleDriveLink(item.mediaUrl)) {
+  if (item.mediaUrl.includes('/preview')) {
+    // Vídeo do Drive
+    return (
+      <iframe
+        className="w-full rounded-t-lg aspect-video"
+        src={item.mediaUrl}
+        title={item.title || "Vídeo do Google Drive"}
+        allow="autoplay"
+      />
+    );
+  } else {
+    // Imagem do Drive
+    return (
+      <div className="relative w-full h-full">
+        <img
+          className="rounded-t-lg object-cover w-full h-auto max-h-[70vh]"
+          src={item.mediaUrl}
+          alt={item.title || "Imagem do Google Drive"}
+          onError={(e) => {
+            // Fallback para visualização padrão do Drive
+            e.currentTarget.src = `https://drive.google.com/thumbnail?id=${
+              item.mediaUrl.split('id=')[1].split('&')[0]
+            }&sz=w1000`;
+          }}
+        />
+      </div>
+    );
+  }
+}
+4. Adicionar Tipo de Mídia no Modelo de Dados
+Atualize sua interface/type para incluir o tipo de origem da mídia:
+
+typescript
+interface MediaItem {
+  id: string;
+  title: string;
+  description?: string;
+  mediaUrl: string;
+  mediaType: 'image' | 'video' | 'youtube' | 'drive'; // Adicione 'drive'
+  aspectRatio?: string;
+  // ... outros campos
+}
+5. Melhorias no Feedback ao Usuário
+Atualize as mensagens de toast para incluir informações sobre o Google Drive:
+
+typescript
+toast({
+  title: "Google Drive detectado",
+  description: "Certifique-se de que o link está configurado como 'Qualquer pessoa com o link pode visualizar'",
+});
+6. Tratamento de Erros Específicos
+Adicione tratamento especial para erros comuns do Google Drive:
+
+typescript
+try {
+  // ... código de upload/conversão
+} catch (error) {
+  if (error.message.includes("Google Drive")) {
+    toast({
+      title: "Configuração necessária",
+      description: "Para compartilhar arquivos do Google Drive, você precisa definir a permissão como 'Qualquer pessoa com o link'",
+      variant: "destructive",
+      action: (
+        <Button 
+          variant="ghost" 
+          onClick={() => window.open("https://support.google.com/drive/answer/2494822?hl=pt-BR", "_blank")}
+        >
+          Como configurar
+        </Button>
+      )
+    });
+  }
+}
+Considerações Importantes
+Permissões do Google Drive:
+
+Os links só funcionarão se o arquivo estiver configurado como "Qualquer pessoa com o link pode visualizar"
+
+Para acesso mais robusto, considere usar a API do Google Drive com OAuth
+
+Limitações:
+
+Vídeos: O player de preview do Drive tem controles limitados
+
+Arquivos pesados podem ter tempo de carregamento maior
+
+Alternativa com API:
+
+Para mais controle, implemente a API do Google Drive:
+
+typescript
+// Exemplo simplificado com API
+const { data } = await google.drive.files.get({
+  fileId: fileId,
+  alt: 'media',
+  responseType: 'stream'
+});
+Esta implementação permite que seu sistema aceite e exiba conteúdos do Google Drive mantendo a consistência com a arquitetura existente. O tratamento diferenciado para vídeos e imagens garante a melhor experiência de visualização possível dentro das limitações da plataforma.
