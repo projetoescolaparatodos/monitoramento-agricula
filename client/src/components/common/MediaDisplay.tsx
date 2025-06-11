@@ -91,8 +91,11 @@ const MediaCard: React.FC<{
     }
   };
 
-  // Detectar se é vídeo vertical
-  const isVerticalVideo = mediaType === 'video' && (
+  // Detectar se é mídia vertical
+  const isVerticalMedia = (
+    aspectRatio === '9:16' || 
+    aspectRatio === 'vertical' || 
+    aspectRatio === '4:5' ||
     title.toLowerCase().includes('vertical') || 
     title.toLowerCase().includes('instagram') || 
     title.toLowerCase().includes('reels') ||
@@ -100,7 +103,7 @@ const MediaCard: React.FC<{
   );
 
   return (
-    <Card className={`media-card overflow-hidden shadow-md border-0 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95 rounded-xl transition-all duration-300 hover:shadow-lg ${isVerticalVideo ? 'max-w-[400px] mx-auto' : ''}`}>
+    <Card className={`media-card overflow-hidden shadow-md border-0 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95 rounded-xl transition-all duration-300 hover:shadow-lg ${isVerticalMedia ? 'max-w-[400px] mx-auto' : ''}`}>
       {renderMedia()}
       <CardContent className="p-4">
         {/<\/?[a-z][\s\S]*>/i.test(title) ? (
@@ -273,12 +276,16 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
         <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className} flex flex-col`}>
           <div className="w-full relative">
             {isYouTubeVideo && embedUrl ? (
-              <div className="relative w-full overflow-hidden" style={{ 
-                maxWidth: isYouTubeVideo && item.aspectRatio === "vertical" ? "56.25vh" : "100%" 
-              }}>
+              <div className={`relative overflow-hidden ${
+                item.aspectRatio === "vertical" || item.aspectRatio === "9:16" 
+                  ? "w-full max-w-[400px] mx-auto" 
+                  : "w-full"
+              }`}>
                 <iframe
                   className={`w-full rounded-t-lg ${
-                    item.aspectRatio === "vertical" ? "aspect-[9/16]" : "aspect-video"
+                    item.aspectRatio === "vertical" || item.aspectRatio === "9:16" 
+                      ? "aspect-[9/16]" 
+                      : "aspect-video"
                   }`}
                   src={embedUrl}
                   title={item.title || "Vídeo do YouTube"}
@@ -289,11 +296,15 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
                 />
               </div>
             ) : isFirebaseVideo ? (
-              <div className="w-full flex justify-center">
+              <div className={`w-full flex justify-center ${
+                item.aspectRatio === "vertical" || item.aspectRatio === "9:16" 
+                  ? "max-w-[400px] mx-auto" 
+                  : ""
+              }`}>
                 <video 
                   className={`rounded-t-lg object-contain ${
-                    item.aspectRatio === "vertical" 
-                      ? "h-auto max-h-[70vh] w-auto max-w-[100%]" 
+                    item.aspectRatio === "vertical" || item.aspectRatio === "9:16"
+                      ? "aspect-[9/16] w-full max-h-[70vh]" 
                       : "w-full h-auto max-h-[60vh]"
                   }`}
                   controls
@@ -381,15 +392,25 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
 
     // Renderização padrão para imagens e outros tipos de mídia
     return (
-      <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className} flex flex-col`}>
+      <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className} flex flex-col ${
+        item.aspectRatio === "vertical" || item.aspectRatio === "9:16" ? "max-w-[400px] mx-auto" : ""
+      }`}>
         <div className="relative">
           {!imageError ? (
-            <div className="w-full mx-auto">
+            <div className={`w-full mx-auto ${
+              item.aspectRatio === "vertical" || item.aspectRatio === "9:16" 
+                ? "max-w-[400px]" 
+                : ""
+            }`}>
               <div className="w-full">
                 <img 
                   src={item.mediaUrl || item.thumbnailUrl} 
                   alt={item.title || "Mídia"} 
-                  className="w-full h-auto object-contain rounded-t-lg max-h-[60vh]"
+                  className={`w-full h-auto object-contain rounded-t-lg ${
+                    item.aspectRatio === "vertical" || item.aspectRatio === "9:16"
+                      ? "aspect-[9/16] max-h-[70vh]"
+                      : "max-h-[60vh]"
+                  }`}
                   onError={() => setImageError(true)}
                 />
               </div>
