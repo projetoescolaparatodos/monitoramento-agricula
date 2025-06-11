@@ -314,7 +314,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
                 <video 
                   className={`rounded-t-lg object-cover ${
                     shouldTreatAsVertical
-                      ? "aspect-[9/16] w-full h-[500px]" 
+                      ? "aspect-[9/16] w-full h-[600px]" 
                       : "w-full h-auto max-h-[60vh]"
                   }`}
                   controls
