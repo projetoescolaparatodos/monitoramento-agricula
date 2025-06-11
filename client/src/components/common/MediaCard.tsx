@@ -6,6 +6,7 @@ import { isGoogleDriveLink, getGoogleDriveFileId } from '@/utils/driveHelper';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import GoogleDriveVideoPlayer from './GoogleDriveVideoPlayer';
 
 interface MediaCardProps {
   title: string;
@@ -57,6 +58,18 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
     if (mediaType === 'video') {
       // 1. Primeiro verifica se é Google Drive
       if (isGoogleDriveLink(mediaUrl)) {
+        // Em dispositivos móveis, usa o componente específico
+        if (isMobile) {
+          return (
+            <GoogleDriveVideoPlayer
+              mediaUrl={mediaUrl}
+              title={title}
+              aspectRatio={isVerticalVideo ? 'vertical' : 'horizontal'}
+            />
+          );
+        }
+
+        // Em desktop, mantém o iframe
         const fileId = getGoogleDriveFileId(mediaUrl);
         const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
         const directUrl = `https://drive.google.com/file/d/${fileId}/view`;
