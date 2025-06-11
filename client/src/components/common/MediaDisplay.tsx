@@ -23,7 +23,10 @@ const MediaCard: React.FC<{
   authorImage?: string;
   createdAt?: string;
   location?: string;
-}> = ({ title, description, mediaUrl, mediaType, author, authorImage, createdAt, location }) => {
+  aspectRatio?: string;
+  displayMode?: string;
+  customAspectRatio?: string;
+}> = ({ title, description, mediaUrl, mediaType, author, authorImage, createdAt, location, aspectRatio }) => {
   const [expanded, setExpanded] = useState(false);
   const [imageError, setImageError] = useState(false);
   
@@ -262,10 +265,15 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
           authorImage={item.authorImage}
           createdAt={item.createdAt}
           location={item.location}
+          aspectRatio={item.aspectRatio}
+          displayMode={item.displayMode}
+          customAspectRatio={item.customAspectRatio}
         />
       </div>
     );
   } else {
+    // Em desktop: tratar vídeos do Firebase como verticais (Instagram)
+    const shouldTreatAsVertical = isFirebaseVideo && item.mediaType === 'video';
     // Renderização de vídeos (YouTube ou Firebase Storage)
     if (isYouTubeVideo || isFirebaseVideo) {
       // Para YouTube, obtenha a URL de incorporação
@@ -276,6 +284,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
         <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className} flex flex-col`}>
           <div className="w-full relative">
             {isYouTubeVideo && embedUrl ? (
+              // YouTube videos mantêm comportamento original
               <div className={`relative overflow-hidden ${
                 item.aspectRatio === "vertical" || item.aspectRatio === "9:16" 
                   ? "w-full max-w-[400px] mx-auto" 
@@ -296,14 +305,13 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
                 />
               </div>
             ) : isFirebaseVideo ? (
+              // Vídeos do Firebase: tratar como verticais (Instagram) em desktop
               <div className={`w-full flex justify-center ${
-                item.aspectRatio === "vertical" || item.aspectRatio === "9:16" 
-                  ? "max-w-[400px] mx-auto" 
-                  : ""
+                shouldTreatAsVertical ? "max-w-[400px] mx-auto" : ""
               }`}>
                 <video 
                   className={`rounded-t-lg object-contain ${
-                    item.aspectRatio === "vertical" || item.aspectRatio === "9:16"
+                    shouldTreatAsVertical
                       ? "aspect-[9/16] w-full max-h-[70vh]" 
                       : "w-full h-auto max-h-[60vh]"
                   }`}
