@@ -281,7 +281,9 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
       // Para vídeos do Firebase, use a URL diretamente
 
       return (
-        <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className} flex flex-col`}>
+        <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className} flex flex-col ${
+          shouldTreatAsVertical ? "max-w-[400px] mx-auto h-fit" : ""
+        }`}>
           <div className="w-full relative">
             {isYouTubeVideo && embedUrl ? (
               // YouTube videos mantêm comportamento original
@@ -307,12 +309,12 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
             ) : isFirebaseVideo ? (
               // Vídeos do Firebase: tratar como verticais (Instagram) em desktop
               <div className={`w-full flex justify-center ${
-                shouldTreatAsVertical ? "max-w-[400px] mx-auto" : ""
+                shouldTreatAsVertical ? "h-full" : ""
               }`}>
                 <video 
-                  className={`rounded-t-lg object-contain ${
+                  className={`rounded-t-lg object-cover ${
                     shouldTreatAsVertical
-                      ? "aspect-[9/16] w-full max-h-[70vh]" 
+                      ? "aspect-[9/16] w-full h-[500px]" 
                       : "w-full h-auto max-h-[60vh]"
                   }`}
                   controls
