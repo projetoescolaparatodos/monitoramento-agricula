@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Sprout } from "lucide-react";
@@ -40,17 +39,17 @@ const AgricultureTabButton: React.FC<AgricultureTabButtonProps> = ({ className =
   // Função para abrir o chat na aba Agricultura
   const openChatAgricultureTab = () => {
     // Método otimizado para abrir o chat diretamente na aba agricultura sem fechamentos intermediários
-    
+
     // 1. Definir aba no localStorage para garantir persistência
     localStorage.setItem('open_chat_tab', 'agricultura');
     console.log("AgricultureTab: Definindo aba no localStorage:", 'agricultura');
-    
+
     // 2. Disparar evento especial para abrir na aba agricultura
     const agricultureEvent = new CustomEvent('direct_paa_open', {
       detail: { directTab: 'agricultura' }
     });
     window.dispatchEvent(agricultureEvent);
-    
+
     // 3. Abrir o chat com evento simplificado
     const openEvent = new CustomEvent('chat_instance_toggle', { 
       detail: { 
@@ -62,7 +61,7 @@ const AgricultureTabButton: React.FC<AgricultureTabButtonProps> = ({ className =
       } 
     });
     window.dispatchEvent(openEvent);
-    
+
     setChatOpened(true);
   };
 
