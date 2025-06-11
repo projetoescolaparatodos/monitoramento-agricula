@@ -81,19 +81,19 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
         // Fallback: usar URLs diretas sem API
         console.log('Usando URLs diretas como fallback');
 
-        // Assumir que é vídeo se a URL contém indicadores comuns
+        // Para garantir que não haja download, sempre assumir vídeo primeiro
+        // e usar URL de preview que funciona tanto para vídeos quanto imagens
         const isLikelyVideo = mediaUrl.includes('video') || 
                              mediaUrl.includes('.mp4') || 
                              mediaUrl.includes('.avi') ||
-                             mediaUrl.includes('.mov');
+                             mediaUrl.includes('.mov') ||
+                             title?.toLowerCase().includes('video') ||
+                             title?.toLowerCase().includes('vídeo');
 
         setIsVideo(isLikelyVideo);
 
-        if (isLikelyVideo) {
-          setStreamingUrl(`https://drive.google.com/file/d/${fileId}/preview`);
-        } else {
-          setStreamingUrl(`https://drive.google.com/uc?export=view&id=${fileId}`);
-        }
+        // SEMPRE usar preview URL para evitar downloads forçados
+        setStreamingUrl(`https://drive.google.com/file/d/${fileId}/preview`);
 
         // Definir metadados básicos
         setFileMetadata({
@@ -156,7 +156,8 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
             title={title}
             className="w-full h-full border-0"
             allowFullScreen
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            sandbox="allow-scripts allow-same-origin allow-presentation"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
             loading="lazy"
           />
 

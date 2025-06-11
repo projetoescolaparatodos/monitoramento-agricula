@@ -3,6 +3,13 @@ const GOOGLE_DRIVE_API_KEY = import.meta.env.VITE_GOOGLE_DRIVE_API_KEY;
 const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
 const SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
 
+// Declaração de tipo para o Google API
+declare global {
+  interface Window {
+    gapi: any;
+  }
+}
+
 let gapi: any;
 let gapiInitialized = false;
 
@@ -97,7 +104,7 @@ const loadGoogleAPIScript = (): Promise<void> => {
         } else {
           reject(new Error('Google API script loaded but gapi is not available'));
         }
-      }, 100);
+      }, 200);
     };
     
     script.onerror = () => reject(new Error('Failed to load Google API script'));
@@ -194,28 +201,23 @@ export const getGoogleDriveFileMetadata = async (fileId: string) => {
 export const getGoogleDriveStreamingUrl = async (fileId: string): Promise<string | null> => {
   try {
     const metadata = await getGoogleDriveFileMetadata(fileId);
-    if (!metadata) return null;
-
-    // For video files, try to get streaming URL
-    if (metadata.mimeType?.startsWith('video/')) {
-      // Use webContentLink for direct download/streaming
-      if (metadata.webContentLink) {
-        return metadata.webContentLink;
-      }
-
-      // Fallback to preview URL
+    
+    // Para vídeos, SEMPRE usar URL de preview (nunca webContentLink que força download)
+    if (metadata?.mimeType?.startsWith('video/') || !metadata) {
       return `https://drive.google.com/file/d/${fileId}/preview`;
     }
 
-    // For images, use direct view URL
+    // Para imagens, usar URL de visualização
     if (metadata.mimeType?.startsWith('image/')) {
       return `https://drive.google.com/uc?export=view&id=${fileId}`;
     }
 
-    return null;
+    // Fallback padrão: usar preview
+    return `https://drive.google.com/file/d/${fileId}/preview`;
   } catch (error) {
     console.error('Error getting streaming URL:', error);
-    return null;
+    // Em caso de erro, sempre retornar URL de preview
+    return `https://drive.google.com/file/d/${fileId}/preview`;
   }
 };
 
