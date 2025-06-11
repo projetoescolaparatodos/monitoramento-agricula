@@ -56,7 +56,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
       if (isGoogleDriveLink(mediaUrl)) {
         const fileId = getGoogleDriveFileId(mediaUrl);
         const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
-        
+
         return (
           <div className="w-full bg-black flex items-center justify-center">
             <iframe
@@ -105,11 +105,11 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
     } else {
       return (
         <div className="w-full mx-auto">
-          <div className="w-full overflow-hidden bg-black/5 rounded-xl">
+          <div className="w-full overflow-hidden bg-black/5 rounded-t-xl">
             <img
               src={mediaUrl}
               alt={title}
-              className="w-full h-auto object-contain max-h-[60vh]"
+              className={`w-full h-auto object-contain ${isMobile ? 'max-h-[50vh]' : 'max-h-[60vh]'}`}
               onError={(e) => {
                 // Fallback para Google Drive
                 if (isGoogleDriveLink(mediaUrl)) {

@@ -512,6 +512,35 @@
 /* Estilos para cards de mídia */
 .media-display {
   @apply rounded-2xl overflow-hidden w-full;
+  transition: transform 0.3s ease;
+}
+
+/* Estilos específicos para mobile */
+@media (max-width: 768px) {
+  .media-display iframe[src*="drive.google.com"] {
+    min-height: 200px;
+    border-radius: 0.75rem 0.75rem 0 0;
+  }
+  
+  .media-display video {
+    max-height: 50vh;
+    border-radius: 0.75rem 0.75rem 0 0;
+  }
+}
+
+/* Animações específicas para os cards de mídia */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.media-display {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Estilos para cards de mídia */
+.media-display {
+  @apply rounded-2xl overflow-hidden w-full;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
