@@ -330,8 +330,9 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
       </div>
     );
   } else {
-    // Em desktop: tratar vídeos do Firebase como verticais (Instagram)
-    const shouldTreatAsVertical = isFirebaseVideo && item.mediaType === 'video';
+    // Em desktop: verificar se é vídeo vertical baseado no aspectRatio
+    const shouldTreatAsVertical = item.mediaType === 'video' && 
+      (item.aspectRatio === 'vertical' || item.aspectRatio === '9:16');
     
     // Renderização de mídias do Google Drive
     if (isGoogleDriveMedia) {
@@ -339,15 +340,25 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
       
       return (
         <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className} flex flex-col ${
-          isVerticalAspect ? "max-w-[400px] mx-auto" : ""
+          isVerticalAspect ? "max-w-[400px] mx-auto h-fit" : ""
         }`}>
           <div className="w-full relative">
-            <GoogleDrivePlayer
-              mediaUrl={item.mediaUrl || ''}
-              title={item.title || 'Mídia do Google Drive'}
-              aspectRatio={item.aspectRatio || 'horizontal'}
-              className="w-full"
-            />
+            <div className={`w-full flex justify-center ${
+              isVerticalAspect ? "h-full" : ""
+            }`}>
+              <div className={`${
+                isVerticalAspect
+                  ? "aspect-[9/16] w-full h-[600px]" 
+                  : "w-full h-auto max-h-[60vh]"
+              }`}>
+                <GoogleDrivePlayer
+                  mediaUrl={item.mediaUrl || ''}
+                  title={item.title || 'Mídia do Google Drive'}
+                  aspectRatio={item.aspectRatio || 'horizontal'}
+                  className="w-full h-full"
+                />
+              </div>
+            </div>
           </div>
           
           <CardContent className="p-5 space-y-4">
@@ -452,7 +463,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
                 />
               </div>
             ) : isFirebaseVideo ? (
-              // Vídeos do Firebase: tratar como verticais (Instagram) em desktop
+              // Vídeos do Firebase: aplicar formatação padronizada para verticais
               <div className={`w-full flex justify-center ${
                 shouldTreatAsVertical ? "h-full" : ""
               }`}>
