@@ -64,27 +64,56 @@ const MediaLinkUploader = ({ onLinkSubmit, title = "Adicionar mídia por link" }
       }
     }
 
-    // Verificar se é um vídeo para informar ao usuário
+    // Detectar tipo de mídia e informar ao usuário
     const isVideo = 
       url.endsWith(".mp4") || 
       url.endsWith(".webm") || 
       url.endsWith(".ogg") || 
       url.endsWith(".mov") || 
+      url.endsWith(".avi") || 
+      url.endsWith(".mkv") || 
       url.includes("youtube.com") || 
       url.includes("youtu.be") || 
       url.includes("vimeo.com");
-      
+
+    const isImage = 
+      url.endsWith(".jpg") || 
+      url.endsWith(".jpeg") || 
+      url.endsWith(".png") || 
+      url.endsWith(".gif") || 
+      url.endsWith(".webp") || 
+      url.endsWith(".svg") || 
+      url.endsWith(".bmp");
+
     if (isVideo) {
       console.log("Link de vídeo detectado:", url);
       
-      // Verificar se é vídeo do YouTube e normalizar a URL para formato de incorporação
       if (url.includes("youtube.com") || url.includes("youtu.be")) {
         toast({
           title: "Vídeo do YouTube detectado",
           description: "Os vídeos do YouTube serão exibidos em um player incorporado.",
-          variant: "default"
+        });
+      } else if (url.includes("vimeo.com")) {
+        toast({
+          title: "Vídeo do Vimeo detectado",
+          description: "O vídeo será exibido com controles nativos.",
+        });
+      } else {
+        toast({
+          title: "Vídeo detectado",
+          description: "O arquivo de vídeo será exibido com controles nativos.",
         });
       }
+    } else if (isImage) {
+      toast({
+        title: "Imagem detectada",
+        description: "A imagem será exibida na galeria de mídias.",
+      });
+    } else {
+      toast({
+        title: "Link adicionado",
+        description: "Mídia será processada automaticamente.",
+      });
     }
     
     try {
@@ -129,7 +158,7 @@ const MediaLinkUploader = ({ onLinkSubmit, title = "Adicionar mídia por link" }
         <form onSubmit={handleSubmit} className="flex flex-col space-y-2">
           <Input
             type="url"
-            placeholder="https://exemplo.com/imagem.jpg ou https://drive.google.com/file/d/..."
+            placeholder="Cole aqui: YouTube, Vimeo, Google Drive, ou link direto para imagem/vídeo"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             className="flex-1"

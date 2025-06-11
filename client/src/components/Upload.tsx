@@ -60,6 +60,25 @@ const Upload: React.FC<UploadProps> = ({ onUpload }) => {
 
   const handleUrlSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); // Isso evita que a página seja recarregada
+    
+    if (!uploadUrl.trim()) {
+      toast({
+        title: "Erro",
+        description: "Por favor, insira uma URL válida",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!uploadUrl.startsWith("http://") && !uploadUrl.startsWith("https://")) {
+      toast({
+        title: "Erro",
+        description: "A URL deve começar com http:// ou https://",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (uploadUrl.trim() && (uploadUrl.startsWith("http://") || uploadUrl.startsWith("https://"))) {
       
       // Processar links do Google Drive
