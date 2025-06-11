@@ -380,16 +380,21 @@ const MediaUploader = ({
                         {...field}
                         placeholder={
                           form.watch("mediaType") === "video"
-                            ? "https://www.youtube.com/watch?v=ID_DO_VIDEO"
-                            : "Insira a URL da mídia"
+                            ? "YouTube, Google Drive, Vimeo ou link direto para vídeo"
+                            : "Google Drive, link direto para imagem ou qualquer URL de mídia"
                         }
                       />
                     </FormControl>
                     <FormMessage />
-                    {form.watch("mediaType") === "video" &&
-                      !isValidYoutubeUrl(field.value) && (
-                        <p className="text-red-500 text-sm">
-                          Por favor, insira uma URL válida do YouTube
+                    {form.watch("mediaType") === "video" && field.value && 
+                      !isValidYoutubeUrl(field.value) && 
+                      !field.value.includes('drive.google.com') &&
+                      !field.value.includes('vimeo.com') &&
+                      !field.value.endsWith('.mp4') &&
+                      !field.value.endsWith('.webm') &&
+                      !field.value.endsWith('.mov') && (
+                        <p className="text-orange-500 text-sm">
+                          Para melhor compatibilidade, use links do YouTube, Google Drive, Vimeo ou arquivos de vídeo diretos
                         </p>
                       )}
                   </FormItem>
