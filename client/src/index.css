@@ -688,27 +688,9 @@ video.portrait-video {
   @apply text-blue-600;
 }
 
-/* Máscara para criar buraco no filtro na área de visualização */
+/* Filtro uniforme sobre o vídeo de fundo */
 .video-overlay {
-  /* Aplicar máscara por padrão na página inicial */
-  -webkit-mask: 
-    radial-gradient(ellipse 600px 400px at 50% 75%, transparent 40%, black 45%);
-  -webkit-mask-composite: xor;
-  mask: 
-    radial-gradient(ellipse 600px 400px at 50% 75%, transparent 40%, black 45%);
-  mask-composite: exclude;
-}
-
-/* Para telas menores, ajustar o tamanho da elipse */
-@media (max-width: 768px) {
-  .video-overlay {
-    -webkit-mask: 
-      radial-gradient(ellipse 400px 300px at 50% 75%, transparent 40%, black 45%);
-    -webkit-mask-composite: xor;
-    mask: 
-      radial-gradient(ellipse 400px 300px at 50% 75%, transparent 40%, black 45%);
-    mask-composite: exclude;
-  }
+  /* Filtro uniforme sem máscaras */
 }
 
 @layer base {
