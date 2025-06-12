@@ -75,7 +75,7 @@ const GoogleDriveThumbnail: React.FC<{ mediaUrl: string; title: string }> = ({ m
       )}
 
       {/* Indicador de que é mídia do Google Drive */}
-      
+
     </div>
   );
 };
@@ -224,8 +224,10 @@ const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ variant = "de
     queryKey: ['/api/media-items'],
   });
 
-  // Filtramos apenas itens ativos e limitamos a 8 itens para a página inicial
-  const displayItems = mediaItems?.filter(item => item.active !== false).slice(0, 8);
+  // Filtrar e limitar a exibição de itens (excluir mídias da página home)
+  const displayItems = mediaItems?.filter(item => 
+    item.active !== false && item.pageType !== 'home'
+  ).slice(0, 8);
 
   return (
     <section className="mb-16">
