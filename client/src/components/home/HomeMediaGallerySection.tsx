@@ -49,15 +49,17 @@ const MediaPreviewCard: React.FC<{ item: MediaItem }> = ({ item }) => {
 
   return (
     <Card className={`media-card overflow-hidden shadow-md border-0 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95 rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105 ${isVerticalVideo ? 'max-w-[400px] mx-auto' : ''}`}>
-      <div className="relative w-full h-full">
+      <div className={`relative w-full ${
+        isVerticalVideo ? 'h-[280px]' : 'h-[200px]'
+      }`}>
         {thumbnailUrl ? (
           <img
             src={thumbnailUrl}
             alt={item.title || 'Mídia'}
-            className={`w-full object-cover rounded-t-xl ${
+            className={`w-full h-full object-cover rounded-t-xl ${
               isVerticalVideo 
-                ? 'aspect-[9/16] h-[280px]' 
-                : 'aspect-video h-[200px]'
+                ? 'aspect-[9/16]' 
+                : 'aspect-video'
             }`}
             loading="lazy"
             onError={(e) => {
@@ -69,8 +71,8 @@ const MediaPreviewCard: React.FC<{ item: MediaItem }> = ({ item }) => {
             }}
           />
         ) : (
-          <div className={`w-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center rounded-t-xl ${
-            isVerticalVideo ? 'aspect-[9/16] h-[280px]' : 'aspect-video h-[200px]'
+          <div className={`w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center rounded-t-xl ${
+            isVerticalVideo ? 'aspect-[9/16]' : 'aspect-video'
           }`}>
             <p className="text-gray-500 dark:text-gray-400 text-sm">Sem preview</p>
           </div>
