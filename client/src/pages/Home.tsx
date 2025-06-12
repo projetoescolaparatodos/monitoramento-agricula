@@ -56,15 +56,15 @@ const Home = () => {
           loop
           muted
           playsInline
-          className="absolute min-w-full min-h-full object-cover"
+          className="absolute min-w-full min-h-full object-cover z-0"
           style={{ opacity: 1 }}
         >
           <source src="/videos/BackgroundVideo.mp4" type="video/mp4" />
           Seu navegador não suporta vídeos HTML5.
         </video>
-        <div className="absolute top-0 left-0 w-full h-full bg-black opacity-40 video-overlay" />
+        <div className="absolute top-0 left-0 w-full h-full bg-black opacity-40 video-overlay z-10" />
       </div>
-      <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
+      <main className="container mx-auto px-4 pt-28 pb-16 relative z-20">
         <HeroSection />
         <section id="estatisticas" className="py-12">
           <StatisticsSection variant="transparent" />
