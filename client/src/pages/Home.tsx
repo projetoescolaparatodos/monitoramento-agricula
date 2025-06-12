@@ -57,12 +57,11 @@ const Home = () => {
           muted
           playsInline
           className="absolute min-w-full min-h-full object-cover"
-          style={{ opacity: 0.4 }}
+          style={{ opacity: 1 }}
         >
           <source src="/videos/BackgroundVideo.mp4" type="video/mp4" />
           Seu navegador não suporta vídeos HTML5.
         </video>
-        <div className="absolute top-0 left-0 w-full h-full bg-green-950 opacity-60" />
       </div>
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
         <HeroSection />
