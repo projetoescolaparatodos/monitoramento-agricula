@@ -4,11 +4,78 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "wouter";
 import { isYoutubeUrl, getYoutubeEmbedUrl } from "@/utils/mediaUtils";
-import { isGoogleDriveLink, getGoogleDriveThumbnail } from "@/utils/driveHelper";
+import { isGoogleDriveLink, getGoogleDriveThumbnail, getGoogleDriveFileId } from "@/utils/driveHelper";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Instagram } from "lucide-react";
+import { Instagram, Play } from "lucide-react";
 import "../../../src/index.css";
+
+// Componente para thumbnail do Google Drive com tratamento de erro
+const GoogleDriveThumbnail: React.FC<{ mediaUrl: string; title: string }> = ({ mediaUrl, title }) => {
+  const [imageError, setImageError] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
+  
+  const fileId = isGoogleDriveLink(mediaUrl) ? getGoogleDriveFileId(mediaUrl) : '';
+  
+  if (!fileId) {
+    return (
+      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+        <p className="text-gray-500 text-sm">Link inválido</p>
+      </div>
+    );
+  }
+
+  const thumbnailUrl = getGoogleDriveThumbnail(fileId, 800);
+  const fallbackUrl = getGoogleDriveThumbnail(fileId, 512);
+  
+  return (
+    <div className="w-full h-full relative bg-gray-100">
+      {isLoading && (
+        <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
+      
+      {!imageError ? (
+        <img 
+          src={thumbnailUrl}
+          alt={title} 
+          className="w-full h-full object-cover"
+          loading="lazy"
+          onLoad={() => setIsLoading(false)}
+          onError={() => {
+            setIsLoading(false);
+            // Tentar URL de fallback menor
+            const img = new Image();
+            img.onload = () => setImageError(false);
+            img.onerror = () => setImageError(true);
+            img.src = fallbackUrl;
+            
+            if (img.complete && img.naturalWidth > 0) {
+              (event.target as HTMLImageElement).src = fallbackUrl;
+            } else {
+              setImageError(true);
+            }
+          }}
+        />
+      ) : (
+        <div className="w-full h-full bg-gradient-to-br from-blue-50 to-blue-100 flex flex-col items-center justify-center text-blue-600">
+          <Play size={32} className="mb-2" />
+          <p className="text-sm font-medium">Mídia do Drive</p>
+          <p className="text-xs opacity-75">Clique para visualizar</p>
+        </div>
+      )}
+      
+      {/* Indicador de que é mídia do Google Drive */}
+      <div className="absolute bottom-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full flex items-center">
+        <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M6 2c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h8l6-6V8l-6-6H6zm7 7V3.5L18.5 9H13z"/>
+        </svg>
+        Drive
+      </div>
+    </div>
+  );
+};
 
 interface MediaGallerySectionProps {
   variant?: "default" | "transparent";
@@ -61,11 +128,9 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
             allowFullScreen
           />
         ) : isGoogleDriveMedia ? (
-          <img 
-            src={getGoogleDriveThumbnail(item.mediaUrl)} 
-            alt={item.title || "Mídia do Google Drive"} 
-            className="w-full h-full object-cover"
-            loading="lazy"
+          <GoogleDriveThumbnail 
+            mediaUrl={item.mediaUrl} 
+            title={item.title || "Mídia do Google Drive"}
           />
         ) : isFirebaseVideo ? (
           <video 

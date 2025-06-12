@@ -233,7 +233,9 @@ export const checkGoogleDriveFileAccess = async (fileId: string): Promise<boolea
 };
 
 // Get thumbnail URL with custom size
-export const getGoogleDriveThumbnail = (fileId: string, size: number = 1000): string => {
+export const getGoogleDriveThumbnail = (fileIdOrUrl: string, size: number = 1000): string => {
+  // Se for uma URL, extrair o ID primeiro
+  const fileId = isGoogleDriveLink(fileIdOrUrl) ? getGoogleDriveFileId(fileIdOrUrl) : fileIdOrUrl;
   return `https://drive.google.com/thumbnail?id=${fileId}&sz=w${size}`;
 };
 
