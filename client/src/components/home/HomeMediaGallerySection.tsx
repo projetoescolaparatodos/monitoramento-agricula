@@ -1,11 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { MediaItem } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaDisplay from '@/components/common/MediaDisplay';
 import { isGoogleDriveLink, getGoogleDriveFileId, getGoogleDriveThumbnail } from '@/utils/driveHelper';
-import { Instagram } from 'lucide-react';
+import { Instagram, ChevronDown, ChevronUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface HomeMediaGallerySectionProps {
   mediaItems?: MediaItem[];
@@ -15,6 +16,8 @@ interface HomeMediaGallerySectionProps {
 
 // Componente otimizado para preview de mídia na página inicial
 const MediaPreviewCard: React.FC<{ item: MediaItem }> = ({ item }) => {
+  const [expanded, setExpanded] = useState(false);
+  
   const isGoogleDriveMedia = item.mediaUrl && isGoogleDriveLink(item.mediaUrl);
   const isVerticalVideo = item.mediaType === 'video' && 
     (item.aspectRatio === 'vertical' || 
@@ -33,6 +36,16 @@ const MediaPreviewCard: React.FC<{ item: MediaItem }> = ({ item }) => {
   };
 
   const thumbnailUrl = getThumbnailUrl();
+
+  // Configuração para truncamento da descrição
+  const previewLength = 120;
+  const description = item.description || '';
+  const shouldTruncate = description.length > previewLength;
+  const previewText = shouldTruncate ? description.slice(0, previewLength) + '...' : description;
+
+  // Remover tags HTML para o preview, mas manter para o texto expandido
+  const cleanPreviewText = previewText.replace(/<[^>]*>/g, '');
+  const fullText = description.replace(/\n/g, '<br/>');
 
   return (
     <Card className={`media-card overflow-hidden shadow-md border-0 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95 rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105 ${isVerticalVideo ? 'max-w-[400px] mx-auto' : ''}`}>
@@ -88,7 +101,7 @@ const MediaPreviewCard: React.FC<{ item: MediaItem }> = ({ item }) => {
 
       <CardContent className="p-4">
         {item.title && (
-          <h3 className="font-semibold text-lg mb-2 text-green-800 dark:text-green-300 line-clamp-2">
+          <h3 className="font-semibold text-lg mb-3 text-green-800 dark:text-green-300 line-clamp-2">
             {/<\/?[a-z][\s\S]*>/i.test(item.title) ? (
               <div dangerouslySetInnerHTML={{ __html: item.title }} />
             ) : (
@@ -97,19 +110,63 @@ const MediaPreviewCard: React.FC<{ item: MediaItem }> = ({ item }) => {
           </h3>
         )}
 
-        {item.description && (
-          <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-3 mb-3">
-            {item.description.replace(/<[^>]*>/g, '')}
-          </p>
+        {description && (
+          <div className="mb-3">
+            <AnimatePresence initial={false}>
+              <motion.div 
+                className="text-sm text-gray-700 dark:text-gray-300"
+                initial={expanded ? { height: 0, opacity: 0 } : {}}
+                animate={{ height: "auto", opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                {expanded ? (
+                  <div 
+                    className="prose prose-sm max-w-none dark:prose-invert rich-content"
+                    dangerouslySetInnerHTML={{ __html: fullText }}
+                  />
+                ) : (
+                  <p className="leading-relaxed">
+                    {cleanPreviewText}
+                  </p>
+                )}
+              </motion.div>
+            </AnimatePresence>
+
+            {shouldTruncate && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="mt-2"
+              >
+                <button
+                  className="text-green-600 dark:text-green-400 flex items-center text-sm font-medium hover:underline transition-colors duration-200"
+                  onClick={() => setExpanded(!expanded)}
+                >
+                  {expanded ? (
+                    <>
+                      <span>Mostrar menos</span>
+                      <ChevronUp size={16} className="ml-1 transition-transform duration-200" />
+                    </>
+                  ) : (
+                    <>
+                      <span>Saiba mais</span>
+                      <ChevronDown size={16} className="ml-1 transition-transform duration-200" />
+                    </>
+                  )}
+                </button>
+              </motion.div>
+            )}
+          </div>
         )}
 
         {/* Metadados compactos */}
-        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-3 border-t border-gray-200 dark:border-gray-700">
           {item.author && (
-            <span className="truncate">{item.author}</span>
+            <span className="truncate font-medium">{item.author}</span>
           )}
           {item.mediaType === 'video' && (
-            <span className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-1 rounded-full">
+            <span className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-1 rounded-full flex-shrink-0">
               Vídeo
             </span>
           )}
@@ -143,6 +200,7 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({ media
                   <Skeleton className="h-6 w-3/4" />
                   <Skeleton className="h-4 w-full" />
                   <Skeleton className="h-4 w-2/3" />
+                  <Skeleton className="h-4 w-1/2" />
                 </CardContent>
               </Card>
             ))}
