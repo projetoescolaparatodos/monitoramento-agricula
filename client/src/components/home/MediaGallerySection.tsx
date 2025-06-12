@@ -16,15 +16,15 @@ const GoogleDriveThumbnail: React.FC<{ mediaUrl: string; title: string }> = ({ m
   const [imageError, setImageError] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
   const [currentSrc, setCurrentSrc] = React.useState<string>('');
-  
+
   const fileId = isGoogleDriveLink(mediaUrl) ? getGoogleDriveFileId(mediaUrl) : '';
-  
+
   React.useEffect(() => {
     if (fileId) {
       setCurrentSrc(getGoogleDriveThumbnail(fileId, 800));
     }
   }, [fileId]);
-  
+
   if (!fileId) {
     return (
       <div className="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -35,7 +35,7 @@ const GoogleDriveThumbnail: React.FC<{ mediaUrl: string; title: string }> = ({ m
 
   const handleImageError = () => {
     setIsLoading(false);
-    
+
     // Tentar fallback apenas uma vez
     if (currentSrc.includes('sz=w800')) {
       const fallbackUrl = getGoogleDriveThumbnail(fileId, 512);
@@ -48,7 +48,7 @@ const GoogleDriveThumbnail: React.FC<{ mediaUrl: string; title: string }> = ({ m
   const handleImageLoad = () => {
     setIsLoading(false);
   };
-  
+
   return (
     <div className="w-full h-full relative bg-gray-100">
       {isLoading && !imageError && (
@@ -56,7 +56,7 @@ const GoogleDriveThumbnail: React.FC<{ mediaUrl: string; title: string }> = ({ m
           <div className="w-8 h-8 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
-      
+
       {!imageError && currentSrc ? (
         <img 
           src={currentSrc}
@@ -73,14 +73,9 @@ const GoogleDriveThumbnail: React.FC<{ mediaUrl: string; title: string }> = ({ m
           <p className="text-xs opacity-75">Clique para visualizar</p>
         </div>
       )}
-      
+
       {/* Indicador de que é mídia do Google Drive */}
-      <div className="absolute bottom-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full flex items-center">
-        <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M6 2c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h8l6-6V8l-6-6H6zm7 7V3.5L18.5 9H13z"/>
-        </svg>
-        Drive
-      </div>
+      
     </div>
   );
 };
