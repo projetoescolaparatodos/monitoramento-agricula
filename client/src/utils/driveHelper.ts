@@ -236,3 +236,8 @@ export const checkGoogleDriveFileAccess = async (fileId: string): Promise<boolea
 export const getGoogleDriveThumbnail = (fileId: string, size: number = 1000): string => {
   return `https://drive.google.com/thumbnail?id=${fileId}&sz=w${size}`;
 };
+
+// Get optimized thumbnail for video preview
+export const getGoogleDriveVideoThumbnail = (fileId: string): string => {
+  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
+};
