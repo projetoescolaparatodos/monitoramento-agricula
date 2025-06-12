@@ -690,18 +690,7 @@ video.portrait-video {
 
 /* Máscara para criar buraco no filtro na área de visualização */
 .video-overlay {
-  -webkit-mask: 
-    radial-gradient(ellipse at center, transparent 0%, transparent 0%) no-repeat,
-    linear-gradient(black, black);
-  -webkit-mask-composite: subtract;
-  mask: 
-    radial-gradient(ellipse at center, transparent 0%, transparent 0%) no-repeat,
-    linear-gradient(black, black);
-  mask-composite: subtract;
-}
-
-/* Quando a seção de visualização estiver visível, aplicar a máscara */
-body:has(#visualization) .video-overlay {
+  /* Aplicar máscara por padrão na página inicial */
   -webkit-mask: 
     radial-gradient(ellipse 600px 400px at 50% 75%, transparent 40%, black 45%) no-repeat,
     linear-gradient(black, black);
@@ -714,7 +703,7 @@ body:has(#visualization) .video-overlay {
 
 /* Para telas menores, ajustar o tamanho da elipse */
 @media (max-width: 768px) {
-  body:has(#visualization) .video-overlay {
+  .video-overlay {
     -webkit-mask: 
       radial-gradient(ellipse 400px 300px at 50% 75%, transparent 40%, black 45%) no-repeat,
       linear-gradient(black, black);
