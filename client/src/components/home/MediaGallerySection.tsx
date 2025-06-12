@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { MediaItem } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "wouter";
 import { isYoutubeUrl, getYoutubeEmbedUrl } from "@/utils/mediaUtils";
@@ -14,8 +15,15 @@ import "../../../src/index.css";
 const GoogleDriveThumbnail: React.FC<{ mediaUrl: string; title: string }> = ({ mediaUrl, title }) => {
   const [imageError, setImageError] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [currentSrc, setCurrentSrc] = React.useState<string>('');
   
   const fileId = isGoogleDriveLink(mediaUrl) ? getGoogleDriveFileId(mediaUrl) : '';
+  
+  React.useEffect(() => {
+    if (fileId) {
+      setCurrentSrc(getGoogleDriveThumbnail(fileId, 800));
+    }
+  }, [fileId]);
   
   if (!fileId) {
     return (
@@ -25,38 +33,38 @@ const GoogleDriveThumbnail: React.FC<{ mediaUrl: string; title: string }> = ({ m
     );
   }
 
-  const thumbnailUrl = getGoogleDriveThumbnail(fileId, 800);
-  const fallbackUrl = getGoogleDriveThumbnail(fileId, 512);
+  const handleImageError = () => {
+    setIsLoading(false);
+    
+    // Tentar fallback apenas uma vez
+    if (currentSrc.includes('sz=w800')) {
+      const fallbackUrl = getGoogleDriveThumbnail(fileId, 512);
+      setCurrentSrc(fallbackUrl);
+    } else {
+      setImageError(true);
+    }
+  };
+
+  const handleImageLoad = () => {
+    setIsLoading(false);
+  };
   
   return (
     <div className="w-full h-full relative bg-gray-100">
-      {isLoading && (
+      {isLoading && !imageError && (
         <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
           <div className="w-8 h-8 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
       
-      {!imageError ? (
+      {!imageError && currentSrc ? (
         <img 
-          src={thumbnailUrl}
+          src={currentSrc}
           alt={title} 
           className="w-full h-full object-cover"
           loading="lazy"
-          onLoad={() => setIsLoading(false)}
-          onError={() => {
-            setIsLoading(false);
-            // Tentar URL de fallback menor
-            const img = new Image();
-            img.onload = () => setImageError(false);
-            img.onerror = () => setImageError(true);
-            img.src = fallbackUrl;
-            
-            if (img.complete && img.naturalWidth > 0) {
-              (event.target as HTMLImageElement).src = fallbackUrl;
-            } else {
-              setImageError(true);
-            }
-          }}
+          onLoad={handleImageLoad}
+          onError={handleImageError}
         />
       ) : (
         <div className="w-full h-full bg-gradient-to-br from-blue-50 to-blue-100 flex flex-col items-center justify-center text-blue-600">
