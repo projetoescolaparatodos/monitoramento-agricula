@@ -371,7 +371,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
             {item.title && (
               <div className="media-title">
                 {/<\/?[a-z][\s\S]*>/i.test(item.title) ? (
-                  <div className="font-heading text-xl text-gray-900 dark:text-gray-100" dangerouslySetInnerHTML={{ __html: item.title }} />
+                  <h3 className="font-semibold text-xl text-gray-900 dark:text-gray-100" dangerouslySetInnerHTML={{ __html: item.title }} />
                 ) : (
                   <h3 className="font-semibold text-xl text-gray-900 dark:text-gray-100">{item.title}</h3>
                 )}
@@ -497,7 +497,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
             {item.title && (
               <div className="media-title">
                 {/<\/?[a-z][\s\S]*>/i.test(item.title) ? (
-                  <div className="font-heading text-xl text-gray-900 dark:text-gray-100" dangerouslySetInnerHTML={{ __html: item.title }} />
+                  <h3 className="font-semibold text-xl text-gray-900 dark:text-gray-100" dangerouslySetInnerHTML={{ __html: item.title }} />
                 ) : (
                   <h3 className="font-semibold text-xl text-gray-900 dark:text-gray-100">{item.title}</h3>
                 )}
@@ -615,7 +615,15 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
           )}
         </div>
         <CardContent className="p-5 space-y-3">
-          {item.title && <h3 className="font-semibold text-xl text-gray-900 dark:text-gray-100">{item.title}</h3>}
+          {item.title && (
+              <div className="media-title">
+                {/<\/?[a-z][\s\S]*>/i.test(item.title) ? (
+                  <h3 className="font-semibold text-xl text-gray-900 dark:text-gray-100" dangerouslySetInnerHTML={{ __html: item.title }} />
+                ) : (
+                  <h3 className="font-semibold text-xl text-gray-900 dark:text-gray-100">{item.title}</h3>
+                )}
+              </div>
+            )}
           {renderDescription(item.description)}
 
           {/* Extrair e exibir hashtags separadamente */}
