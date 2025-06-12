@@ -62,7 +62,10 @@ const Home = () => {
           <source src="/videos/BackgroundVideo.mp4" type="video/mp4" />
           Seu navegador não suporta vídeos HTML5.
         </video>
-        <div className="absolute top-0 left-0 w-full h-full bg-black opacity-40 video-overlay z-10" />
+        <div className="absolute top-0 left-0 w-full h-full z-10" 
+             style={{
+               background: 'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 25%, rgba(0,0,0,0.4) 75%, rgba(0,0,0,0) 100%)'
+             }} />
       </div>
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-20">
         <HeroSection />
