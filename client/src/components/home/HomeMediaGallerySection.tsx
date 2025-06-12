@@ -49,12 +49,12 @@ const MediaPreviewCard: React.FC<{ item: MediaItem }> = ({ item }) => {
 
   return (
     <Card className={`media-card overflow-hidden shadow-md border-0 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95 rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105 ${isVerticalVideo ? 'max-w-[400px] mx-auto' : ''}`}>
-      <div className="relative">
+      <div className="relative w-full h-full">
         {thumbnailUrl ? (
           <img
             src={thumbnailUrl}
             alt={item.title || 'Mídia'}
-            className={`w-full object-cover rounded-t-xl ${
+            className={`w-full h-full object-cover rounded-t-xl ${
               isVerticalVideo 
                 ? 'aspect-[9/16] max-h-[400px]' 
                 : 'aspect-video max-h-[300px]'
