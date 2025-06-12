@@ -4,8 +4,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "wouter";
 import { isYoutubeUrl, getYoutubeEmbedUrl } from "@/utils/mediaUtils";
+import { isGoogleDriveLink, getGoogleDriveThumbnail } from "@/utils/driveHelper";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Instagram } from "lucide-react";
 import "../../../src/index.css";
 
 interface MediaGallerySectionProps {
@@ -17,6 +19,7 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
   const isFirebaseVideo = item.mediaType === 'video' && item.mediaUrl?.includes('firebasestorage.googleapis.com');
   const isFirebaseImage = item.mediaType === 'image' && item.mediaUrl?.includes('firebasestorage.googleapis.com');
   const isYouTubeVideo = item.mediaUrl && isYoutubeUrl(item.mediaUrl);
+  const isGoogleDriveMedia = item.mediaUrl && isGoogleDriveLink(item.mediaUrl);
 
   // Determinar a página destino com âncora para a seção de galeria
   const getDestinationPage = (pageType: string) => {
@@ -57,6 +60,13 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
             loading="lazy"
             allowFullScreen
           />
+        ) : isGoogleDriveMedia ? (
+          <img 
+            src={getGoogleDriveThumbnail(item.mediaUrl)} 
+            alt={item.title || "Mídia do Google Drive"} 
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
         ) : isFirebaseVideo ? (
           <video 
             className="w-full h-full object-cover"
@@ -73,6 +83,21 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
             className="w-full h-full object-cover"
             loading="lazy"
           />
+        )}
+
+        {/* Ícone do Instagram */}
+        {item.instagramUrl && (
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              window.open(item.instagramUrl, '_blank');
+            }}
+            className="absolute top-3 right-3 z-10 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
+            title="Ver no Instagram"
+          >
+            <Instagram size={16} />
+          </button>
         )}
 
         <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs rounded-full px-2 py-1">
