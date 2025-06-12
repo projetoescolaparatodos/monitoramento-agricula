@@ -1,12 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { MediaItem } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaDisplay from '@/components/common/MediaDisplay';
-import { isGoogleDriveLink, getGoogleDriveFileId, getGoogleDriveThumbnail } from '@/utils/driveHelper';
-import { Instagram, ChevronDown, ChevronUp } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface HomeMediaGallerySectionProps {
   mediaItems?: MediaItem[];
@@ -14,169 +11,7 @@ interface HomeMediaGallerySectionProps {
   variant?: "default" | "transparent";
 }
 
-// Componente otimizado para preview de mídia na página inicial
-const MediaPreviewCard: React.FC<{ item: MediaItem }> = ({ item }) => {
-  const [expanded, setExpanded] = useState(false);
-  
-  const isGoogleDriveMedia = item.mediaUrl && isGoogleDriveLink(item.mediaUrl);
-  const isVerticalVideo = item.mediaType === 'video' && 
-    (item.aspectRatio === 'vertical' || 
-    (item.title && item.title.toLowerCase().includes('vertical')) ||
-    (item.title && item.title.toLowerCase().includes('instagram')));
 
-  // Para vídeos do Google Drive, usar thumbnail otimizado
-  const getThumbnailUrl = () => {
-    if (isGoogleDriveMedia && item.mediaType === 'video') {
-      const fileId = getGoogleDriveFileId(item.mediaUrl || '');
-      if (fileId) {
-        return getGoogleDriveThumbnail(fileId, 800); // Thumbnail em alta resolução
-      }
-    }
-    return item.thumbnailUrl || item.mediaUrl;
-  };
-
-  const thumbnailUrl = getThumbnailUrl();
-
-  // Configuração para truncamento da descrição
-  const previewLength = 120;
-  const description = item.description || '';
-  const shouldTruncate = description.length > previewLength;
-  const previewText = shouldTruncate ? description.slice(0, previewLength) + '...' : description;
-
-  // Remover tags HTML para o preview, mas manter para o texto expandido
-  const cleanPreviewText = previewText.replace(/<[^>]*>/g, '');
-  const fullText = description.replace(/\n/g, '<br/>');
-
-  return (
-    <Card className={`media-card overflow-hidden shadow-md border-0 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95 rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105 ${isVerticalVideo ? 'max-w-[400px] mx-auto' : ''}`}>
-      <div className={`relative w-full ${
-        isVerticalVideo ? 'h-[280px]' : 'h-[200px]'
-      }`}>
-        {thumbnailUrl ? (
-          <img
-            src={thumbnailUrl}
-            alt={item.title || 'Mídia'}
-            className={`w-full h-full object-cover rounded-t-xl ${
-              isVerticalVideo 
-                ? 'aspect-[9/16]' 
-                : 'aspect-video'
-            }`}
-            loading="lazy"
-            onError={(e) => {
-              // Fallback para URL original se thumbnail falhar
-              const target = e.target as HTMLImageElement;
-              if (target.src !== item.mediaUrl && item.mediaUrl) {
-                target.src = item.mediaUrl;
-              }
-            }}
-          />
-        ) : (
-          <div className={`w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center rounded-t-xl ${
-            isVerticalVideo ? 'aspect-[9/16]' : 'aspect-video'
-          }`}>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">Sem preview</p>
-          </div>
-        )}
-
-        {/* Indicador de vídeo */}
-        {item.mediaType === 'video' && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-t-xl opacity-0 hover:opacity-100 transition-opacity duration-200">
-            <div className="bg-white/90 rounded-full p-3">
-              <svg className="w-6 h-6 text-gray-800" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-            </div>
-          </div>
-        )}
-
-        {/* Ícone do Instagram se disponível */}
-        {item.instagramUrl && (
-          <button
-            onClick={() => window.open(item.instagramUrl, '_blank')}
-            className="absolute top-3 right-3 z-10 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
-            title="Ver no Instagram"
-          >
-            <Instagram size={16} />
-          </button>
-        )}
-      </div>
-
-      <CardContent className="p-4">
-        {item.title && (
-          <h3 className="font-semibold text-lg mb-3 text-green-800 dark:text-green-300 line-clamp-2">
-            {/<\/?[a-z][\s\S]*>/i.test(item.title) ? (
-              <div dangerouslySetInnerHTML={{ __html: item.title }} />
-            ) : (
-              item.title
-            )}
-          </h3>
-        )}
-
-        {description && (
-          <div className="mb-3">
-            <AnimatePresence initial={false}>
-              <motion.div 
-                className="text-sm text-gray-700 dark:text-gray-300"
-                initial={expanded ? { height: 0, opacity: 0 } : {}}
-                animate={{ height: "auto", opacity: 1 }}
-                transition={{ duration: 0.3 }}
-              >
-                {expanded ? (
-                  <div 
-                    className="prose prose-sm max-w-none dark:prose-invert rich-content"
-                    dangerouslySetInnerHTML={{ __html: fullText }}
-                  />
-                ) : (
-                  <p className="leading-relaxed">
-                    {cleanPreviewText}
-                  </p>
-                )}
-              </motion.div>
-            </AnimatePresence>
-
-            {shouldTruncate && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="mt-2"
-              >
-                <button
-                  className="text-green-600 dark:text-green-400 flex items-center text-sm font-medium hover:underline transition-colors duration-200"
-                  onClick={() => setExpanded(!expanded)}
-                >
-                  {expanded ? (
-                    <>
-                      <span>Mostrar menos</span>
-                      <ChevronUp size={16} className="ml-1 transition-transform duration-200" />
-                    </>
-                  ) : (
-                    <>
-                      <span>Saiba mais</span>
-                      <ChevronDown size={16} className="ml-1 transition-transform duration-200" />
-                    </>
-                  )}
-                </button>
-              </motion.div>
-            )}
-          </div>
-        )}
-
-        {/* Metadados compactos */}
-        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-3 border-t border-gray-200 dark:border-gray-700">
-          {item.author && (
-            <span className="truncate font-medium">{item.author}</span>
-          )}
-          {item.mediaType === 'video' && (
-            <span className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-1 rounded-full flex-shrink-0">
-              Vídeo
-            </span>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
 
 const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({ mediaItems, isLoading, variant = "default" }) => {
   return (
@@ -217,7 +52,7 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({ media
               
               return (
                 <div key={item.id} className={`${isVerticalVideo ? 'md:col-span-1' : ''}`}>
-                  <MediaPreviewCard item={item} />
+                  <MediaDisplay item={item} className="hover:scale-105 transition-transform" />
                 </div>
               );
             })}
