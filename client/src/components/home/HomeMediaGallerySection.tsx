@@ -54,10 +54,10 @@ const MediaPreviewCard: React.FC<{ item: MediaItem }> = ({ item }) => {
           <img
             src={thumbnailUrl}
             alt={item.title || 'Mídia'}
-            className={`w-full h-full object-cover rounded-t-xl ${
+            className={`w-full object-cover rounded-t-xl ${
               isVerticalVideo 
-                ? 'aspect-[9/16] max-h-[400px]' 
-                : 'aspect-video max-h-[300px]'
+                ? 'aspect-[9/16] h-[280px]' 
+                : 'aspect-video h-[200px]'
             }`}
             loading="lazy"
             onError={(e) => {
@@ -70,7 +70,7 @@ const MediaPreviewCard: React.FC<{ item: MediaItem }> = ({ item }) => {
           />
         ) : (
           <div className={`w-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center rounded-t-xl ${
-            isVerticalVideo ? 'aspect-[9/16] max-h-[400px]' : 'aspect-video max-h-[300px]'
+            isVerticalVideo ? 'aspect-[9/16] h-[280px]' : 'aspect-video h-[200px]'
           }`}>
             <p className="text-gray-500 dark:text-gray-400 text-sm">Sem preview</p>
           </div>
