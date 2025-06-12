@@ -1,93 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { MediaItem } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaDisplay from '@/components/common/MediaDisplay';
 import { isGoogleDriveLink, getGoogleDriveFileId, getGoogleDriveThumbnail } from '@/utils/driveHelper';
-import { Instagram, Play } from 'lucide-react';
-
-// Componente para thumbnail do Google Drive otimizado para prévias na Home
-const GoogleDrivePreviewThumbnail: React.FC<{ mediaUrl: string; title: string; isVertical?: boolean }> = ({ mediaUrl, title, isVertical = false }) => {
-  const [imageError, setImageError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentSrc, setCurrentSrc] = useState<string>('');
-  
-  const fileId = isGoogleDriveLink(mediaUrl) ? getGoogleDriveFileId(mediaUrl) : '';
-  
-  useEffect(() => {
-    if (fileId) {
-      setCurrentSrc(getGoogleDriveThumbnail(fileId, 800));
-    }
-  }, [fileId]);
-  
-  if (!fileId) {
-    return (
-      <div className={`w-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center rounded-t-xl ${
-        isVertical ? 'aspect-[9/16] max-h-[400px]' : 'aspect-video max-h-[300px]'
-      }`}>
-        <p className="text-gray-500 dark:text-gray-400 text-sm">Link inválido</p>
-      </div>
-    );
-  }
-
-  const handleImageError = () => {
-    setIsLoading(false);
-    
-    // Tentar fallback apenas uma vez
-    if (currentSrc.includes('sz=w800')) {
-      const fallbackUrl = getGoogleDriveThumbnail(fileId, 512);
-      setCurrentSrc(fallbackUrl);
-    } else {
-      setImageError(true);
-    }
-  };
-
-  const handleImageLoad = () => {
-    setIsLoading(false);
-  };
-  
-  return (
-    <div className={`w-full relative bg-gray-100 rounded-t-xl ${
-      isVertical ? 'aspect-[9/16] max-h-[400px]' : 'aspect-video max-h-[300px]'
-    }`}>
-      {isLoading && !imageError && (
-        <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center rounded-t-xl">
-          <div className="w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      )}
-      
-      {!imageError && currentSrc ? (
-        <img 
-          src={currentSrc}
-          alt={title} 
-          className={`w-full h-full object-cover rounded-t-xl ${
-            isVertical ? 'aspect-[9/16] max-h-[400px]' : 'aspect-video max-h-[300px]'
-          }`}
-          loading="lazy"
-          onLoad={handleImageLoad}
-          onError={handleImageError}
-        />
-      ) : (
-        <div className={`w-full h-full bg-gradient-to-br from-blue-50 to-blue-100 flex flex-col items-center justify-center text-blue-600 rounded-t-xl ${
-          isVertical ? 'aspect-[9/16] max-h-[400px]' : 'aspect-video max-h-[300px]'
-        }`}>
-          <Play size={24} className="mb-2" />
-          <p className="text-sm font-medium">Mídia do Drive</p>
-          <p className="text-xs opacity-75">Toque para ver</p>
-        </div>
-      )}
-      
-      {/* Indicador de que é mídia do Google Drive */}
-      <div className="absolute bottom-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full flex items-center">
-        <svg className="w-2 h-2 mr-1" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M6 2c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h8l6-6V8l-6-6H6zm7 7V3.5L18.5 9H13z"/>
-        </svg>
-        Drive
-      </div>
-    </div>
-  );
-};
+import { Instagram } from 'lucide-react';
 
 interface HomeMediaGallerySectionProps {
   mediaItems?: MediaItem[];
@@ -103,18 +21,25 @@ const MediaPreviewCard: React.FC<{ item: MediaItem }> = ({ item }) => {
     (item.title && item.title.toLowerCase().includes('vertical')) ||
     (item.title && item.title.toLowerCase().includes('instagram')));
 
+  // Para vídeos do Google Drive, usar thumbnail otimizado
+  const getThumbnailUrl = () => {
+    if (isGoogleDriveMedia && item.mediaType === 'video') {
+      const fileId = getGoogleDriveFileId(item.mediaUrl || '');
+      if (fileId) {
+        return getGoogleDriveThumbnail(fileId, 800); // Thumbnail em alta resolução
+      }
+    }
+    return item.thumbnailUrl || item.mediaUrl;
+  };
+
+  const thumbnailUrl = getThumbnailUrl();
+
   return (
     <Card className={`media-card overflow-hidden shadow-md border-0 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95 rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105 ${isVerticalVideo ? 'max-w-[400px] mx-auto' : ''}`}>
       <div className="relative">
-        {isGoogleDriveMedia ? (
-          <GoogleDrivePreviewThumbnail 
-            mediaUrl={item.mediaUrl || ''}
-            title={item.title || 'Mídia do Google Drive'}
-            isVertical={isVerticalVideo}
-          />
-        ) : item.thumbnailUrl || item.mediaUrl ? (
+        {thumbnailUrl ? (
           <img
-            src={item.thumbnailUrl || item.mediaUrl}
+            src={thumbnailUrl}
             alt={item.title || 'Mídia'}
             className={`w-full object-cover rounded-t-xl ${
               isVerticalVideo 
