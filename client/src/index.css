@@ -692,26 +692,22 @@ video.portrait-video {
 .video-overlay {
   /* Aplicar máscara por padrão na página inicial */
   -webkit-mask: 
-    radial-gradient(ellipse 600px 400px at 50% 75%, transparent 40%, black 45%) no-repeat,
-    linear-gradient(black, black);
-  -webkit-mask-composite: source-out;
+    radial-gradient(ellipse 600px 400px at 50% 75%, transparent 40%, black 45%);
+  -webkit-mask-composite: xor;
   mask: 
-    radial-gradient(ellipse 600px 400px at 50% 75%, transparent 40%, black 45%) no-repeat,
-    linear-gradient(black, black);
-  mask-composite: subtract;
+    radial-gradient(ellipse 600px 400px at 50% 75%, transparent 40%, black 45%);
+  mask-composite: exclude;
 }
 
 /* Para telas menores, ajustar o tamanho da elipse */
 @media (max-width: 768px) {
   .video-overlay {
     -webkit-mask: 
-      radial-gradient(ellipse 400px 300px at 50% 75%, transparent 40%, black 45%) no-repeat,
-      linear-gradient(black, black);
-    -webkit-mask-composite: source-out;
+      radial-gradient(ellipse 400px 300px at 50% 75%, transparent 40%, black 45%);
+    -webkit-mask-composite: xor;
     mask: 
-      radial-gradient(ellipse 400px 300px at 50% 75%, transparent 40%, black 45%) no-repeat,
-      linear-gradient(black, black);
-    mask-composite: subtract;
+      radial-gradient(ellipse 400px 300px at 50% 75%, transparent 40%, black 45%);
+    mask-composite: exclude;
   }
 }
 
