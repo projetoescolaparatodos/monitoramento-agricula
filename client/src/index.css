@@ -707,7 +707,7 @@ video.portrait-video {
   overflow: visible;
 }
 
-/* Overlay verde opaco que preenche toda a largura */
+/* Overlay verde completamente opaco que preenche toda a largura */
 .home-media-gallery-section::before,
 .data-visualization-section::before {
   content: "";
@@ -717,7 +717,7 @@ video.portrait-video {
   transform: translateX(-50%);
   width: 100vw;
   height: 100%;
-  background: rgba(34, 197, 94, 0.3); /* Verde opaco */
+  background: rgb(34, 197, 94); /* Verde sólido, sem transparência */
   z-index: 1;
 }
 
@@ -734,8 +734,8 @@ video.portrait-video {
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    rgba(34, 197, 94, 0.1) 20px,
-    rgba(34, 197, 94, 0.1) calc(100% - 20px),
+    rgb(34, 197, 94) 20px,
+    rgb(34, 197, 94) calc(100% - 20px),
     transparent 100%
   );
   z-index: 2;
@@ -749,11 +749,11 @@ video.portrait-video {
   z-index: 3;
 }
 
-/* Versão mais sutil para modo escuro */
+/* Versão para modo escuro - também completamente opaca */
 @media (prefers-color-scheme: dark) {
   .home-media-gallery-section::before,
   .data-visualization-section::before {
-    background: rgba(6, 95, 70, 0.4); /* Verde escuro opaco */
+    background: rgb(6, 95, 70); /* Verde escuro sólido, sem transparência */
   }
   
   .home-media-gallery-section::after,
@@ -761,8 +761,8 @@ video.portrait-video {
     background: linear-gradient(
       to bottom,
       transparent 0%,
-      rgba(6, 95, 70, 0.2) 20px,
-      rgba(6, 95, 70, 0.2) calc(100% - 20px),
+      rgb(6, 95, 70) 20px,
+      rgb(6, 95, 70) calc(100% - 20px),
       transparent 100%
     );
   }
