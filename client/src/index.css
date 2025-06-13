@@ -693,8 +693,8 @@ video.portrait-video {
   /* Filtro uniforme sem máscaras */
 }
 
-/* === Degradê Animado (estilo Replit) === */
-@keyframes gradientBG {
+/* === Overlay Verde Opaco com Degradê nas Transições === */
+@keyframes gradientTransition {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
@@ -704,41 +704,67 @@ video.portrait-video {
 .home-media-gallery-section,
 .data-visualization-section {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
-/* Overlay com degradê */
+/* Overlay verde opaco que preenche toda a largura */
 .home-media-gallery-section::before,
 .data-visualization-section::before {
   content: "";
   position: absolute;
   top: 0;
-  left: 0;
-  width: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
   height: 100%;
-  background: linear-gradient(45deg, #22c55e, #3b82f6, #8b5cf6, #f59e0b, #ef4444, #22c55e);
-  background-size: 400% 400%;
-  animation: gradientBG 20s ease infinite;
-  opacity: 0.15;
-  mix-blend-mode: overlay;
+  background: rgba(34, 197, 94, 0.3); /* Verde opaco */
   z-index: 1;
-  border-radius: 1rem;
-  margin: 0.5rem;
+}
+
+/* Degradê apenas nas bordas superior e inferior para transição */
+.home-media-gallery-section::after,
+.data-visualization-section::after {
+  content: "";
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  height: calc(100% + 40px);
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(34, 197, 94, 0.1) 20px,
+    rgba(34, 197, 94, 0.1) calc(100% - 20px),
+    transparent 100%
+  );
+  z-index: 2;
+  pointer-events: none;
 }
 
 /* Garante que o conteúdo fique acima do overlay */
 .home-media-gallery-section > *,
 .data-visualization-section > * {
   position: relative;
-  z-index: 2;
+  z-index: 3;
 }
 
 /* Versão mais sutil para modo escuro */
 @media (prefers-color-scheme: dark) {
   .home-media-gallery-section::before,
   .data-visualization-section::before {
-    background: linear-gradient(45deg, #065f46, #1e40af, #6d28d9, #b45309, #dc2626, #065f46);
-    opacity: 0.2;
+    background: rgba(6, 95, 70, 0.4); /* Verde escuro opaco */
+  }
+  
+  .home-media-gallery-section::after,
+  .data-visualization-section::after {
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(6, 95, 70, 0.2) 20px,
+      rgba(6, 95, 70, 0.2) calc(100% - 20px),
+      transparent 100%
+    );
   }
 }
 
