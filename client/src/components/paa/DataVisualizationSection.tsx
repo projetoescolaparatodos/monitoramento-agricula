@@ -13,8 +13,7 @@ const DataVisualizationSection = ({ charts, isLoading }: DataVisualizationSectio
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
       {charts.map((chart) => (
-        <div key={chart.id} className="bg-white/70 rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold mb-4">{chart.title}</h3>
+        <div key={chart.id} className="relative">
           <ChartComponent 
             chartData={chart.chartData} 
             chartType={chart.chartType}

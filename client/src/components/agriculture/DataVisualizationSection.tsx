@@ -47,26 +47,21 @@ const DataVisualizationSection: React.FC<DataVisualizationSectionProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {charts.map((chart) => (
-            <Card key={chart.id} className="bg-white rounded-lg shadow-md">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">{chart.title}</h3>
-                <div className="relative">
-                  <ChartComponent 
-                    chartData={chart.chartData} 
-                    chartType={chart.chartType}
-                    title={chart.title}
-                    description={chart.description}
-                    height={300}
-                    metadata={{
-                      source: "Secretaria Municipal de Agricultura",
-                      lastUpdated: "Janeiro 2024",
-                      units: "Unidades",
-                      period: "Período de coleta"
-                    }}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+            <div key={chart.id} className="relative">
+              <ChartComponent 
+                chartData={chart.chartData} 
+                chartType={chart.chartType}
+                title={chart.title}
+                description={chart.description}
+                height={300}
+                metadata={{
+                  source: "Secretaria Municipal de Agricultura",
+                  lastUpdated: "Janeiro 2024",
+                  units: "Unidades",
+                  period: "Período de coleta"
+                }}
+              />
+            </div>
           ))}
         </div>
       </div>
