@@ -409,7 +409,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
 
   return (
     <div className="w-full">
-      <Card className="bg-white/20 dark:bg-zinc-900/20 border-gray-200 dark:border-zinc-700 shadow-md">
+      <Card className="bg-white/80 dark:bg-zinc-900/80 border-gray-200 dark:border-zinc-700 shadow-md">
         <CardContent className="p-6">
           {title && (
             <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
