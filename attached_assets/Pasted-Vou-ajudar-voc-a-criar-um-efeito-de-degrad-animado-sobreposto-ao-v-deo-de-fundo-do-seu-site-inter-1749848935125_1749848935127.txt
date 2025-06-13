@@ -1,0 +1,131 @@
+Vou ajudar você a criar um efeito de degradê animado sobreposto ao vídeo de fundo do seu site, intercalando com áreas verdes que cobrem os componentes HomeMediaGallerySection e DataVisualizationSection, igual ao efeito suave do Replit.
+
+📌 O que você quer (em termos técnicos):
+Manter o vídeo de fundo, mas adicionar um overlay com degradê animado (como o do Replit).
+
+Aplicar esse degradê apenas em certas seções (HomeMediaGallerySection e DataVisualizationSection).
+
+Intercalar entre:
+
+O vídeo puro (sem overlay) em algumas partes.
+
+O vídeo + degradê animado em outras.
+
+🎨 Como Fazer Isso?
+Opção 1: CSS Puro (Simples e Rápido)
+Adicione um pseudo-elemento (::before ou ::after) com o degradê animado apenas nos componentes desejados.
+
+css
+/* === Degradê Animado (estilo Replit) === */
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Aplica apenas nos componentes selecionados */
+.home-media-gallery-section,
+.data-visualization-section {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Overlay com degradê */
+.home-media-gallery-section::before,
+.data-visualization-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, #23d5ab, #23a6d5, #e73c7e, #ee7752);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  opacity: 0.5; /* Transparência para ver o vídeo atrás */
+  mix-blend-mode: overlay; /* Combina cores com o vídeo */
+  z-index: 1;
+}
+
+/* Garante que o conteúdo fique acima do overlay */
+.home-media-gallery-section > *,
+.data-visualization-section > * {
+  position: relative;
+  z-index: 2;
+}
+Opção 2: JavaScript + GSAP (Mais Dinâmico)
+Se quiser controlar quando o degradê aparece (ex.: só ao rolar até a seção), use:
+
+javascript
+import { gsap } from "gsap";
+
+// Cria o overlay dinamicamente
+function addGradientOverlay() {
+  const sections = [
+    document.querySelector(".home-media-gallery-section"),
+    document.querySelector(".data-visualization-section")
+  ];
+
+  sections.forEach(section => {
+    if (!section) return;
+
+    const overlay = document.createElement("div");
+    overlay.style.cssText = `
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, #23d5ab, #23a6d5, #e73c7e, #ee7752);
+      background-size: 400% 400%;
+      opacity: 0;
+      mix-blend-mode: overlay;
+      z-index: 1;
+    `;
+
+    section.prepend(overlay);
+    section.style.position = "relative";
+
+    // Animação ao aparecer na tela
+    gsap.to(overlay, {
+      opacity: 0.5,
+      duration: 2,
+      scrollTrigger: {
+        trigger: section,
+        start: "top 80%",
+        toggleActions: "play none none reverse"
+      }
+    });
+
+    // Anima o degradê
+    gsap.fromTo(
+      overlay,
+      { backgroundPosition: "0% 50%" },
+      {
+        backgroundPosition: "100% 50%",
+        duration: 15,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut"
+      }
+    );
+  });
+}
+
+// Chama a função quando o componente montar
+addGradientOverlay();
+🎯 Onde Colocar no Seu Código?
+CSS:
+Adicione no arquivo global (ex.: styles/globals.css) ou no módulo CSS do seu componente.
+
+JavaScript/GSAP:
+Coloque no useEffect do seu componente principal (ex.: HomePage.jsx).
+
+💡 Dicas de Customização
+Cores do degradê: Altere as cores no linear-gradient para combinar com seu tema.
+
+Transparência: Ajuste opacity para deixar o vídeo mais ou menos visível.
+
+Modo de mescla: Experimente outros mix-blend-mode (screen, soft-light).
+
+Performance: Se usar vídeo + animação, adicione will-change: transform para otimização.
