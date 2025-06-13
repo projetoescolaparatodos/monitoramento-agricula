@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -27,7 +27,9 @@ import {
   SubTitle
 } from 'chart.js';
 import { Bar, Bubble, Doughnut, Line, Pie, PolarArea, Radar, Scatter } from 'react-chartjs-2';
-import ChartSidebar from './ChartSidebar';
+import { Card, CardContent } from "@/components/ui/card"
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown, ChevronUp, Calendar, Database, Info } from 'lucide-react';
 
 ChartJS.register(
   ArcElement,
@@ -119,6 +121,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
   showSidebar = true,
   metadata
 }) => {
+  const [expanded, setExpanded] = useState(false);
   console.log(`Renderizando gráfico tipo ${chartType}:`, chartData);
 
   const processedData = React.useMemo(() => {
@@ -130,7 +133,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
       datasets: chartData.datasets.map((dataset, datasetIndex) => {
         if (isBarChart) {
           const hasCustomColors = Array.isArray(dataset.backgroundColor) && dataset.backgroundColor.length === dataset.data.length;
-          
+
           if (hasCustomColors) {
             return {
               ...dataset,
@@ -385,23 +388,152 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
     }
   };
 
+  // Limitar a descrição para exibição inicial
+  const previewLength = 150;
+  const shouldTruncate = description && description.length > previewLength;
+  const previewText = shouldTruncate ? description.slice(0, previewLength) + '...' : description;
+
+  const getChartTypeDisplay = (type: string) => {
+    const types: { [key: string]: string } = {
+      'bar': 'Gráfico de Barras',
+      'line': 'Gráfico de Linhas',
+      'pie': 'Gráfico de Pizza',
+      'doughnut': 'Gráfico de Rosca',
+      'radar': 'Gráfico Radar',
+      'polarArea': 'Área Polar',
+      'scatter': 'Gráfico de Dispersão',
+      'bubble': 'Gráfico de Bolhas'
+    };
+    return types[type] || type;
+  };
+
   return (
     <div className="w-full">
-      <div style={{ height: `${height}px`, width: '100%' }}>
-        {renderChart()}
-      </div>
-      
-      {showSidebar && (
-        <ChartSidebar
-          chart={{
-            title: title || 'Gráfico',
-            description,
-            chartData,
-            chartType,
-            metadata
-          }}
-        />
-      )}
+      <Card className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 shadow-md">
+        <CardContent className="p-6">
+          {title && (
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+              {title}
+            </h3>
+          )}
+
+          {description && (
+            <div className="mb-6">
+              <AnimatePresence initial={false}>
+                <motion.div 
+                  className="text-sm text-gray-700 dark:text-gray-300"
+                  initial={expanded ? { height: 0, opacity: 0 } : {}}
+                  animate={{ height: "auto", opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {expanded ? (
+                    <div className="prose prose-sm max-w-none dark:prose-invert">
+                      <p>{description}</p>
+
+                      {(metadata?.source || metadata?.lastUpdated || metadata?.units || metadata?.period) && (
+                        <div className="mt-4 p-4 bg-gray-50 dark:bg-zinc-800 rounded-lg">
+                          <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center">
+                            <Info className="w-4 h-4 mr-2" />
+                            Informações Adicionais
+                          </h4>
+                          <dl className="space-y-2">
+                            <div className="flex justify-between items-center">
+                              <dt className="text-xs text-gray-600 dark:text-gray-400">Tipo de Gráfico</dt>
+                              <dd className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                                {getChartTypeDisplay(chartType)}
+                              </dd>
+                            </div>
+
+                            {metadata?.source && (
+                              <div className="flex justify-between items-center">
+                                <dt className="text-xs text-gray-600 dark:text-gray-400">Fonte dos Dados</dt>
+                                <dd className="text-xs text-gray-800 dark:text-gray-200 text-right max-w-48 truncate">
+                                  {metadata.source}
+                                </dd>
+                              </div>
+                            )}
+
+                            {metadata?.lastUpdated && (
+                              <div className="flex justify-between items-center">
+                                <dt className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
+                                  <Calendar className="w-3 h-3 mr-1" />
+                                  Última Atualização
+                                </dt>
+                                <dd className="text-xs text-gray-800 dark:text-gray-200">
+                                  {metadata.lastUpdated}
+                                </dd>
+                              </div>
+                            )}
+
+                            {metadata?.units && (
+                              <div className="flex justify-between items-center">
+                                <dt className="text-xs text-gray-600 dark:text-gray-400">Unidade</dt>
+                                <dd className="text-xs text-gray-800 dark:text-gray-200">
+                                  {metadata.units}
+                                </dd>
+                              </div>
+                            )}
+
+                            {metadata?.period && (
+                              <div className="flex justify-between items-center">
+                                <dt className="text-xs text-gray-600 dark:text-gray-400">Período</dt>
+                                <dd className="text-xs text-gray-800 dark:text-gray-200">
+                                  {metadata.period}
+                                </dd>
+                              </div>
+                            )}
+
+                            <div className="flex justify-between items-center">
+                              <dt className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
+                                <Database className="w-3 h-3 mr-1" />
+                                Total de Pontos
+                              </dt>
+                              <dd className="text-xs text-gray-800 dark:text-gray-200">
+                                {chartData.labels.length}
+                              </dd>
+                            </div>
+                          </dl>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p>{shouldTruncate ? previewText : description}</p>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+
+              {shouldTruncate && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <button
+                    className="mt-3 text-blue-600 dark:text-blue-400 flex items-center text-sm font-medium hover:underline transition-colors"
+                    onClick={() => setExpanded(!expanded)}
+                  >
+                    {expanded ? (
+                      <>
+                        <span>Mostrar menos</span>
+                        <ChevronUp size={16} className="ml-1" />
+                      </>
+                    ) : (
+                      <>
+                        <span>Ver detalhes</span>
+                        <ChevronDown size={16} className="ml-1" />
+                      </>
+                    )}
+                  </button>
+                </motion.div>
+              )}
+            </div>
+          )}
+
+          <div style={{ height }}>
+            {renderChart()}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
