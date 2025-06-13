@@ -717,7 +717,7 @@ video.portrait-video {
   transform: translateX(-50%);
   width: 100vw;
   height: 100%;
-  background: rgb(50, 205, 50); /* Verde limão sólido, sem transparência */
+  background: rgb(21, 128, 61); /* Verde específico #15803D, sólido, sem transparência */
   z-index: 1;
 }
 
@@ -734,8 +734,8 @@ video.portrait-video {
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    rgb(50, 205, 50) 60px,
-    rgb(50, 205, 50) calc(100% - 60px),
+    rgb(21, 128, 61) 60px,
+    rgb(21, 128, 61) calc(100% - 60px),
     transparent 100%
   );
   z-index: 2;
@@ -753,7 +753,7 @@ video.portrait-video {
 @media (prefers-color-scheme: dark) {
   .home-media-gallery-section::before,
   .data-visualization-section::before {
-    background: rgb(34, 139, 34); /* Verde limão escuro compatível com o tema */
+    background: rgb(15, 92, 44); /* Verde #15803D mais escuro para modo escuro */
   }
 
   .home-media-gallery-section::after,
@@ -761,8 +761,8 @@ video.portrait-video {
     background: linear-gradient(
       to bottom,
       transparent 0%,
-      rgb(34, 139, 34) 60px,
-      rgb(34, 139, 34) calc(100% - 60px),
+      rgb(15, 92, 44) 60px,
+      rgb(15, 92, 44) calc(100% - 60px),
       transparent 100%
     );
   }
