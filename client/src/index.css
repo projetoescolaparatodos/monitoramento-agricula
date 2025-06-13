@@ -753,16 +753,16 @@ video.portrait-video {
 @media (prefers-color-scheme: dark) {
   .home-media-gallery-section::before,
   .data-visualization-section::before {
-    background: rgb(6, 95, 70); /* Verde escuro sólido, sem transparência */
+    background: rgb(15, 118, 110); /* Verde escuro compatível com o tema */
   }
-  
+
   .home-media-gallery-section::after,
   .data-visualization-section::after {
     background: linear-gradient(
       to bottom,
       transparent 0%,
-      rgb(6, 95, 70) 20px,
-      rgb(6, 95, 70) calc(100% - 20px),
+      rgb(15, 118, 110) 60px,
+      rgb(15, 118, 110) calc(100% - 60px),
       transparent 100%
     );
   }
