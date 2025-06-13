@@ -889,3 +889,66 @@ iframe[src*="drive.google.com"] {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+
+/* Estilos específicos para gráficos em dispositivos móveis */
+@media (max-width: 768px) {
+  /* Melhorar legibilidade dos gráficos em mobile */
+  .chart-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Ajustar tamanho dos textos dos gráficos */
+  canvas {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Melhorar espaçamento dos cards de gráficos */
+  .chart-card {
+    margin-bottom: 1rem;
+  }
+
+  /* Otimizar tooltips para touch */
+  .chart-tooltip {
+    font-size: 12px !important;
+    padding: 8px !important;
+  }
+
+  /* Ajustar legendas para mobile */
+  .chart-legend {
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 100%;
+  }
+
+  /* Melhorar interação touch nos gráficos */
+  .chart-container canvas {
+    touch-action: manipulation;
+  }
+}
+
+/* Estilos específicos para orientação paisagem em mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .chart-container {
+    height: 200px !important;
+  }
+}
+
+/* Melhorias para telas muito pequenas */
+@media (max-width: 480px) {
+  .chart-container {
+    height: 220px !important;
+  }
+  
+  .chart-title {
+    font-size: 1rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+  
+  .chart-description {
+    font-size: 0.875rem !important;
+    line-height: 1.4 !important;
+  }
+}

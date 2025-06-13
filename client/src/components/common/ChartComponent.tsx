@@ -197,21 +197,24 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
     };
   }, [chartType, chartData]);
 
+  const isMobile = window.innerWidth <= 768;
+
   const baseOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top' as const,
+        position: (isMobile ? 'bottom' : 'top') as const,
         labels: {
           font: {
             family: "'Poppins', 'Helvetica', 'Arial', sans-serif",
-            size: 12
+            size: isMobile ? 10 : 12
           },
           color: '#000000',
-          padding: 20,
+          padding: isMobile ? 8 : 20,
           usePointStyle: true,
-          boxWidth: 8
+          boxWidth: isMobile ? 6 : 8,
+          maxWidth: isMobile ? 200 : undefined
         }
       },
       tooltip: {
@@ -220,16 +223,17 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
         bodyColor: '#000000',
         borderColor: '#ddd',
         borderWidth: 1,
-        padding: 12,
+        padding: isMobile ? 8 : 12,
         cornerRadius: 6,
         boxPadding: 4,
         bodyFont: {
-          family: "'Poppins', 'Helvetica', 'Arial', sans-serif"
+          family: "'Poppins', 'Helvetica', 'Arial', sans-serif",
+          size: isMobile ? 12 : 14
         },
         titleFont: {
           family: "'Poppins', 'Helvetica', 'Arial', sans-serif",
           weight: 'bold',
-          size: 14
+          size: isMobile ? 12 : 14
         }
       }
     }
@@ -249,8 +253,10 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
               ticks: {
                 color: '#000000',
                 font: {
-                  family: "'Poppins', 'Helvetica', 'Arial', sans-serif"
-                }
+                  family: "'Poppins', 'Helvetica', 'Arial', sans-serif",
+                  size: isMobile ? 10 : 12
+                },
+                maxTicksLimit: isMobile ? 5 : 8
               }
             },
             x: {
@@ -260,8 +266,11 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
               ticks: {
                 color: '#000000',
                 font: {
-                  family: "'Poppins', 'Helvetica', 'Arial', sans-serif"
-                }
+                  family: "'Poppins', 'Helvetica', 'Arial', sans-serif",
+                  size: isMobile ? 9 : 12
+                },
+                maxRotation: isMobile ? 45 : 0,
+                minRotation: isMobile ? 45 : 0
               }
             }
           }
@@ -279,8 +288,10 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
               ticks: {
                 color: '#000000',
                 font: {
-                  family: "'Poppins', 'Helvetica', 'Arial', sans-serif"
-                }
+                  family: "'Poppins', 'Helvetica', 'Arial', sans-serif",
+                  size: isMobile ? 10 : 12
+                },
+                maxTicksLimit: isMobile ? 5 : 8
               }
             },
             x: {
@@ -290,8 +301,11 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
               ticks: {
                 color: '#000000',
                 font: {
-                  family: "'Poppins', 'Helvetica', 'Arial', sans-serif"
-                }
+                  family: "'Poppins', 'Helvetica', 'Arial', sans-serif",
+                  size: isMobile ? 9 : 12
+                },
+                maxRotation: isMobile ? 45 : 0,
+                minRotation: isMobile ? 45 : 0
               }
             }
           }
@@ -306,10 +320,15 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
             ...baseOptions.plugins,
             legend: {
               ...baseOptions.plugins.legend,
-              position: 'right' as const,
+              position: (isMobile ? 'bottom' : 'right') as const,
               labels: {
                 ...baseOptions.plugins.legend.labels,
-                color: '#000000'
+                color: '#000000',
+                padding: isMobile ? 6 : 20,
+                font: {
+                  ...baseOptions.plugins.legend.labels.font,
+                  size: isMobile ? 9 : 12
+                }
               }
             }
           }
@@ -443,9 +462,9 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
   return (
     <div className="w-full">
       <Card className="bg-white/80 dark:bg-zinc-900/80 border-gray-200 dark:border-zinc-700 shadow-md">
-        <CardContent className="p-6">
+        <CardContent className={`${isMobile ? 'p-4' : 'p-6'}`}>
           {title && (
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            <h3 className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold text-gray-900 dark:text-gray-100 mb-4`}>
               {title}
             </h3>
           )}
@@ -562,7 +581,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
             </div>
           )}
 
-          <div style={{ height }}>
+          <div style={{ height: isMobile ? Math.min(height, 250) : height }}>
             {renderChart()}
           </div>
         </CardContent>

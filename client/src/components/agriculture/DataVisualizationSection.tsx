@@ -45,7 +45,7 @@ const DataVisualizationSection: React.FC<DataVisualizationSectionProps> = ({
           Análises e estatísticas importantes para compreensão do cenário agrícola
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
           {charts.map((chart) => (
             <div key={chart.id} className="relative">
               <ChartComponent 
@@ -53,7 +53,7 @@ const DataVisualizationSection: React.FC<DataVisualizationSectionProps> = ({
                 chartType={chart.chartType}
                 title={chart.title}
                 description={chart.description}
-                height={300}
+                height={window.innerWidth <= 768 ? 250 : 300}
                 metadata={{
                   source: "Secretaria Municipal de Agricultura",
                   lastUpdated: "Janeiro 2024",
