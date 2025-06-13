@@ -208,6 +208,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
             family: "'Poppins', 'Helvetica', 'Arial', sans-serif",
             size: 12
           },
+          color: '#000000',
           padding: 20,
           usePointStyle: true,
           boxWidth: 8
@@ -215,8 +216,8 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
       },
       tooltip: {
         backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        titleColor: '#333',
-        bodyColor: '#555',
+        titleColor: '#000000',
+        bodyColor: '#000000',
         borderColor: '#ddd',
         borderWidth: 1,
         padding: 12,
@@ -246,6 +247,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
                 color: 'rgba(0, 0, 0, 0.05)'
               },
               ticks: {
+                color: '#000000',
                 font: {
                   family: "'Poppins', 'Helvetica', 'Arial', sans-serif"
                 }
@@ -256,6 +258,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
                 display: false
               },
               ticks: {
+                color: '#000000',
                 font: {
                   family: "'Poppins', 'Helvetica', 'Arial', sans-serif"
                 }
@@ -272,11 +275,23 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
               beginAtZero: true,
               grid: {
                 color: 'rgba(0, 0, 0, 0.05)'
+              },
+              ticks: {
+                color: '#000000',
+                font: {
+                  family: "'Poppins', 'Helvetica', 'Arial', sans-serif"
+                }
               }
             },
             x: {
               grid: {
                 display: false
+              },
+              ticks: {
+                color: '#000000',
+                font: {
+                  family: "'Poppins', 'Helvetica', 'Arial', sans-serif"
+                }
               }
             }
           }
@@ -291,7 +306,11 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
             ...baseOptions.plugins,
             legend: {
               ...baseOptions.plugins.legend,
-              position: 'right' as const
+              position: 'right' as const,
+              labels: {
+                ...baseOptions.plugins.legend.labels,
+                color: '#000000'
+              }
             }
           }
         };
@@ -320,12 +339,14 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
                 color: 'rgba(0, 0, 0, 0.1)'
               },
               pointLabels: {
+                color: '#000000',
                 font: {
                   family: "'Poppins', 'Helvetica', 'Arial', sans-serif",
                   size: 12
                 }
               },
               ticks: {
+                color: '#000000',
                 backdropColor: 'transparent'
               }
             }
@@ -340,11 +361,23 @@ const ChartComponent: React.FC<ChartComponentProps> = ({
             y: {
               grid: {
                 color: 'rgba(0, 0, 0, 0.05)'
+              },
+              ticks: {
+                color: '#000000',
+                font: {
+                  family: "'Poppins', 'Helvetica', 'Arial', sans-serif"
+                }
               }
             },
             x: {
               grid: {
                 color: 'rgba(0, 0, 0, 0.05)'
+              },
+              ticks: {
+                color: '#000000',
+                font: {
+                  family: "'Poppins', 'Helvetica', 'Arial', sans-serif"
+                }
               }
             }
           }
