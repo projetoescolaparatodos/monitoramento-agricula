@@ -94,10 +94,28 @@ export const ContentForm = ({ contentData, isEdit = false, onSuccess }: ContentF
     active: true,
   };
 
+  // Preparar dados para edição
+  const editData = isEdit && contentData ? {
+    pageType: contentData.pageType || "home",
+    sectionType: contentData.sectionType || "info",
+    title: contentData.title || "",
+    content: contentData.content || "",
+    order: contentData.order || 0,
+    active: contentData.active !== undefined ? contentData.active : true,
+  } : defaultValues;
+
   const form = useForm<ContentFormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: fetchedContent || contentData || defaultValues,
+    defaultValues: fetchedContent || editData,
   });
+
+  // Resetar formulário quando os dados chegarem
+  useEffect(() => {
+    if (isEdit && (fetchedContent || contentData)) {
+      const dataToUse = fetchedContent || editData;
+      form.reset(dataToUse);
+    }
+  }, [fetchedContent, contentData, isEdit, form]);
 
   const onSubmit = async (data: ContentFormData) => {
     try {

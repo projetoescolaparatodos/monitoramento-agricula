@@ -134,7 +134,7 @@ export const ChartList = ({ onEdit }: ChartListProps) => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => onEdit(chart.id)}
+                        onClick={() => onEdit(chart)}
                       >
                         Editar
                       </Button>

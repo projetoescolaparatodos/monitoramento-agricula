@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -90,14 +90,34 @@ const ChartForm: React.FC<ChartFormProps> = ({
   const [loading, setLoading] = useState(false);
 
 
-  const defaultValues: ChartFormData = {
-    pageType: chartData?.pageType || 'home',
-    title: chartData?.title || '',
-    description: chartData?.description || '',
-    chartType: chartData?.chartType || 'bar',
-    active: chartData?.active !== undefined ? chartData.active : true,
-    order: chartData?.order || 0,
-    chartData: chartData?.chartData || {
+  // Preparar dados para edição
+  const editData = isEdit && chartData ? {
+    pageType: chartData.pageType || 'home',
+    title: chartData.title || '',
+    description: chartData.description || '',
+    chartType: chartData.chartType || 'bar',
+    active: chartData.active !== undefined ? chartData.active : true,
+    order: chartData.order || 0,
+    chartData: chartData.chartData || {
+      labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+      datasets: [
+        {
+          label: 'Valores',
+          data: [12, 19, 3, 5, 2, 3],
+          backgroundColor: '#4CAF50',
+          borderColor: '#388E3C',
+          borderWidth: 1
+        }
+      ]
+    }
+  } : {
+    pageType: 'home',
+    title: '',
+    description: '',
+    chartType: 'bar',
+    active: true,
+    order: 0,
+    chartData: {
       labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
       datasets: [
         {
@@ -113,8 +133,15 @@ const ChartForm: React.FC<ChartFormProps> = ({
 
   const form = useForm<ChartFormData>({
     resolver: zodResolver(chartFormSchema),
-    defaultValues
+    defaultValues: editData
   });
+
+  // Resetar formulário quando os dados chegarem para edição
+  useEffect(() => {
+    if (isEdit && chartData) {
+      form.reset(editData);
+    }
+  }, [chartData, isEdit, form]);
 
   const { fields: labelFields, append: appendLabel, remove: removeLabel } = 
     useFieldArray({ control: form.control, name: "chartData.labels" });

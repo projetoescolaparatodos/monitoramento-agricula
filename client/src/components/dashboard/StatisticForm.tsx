@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -46,10 +46,29 @@ const StatisticForm = ({ statisticData, isEdit = false, onSuccess }: StatisticFo
     pageType: "home"
   };
 
+  // Preparar dados para edição
+  const editData = isEdit && statisticData ? {
+    label: statisticData.label || "",
+    value: statisticData.value || "",
+    trend: statisticData.trend || "",
+    trendValue: statisticData.trendValue || "",
+    isPositive: statisticData.isPositive !== undefined ? statisticData.isPositive : true,
+    order: statisticData.order || 0,
+    active: statisticData.active !== undefined ? statisticData.active : true,
+    pageType: statisticData.pageType || "home"
+  } : defaultValues;
+
   const form = useForm<StatisticFormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: statisticData || defaultValues,
+    defaultValues: editData,
   });
+
+  // Resetar formulário quando os dados chegarem para edição
+  useEffect(() => {
+    if (isEdit && statisticData) {
+      form.reset(editData);
+    }
+  }, [statisticData, isEdit, form]);
 
   const onSubmit = async (data: StatisticFormData) => {
     try {

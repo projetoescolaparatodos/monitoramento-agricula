@@ -123,7 +123,7 @@ export const StatisticList = ({ onEdit }: StatisticListProps) => {
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => onEdit(statistic.id)}
+                onClick={() => onEdit(statistic)}
               >
                 <Pencil className="h-4 w-4" />
               </Button>

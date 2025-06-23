@@ -127,7 +127,7 @@ export const MediaList = ({ onEdit }: MediaListProps) => {
                     size="sm"
                     variant="outline"
                     className="flex-1"
-                    onClick={() => onEdit(media.id)}
+                    onClick={() => onEdit(media)}
                   >
                     Editar
                   </Button>

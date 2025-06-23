@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -58,13 +58,33 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
     order: 0
   };
 
+  // Preparar dados para edição
+  const editData = isEdit && mediaData ? {
+    pageType: mediaData.pageType || "home" as PageType,
+    title: mediaData.title || "",
+    description: mediaData.description || "",
+    mediaType: mediaData.mediaType || "image",
+    mediaUrl: mediaData.mediaUrl || "",
+    thumbnailUrl: mediaData.thumbnailUrl || "",
+    active: mediaData.active !== undefined ? mediaData.active : true,
+    order: mediaData.order || 0
+  } : defaultValues;
+
   const form = useForm<MediaFormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: fetchedMedia || mediaData || defaultValues,
+    defaultValues: fetchedMedia || editData,
   });
   
   // Log para debug do pageType selecionado
   console.log("Valor atual de pageType:", form.watch("pageType"));
+
+  // Resetar formulário quando os dados chegarem
+  useEffect(() => {
+    if (isEdit && (fetchedMedia || mediaData)) {
+      const dataToUse = fetchedMedia || editData;
+      form.reset(dataToUse);
+    }
+  }, [fetchedMedia, mediaData, isEdit, form]);
 
   if (isEdit && fetchedMedia && !form.formState.isDirty) {
     form.reset(fetchedMedia);

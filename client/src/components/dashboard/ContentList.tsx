@@ -116,7 +116,7 @@ const ContentList = ({ onEdit, onDelete }: ContentListProps) => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => onEdit(content.id)}
+                  onClick={() => onEdit(content)}
                 >
                   <Pencil className="h-4 w-4" />
                 </Button>
