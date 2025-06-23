@@ -50,9 +50,56 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({ media
                 (item.title && item.title.toLowerCase().includes('vertical')) ||
                 (item.title && item.title.toLowerCase().includes('instagram')));
               
+              // Definir aspect ratio baseado no que foi selecionado no upload
+              const getAspectRatioClass = (aspectRatio?: string) => {
+                switch (aspectRatio) {
+                  case '16:9':
+                    return 'aspect-video';
+                  case '4:3':
+                    return 'aspect-[4/3]';
+                  case '1:1':
+                    return 'aspect-square';
+                  case '9:16':
+                  case 'vertical':
+                    return 'aspect-[9/16]';
+                  case '3:4':
+                    return 'aspect-[3/4]';
+                  default:
+                    return 'aspect-video'; // padrão
+                }
+              };
+              
               return (
                 <div key={item.id} className={`${isVerticalVideo ? 'md:col-span-1' : ''}`}>
-                  <MediaDisplay item={item} className="hover:scale-105 transition-transform" />
+                  <Card className="overflow-hidden shadow-md border-0 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95 rounded-xl transition-all duration-300 hover:shadow-lg">
+                    <div className={`w-full overflow-hidden rounded-t-xl ${getAspectRatioClass(item.aspectRatio)}`}>
+                      {item.mediaType === 'image' ? (
+                        <img
+                          src={item.mediaUrl || item.thumbnailUrl}
+                          alt={item.title || "Mídia"}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <MediaDisplay item={item} className="w-full h-full" />
+                      )}
+                    </div>
+                    <CardContent className="p-4">
+                      {item.title && (
+                        <h3 className="font-semibold text-lg mb-2 text-green-800 dark:text-green-300">
+                          {/<\/?[a-z][\s\S]*>/i.test(item.title) ? (
+                            <div dangerouslySetInnerHTML={{ __html: item.title }} />
+                          ) : (
+                            item.title
+                          )}
+                        </h3>
+                      )}
+                      {item.description && (
+                        <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-3">
+                          {item.description.replace(/<[^>]*>/g, '')}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
                 </div>
               );
             })}
