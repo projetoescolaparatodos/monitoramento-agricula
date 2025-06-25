@@ -1,0 +1,218 @@
+Vou sugerir as duas melhorias com detalhes de implementação específicos para seu componente atual:
+
+1. Indicadores Visuais de Scroll (Botões Laterais Semitransparentes)
+Implementação:
+
+tsx
+// Adicione este estilo ao seu arquivo CSS global ou módulo
+const carouselStyles = `
+  .carousel-button-indicator {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background: rgba(0,0,0,0.3);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .carousel-container:hover .carousel-button-indicator {
+    opacity: 1;
+  }
+  .carousel-button-indicator.prev {
+    left: 10px;
+  }
+  .carousel-button-indicator.next {
+    right: 10px;
+  }
+  .carousel-button-indicator:disabled {
+    opacity: 0 !important;
+    cursor: not-allowed;
+  }
+`;
+
+// Adicione no seu componente (dentro do return principal)
+<style>{carouselStyles}</style>
+
+// Modifique o renderMobileCarousels para incluir os indicadores
+const renderMobileCarousels = () => {
+  // ... (código existente)
+  return (
+    <div className="space-y-8 relative">
+      {/* Adicione esta div wrapper com classe relativa */}
+      <div className="relative carousel-container">
+        <Carousel>
+          {/* ... conteúdo existente */}
+        </Carousel>
+        <button 
+          className="carousel-button-indicator prev"
+          onClick={() => api?.scrollPrev()}
+          disabled={!api?.canScrollPrev()}
+        >
+          &lt;
+        </button>
+        <button 
+          className="carousel-button-indicator next"
+          onClick={() => api?.scrollNext()}
+          disabled={!api?.canScrollNext()}
+        >
+          &gt;
+        </button>
+      </div>
+      {/* Repita para a segunda linha */}
+    </div>
+  );
+};
+2. Auto-scroll com Parada na Interação
+Implementação:
+
+tsx
+// Adicione no topo do componente
+import { useCallback, useRef } from 'react';
+
+// Adicione estas variáveis de estado
+const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
+const autoScrollTimer = useRef<NodeJS.Timeout>();
+const carouselApi = useRef<any>();
+
+// Esta função vai lidar com o auto-scroll
+const startAutoScroll = useCallback((api: any) => {
+  if (!autoScrollEnabled) return;
+  
+  autoScrollTimer.current = setTimeout(() => {
+    if (api.canScrollNext()) {
+      api.scrollNext();
+    } else {
+      api.scrollTo(0); // Volta ao início
+    }
+    startAutoScroll(api);
+  }, 5000);
+}, [autoScrollEnabled]);
+
+// Efeito para limpar o timer
+useEffect(() => {
+  return () => {
+    if (autoScrollTimer.current) {
+      clearTimeout(autoScrollTimer.current);
+    }
+  };
+}, []);
+
+// Modifique o renderDesktopCarousel e renderMobileCarousels para:
+const renderCarousel = (items: MediaItem[], isMobile = false) => (
+  <Carousel
+    setApi={(api) => {
+      carouselApi.current = api;
+      if (api && autoScrollEnabled) {
+        startAutoScroll(api);
+      }
+    }}
+    opts={{
+      align: "start",
+      loop: true,
+    }}
+    className="relative"
+  >
+    <CarouselContent 
+      onClick={() => {
+        setAutoScrollEnabled(false);
+        if (autoScrollTimer.current) {
+          clearTimeout(autoScrollTimer.current);
+        }
+      }}
+    >
+      {/* ... conteúdo existente */}
+    </CarouselContent>
+  </Carousel>
+);
+
+// Atualize o handleClick do MediaDisplay para parar o auto-scroll
+const handleMediaClick = () => {
+  setAutoScrollEnabled(false);
+  if (autoScrollTimer.current) {
+    clearTimeout(autoScrollTimer.current);
+  }
+  // ... resto da lógica existente
+};
+CSS Adicional para os Novos Elementos:
+css
+/* Adicione ao seu arquivo CSS */
+.carousel-container {
+  position: relative;
+}
+
+.carousel-button-indicator {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.carousel-container:hover .carousel-button-indicator {
+  opacity: 1;
+}
+
+.carousel-button-indicator.prev {
+  left: 10px;
+}
+
+.carousel-button-indicator.next {
+  right: 10px;
+}
+
+.carousel-button-indicator:disabled {
+  opacity: 0 !important;
+  cursor: not-allowed;
+}
+
+@media (max-width: 767px) {
+  .carousel-button-indicator {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
+}
+Como isso funciona:
+Indicadores de Scroll:
+
+Botões semitransparentes aparecem ao passar o mouse (desktop) ou tocar (mobile)
+
+Desaparecem quando não há mais itens para scroll
+
+Estilo consistente com o design atual
+
+Auto-scroll:
+
+Rola automaticamente a cada 5 segundos
+
+Para completamente quando o usuário interage com qualquer card
+
+Reinicia do início quando chega no final
+
+Não interfere com a navegação manual
+
+Melhorias de UX:
+
+O usuário sempre sabe que há mais conteúdo (pelos indicadores)
+
+Tem tempo suficiente para ver cada card antes do auto-scroll
+
+Controle total quando interage com o conteúdo
