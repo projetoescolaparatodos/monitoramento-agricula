@@ -1,0 +1,262 @@
+Implementação Atualizada:
+tsx
+import { useState, useRef, useEffect } from 'react';
+import './HomeMediaGallerySection.css';
+
+type MediaItem = {
+  id: string;
+  url: string;
+  type: 'image' | 'video';
+  alt?: string;
+};
+
+export function HomeMediaGallerySection({ medias }: { medias: MediaItem[] }) {
+  const [currentScroll, setCurrentScroll] = useState([0, 0]); // [linha1, linha2]
+  const containerRefs = [useRef<HTMLDivElement>(null), useRef<HTMLDivElement>(null)];
+  const itemRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Configurações
+  const scrollStep = 1; // Move 1 item por vez
+  const visibleItems = 1; // 1 item por linha no mobile
+
+  // Detecta mobile
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const handleScroll = (lineIndex: number, direction: 'next' | 'prev') => {
+    if (!containerRefs[lineIndex].current || !itemRef.current) return;
+    
+    const itemWidth = itemRef.current.offsetWidth + 16; // Largura do item + gap
+    const maxScroll = (medias.length - visibleItems) * itemWidth;
+    
+    setCurrentScroll(prev => {
+      const newScroll = prev.map((scroll, idx) => {
+        if (idx !== lineIndex) return scroll;
+        
+        return direction === 'next' 
+          ? Math.min(scroll + (scrollStep * itemWidth), maxScroll)
+          : Math.max(scroll - (scrollStep * itemWidth), 0);
+      });
+      return newScroll;
+    });
+  };
+
+  // Divide as mídias em duas sequências deslocadas para mobile
+  const getMediaSequence = (lineIndex: number) => {
+    if (!isMobile) return medias;
+    
+    const offset = Math.floor(medias.length / 2) * lineIndex;
+    return [
+      ...medias.slice(offset),
+      ...medias.slice(0, offset)
+    ];
+  };
+
+  return (
+    <div className="media-gallery-container">
+      {/* Versão desktop - única linha */}
+      {!isMobile && (
+        <>
+          <button 
+            className="nav-button prev"
+            onClick={() => handleScroll(0, 'prev')}
+            disabled={currentScroll[0] <= 0}
+          >
+            &lt;
+          </button>
+
+          <div className="media-scroll-wrapper">
+            <div 
+              ref={containerRefs[0]}
+              className="media-items-container"
+              style={{
+                transform: `translateX(-${currentScroll[0]}px)`,
+                transition: 'transform 0.5s ease'
+              }}
+            >
+              {medias.map((media) => (
+                <div key={media.id} ref={itemRef} className="media-item">
+                  {renderMedia(media)}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <button 
+            className="nav-button next"
+            onClick={() => handleScroll(0, 'next')}
+            disabled={currentScroll[0] >= (medias.length - 3) * (itemRef.current?.offsetWidth || 0)}
+          >
+            &gt;
+          </button>
+        </>
+      )}
+
+      {/* Versão mobile - duas linhas independentes */}
+      {isMobile && [0, 1].map(lineIndex => (
+        <div key={lineIndex} className="mobile-gallery-line">
+          <div className="media-scroll-wrapper">
+            <div 
+              ref={containerRefs[lineIndex]}
+              className="media-items-container"
+              style={{
+                transform: `translateX(-${currentScroll[lineIndex]}px)`,
+                transition: 'transform 0.5s ease'
+              }}
+            >
+              {getMediaSequence(lineIndex).map((media) => (
+                <div key={`${lineIndex}-${media.id}`} ref={lineIndex === 0 ? itemRef : null} className="media-item">
+                  {renderMedia(media)}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mobile-line-controls">
+            <button 
+              className="nav-button prev"
+              onClick={() => handleScroll(lineIndex, 'prev')}
+              disabled={currentScroll[lineIndex] <= 0}
+            >
+              &lt;
+            </button>
+            <button 
+              className="nav-button next"
+              onClick={() => handleScroll(lineIndex, 'next')}
+              disabled={currentScroll[lineIndex] >= (getMediaSequence(lineIndex).length - 1) * (itemRef.current?.offsetWidth || 0)}
+            >
+              &gt;
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function renderMedia(media: MediaItem) {
+  return media.type === 'image' ? (
+    <img src={media.url} alt={media.alt || ''} loading="lazy" />
+  ) : (
+    <video controls playsInline>
+      <source src={media.url} type="video/mp4" />
+    </video>
+  );
+}
+CSS Atualizado:
+css
+/* Estilos base (mantenha os existentes) */
+.media-gallery-container {
+  position: relative;
+  width: 100%;
+}
+
+.media-scroll-wrapper {
+  overflow: hidden;
+}
+
+.media-items-container {
+  display: flex;
+  gap: 16px;
+  will-change: transform;
+}
+
+.media-item {
+  min-width: 100%; /* 1 item por linha no mobile */
+  flex-shrink: 0;
+  aspect-ratio: 16/9; /* Mantém a proporção atual */
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Controles */
+.nav-button {
+  background: rgba(0,0,0,0.7);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+/* Versão desktop (3 itens por linha) */
+@media (min-width: 768px) {
+  .media-gallery-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 40px;
+  }
+  
+  .media-item {
+    min-width: calc(33.33% - 11px); /* 3 itens por linha */
+  }
+  
+  .mobile-gallery-line {
+    display: none !important;
+  }
+}
+
+/* Versão mobile (1 item por linha, duas linhas) */
+@media (max-width: 767px) {
+  .media-gallery-container {
+    display: block;
+  }
+  
+  .mobile-gallery-line {
+    margin-bottom: 24px;
+  }
+  
+  .mobile-line-controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 12px;
+  }
+  
+  .nav-button {
+    position: static;
+    transform: none;
+  }
+}
+Destaques da Implementação:
+Layout Mobile:
+
+1 card por linha (ocupando 100% da largura)
+
+Duas linhas independentes
+
+Mesmo aspect ratio (16/9) mantido
+
+Controles centralizados abaixo de cada linha
+
+Comportamento:
+
+Cada linha mostra uma sequência diferente da galeria
+
+Scroll suave de 1 item por vez
+
+Botões desabilitados quando chegam aos extremos
+
+Transição Responsiva:
+
+Automaticamente alterna entre layouts
+
+Desktop: 1 linha com 3 itens
+
+Mobile: 2 linhas com 1 item cada
+
+Performance:
+
+Lazy loading de imagens
+
+Will-change para otimizar animações
+
+Esta implementação mantém exatamente a aparência que você já considera perfeita, apenas reorganizando em duas linhas no mobile para melhor aproveitamento de espaço vertical. Quer ajustar algum detalhe específico do layout mobile?
