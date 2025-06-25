@@ -187,7 +187,12 @@ const Agriculture = () => {
           thumbnailUrl: data.thumbnailUrl || "",
           active: data.active !== false,
           order: data.order || 0,
-          createdAt: data.createdAt || new Date().toISOString()
+          createdAt: data.createdAt || new Date().toISOString(),
+          instagramUrl: data.instagramUrl || "",
+          aspectRatio: data.aspectRatio || "",
+          author: data.author || "",
+          authorImage: data.authorImage || "",
+          location: data.location || ""
         };
       }).filter(Boolean);
     },
