@@ -244,7 +244,7 @@ const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ variant = "de
               {/* Efeito de brilho sutil */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-50"></div>
               <span className="relative z-10">
-                Acompanhe o dia a dia das atividades agrícolas e pesqueiras, com fotos e vídeos das ações da SEMAPA e cont</span>
+                Acompanhe o dia a dia das atividades agrícolas e pesqueiras, com fotos e vídeos das ações da SEMAPA e conteúdos informativos.</span>
             </p>
           </div>
         </div>
