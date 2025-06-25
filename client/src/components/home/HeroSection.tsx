@@ -90,7 +90,6 @@ const HeroSection = () => {
                 alt="Campos agrícolas brasileiros" 
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-green-900/60 via-green-800/40 to-green-900/70 z-10"></div>
             </div>
           </div>
         </div>
