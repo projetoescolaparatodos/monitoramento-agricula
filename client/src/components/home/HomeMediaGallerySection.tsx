@@ -273,7 +273,7 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({
         </h2>
         <div className="max-w-4xl mx-auto">
           <div className="relative">
-            <p
+            <div
               className={`text-xl md:text-2xl font-semibold tracking-wide leading-relaxed ${variant === "transparent" ? "text-white" : "text-gray-800 dark:text-gray-100"} mb-6 text-center px-8 py-8 bg-gradient-to-r from-green-600/15 via-green-500/25 to-green-600/15 rounded-2xl border border-green-500/30 backdrop-blur-sm shadow-lg relative overflow-hidden`}
               style={{ 
                 fontFamily: "'Inter', 'Segoe UI', 'Roboto', sans-serif",
@@ -286,7 +286,7 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({
                 Fique por dentro dos projetos que estão transformando o setor
                 agropecuário e pesqueiro do nosso município.
               </span>
-            </p>
+            </div>
           </div>
         </div>
         
