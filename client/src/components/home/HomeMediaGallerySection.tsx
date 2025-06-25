@@ -3,6 +3,7 @@ import React from 'react';
 import { MediaItem } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import MediaDisplay from '@/components/common/MediaDisplay';
 
 interface HomeMediaGallerySectionProps {
@@ -10,8 +11,6 @@ interface HomeMediaGallerySectionProps {
   isLoading?: boolean;
   variant?: "default" | "transparent";
 }
-
-
 
 const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({ mediaItems, isLoading, variant = "default" }) => {
   return (
@@ -29,33 +28,70 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({ media
 
       <div className="container mx-auto px-4">
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array(3).fill(0).map((_, index) => (
-              <Card key={index} className="overflow-hidden bg-white dark:bg-zinc-800 rounded-2xl shadow-md">
-                <Skeleton className="w-full aspect-video" />
-                <CardContent className="p-4 space-y-2">
-                  <Skeleton className="h-6 w-3/4" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-2/3" />
-                  <Skeleton className="h-4 w-1/2" />
-                </CardContent>
-              </Card>
-            ))}
+          <div className="relative">
+            <Carousel className="w-full">
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {Array(6).fill(0).map((_, index) => (
+                  <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                    <Card className="overflow-hidden bg-white dark:bg-zinc-800 rounded-2xl shadow-md">
+                      <Skeleton className="w-full aspect-video" />
+                      <CardContent className="p-4 space-y-2">
+                        <Skeleton className="h-6 w-3/4" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-2/3" />
+                        <Skeleton className="h-4 w-1/2" />
+                      </CardContent>
+                    </Card>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex -left-12 bg-black/70 text-white hover:bg-black/90 border-0" />
+              <CarouselNext className="hidden md:flex -right-12 bg-black/70 text-white hover:bg-black/90 border-0" />
+            </Carousel>
           </div>
         ) : mediaItems && mediaItems.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mediaItems.map((item) => {
-              const isVerticalVideo = item.mediaType === 'video' && 
-                (item.aspectRatio === 'vertical' || 
-                (item.title && item.title.toLowerCase().includes('vertical')) ||
-                (item.title && item.title.toLowerCase().includes('instagram')));
+          <div className="relative">
+            <Carousel 
+              className="w-full"
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {mediaItems.map((item) => {
+                  const isVerticalVideo = item.mediaType === 'video' && 
+                    (item.aspectRatio === 'vertical' || 
+                    (item.title && item.title.toLowerCase().includes('vertical')) ||
+                    (item.title && item.title.toLowerCase().includes('instagram')));
+                  
+                  return (
+                    <CarouselItem key={item.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                      <div className="h-full">
+                        <MediaDisplay 
+                          item={item} 
+                          className="hover:scale-105 transition-transform duration-300 h-full" 
+                        />
+                      </div>
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
               
-              return (
-                <div key={item.id} className={`${isVerticalVideo ? 'md:col-span-1' : ''}`}>
-                  <MediaDisplay item={item} className="hover:scale-105 transition-transform" />
-                </div>
-              );
-            })}
+              {/* Botões de navegação - estilo Netflix */}
+              <CarouselPrevious className="hidden md:flex -left-12 bg-black/70 text-white hover:bg-black/90 border-0 w-12 h-12" />
+              <CarouselNext className="hidden md:flex -right-12 bg-black/70 text-white hover:bg-black/90 border-0 w-12 h-12" />
+            </Carousel>
+
+            {/* Indicador de navegação para mobile */}
+            <div className="flex md:hidden justify-center mt-4 space-x-2">
+              {Array(Math.ceil(mediaItems.length / 3)).fill(0).map((_, index) => (
+                <div
+                  key={index}
+                  className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600"
+                />
+              ))}
+            </div>
           </div>
         ) : (
           <div className="text-center py-12 bg-white dark:bg-zinc-800 rounded-2xl shadow-md">
