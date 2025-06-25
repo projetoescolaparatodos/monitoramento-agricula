@@ -15,13 +15,13 @@ interface HomeMediaGallerySectionProps {
 
 const MobileDoubleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItems }) => {
   const [currentScroll1, setCurrentScroll1] = useState(0);
-  const [currentScroll2, setCurrentScroll2] = useState(1); // Começa deslocado
+  const [currentScroll2, setCurrentScroll2] = useState(2); // Começa deslocado
   const containerRef1 = useRef<HTMLDivElement>(null);
   const containerRef2 = useRef<HTMLDivElement>(null);
   const itemRef = useRef<HTMLDivElement>(null);
 
   const scrollStep = 1; // Movimentação suave
-  const visibleItems = 1; // 1 item visível por linha no mobile
+  const visibleItems = 2; // 2 itens visíveis por linha no mobile
   const autoScrollInterval = 3000; // 3 segundos
 
   useEffect(() => {
@@ -48,9 +48,9 @@ const MobileDoubleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
   if (mediaItems.length === 0) return null;
 
   return (
-    <div className="mobile-double-carousel">
+    <div className="mobile-double-carousel space-y-4">
       {/* Primeira linha - movimento para direita */}
-      <div className="carousel-line overflow-hidden mb-3">
+      <div className="carousel-line overflow-hidden">
         <div 
           ref={containerRef1}
           className="carousel-items-container flex gap-4 transition-transform duration-500 ease-in-out"
@@ -62,12 +62,11 @@ const MobileDoubleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
             <div 
               key={`line1-${item.id}-${index}`}
               ref={index === 0 ? itemRef : undefined}
-              className="carousel-item flex-shrink-0"
-              style={{ width: '85vw', maxWidth: '400px' }}
+              className="carousel-item flex-shrink-0 w-[calc(50%-8px)]"
             >
               <MediaDisplay 
                 item={item} 
-                className="transform hover:scale-105 transition-transform duration-300" 
+                className="h-full transform hover:scale-105 transition-transform duration-300" 
               />
             </div>
           ))}
@@ -75,7 +74,7 @@ const MobileDoubleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
       </div>
 
       {/* Segunda linha - movimento para esquerda */}
-      <div className="carousel-line overflow-hidden mb-3">
+      <div className="carousel-line overflow-hidden">
         <div 
           ref={containerRef2}
           className="carousel-items-container flex gap-4 transition-transform duration-500 ease-in-out"
@@ -86,12 +85,11 @@ const MobileDoubleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
           {mediaItems.map((item, index) => (
             <div 
               key={`line2-${item.id}-${index}`}
-              className="carousel-item flex-shrink-0"
-              style={{ width: '85vw', maxWidth: '400px' }}
+              className="carousel-item flex-shrink-0 w-[calc(50%-8px)]"
             >
               <MediaDisplay 
                 item={item} 
-                className="transform hover:scale-105 transition-transform duration-300" 
+                className="h-full transform hover:scale-105 transition-transform duration-300" 
               />
             </div>
           ))}
@@ -100,7 +98,7 @@ const MobileDoubleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
 
       {/* Indicadores de navegação */}
       <div className="flex justify-center mt-4 space-x-2">
-        {Array(mediaItems.length).fill(0).map((_, index) => (
+        {Array(Math.ceil(mediaItems.length / 2)).fill(0).map((_, index) => (
           <div
             key={index}
             className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 opacity-60"
