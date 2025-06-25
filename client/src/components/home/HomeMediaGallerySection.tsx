@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { MediaItem } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -23,6 +23,10 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({
   variant = "default",
 }) => {
   const [isMobile, setIsMobile] = useState(false);
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
+  const autoScrollTimer = useRef<NodeJS.Timeout>();
+  const carouselApi1 = useRef<any>();
+  const carouselApi2 = useRef<any>();
 
   useEffect(() => {
     const handleResize = () => {
@@ -32,6 +36,37 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // Função para lidar com o auto-scroll
+  const startAutoScroll = useCallback((api: any) => {
+    if (!autoScrollEnabled) return;
+    
+    autoScrollTimer.current = setTimeout(() => {
+      if (api.canScrollNext()) {
+        api.scrollNext();
+      } else {
+        api.scrollTo(0); // Volta ao início
+      }
+      startAutoScroll(api);
+    }, 5000);
+  }, [autoScrollEnabled]);
+
+  // Efeito para limpar o timer
+  useEffect(() => {
+    return () => {
+      if (autoScrollTimer.current) {
+        clearTimeout(autoScrollTimer.current);
+      }
+    };
+  }, []);
+
+  // Função para parar o auto-scroll
+  const stopAutoScroll = () => {
+    setAutoScrollEnabled(false);
+    if (autoScrollTimer.current) {
+      clearTimeout(autoScrollTimer.current);
+    }
+  };
 
   const renderDesktopCarousel = () => (
     <Carousel
@@ -73,57 +108,157 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({
 
     return (
       <div className="space-y-8">
+        <style>{`
+          .carousel-button-indicator {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-size: 14px;
+          }
+          .carousel-container:hover .carousel-button-indicator,
+          .carousel-container:active .carousel-button-indicator {
+            opacity: 1;
+          }
+          .carousel-button-indicator.prev {
+            left: 10px;
+          }
+          .carousel-button-indicator.next {
+            right: 10px;
+          }
+          .carousel-button-indicator:disabled {
+            opacity: 0 !important;
+            cursor: not-allowed;
+          }
+          .carousel-container {
+            position: relative;
+          }
+        `}</style>
+
         {/* Primeira linha */}
-        <Carousel
-          opts={{
-            align: "start",
-            loop: true,
-          }}
-        >
-          <CarouselContent className="-ml-2">
-            {firstLineItems.map((item) => (
-              <CarouselItem
-                key={`line1-${item.id}`}
-                className="pl-2 basis-full"
-              >
-                <div className="h-full">
-                  <MediaDisplay
-                    item={item}
-                    className="hover:scale-105 transition-transform duration-300 h-full"
-                  />
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious className="hidden sm:flex -left-6 bg-black/70 text-white hover:bg-black/90 border-0 w-10 h-10" />
-          <CarouselNext className="hidden sm:flex -right-6 bg-black/70 text-white hover:bg-black/90 border-0 w-10 h-10" />
-        </Carousel>
+        <div className="relative carousel-container">
+          <Carousel
+            setApi={(api) => {
+              carouselApi1.current = api;
+              if (api && autoScrollEnabled) {
+                startAutoScroll(api);
+              }
+            }}
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+          >
+            <CarouselContent 
+              className="-ml-2"
+              onClick={stopAutoScroll}
+            >
+              {firstLineItems.map((item) => (
+                <CarouselItem
+                  key={`line1-${item.id}`}
+                  className="pl-2 basis-full"
+                >
+                  <div className="h-full" onClick={stopAutoScroll}>
+                    <MediaDisplay
+                      item={item}
+                      className="hover:scale-105 transition-transform duration-300 h-full"
+                    />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden sm:flex -left-6 bg-black/70 text-white hover:bg-black/90 border-0 w-10 h-10" />
+            <CarouselNext className="hidden sm:flex -right-6 bg-black/70 text-white hover:bg-black/90 border-0 w-10 h-10" />
+          </Carousel>
+          <button 
+            className="carousel-button-indicator prev"
+            onClick={() => {
+              carouselApi1.current?.scrollPrev();
+              stopAutoScroll();
+            }}
+            disabled={!carouselApi1.current?.canScrollPrev()}
+          >
+            &lt;
+          </button>
+          <button 
+            className="carousel-button-indicator next"
+            onClick={() => {
+              carouselApi1.current?.scrollNext();
+              stopAutoScroll();
+            }}
+            disabled={!carouselApi1.current?.canScrollNext()}
+          >
+            &gt;
+          </button>
+        </div>
 
         {/* Segunda linha */}
-        <Carousel
-          opts={{
-            align: "start",
-            loop: true,
-          }}
-        >
-          <CarouselContent className="-ml-2">
-            {secondLineItems.map((item) => (
-              <CarouselItem
-                key={`line2-${item.id}`}
-                className="pl-2 basis-full"
-              >
-                <div className="h-full">
-                  <MediaDisplay
-                    item={item}
-                    className="hover:scale-105 transition-transform duration-300 h-full"
-                  />
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious className="hidden sm:flex -left-6 bg-black/70 text-white hover:bg-black/90 border-0 w-10 h-10" />
-          <CarouselNext className="hidden sm:flex -right-6 bg-black/70 text-white hover:bg-black/90 border-0 w-10 h-10" />
-        </Carousel>
+        <div className="relative carousel-container">
+          <Carousel
+            setApi={(api) => {
+              carouselApi2.current = api;
+              if (api && autoScrollEnabled) {
+                setTimeout(() => startAutoScroll(api), 2500); // Offset para não sincronizar
+              }
+            }}
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+          >
+            <CarouselContent 
+              className="-ml-2"
+              onClick={stopAutoScroll}
+            >
+              {secondLineItems.map((item) => (
+                <CarouselItem
+                  key={`line2-${item.id}`}
+                  className="pl-2 basis-full"
+                >
+                  <div className="h-full" onClick={stopAutoScroll}>
+                    <MediaDisplay
+                      item={item}
+                      className="hover:scale-105 transition-transform duration-300 h-full"
+                    />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden sm:flex -left-6 bg-black/70 text-white hover:bg-black/90 border-0 w-10 h-10" />
+            <CarouselNext className="hidden sm:flex -right-6 bg-black/70 text-white hover:bg-black/90 border-0 w-10 h-10" />
+          </Carousel>
+          <button 
+            className="carousel-button-indicator prev"
+            onClick={() => {
+              carouselApi2.current?.scrollPrev();
+              stopAutoScroll();
+            }}
+            disabled={!carouselApi2.current?.canScrollPrev()}
+          >
+            &lt;
+          </button>
+          <button 
+            className="carousel-button-indicator next"
+            onClick={() => {
+              carouselApi2.current?.scrollNext();
+              stopAutoScroll();
+            }}
+            disabled={!carouselApi2.current?.canScrollNext()}
+          >
+            &gt;
+          </button>
+        </div>
       </div>
     );
   };
