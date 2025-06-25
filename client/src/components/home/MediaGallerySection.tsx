@@ -232,7 +232,23 @@ const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ variant = "de
   return (
     <section className="mb-16">
       <div className="text-center mb-10">
-        <p className={`text-xl md:text-2xl font-medium tracking-wide max-w-3xl mx-auto ${variant === "transparent" ? "text-white" : "text-gray-700 dark:text-gray-200"}`}>
+        <div className="max-w-4xl mx-auto">
+          <div className="relative">
+            <p
+              className={`text-xl md:text-2xl font-semibold tracking-wide leading-relaxed ${variant === "transparent" ? "text-white" : "text-gray-800 dark:text-gray-100"} mb-6 text-center px-8 py-8 bg-gradient-to-r from-green-600/15 via-green-500/25 to-green-600/15 rounded-2xl border border-green-500/30 backdrop-blur-sm shadow-lg relative overflow-hidden`}
+              style={{ 
+                fontFamily: "'Inter', 'Segoe UI', 'Roboto', sans-serif",
+                textShadow: variant === "transparent" ? "0 1px 3px rgba(0,0,0,0.3)" : "none"
+              }}
+            >
+              {/* Efeito de brilho sutil */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-50"></div>
+              <span className="relative z-10">
+                Acompanhe o dia a dia das atividades agrícolas e pesqueiras, com fotos e vídeos das ações da SEMAPA e cont</span>
+            </p>
+          </div>
+        </div>
+        <p className={`text-xl md:text-2xl font-medium tracking-wide max-w-3xl mx-auto ${variant === "transparent" ? "text-white" : "text-gray-700 dark:text-gray-200"} hidden`}>
           Acompanhe o dia a dia das atividades agrícolas e pesqueiras, com fotos e vídeos das ações da SEMAPA e conteúdos informativos.
         </p>
       </div>
