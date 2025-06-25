@@ -30,8 +30,12 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
 
     const interval = setInterval(() => {
       setCurrentOffset(prev => {
-        const nextOffset = prev - 20; // Movimento mais suave e menor
-        return nextOffset < maxOffset ? 0 : nextOffset;
+        const nextOffset = prev - 15; // Movimento mais suave
+        // Loop contínuo - volta suavemente para o início
+        if (nextOffset <= maxOffset) {
+          return 0;
+        }
+        return nextOffset;
       });
     }, autoScrollInterval);
 
@@ -49,21 +53,26 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
   const handleMove = (clientX: number) => {
     if (!isDragging) return;
     setCurrentX(clientX);
+    setAutoScroll(false); // Para o auto scroll quando o usuário interage
   };
 
   const handleEnd = () => {
     if (!isDragging) return;
     
     const deltaX = currentX - startX;
-    const dragDistance = deltaX * 0.3; // Usar a mesma sensibilidade do movimento
+    const dragDistance = deltaX * 0.25; // Reduzir ainda mais a sensibilidade
     
     // Aplicar o movimento final baseado no drag
     let newOffset = currentOffset + (dragDistance / window.innerWidth * 100);
     
-    // Limitar o offset dentro dos bounds sem snap
-    newOffset = Math.max(maxOffset, Math.min(0, newOffset));
-    setCurrentOffset(newOffset);
+    // Implementar loop contínuo também no drag manual
+    if (newOffset < maxOffset) {
+      newOffset = 0; // Volta para o início
+    } else if (newOffset > 0) {
+      newOffset = maxOffset; // Vai para o final
+    }
     
+    setCurrentOffset(newOffset);
     setIsDragging(false);
   };
 
@@ -110,7 +119,7 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
           style={{
             transform: `translateX(${totalOffset}%)`,
             width: `${mediaItems.length * 100}%`,
-            transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            transition: isDragging ? 'none' : 'transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1)',
             cursor: isDragging ? 'grabbing' : 'grab'
           }}
           onTouchStart={handleTouchStart}
