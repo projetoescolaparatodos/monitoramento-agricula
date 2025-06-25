@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { MediaItem } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,95 +12,65 @@ interface HomeMediaGallerySectionProps {
   variant?: "default" | "transparent";
 }
 
-const MobileDoubleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItems }) => {
-  const [currentScroll1, setCurrentScroll1] = useState(0);
-  const [currentScroll2, setCurrentScroll2] = useState(2); // Começa deslocado
-  const containerRef1 = useRef<HTMLDivElement>(null);
-  const containerRef2 = useRef<HTMLDivElement>(null);
-  const itemRef = useRef<HTMLDivElement>(null);
-
-  const scrollStep = 1; // Movimentação suave
-  const visibleItems = 2; // 2 itens visíveis por linha no mobile
-  const autoScrollInterval = 3000; // 3 segundos
+const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItems }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const autoScrollInterval = 4000; // 4 segundos
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (!itemRef.current || mediaItems.length === 0) return;
+      if (mediaItems.length === 0) return;
 
-      const itemWidth = itemRef.current.offsetWidth + 16; // 16px de gap
-      const maxScroll = (mediaItems.length - visibleItems) * itemWidth;
-
-      setCurrentScroll1(prev => {
-        const newScroll = prev + (scrollStep * itemWidth);
-        return newScroll >= maxScroll ? 0 : newScroll;
-      });
-
-      setCurrentScroll2(prev => {
-        const newScroll = prev - (scrollStep * itemWidth);
-        return newScroll <= 0 ? maxScroll : newScroll;
+      setCurrentIndex(prev => {
+        const nextIndex = prev + 1;
+        return nextIndex >= mediaItems.length ? 0 : nextIndex;
       });
     }, autoScrollInterval);
 
     return () => clearInterval(interval);
-  }, [mediaItems.length, visibleItems, scrollStep]);
+  }, [mediaItems.length]);
 
   if (mediaItems.length === 0) return null;
 
   return (
-    <div className="mobile-double-carousel space-y-4">
-      {/* Primeira linha - movimento para direita */}
+    <div className="mobile-single-carousel w-full">
+      {/* Carrossel com uma mídia por linha */}
       <div className="carousel-line overflow-hidden">
         <div 
-          ref={containerRef1}
-          className="carousel-items-container flex gap-4 transition-transform duration-500 ease-in-out"
+          ref={containerRef}
+          className="carousel-items-container flex transition-transform duration-500 ease-in-out"
           style={{
-            transform: `translateX(-${currentScroll1}px)`,
+            transform: `translateX(-${currentIndex * 100}%)`,
           }}
         >
           {mediaItems.map((item, index) => (
             <div 
-              key={`line1-${item.id}-${index}`}
-              ref={index === 0 ? itemRef : undefined}
-              className="carousel-item flex-shrink-0 w-[calc(50%-8px)]"
+              key={`mobile-${item.id}-${index}`}
+              className="carousel-item flex-shrink-0 w-full px-4"
             >
-              <MediaDisplay 
-                item={item} 
-                className="h-full transform hover:scale-105 transition-transform duration-300" 
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Segunda linha - movimento para esquerda */}
-      <div className="carousel-line overflow-hidden">
-        <div 
-          ref={containerRef2}
-          className="carousel-items-container flex gap-4 transition-transform duration-500 ease-in-out"
-          style={{
-            transform: `translateX(-${currentScroll2}px)`,
-          }}
-        >
-          {mediaItems.map((item, index) => (
-            <div 
-              key={`line2-${item.id}-${index}`}
-              className="carousel-item flex-shrink-0 w-[calc(50%-8px)]"
-            >
-              <MediaDisplay 
-                item={item} 
-                className="h-full transform hover:scale-105 transition-transform duration-300" 
-              />
+              <div className="w-full max-w-md mx-auto">
+                <MediaDisplay 
+                  item={item} 
+                  className="w-full" 
+                />
+              </div>
             </div>
           ))}
         </div>
       </div>
 
       {/* Indicadores de navegação */}
-      <div className="flex justify-center mt-4 space-x-2">
-        {Array(Math.ceil(mediaItems.length / 2)).fill(0).map((_, index) => (
-          <div
+      <div className="flex justify-center mt-6 space-x-2">
+        {mediaItems.map((_, index) => (
+          <button
             key={index}
-            className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 opacity-60"
+            onClick={() => setCurrentIndex(index)}
+            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+              index === currentIndex 
+                ? 'bg-green-600 w-6' 
+                : 'bg-gray-300 dark:bg-gray-600'
+            }`}
+            aria-label={`Ir para mídia ${index + 1}`}
           />
         ))}
       </div>
@@ -181,7 +150,7 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({ media
         ) : mediaItems && mediaItems.length > 0 ? (
           <div className="relative">
             {isMobile ? (
-              <MobileDoubleCarousel mediaItems={mediaItems} />
+              <MobileSingleCarousel mediaItems={mediaItems} />
             ) : (
               <Carousel 
                 className="w-full"
@@ -196,7 +165,7 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({ media
                       (item.aspectRatio === 'vertical' || 
                       (item.title && item.title.toLowerCase().includes('vertical')) ||
                       (item.title && item.title.toLowerCase().includes('instagram')));
-                    
+
                     return (
                       <CarouselItem key={item.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
                         <div className="h-full">
@@ -209,7 +178,7 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({ media
                     );
                   })}
                 </CarouselContent>
-                
+
                 {/* Botões de navegação - estilo Netflix */}
                 <CarouselPrevious className="hidden md:flex -left-12 bg-black/70 text-white hover:bg-black/90 border-0 w-12 h-12" />
                 <CarouselNext className="hidden md:flex -right-12 bg-black/70 text-white hover:bg-black/90 border-0 w-12 h-12" />
