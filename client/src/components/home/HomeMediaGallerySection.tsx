@@ -30,7 +30,7 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
 
     const interval = setInterval(() => {
       setCurrentOffset(prev => {
-        const nextOffset = prev - cardWidth;
+        const nextOffset = prev - 20; // Movimento mais suave e menor
         return nextOffset < maxOffset ? 0 : nextOffset;
       });
     }, autoScrollInterval);
@@ -55,16 +55,14 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
     if (!isDragging) return;
     
     const deltaX = currentX - startX;
-    const threshold = 50; // Sensibilidade menor para movimento mais suave
+    const dragDistance = deltaX * 0.3; // Usar a mesma sensibilidade do movimento
     
-    if (Math.abs(deltaX) > threshold) {
-      const direction = deltaX > 0 ? cardWidth : -cardWidth;
-      let newOffset = currentOffset + direction;
-      
-      // Limitar o offset dentro dos bounds
-      newOffset = Math.max(maxOffset, Math.min(0, newOffset));
-      setCurrentOffset(newOffset);
-    }
+    // Aplicar o movimento final baseado no drag
+    let newOffset = currentOffset + (dragDistance / window.innerWidth * 100);
+    
+    // Limitar o offset dentro dos bounds sem snap
+    newOffset = Math.max(maxOffset, Math.min(0, newOffset));
+    setCurrentOffset(newOffset);
     
     setIsDragging(false);
   };
@@ -147,8 +145,9 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
       {/* Indicadores simples e discretos */}
       <div className="flex justify-center mt-4 space-x-1">
         {mediaItems.map((_, index) => {
-          const cardIndex = Math.round(-currentOffset / cardWidth);
-          const isActive = index === Math.max(0, Math.min(mediaItems.length - 1, cardIndex));
+          const progress = Math.abs(currentOffset) / Math.abs(maxOffset);
+          const currentIndex = progress * (mediaItems.length - 1);
+          const isActive = Math.abs(index - currentIndex) < 0.5;
           
           return (
             <div
