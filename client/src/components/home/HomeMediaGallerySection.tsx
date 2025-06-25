@@ -13,74 +13,115 @@ interface HomeMediaGallerySectionProps {
 }
 
 const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItems }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentOffset, setCurrentOffset] = useState(0);
   const [autoScroll, setAutoScroll] = useState(true);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [currentX, setCurrentX] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const autoScrollInterval = 6000; // 6 segundos
+
+  const cardWidth = 100; // Porcentagem da largura de cada card
+  const maxOffset = -(mediaItems.length - 1) * cardWidth;
 
   // Auto scroll que para quando há interação
   useEffect(() => {
     if (!autoScroll || mediaItems.length === 0) return;
 
     const interval = setInterval(() => {
-      setCurrentIndex(prev => {
-        const nextIndex = prev + 1;
-        return nextIndex >= mediaItems.length ? 0 : nextIndex;
+      setCurrentOffset(prev => {
+        const nextOffset = prev - cardWidth;
+        return nextOffset < maxOffset ? 0 : nextOffset;
       });
     }, autoScrollInterval);
 
     return () => clearInterval(interval);
-  }, [mediaItems.length, autoScroll]);
+  }, [mediaItems.length, autoScroll, maxOffset]);
 
-  // Funções para controle touch/swipe
+  // Controle de touch/drag mais suave
+  const handleStart = (clientX: number) => {
+    setIsDragging(true);
+    setStartX(clientX);
+    setCurrentX(clientX);
+    setAutoScroll(false);
+  };
+
+  const handleMove = (clientX: number) => {
+    if (!isDragging) return;
+    setCurrentX(clientX);
+  };
+
+  const handleEnd = () => {
+    if (!isDragging) return;
+    
+    const deltaX = currentX - startX;
+    const threshold = 50; // Sensibilidade menor para movimento mais suave
+    
+    if (Math.abs(deltaX) > threshold) {
+      const direction = deltaX > 0 ? cardWidth : -cardWidth;
+      let newOffset = currentOffset + direction;
+      
+      // Limitar o offset dentro dos bounds
+      newOffset = Math.max(maxOffset, Math.min(0, newOffset));
+      setCurrentOffset(newOffset);
+    }
+    
+    setIsDragging(false);
+  };
+
+  // Touch events
   const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
-    setAutoScroll(false); // Para o auto scroll quando usuário interage
+    handleStart(e.touches[0].clientX);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+    e.preventDefault();
+    handleMove(e.touches[0].clientX);
   };
 
   const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
-
-    if (isLeftSwipe && currentIndex < mediaItems.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    }
-    if (isRightSwipe && currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
+    handleEnd();
   };
 
-  // Para o auto scroll quando usuário clica nos indicadores
-  const handleIndicatorClick = (index: number) => {
-    setCurrentIndex(index);
-    setAutoScroll(false);
+  // Mouse events para desktop
+  const handleMouseDown = (e: React.MouseEvent) => {
+    handleStart(e.clientX);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    handleMove(e.clientX);
+  };
+
+  const handleMouseUp = () => {
+    handleEnd();
   };
 
   if (mediaItems.length === 0) return null;
 
+  // Calcular offset com drag
+  const dragOffset = isDragging ? (currentX - startX) * 0.3 : 0; // Reduzir a sensibilidade do drag
+  const totalOffset = currentOffset + dragOffset;
+
   return (
     <div className="mobile-single-carousel w-full max-w-full overflow-hidden">
-      {/* Carrossel com uma mídia por linha */}
+      {/* Carrossel com scroll livre */}
       <div className="carousel-line relative w-full overflow-hidden">
         <div 
           ref={containerRef}
-          className="carousel-items-container flex transition-transform duration-500 ease-in-out"
+          className="carousel-items-container flex"
           style={{
-            transform: `translateX(-${currentIndex * 100}%)`,
+            transform: `translateX(${totalOffset}%)`,
             width: `${mediaItems.length * 100}%`,
+            transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            cursor: isDragging ? 'grabbing' : 'grab'
           }}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
+          onMouseDown={handleMouseDown}
+          onMouseMove={isDragging ? handleMouseMove : undefined}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
         >
           {mediaItems.map((item, index) => (
             <div 
@@ -91,7 +132,6 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
                 minWidth: `${100 / mediaItems.length}%`,
                 maxWidth: `${100 / mediaItems.length}%`
               }}
-              onClick={() => setAutoScroll(false)} // Para auto scroll ao clicar no card
             >
               <div className="w-full max-w-sm mx-auto">
                 <MediaDisplay 
@@ -102,56 +142,35 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
             </div>
           ))}
         </div>
-
-        {/* Botões de navegação lateral (opcionais para mobile) */}
-        {!autoScroll && (
-          <>
-            <button
-              onClick={() => currentIndex > 0 && setCurrentIndex(currentIndex - 1)}
-              className={`absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full z-10 transition-opacity ${
-                currentIndex === 0 ? 'opacity-30' : 'opacity-70 hover:opacity-100'
-              }`}
-              disabled={currentIndex === 0}
-            >
-              ←
-            </button>
-            <button
-              onClick={() => currentIndex < mediaItems.length - 1 && setCurrentIndex(currentIndex + 1)}
-              className={`absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full z-10 transition-opacity ${
-                currentIndex === mediaItems.length - 1 ? 'opacity-30' : 'opacity-70 hover:opacity-100'
-              }`}
-              disabled={currentIndex === mediaItems.length - 1}
-            >
-              →
-            </button>
-          </>
-        )}
       </div>
 
-      {/* Indicadores de navegação interativos */}
-      <div className="flex justify-center mt-6 space-x-2">
-        {mediaItems.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => handleIndicatorClick(index)}
-            className={`h-2 rounded-full transition-all duration-300 touch-manipulation ${
-              index === currentIndex 
-                ? 'bg-green-600 w-6' 
-                : 'bg-gray-300 dark:bg-gray-600 w-2 hover:bg-gray-400 dark:hover:bg-gray-500'
-            }`}
-            aria-label={`Ir para mídia ${index + 1}`}
-          />
-        ))}
+      {/* Indicadores simples e discretos */}
+      <div className="flex justify-center mt-4 space-x-1">
+        {mediaItems.map((_, index) => {
+          const cardIndex = Math.round(-currentOffset / cardWidth);
+          const isActive = index === Math.max(0, Math.min(mediaItems.length - 1, cardIndex));
+          
+          return (
+            <div
+              key={index}
+              className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${
+                isActive 
+                  ? 'bg-green-600' 
+                  : 'bg-gray-300 dark:bg-gray-600'
+              }`}
+            />
+          );
+        })}
       </div>
 
-      {/* Status do auto scroll */}
+      {/* Status do auto scroll (menor e mais discreto) */}
       {!autoScroll && (
         <div className="flex justify-center mt-2">
           <button
             onClick={() => setAutoScroll(true)}
-            className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+            className="text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
           >
-            ▶ Reativar rotação automática
+            ↻ Auto
           </button>
         </div>
       )}

@@ -1035,21 +1035,28 @@ iframe[src*="drive.google.com"] {
   display: flex;
   align-items: flex-start;
   will-change: transform;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .carousel-item {
-  transition: all 0.3s ease;
-  will-change: transform;
   flex-shrink: 0;
   flex-grow: 0;
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  pointer-events: none;
+}
+
+.carousel-item > div {
+  pointer-events: auto;
 }
 
 /* Animações suaves para movimento automático */
 .mobile-single-carousel .carousel-items-container {
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* Otimizações de performance para mobile */
@@ -1084,83 +1091,31 @@ iframe[src*="drive.google.com"] {
     padding: 0;
   }
 
-  .carousel-nav-button {
-    display: none;
-  }
-
-  .carousel-container {
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .carousel-content {
-    scroll-behavior: smooth;
-  }
-
   /* Garantir que não haja scroll horizontal indesejado */
   .mobile-single-carousel,
   .carousel-line {
     overflow-x: hidden;
   }
+
+  /* Melhorar experiência de drag */
+  .carousel-items-container {
+    touch-action: pan-x;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
-/* Indicadores de navegação para mobile */
-.mobile-single-carousel .space-x-2 button {
+/* Indicadores discretos e suaves */
+.mobile-single-carousel .h-1\.5 {
   transition: all 0.3s ease;
-  cursor: pointer;
-  touch-action: manipulation;
 }
 
-.mobile-single-carousel .space-x-2 button:not(.w-6) {
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
-/* Melhorar área de toque dos botões de navegação */
-.mobile-single-carousel button {
-  min-height: 44px;
-  min-width: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Estilos para botões laterais de navegação */
-.mobile-single-carousel .absolute.left-2,
-.mobile-single-carousel .absolute.right-2 {
-  width: 40px;
-  height: 40px;
-  font-size: 18px;
-  font-weight: bold;
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* Melhor feedback visual para touch */
-.mobile-single-carousel button:active {
-  transform: scale(0.95);
-}
-
-/* Desabilitar seleção de texto durante swipe */
-.carousel-items-container {
+/* Melhorar experiência de drag em mobile */
+.mobile-single-carousel .carousel-items-container {
+  -webkit-touch-callout: none;
   -webkit-user-select: none;
+  -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-}
-
-/* Melhorar experiência de swipe */
-.carousel-items-container {
   touch-action: pan-x;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Indicador ativo mais visível */
-.mobile-single-carousel .bg-green-600 {
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
 }
