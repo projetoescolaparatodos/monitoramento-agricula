@@ -30,14 +30,14 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
 
     const interval = setInterval(() => {
       setCurrentOffset(prev => {
-        const nextOffset = prev - 15; // Movimento mais suave
+        const nextOffset = prev - 10; // Movimento mais suave e contínuo
         // Loop contínuo - volta suavemente para o início
         if (nextOffset <= maxOffset) {
           return 0;
         }
         return nextOffset;
       });
-    }, autoScrollInterval);
+    }, 50); // Intervalo menor para movimento mais fluido
 
     return () => clearInterval(interval);
   }, [mediaItems.length, autoScroll, maxOffset]);
@@ -59,20 +59,7 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
   const handleEnd = () => {
     if (!isDragging) return;
     
-    const deltaX = currentX - startX;
-    const dragDistance = deltaX * 0.25; // Reduzir ainda mais a sensibilidade
-    
-    // Aplicar o movimento final baseado no drag
-    let newOffset = currentOffset + (dragDistance / window.innerWidth * 100);
-    
-    // Implementar loop contínuo também no drag manual
-    if (newOffset < maxOffset) {
-      newOffset = 0; // Volta para o início
-    } else if (newOffset > 0) {
-      newOffset = maxOffset; // Vai para o final
-    }
-    
-    setCurrentOffset(newOffset);
+    // Parar exatamente onde o usuário soltou, sem qualquer ajuste
     setIsDragging(false);
   };
 
@@ -151,17 +138,17 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
         </div>
       </div>
 
-      {/* Indicadores simples e discretos */}
+      {/* Indicadores simples e discretos - baseados na posição atual */}
       <div className="flex justify-center mt-4 space-x-1">
         {mediaItems.map((_, index) => {
-          const progress = Math.abs(currentOffset) / Math.abs(maxOffset);
+          const progress = Math.abs(totalOffset) / Math.abs(maxOffset);
           const currentIndex = progress * (mediaItems.length - 1);
-          const isActive = Math.abs(index - currentIndex) < 0.5;
+          const isActive = Math.abs(index - currentIndex) < 0.8;
           
           return (
             <div
               key={index}
-              className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${
+              className={`h-1.5 w-1.5 rounded-full transition-all duration-200 ${
                 isActive 
                   ? 'bg-green-600' 
                   : 'bg-gray-300 dark:bg-gray-600'
