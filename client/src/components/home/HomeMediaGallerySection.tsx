@@ -22,25 +22,26 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
   const autoScrollInterval = 6000; // 6 segundos
 
   const cardWidth = 100; // Porcentagem da largura de cada card
-  const maxOffset = -(mediaItems.length - 1) * cardWidth;
+  const maxOffset = -(mediaItems.length) * cardWidth; // Permitir ir até o final completo
 
-  // Auto scroll que para quando há interação
+  // Auto scroll muito mais lento com pausa de 5 segundos
   useEffect(() => {
     if (!autoScroll || mediaItems.length === 0) return;
 
     const interval = setInterval(() => {
       setCurrentOffset(prev => {
-        const nextOffset = prev - 10; // Movimento mais suave e contínuo
-        // Loop contínuo - volta suavemente para o início
+        const nextOffset = prev - cardWidth; // Move um card por vez
+        
+        // Loop contínuo: quando chegar no final, volta para o início
         if (nextOffset <= maxOffset) {
-          return 0;
+          return 0; // Volta para o primeiro card
         }
         return nextOffset;
       });
-    }, 50); // Intervalo menor para movimento mais fluido
+    }, 5000); // 5 segundos entre cada movimento
 
     return () => clearInterval(interval);
-  }, [mediaItems.length, autoScroll, maxOffset]);
+  }, [mediaItems.length, autoScroll, maxOffset, cardWidth]);
 
   // Controle de touch/drag muito mais suave e gradual
   const handleStart = (clientX: number) => {
@@ -60,11 +61,11 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
     const dragDistance = deltaX * 0.1; // Sensibilidade muito baixa (10%)
     const newOffset = currentOffset + (dragDistance / window.innerWidth * 100);
     
-    // Aplicar limites suaves sem snap
+    // Aplicar limites suaves sem snap, mas permitindo looping
     if (newOffset > 0) {
       setCurrentOffset(0);
-    } else if (newOffset < maxOffset) {
-      setCurrentOffset(maxOffset);
+    } else if (newOffset < -(mediaItems.length - 1) * cardWidth) {
+      setCurrentOffset(-(mediaItems.length - 1) * cardWidth);
     } else {
       setCurrentOffset(newOffset);
     }
@@ -121,8 +122,8 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
           className="carousel-items-container flex"
           style={{
             transform: `translateX(${totalOffset}%)`,
-            width: `${mediaItems.length * 100}%`,
-            transition: isDragging ? 'none' : 'transform 0.4s ease-out',
+            width: `${(mediaItems.length + 1) * 100}%`,
+            transition: isDragging ? 'none' : 'transform 0.6s ease-in-out',
             cursor: isDragging ? 'grabbing' : 'grab'
           }}
           onTouchStart={handleTouchStart}
@@ -133,14 +134,15 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
         >
+          {/* Cards originais */}
           {mediaItems.map((item, index) => (
             <div 
               key={`mobile-${item.id}-${index}`}
               className="carousel-item flex-shrink-0 px-4"
               style={{ 
-                width: `${100 / mediaItems.length}%`,
-                minWidth: `${100 / mediaItems.length}%`,
-                maxWidth: `${100 / mediaItems.length}%`
+                width: `${100 / (mediaItems.length + 1)}%`,
+                minWidth: `${100 / (mediaItems.length + 1)}%`,
+                maxWidth: `${100 / (mediaItems.length + 1)}%`
               }}
             >
               <div className="w-full max-w-sm mx-auto">
@@ -151,20 +153,40 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
               </div>
             </div>
           ))}
+          
+          {/* Primeiro card duplicado para efeito de looping */}
+          {mediaItems.length > 0 && (
+            <div 
+              key={`mobile-loop-${mediaItems[0].id}`}
+              className="carousel-item flex-shrink-0 px-4"
+              style={{ 
+                width: `${100 / (mediaItems.length + 1)}%`,
+                minWidth: `${100 / (mediaItems.length + 1)}%`,
+                maxWidth: `${100 / (mediaItems.length + 1)}%`
+              }}
+            >
+              <div className="w-full max-w-sm mx-auto">
+                <MediaDisplay 
+                  item={mediaItems[0]} 
+                  className="w-full h-auto" 
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Indicadores simples e discretos - baseados na posição atual */}
       <div className="flex justify-center mt-4 space-x-1">
         {mediaItems.map((_, index) => {
-          const progress = Math.abs(totalOffset) / Math.abs(maxOffset);
-          const currentIndex = progress * (mediaItems.length - 1);
-          const isActive = Math.abs(index - currentIndex) < 0.8;
+          const currentPosition = Math.abs(totalOffset) / cardWidth;
+          const normalizedPosition = currentPosition >= mediaItems.length ? 0 : currentPosition;
+          const isActive = Math.abs(index - normalizedPosition) < 0.8;
           
           return (
             <div
               key={index}
-              className={`h-1.5 w-1.5 rounded-full transition-all duration-200 ${
+              className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${
                 isActive 
                   ? 'bg-green-600' 
                   : 'bg-gray-300 dark:bg-gray-600'

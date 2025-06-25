@@ -1056,7 +1056,7 @@ iframe[src*="drive.google.com"] {
 
 /* Animações muito suaves para movimento automático */
 .mobile-single-carousel .carousel-items-container {
-  transition: transform 0.2s ease-out;
+  transition: transform 0.6s ease-in-out;
 }
 
 /* Otimizações de performance para mobile */
