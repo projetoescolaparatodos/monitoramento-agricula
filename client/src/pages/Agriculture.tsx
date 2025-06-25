@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import MediaDisplay from "@/components/common/MediaDisplay";
 import InteractivePanel from "@/components/paa/InteractivePanel";
 import AgricultureTabButton from "@/components/common/AgricultureTabButton";
+import InfoPage from "@/components/common/InfoPage";
 
 const Agriculture = () => {
   // Detectar e rolar para âncoras na URL quando a página carrega
@@ -274,40 +275,35 @@ const Agriculture = () => {
             isLoading={isLoadingCharts} 
           />
 
+          {/* Seção de Mídia usando o mesmo padrão das outras páginas */}
           {mediaItems && mediaItems.length > 0 && (
-            <section id="media" className="mt-16">
-              <h2 className="text-3xl font-bold text-center mb-8 text-white">Galeria de Mídia - Agriculture</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {mediaItems.map((item) => {
-                  // Detecção robusta de vídeos verticais - FORÇAR ASPECTRATIO
-                  const isVerticalVideo = item.mediaType === 'video' && (
-                    item.aspectRatio === 'vertical' ||
-                    item.aspectRatio === '9:16' ||
-                    item.aspectRatio === '4:5' ||
-                    item.title?.toLowerCase().includes('vertical') ||
-                    item.title?.toLowerCase().includes('instagram') ||
-                    item.title?.toLowerCase().includes('reels') ||
-                    item.title?.toLowerCase().includes('tiktok') ||
-                    item.title?.toLowerCase().includes('stories')
-                  );
+            <section id="media" className="mt-16 py-8 bg-black/20 backdrop-blur-sm rounded-lg">
+              <div className="container mx-auto px-4">
+                <h2 className="text-3xl font-bold mb-2 text-center text-white">
+                  Galeria de Mídia
+                </h2>
+                <p className="text-white/80 mb-8 text-center max-w-2xl mx-auto">
+                  Imagens e vídeos relacionados às atividades agrícolas
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {mediaItems.map((item) => {
+                    const isVerticalVideo = item.mediaType === 'video' && (
+                      item.aspectRatio === 'vertical' ||
+                      item.aspectRatio === '9:16' ||
+                      item.title?.toLowerCase().includes('vertical') ||
+                      item.title?.toLowerCase().includes('instagram')
+                    );
 
-                  console.log('Agriculture page - item:', {
-                    id: item.id,
-                    title: item.title,
-                    mediaType: item.mediaType,
-                    aspectRatio: item.aspectRatio,
-                    isVerticalVideo
-                  });
-
-                  return (
-                    <div key={item.id} className={`${isVerticalVideo ? 'flex justify-center md:col-span-1' : ''}`}>
-                      <MediaDisplay 
-                        item={item}
-                        className="hover:scale-105 transition-all duration-300 hover:shadow-xl"
-                      />
-                    </div>
-                  );
-                })}
+                    return (
+                      <div key={item.id} className={`${isVerticalVideo ? 'md:col-span-1' : ''}`}>
+                        <MediaDisplay 
+                          item={item}
+                          className="hover:scale-105 transition-transform"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </section>
           )}
