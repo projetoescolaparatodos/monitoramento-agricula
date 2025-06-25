@@ -282,10 +282,10 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({
             >
               {/* Efeito de brilho sutil */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-50"></div>
-              <span className="relative z-10">
+              <div className="relative z-10">
                 Fique por dentro dos projetos que estão transformando o setor
                 agropecuário e pesqueiro do nosso município.
-              </span>
+              </div>
             </div>
           </div>
         </div>
@@ -342,11 +342,11 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({
           </div>
         ) : (
           <div className="text-center py-12 bg-white dark:bg-zinc-800 rounded-2xl shadow-md">
-            <p
+            <div
               className={`${variant === "transparent" ? "text-white/80" : "text-gray-500 dark:text-gray-400"}`}
             >
               Nenhuma mídia disponível no momento.
-            </p>
+            </div>
           </div>
         )}
       </div>

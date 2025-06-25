@@ -234,7 +234,7 @@ const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ variant = "de
       <div className="text-center mb-10">
         <div className="max-w-4xl mx-auto">
           <div className="relative">
-            <p
+            <div
               className={`text-xl md:text-2xl font-semibold tracking-wide leading-relaxed ${variant === "transparent" ? "text-white" : "text-gray-800 dark:text-gray-100"} mb-6 text-center px-8 py-8 bg-gradient-to-r from-green-600/15 via-green-500/25 to-green-600/15 rounded-2xl border border-green-500/30 backdrop-blur-sm shadow-lg relative overflow-hidden`}
               style={{ 
                 fontFamily: "'Inter', 'Segoe UI', 'Roboto', sans-serif",
@@ -243,9 +243,10 @@ const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ variant = "de
             >
               {/* Efeito de brilho sutil */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-50"></div>
-              <span className="relative z-10">
-                Acompanhe o dia a dia das atividades agrícolas e pesqueiras, com fotos e vídeos das ações da SEMAPA e conteúdos informativos.</span>
-            </p>
+              <div className="relative z-10">
+                Acompanhe o dia a dia das atividades agrícolas e pesqueiras, com fotos e vídeos das ações da SEMAPA e conteúdos informativos.
+              </div>
+            </div>
           </div>
         </div>
         <p className={`text-xl md:text-2xl font-medium tracking-wide max-w-3xl mx-auto ${variant === "transparent" ? "text-white" : "text-gray-700 dark:text-gray-200"} hidden`}>
@@ -280,7 +281,7 @@ const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ variant = "de
         </div>
       ) : (
         <div className="col-span-4 text-center py-12 bg-white rounded-lg shadow">
-          <p className="text-neutral-dark">Nenhuma mídia disponível no momento.</p>
+          <div className="text-neutral-dark">Nenhuma mídia disponível no momento.</div>
         </div>
       )}
     </section>
