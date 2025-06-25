@@ -48,9 +48,9 @@ const MobileDoubleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
   if (mediaItems.length === 0) return null;
 
   return (
-    <div className="mobile-double-carousel space-y-4">
+    <div className="mobile-double-carousel">
       {/* Primeira linha - movimento para direita */}
-      <div className="carousel-line overflow-hidden">
+      <div className="carousel-line overflow-hidden mb-3">
         <div 
           ref={containerRef1}
           className="carousel-items-container flex gap-4 transition-transform duration-500 ease-in-out"
@@ -62,11 +62,12 @@ const MobileDoubleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
             <div 
               key={`line1-${item.id}-${index}`}
               ref={index === 0 ? itemRef : undefined}
-              className="carousel-item flex-shrink-0 w-full"
+              className="carousel-item flex-shrink-0"
+              style={{ width: '85vw', maxWidth: '400px' }}
             >
               <MediaDisplay 
                 item={item} 
-                className="h-full transform hover:scale-105 transition-transform duration-300" 
+                className="transform hover:scale-105 transition-transform duration-300" 
               />
             </div>
           ))}
@@ -74,7 +75,7 @@ const MobileDoubleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
       </div>
 
       {/* Segunda linha - movimento para esquerda */}
-      <div className="carousel-line overflow-hidden">
+      <div className="carousel-line overflow-hidden mb-3">
         <div 
           ref={containerRef2}
           className="carousel-items-container flex gap-4 transition-transform duration-500 ease-in-out"
@@ -85,11 +86,12 @@ const MobileDoubleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
           {mediaItems.map((item, index) => (
             <div 
               key={`line2-${item.id}-${index}`}
-              className="carousel-item flex-shrink-0 w-full"
+              className="carousel-item flex-shrink-0"
+              style={{ width: '85vw', maxWidth: '400px' }}
             >
               <MediaDisplay 
                 item={item} 
-                className="h-full transform hover:scale-105 transition-transform duration-300" 
+                className="transform hover:scale-105 transition-transform duration-300" 
               />
             </div>
           ))}
