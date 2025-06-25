@@ -15,13 +15,13 @@ interface HomeMediaGallerySectionProps {
 
 const MobileDoubleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItems }) => {
   const [currentScroll1, setCurrentScroll1] = useState(0);
-  const [currentScroll2, setCurrentScroll2] = useState(2); // Começa deslocado
+  const [currentScroll2, setCurrentScroll2] = useState(1); // Começa deslocado
   const containerRef1 = useRef<HTMLDivElement>(null);
   const containerRef2 = useRef<HTMLDivElement>(null);
   const itemRef = useRef<HTMLDivElement>(null);
 
   const scrollStep = 1; // Movimentação suave
-  const visibleItems = 2; // 2 itens visíveis por linha no mobile
+  const visibleItems = 1; // 1 item visível por linha no mobile
   const autoScrollInterval = 3000; // 3 segundos
 
   useEffect(() => {
@@ -62,7 +62,7 @@ const MobileDoubleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
             <div 
               key={`line1-${item.id}-${index}`}
               ref={index === 0 ? itemRef : undefined}
-              className="carousel-item flex-shrink-0 w-[calc(50%-8px)]"
+              className="carousel-item flex-shrink-0 w-full"
             >
               <MediaDisplay 
                 item={item} 
@@ -85,7 +85,7 @@ const MobileDoubleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
           {mediaItems.map((item, index) => (
             <div 
               key={`line2-${item.id}-${index}`}
-              className="carousel-item flex-shrink-0 w-[calc(50%-8px)]"
+              className="carousel-item flex-shrink-0 w-full"
             >
               <MediaDisplay 
                 item={item} 
@@ -98,7 +98,7 @@ const MobileDoubleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
 
       {/* Indicadores de navegação */}
       <div className="flex justify-center mt-4 space-x-2">
-        {Array(Math.ceil(mediaItems.length / 2)).fill(0).map((_, index) => (
+        {Array(mediaItems.length).fill(0).map((_, index) => (
           <div
             key={index}
             className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 opacity-60"
