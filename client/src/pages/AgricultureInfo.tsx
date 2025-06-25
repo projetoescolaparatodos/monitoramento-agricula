@@ -30,10 +30,10 @@ const AgricultureInfo = () => {
         subtitle="Informações e dados sobre a agricultura local"
         contents={contents || []} 
         charts={charts || []} 
-        mediaItems={mediaItems || []} 
+        mediaItems={[]} 
         isLoadingContents={isLoadingContents}
         isLoadingCharts={isLoadingCharts}
-        isLoadingMedia={isLoadingMedia}
+        isLoadingMedia={false}
       >
         {/* Added this section to display the area in hectares */}
         {agriculturalData && (
@@ -44,7 +44,7 @@ const AgricultureInfo = () => {
           </div>
         )}
         
-        {/* Exibição de mídias com tratamento adequado para vídeos do YouTube */}
+        {/* Exibição de mídias com tratamento adequado para vídeos do Google Drive */}
         {mediaItems && mediaItems.length > 0 && (
           <section className="mt-8 py-8 bg-neutral-50 dark:bg-zinc-900">
             <div className="container mx-auto px-4">
@@ -53,9 +53,30 @@ const AgricultureInfo = () => {
                 Imagens e vídeos relacionados às atividades agrícolas em nossa região
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {mediaItems.map((item) => (
-                  <MediaDisplay key={item.id} item={item} className="hover:scale-105 transition-transform" />
-                ))}
+                {mediaItems.map((item) => {
+                  // Detecção robusta de vídeos verticais
+                  const isVerticalVideo = item.mediaType === 'video' && (
+                    item.aspectRatio === 'vertical' ||
+                    item.aspectRatio === '9:16' ||
+                    item.aspectRatio === '4:5' ||
+                    item.title?.toLowerCase().includes('vertical') ||
+                    item.title?.toLowerCase().includes('instagram') ||
+                    item.title?.toLowerCase().includes('reels') ||
+                    item.title?.toLowerCase().includes('tiktok') ||
+                    item.title?.toLowerCase().includes('stories')
+                  );
+
+                  return (
+                    <div key={item.id} className={`${isVerticalVideo ? 'flex justify-center md:col-span-1' : ''}`}>
+                      <MediaDisplay 
+                        item={item} 
+                        className={`hover:scale-105 transition-all duration-300 hover:shadow-xl ${
+                          isVerticalVideo ? 'w-full max-w-[400px] aspect-[9/16]' : 'w-full'
+                        }`}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </section>
