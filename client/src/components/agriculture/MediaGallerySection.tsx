@@ -20,7 +20,7 @@ const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ mediaItems, i
         </p>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array(3).fill(0).map((_, index) => (
               <Card key={index} className="overflow-hidden bg-white dark:bg-zinc-800 rounded-2xl shadow-md">
                 <Skeleton className="w-full aspect-video" />
@@ -33,16 +33,21 @@ const MediaGallerySection: React.FC<MediaGallerySectionProps> = ({ mediaItems, i
             ))}
           </div>
         ) : mediaItems && mediaItems.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {mediaItems.map((item) => {
               const isVerticalVideo = item.mediaType === 'video' && 
                 (item.aspectRatio === 'vertical' || 
+                item.aspectRatio === '9:16' ||
                 (item.title && item.title.toLowerCase().includes('vertical')) ||
-                (item.title && item.title.toLowerCase().includes('instagram')));
+                (item.title && item.title.toLowerCase().includes('instagram')) ||
+                (item.title && item.title.toLowerCase().includes('reels')));
               
               return (
-                <div key={item.id} className={`${isVerticalVideo ? 'md:col-span-1' : ''}`}>
-                  <MediaDisplay item={item} className="hover:scale-105 transition-transform" />
+                <div key={item.id} className={`flex justify-center ${isVerticalVideo ? 'md:col-span-1' : ''}`}>
+                  <MediaDisplay 
+                    item={item} 
+                    className="hover:scale-105 transition-all duration-300 hover:shadow-xl w-full max-w-md" 
+                  />
                 </div>
               );
             })}
