@@ -445,6 +445,13 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
       const embedUrl = isYouTubeVideo ? getYoutubeEmbedUrl(item.mediaUrl) : null;
       // Para vídeos do Firebase, use a URL diretamente
 
+      // Em desktop: verificar se é vídeo vertical - padronizar para 9:16
+      const shouldTreatAsVertical = item.mediaType === 'video' && 
+        (isFirebaseVideo || 
+         item.aspectRatio === 'vertical' || 
+         item.aspectRatio === '9:16' ||
+         item.aspectRatio === '9:18'); // Incluir 9:18 para padronizar como 9:16
+
       return (
         <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className} flex flex-col ${
           shouldTreatAsVertical ? "max-w-[400px] mx-auto h-fit" : ""
