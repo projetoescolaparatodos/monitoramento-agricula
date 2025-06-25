@@ -271,13 +271,23 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({
         >
           Destaques da Semapa
         </h2>
-        <div className="max-w-3xl mx-auto">
-          <p
-            className={`text-xl md:text-2xl font-medium tracking-wide max-w-3xl mx-auto ${variant === "transparent" ? "text-white" : "text-gray-700 dark:text-gray-200"} mb-6 text-center border-l-4 border-r-4 border-green-600/40 px-12 py-6`}
-          >
-            Fique por dentro dos projetos que estão transformando o setor
-            agropecuário e pesqueiro do nosso município.
-          </p>
+        <div className="max-w-4xl mx-auto">
+          <div className="relative">
+            <p
+              className={`text-xl md:text-2xl font-semibold tracking-wide leading-relaxed ${variant === "transparent" ? "text-white" : "text-gray-800 dark:text-gray-100"} mb-6 text-center px-8 py-8 bg-gradient-to-r from-green-600/15 via-green-500/25 to-green-600/15 rounded-2xl border border-green-500/30 backdrop-blur-sm shadow-lg relative overflow-hidden`}
+              style={{ 
+                fontFamily: "'Inter', 'Segoe UI', 'Roboto', sans-serif",
+                textShadow: variant === "transparent" ? "0 1px 3px rgba(0,0,0,0.3)" : "none"
+              }}
+            >
+              {/* Efeito de brilho sutil */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-50"></div>
+              <span className="relative z-10">
+                Fique por dentro dos projetos que estão transformando o setor
+                agropecuário e pesqueiro do nosso município.
+              </span>
+            </p>
+          </div>
         </div>
         
         {/* Indicador de Scroll */}
