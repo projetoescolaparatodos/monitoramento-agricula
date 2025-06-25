@@ -346,10 +346,6 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
         mediaUrl: item.mediaUrl
       });
 
-      const isVerticalAspect = item.aspectRatio === 'vertical' || 
-                              item.aspectRatio === '9:16' || 
-                              item.aspectRatio === '9:18'; // Padronizar como 9:16
-
       return (
         <Card className={`media-display overflow-hidden bg-green-50/90 dark:bg-green-800/80 rounded-2xl shadow-md ${className} flex flex-col ${
           isVerticalAspect ? "max-w-[400px] mx-auto" : ""
