@@ -64,7 +64,7 @@ const Home = () => {
         </video>
         <div className="absolute top-0 left-0 w-full h-full z-10" 
              style={{
-               background: 'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 25%, rgba(0,0,0,0.4) 75%, rgba(0,0,0,0) 100%)'
+               background: 'linear-gradient(to right, rgba(22,101,52,0) 0%, rgba(22,101,52,0.4) 25%, rgba(22,101,52,0.4) 75%, rgba(22,101,52,0) 100%)'
              }} />
       </div>
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-20">
