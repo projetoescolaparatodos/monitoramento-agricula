@@ -14,13 +14,17 @@ interface HomeMediaGallerySectionProps {
 
 const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItems }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [autoScroll, setAutoScroll] = useState(true);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const autoScrollInterval = 4000; // 4 segundos
+  const autoScrollInterval = 6000; // 6 segundos
 
+  // Auto scroll que para quando há interação
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (mediaItems.length === 0) return;
+    if (!autoScroll || mediaItems.length === 0) return;
 
+    const interval = setInterval(() => {
       setCurrentIndex(prev => {
         const nextIndex = prev + 1;
         return nextIndex >= mediaItems.length ? 0 : nextIndex;
@@ -28,7 +32,38 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
     }, autoScrollInterval);
 
     return () => clearInterval(interval);
-  }, [mediaItems.length]);
+  }, [mediaItems.length, autoScroll]);
+
+  // Funções para controle touch/swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+    setAutoScroll(false); // Para o auto scroll quando usuário interage
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe && currentIndex < mediaItems.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
+    if (isRightSwipe && currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
+
+  // Para o auto scroll quando usuário clica nos indicadores
+  const handleIndicatorClick = (index: number) => {
+    setCurrentIndex(index);
+    setAutoScroll(false);
+  };
 
   if (mediaItems.length === 0) return null;
 
@@ -43,6 +78,9 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
             transform: `translateX(-${currentIndex * 100}%)`,
             width: `${mediaItems.length * 100}%`,
           }}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           {mediaItems.map((item, index) => (
             <div 
@@ -53,6 +91,7 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
                 minWidth: `${100 / mediaItems.length}%`,
                 maxWidth: `${100 / mediaItems.length}%`
               }}
+              onClick={() => setAutoScroll(false)} // Para auto scroll ao clicar no card
             >
               <div className="w-full max-w-sm mx-auto">
                 <MediaDisplay 
@@ -63,23 +102,59 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
             </div>
           ))}
         </div>
+
+        {/* Botões de navegação lateral (opcionais para mobile) */}
+        {!autoScroll && (
+          <>
+            <button
+              onClick={() => currentIndex > 0 && setCurrentIndex(currentIndex - 1)}
+              className={`absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full z-10 transition-opacity ${
+                currentIndex === 0 ? 'opacity-30' : 'opacity-70 hover:opacity-100'
+              }`}
+              disabled={currentIndex === 0}
+            >
+              ←
+            </button>
+            <button
+              onClick={() => currentIndex < mediaItems.length - 1 && setCurrentIndex(currentIndex + 1)}
+              className={`absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full z-10 transition-opacity ${
+                currentIndex === mediaItems.length - 1 ? 'opacity-30' : 'opacity-70 hover:opacity-100'
+              }`}
+              disabled={currentIndex === mediaItems.length - 1}
+            >
+              →
+            </button>
+          </>
+        )}
       </div>
 
-      {/* Indicadores de navegação */}
+      {/* Indicadores de navegação interativos */}
       <div className="flex justify-center mt-6 space-x-2">
         {mediaItems.map((_, index) => (
           <button
             key={index}
-            onClick={() => setCurrentIndex(index)}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+            onClick={() => handleIndicatorClick(index)}
+            className={`h-2 rounded-full transition-all duration-300 touch-manipulation ${
               index === currentIndex 
                 ? 'bg-green-600 w-6' 
-                : 'bg-gray-300 dark:bg-gray-600'
+                : 'bg-gray-300 dark:bg-gray-600 w-2 hover:bg-gray-400 dark:hover:bg-gray-500'
             }`}
             aria-label={`Ir para mídia ${index + 1}`}
           />
         ))}
       </div>
+
+      {/* Status do auto scroll */}
+      {!autoScroll && (
+        <div className="flex justify-center mt-2">
+          <button
+            onClick={() => setAutoScroll(true)}
+            className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+          >
+            ▶ Reativar rotação automática
+          </button>
+        </div>
+      )}
     </div>
   );
 };
