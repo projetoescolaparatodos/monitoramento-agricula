@@ -279,6 +279,23 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({
             agropecuário e pesqueiro do nosso município.
           </p>
         </div>
+        
+        {/* Indicador de Scroll */}
+        <div className="flex items-center justify-center mb-8 md:hidden">
+          <div className="flex items-center space-x-3 bg-gradient-to-r from-green-600/10 via-green-500/20 to-green-600/10 px-6 py-3 rounded-full border border-green-500/30 backdrop-blur-sm">
+            <div className="flex items-center space-x-1">
+              <span className="text-green-600 text-lg font-bold">←</span>
+              <span className="text-green-600 text-lg font-bold">←</span>
+            </div>
+            <span className={`text-sm font-semibold tracking-wider uppercase ${variant === "transparent" ? "text-green-300" : "text-green-600"}`}>
+              DESLIZE
+            </span>
+            <div className="flex items-center space-x-1">
+              <span className="text-green-600 text-lg font-bold">→</span>
+              <span className="text-green-600 text-lg font-bold">→</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="container mx-auto px-4">
