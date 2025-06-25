@@ -941,14 +941,35 @@ iframe[src*="drive.google.com"] {
   .chart-container {
     height: 220px !important;
   }
-  
+
   .chart-title {
     font-size: 1rem !important;
     margin-bottom: 0.75rem !important;
   }
-  
+
   .chart-description {
     font-size: 0.875rem !important;
     line-height: 1.4 !important;
   }
+}
+
+/* Classes de aspect ratio personalizadas */
+.aspect-\[9\/16\] {
+  aspect-ratio: 9 / 16;
+}
+
+.aspect-\[4\/3\] {
+  aspect-ratio: 4 / 3;
+}
+
+.aspect-\[3\/4\] {
+  aspect-ratio: 3 / 4;
+}
+
+/* Limitar linhas de texto */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

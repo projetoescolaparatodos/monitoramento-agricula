@@ -52,7 +52,37 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({ media
               
               return (
                 <div key={item.id} className={`${isVerticalVideo ? 'md:col-span-1' : ''}`}>
-                  <MediaDisplay item={item} className="hover:scale-105 transition-transform" />
+                  <Card className="overflow-hidden shadow-md border-0 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95 rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-105">
+                    <div className="w-full aspect-video overflow-hidden rounded-t-xl">
+                      {item.mediaType === 'image' ? (
+                        <img
+                          src={item.mediaUrl || item.thumbnailUrl}
+                          alt={item.title || "Mídia"}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full">
+                          <MediaDisplay item={item} className="w-full h-full" />
+                        </div>
+                      )}
+                    </div>
+                    <CardContent className="p-4">
+                      {item.title && (
+                        <h3 className="font-semibold text-lg mb-2 text-green-800 dark:text-green-300">
+                          {/<\/?[a-z][\s\S]*>/i.test(item.title) ? (
+                            <div dangerouslySetInnerHTML={{ __html: item.title }} />
+                          ) : (
+                            item.title
+                          )}
+                        </h3>
+                      )}
+                      {item.description && (
+                        <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-3">
+                          {item.description.replace(/<[^>]*>/g, '')}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
                 </div>
               );
             })}
