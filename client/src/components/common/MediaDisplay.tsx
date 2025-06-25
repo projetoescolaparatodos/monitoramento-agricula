@@ -331,14 +331,21 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
     );
   } else {
     // Em desktop: verificar se é vídeo vertical - padronizar para 9:16
-    const shouldTreatAsVertical = item.mediaType === 'video' && 
-      (isFirebaseVideo || 
-       item.aspectRatio === 'vertical' || 
-       item.aspectRatio === '9:16' ||
-       item.aspectRatio === '9:18'); // Incluir 9:18 para padronizar como 9:16
 
     // Renderização de mídias do Google Drive
     if (isGoogleDriveMedia) {
+      const isVerticalAspect = item.aspectRatio === 'vertical' || 
+                              item.aspectRatio === '9:16' || 
+                              item.aspectRatio === '9:18'; // Padronizar como 9:16
+
+      console.log('MediaDisplay - Google Drive:', {
+        id: item.id,
+        title: item.title,
+        aspectRatio: item.aspectRatio,
+        isVerticalAspect,
+        mediaUrl: item.mediaUrl
+      });
+
       const isVerticalAspect = item.aspectRatio === 'vertical' || 
                               item.aspectRatio === '9:16' || 
                               item.aspectRatio === '9:18'; // Padronizar como 9:16

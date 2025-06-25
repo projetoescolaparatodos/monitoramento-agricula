@@ -276,10 +276,10 @@ const Agriculture = () => {
 
           {mediaItems && mediaItems.length > 0 && (
             <section id="media" className="mt-16">
-              <h2 className="text-3xl font-bold text-center mb-8 text-white">Galeria de Mídia</h2>
+              <h2 className="text-3xl font-bold text-center mb-8 text-white">Galeria de Mídia - Agriculture</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {mediaItems.map((item) => {
-                  // Detecção robusta de vídeos verticais
+                  // Detecção robusta de vídeos verticais - FORÇAR ASPECTRATIO
                   const isVerticalVideo = item.mediaType === 'video' && (
                     item.aspectRatio === 'vertical' ||
                     item.aspectRatio === '9:16' ||
@@ -291,10 +291,22 @@ const Agriculture = () => {
                     item.title?.toLowerCase().includes('stories')
                   );
 
+                  console.log('Agriculture page - item:', {
+                    id: item.id,
+                    title: item.title,
+                    mediaType: item.mediaType,
+                    aspectRatio: item.aspectRatio,
+                    isVerticalVideo
+                  });
+
                   return (
                     <div key={item.id} className={`${isVerticalVideo ? 'flex justify-center md:col-span-1' : ''}`}>
                       <MediaDisplay 
-                        item={item}
+                        item={{
+                          ...item,
+                          // FORÇAR o aspectRatio para debug
+                          aspectRatio: item.aspectRatio || 'horizontal'
+                        }}
                         className={`hover:scale-105 transition-all duration-300 hover:shadow-xl bg-opacity-90 backdrop-blur-sm ${
                           isVerticalVideo ? 'w-full max-w-[400px] aspect-[9/16]' : 'w-full'
                         }`}
