@@ -33,25 +33,31 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
   if (mediaItems.length === 0) return null;
 
   return (
-    <div className="mobile-single-carousel w-full">
+    <div className="mobile-single-carousel w-full max-w-full overflow-hidden">
       {/* Carrossel com uma mídia por linha */}
-      <div className="carousel-line overflow-hidden">
+      <div className="carousel-line relative w-full overflow-hidden">
         <div 
           ref={containerRef}
           className="carousel-items-container flex transition-transform duration-500 ease-in-out"
           style={{
             transform: `translateX(-${currentIndex * 100}%)`,
+            width: `${mediaItems.length * 100}%`,
           }}
         >
           {mediaItems.map((item, index) => (
             <div 
               key={`mobile-${item.id}-${index}`}
-              className="carousel-item flex-shrink-0 w-full px-4"
+              className="carousel-item flex-shrink-0 px-4"
+              style={{ 
+                width: `${100 / mediaItems.length}%`,
+                minWidth: `${100 / mediaItems.length}%`,
+                maxWidth: `${100 / mediaItems.length}%`
+              }}
             >
-              <div className="w-full max-w-md mx-auto">
+              <div className="w-full max-w-sm mx-auto">
                 <MediaDisplay 
                   item={item} 
-                  className="w-full" 
+                  className="w-full h-auto" 
                 />
               </div>
             </div>
