@@ -35,8 +35,10 @@ export interface MediaItem {
   views?: number;
   likes?: number;
   tags?: string[]; // Array opcional de tags para facilitar a busca
-  aspectRatio?: 'horizontal' | 'vertical' | 'square';
+  aspectRatio?: 'horizontal' | 'vertical' | 'square' | '9:16' | '16:9' | '4:5';
   instagramUrl?: string; // Link para o post do Instagram
+  displayMode?: string;
+  customAspectRatio?: string;
 }
 
 export interface StatisticItem {
