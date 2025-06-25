@@ -42,7 +42,7 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
     return () => clearInterval(interval);
   }, [mediaItems.length, autoScroll, maxOffset]);
 
-  // Controle de touch/drag mais suave
+  // Controle de touch/drag muito mais suave e gradual
   const handleStart = (clientX: number) => {
     setIsDragging(true);
     setStartX(clientX);
@@ -54,12 +54,29 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
     if (!isDragging) return;
     setCurrentX(clientX);
     setAutoScroll(false); // Para o auto scroll quando o usuário interage
+    
+    // Aplicar movimento em tempo real com sensibilidade muito reduzida
+    const deltaX = clientX - startX;
+    const dragDistance = deltaX * 0.1; // Sensibilidade muito baixa (10%)
+    const newOffset = currentOffset + (dragDistance / window.innerWidth * 100);
+    
+    // Aplicar limites suaves sem snap
+    if (newOffset > 0) {
+      setCurrentOffset(0);
+    } else if (newOffset < maxOffset) {
+      setCurrentOffset(maxOffset);
+    } else {
+      setCurrentOffset(newOffset);
+    }
+    
+    // Resetar referência para movimento contínuo
+    setStartX(clientX);
   };
 
   const handleEnd = () => {
     if (!isDragging) return;
     
-    // Parar exatamente onde o usuário soltou, sem qualquer ajuste
+    // Parar exatamente onde está, sem qualquer ajuste ou snap
     setIsDragging(false);
   };
 
@@ -92,9 +109,8 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
 
   if (mediaItems.length === 0) return null;
 
-  // Calcular offset com drag
-  const dragOffset = isDragging ? (currentX - startX) * 0.3 : 0; // Reduzir a sensibilidade do drag
-  const totalOffset = currentOffset + dragOffset;
+  // Usar apenas o offset atual, sem cálculo adicional de drag
+  const totalOffset = currentOffset;
 
   return (
     <div className="mobile-single-carousel w-full max-w-full overflow-hidden">
@@ -106,7 +122,7 @@ const MobileSingleCarousel: React.FC<{ mediaItems: MediaItem[] }> = ({ mediaItem
           style={{
             transform: `translateX(${totalOffset}%)`,
             width: `${mediaItems.length * 100}%`,
-            transition: isDragging ? 'none' : 'transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1)',
+            transition: isDragging ? 'none' : 'transform 0.4s ease-out',
             cursor: isDragging ? 'grabbing' : 'grab'
           }}
           onTouchStart={handleTouchStart}

@@ -1054,9 +1054,9 @@ iframe[src*="drive.google.com"] {
   pointer-events: auto;
 }
 
-/* Animações suaves para movimento automático */
+/* Animações muito suaves para movimento automático */
 .mobile-single-carousel .carousel-items-container {
-  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: transform 0.2s ease-out;
 }
 
 /* Otimizações de performance para mobile */
