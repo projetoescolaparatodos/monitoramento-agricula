@@ -151,7 +151,7 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
           key={`${item.id}-${originalIndex}`}
           className={`
             flex-shrink-0 
-            ${isMobile ? 'w-80 px-2' : 'w-72 px-4'}
+            ${isMobile ? 'w-64 px-2' : 'w-80 px-3'}
             ${isVerticalVideo ? 'flex justify-center' : ''}
           `}
         >
