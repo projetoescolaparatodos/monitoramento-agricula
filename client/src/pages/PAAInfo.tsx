@@ -179,7 +179,7 @@ const PAAInfo = () => {
 
           {mediaItems && mediaItems.length > 0 && (
             <section id="media" className="mt-16">
-              <h2 className="text-3xl font-bold text-center mb-8 text-white">Galeria de Mídia</h2>
+              <h2 className="text-3xl font-bold text-center mb-8 text-white">🌱Da Roça para a Mesa🍽️</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {mediaItems.map((item) => (
                   <div className="w-full" key={item.id}>
