@@ -178,7 +178,7 @@ const Fishing = () => {
 
           {mediaItems && mediaItems.length > 0 && (
             <section id="media" className="mt-16">
-              <h2 className="text-3xl font-bold text-center mb-8 text-white">Galeria de Mídia</h2>
+              <h2 className="text-3xl font-bold text-center mb-8 text-white">💦Psicultura em Cena🐟</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {mediaItems.map((item) => (
                   <MediaDisplay key={item.id} item={item} className="bg-opacity-90 backdrop-blur-sm" />
