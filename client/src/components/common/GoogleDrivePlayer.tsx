@@ -191,12 +191,6 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
             style={{ width: '100%', height: '100%', maxWidth: '100%', maxHeight: '100%' }}
           />
         </div>
-
-        {fileMetadata?.name && (
-          <p className="text-sm text-gray-600 mt-2 truncate">
-            {fileMetadata.name}
-          </p>
-        )}
       </div>
     );
   }
@@ -223,12 +217,6 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
             style={{ width: '100%', height: '100%', maxWidth: '100%', maxHeight: '100%' }}
           />
         </div>
-
-        {fileMetadata?.name && (
-          <p className="text-sm text-gray-600 mt-2 truncate">
-            {fileMetadata.name}
-          </p>
-        )}
       </div>
     );
   }
