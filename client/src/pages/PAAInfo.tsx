@@ -14,6 +14,7 @@ import { useLocation } from "wouter";
 import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
 import BackgroundVideo from "@/components/ui/BackgroundVideo";
 import MediaDisplay from '@/components/common/MediaDisplay';
+import MediaCarouselSection from '@/components/paa/MediaCarouselSection';
 import InteractivePanel from "@/components/paa/InteractivePanel";
 
 
@@ -178,16 +179,7 @@ const PAAInfo = () => {
           />
 
           {mediaItems && mediaItems.length > 0 && (
-            <section id="media" className="mt-16">
-              <h2 className="text-3xl font-bold text-center mb-8 text-white">🌱Da Roça para a Mesa🍽️</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                {mediaItems.map((item) => (
-                  <div className="w-full" key={item.id}>
-                    <MediaDisplay item={item} className="bg-opacity-90 backdrop-blur-sm w-full h-auto" />
-                  </div>
-                ))}
-              </div>
-            </section>
+            <MediaCarouselSection mediaItems={mediaItems} />
           )}
 
           {/* Seção de Estatísticas do PAA */}
