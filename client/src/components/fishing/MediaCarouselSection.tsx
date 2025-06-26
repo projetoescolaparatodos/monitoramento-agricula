@@ -385,4 +385,3 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
 };
 
 export default MediaCarouselSection;
-```The title in the MediaCarouselSection component is updated from "🐟Tesouros do Mar🌊" to "🐟 Psicultura em Cena 🐟".
