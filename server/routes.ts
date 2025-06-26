@@ -146,10 +146,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         : query(mediaRef, where('active', '==', true));
 
       const querySnapshot = await getDocs(q);
-      const mediaItems = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      const mediaItems = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          pageType: data.pageType,
+          title: data.title || "",
+          description: data.description || "",
+          mediaType: data.mediaType || "image",
+          mediaUrl: data.mediaUrl || "",
+          thumbnailUrl: data.thumbnailUrl || "",
+          active: data.active !== false,
+          order: data.order || 0,
+          createdAt: data.createdAt || new Date().toISOString(),
+          instagramUrl: data.instagramUrl || "",
+          aspectRatio: data.aspectRatio || "",
+          author: data.author || "",
+          authorImage: data.authorImage || "",
+          location: data.location || ""
+        };
+      });
 
       res.json(mediaItems);
     } catch (error) {
@@ -221,11 +237,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = req.params.id;
       const statDoc = await getDoc(doc(db, 'statistics', id));
-      
+
       if (!statDoc.exists()) {
         return res.status(404).json({ error: true, message: 'Estatística não encontrada' });
       }
-      
+
       res.json({ id: statDoc.id, ...statDoc.data() });
     } catch (error) {
       console.error('Error fetching statistic:', error);
@@ -238,12 +254,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = req.params.id;
       const statData = req.body;
-      
+
       await updateDoc(doc(db, 'statistics', id), {
         ...statData,
         updatedAt: new Date().toISOString()
       });
-      
+
       res.json({ id, ...statData });
     } catch (error) {
       console.error('Error updating statistic:', error);
@@ -256,7 +272,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = req.params.id;
       await deleteDoc(doc(db, 'statistics', id));
-      
+
       console.log('Deleted statistic:', id);
       res.json({ success: true });
     } catch (error) {

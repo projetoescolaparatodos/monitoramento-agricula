@@ -153,49 +153,7 @@ const Agriculture = () => {
   });
 
   const { data: mediaItems, isLoading: isLoadingMedia } = useQuery<MediaItem[]>({
-    queryKey: ["media", "agriculture"],
-    queryFn: async () => {
-      const snapshot = await getDocs(
-        query(
-          collection(db, "media"),
-          where("pageType", "==", "agriculture"),
-        ),
-      );
-
-      console.log("Número de mídias encontradas:", snapshot.docs.length);
-
-      return snapshot.docs.map((doc) => {
-        if (!doc.exists()) {
-          console.warn("Documento não existe:", doc.id);
-          return null;
-        }
-        const data = doc.data();
-
-        console.log("Processando mídia:", {
-          id: doc.id,
-          title: data.title,
-          mediaType: data.mediaType
-        });
-
-        return {
-          id: doc.id,
-          pageType: data.pageType,
-          title: data.title || "",
-          description: data.description || "",
-          mediaType: data.mediaType || "image",
-          mediaUrl: data.mediaUrl || "",
-          thumbnailUrl: data.thumbnailUrl || "",
-          active: data.active !== false,
-          order: data.order || 0,
-          createdAt: data.createdAt || new Date().toISOString(),
-          instagramUrl: data.instagramUrl || "",
-          aspectRatio: data.aspectRatio || "",
-          author: data.author || "",
-          authorImage: data.authorImage || "",
-          location: data.location || ""
-        };
-      }).filter(Boolean);
-    },
+    queryKey: ['/api/media-items?pageType=agriculture'],
   });
   const [, setLocation] = useLocation();
 
