@@ -14,6 +14,7 @@ import DataVisualizationSection from "@/components/agriculture/DataVisualization
 import MediaDisplay from "@/components/common/MediaDisplay";
 import InteractivePanel from "@/components/paa/InteractivePanel";
 import FishingTabButton from "@/components/common/FishingTabButton";
+import MediaCarouselSection from "@/components/fishing/MediaCarouselSection";
 
 const Fishing = () => {
   // Detectar e rolar para âncoras na URL quando a página carrega
@@ -177,14 +178,7 @@ const Fishing = () => {
           />
 
           {mediaItems && mediaItems.length > 0 && (
-            <section id="media" className="mt-16">
-              <h2 className="text-3xl font-bold text-center mb-8 text-white">💦Psicultura em Cena🐟</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {mediaItems.map((item) => (
-                  <MediaDisplay key={item.id} item={item} className="bg-opacity-90 backdrop-blur-sm" />
-                ))}
-              </div>
-            </section>
+            <MediaCarouselSection mediaItems={mediaItems} />
           )}
 
           {/* Fishing Report Section */}
