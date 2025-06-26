@@ -81,7 +81,7 @@ const Home = () => {
           />
         </section>
         <section id="visualization" className="py-12">
-          <h2 className="text-3xl font-bold text-center mb-8 text-white">Visualização de Dados</h2>
+          <h2 className="text-3xl font-bold text-center mb-8 text-white">Nossa Produção em Perspectiva</h2>
           <DataVisualizationSection variant="transparent" />
         </section>
         <section id="media" className="py-12">
