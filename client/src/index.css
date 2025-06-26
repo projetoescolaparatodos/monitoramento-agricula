@@ -72,6 +72,27 @@
 .quill-container .ql-container {
   border-bottom-left-radius: 0.375rem;
   border-bottom-right-radius: 0.375rem;
+
+
+/* Carousel styles */
+.carousel-container::-webkit-scrollbar {
+  display: none;
+}
+
+.media-card {
+  aspect-ratio: 16/9;
+}
+
+@media (max-width: 767px) {
+  .mobile-line {
+    scroll-snap-type: x mandatory;
+  }
+  .mobile-card {
+    scroll-snap-align: start;
+    min-width: 100%;
+  }
+}
+
   border-color: #e2e8f0;
 }
 

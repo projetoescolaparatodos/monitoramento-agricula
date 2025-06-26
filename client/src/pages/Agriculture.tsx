@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import MediaDisplay from "@/components/common/MediaDisplay";
 import InteractivePanel from "@/components/paa/InteractivePanel";
 import AgricultureTabButton from "@/components/common/AgricultureTabButton";
+import MediaCarouselSection from "@/components/agriculture/MediaCarouselSection";
 
 const Agriculture = () => {
   // Detectar e rolar para âncoras na URL quando a página carrega
@@ -238,41 +239,7 @@ const Agriculture = () => {
           />
 
           {mediaItems && mediaItems.length > 0 && (
-            <section id="media" className="mt-16">
-              <h2 className="text-3xl font-bold text-center mb-8 text-white">🌱Sementes do Nosso Trabalho🌱</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {mediaItems.map((item) => {
-                  // Detecção robusta de vídeos verticais - FORÇAR ASPECTRATIO
-                  const isVerticalVideo = item.mediaType === 'video' && (
-                    item.aspectRatio === 'vertical' ||
-                    item.aspectRatio === '9:16' ||
-                    item.aspectRatio === '4:5' ||
-                    item.title?.toLowerCase().includes('vertical') ||
-                    item.title?.toLowerCase().includes('instagram') ||
-                    item.title?.toLowerCase().includes('reels') ||
-                    item.title?.toLowerCase().includes('tiktok') ||
-                    item.title?.toLowerCase().includes('stories')
-                  );
-
-                  console.log('Agriculture page - item:', {
-                    id: item.id,
-                    title: item.title,
-                    mediaType: item.mediaType,
-                    aspectRatio: item.aspectRatio,
-                    isVerticalVideo
-                  });
-
-                  return (
-                    <div key={item.id} className={`${isVerticalVideo ? 'flex justify-center md:col-span-1' : ''}`}>
-                      <MediaDisplay 
-                        item={item}
-                        className="hover:scale-105 transition-all duration-300 hover:shadow-xl"
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
+            <MediaCarouselSection mediaItems={mediaItems} />
           )}
 
           {/* Agriculture Report Section */}
