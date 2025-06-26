@@ -228,90 +228,145 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
             }
           `}</style>
 
-          {/* Função para renderizar linha do carrossel com formatação padronizada */}
-          {(() => {
-            const renderCarouselLine = (items: typeof mediaItems, lineKey: string, apiRef: any, offset: number = 0) => (
-              <div className="relative carousel-container">
-                <Carousel
-                  setApi={(api) => {
-                    apiRef.current = api;
-                    if (api && autoScrollEnabled) {
-                      if (offset > 0) {
-                        setTimeout(() => startAutoScroll(api), offset);
-                      } else {
-                        startAutoScroll(api);
-                      }
-                    }
-                  }}
-                  opts={{
-                    align: "start",
-                    loop: true,
-                  }}
-                >
-                  <CarouselContent 
-                    className="-ml-2"
-                    onClick={stopAutoScroll}
-                  >
-                    {items.map((item, index) => (
-                      <CarouselItem
-                        key={`${lineKey}-${item.id}-${index}`}
-                        className="pl-2 basis-full"
-                      >
-                        <div className="h-full w-full" onClick={stopAutoScroll}>
-                          <MediaDisplay
-                            item={item}
-                            className="hover:scale-105 transition-transform duration-300 h-full w-full"
-                          />
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselPrevious className="hidden sm:flex -left-6 bg-black/70 text-white hover:bg-black/90 border-0 w-10 h-10" />
-                  <CarouselNext className="hidden sm:flex -right-6 bg-black/70 text-white hover:bg-black/90 border-0 w-10 h-10" />
-                </Carousel>
-                <button 
-                  className="carousel-button-indicator prev"
-                  onClick={() => {
-                    apiRef.current?.scrollPrev();
-                    stopAutoScroll();
-                  }}
-                  disabled={!apiRef.current?.canScrollPrev()}
-                >
-                  &lt;
-                </button>
-                <button 
-                  className="carousel-button-indicator next"
-                  onClick={() => {
-                    apiRef.current?.scrollNext();
-                    stopAutoScroll();
-                  }}
-                  disabled={!apiRef.current?.canScrollNext()}
-                >
-                  &gt;
-                </button>
-              </div>
-            );
+          {/* Linha 1 - Índices pares */}
+          <div className="relative carousel-container">
+            <Carousel
+              setApi={(api) => {
+                carouselApi1.current = api;
+                if (api && autoScrollEnabled) {
+                  startAutoScroll(api);
+                }
+              }}
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+            >
+              <CarouselContent 
+                className="-ml-2"
+                onClick={stopAutoScroll}
+              >
+                {mediaItems.filter((_, index) => index % 2 === 0).map((item, originalIndex) => {
+                  const isVerticalVideo = item.mediaType === 'video' && (
+                    item.aspectRatio === 'vertical' ||
+                    item.aspectRatio === '9:16' ||
+                    item.aspectRatio === '4:5' ||
+                    item.title?.toLowerCase().includes('vertical') ||
+                    item.title?.toLowerCase().includes('instagram') ||
+                    item.title?.toLowerCase().includes('reels') ||
+                    item.title?.toLowerCase().includes('tiktok') ||
+                    item.title?.toLowerCase().includes('stories')
+                  );
 
-            return (
-              <>
-                {/* Linha 1 - Índices pares */}
-                {renderCarouselLine(
-                  mediaItems.filter((_, index) => index % 2 === 0),
-                  'line1',
-                  carouselApi1,
-                  0
-                )}
+                  return (
+                    <CarouselItem
+                      key={`line1-${item.id}`}
+                      className="pl-2 basis-full"
+                    >
+                      <div className="h-full" onClick={stopAutoScroll}>
+                        <MediaDisplay
+                          item={item}
+                          className="hover:scale-105 transition-transform duration-300 h-full"
+                        />
+                      </div>
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+              <CarouselPrevious className="hidden sm:flex -left-6 bg-black/70 text-white hover:bg-black/90 border-0 w-10 h-10" />
+              <CarouselNext className="hidden sm:flex -right-6 bg-black/70 text-white hover:bg-black/90 border-0 w-10 h-10" />
+            </Carousel>
+            <button 
+              className="carousel-button-indicator prev"
+              onClick={() => {
+                carouselApi1.current?.scrollPrev();
+                stopAutoScroll();
+              }}
+              disabled={!carouselApi1.current?.canScrollPrev()}
+            >
+              &lt;
+            </button>
+            <button 
+              className="carousel-button-indicator next"
+              onClick={() => {
+                carouselApi1.current?.scrollNext();
+                stopAutoScroll();
+              }}
+              disabled={!carouselApi1.current?.canScrollNext()}
+            >
+              &gt;
+            </button>
+          </div>
 
-                {/* Linha 2 - Índices ímpares */}
-                {renderCarouselLine(
-                  mediaItems.filter((_, index) => index % 2 !== 0),
-                  'line2',
-                  carouselApi2,
-                  2500
-                )}
-              </>
-            );
-          })()}
+          {/* Linha 2 - Índices ímpares */}
+          <div className="relative carousel-container">
+            <Carousel
+              setApi={(api) => {
+                carouselApi2.current = api;
+                if (api && autoScrollEnabled) {
+                  setTimeout(() => startAutoScroll(api), 2500); // Offset para não sincronizar
+                }
+              }}
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+            >
+              <CarouselContent 
+                className="-ml-2"
+                onClick={stopAutoScroll}
+              >
+                {mediaItems.filter((_, index) => index % 2 !== 0).map((item, originalIndex) => {
+                  const isVerticalVideo = item.mediaType === 'video' && (
+                    item.aspectRatio === 'vertical' ||
+                    item.aspectRatio === '9:16' ||
+                    item.aspectRatio === '4:5' ||
+                    item.title?.toLowerCase().includes('vertical') ||
+                    item.title?.toLowerCase().includes('instagram') ||
+                    item.title?.toLowerCase().includes('reels') ||
+                    item.title?.toLowerCase().includes('tiktok') ||
+                    item.title?.toLowerCase().includes('stories')
+                  );
+
+                  return (
+                    <CarouselItem
+                      key={`line2-${item.id}`}
+                      className="pl-2 basis-full"
+                    >
+                      <div className="h-full" onClick={stopAutoScroll}>
+                        <MediaDisplay
+                          item={item}
+                          className="hover:scale-105 transition-transform duration-300 h-full"
+                        />
+                      </div>
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+              <CarouselPrevious className="hidden sm:flex -left-6 bg-black/70 text-white hover:bg-black/90 border-0 w-10 h-10" />
+              <CarouselNext className="hidden sm:flex -right-6 bg-black/70 text-white hover:bg-black/90 border-0 w-10 h-10" />
+            </Carousel>
+            <button 
+              className="carousel-button-indicator prev"
+              onClick={() => {
+                carouselApi2.current?.scrollPrev();
+                stopAutoScroll();
+              }}
+              disabled={!carouselApi2.current?.canScrollPrev()}
+            >
+              &lt;
+            </button>
+            <button 
+              className="carousel-button-indicator next"
+              onClick={() => {
+                carouselApi2.current?.scrollNext();
+                stopAutoScroll();
+              }}
+              disabled={!carouselApi2.current?.canScrollNext()}
+            >
+              &gt;
+            </button>
+          </div>
         </div>
       )}
       
