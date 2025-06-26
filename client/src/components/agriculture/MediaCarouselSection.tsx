@@ -2,6 +2,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { MediaItem } from '@/types';
 import MediaDisplay from '@/components/common/MediaDisplay';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface MediaCarouselSectionProps {
   mediaItems: MediaItem[];
@@ -11,6 +12,9 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
   const carouselRef = useRef<HTMLDivElement>(null);
   const carousel2Ref = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
+  const animationFrameRef = useRef<number>();
+  const animationFrame2Ref = useRef<number>();
 
   // Configuração responsiva
   useEffect(() => {
@@ -25,7 +29,6 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
     if (!carouselRef.current || isMobile) return;
 
     const carousel = carouselRef.current;
-    let animationFrame: number;
     const speed = 0.8;
 
     // Duplica os itens para efeito infinito
@@ -36,32 +39,35 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
     });
 
     const animate = () => {
-      carousel.scrollLeft += speed;
-      
-      // Reinicia ao chegar no final
-      if (carousel.scrollLeft >= (carousel.scrollWidth / 2)) {
-        carousel.scrollLeft = 0;
+      if (autoScrollEnabled) {
+        carousel.scrollLeft += speed;
+        
+        // Reinicia ao chegar no final
+        if (carousel.scrollLeft >= (carousel.scrollWidth / 2)) {
+          carousel.scrollLeft = 0;
+        }
       }
       
-      animationFrame = requestAnimationFrame(animate);
+      animationFrameRef.current = requestAnimationFrame(animate);
     };
 
-    animationFrame = requestAnimationFrame(animate);
+    animationFrameRef.current = requestAnimationFrame(animate);
 
     return () => {
-      cancelAnimationFrame(animationFrame);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
       // Remove clones
       const allItems = Array.from(carousel.children);
       allItems.slice(originalItems.length).forEach(clone => clone.remove());
     };
-  }, [mediaItems, isMobile]);
+  }, [mediaItems, isMobile, autoScrollEnabled]);
 
   // Lógica do carrossel infinito para mobile - linha 1 (índices pares)
   useEffect(() => {
     if (!carouselRef.current || !isMobile) return;
 
     const carousel = carouselRef.current;
-    let animationFrame: number;
     const speed = 0.6;
 
     // Duplica os itens para efeito infinito
@@ -72,31 +78,34 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
     });
 
     const animate = () => {
-      carousel.scrollLeft += speed;
-      
-      if (carousel.scrollLeft >= (carousel.scrollWidth / 2)) {
-        carousel.scrollLeft = 0;
+      if (autoScrollEnabled) {
+        carousel.scrollLeft += speed;
+        
+        if (carousel.scrollLeft >= (carousel.scrollWidth / 2)) {
+          carousel.scrollLeft = 0;
+        }
       }
       
-      animationFrame = requestAnimationFrame(animate);
+      animationFrameRef.current = requestAnimationFrame(animate);
     };
 
-    animationFrame = requestAnimationFrame(animate);
+    animationFrameRef.current = requestAnimationFrame(animate);
 
     return () => {
-      cancelAnimationFrame(animationFrame);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
       // Remove clones
       const allItems = Array.from(carousel.children);
       allItems.slice(originalItems.length).forEach(clone => clone.remove());
     };
-  }, [mediaItems, isMobile]);
+  }, [mediaItems, isMobile, autoScrollEnabled]);
 
   // Lógica do carrossel infinito para mobile - linha 2 (índices ímpares)
   useEffect(() => {
     if (!carousel2Ref.current || !isMobile) return;
 
     const carousel = carousel2Ref.current;
-    let animationFrame: number;
     const speed = -0.5; // Velocidade negativa para movimento reverso
 
     // Duplica os itens para efeito infinito
@@ -110,24 +119,47 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
     carousel.scrollLeft = carousel.scrollWidth / 2;
 
     const animate = () => {
-      carousel.scrollLeft += speed;
-      
-      if (carousel.scrollLeft <= 0) {
-        carousel.scrollLeft = carousel.scrollWidth / 2;
+      if (autoScrollEnabled) {
+        carousel.scrollLeft += speed;
+        
+        if (carousel.scrollLeft <= 0) {
+          carousel.scrollLeft = carousel.scrollWidth / 2;
+        }
       }
       
-      animationFrame = requestAnimationFrame(animate);
+      animationFrame2Ref.current = requestAnimationFrame(animate);
     };
 
-    animationFrame = requestAnimationFrame(animate);
+    animationFrame2Ref.current = requestAnimationFrame(animate);
 
     return () => {
-      cancelAnimationFrame(animationFrame);
+      if (animationFrame2Ref.current) {
+        cancelAnimationFrame(animationFrame2Ref.current);
+      }
       // Remove clones
       const allItems = Array.from(carousel.children);
       allItems.slice(originalItems.length).forEach(clone => clone.remove());
     };
-  }, [mediaItems, isMobile]);
+  }, [mediaItems, isMobile, autoScrollEnabled]);
+
+  // Funções de controle manual
+  const scrollLeft = () => {
+    setAutoScrollEnabled(false);
+    if (!isMobile && carouselRef.current) {
+      carouselRef.current.scrollBy({ left: -400, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    setAutoScrollEnabled(false);
+    if (!isMobile && carouselRef.current) {
+      carouselRef.current.scrollBy({ left: 400, behavior: 'smooth' });
+    }
+  };
+
+  const handleCardInteraction = () => {
+    setAutoScrollEnabled(false);
+  };
 
   // Renderização dos itens com detecção de vídeos verticais
   const renderItems = (filterFn?: (item: MediaItem, index: number) => boolean) => {
@@ -154,6 +186,8 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
             ${isMobile ? 'w-full px-2' : 'basis-1/3 px-4'}
             ${isVerticalVideo ? 'flex justify-center' : ''}
           `}
+          onClick={handleCardInteraction}
+          onMouseEnter={handleCardInteraction}
         >
           <MediaDisplay 
             item={item}
@@ -169,7 +203,7 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
       <h2 className="text-3xl font-bold text-center mb-8 text-white">🌱Sementes do Nosso Trabalho🌱</h2>
       
       {/* Carrossel Desktop (1 linha) */}
-      <div className="hidden md:block">
+      <div className="hidden md:block relative group">
         <div 
           ref={carouselRef}
           className="flex overflow-hidden py-6"
@@ -181,6 +215,22 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
         >
           {renderItems()}
         </div>
+        
+        {/* Controles manuais para desktop */}
+        <button
+          onClick={scrollLeft}
+          className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
+          aria-label="Scroll left"
+        >
+          <ChevronLeft size={24} />
+        </button>
+        <button
+          onClick={scrollRight}
+          className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"
+          aria-label="Scroll right"
+        >
+          <ChevronRight size={24} />
+        </button>
       </div>
 
       {/* Carrossel Mobile (2 linhas independentes) */}
@@ -195,6 +245,7 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
               scrollbarWidth: 'none',
               msOverflowStyle: 'none'
             }}
+            onTouchStart={handleCardInteraction}
           >
             {renderItems((_, index) => index % 2 === 0)}
           </div>
@@ -208,9 +259,22 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
               scrollbarWidth: 'none',
               msOverflowStyle: 'none'
             }}
+            onTouchStart={handleCardInteraction}
           >
             {renderItems((_, index) => index % 2 !== 0)}
           </div>
+        </div>
+      )}
+      
+      {/* Indicador de status da rolagem automática */}
+      {!autoScrollEnabled && (
+        <div className="text-center mt-4">
+          <button
+            onClick={() => setAutoScrollEnabled(true)}
+            className="text-white/70 hover:text-white text-sm underline"
+          >
+            Reativar rolagem automática
+          </button>
         </div>
       )}
     </section>
