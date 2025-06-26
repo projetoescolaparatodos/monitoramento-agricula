@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MediaItem } from "../../types";
@@ -17,7 +18,7 @@ import { apiRequest, queryClient } from "../../lib/queryClient";
 import { useToast } from "../../hooks/use-toast";
 import { db } from '../../utils/firebase';
 import { doc, deleteDoc } from "firebase/firestore";
-
+import { Clock } from "lucide-react";
 
 interface MediaListProps {
   onEdit: (id: number) => void;
@@ -75,21 +76,90 @@ export const MediaList = ({ onEdit }: MediaListProps) => {
     }
   };
 
+  // Ordenar mídias por mais recentes (usando createdAt ou updatedAt)
+  const sortedMediaItems = mediaItems?.sort((a, b) => {
+    const dateA = new Date(a.updatedAt || a.createdAt || 0);
+    const dateB = new Date(b.updatedAt || b.createdAt || 0);
+    return dateB.getTime() - dateA.getTime();
+  });
+
+  // Função para renderizar HTML formatado de forma segura
+  const renderFormattedText = (text: string, maxLength: number = 100) => {
+    if (!text) return '';
+    
+    // Verificar se contém HTML
+    const hasHtml = /<[^>]*>/.test(text);
+    
+    if (hasHtml) {
+      // Se contém HTML, truncar considerando o texto limpo
+      const cleanText = text.replace(/<[^>]*>/g, '');
+      const shouldTruncate = cleanText.length > maxLength;
+      const displayText = shouldTruncate 
+        ? cleanText.substring(0, maxLength) + '...'
+        : text;
+      
+      return (
+        <div 
+          className="prose prose-sm max-w-none dark:prose-invert"
+          dangerouslySetInnerHTML={{ 
+            __html: shouldTruncate 
+              ? displayText.replace(/\n/g, '<br/>') 
+              : text.replace(/\n/g, '<br/>') 
+          }} 
+        />
+      );
+    } else {
+      // Se não contém HTML, truncar normalmente
+      const shouldTruncate = text.length > maxLength;
+      const displayText = shouldTruncate 
+        ? text.substring(0, maxLength) + '...'
+        : text;
+      
+      return (
+        <p className="text-sm text-neutral-dark line-clamp-3">
+          {displayText.split('\n').map((line, index) => (
+            <span key={index}>
+              {line}
+              {index < displayText.split('\n').length - 1 && <br />}
+            </span>
+          ))}
+        </p>
+      );
+    }
+  };
+
+  // Função para formatar data
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return '';
+    }
+  };
+
   return (
     <div className="space-y-6">
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map(i => (
-            <Skeleton key={i} className="h-56 w-full rounded-md" />
+            <Skeleton key={i} className="h-72 w-full rounded-md" />
           ))}
         </div>
-      ) : !mediaItems || mediaItems.length === 0 ? (
+      ) : !sortedMediaItems || sortedMediaItems.length === 0 ? (
         <Card className="p-6 text-center">
           <p className="text-neutral-dark mb-4">Nenhum item de mídia cadastrado.</p>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {mediaItems.map((media) => (
+          {sortedMediaItems.map((media) => (
             <Card key={media.id} className="overflow-hidden">
               <div className="relative h-40">
                 {media.mediaType === "image" ? (
@@ -97,6 +167,9 @@ export const MediaList = ({ onEdit }: MediaListProps) => {
                     src={media.mediaUrl}
                     alt={media.title}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Imagem+não+encontrada';
+                    }}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gray-100">
@@ -111,17 +184,56 @@ export const MediaList = ({ onEdit }: MediaListProps) => {
                   </Badge>
                 </div>
               </div>
+              
               <div className="p-4">
                 <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <h3 className="font-semibold text-secondary truncate">{media.title}</h3>
+                  <div className="flex-1 min-w-0">
+                    {/* Título com suporte a HTML */}
+                    {/<[^>]*>/.test(media.title) ? (
+                      <h3 
+                        className="font-semibold text-secondary truncate"
+                        dangerouslySetInnerHTML={{ __html: media.title }}
+                      />
+                    ) : (
+                      <h3 className="font-semibold text-secondary truncate">{media.title}</h3>
+                    )}
                     <p className="text-xs text-neutral">{getPageTypeName(media.pageType)}</p>
                   </div>
-                  <span className="text-xs bg-muted px-2 py-1 rounded">Ordem: {media.order}</span>
+                  <span className="text-xs bg-muted px-2 py-1 rounded ml-2">Ordem: {media.order}</span>
                 </div>
+
+                {/* Data de criação/atualização */}
+                <div className="flex items-center text-xs text-gray-500 mb-2">
+                  <Clock className="w-3 h-3 mr-1" />
+                  <span>
+                    {formatDate(media.updatedAt || media.createdAt)}
+                  </span>
+                </div>
+
+                {/* Descrição com suporte a HTML */}
                 {media.description && (
-                  <p className="text-sm text-neutral-dark mt-2 line-clamp-2">{media.description}</p>
+                  <div className="mt-2">
+                    {renderFormattedText(media.description, 120)}
+                  </div>
                 )}
+
+                {/* Informações adicionais */}
+                {(media.author || media.location) && (
+                  <div className="mt-2 text-xs text-gray-500">
+                    {media.author && <div>👤 {media.author}</div>}
+                    {media.location && <div>📍 {media.location}</div>}
+                  </div>
+                )}
+
+                {/* URL do Instagram se disponível */}
+                {media.instagramUrl && (
+                  <div className="mt-2">
+                    <Badge variant="outline" className="text-xs">
+                      📱 Instagram
+                    </Badge>
+                  </div>
+                )}
+
                 <div className="flex space-x-2 mt-4">
                   <Button
                     size="sm"
@@ -145,6 +257,7 @@ export const MediaList = ({ onEdit }: MediaListProps) => {
           ))}
         </div>
       )}
+      
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
