@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { MediaItem } from '@/types';
 import MediaDisplay from '@/components/common/MediaDisplay';
@@ -37,7 +36,7 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
   // Função para lidar com o auto-scroll
   const startAutoScroll = useCallback((api: any) => {
     if (!autoScrollEnabled) return;
-    
+
     autoScrollTimer.current = setTimeout(() => {
       if (api.canScrollNext()) {
         api.scrollNext();
@@ -67,13 +66,13 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
     const animate = () => {
       if (autoScrollEnabled) {
         carousel.scrollLeft += speed;
-        
+
         // Reinicia ao chegar no final
         if (carousel.scrollLeft >= (carousel.scrollWidth - carousel.clientWidth)) {
           carousel.scrollLeft = 0;
         }
       }
-      
+
       animationFrameRef.current = requestAnimationFrame(animate);
     };
 
@@ -116,7 +115,7 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
   // Renderização dos itens com detecção de vídeos verticais
   const renderItems = (filterFn?: (item: MediaItem, index: number) => boolean) => {
     const itemsToRender = filterFn ? mediaItems.filter(filterFn) : mediaItems;
-    
+
     return itemsToRender.map((item, originalIndex) => {
       // Detecção robusta de vídeos verticais
       const isVerticalVideo = item.mediaType === 'video' && (
@@ -152,8 +151,8 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
 
   return (
     <section id="media" className="mt-16">
-      <h2 className="text-3xl font-bold text-center mb-8 text-white">🐟Tesouros do Mar🌊</h2>
-      
+      <h2 className="text-3xl font-bold text-center mb-8 text-white">🐟 Psicultura em Cena 🐟</h2>
+
       {/* Carrossel Desktop (1 linha) */}
       <div className="hidden md:block relative group">
         <div 
@@ -167,7 +166,7 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
         >
           {renderItems()}
         </div>
-        
+
         {/* Controles manuais para desktop */}
         <button
           onClick={scrollLeft}
@@ -369,7 +368,7 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
           </div>
         </div>
       )}
-      
+
       {/* Indicador de status da rolagem automática */}
       {!autoScrollEnabled && (
         <div className="text-center mt-4">
@@ -386,3 +385,4 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
 };
 
 export default MediaCarouselSection;
+```The title in the MediaCarouselSection component is updated from "🐟Tesouros do Mar🌊" to "🐟 Psicultura em Cena 🐟".
