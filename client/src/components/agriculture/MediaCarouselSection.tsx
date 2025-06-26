@@ -57,26 +57,19 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
     };
   }, []);
 
-  // Lógica do carrossel infinito para desktop
+  // Lógica do carrossel infinito para desktop (sem duplicação)
   useEffect(() => {
     if (!carouselRef.current || isMobile) return;
 
     const carousel = carouselRef.current;
     const speed = 0.8;
 
-    // Duplica os itens para efeito infinito
-    const originalItems = Array.from(carousel.children);
-    originalItems.forEach(item => {
-      const clone = item.cloneNode(true) as HTMLElement;
-      carousel.appendChild(clone);
-    });
-
     const animate = () => {
       if (autoScrollEnabled) {
         carousel.scrollLeft += speed;
         
         // Reinicia ao chegar no final
-        if (carousel.scrollLeft >= (carousel.scrollWidth / 2)) {
+        if (carousel.scrollLeft >= (carousel.scrollWidth - carousel.clientWidth)) {
           carousel.scrollLeft = 0;
         }
       }
@@ -90,88 +83,6 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
-      // Remove clones
-      const allItems = Array.from(carousel.children);
-      allItems.slice(originalItems.length).forEach(clone => clone.remove());
-    };
-  }, [mediaItems, isMobile, autoScrollEnabled]);
-
-  // Lógica do carrossel infinito para mobile - linha 1 (índices pares)
-  useEffect(() => {
-    if (!carouselRef.current || !isMobile) return;
-
-    const carousel = carouselRef.current;
-    const speed = 0.6;
-
-    // Duplica os itens para efeito infinito
-    const originalItems = Array.from(carousel.children);
-    originalItems.forEach(item => {
-      const clone = item.cloneNode(true) as HTMLElement;
-      carousel.appendChild(clone);
-    });
-
-    const animate = () => {
-      if (autoScrollEnabled) {
-        carousel.scrollLeft += speed;
-        
-        if (carousel.scrollLeft >= (carousel.scrollWidth / 2)) {
-          carousel.scrollLeft = 0;
-        }
-      }
-      
-      animationFrameRef.current = requestAnimationFrame(animate);
-    };
-
-    animationFrameRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      // Remove clones
-      const allItems = Array.from(carousel.children);
-      allItems.slice(originalItems.length).forEach(clone => clone.remove());
-    };
-  }, [mediaItems, isMobile, autoScrollEnabled]);
-
-  // Lógica do carrossel infinito para mobile - linha 2 (índices ímpares)
-  useEffect(() => {
-    if (!carousel2Ref.current || !isMobile) return;
-
-    const carousel = carousel2Ref.current;
-    const speed = -0.5; // Velocidade negativa para movimento reverso
-
-    // Duplica os itens para efeito infinito
-    const originalItems = Array.from(carousel.children);
-    originalItems.forEach(item => {
-      const clone = item.cloneNode(true) as HTMLElement;
-      carousel.appendChild(clone);
-    });
-
-    // Inicia do final para movimento reverso
-    carousel.scrollLeft = carousel.scrollWidth / 2;
-
-    const animate = () => {
-      if (autoScrollEnabled) {
-        carousel.scrollLeft += speed;
-        
-        if (carousel.scrollLeft <= 0) {
-          carousel.scrollLeft = carousel.scrollWidth / 2;
-        }
-      }
-      
-      animationFrame2Ref.current = requestAnimationFrame(animate);
-    };
-
-    animationFrame2Ref.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (animationFrame2Ref.current) {
-        cancelAnimationFrame(animationFrame2Ref.current);
-      }
-      // Remove clones
-      const allItems = Array.from(carousel.children);
-      allItems.slice(originalItems.length).forEach(clone => clone.remove());
     };
   }, [mediaItems, isMobile, autoScrollEnabled]);
 
@@ -282,9 +193,9 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
               position: absolute;
               top: 50%;
               transform: translateY(-50%);
-              width: 30px;
-              height: 30px;
-              background: rgba(0,0,0,0.5);
+              width: 44px;
+              height: 44px;
+              background: rgba(0,0,0,0.7);
               color: white;
               border: none;
               border-radius: 50%;
@@ -292,13 +203,15 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
               align-items: center;
               justify-content: center;
               z-index: 20;
-              opacity: 0;
-              transition: opacity 0.3s ease;
-              font-size: 14px;
-            }
-            .carousel-container:hover .carousel-button-indicator,
-            .carousel-container:active .carousel-button-indicator {
               opacity: 1;
+              transition: all 0.3s ease;
+              font-size: 18px;
+              font-weight: bold;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            }
+            .carousel-button-indicator:hover {
+              background: rgba(0,0,0,0.9);
+              transform: translateY(-50%) scale(1.1);
             }
             .carousel-button-indicator.prev {
               left: 10px;
@@ -307,7 +220,7 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
               right: 10px;
             }
             .carousel-button-indicator:disabled {
-              opacity: 0 !important;
+              opacity: 0.3 !important;
               cursor: not-allowed;
             }
             .carousel-container {
