@@ -29,6 +29,7 @@ interface Trator {
   longitude: number;
   tempoAtividade?: number;
   areaTrabalhada?: number;
+  horaMaquina?: number;
   midias?: string[];
   localidade?: string;
   proprietario?: string;
@@ -148,6 +149,7 @@ const AgriculturaMap = () => {
           longitude: data.longitude,
           tempoAtividade: data.tempoAtividade,
           areaTrabalhada: areaTrabalhada,
+          horaMaquina: data.horaMaquina,
           midias: data.midias,
           localidade: data.localidade,
           proprietario: data.proprietario,
@@ -274,8 +276,8 @@ const AgriculturaMap = () => {
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Tempo de Atividade</span>
-                    <span className="text-gray-700 font-medium">{formatTempoAtividade(trator.tempoAtividade)}</span>
+                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Hora/Máquina</span>
+                    <span className="text-gray-700 font-medium">{trator.horaMaquina || "Não informado"}</span>
                   </div>
                 </div>
               </div>
