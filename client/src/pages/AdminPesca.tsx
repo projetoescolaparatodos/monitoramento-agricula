@@ -342,7 +342,7 @@ const AdminPesca = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 bg-gray-800 text-white">
       <div className="flex items-center gap-4 mb-6">
         <Button
           variant="outline"
@@ -355,7 +355,7 @@ const AdminPesca = () => {
       </div>
 
       {/* Lista de Atividades */}
-      <Card className="mb-8">
+      <Card className="mb-8 bg-gray-700">
         <CardHeader>
           <CardTitle>Lista de Atividades</CardTitle>
         </CardHeader>
@@ -367,14 +367,14 @@ const AdminPesca = () => {
               </p>
             ) : (
               pesqueirosCadastrados.map((atividade) => (
-                <Card key={atividade.id} className="p-4">
+                <Card key={atividade.id} className="p-4 bg-gray-600">
                   <div className="flex justify-between items-center">
                     <div>
-                      <h4 className="font-semibold">{atividade.localidade}</h4>
-                      <p className="text-sm text-gray-500">
+                      <h4 className="font-semibold text-white">{atividade.localidade}</h4>
+                      <p className="text-sm text-gray-300">
                         Operador: {atividade.operador || "Não informado"}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-300">
                         Data: {new Date(atividade.dataCadastro).toLocaleDateString()}
                       </p>
                     </div>
@@ -399,7 +399,7 @@ const AdminPesca = () => {
       </Card>
 
       {/* Formulário de Cadastro */}
-      <Card className="mb-8">
+      <Card className="mb-8 bg-gray-700">
         <CardHeader>
           <CardTitle>
             {pesqueiroEmEdicao ? "Editar Atividade" : "Cadastrar Nova Atividade"}
@@ -666,7 +666,7 @@ const AdminPesca = () => {
       </Card>
 
       {/* Lista de Pesqueiros Cadastrados */}
-      <Card>
+      <Card className="bg-gray-700">
         <CardHeader>
           <CardTitle>Pesqueiros Cadastrados</CardTitle>
         </CardHeader>
@@ -680,15 +680,15 @@ const AdminPesca = () => {
               pesqueirosCadastrados.map((pesqueiro) => (
                 <div
                   key={pesqueiro.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
+                  className="flex items-center justify-between p-4 border rounded-lg bg-gray-600"
                 >
                   <div>
-                    <h3 className="font-semibold">{pesqueiro.localidade}</h3>
-                    <p className="text-sm text-gray-600">
+                    <h3 className="font-semibold text-white">{pesqueiro.localidade}</h3>
+                    <p className="text-sm text-gray-300">
                       {pesqueiro.nomeImovel} -{" "}
                       {pesqueiro.concluido ? "Concluído" : "Em Andamento"}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-300">
                       Proprietário: {pesqueiro.proprietario}
                     </p>
                   </div>
