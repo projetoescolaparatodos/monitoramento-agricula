@@ -43,16 +43,17 @@ const FormPescaCompleto = lazy(() => import("./forms/pesca-completo/index"));
 const FormPAA = lazy(() => import("./forms/paa/index"));
 
 function Router() {
-  // Verifica se a rota atual é um formulário
+  // Verifica se a rota atual é um formulário ou página administrativa
   const [location] = useLocation();
   const isFormPage = location.startsWith("/forms/");
   const isReportPage = location === "/report";
+  const isAdminPage = location.startsWith("/admin") || location.startsWith("/login/admin");
 
   return (
     <>
       <BackgroundVideo videoPath="/videos/BackgroundVideo.mp4" opacity={0.3} />
       <div className="relative z-10">
-        {!isFormPage && !isReportPage && <NavBar />}
+        {!isFormPage && !isReportPage && !isAdminPage && <NavBar />}
         <Suspense
           fallback={
             <div className="flex items-center justify-center h-screen">
