@@ -294,9 +294,9 @@ const PescaMap = () => {
           </div>
 
             {pesca.midias && pesca.midias.length > 0 && (
-              <div className={styles["media-container"]}>
-                <h4 className="font-semibold mb-2">Fotos/Vídeos:</h4>
-                <div className={styles.grid}>
+              <div className="mt-6">
+                <h3 className="font-semibold text-gray-700 text-lg mb-3">Mídias</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {pesca.midias.map((url, index) => {
                     // Verifica se é um vídeo do YouTube
                     const isYouTube = url.includes("youtube.com") || url.includes("youtu.be");
@@ -321,14 +321,10 @@ const PescaMap = () => {
                         return (
                           <iframe
                             key={index}
-                            width="100%"
-                            height="240"
+                            className="w-full aspect-video rounded-lg"
                             src={embedUrl}
                             title={`YouTube video ${index}`}
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
-                            className={`${styles["popup-media"]} rounded-lg`}
                           />
                         );
                       }
@@ -351,7 +347,7 @@ const PescaMap = () => {
                             src={url}
                             controls
                             preload="metadata"
-                            className={`${styles["popup-media"]}`}
+                            className="w-full aspect-video rounded-lg bg-gray-100"
                           />
                         </div>
                       );
@@ -363,7 +359,7 @@ const PescaMap = () => {
                         key={index}
                         src={url}
                         alt="Mídia"
-                        className={`${styles["popup-media"]}`}
+                        className="w-full h-auto rounded-lg object-cover aspect-square bg-gray-100"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Mídia+indisponível';
                         }}
@@ -376,9 +372,17 @@ const PescaMap = () => {
 
             <button
               onClick={() => setIsMaximized(!isMaximized)}
-              className="absolute top-2 right-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2 z-10"
+              className="absolute top-3 right-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors"
             >
-              {isMaximized ? "Reduzir" : "Maximizar"}
+              {isMaximized ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+                </svg>
+              )}
             </button>
           </div>
         </InfoWindow>
