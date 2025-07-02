@@ -180,13 +180,14 @@ const AgriculturaMap = () => {
       const infoWindowStyle = {
         backgroundColor: "rgba(255, 255, 255, 0.97)",
         border: "2px solid #38a169",
-        borderRadius: "12px",
-        boxShadow: "0 10px 25px rgba(0, 0, 0, 0.2)",
-        padding: "1.5rem",
-        width: isMaximized ? "90vw" : "420px",
-        maxHeight: isMaximized ? "90vh" : "80vh",
+        borderRadius: "16px",
+        boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05)",
+        padding: "2rem",
+        width: isMaximized ? "90vw" : "480px",
+        maxHeight: isMaximized ? "90vh" : "85vh",
         overflowY: "auto",
-        backdropFilter: "blur(8px)",
+        backdropFilter: "blur(12px)",
+        fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
       };
 
       return (
@@ -197,7 +198,7 @@ const AgriculturaMap = () => {
             setIsMaximized(false);
           }}
           options={{
-            maxWidth: isMaximized ? window.innerWidth * 0.9 : 500,
+            maxWidth: isMaximized ? window.innerWidth * 0.9 : 550,
             maxHeight: isMaximized ? window.innerHeight * 0.9 : undefined,
           }}
         >
@@ -207,71 +208,103 @@ const AgriculturaMap = () => {
                 setSelectedMarker(null);
                 setIsMaximized(false);
               }}
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 transition-colors"
+              className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
 
-            <div className="flex items-start gap-3 mb-4">
-              <div className={`p-3 rounded-lg ${trator.concluido ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+            {/* Cabeçalho melhorado */}
+            <div className="flex items-start gap-4 mb-6 pb-4 border-b border-gray-100">
+              <div className={`p-4 rounded-xl shadow-sm ${trator.concluido ? 'bg-gradient-to-br from-green-50 to-green-100 text-green-700' : 'bg-gradient-to-br from-blue-50 to-blue-100 text-blue-700'}`}>
                 {trator.concluido ? (
-                  <CheckCircle size={24} />
+                  <CheckCircle size={28} />
                 ) : (
-                  <Activity size={24} />
+                  <Activity size={28} />
                 )}
               </div>
-              <div>
-                <h2 className="font-bold text-xl text-gray-800 mb-1">{trator.nome}</h2>
-                <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
-                  ${trator.concluido ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
-                  {trator.concluido ? 'Concluído' : 'Em Serviço'}
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-gray-800 mb-2 leading-tight">{trator.nome}</h2>
+                <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold shadow-sm
+                  ${trator.concluido ? 'bg-green-500 text-white' : 'bg-blue-500 text-white'}`}>
+                  {trator.concluido ? '✓ Concluído' : '⚡ Em Serviço'}
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <h3 className="font-semibold text-gray-700 text-lg mb-2 flex items-center gap-2">
-                  <MapPin size={18} /> Localização
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Seção Localização */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2 mb-3">
+                  <MapPin size={20} className="text-green-600" /> 
+                  <span>Localização</span>
                 </h3>
-                <p className="text-gray-600 mb-2">
-                  <span className="font-medium">Fazenda:</span> <span className="bg-green-50 px-2 py-1 rounded">{trator.fazenda}</span>
-                </p>
-                <p className="text-gray-600 mb-2">
-                  <span className="font-medium">Proprietário:</span> {trator.proprietario || "Não informado"}
-                </p>
-                <p className="text-gray-600">
-                  <span className="font-medium">Localidade:</span> {trator.localidade || "Não informada"}
-                </p>
+                <div className="space-y-3">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Fazenda</span>
+                    <span className="bg-gradient-to-r from-green-50 to-green-100 px-3 py-2 rounded-lg text-green-800 font-medium">
+                      {trator.fazenda}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Proprietário</span>
+                    <span className="text-gray-700 font-medium">{trator.proprietario || "Não informado"}</span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Localidade</span>
+                    <span className="text-gray-700 font-medium">{trator.localidade || "Não informada"}</span>
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <h3 className="font-semibold text-gray-700 text-lg mb-2 flex items-center gap-2">
-                  <HardHat size={18} /> Operação
+              {/* Seção Operação */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2 mb-3">
+                  <HardHat size={20} className="text-blue-600" /> 
+                  <span>Operação</span>
                 </h3>
-                <p className="text-gray-600 mb-2">
-                  <span className="font-medium">Atividade:</span> {trator.atividade}
-                </p>
-                <p className="text-gray-600 mb-2">
-                  <span className="font-medium">Área:</span> {trator.areaTrabalhada?.toFixed(2) || "0"} ha
-                </p>
-                <p className="text-gray-600">
-                  <span className="font-medium">Tempo:</span> {formatTempoAtividade(trator.tempoAtividade)}
-                </p>
+                <div className="space-y-3">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Atividade</span>
+                    <span className="text-gray-700 font-medium">{trator.atividade}</span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Área Trabalhada</span>
+                    <span className="bg-blue-50 px-3 py-2 rounded-lg text-blue-800 font-bold text-lg">
+                      {trator.areaTrabalhada?.toFixed(2) || "0"} ha
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Tempo de Atividade</span>
+                    <span className="text-gray-700 font-medium">{formatTempoAtividade(trator.tempoAtividade)}</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                <span className="flex items-center gap-1">
-                  <User size={14} /> {trator.piloto}
-                </span>
-                <span className="flex items-center gap-1">
-                  <HardHat size={14} /> {trator.tecnicoResponsavel || "Não informado"}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Calendar size={14} /> {new Date(trator.dataCadastro).toLocaleDateString()}
-                </span>
+            {/* Rodapé com informações adicionais */}
+            <div className="mt-6 pt-4 border-t border-gray-100">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                  <User size={16} className="text-gray-600" />
+                  <div>
+                    <span className="block text-xs text-gray-500 uppercase font-medium">Operador</span>
+                    <span className="font-semibold text-gray-700">{trator.piloto}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                  <HardHat size={16} className="text-gray-600" />
+                  <div>
+                    <span className="block text-xs text-gray-500 uppercase font-medium">Técnico</span>
+                    <span className="font-semibold text-gray-700">{trator.tecnicoResponsavel || "Não informado"}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                  <Calendar size={16} className="text-gray-600" />
+                  <div>
+                    <span className="block text-xs text-gray-500 uppercase font-medium">Data</span>
+                    <span className="font-semibold text-gray-700">{new Date(trator.dataCadastro).toLocaleDateString()}</span>
+                  </div>
+                </div>
               </div>
             </div>
 

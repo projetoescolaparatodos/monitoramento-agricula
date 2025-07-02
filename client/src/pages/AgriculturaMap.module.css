@@ -126,6 +126,101 @@
     object-fit: contain;
 }
 
+/* Estilos para o popup melhorado */
+.popup-enter {
+  opacity: 0;
+  transform: scale(0.95) translateY(-10px);
+}
+
+.popup-enter-active {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  transition: opacity 250ms ease-out, transform 250ms ease-out;
+}
+
+.popup-exit {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.popup-exit-active {
+  opacity: 0;
+  transform: scale(0.95) translateY(-10px);
+  transition: opacity 200ms ease-in, transform 200ms ease-in;
+}
+
+.info-title {
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 1.75rem;
+  color: #1a202c;
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.info-subtitle {
+  font-weight: 600;
+  color: #2d3748;
+  margin-top: 1.25rem;
+  font-size: 1.125rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.info-text {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #4a5568;
+  margin-bottom: 0.75rem;
+}
+
+.info-highlight {
+  background: linear-gradient(135deg, #f0fff4 0%, #e6ffed 100%);
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #22543d;
+  border: 1px solid #9ae6b4;
+}
+
+.info-card {
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  transition: all 0.2s ease;
+}
+
+.info-card:hover {
+  background: #edf2f7;
+  border-color: #cbd5e0;
+  transform: translateY(-1px);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-completed {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  color: white;
+}
+
+.status-active {
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+  color: white;
+}
+
 @media (max-width: 768px) {
   .mobile-filter {
     display: none !important;
@@ -133,5 +228,13 @@
 
   .hide-chat {
     display: none !important;
+  }
+
+  .info-title {
+    font-size: 1.5rem;
+  }
+
+  .info-subtitle {
+    font-size: 1rem;
   }
 }
