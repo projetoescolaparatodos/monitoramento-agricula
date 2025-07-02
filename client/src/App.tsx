@@ -16,6 +16,9 @@ import PAAInfo from "@/pages/PAAInfo";
 import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/Login";
 import Admin from "@/pages/Admin";
+import AdminAgricultura from "./pages/AdminAgricultura";
+import AdminPesca from "./pages/AdminPesca";
+import AdminPAA from "./pages/AdminPAA";
 import NotFound from "@/pages/not-found";
 import NavBar from "@/components/NavBar";
 import { auth } from "./utils/firebase";
@@ -72,6 +75,36 @@ function Router() {
                   return null;
                 }
                 return <Admin />;
+              }}
+            </Route>
+            <Route path="/admin/agricultura">
+              {() => {
+                const user = auth.currentUser;
+                if (!user) {
+                  window.location.href = "/login";
+                  return null;
+                }
+                return <AdminAgricultura />;
+              }}
+            </Route>
+            <Route path="/admin/pesca">
+              {() => {
+                const user = auth.currentUser;
+                if (!user) {
+                  window.location.href = "/login";
+                  return null;
+                }
+                return <AdminPesca />;
+              }}
+            </Route>
+            <Route path="/admin/paa">
+              {() => {
+                const user = auth.currentUser;
+                if (!user) {
+                  window.location.href = "/login";
+                  return null;
+                }
+                return <AdminPAA />;
               }}
             </Route>
             {/* Panel management is integrated into dashboard */}

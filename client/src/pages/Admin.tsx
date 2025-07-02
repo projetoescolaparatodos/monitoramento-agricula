@@ -1669,6 +1669,29 @@ const Admin = () => {
 
   return (
     <div className="container mx-auto px-4 py-20">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-6">Administração Geral</h1>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <Button 
+            onClick={() => window.location.href = '/admin/agricultura'}
+            className="h-20 text-lg bg-green-600 hover:bg-green-700"
+          >
+            Agricultura
+          </Button>
+          <Button 
+            onClick={() => window.location.href = '/admin/pesca'}
+            className="h-20 text-lg bg-blue-600 hover:bg-blue-700"
+          >
+            Pesca
+          </Button>
+          <Button 
+            onClick={() => window.location.href = '/admin/paa'}
+            className="h-20 text-lg bg-amber-600 hover:bg-amber-700"
+          >
+            PAA
+          </Button>
+        </div>
+      </div>
       <Tabs defaultValue="agricultura">
         <TabsList className="mb-8">
           <TabsTrigger value="agricultura">Agricultura</TabsTrigger>
