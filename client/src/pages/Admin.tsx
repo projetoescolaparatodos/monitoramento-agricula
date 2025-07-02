@@ -1590,13 +1590,8 @@ const Admin = () => {
   // Verificar autenticação e redirecionar se necessário
   useEffect(() => {
     // Só redireciona se não estiver carregando E não estiver autenticado
-    // E se já passou tempo suficiente para o Firebase verificar a autenticação
     if (!isLoading && !userAuth.isAuthenticated) {
-      const timer = setTimeout(() => {
-        setLocation("/login");
-      }, 100); // Pequeno delay para evitar redirecionamento prematuro
-      
-      return () => clearTimeout(timer);
+      setLocation("/login");
     }
   }, [isLoading, userAuth.isAuthenticated, setLocation]);
 
@@ -1612,16 +1607,9 @@ const Admin = () => {
     );
   }
 
-  // Se não está autenticado, mostrar tela de loading um pouco mais
+  // Se não está autenticado, não renderizar nada (redirecionamento já foi feito)
   if (!userAuth.isAuthenticated) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p>Redirecionando...</p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   useEffect(() => {

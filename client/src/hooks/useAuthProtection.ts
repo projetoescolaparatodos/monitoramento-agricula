@@ -41,7 +41,24 @@ export const useAuthProtection = (requiredSetor?: string) => {
                 isLoading: false,
               });
             } else {
-              // Usuário não existe na coleção admin
+              // Usuário não existe na coleção admin - adicionar delay
+              setTimeout(() => {
+                if (mounted) {
+                  setUserAuth({
+                    uid: '',
+                    email: '',
+                    setor: '',
+                    isAuthenticated: false,
+                    isLoading: false,
+                  });
+                }
+              }, 500);
+            }
+          }
+        } else {
+          // Não há usuário logado - adicionar delay
+          setTimeout(() => {
+            if (mounted) {
               setUserAuth({
                 uid: '',
                 email: '',
@@ -50,8 +67,11 @@ export const useAuthProtection = (requiredSetor?: string) => {
                 isLoading: false,
               });
             }
-          }
-        } else {
+          }, 500);
+        }
+      } catch (error) {
+        console.error('Erro ao verificar dados do usuário:', error);
+        setTimeout(() => {
           if (mounted) {
             setUserAuth({
               uid: '',
@@ -61,18 +81,7 @@ export const useAuthProtection = (requiredSetor?: string) => {
               isLoading: false,
             });
           }
-        }
-      } catch (error) {
-        console.error('Erro ao verificar dados do usuário:', error);
-        if (mounted) {
-          setUserAuth({
-            uid: '',
-            email: '',
-            setor: '',
-            isAuthenticated: false,
-            isLoading: false,
-          });
-        }
+        }, 500);
       }
     });
 
