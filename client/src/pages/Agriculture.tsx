@@ -250,7 +250,7 @@ const Agriculture = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <BarChart2 className="h-5 w-5 text-primary" />
-                    Total de Maquinários
+                    Fa
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -323,7 +323,7 @@ const Agriculture = () => {
                           </span>
                         </TableCell>
                         <TableCell>
-                          {trator.tempoAtividade || '0'} h
+                          {trator.horaMaquina || 'Não informado'}
                         </TableCell>
                         <TableCell>
                           {trator.areaTrabalhada || '0'} ha
