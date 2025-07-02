@@ -69,7 +69,6 @@ const AdminPesca = () => {
   const [loading, setLoading] = useState(false);
   const [pescaData, setPescaData] = useState<any[]>([]);
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
 
   useEffect(() => {
     const fetchPesqueiros = async () => {
