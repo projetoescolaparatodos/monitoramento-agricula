@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { db } from "../utils/firebase";
 import {
@@ -67,7 +66,6 @@ const AdminPAA = () => {
   const [loading, setLoading] = useState(false);
   const [atividades, setAtividades] = useState<any[]>([]);
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
 
   useEffect(() => {
     const fetchPaaLocais = async () => {
@@ -90,7 +88,7 @@ const AdminPAA = () => {
     };
 
     fetchPaaLocais();
-  }, []);
+  }, [toast]);
 
   const atualizarStatus = async (id: string, statusAtual: boolean) => {
     try {
@@ -381,7 +379,7 @@ const AdminPAA = () => {
                 <Input
                   id="proprietario"
                   value={proprietario}
-                  onChange={(e) => setProprietario(e.target.value)}
+                  onChange={(e.target.value)}
                   required
                 />
               </div>
