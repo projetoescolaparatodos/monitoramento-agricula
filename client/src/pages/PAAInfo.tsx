@@ -304,7 +304,7 @@ const PAAInfo = () => {
           {showHiddenAdminButton && (
             <div className="fixed bottom-4 left-4 z-50 animate-in fade-in-0 slide-in-from-bottom-4">
               <Button
-                onClick={() => setLocation("/login/admin")}
+                onClick={() => setLocation("/admin")}
                 className="bg-red-600 hover:bg-red-700 text-white shadow-lg border-2 border-red-400"
                 size="icon"
               >
