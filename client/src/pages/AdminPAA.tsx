@@ -26,28 +26,6 @@ import { useAuthProtection } from "@/hooks/useAuthProtection";
 const AdminPAA = () => {
   const { userAuth, hasAccess, isLoading } = useAuthProtection();
   const [, setLocation] = useLocation();
-
-  // Verificar autenticação e permissões
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
-          <p>Verificando permissões...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!userAuth.isAuthenticated) {
-    setLocation("/login/admin/paa");
-    return null;
-  }
-
-  if (!hasAccess('paa')) {
-    setLocation("/acesso-negado");
-    return null;
-  }
   const [localidade, setLocalidade] = useState("");
   const [nomeImovel, setNomeImovel] = useState("");
   const [proprietario, setProprietario] = useState("");
@@ -67,6 +45,7 @@ const AdminPAA = () => {
   const [atividades, setAtividades] = useState<any[]>([]);
   const { toast } = useToast();
 
+  // Todos os useEffect devem estar no topo
   useEffect(() => {
     const fetchPaaLocais = async () => {
       try {
@@ -89,6 +68,52 @@ const AdminPAA = () => {
 
     fetchPaaLocais();
   }, [toast]);
+
+  useEffect(() => {
+    const map = L.map("admin-map-paa").setView([-2.87922, -52.0088], 12);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    map.on("click", (e) => {
+      setLatitude(e.latlng.lat);
+      setLongitude(e.latlng.lng);
+
+      map.eachLayer((layer) => {
+        if (layer instanceof L.Marker) {
+          map.removeLayer(layer);
+        }
+      });
+
+      L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+    });
+
+    return () => map.remove();
+  }, []);
+
+  // Verificar autenticação e permissões
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
+          <p>Verificando permissões...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!userAuth.isAuthenticated) {
+    setLocation("/login/admin/paa");
+    return null;
+  }
+
+  if (!hasAccess('paa')) {
+    setLocation("/acesso-negado");
+    return null;
+  }
 
   const atualizarStatus = async (id: string, statusAtual: boolean) => {
     try {
@@ -116,29 +141,6 @@ const AdminPAA = () => {
     }
   };
 
-  useEffect(() => {
-    const map = L.map("admin-map-paa").setView([-2.87922, -52.0088], 12);
-
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(map);
-
-    map.on("click", (e) => {
-      setLatitude(e.latlng.lat);
-      setLongitude(e.latlng.lng);
-
-      map.eachLayer((layer) => {
-        if (layer instanceof L.Marker) {
-          map.removeLayer(layer);
-        }
-      });
-
-      L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
-    });
-
-    return () => map.remove();
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

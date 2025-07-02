@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { db } from "../utils/firebase";
 import {
@@ -27,28 +26,6 @@ import { useAuthProtection } from "@/hooks/useAuthProtection";
 const AdminAgricultura = () => {
   const { userAuth, hasAccess, isLoading } = useAuthProtection();
   const [, setLocation] = useLocation();
-
-  // Verificar autenticação e permissões
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p>Verificando permissões...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!userAuth.isAuthenticated) {
-    setLocation("/login/admin/agricultura");
-    return null;
-  }
-
-  if (!hasAccess('agricultura')) {
-    setLocation("/acesso-negado");
-    return null;
-  }
   const [nome, setNome] = useState("");
   const [fazenda, setFazenda] = useState("");
   const [atividade, setAtividade] = useState("");
@@ -72,6 +49,7 @@ const AdminAgricultura = () => {
   const { toast } = useToast();
   const [agriculturasAtividades, setAgriculturasAtividades] = useState<any[]>([]);
 
+  // Todos os useEffect devem estar no topo
   useEffect(() => {
     const fetchTratores = async () => {
       try {
@@ -94,32 +72,6 @@ const AdminAgricultura = () => {
 
     fetchTratores();
   }, []);
-
-  const atualizarStatusAgricultura = async (id: string, statusAtual: boolean) => {
-    try {
-      await updateDoc(doc(db, "tratores", id), {
-        concluido: !statusAtual,
-      });
-      toast({
-        title: "Sucesso",
-        description: "Status atualizado com sucesso!",
-      });
-      const querySnapshot = await getDocs(collection(db, "tratores"));
-      const tratoresData = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setTratoresCadastrados(tratoresData);
-      setAgriculturasAtividades(tratoresData);
-    } catch (error) {
-      console.error("Erro ao atualizar status:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o status.",
-        variant: "destructive",
-      });
-    }
-  };
 
   useEffect(() => {
     const map = L.map("admin-map-agricultura").setView(
@@ -147,6 +99,54 @@ const AdminAgricultura = () => {
 
     return () => map.remove();
   }, []);
+
+  // Verificar autenticação e permissões
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p>Verificando permissões...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!userAuth.isAuthenticated) {
+    setLocation("/login/admin/agricultura");
+    return null;
+  }
+
+  if (!hasAccess('agricultura')) {
+    setLocation("/acesso-negado");
+    return null;
+  }
+
+  const atualizarStatusAgricultura = async (id: string, statusAtual: boolean) => {
+    try {
+      await updateDoc(doc(db, "tratores", id), {
+        concluido: !statusAtual,
+      });
+      toast({
+        title: "Sucesso",
+        description: "Status atualizado com sucesso!",
+      });
+      const querySnapshot = await getDocs(collection(db, "tratores"));
+      const tratoresData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setTratoresCadastrados(tratoresData);
+      setAgriculturasAtividades(tratoresData);
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o status.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

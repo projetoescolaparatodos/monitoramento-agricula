@@ -48,28 +48,7 @@ const AdminPesca = () => {
   const [pescaData, setPescaData] = useState<any[]>([]);
   const { toast } = useToast();
 
-  // Verificar autenticação e permissões
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p>Verificando permissões...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!userAuth.isAuthenticated) {
-    setLocation("/login/admin/pesca");
-    return null;
-  }
-
-  if (!hasAccess('pesca')) {
-    setLocation("/acesso-negado");
-    return null;
-  }
-
+  // Todos os useEffect devem estar no topo, antes de qualquer lógica condicional
   useEffect(() => {
     const fetchPesqueiros = async () => {
       try {
@@ -92,6 +71,52 @@ const AdminPesca = () => {
 
     fetchPesqueiros();
   }, []);
+
+  useEffect(() => {
+    const map = L.map("admin-map-pesca").setView([-2.87922, -52.0088], 12);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    map.on("click", (e) => {
+      setLatitude(e.latlng.lat);
+      setLongitude(e.latlng.lng);
+
+      map.eachLayer((layer) => {
+        if (layer instanceof L.Marker) {
+          map.removeLayer(layer);
+        }
+      });
+
+      L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+    });
+
+    return () => map.remove();
+  }, []);
+
+  // Verificações condicionais após todos os hooks
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p>Verificando permissões...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!userAuth.isAuthenticated) {
+    setLocation("/login/admin/pesca");
+    return null;
+  }
+
+  if (!hasAccess('pesca')) {
+    setLocation("/acesso-negado");
+    return null;
+  }
 
   const atualizarStatusPesca = async (id: string, statusAtual: boolean) => {
     try {
@@ -118,30 +143,6 @@ const AdminPesca = () => {
       });
     }
   };
-
-  useEffect(() => {
-    const map = L.map("admin-map-pesca").setView([-2.87922, -52.0088], 12);
-
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(map);
-
-    map.on("click", (e) => {
-      setLatitude(e.latlng.lat);
-      setLongitude(e.latlng.lng);
-
-      map.eachLayer((layer) => {
-        if (layer instanceof L.Marker) {
-          map.removeLayer(layer);
-        }
-      });
-
-      L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
-    });
-
-    return () => map.remove();
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
