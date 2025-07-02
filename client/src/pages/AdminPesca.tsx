@@ -28,6 +28,10 @@ const AdminPesca = () => {
   // Hooks sempre devem estar no topo do componente
   const { userAuth, hasAccess, getLoginUrl, isLoading } = useAuthProtection();
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+
+  // Estados do formulário
+  const [localidade, setLocalidade] = useState("");
   const [nomeImovel, setNomeImovel] = useState("");
   const [proprietario, setProprietario] = useState("");
   const [tipoTanque, setTipoTanque] = useState("");
@@ -42,13 +46,14 @@ const AdminPesca = () => {
   const [dataCadastro, setDataCadastro] = useState(
     new Date().toISOString().split("T")[0],
   );
+
+  // Estados de dados
   const [pesqueirosCadastrados, setPesqueirosCadastrados] = useState<any[]>([]);
   const [pesqueiroEmEdicao, setPesqueiroEmEdicao] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
-  const [pescaData, setPescaData] = useState<any[]>([]);
-  const { toast } = useToast();
+  const [mapInitialized, setMapInitialized] = useState(false);
 
-  // useEffect para buscar dados (sempre executa)
+  // useEffect para buscar dados (sempre executa - não condicional)
   useEffect(() => {
     const fetchPesqueiros = async () => {
       try {
@@ -58,7 +63,6 @@ const AdminPesca = () => {
           ...doc.data(),
         }));
         setPesqueirosCadastrados(pescaData);
-        setPescaData(pescaData);
       } catch (error) {
         console.error("Erro ao buscar dados de pesca:", error);
         toast({
@@ -70,9 +74,72 @@ const AdminPesca = () => {
     };
 
     fetchPesqueiros();
-  }, []);
+  }, [toast]);
 
-  // Verificações condicionais após hooks básicos
+  // useEffect para inicializar mapa (sempre executa - não condicional)
+  useEffect(() => {
+    // Só inicializa o mapa se o usuário estiver autenticado e tiver acesso
+    if (!userAuth.isAuthenticated || !hasAccess('pesca') || mapInitialized) {
+      return;
+    }
+
+    const initMap = () => {
+      const mapElement = document.getElementById("admin-map-pesca");
+      if (!mapElement) {
+        console.warn("Elemento do mapa não encontrado no DOM");
+        return;
+      }
+
+      // Verifica se o mapa já foi inicializado
+      if ((mapElement as any)._leaflet_id) {
+        console.log("Mapa já inicializado");
+        setMapInitialized(true);
+        return;
+      }
+
+      try {
+        const map = L.map("admin-map-pesca").setView([-2.87922, -52.0088], 12);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(map);
+
+        map.on("click", (e) => {
+          setLatitude(e.latlng.lat);
+          setLongitude(e.latlng.lng);
+
+          // Remove marcadores anteriores
+          map.eachLayer((layer) => {
+            if (layer instanceof L.Marker) {
+              map.removeLayer(layer);
+            }
+          });
+
+          // Adiciona novo marcador
+          L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+        });
+
+        setMapInitialized(true);
+      } catch (error) {
+        console.error("Erro ao inicializar mapa:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível inicializar o mapa.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    // Aguarda um pouco para garantir que o DOM esteja pronto
+    const timer = setTimeout(initMap, 100);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [userAuth.isAuthenticated, hasAccess, mapInitialized, toast]);
+
+  // Verificações condicionais (sempre executam após os hooks)
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -94,47 +161,6 @@ const AdminPesca = () => {
     return null;
   }
 
-  // useEffect para inicializar mapa (só executa após verificações passarem)
-  useEffect(() => {
-    const mapElement = document.getElementById("admin-map-pesca");
-    if (!mapElement) {
-      console.warn("Elemento do mapa não encontrado no DOM");
-      return;
-    }
-
-    // Verifica se o mapa já foi inicializado
-    if ((mapElement as any)._leaflet_id) {
-      console.log("Mapa já inicializado");
-      return;
-    }
-
-    const map = L.map("admin-map-pesca").setView([-2.87922, -52.0088], 12);
-
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(map);
-
-    map.on("click", (e) => {
-      setLatitude(e.latlng.lat);
-      setLongitude(e.latlng.lng);
-
-      map.eachLayer((layer) => {
-        if (layer instanceof L.Marker) {
-          map.removeLayer(layer);
-        }
-      });
-
-      L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
-    });
-
-    return () => {
-      if (map) {
-        map.remove();
-      }
-    };
-  }, [userAuth.isAuthenticated, hasAccess]); // Dependências para re-executar quando a autenticação mudar
-
   const atualizarStatusPesca = async (id: string, statusAtual: boolean) => {
     try {
       await updateDoc(doc(db, "pesca", id), {
@@ -144,12 +170,13 @@ const AdminPesca = () => {
         title: "Sucesso",
         description: "Status atualizado com sucesso!",
       });
+      
+      // Recarrega os dados
       const snapshot = await getDocs(collection(db, "pesca"));
       const updatedData = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      setPescaData(updatedData);
       setPesqueirosCadastrados(updatedData);
     } catch (error) {
       console.error("Erro ao atualizar status:", error);
@@ -209,6 +236,7 @@ const AdminPesca = () => {
         });
       }
 
+      // Limpa o formulário
       setLocalidade("");
       setNomeImovel("");
       setProprietario("");
@@ -224,13 +252,13 @@ const AdminPesca = () => {
       setDataCadastro(new Date().toISOString().split("T")[0]);
       setPesqueiroEmEdicao(null);
 
+      // Recarrega os dados
       const querySnapshot = await getDocs(collection(db, "pesca"));
       const updatedPescaData = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
       setPesqueirosCadastrados(updatedPescaData);
-      setPescaData(updatedPescaData);
     } catch (error) {
       console.error("Erro ao salvar dados de pesca:", error);
       toast({
@@ -249,19 +277,19 @@ const AdminPesca = () => {
 
   const handleEditarPesqueiro = (pesqueiro: any) => {
     setPesqueiroEmEdicao(pesqueiro);
-    setLocalidade(pesqueiro.localidade);
-    setNomeImovel(pesqueiro.nomeImovel);
-    setProprietario(pesqueiro.proprietario);
+    setLocalidade(pesqueiro.localidade || "");
+    setNomeImovel(pesqueiro.nomeImovel || "");
+    setProprietario(pesqueiro.proprietario || "");
     setTipoTanque(pesqueiro.tipoTanque || "");
     setEspeciePeixe(pesqueiro.especiePeixe || "");
     setQuantidadeAlevinos(pesqueiro.quantidadeAlevinos || 0);
     setMetodoAlimentacao(pesqueiro.metodoAlimentacao || "");
-    setOperador(pesqueiro.operador);
-    setTecnicoResponsavel(pesqueiro.tecnicoResponsavel);
-    setLatitude(pesqueiro.latitude);
-    setLongitude(pesqueiro.longitude);
+    setOperador(pesqueiro.operador || "");
+    setTecnicoResponsavel(pesqueiro.tecnicoResponsavel || "");
+    setLatitude(pesqueiro.latitude || null);
+    setLongitude(pesqueiro.longitude || null);
     setMidias(pesqueiro.midias || []);
-    setDataCadastro(pesqueiro.dataCadastro);
+    setDataCadastro(pesqueiro.dataCadastro || new Date().toISOString().split("T")[0]);
   };
 
   const handleExcluirPesqueiro = async (id: string) => {
@@ -271,16 +299,17 @@ const AdminPesca = () => {
       try {
         await deleteDoc(doc(db, "pesca", id));
         toast({
-          title: "Sucesso",
+          title: "Sucesso", 
           description: "Dados de pesca excluídos com sucesso!",
         });
+        
+        // Recarrega os dados
         const querySnapshot = await getDocs(collection(db, "pesca"));
         const pescaData = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
         setPesqueirosCadastrados(pescaData);
-        setPescaData(pescaData);
       } catch (error) {
         console.error("Erro ao excluir dados de pesca:", error);
         toast({
@@ -290,6 +319,23 @@ const AdminPesca = () => {
         });
       }
     }
+  };
+
+  const cancelarEdicao = () => {
+    setPesqueiroEmEdicao(null);
+    setLocalidade("");
+    setNomeImovel("");
+    setProprietario("");
+    setTipoTanque("");
+    setEspeciePeixe("");
+    setQuantidadeAlevinos(0);
+    setMetodoAlimentacao("");
+    setOperador("");
+    setTecnicoResponsavel("");
+    setLatitude(null);
+    setLongitude(null);
+    setMidias([]);
+    setDataCadastro(new Date().toISOString().split("T")[0]);
   };
 
   return (
@@ -305,46 +351,56 @@ const AdminPesca = () => {
         <h1 className="text-2xl font-bold text-blue-800">Administração - Pesca</h1>
       </div>
 
+      {/* Lista de Atividades */}
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>Lista de Atividades</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {pescaData?.map((atividade) => (
-              <Card key={atividade.id} className="p-4">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h4 className="font-semibold">{atividade.localidade}</h4>
-                    <p className="text-sm text-gray-500">
-                      Operador: {atividade.operador || "Não informado"}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Data: {new Date(atividade.dataCadastro).toLocaleDateString()}
-                    </p>
+            {pesqueirosCadastrados.length === 0 ? (
+              <p className="text-gray-500 text-center py-4">
+                Nenhuma atividade cadastrada ainda.
+              </p>
+            ) : (
+              pesqueirosCadastrados.map((atividade) => (
+                <Card key={atividade.id} className="p-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h4 className="font-semibold">{atividade.localidade}</h4>
+                      <p className="text-sm text-gray-500">
+                        Operador: {atividade.operador || "Não informado"}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Data: {new Date(atividade.dataCadastro).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Badge variant={atividade.concluido ? "default" : "secondary"}>
+                        {atividade.concluido ? "Concluído" : "Em Serviço"}
+                      </Badge>
+                      <Button
+                        onClick={() => atualizarStatusPesca(atividade.id, atividade.concluido)}
+                        variant="outline"
+                        size="sm"
+                      >
+                        Alterar Status
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <Badge variant={atividade.concluido ? "success" : "default"}>
-                      {atividade.concluido ? "Concluído" : "Em Serviço"}
-                    </Badge>
-                    <Button
-                      onClick={() => atualizarStatusPesca(atividade.id, atividade.concluido)}
-                      variant="outline"
-                      size="sm"
-                    >
-                      Alterar Status
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              ))
+            )}
           </div>
         </CardContent>
       </Card>
 
+      {/* Formulário de Cadastro */}
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>Cadastrar Nova Atividade</CardTitle>
+          <CardTitle>
+            {pesqueiroEmEdicao ? "Editar Atividade" : "Cadastrar Nova Atividade"}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div
@@ -536,59 +592,77 @@ const AdminPesca = () => {
               </div>
             </div>
 
-            <Button type="submit" disabled={loading} className="w-full">
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Salvando...
-                </span>
-              ) : (
-                <span className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  {pesqueiroEmEdicao ? "Atualizar" : "Adicionar"}
-                </span>
+            <div className="flex gap-2">
+              <Button type="submit" disabled={loading} className="flex-1">
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Salvando...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <Plus className="h-4 w-4" />
+                    {pesqueiroEmEdicao ? "Atualizar" : "Adicionar"}
+                  </span>
+                )}
+              </Button>
+              
+              {pesqueiroEmEdicao && (
+                <Button type="button" variant="outline" onClick={cancelarEdicao}>
+                  Cancelar
+                </Button>
               )}
-            </Button>
+            </div>
           </form>
         </CardContent>
       </Card>
 
+      {/* Lista de Pesqueiros Cadastrados */}
       <Card>
         <CardHeader>
           <CardTitle>Pesqueiros Cadastrados</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {pesqueirosCadastrados.map((pesqueiro) => (
-              <div
-                key={pesqueiro.id}
-                className="flex items-center justify-between p-4 border rounded-lg"
-              >
-                <div>
-                  <h3 className="font-semibold">{pesqueiro.localidade}</h3>
-                  <p className="text-sm text-gray-600">
-                    {pesqueiro.nomeImovel} -{" "}
-                    {pesqueiro.concluido ? "Concluído" : "Em Andamento"}
-                  </p>
+            {pesqueirosCadastrados.length === 0 ? (
+              <p className="text-gray-500 text-center py-8">
+                Nenhum pesqueiro cadastrado ainda.
+              </p>
+            ) : (
+              pesqueirosCadastrados.map((pesqueiro) => (
+                <div
+                  key={pesqueiro.id}
+                  className="flex items-center justify-between p-4 border rounded-lg"
+                >
+                  <div>
+                    <h3 className="font-semibold">{pesqueiro.localidade}</h3>
+                    <p className="text-sm text-gray-600">
+                      {pesqueiro.nomeImovel} -{" "}
+                      {pesqueiro.concluido ? "Concluído" : "Em Andamento"}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Proprietário: {pesqueiro.proprietario}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditarPesqueiro(pesqueiro)}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleExcluirPesqueiro(pesqueiro.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEditarPesqueiro(pesqueiro)}
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleExcluirPesqueiro(pesqueiro.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </CardContent>
       </Card>
