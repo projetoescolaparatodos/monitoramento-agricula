@@ -184,7 +184,7 @@ const Fishing = () => {
           {/* Fishing Report Section */}
           <section className="mt-16 rounded-lg p-8">
             <h2 className="text-3xl font-bold text-center mb-8 text-white">Atividades da Pesca</h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 w-full">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 w-full">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -230,17 +230,7 @@ const Fishing = () => {
                   </p>
                 </CardContent>
               </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5 text-indigo-500" />
-                    Produtores
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{new Set(pescaData?.map(p => p.nomePescador).filter(Boolean)).size}</p>
-                </CardContent>
-              </Card>
+              
             </div>
 
             <Card className="bg-white/80 backdrop-blur-sm hidden md:block shadow-lg">
@@ -251,17 +241,13 @@ const Fishing = () => {
                 <Table className="w-full [&_th]:text-black [&_td]:text-gray-700 [&_tr:hover]:bg-gray-50/50">
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Número Registro</TableHead>
                       <TableHead>Espécie</TableHead>
                       <TableHead>Tipo Tanque</TableHead>
                       <TableHead>Localidade</TableHead>
-                      <TableHead>Área Imóvel (ha)</TableHead>
                       <TableHead>Área Alagada (ha)</TableHead>
-                      <TableHead>Sistema Cultivo</TableHead>
                       <TableHead>Método Alimentação</TableHead>
                       <TableHead>Operador</TableHead>
                       <TableHead>Técnico</TableHead>
-                      <TableHead>Ração (kg)</TableHead>
                       <TableHead>Quantidade (kg)</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
@@ -269,17 +255,13 @@ const Fishing = () => {
                   <TableBody>
                     {pescaData?.map((pesca) => (
                       <TableRow key={pesca.id}>
-                        <TableCell>{pesca.numeroRegistro || "—"}</TableCell>
                         <TableCell>{pesca.especiePeixe || "—"}</TableCell>
                         <TableCell>{pesca.tipoTanque || "—"}</TableCell>
                         <TableCell>{pesca.localidade || "—"}</TableCell>
-                        <TableCell>{pesca.areaImovel ? `${pesca.areaImovel} ha` : "—"}</TableCell>
                         <TableCell>{pesca.areaAlagada ? `${pesca.areaAlagada} ha` : "—"}</TableCell>
-                        <TableCell>{pesca.sistemaCultivo || "—"}</TableCell>
                         <TableCell>{pesca.metodoAlimentacao || "—"}</TableCell>
                         <TableCell>{pesca.operador || "—"}</TableCell>
                         <TableCell>{pesca.tecnicoResponsavel || "—"}</TableCell>
-                        <TableCell>{pesca.quantidadeRacao ? `${pesca.quantidadeRacao.toFixed(2)} kg` : "—"}</TableCell>
                         <TableCell>{pesca.quantidadePescado ? `${pesca.quantidadePescado.toFixed(2)} kg` : "—"}</TableCell>
                         <TableCell>
                           <span className={pesca.concluido ? 'text-green-600 font-medium' : 'text-blue-600 font-medium'}>
