@@ -216,17 +216,17 @@ const Fishing = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-3xl font-bold">
-                    {(pescaData?.reduce((sum, p) => {
-                      // Verifica se areaTanque existe e verifica seu tipo
-                      if (typeof p.areaTanque === 'number') {
-                        return sum + p.areaTanque;
-                      } else if (typeof p.areaTanque === 'string') {
+                    {pescaData?.reduce((sum, p) => {
+                      // Soma os valores de areaAlagada
+                      if (typeof p.areaAlagada === 'number') {
+                        return sum + p.areaAlagada;
+                      } else if (typeof p.areaAlagada === 'string') {
                         // Tenta converter string para número
-                        const parsed = parseFloat(p.areaTanque);
+                        const parsed = parseFloat(p.areaAlagada);
                         return sum + (isNaN(parsed) ? 0 : parsed);
                       }
                       return sum;
-                    }, 0) / 10000).toFixed(2)} ha
+                    }, 0).toFixed(2)} ha
                   </p>
                 </CardContent>
               </Card>
