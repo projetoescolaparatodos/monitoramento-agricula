@@ -1,0 +1,88 @@
+🎯 Objetivo
+Permitir que os técnicos de Agricultura, Pesca e PAA acessem somente a sua respectiva página de cadastro (/admin/agricultura, /admin/pesca, /admin/paa), por meio de um login setorizado e protegido, impedindo o acesso cruzado entre áreas.
+
+✅ Etapas da Implementação
+1. Criar uma Nova Página de Entrada: /login/admin
+Essa será a porta de entrada para todos os técnicos.
+
+Design:
+Título: "Área de Cadastro SEMAPA"
+
+Botões para escolher o setor:
+
+tsx
+Copiar
+Editar
+<Button onClick={() => navigate("/login/admin/agricultura")}>Agricultura</Button>
+<Button onClick={() => navigate("/login/admin/pesca")}>Pesca</Button>
+<Button onClick={() => navigate("/login/admin/paa")}>PAA</Button>
+2. Criar Três Páginas de Login Específicas
+Página	Objetivo
+/login/admin/agricultura	Login de técnicos da agricultura
+/login/admin/pesca	Login de técnicos da pesca
+/login/admin/paa	Login de técnicos do PAA
+
+Cada página:
+
+Usa o sistema de login atual (Firebase Auth, por exemplo)
+
+Após login, redireciona automaticamente para a página correta:
+
+tsx
+Copiar
+Editar
+// Exemplo: login de pesca
+onLoginSuccess => navigate('/admin/pesca')
+3. Criar Middleware de Proteção por Setor (Proteção de Rotas)
+No backend ou no sistema de rotas client-side (React Router), você irá:
+
+Obter o e-mail ou UID do usuário logado
+
+Conferir qual setor ele pertence (salvo no Firestore ou em customClaims)
+
+Se o usuário tentar acessar outro setor → redirecionar para página de erro ou logout
+
+Exemplo (pseudocódigo):
+ts
+Copiar
+Editar
+if (rota === '/admin/pesca' && usuario.setor !== 'pesca') {
+  redirect('/acesso-negado')
+}
+4. Armazenar a Permissão no Firestore ou Custom Claims
+Você deve vincular cada conta técnica a um setor:
+
+Opção A: Firestore
+ts
+Copiar
+Editar
+// Coleção: usuarios_admin
+{
+  uid: 'abc123',
+  email: 'tecnico@pesca.gov',
+  setor: 'pesca'
+}
+Opção B: Firebase Custom Claims
+Ao criar o usuário:
+
+ts
+Copiar
+Editar
+admin.auth().setCustomUserClaims(uid, { setor: "pesca" })
+5. Criar Página de Erro: /acesso-negado
+Mensagem:
+
+“Você não tem permissão para acessar esta área do sistema. Por favor, entre com uma conta autorizada para este setor.”
+
+6. Permitir Login Único por Técnico
+Você pode evitar complicações como múltiplos perfis ou níveis de permissão em uma única conta. Cada técnico terá um login único já vinculado a seu setor.
+
+🔐 Resultado Final
+Técnico	Página de Login	Acesso Autorizado
+Técnico da Agricultura	/login/admin/agricultura	/admin/agricultura
+Técnico da Pesca	/login/admin/pesca	/admin/pesca
+Técnico do PAA	/login/admin/paa	/admin/paa
+Coordenador Geral	/admin ou /dashboard/gestor	Todas as seções
+
+💡 Observação Importante
+O login técnico não precisa ser mais complexo do que o necessário. Isso pode ser feito com o mesmo Firebase Auth atual e protegendo com lógica client-side (e opcionalmente no backend)
