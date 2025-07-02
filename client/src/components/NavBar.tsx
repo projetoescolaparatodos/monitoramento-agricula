@@ -70,9 +70,8 @@ const NavBar = () => {
             }}>
               </Link>
             <Link to="/login/admin" onClick={handleNavLinkClick}>
-              <Button variant="ghost" className="w-full md:w-auto justify-start">
-                <Settings className="h-4 w-4 mr-2" />
-                Administração
+              <Button variant="ghost" className="w-full md:w-auto justify-center" size="icon">
+                <Settings className="h-4 w-4" />
               </Button>
             </Link>
           </div>
