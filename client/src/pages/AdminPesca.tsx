@@ -10,7 +10,6 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import IconSelector from "@/components/admin/IconSelector";
-import { getLeafletMapInstance, addMarkerToMap } from "@/utils/coordinateUtils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,17 +17,48 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Trash2, Edit2, Plus, ArrowLeft } from "lucide-react";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import {
+  useLoadScript,
+  GoogleMap,
+  MarkerF,
+} from "@react-google-maps/api";
 import EnhancedUpload from "@/components/EnhancedUpload";
 import { useLocation } from "wouter";
 import { useAuthProtection } from "@/hooks/useAuthProtection";
+
+interface Pesca {
+  id: string;
+  numeroRegistro?: string;
+  localidade: string;
+  nomeImovel?: string;
+  proprietario?: string;
+  tipoTanque: string;
+  areaImovel?: number;
+  areaAlagada?: number;
+  cicloProdução?: string;
+  sistemaCultivo?: string;
+  especiePeixe: string;
+  quantidadeAlevinos: number;
+  metodoAlimentacao: string;
+  operador?: string;
+  tecnicoResponsavel?: string;
+  dataCadastro: string;
+  concluido: boolean;
+  latitude: number;
+  longitude: number;
+  midias?: string[];
+}
 
 const AdminPesca = () => {
   // Hooks sempre devem estar no topo do componente
   const { userAuth, hasAccess, getLoginUrl, isLoading } = useAuthProtection();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+
+  // Google Maps
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: "AIzaSyC3fPdcovy7a7nQLe9aGBMR2PFY_qZZVZc",
+  });
 
   // Estados do formulário
   const [localidade, setLocalidade] = useState("");
@@ -48,10 +78,18 @@ const AdminPesca = () => {
   );
 
   // Estados de dados
-  const [pesqueirosCadastrados, setPesqueirosCadastrados] = useState<any[]>([]);
-  const [pesqueiroEmEdicao, setPesqueiroEmEdicao] = useState<any | null>(null);
+  const [pesqueirosCadastrados, setPesqueirosCadastrados] = useState<Pesca[]>([]);
+  const [pesqueiroEmEdicao, setPesqueiroEmEdicao] = useState<Pesca | null>(null);
   const [loading, setLoading] = useState(false);
-  const [mapInitialized, setMapInitialized] = useState(false);
+  const [selectedMarker, setSelectedMarker] = useState<Pesca | null>(null);
+
+  // Configurações do Google Maps
+  const mapContainerStyle = {
+    width: "100%",
+    height: "400px",
+  };
+
+  const center = { lat: -2.87922, lng: -52.0088 };
 
   // useEffect para buscar dados (sempre executa - não condicional)
   useEffect(() => {
@@ -61,7 +99,7 @@ const AdminPesca = () => {
         const pescaData = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        }));
+        })) as Pesca[];
         setPesqueirosCadastrados(pescaData);
       } catch (error) {
         console.error("Erro ao buscar dados de pesca:", error);
@@ -75,69 +113,6 @@ const AdminPesca = () => {
 
     fetchPesqueiros();
   }, [toast]);
-
-  // useEffect para inicializar mapa (sempre executa - não condicional)
-  useEffect(() => {
-    // Só inicializa o mapa se o usuário estiver autenticado e tiver acesso
-    if (!userAuth.isAuthenticated || !hasAccess('pesca') || mapInitialized) {
-      return;
-    }
-
-    const initMap = () => {
-      const mapElement = document.getElementById("admin-map-pesca");
-      if (!mapElement) {
-        console.warn("Elemento do mapa não encontrado no DOM");
-        return;
-      }
-
-      // Verifica se o mapa já foi inicializado
-      if ((mapElement as any)._leaflet_id) {
-        console.log("Mapa já inicializado");
-        setMapInitialized(true);
-        return;
-      }
-
-      try {
-        const map = L.map("admin-map-pesca").setView([-2.87922, -52.0088], 12);
-
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        }).addTo(map);
-
-        map.on("click", (e) => {
-          setLatitude(e.latlng.lat);
-          setLongitude(e.latlng.lng);
-
-          // Remove marcadores anteriores
-          map.eachLayer((layer) => {
-            if (layer instanceof L.Marker) {
-              map.removeLayer(layer);
-            }
-          });
-
-          // Adiciona novo marcador
-          L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
-        });
-
-        setMapInitialized(true);
-      } catch (error) {
-        console.error("Erro ao inicializar mapa:", error);
-        toast({
-          title: "Erro",
-          description: "Não foi possível inicializar o mapa.",
-          variant: "destructive",
-        });
-      }
-    };
-
-    // Aguarda um pouco para garantir que o DOM esteja pronto
-    const timer = setTimeout(initMap, 100);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [userAuth.isAuthenticated, hasAccess, mapInitialized, toast]);
 
   // Verificações condicionais (sempre executam após os hooks)
   if (isLoading) {
@@ -161,6 +136,17 @@ const AdminPesca = () => {
     return null;
   }
 
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p>Carregando Google Maps...</p>
+        </div>
+      </div>
+    );
+  }
+
   const atualizarStatusPesca = async (id: string, statusAtual: boolean) => {
     try {
       await updateDoc(doc(db, "pesca", id), {
@@ -176,7 +162,7 @@ const AdminPesca = () => {
       const updatedData = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      }));
+      })) as Pesca[];
       setPesqueirosCadastrados(updatedData);
     } catch (error) {
       console.error("Erro ao atualizar status:", error);
@@ -186,6 +172,19 @@ const AdminPesca = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleMapClick = (e: google.maps.MapMouseEvent) => {
+    if (e.latLng) {
+      const lat = e.latLng.lat();
+      const lng = e.latLng.lng();
+      setLatitude(lat);
+      setLongitude(lng);
+    }
+  };
+
+  const handleMarkerClick = (pesqueiro: Pesca) => {
+    setSelectedMarker(pesqueiro);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -257,7 +256,7 @@ const AdminPesca = () => {
       const updatedPescaData = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      }));
+      })) as Pesca[];
       setPesqueirosCadastrados(updatedPescaData);
     } catch (error) {
       console.error("Erro ao salvar dados de pesca:", error);
@@ -275,7 +274,7 @@ const AdminPesca = () => {
     setMidias([...midias, url]);
   };
 
-  const handleEditarPesqueiro = (pesqueiro: any) => {
+  const handleEditarPesqueiro = (pesqueiro: Pesca) => {
     setPesqueiroEmEdicao(pesqueiro);
     setLocalidade(pesqueiro.localidade || "");
     setNomeImovel(pesqueiro.nomeImovel || "");
@@ -308,7 +307,7 @@ const AdminPesca = () => {
         const pescaData = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        }));
+        })) as Pesca[];
         setPesqueirosCadastrados(pescaData);
       } catch (error) {
         console.error("Erro ao excluir dados de pesca:", error);
@@ -403,39 +402,58 @@ const AdminPesca = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div
-            id="admin-map-pesca"
-            className="w-full h-[400px] mb-8 rounded-lg overflow-hidden"
-          />
+          {/* Mapa do Google Maps */}
+          <div className="mb-8">
+            <Label className="text-base font-semibold mb-4 block">
+              Selecione a localização no mapa
+            </Label>
+            <div className="rounded-lg overflow-hidden border">
+              <GoogleMap
+                mapContainerStyle={mapContainerStyle}
+                center={center}
+                zoom={12}
+                onClick={handleMapClick}
+                options={{
+                  mapTypeId: google.maps.MapTypeId.HYBRID,
+                  mapTypeControl: true,
+                  streetViewControl: false,
+                  fullscreenControl: false,
+                }}
+              >
+                {/* Marcadores dos pesqueiros existentes */}
+                {pesqueirosCadastrados.map((pesca) => (
+                  <MarkerF
+                    key={pesca.id}
+                    position={{ lat: pesca.latitude, lng: pesca.longitude }}
+                    onClick={() => handleMarkerClick(pesca)}
+                    icon={{
+                      url: "/pesca-icon.png",
+                      scaledSize: new window.google.maps.Size(40, 40),
+                      anchor: new window.google.maps.Point(20, 40),
+                    }}
+                  />
+                ))}
 
-          <IconSelector 
-            onLocationSelect={(lat, lng) => {
-              setLatitude(lat);
-              setLongitude(lng);
-
-              const mapContainer = document.getElementById("admin-map-pesca");
-              if (!mapContainer) {
-                console.error("Elemento do mapa não encontrado");
-                return;
-              }
-
-              const mapInstance = getLeafletMapInstance(mapContainer);
-
-              if (mapInstance) {
-                console.log("Instância do mapa encontrada, atualizando...");
-                addMarkerToMap(mapInstance, lat, lng, true);
-              } else {
-                console.error("Não foi possível acessar a instância do mapa");
-                toast({
-                  title: "Erro",
-                  description: "Houve um problema ao atualizar o mapa. Por favor, atualize a página.",
-                  variant: "destructive",
-                });
-              }
-            }}
-            initialLatitude={latitude}
-            initialLongitude={longitude}
-          />
+                {/* Marcador para a nova localização selecionada */}
+                {latitude && longitude && (
+                  <MarkerF
+                    position={{ lat: latitude, lng: longitude }}
+                    icon={{
+                      url: "/pesca-icon.png",
+                      scaledSize: new window.google.maps.Size(50, 50),
+                      anchor: new window.google.maps.Point(25, 50),
+                    }}
+                  />
+                )}
+              </GoogleMap>
+            </div>
+            
+            {latitude && longitude && (
+              <div className="mt-2 text-sm text-gray-600">
+                <strong>Coordenadas selecionadas:</strong> {latitude.toFixed(6)}, {longitude.toFixed(6)}
+              </div>
+            )}
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
