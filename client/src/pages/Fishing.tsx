@@ -204,7 +204,7 @@ const Fishing = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold">{new Set(pescaData?.map(p => p.idTanque).filter(Boolean)).size}</p>
+                  <p className="text-3xl font-bold">{pescaData?.length || 0}</p>
                 </CardContent>
               </Card>
               <Card>
