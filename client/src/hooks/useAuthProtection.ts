@@ -81,9 +81,23 @@ export const useAuthProtection = (requiredSetor?: string) => {
     return userAuth.setor === setor;
   };
 
+  const getLoginUrl = (setor: string): string => {
+    switch (setor) {
+      case 'agricultura':
+        return '/login/admin/agricultura';
+      case 'pesca':
+        return '/login/admin/pesca';
+      case 'paa':
+        return '/login/admin/paa';
+      default:
+        return '/login/admin';
+    }
+  };
+
   return {
     userAuth,
     hasAccess,
+    getLoginUrl,
     isLoading: userAuth.isLoading,
   };
 };

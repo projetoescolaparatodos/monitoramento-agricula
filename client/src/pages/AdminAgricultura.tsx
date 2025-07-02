@@ -24,7 +24,7 @@ import { useLocation } from "wouter";
 import { useAuthProtection } from "@/hooks/useAuthProtection";
 
 const AdminAgricultura = () => {
-  const { userAuth, hasAccess, isLoading } = useAuthProtection();
+  const { userAuth, hasAccess, getLoginUrl, isLoading } = useAuthProtection();
   const [, setLocation] = useLocation();
   const [nome, setNome] = useState("");
   const [fazenda, setFazenda] = useState("");
@@ -113,7 +113,7 @@ const AdminAgricultura = () => {
   }
 
   if (!userAuth.isAuthenticated) {
-    setLocation("/login/admin/agricultura");
+    setLocation(getLoginUrl('agricultura'));
     return null;
   }
 

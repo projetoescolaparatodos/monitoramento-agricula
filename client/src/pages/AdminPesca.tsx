@@ -26,7 +26,7 @@ import { useAuthProtection } from "@/hooks/useAuthProtection";
 
 const AdminPesca = () => {
   // Hooks sempre devem estar no topo do componente
-  const { userAuth, hasAccess, isLoading } = useAuthProtection();
+  const { userAuth, hasAccess, getLoginUrl, isLoading } = useAuthProtection();
   const [, setLocation] = useLocation();
   const [nomeImovel, setNomeImovel] = useState("");
   const [proprietario, setProprietario] = useState("");
@@ -85,7 +85,7 @@ const AdminPesca = () => {
   }
 
   if (!userAuth.isAuthenticated) {
-    setLocation("/login/admin/pesca");
+    setLocation(getLoginUrl('pesca'));
     return null;
   }
 

@@ -91,7 +91,7 @@ function Router() {
               {() => {
                 const user = auth.currentUser;
                 if (!user) {
-                  window.location.href = "/login";
+                  window.location.href = "/login/admin/agricultura";
                   return null;
                 }
                 return <AdminAgricultura />;
@@ -101,7 +101,7 @@ function Router() {
               {() => {
                 const user = auth.currentUser;
                 if (!user) {
-                  window.location.href = "/login";
+                  window.location.href = "/login/admin/pesca";
                   return null;
                 }
                 return <AdminPesca />;
@@ -111,7 +111,7 @@ function Router() {
               {() => {
                 const user = auth.currentUser;
                 if (!user) {
-                  window.location.href = "/login";
+                  window.location.href = "/login/admin/paa";
                   return null;
                 }
                 return <AdminPAA />;

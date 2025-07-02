@@ -24,7 +24,7 @@ import { useLocation } from "wouter";
 import { useAuthProtection } from "@/hooks/useAuthProtection";
 
 const AdminPAA = () => {
-  const { userAuth, hasAccess, isLoading } = useAuthProtection();
+  const { userAuth, hasAccess, getLoginUrl, isLoading } = useAuthProtection();
   const [, setLocation] = useLocation();
   const [localidade, setLocalidade] = useState("");
   const [nomeImovel, setNomeImovel] = useState("");
@@ -106,7 +106,7 @@ const AdminPAA = () => {
   }
 
   if (!userAuth.isAuthenticated) {
-    setLocation("/login/admin/paa");
+    setLocation(getLoginUrl('paa'));
     return null;
   }
 
