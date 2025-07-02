@@ -22,23 +22,37 @@ export const useAuthProtection = (requiredSetor?: string) => {
   });
 
   useEffect(() => {
+    let mounted = true;
+    
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
+      try {
+        if (user) {
           // Buscar dados do usuário no Firestore
           const userDoc = await getDoc(doc(db, 'usuarios_admin', user.uid));
           
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            setUserAuth({
-              uid: user.uid,
-              email: user.email || '',
-              setor: userData.setor || '',
-              isAuthenticated: true,
-              isLoading: false,
-            });
-          } else {
-            // Usuário não existe na coleção admin
+          if (mounted) {
+            if (userDoc.exists()) {
+              const userData = userDoc.data();
+              setUserAuth({
+                uid: user.uid,
+                email: user.email || '',
+                setor: userData.setor || '',
+                isAuthenticated: true,
+                isLoading: false,
+              });
+            } else {
+              // Usuário não existe na coleção admin
+              setUserAuth({
+                uid: '',
+                email: '',
+                setor: '',
+                isAuthenticated: false,
+                isLoading: false,
+              });
+            }
+          }
+        } else {
+          if (mounted) {
             setUserAuth({
               uid: '',
               email: '',
@@ -47,8 +61,10 @@ export const useAuthProtection = (requiredSetor?: string) => {
               isLoading: false,
             });
           }
-        } catch (error) {
-          console.error('Erro ao verificar dados do usuário:', error);
+        }
+      } catch (error) {
+        console.error('Erro ao verificar dados do usuário:', error);
+        if (mounted) {
           setUserAuth({
             uid: '',
             email: '',
@@ -57,18 +73,13 @@ export const useAuthProtection = (requiredSetor?: string) => {
             isLoading: false,
           });
         }
-      } else {
-        setUserAuth({
-          uid: '',
-          email: '',
-          setor: '',
-          isAuthenticated: false,
-          isLoading: false,
-        });
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      mounted = false;
+      unsubscribe();
+    };
   }, []);
 
   const hasAccess = (setor: string): boolean => {
