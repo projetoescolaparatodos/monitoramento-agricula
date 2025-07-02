@@ -19,6 +19,11 @@ import Admin from "@/pages/Admin";
 import AdminAgricultura from "./pages/AdminAgricultura";
 import AdminPesca from "./pages/AdminPesca";
 import AdminPAA from "./pages/AdminPAA";
+import AdminLogin from "./pages/AdminLogin";
+import AdminLoginAgricultura from "./pages/AdminLoginAgricultura";
+import AdminLoginPesca from "./pages/AdminLoginPesca";
+import AdminLoginPAA from "./pages/AdminLoginPAA";
+import AcessoNegado from "./pages/AcessoNegado";
 import NotFound from "@/pages/not-found";
 import NavBar from "@/components/NavBar";
 import { auth } from "./utils/firebase";
@@ -67,6 +72,11 @@ function Router() {
             <Route path="/paa/map" component={PAAMap} />
             <Route path="/dashboard/:section?" component={Dashboard} />
             <Route path="/login" component={Login} />
+            <Route path="/login/admin" component={AdminLogin} />
+            <Route path="/login/admin/agricultura" component={AdminLoginAgricultura} />
+            <Route path="/login/admin/pesca" component={AdminLoginPesca} />
+            <Route path="/login/admin/paa" component={AdminLoginPAA} />
+            <Route path="/acesso-negado" component={AcessoNegado} />
             <Route path="/admin">
               {() => {
                 const user = auth.currentUser;

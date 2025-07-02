@@ -22,8 +22,33 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import EnhancedUpload from "@/components/EnhancedUpload";
 import { useLocation } from "wouter";
+import { useAuthProtection } from "@/hooks/useAuthProtection";
 
 const AdminAgricultura = () => {
+  const { userAuth, hasAccess, isLoading } = useAuthProtection();
+  const [, setLocation] = useLocation();
+
+  // Verificar autenticação e permissões
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p>Verificando permissões...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!userAuth.isAuthenticated) {
+    setLocation("/login/admin/agricultura");
+    return null;
+  }
+
+  if (!hasAccess('agricultura')) {
+    setLocation("/acesso-negado");
+    return null;
+  }
   const [nome, setNome] = useState("");
   const [fazenda, setFazenda] = useState("");
   const [atividade, setAtividade] = useState("");

@@ -22,8 +22,33 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import EnhancedUpload from "@/components/EnhancedUpload";
 import { useLocation } from "wouter";
+import { useAuthProtection } from "@/hooks/useAuthProtection";
 
 const AdminPesca = () => {
+  const { userAuth, hasAccess, isLoading } = useAuthProtection();
+  const [, setLocation] = useLocation();
+
+  // Verificar autenticação e permissões
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p>Verificando permissões...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!userAuth.isAuthenticated) {
+    setLocation("/login/admin/pesca");
+    return null;
+  }
+
+  if (!hasAccess('pesca')) {
+    setLocation("/acesso-negado");
+    return null;
+  }
   const [localidade, setLocalidade] = useState("");
   const [nomeImovel, setNomeImovel] = useState("");
   const [proprietario, setProprietario] = useState("");
