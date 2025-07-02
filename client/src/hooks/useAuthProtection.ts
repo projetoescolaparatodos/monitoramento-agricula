@@ -22,57 +22,23 @@ export const useAuthProtection = (requiredSetor?: string) => {
   });
 
   useEffect(() => {
-    let mounted = true;
-    
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      try {
-        if (user) {
+      if (user) {
+        try {
           // Buscar dados do usuário no Firestore
           const userDoc = await getDoc(doc(db, 'usuarios_admin', user.uid));
           
-          if (mounted) {
-            if (userDoc.exists()) {
-              const userData = userDoc.data();
-              setUserAuth({
-                uid: user.uid,
-                email: user.email || '',
-                setor: userData.setor || '',
-                isAuthenticated: true,
-                isLoading: false,
-              });
-            } else {
-              // Usuário não existe na coleção admin - adicionar delay
-              setTimeout(() => {
-                if (mounted) {
-                  setUserAuth({
-                    uid: '',
-                    email: '',
-                    setor: '',
-                    isAuthenticated: false,
-                    isLoading: false,
-                  });
-                }
-              }, 500);
-            }
-          }
-        } else {
-          // Não há usuário logado - adicionar delay
-          setTimeout(() => {
-            if (mounted) {
-              setUserAuth({
-                uid: '',
-                email: '',
-                setor: '',
-                isAuthenticated: false,
-                isLoading: false,
-              });
-            }
-          }, 500);
-        }
-      } catch (error) {
-        console.error('Erro ao verificar dados do usuário:', error);
-        setTimeout(() => {
-          if (mounted) {
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setUserAuth({
+              uid: user.uid,
+              email: user.email || '',
+              setor: userData.setor || '',
+              isAuthenticated: true,
+              isLoading: false,
+            });
+          } else {
+            // Usuário não existe na coleção admin
             setUserAuth({
               uid: '',
               email: '',
@@ -81,14 +47,28 @@ export const useAuthProtection = (requiredSetor?: string) => {
               isLoading: false,
             });
           }
-        }, 500);
+        } catch (error) {
+          console.error('Erro ao verificar dados do usuário:', error);
+          setUserAuth({
+            uid: '',
+            email: '',
+            setor: '',
+            isAuthenticated: false,
+            isLoading: false,
+          });
+        }
+      } else {
+        setUserAuth({
+          uid: '',
+          email: '',
+          setor: '',
+          isAuthenticated: false,
+          isLoading: false,
+        });
       }
     });
 
-    return () => {
-      mounted = false;
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
   const hasAccess = (setor: string): boolean => {
