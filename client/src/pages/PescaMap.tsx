@@ -180,11 +180,17 @@ const PescaMap = () => {
 
   const renderInfoWindow = useCallback(
     (pesca: Pesca) => {
-      const status = pesca.concluido ? (
-        <span className="text-green-600 font-medium">Concluído</span>
-      ) : (
-        <span className="text-blue-600 font-medium">Em Andamento</span>
-      );
+      const infoWindowStyle = {
+        backgroundColor: "rgba(255, 255, 255, 0.95)",
+        border: "2px solid #38a169",
+        borderRadius: "12px",
+        boxShadow: "0 10px 25px rgba(0, 0, 0, 0.2)",
+        padding: "1.5rem",
+        width: isMaximized ? "90vw" : "420px",
+        maxHeight: isMaximized ? "90vh" : "80vh",
+        overflowY: "auto",
+        backdropFilter: "blur(8px)",
+      };
 
       return (
         <InfoWindow
@@ -198,68 +204,94 @@ const PescaMap = () => {
             maxHeight: isMaximized ? window.innerHeight * 0.9 : undefined,
           }}
         >
-          <div
-            className={`p-4 ${isMaximized ? styles.maximized : ""}`}
-          >
-            {/* Botão de Fechar */}
-            <button
-              onClick={() => {
-                setSelectedMarker(null);
-                setIsMaximized(false);
-              }}
-              className="absolute top-2 right-2 bg-gray-100 hover:bg-gray-200 rounded-full p-2 z-10"
+          <div className="relative" style={infoWindowStyle}>
+            {/* Botão de fechar */}
+            <button 
+              onClick={() => setSelectedMarker(null)} 
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 transition-colors"
             >
-              <X className="h-4 w-4" /> {/* Ícone de fechar */}
+              <X size={20} />
             </button>
 
-            <div className={styles["text-content"]}>
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="font-bold text-lg">{pesca.localidade}</h3>
+            {/* Cabeçalho */}
+            <div className="flex items-start gap-3 mb-4">
+              <div className={`p-3 rounded-lg ${pesca.concluido ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+                {pesca.concluido ? (
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                ) : (
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 8A8 8 0 11.344 6.024C.845 5.427 1.42 5 2.071 5H5.07c.652 0 1.226.427 1.428 1.024L8.5 10.5 10 8l1.5 2.5 2.002-4.476C13.926 5.427 14.5 5 15.15 5h3c.651 0 1.226.427 1.428 1.024A8.003 8.003 0 0118 8z" clipRule="evenodd" />
+                  </svg>
+                )}
               </div>
-              <div className="space-y-2">
-                <p>
-                  <strong>N° de Registro:</strong> {pesca.numeroRegistro || "-"}
+              <div>
+                <h2 className={styles.infoTitle}>{pesca.localidade}</h2>
+                <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+                  ${pesca.concluido ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+                  {pesca.concluido ? 'Concluído' : 'Em Andamento'}
+                </div>
+              </div>
+            </div>
+
+            {/* Corpo das informações */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Coluna 1 */}
+              <div>
+                <h3 className={styles.infoSubtitle}>Identificação</h3>
+                <p className={styles.infoText}>
+                  <span className="font-medium">N° Registro:</span> <span className={styles.infoHighlight}>{pesca.numeroRegistro || "Não informado"}</span>
                 </p>
-                <p>
-                  <strong>Localidade:</strong> {pesca.localidade}
+                <p className={styles.infoText}>
+                  <span className="font-medium">Localidade:</span> {pesca.localidade}
                 </p>
-                <p>
-                  <strong>Nome do Imóvel Rural:</strong> {pesca.nomeImovel || "-"}
+                <p className={styles.infoText}>
+                  <span className="font-medium">Imóvel Rural:</span> {pesca.nomeImovel || "Não informado"}
                 </p>
-                <p>
-                  <strong>Nome do Proprietário:</strong> {pesca.proprietario || "-"}
+                <p className={styles.infoText}>
+                  <span className="font-medium">Proprietário:</span> {pesca.proprietario || "Não informado"}
                 </p>
-                <p>
-                  <strong>Estrutura Aquícola:</strong>{" "}
-                  {pesca.tipoTanque}
+              </div>
+
+              {/* Coluna 2 */}
+              <div>
+                <h3 className={styles.infoSubtitle}>Operação Aquícola</h3>
+                <p className={styles.infoText}>
+                  <span className="font-medium">Estrutura:</span> {pesca.tipoTanque}
                 </p>
-                <p>
-                  <strong>Espécie:</strong> {pesca.especiePeixe}
+                <p className={styles.infoText}>
+                  <span className="font-medium">Espécie:</span> {pesca.especiePeixe}
                 </p>
-                <p>
-                  <strong>Quantidade de Alevinos:</strong>{" "}
-                  {pesca.quantidadeAlevinos} unidades
+                <p className={styles.infoText}>
+                  <span className="font-medium">Alevinos:</span> {pesca.quantidadeAlevinos} unidades
                 </p>
-                <p>
-                  <strong>Método de Alimentação:</strong>{" "}
-                  {pesca.metodoAlimentacao}
-                </p>
-                <p>
-                  <strong>Operador:</strong> {pesca.operador || "-"}
-                </p>
-                <p>
-                  <strong>Técnico Responsável:</strong>{" "}
-                  {pesca.tecnicoResponsavel || "-"}
-                </p>
-                <p>
-                  <strong>Data:</strong>{" "}
-                  {new Date(pesca.dataCadastro).toLocaleDateString()}
-                </p>
-                <p>
-                  <strong>Status:</strong> {status}
+                <p className={styles.infoText}>
+                  <span className="font-medium">Alimentação:</span> {pesca.metodoAlimentacao}
                 </p>
               </div>
             </div>
+
+            {/* Seção de Responsáveis */}
+            <div className="mt-4">
+              <h3 className={styles.infoSubtitle}>Responsáveis</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <p className={styles.infoText}>
+                  <span className="font-medium">Operador:</span> {pesca.operador || "Não informado"}
+                </p>
+                <p className={styles.infoText}>
+                  <span className="font-medium">Técnico:</span> {pesca.tecnicoResponsavel || "Não informado"}
+                </p>
+              </div>
+            </div>
+
+            {/* Rodapé */}
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <p className="text-sm text-gray-500">
+                Cadastrado em: {new Date(pesca.dataCadastro).toLocaleDateString('pt-BR')}
+              </p>
+            </div>
+          </div>
 
             {pesca.midias && pesca.midias.length > 0 && (
               <div className={styles["media-container"]}>
