@@ -77,16 +77,7 @@ function Router() {
             <Route path="/login/admin/pesca" component={AdminLoginPesca} />
             <Route path="/login/admin/paa" component={AdminLoginPAA} />
             <Route path="/acesso-negado" component={AcessoNegado} />
-            <Route path="/admin">
-              {() => {
-                const user = auth.currentUser;
-                if (!user) {
-                  window.location.href = "/login";
-                  return null;
-                }
-                return <Admin />;
-              }}
-            </Route>
+            <Route path="/admin" component={Admin} />
             <Route path="/admin/agricultura">
               {() => {
                 const user = auth.currentUser;

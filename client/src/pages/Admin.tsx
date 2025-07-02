@@ -22,6 +22,7 @@ import "leaflet/dist/leaflet.css";
 import Upload from "@/components/Upload";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useLocation } from "wouter";
+import { useAuthProtection } from "@/hooks/useAuthProtection";
 
 // Importing the EnhancedUpload component
 import EnhancedUpload from "@/components/EnhancedUpload";
@@ -1578,11 +1579,37 @@ const PAAForm = () => {
 };
 
 const Admin = () => {
+  const { userAuth, isLoading } = useAuthProtection();
+  const [, setLocation] = useLocation();
   const [showManagerButton, setShowManagerButton] = useState(false);
   const [agriculturaData, setAgriculturaData] = useState([]);
   const [pescaData, setPescaData] = useState([]);
   const [agriculturasAtividades, setAgriculturasAtividades] = useState([]);
   const { toast } = useToast();
+
+  // Verificar autenticação e redirecionar se necessário
+  useEffect(() => {
+    if (!isLoading && !userAuth.isAuthenticated) {
+      setLocation("/login/admin");
+    }
+  }, [isLoading, userAuth.isAuthenticated, setLocation]);
+
+  // Mostrar loading enquanto verifica autenticação
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p>Verificando permissões...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Se não está autenticado, não renderizar nada (redirecionamento já foi feito)
+  if (!userAuth.isAuthenticated) {
+    return null;
+  }
 
   useEffect(() => {
     const fetchData = async () => {
