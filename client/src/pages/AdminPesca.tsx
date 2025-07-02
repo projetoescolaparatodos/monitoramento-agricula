@@ -25,8 +25,28 @@ import { useLocation } from "wouter";
 import { useAuthProtection } from "@/hooks/useAuthProtection";
 
 const AdminPesca = () => {
+  // Hooks sempre devem estar no topo do componente
   const { userAuth, hasAccess, isLoading } = useAuthProtection();
   const [, setLocation] = useLocation();
+  const [nomeImovel, setNomeImovel] = useState("");
+  const [proprietario, setProprietario] = useState("");
+  const [tipoTanque, setTipoTanque] = useState("");
+  const [especiePeixe, setEspeciePeixe] = useState("");
+  const [quantidadeAlevinos, setQuantidadeAlevinos] = useState(0);
+  const [metodoAlimentacao, setMetodoAlimentacao] = useState("");
+  const [operador, setOperador] = useState("");
+  const [tecnicoResponsavel, setTecnicoResponsavel] = useState("");
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [midias, setMidias] = useState<string[]>([]);
+  const [dataCadastro, setDataCadastro] = useState(
+    new Date().toISOString().split("T")[0],
+  );
+  const [pesqueirosCadastrados, setPesqueirosCadastrados] = useState<any[]>([]);
+  const [pesqueiroEmEdicao, setPesqueiroEmEdicao] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [pescaData, setPescaData] = useState<any[]>([]);
+  const { toast } = useToast();
 
   // Verificar autenticação e permissões
   if (isLoading) {
@@ -49,26 +69,6 @@ const AdminPesca = () => {
     setLocation("/acesso-negado");
     return null;
   }
-  const [localidade, setLocalidade] = useState("");
-  const [nomeImovel, setNomeImovel] = useState("");
-  const [proprietario, setProprietario] = useState("");
-  const [tipoTanque, setTipoTanque] = useState("");
-  const [especiePeixe, setEspeciePeixe] = useState("");
-  const [quantidadeAlevinos, setQuantidadeAlevinos] = useState(0);
-  const [metodoAlimentacao, setMetodoAlimentacao] = useState("");
-  const [operador, setOperador] = useState("");
-  const [tecnicoResponsavel, setTecnicoResponsavel] = useState("");
-  const [latitude, setLatitude] = useState<number | null>(null);
-  const [longitude, setLongitude] = useState<number | null>(null);
-  const [midias, setMidias] = useState<string[]>([]);
-  const [dataCadastro, setDataCadastro] = useState(
-    new Date().toISOString().split("T")[0],
-  );
-  const [pesqueirosCadastrados, setPesqueirosCadastrados] = useState<any[]>([]);
-  const [pesqueiroEmEdicao, setPesqueiroEmEdicao] = useState<any | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [pescaData, setPescaData] = useState<any[]>([]);
-  const { toast } = useToast();
 
   useEffect(() => {
     const fetchPesqueiros = async () => {
