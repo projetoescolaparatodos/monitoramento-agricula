@@ -1,0 +1,154 @@
+Vamos transformar o popup em algo mais bonito e profissional, melhorando a tipografia, cores, hierarquia visual e experiência geral. Aqui está uma abordagem completa:
+
+1. Cores e Fundo do Popup (CSS-in-JS ou módulo CSS)
+tsx
+// Substitua o estilo atual por algo como:
+const infoWindowStyle = {
+  backgroundColor: "rgba(255, 255, 255, 0.95)", // Branco com alta opacidade
+  border: "2px solid #38a169", // Verde similar ao seu tema
+  borderRadius: "12px",
+  boxShadow: "0 10px 25px rgba(0, 0, 0, 0.2)",
+  padding: "1.5rem",
+  width: isMaximized ? "90vw" : "420px",
+  maxHeight: isMaximized ? "90vh" : "80vh",
+  overflowY: "auto",
+  backdropFilter: "blur(8px)", // Efeito de vidro fosco
+};
+2. Hierarquia Tipográfica (Fontes e Espaçamento)
+tsx
+// Adicione no seu módulo CSS ou tailwind:
+.infoTitle {
+  font-family: 'Poppins', sans-serif; // Importar via Google Fonts
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #2d3748; // Cinza escuro
+  margin-bottom: 0.75rem;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.5rem;
+}
+
+.infoSubtitle {
+  font-weight: 600;
+  color: #4a5568;
+  margin-top: 1.25rem;
+  font-size: 1.1rem;
+}
+
+.infoText {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #4a5568;
+  margin-bottom: 0.5rem;
+}
+
+.infoHighlight {
+  background-color: #f0fff4; // Verde muito claro
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+3. Estrutura do Conteúdo (TSX)
+tsx
+<div className="relative" style={infoWindowStyle}>
+  {/* Botão de fechar */}
+  <button onClick={() => setSelectedMarker(null)} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 transition-colors">
+    <X size={20} />
+  </button>
+
+  {/* Cabeçalho */}
+  <div className="flex items-start gap-3 mb-4">
+    <div className={`p-3 rounded-lg ${trator.concluido ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+      {trator.concluido ? (
+        <CheckCircle size={24} />
+      ) : (
+        <Activity size={24} />
+      )}
+    </div>
+    <div>
+      <h2 className="infoTitle">{trator.nome}</h2>
+      <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+        ${trator.concluido ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+        {trator.concluido ? 'Concluído' : 'Em Serviço'}
+      </div>
+    </div>
+  </div>
+
+  {/* Corpo das informações */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {/* Coluna 1 */}
+    <div>
+      <h3 className="infoSubtitle">Localização</h3>
+      <p className="infoText">
+        <span className="font-medium">Fazenda:</span> <span className="infoHighlight">{trator.fazenda}</span>
+      </p>
+      <p className="infoText">
+        <span className="font-medium">Proprietário:</span> {trator.proprietario || "Não informado"}
+      </p>
+      <p className="infoText">
+        <span className="font-medium">Localidade:</span> {trator.localidade || "Não informada"}
+      </p>
+    </div>
+
+    {/* Coluna 2 */}
+    <div>
+      <h3 className="infoSubtitle">Operação</h3>
+      <p className="infoText">
+        <span className="font-medium">Atividade:</span> {trator.atividade}
+      </p>
+      <p className="infoText">
+        <span className="font-medium">Área:</span> {trator.areaTrabalhada?.toFixed(2) || "0"} ha
+      </p>
+      <p className="infoText">
+        <span className="font-medium">Tempo:</span> {formatTempoAtividade(trator.tempoAtividade)}
+      </p>
+    </div>
+  </div>
+
+  {/* Rodapé */}
+  <div className="mt-4 pt-4 border-t border-gray-200">
+    <p className="text-sm text-gray-500">
+      <span className="font-medium">Operador:</span> {trator.piloto} | 
+      <span className="font-medium"> Técnico:</span> {trator.tecnicoResponsavel || "Não informado"} | 
+      <span className="font-medium"> Data:</span> {new Date(trator.dataCadastro).toLocaleDateString()}
+    </p>
+  </div>
+</div>
+4. Função Auxiliar para Formatar Tempo
+tsx
+const formatTempoAtividade = (tempo?: number) => {
+  if (!tempo) return "Não registrado";
+  
+  if (tempo > 100) {
+    // Se for maior que 100, assume que está em minutos e converte para horas
+    const horas = Math.floor(tempo / 60);
+    const minutos = Math.round(tempo % 60);
+    return `${horas}h ${minutos}m`;
+  } else {
+    return `${tempo.toFixed(1)} horas`;
+  }
+};
+5. Efeitos de Transição (CSS)
+css
+/* Adicione ao seu módulo CSS */
+.popup-enter {
+  opacity: 0;
+  transform: scale(0.95);
+}
+.popup-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 200ms, transform 200ms;
+}
+.popup-exit {
+  opacity: 1;
+}
+.popup-exit-active {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 200ms, transform 200ms;
+}
+6. Implementação das Fontes
+No seu arquivo global CSS ou no cabeçalho:
+
+html
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">

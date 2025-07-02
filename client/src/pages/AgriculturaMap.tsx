@@ -1,5 +1,4 @@
 import "@dotlottie/player-component";
-
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../utils/firebase";
@@ -12,7 +11,7 @@ import {
   KmlLayer,
   Polygon
 } from "@react-google-maps/api";
-import { Loader2, X } from "lucide-react"; 
+import { Loader2, X, CheckCircle, Activity, MapPin, Clock, Calendar, User, HardHat } from "lucide-react"; 
 import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -29,7 +28,7 @@ interface Trator {
   latitude: number;
   longitude: number;
   tempoAtividade?: number;
-  areaTrabalhada?: number; // Changed to number for easier calculation
+  areaTrabalhada?: number;
   midias?: string[];
   localidade?: string;
   proprietario?: string;
@@ -46,43 +45,36 @@ const AgriculturaMap = () => {
   const [selectedMarker, setSelectedMarker] = useState<Trator | null>(null);
   const [filtro, setFiltro] = useState("todos");
   const [isMaximized, setIsMaximized] = useState(false);
+  const [showBoundary, setShowBoundary] = useState(true);
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   const mapContainerStyle = {
     width: "100%",
     height: "100%",
   };
 
-  const center = useMemo(() => ({ lat: -3.15, lng: -52.0088 }), []); // Movido mais para o sul
+  const center = useMemo(() => ({ lat: -3.15, lng: -52.0088 }), []);
   const bounds = useMemo(
     () => ({
       north: -2.5,
-      south: -3.8, // Aumentado para mostrar mais ao sul
+      south: -3.8,
       east: -51.5,
       west: -52.5,
     }),
     [],
   );
 
-  // Estado para controlar a exibição do contorno do município
-  const [showBoundary, setShowBoundary] = useState(true);
-  const [mapLoaded, setMapLoaded] = useState(false);
-
-  // URL do KML no Firebase Storage
   const kmlUrl = "https://firebasestorage.googleapis.com/v0/b/transparencia-agricola.appspot.com/o/uploads%2Fvitoria-xingu.kml?alt=media";
-
-  // Usando o hook personalizado para carregar o KML
   const { boundaryCoordinates, loading: loadingKml, error: kmlError } = useKmlBoundary(kmlUrl);
 
-  // Fallback para coordenadas caso o KML não seja carregado
   const fallbackBoundary = useMemo(() => [
     { lat: -2.85, lng: -52.05 },
     { lat: -2.88, lng: -51.95 },
     { lat: -2.93, lng: -51.98 },
     { lat: -2.91, lng: -52.07 },
-    { lat: -2.85, lng: -52.05 }, // Fechar o polígono
+    { lat: -2.85, lng: -52.05 },
   ], []);
 
-  // Usar coordenadas do KML se disponíveis, senão usar fallback
   const municipioBoundary = useMemo(() => {
     if (boundaryCoordinates.length > 0) {
       return boundaryCoordinates;
@@ -90,16 +82,14 @@ const AgriculturaMap = () => {
     return fallbackBoundary;
   }, [boundaryCoordinates, fallbackBoundary]);
 
-  // Coordenadas para o polígono que cobre a área externa (mundo)
   const worldBounds = useMemo(() => [
-    { lat: -90, lng: -180 }, // SW
-    { lat: -90, lng: 180 },  // SE
-    { lat: 90, lng: 180 },   // NE
-    { lat: 90, lng: -180 },  // NW
-    { lat: -90, lng: -180 }, // Fechar o polígono
+    { lat: -90, lng: -180 },
+    { lat: -90, lng: 180 },
+    { lat: 90, lng: 180 },
+    { lat: 90, lng: -180 },
+    { lat: -90, lng: -180 },
   ], []);
 
-  // Estilo para a máscara escura (área externa)
   const maskStyle = useMemo(() => ({
     fillColor: '#000000',
     fillOpacity: 0.6,
@@ -108,7 +98,6 @@ const AgriculturaMap = () => {
     zIndex: 1
   }), []);
 
-  // Estilo para o contorno do município
   const boundaryStyle = useMemo(() => ({
     fillColor: '#00ff88',
     fillOpacity: 0.1,
@@ -119,26 +108,34 @@ const AgriculturaMap = () => {
     clickable: false
   }), []);
 
-  // Usamos as funções importadas diretamente
-
-  // Garantir que o caminho do município esteja no sentido horário
   const correctedBoundary = useMemo(() => {
     return ensureClockwise(municipioBoundary);
   }, [municipioBoundary]);
+
+  const formatTempoAtividade = useCallback((tempo?: number) => {
+    if (!tempo) return "Não registrado";
+
+    if (tempo > 100) {
+      const horas = Math.floor(tempo / 60);
+      const minutos = Math.round(tempo % 60);
+      return `${horas}h ${minutos}m`;
+    } else {
+      return `${tempo.toFixed(1)} horas`;
+    }
+  }, []);
 
   const fetchTratores = useCallback(async () => {
     try {
       const querySnapshot = await getDocs(collection(db, "tratores"));
       const tratoresData = querySnapshot.docs.map((doc) => {
         const data = doc.data();
-        // Garantir que areaTrabalhada seja sempre um número
         let areaTrabalhada = undefined;
         if (data.areaTrabalhada !== undefined && data.areaTrabalhada !== null) {
           areaTrabalhada = typeof data.areaTrabalhada === 'number' 
             ? data.areaTrabalhada 
             : parseFloat(data.areaTrabalhada);
         }
-        
+
         return {
           id: doc.id,
           nome: data.nome,
@@ -150,7 +147,7 @@ const AgriculturaMap = () => {
           latitude: data.latitude,
           longitude: data.longitude,
           tempoAtividade: data.tempoAtividade,
-          areaTrabalhada: areaTrabalhada, // Valor já tratado
+          areaTrabalhada: areaTrabalhada,
           midias: data.midias,
           localidade: data.localidade,
           proprietario: data.proprietario,
@@ -180,11 +177,17 @@ const AgriculturaMap = () => {
 
   const renderInfoWindow = useCallback(
     (trator: Trator) => {
-      const status = trator.concluido ? (
-        <span className="text-green-600 font-medium">Concluído</span>
-      ) : (
-        <span className="text-blue-600 font-medium">Em Serviço</span>
-      );
+      const infoWindowStyle = {
+        backgroundColor: "rgba(255, 255, 255, 0.97)",
+        border: "2px solid #38a169",
+        borderRadius: "12px",
+        boxShadow: "0 10px 25px rgba(0, 0, 0, 0.2)",
+        padding: "1.5rem",
+        width: isMaximized ? "90vw" : "420px",
+        maxHeight: isMaximized ? "90vh" : "80vh",
+        overflowY: "auto",
+        backdropFilter: "blur(8px)",
+      };
 
       return (
         <InfoWindow
@@ -198,89 +201,93 @@ const AgriculturaMap = () => {
             maxHeight: isMaximized ? window.innerHeight * 0.9 : undefined,
           }}
         >
-          <div
-            className={`p-4 ${isMaximized ? styles.maximized : ""}`}
-          >
+          <div className="relative" style={infoWindowStyle}>
             <button
               onClick={() => {
                 setSelectedMarker(null);
                 setIsMaximized(false);
               }}
-              className="absolute top-2 right-2 bg-gray-100 hover:bg-gray-200 rounded-full p-2 z-10"
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 transition-colors"
             >
-              <X className="h-4 w-4" /> 
+              <X size={20} />
             </button>
 
-            <div className={styles["text-content"]}>
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="font-bold text-lg">{trator.nome}</h3>
+            <div className="flex items-start gap-3 mb-4">
+              <div className={`p-3 rounded-lg ${trator.concluido ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+                {trator.concluido ? (
+                  <CheckCircle size={24} />
+                ) : (
+                  <Activity size={24} />
+                )}
               </div>
-              <div className="space-y-2">
-                <p>
-                  <strong>Localidade:</strong> {trator.localidade || "-"}
-                </p>
-                <p>
-                  <strong>Nome do Imóvel Rural:</strong> {trator.fazenda}
-                </p>
-                <p>
-                  <strong>Nome do Proprietário:</strong>{" "}
-                  {trator.proprietario || "-"}
-                </p>
-                <p>
-                  <strong>Operação:</strong> {trator.atividade}
-                </p>
-                <p>
-                  <strong>Hora/máquina:</strong>{" "}
-                  {(() => {
-                    // Verifica múltiplas possíveis propriedades para o tempo
-                    const tempoValue = trator.tempoAtividade || trator.horasMaquina || trator.horas || trator.tempo;
-                    const tempo = typeof tempoValue === 'number' 
-                      ? tempoValue 
-                      : typeof tempoValue === 'string' 
-                        ? parseFloat(tempoValue) 
-                        : null;
+              <div>
+                <h2 className="font-bold text-xl text-gray-800 mb-1">{trator.nome}</h2>
+                <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+                  ${trator.concluido ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+                  {trator.concluido ? 'Concluído' : 'Em Serviço'}
+                </div>
+              </div>
+            </div>
 
-                    if (tempo === null || isNaN(tempo)) return "-";
-                    return (tempo > 100 ? (tempo / 60).toFixed(2) : tempo.toFixed(2)) + " horas";
-                  })()}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h3 className="font-semibold text-gray-700 text-lg mb-2 flex items-center gap-2">
+                  <MapPin size={18} /> Localização
+                </h3>
+                <p className="text-gray-600 mb-2">
+                  <span className="font-medium">Fazenda:</span> <span className="bg-green-50 px-2 py-1 rounded">{trator.fazenda}</span>
                 </p>
-                <p>
-                  <strong>Área para mecanização:</strong>{" "}
-                  {typeof trator.areaTrabalhada === 'number' ? parseFloat(trator.areaTrabalhada.toString()).toFixed(2) : "-"} ha
+                <p className="text-gray-600 mb-2">
+                  <span className="font-medium">Proprietário:</span> {trator.proprietario || "Não informado"}
                 </p>
-                <p>
-                  <strong>Operador:</strong> {trator.piloto}
+                <p className="text-gray-600">
+                  <span className="font-medium">Localidade:</span> {trator.localidade || "Não informada"}
                 </p>
-                <p>
-                  <strong>Técnico Responsável:</strong>{" "}
-                  {trator.tecnicoResponsavel || "-"}
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-700 text-lg mb-2 flex items-center gap-2">
+                  <HardHat size={18} /> Operação
+                </h3>
+                <p className="text-gray-600 mb-2">
+                  <span className="font-medium">Atividade:</span> {trator.atividade}
                 </p>
-                <p>
-                  <strong>Data:</strong>{" "}
-                  {new Date(trator.dataCadastro).toLocaleDateString()}
+                <p className="text-gray-600 mb-2">
+                  <span className="font-medium">Área:</span> {trator.areaTrabalhada?.toFixed(2) || "0"} ha
                 </p>
-                <p>
-                  <strong>Status:</strong> {status}
+                <p className="text-gray-600">
+                  <span className="font-medium">Tempo:</span> {formatTempoAtividade(trator.tempoAtividade)}
                 </p>
               </div>
             </div>
 
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+                <span className="flex items-center gap-1">
+                  <User size={14} /> {trator.piloto}
+                </span>
+                <span className="flex items-center gap-1">
+                  <HardHat size={14} /> {trator.tecnicoResponsavel || "Não informado"}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Calendar size={14} /> {new Date(trator.dataCadastro).toLocaleDateString()}
+                </span>
+              </div>
+            </div>
+
             {trator.midias && trator.midias.length > 0 && (
-              <div className={styles["media-container"]}>
-                <h4 className="font-semibold mb-2">Fotos/Vídeos:</h4>
-                <div className={styles.grid}>
+              <div className="mt-6">
+                <h3 className="font-semibold text-gray-700 text-lg mb-3">Mídias</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {trator.midias.map((url, index) => {
-                    // Verifica se é um vídeo do YouTube
                     const isYouTube = url.includes("youtube.com") || url.includes("youtu.be");
 
                     if (isYouTube) {
-                      // Extrair o ID do vídeo
                       let videoId = '';
                       try {
                         if (url.includes("youtu.be")) {
                           videoId = url.split("/").pop() || '';
                         } else {
-                          // Para links como youtube.com/watch?v=XYZ123
                           const urlObj = new URL(url);
                           videoId = urlObj.searchParams.get("v") || '';
                         }
@@ -293,20 +300,15 @@ const AgriculturaMap = () => {
                         return (
                           <iframe
                             key={index}
-                            width="100%"
-                            height="240"
+                            className="w-full aspect-video rounded-lg"
                             src={embedUrl}
                             title={`YouTube video ${index}`}
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
-                            className={`${styles["popup-media"]} rounded-lg`}
                           />
                         );
                       }
                     }
 
-                    // Verifica se é um vídeo comum (não YouTube)
                     const isRegularVideo = 
                       url.includes("/video/") || 
                       url.includes("/video/upload/") || 
@@ -323,19 +325,18 @@ const AgriculturaMap = () => {
                             src={url}
                             controls
                             preload="metadata"
-                            className={`${styles["popup-media"]}`}
+                            className="w-full aspect-video rounded-lg bg-gray-100"
                           />
                         </div>
                       );
                     }
 
-                    // Se não for vídeo, exibe como imagem
                     return (
                       <img
                         key={index}
                         src={url}
                         alt="Mídia"
-                        className={`${styles["popup-media"]}`}
+                        className="w-full h-auto rounded-lg object-cover aspect-square bg-gray-100"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Mídia+indisponível';
                         }}
@@ -348,15 +349,23 @@ const AgriculturaMap = () => {
 
             <button
               onClick={() => setIsMaximized(!isMaximized)}
-              className="absolute top-2 right-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2 z-10"
+              className="absolute top-3 right-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors"
             >
-              {isMaximized ? "Reduzir" : "Maximizar"}
+              {isMaximized ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+                </svg>
+              )}
             </button>
           </div>
         </InfoWindow>
       );
     },
-    [isMaximized],
+    [isMaximized, formatTempoAtividade],
   );
 
   if (loading) {
@@ -468,7 +477,6 @@ const AgriculturaMap = () => {
         ))}
         {selectedMarker && renderInfoWindow(selectedMarker)}
 
-        {/* Contorno do município (opcional, controlado pelo filtro) */}
         {showBoundary && (
           <Polygon
             paths={correctedBoundary}
@@ -476,17 +484,16 @@ const AgriculturaMap = () => {
           />
         )}
 
-        {/* Botão de controle para o limite com ícone do município */}
         <div className="absolute top-36 right-4 z-50">
           <button
             onClick={() => setShowBoundary(!showBoundary)}
-            className={styles["boundary-toggle"]}
+            className={`p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors ${showBoundary ? 'ring-2 ring-green-500' : ''}`}
             title={showBoundary ? "Ocultar Contorno Municipal" : "Mostrar Contorno Municipal"}
           >
             <img 
               src="/contornoicone.png" 
               alt="Contorno Municipal" 
-              className={`${showBoundary ? styles["icon-active"] : ""}`}
+              className="w-6 h-6"
             />
           </button>
         </div>
