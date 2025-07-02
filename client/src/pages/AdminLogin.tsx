@@ -52,12 +52,12 @@ const AdminLogin = () => {
             </p>
           </div>
 
-          <Card className="bg-green-50/20 backdrop-blur-md shadow-2xl border border-green-200/30">
+          <Card className="bg-green-600/20 backdrop-blur-md shadow-2xl border border-green-300/40">
             <CardHeader className="text-center pb-6">
-              <CardTitle className="text-2xl font-bold text-white mb-2 drop-shadow-lg">
+              <CardTitle className="text-2xl font-bold text-green-50 mb-2 drop-shadow-lg">
                 Área de Cadastro
               </CardTitle>
-              <p className="text-white/90 text-base drop-shadow-md">
+              <p className="text-green-100/90 text-base drop-shadow-md">
                 Selecione sua área de atuação para acessar o sistema
               </p>
             </CardHeader>
