@@ -49,7 +49,7 @@ const AdminAgricultura = () => {
   const { toast } = useToast();
   const [agriculturasAtividades, setAgriculturasAtividades] = useState<any[]>([]);
 
-  // Todos os useEffect devem estar no topo
+  // useEffect para buscar dados (sempre executa)
   useEffect(() => {
     const fetchTratores = async () => {
       try {
@@ -73,7 +73,42 @@ const AdminAgricultura = () => {
     fetchTratores();
   }, []);
 
+  // Verificações condicionais após hooks básicos
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p>Verificando permissões...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!userAuth.isAuthenticated) {
+    setLocation(getLoginUrl('agricultura'));
+    return null;
+  }
+
+  if (!hasAccess('agricultura')) {
+    setLocation("/acesso-negado");
+    return null;
+  }
+
+  // useEffect para inicializar mapa (só executa após verificações passarem)
   useEffect(() => {
+    const mapElement = document.getElementById("admin-map-agricultura");
+    if (!mapElement) {
+      console.warn("Elemento do mapa não encontrado no DOM");
+      return;
+    }
+
+    // Verifica se o mapa já foi inicializado
+    if ((mapElement as any)._leaflet_id) {
+      console.log("Mapa já inicializado");
+      return;
+    }
+
     const map = L.map("admin-map-agricultura").setView(
       [-2.87922, -52.0088],
       12,
@@ -97,30 +132,12 @@ const AdminAgricultura = () => {
       L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
     });
 
-    return () => map.remove();
-  }, []);
-
-  // Verificar autenticação e permissões
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p>Verificando permissões...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!userAuth.isAuthenticated) {
-    setLocation(getLoginUrl('agricultura'));
-    return null;
-  }
-
-  if (!hasAccess('agricultura')) {
-    setLocation("/acesso-negado");
-    return null;
-  }
+    return () => {
+      if (map) {
+        map.remove();
+      }
+    };
+  }, [userAuth.isAuthenticated, hasAccess]); // Dependências para re-executar quando a autenticação mudar
 
   const atualizarStatusAgricultura = async (id: string, statusAtual: boolean) => {
     try {
