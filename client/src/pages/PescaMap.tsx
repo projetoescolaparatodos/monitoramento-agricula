@@ -261,6 +261,9 @@ const PescaMap = () => {
                   <span className="font-medium">Estrutura:</span> {pesca.tipoTanque}
                 </p>
                 <p className={styles.infoText}>
+                  <span className="font-medium">Área Alagada:</span> {pesca.areaAlagada || 0} ha
+                </p>
+                <p className={styles.infoText}>
                   <span className="font-medium">Espécie:</span> {pesca.especiePeixe}
                 </p>
                 <p className={styles.infoText}>

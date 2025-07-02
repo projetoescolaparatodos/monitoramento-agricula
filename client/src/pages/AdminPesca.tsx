@@ -64,6 +64,7 @@ const AdminPesca = () => {
   const [nomeImovel, setNomeImovel] = useState("");
   const [proprietario, setProprietario] = useState("");
   const [tipoTanque, setTipoTanque] = useState("");
+  const [areaAlagada, setAreaAlagada] = useState(0);
   const [especiePeixe, setEspeciePeixe] = useState("");
   const [quantidadeAlevinos, setQuantidadeAlevinos] = useState(0);
   const [metodoAlimentacao, setMetodoAlimentacao] = useState("");
@@ -206,6 +207,7 @@ const AdminPesca = () => {
         nomeImovel,
         proprietario,
         tipoTanque,
+        areaAlagada,
         especiePeixe,
         quantidadeAlevinos,
         metodoAlimentacao,
@@ -239,6 +241,7 @@ const AdminPesca = () => {
       setNomeImovel("");
       setProprietario("");
       setTipoTanque("");
+      setAreaAlagada(0);
       setEspeciePeixe("");
       setQuantidadeAlevinos(0);
       setMetodoAlimentacao("");
@@ -279,6 +282,7 @@ const AdminPesca = () => {
     setNomeImovel(pesqueiro.nomeImovel || "");
     setProprietario(pesqueiro.proprietario || "");
     setTipoTanque(pesqueiro.tipoTanque || "");
+    setAreaAlagada(pesqueiro.areaAlagada || 0);
     setEspeciePeixe(pesqueiro.especiePeixe || "");
     setQuantidadeAlevinos(pesqueiro.quantidadeAlevinos || 0);
     setMetodoAlimentacao(pesqueiro.metodoAlimentacao || "");
@@ -325,6 +329,7 @@ const AdminPesca = () => {
     setNomeImovel("");
     setProprietario("");
     setTipoTanque("");
+    setAreaAlagada(0);
     setEspeciePeixe("");
     setQuantidadeAlevinos(0);
     setMetodoAlimentacao("");
@@ -505,6 +510,20 @@ const AdminPesca = () => {
                   onChange={(e) => setTipoTanque(e.target.value)}
                   placeholder="Ex: Tanque escavado, tanque rede, etc."
                   required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="areaAlagada">Área Alagada (ha)</Label>
+                <Input
+                  id="areaAlagada"
+                  type="number"
+                  step="0.01"
+                  value={areaAlagada}
+                  onChange={(e) => setAreaAlagada(Number(e.target.value))}
+                  placeholder="Ex: 2.5"
+                  required
+                  min="0"
                 />
               </div>
 
