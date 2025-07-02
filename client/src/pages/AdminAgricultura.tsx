@@ -70,7 +70,6 @@ const AdminAgricultura = () => {
   const [tratorEmEdicao, setTratorEmEdicao] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
   const [agriculturasAtividades, setAgriculturasAtividades] = useState<any[]>([]);
 
   useEffect(() => {
