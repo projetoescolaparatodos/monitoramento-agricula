@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { db } from "../utils/firebase";
 import {
@@ -156,7 +155,7 @@ const AdminPesca = () => {
         title: "Sucesso",
         description: "Status atualizado com sucesso!",
       });
-      
+
       // Recarrega os dados
       const snapshot = await getDocs(collection(db, "pesca"));
       const updatedData = snapshot.docs.map((doc) => ({
@@ -301,7 +300,7 @@ const AdminPesca = () => {
           title: "Sucesso", 
           description: "Dados de pesca excluídos com sucesso!",
         });
-        
+
         // Recarrega os dados
         const querySnapshot = await getDocs(collection(db, "pesca"));
         const pescaData = querySnapshot.docs.map((doc) => ({
@@ -407,6 +406,17 @@ const AdminPesca = () => {
             <Label className="text-base font-semibold mb-4 block">
               Selecione a localização no mapa
             </Label>
+
+            {/* Componente para inserção manual de coordenadas */}
+            <IconSelector 
+              onLocationSelect={(lat, lng) => {
+                setLatitude(lat);
+                setLongitude(lng);
+              }}
+              initialLatitude={latitude}
+              initialLongitude={longitude}
+            />
+
             <div className="rounded-lg overflow-hidden border">
               <GoogleMap
                 mapContainerStyle={mapContainerStyle}
@@ -447,7 +457,7 @@ const AdminPesca = () => {
                 )}
               </GoogleMap>
             </div>
-            
+
             {latitude && longitude && (
               <div className="mt-2 text-sm text-gray-600">
                 <strong>Coordenadas selecionadas:</strong> {latitude.toFixed(6)}, {longitude.toFixed(6)}
@@ -624,7 +634,7 @@ const AdminPesca = () => {
                   </span>
                 )}
               </Button>
-              
+
               {pesqueiroEmEdicao && (
                 <Button type="button" variant="outline" onClick={cancelarEdicao}>
                   Cancelar
