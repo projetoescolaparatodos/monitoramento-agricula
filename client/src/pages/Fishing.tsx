@@ -193,7 +193,7 @@ const Fishing = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold">{(pescaData?.reduce((sum, p) => sum + (p.quantidadePescado || 0) + (p.quantidadeAlevinos || 0), 0)).toFixed(2)} kg</p>
+                  <p className="text-3xl font-bold">{(pescaData?.reduce((sum, p) => sum + (p.quantidadePescado || 0) + (p.quantidadeAlevinos || 0), 0) || 0).toFixed(2)} kg</p>
                 </CardContent>
               </Card>
               <Card>
