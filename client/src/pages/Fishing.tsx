@@ -193,7 +193,7 @@ const Fishing = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold">{pescaData?.reduce((sum, p) => sum + (p.quantidadePescado || 0), 0).toFixed(2)} kg</p>
+                  <p className="text-3xl font-bold">{(pescaData?.reduce((sum, p) => sum + (p.quantidadePescado || 0) + (p.quantidadeAlevinos || 0), 0)).toFixed(2)} kg</p>
                 </CardContent>
               </Card>
               <Card>
@@ -230,7 +230,7 @@ const Fishing = () => {
                   </p>
                 </CardContent>
               </Card>
-              
+
             </div>
 
             <Card className="bg-white/80 backdrop-blur-sm hidden md:block shadow-lg">
@@ -262,7 +262,7 @@ const Fishing = () => {
                         <TableCell>{pesca.metodoAlimentacao || "—"}</TableCell>
                         <TableCell>{pesca.operador || "—"}</TableCell>
                         <TableCell>{pesca.tecnicoResponsavel || "—"}</TableCell>
-                        <TableCell>{pesca.quantidadePescado ? `${pesca.quantidadePescado.toFixed(2)} kg` : "—"}</TableCell>
+                        <TableCell>{pesca.quantidadeAlevinos ? `${pesca.quantidadeAlevinos.toFixed(2)} kg` : "—"}</TableCell>
                         <TableCell>
                           <span className={pesca.concluido ? 'text-green-600 font-medium' : 'text-blue-600 font-medium'}>
                             {pesca.concluido ? 'Concluído' : 'Em Andamento'}

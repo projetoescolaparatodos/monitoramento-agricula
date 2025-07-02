@@ -540,16 +540,17 @@ const AdminPesca = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="quantidadeAlevinos">
-                  Quantidade de Alevinos
+                  Quantidade de Alevinos (kg)
                 </Label>
                 <Input
                   id="quantidadeAlevinos"
                   type="number"
+                  step="0.01"
                   value={quantidadeAlevinos}
                   onChange={(e) =>
                     setQuantidadeAlevinos(Number(e.target.value))
                   }
-                  placeholder="Número de alevinos no tanque"
+                  placeholder="Peso dos alevinos em kg"
                   required
                   min="0"
                 />

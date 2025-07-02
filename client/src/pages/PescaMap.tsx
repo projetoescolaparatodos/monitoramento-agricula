@@ -65,17 +65,17 @@ const PescaMap = () => {
     }),
     [],
   );
-  
+
   // Estado para controlar a exibição do contorno do município
   const [showBoundary, setShowBoundary] = useState(true);
   const [mapLoaded, setMapLoaded] = useState(false);
-  
+
   // URL do KML no Firebase Storage
   const kmlUrl = "https://firebasestorage.googleapis.com/v0/b/transparencia-agricola.appspot.com/o/uploads%2Fvitoria-xingu.kml?alt=media";
-  
+
   // Usando o hook personalizado para carregar o KML
   const { boundaryCoordinates, loading: loadingKml, error: kmlError } = useKmlBoundary(kmlUrl);
-  
+
   // Fallback para coordenadas caso o KML não seja carregado
   const fallbackBoundary = useMemo(() => [
     { lat: -2.85, lng: -52.05 },
@@ -84,7 +84,7 @@ const PescaMap = () => {
     { lat: -2.91, lng: -52.07 },
     { lat: -2.85, lng: -52.05 }, // Fechar o polígono
   ], []);
-  
+
   // Usar coordenadas do KML se disponíveis, senão usar fallback
   const municipioBoundary = useMemo(() => {
     if (boundaryCoordinates.length > 0) {
@@ -121,9 +121,9 @@ const PescaMap = () => {
     zIndex: 2,
     clickable: false
   }), []);
-  
+
   // Usamos as funções importadas diretamente
-  
+
   // Garantir que o caminho do município esteja no sentido horário
   const correctedBoundary = useMemo(() => {
     return ensureClockwise(municipioBoundary);
@@ -267,7 +267,7 @@ const PescaMap = () => {
                   <span className="font-medium">Espécie:</span> {pesca.especiePeixe}
                 </p>
                 <p className={styles.infoText}>
-                  <span className="font-medium">Alevinos:</span> {pesca.quantidadeAlevinos} unidades
+                  <span className="font-medium">Alevinos:</span> {pesca.quantidadeAlevinos ? `${pesca.quantidadeAlevinos} kg` : 'N/A'}
                 </p>
                 <p className={styles.infoText}>
                   <span className="font-medium">Alimentação:</span> {pesca.metodoAlimentacao}
@@ -495,7 +495,7 @@ const PescaMap = () => {
           />
         ))}
         {selectedMarker && renderInfoWindow(selectedMarker)}
-        
+
         {/* Contorno do município (opcional, controlado pelo filtro) */}
         {showBoundary && (
           <Polygon
@@ -503,7 +503,7 @@ const PescaMap = () => {
             options={boundaryStyle}
           />
         )}
-        
+
         {/* Botão de controle para o limite com ícone do município */}
         <div className="absolute top-36 right-4 z-50">
           <button
