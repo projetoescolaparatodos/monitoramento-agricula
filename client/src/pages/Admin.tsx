@@ -1590,7 +1590,7 @@ const Admin = () => {
   // Verificar autenticação e redirecionar se necessário
   useEffect(() => {
     if (!isLoading && !userAuth.isAuthenticated) {
-      setLocation("/login/admin");
+      setLocation("/login");
     }
   }, [isLoading, userAuth.isAuthenticated, setLocation]);
 
