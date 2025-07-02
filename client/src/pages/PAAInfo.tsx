@@ -123,7 +123,7 @@ const PAAInfo = () => {
       // Check for Ctrl+M+I combination
       if (event.ctrlKey && keysPressed['m'] && keysPressed['i']) {
         setShowHiddenAdminButton(true);
-        setTimeout(() => setShowHiddenAdminButton(false), 10000); // Hide after 10 seconds
+        setTimeout(() => setShowHiddenAdminButton(false), 5000); // Hide after 5 seconds
       }
     };
 
@@ -302,13 +302,13 @@ const PAAInfo = () => {
 
           {/* Hidden Admin Button - only visible with Ctrl+M+I */}
           {showHiddenAdminButton && (
-            <div className="fixed bottom-4 right-4 z-50 animate-in fade-in-0 slide-in-from-bottom-4">
+            <div className="fixed bottom-4 left-4 z-50 animate-in fade-in-0 slide-in-from-bottom-4">
               <Button
-                onClick={() => setLocation("/admin")}
+                onClick={() => setLocation("/login/admin")}
                 className="bg-red-600 hover:bg-red-700 text-white shadow-lg border-2 border-red-400"
-                size="sm"
+                size="icon"
               >
-                🔑 Admin Geral
+                🔑
               </Button>
             </div>
           )}
