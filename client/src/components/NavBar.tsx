@@ -69,7 +69,7 @@ const NavBar = () => {
               setTimeout(() => window.scrollTo(0, 0), 100);
             }}>
               </Link>
-            <Link to="/admin" onClick={handleNavLinkClick}>
+            <Link to="/login/admin" onClick={handleNavLinkClick}>
               <Button variant="ghost" className="w-full md:w-auto justify-start">
                 <Settings className="h-4 w-4 mr-2" />
                 Administração
