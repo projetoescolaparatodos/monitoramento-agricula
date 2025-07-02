@@ -19,6 +19,8 @@ import InteractivePanel from "@/components/paa/InteractivePanel";
 
 
 const PAAInfo = () => {
+  const [showHiddenAdminButton, setShowHiddenAdminButton] = React.useState(false);
+
   const backgroundStyle = {
     backgroundImage: 'url("/fundo estatico.jpg")',
     backgroundSize: 'cover',
@@ -109,6 +111,33 @@ const PAAInfo = () => {
         }, delay);
       });
     }
+  }, []);
+
+  // Keyboard listener for Ctrl+M+I combination to show hidden admin button
+  useEffect(() => {
+    let keysPressed: { [key: string]: boolean } = {};
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      keysPressed[event.key.toLowerCase()] = true;
+      
+      // Check for Ctrl+M+I combination
+      if (event.ctrlKey && keysPressed['m'] && keysPressed['i']) {
+        setShowHiddenAdminButton(true);
+        setTimeout(() => setShowHiddenAdminButton(false), 10000); // Hide after 10 seconds
+      }
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      keysPressed[event.key.toLowerCase()] = false;
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
   }, []);
 
   return (
@@ -270,6 +299,19 @@ const PAAInfo = () => {
               </CardContent>
             </Card>
           </section>
+
+          {/* Hidden Admin Button - only visible with Ctrl+M+I */}
+          {showHiddenAdminButton && (
+            <div className="fixed bottom-4 right-4 z-50 animate-in fade-in-0 slide-in-from-bottom-4">
+              <Button
+                onClick={() => setLocation("/admin")}
+                className="bg-red-600 hover:bg-red-700 text-white shadow-lg border-2 border-red-400"
+                size="sm"
+              >
+                🔑 Admin Geral
+              </Button>
+            </div>
+          )}
 
           </main>
       </main>
