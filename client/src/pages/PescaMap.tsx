@@ -291,7 +291,6 @@ const PescaMap = () => {
                 Cadastrado em: {new Date(pesca.dataCadastro).toLocaleDateString('pt-BR')}
               </p>
             </div>
-          </div>
 
             {pesca.midias && pesca.midias.length > 0 && (
               <div className="mt-6">
