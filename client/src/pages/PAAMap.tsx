@@ -168,11 +168,18 @@ const PAAMap = () => {
 
   const renderInfoWindow = useCallback(
     (paa: PAA) => {
-      const status = paa.concluido ? (
-        <span className="text-green-600 font-medium">Concluído</span>
-      ) : (
-        <span className="text-blue-600 font-medium">Em Andamento</span>
-      );
+      const infoWindowStyle = {
+        backgroundColor: "rgba(255, 255, 255, 0.97)",
+        border: "2px solid #38a169",
+        borderRadius: "16px",
+        boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05)",
+        padding: "2rem",
+        width: isMaximized ? "90vw" : "480px",
+        maxHeight: isMaximized ? "90vh" : "85vh",
+        overflowY: "auto",
+        backdropFilter: "blur(12px)",
+        fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
+      };
 
       return (
         <InfoWindow
@@ -182,91 +189,155 @@ const PAAMap = () => {
             setIsMaximized(false);
           }}
           options={{
-            maxWidth: isMaximized ? window.innerWidth * 0.9 : 500,
+            maxWidth: isMaximized ? window.innerWidth * 0.9 : 550,
             maxHeight: isMaximized ? window.innerHeight * 0.9 : undefined,
           }}
         >
-          <div
-            className={`p-4 ${isMaximized ? styles.maximized : ""}`}
-          >
-            {/* Botão de Fechar */}
+          <div className="relative" style={infoWindowStyle}>
             <button
               onClick={() => {
                 setSelectedMarker(null);
                 setIsMaximized(false);
               }}
-              className="absolute top-2 right-2 bg-gray-100 hover:bg-gray-200 rounded-full p-2 z-10"
+              className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
             >
-              <X className="h-4 w-4" /> {/* Ícone de fechar */}
+              <X size={18} />
             </button>
 
-            <div className={styles["text-content"]}>
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="font-bold text-lg">{paa.localidade}</h3>
+            {/* Cabeçalho melhorado */}
+            <div className="flex items-start gap-4 mb-6 pb-4 border-b border-gray-100">
+              <div className={`p-4 rounded-xl shadow-sm ${paa.concluido ? 'bg-gradient-to-br from-green-50 to-green-100 text-green-700' : 'bg-gradient-to-br from-orange-50 to-orange-100 text-orange-700'}`}>
+                {paa.concluido ? (
+                  <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                ) : (
+                  <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clipRule="evenodd" />
+                  </svg>
+                )}
               </div>
-              <div className="space-y-2">
-                <p>
-                  <strong>Localidade:</strong> {paa.localidade}
-                </p>
-                <p>
-                  <strong>Nome do Proprietário:</strong>{" "}
-                  {paa.proprietario || "-"}
-                </p>
-                <p>
-                  <strong>Tipo de Alimento:</strong> {paa.tipoAlimento}
-                </p>
-                <p>
-                  <strong>Variedade de Alimentos:</strong>{" "}
-                  {(() => {
-                    const quantidade = typeof paa.quantidadeProduzida === 'number' 
-                      ? paa.quantidadeProduzida 
-                      : typeof paa.quantidadeProduzida === 'string' 
-                        ? parseFloat(paa.quantidadeProduzida) 
-                        : null;
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-gray-800 mb-2 leading-tight">{paa.localidade}</h2>
+                <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold shadow-sm
+                  ${paa.concluido ? 'bg-green-500 text-white' : 'bg-orange-500 text-white'}`}>
+                  {paa.concluido ? '✓ Concluído' : '🌾 Em Andamento'}
+                </div>
+              </div>
+            </div>
 
-                    if (quantidade === null) return "-";
-                    return paa.tipoAlimento || "-";
-                  })()}
-                </p>
-                <p>
-                  <strong>Método de Colheita:</strong> {paa.metodoColheita}
-                </p>
-                <p>
-                  <strong>Área de Mecanização:</strong>{" "}
-                  {(() => {
-                    // Verifica múltiplas possíveis propriedades para a área de mecanização
-                    const areaValue = paa.areaMecanization || paa.areaMecanizacao || paa.areaTrabalhada || paa.area;
-                    const area = typeof areaValue === 'number' 
-                      ? areaValue 
-                      : typeof areaValue === 'string' 
-                        ? parseFloat(areaValue) 
-                        : null;
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Seção Localização */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2 mb-3">
+                  <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                  </svg>
+                  <span>Localização</span>
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Localidade</span>
+                    <span className="bg-gradient-to-r from-green-50 to-green-100 px-3 py-2 rounded-lg text-green-800 font-medium">
+                      {paa.localidade}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Proprietário</span>
+                    <span className="text-gray-700 font-medium">{paa.proprietario || "Não informado"}</span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Área de Mecanização</span>
+                    <span className="bg-orange-50 px-3 py-2 rounded-lg text-orange-800 font-bold text-lg">
+                      {(() => {
+                        const areaValue = paa.areaMecanization || paa.areaMecanizacao || paa.areaTrabalhada || paa.area;
+                        const area = typeof areaValue === 'number' 
+                          ? areaValue 
+                          : typeof areaValue === 'string' 
+                            ? parseFloat(areaValue) 
+                            : null;
 
-                    if (area === null || isNaN(area)) return "0.00 ha";
-                    return (area / 10000).toFixed(2) + " ha";
-                  })()}
-                </p>
-                <p>
-                  <strong>Operador:</strong> {paa.operador || "-"}
-                </p>
-                <p>
-                  <strong>Técnico Responsável:</strong>{" "}
-                  {paa.tecnicoResponsavel || "-"}
-                </p>
-                <p>
-                  <strong>Data:</strong>{" "}
-                  {new Date(paa.dataCadastro).toLocaleDateString()}
-                </p>
-                <p>
-                  <strong>Status:</strong> {status}
-                </p>
+                        if (area === null || isNaN(area)) return "0.00 ha";
+                        return (area / 10000).toFixed(2) + " ha";
+                      })()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Seção Produção */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2 mb-3">
+                  <svg className="w-5 h-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                  </svg>
+                  <span>Produção</span>
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Tipo de Alimento</span>
+                    <span className="text-gray-700 font-medium">{paa.tipoAlimento}</span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Quantidade Produzida</span>
+                    <span className="text-gray-700 font-medium">
+                      {(() => {
+                        const quantidade = typeof paa.quantidadeProduzida === 'number' 
+                          ? paa.quantidadeProduzida 
+                          : typeof paa.quantidadeProduzida === 'string' 
+                            ? parseFloat(paa.quantidadeProduzida) 
+                            : null;
+
+                        if (quantidade === null || isNaN(quantidade)) return "Não informado";
+                        return quantidade.toFixed(1) + " kg";
+                      })()}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Método de Colheita</span>
+                    <span className="text-gray-700 font-medium">{paa.metodoColheita}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Rodapé com informações adicionais */}
+            <div className="mt-6 pt-4 border-t border-gray-100">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                  <svg className="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <span className="block text-xs text-gray-500 uppercase font-medium">Operador</span>
+                    <span className="font-semibold text-gray-700">{paa.operador || "Não informado"}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                  <svg className="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <span className="block text-xs text-gray-500 uppercase font-medium">Técnico</span>
+                    <span className="font-semibold text-gray-700">{paa.tecnicoResponsavel || "Não informado"}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                  <svg className="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <span className="block text-xs text-gray-500 uppercase font-medium">Data</span>
+                    <span className="font-semibold text-gray-700">{new Date(paa.dataCadastro).toLocaleDateString('pt-BR')}</span>
+                  </div>
+                </div>
               </div>
             </div>
 
             {paa.midias && paa.midias.length > 0 && (
-              <div className={styles["media-container"]}>
-                <h4 className="font-semibold mb-2">Fotos/Vídeos:</h4>
-                <div className={styles.grid}>
+              <div className="mt-6">
+                <h3 className="font-semibold text-gray-700 text-lg mb-3">Mídias</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {paa.midias.map((url, index) => {
                     // Verifica se é um vídeo do YouTube
                     const isYouTube = url.includes("youtube.com") || url.includes("youtu.be");
@@ -291,14 +362,10 @@ const PAAMap = () => {
                         return (
                           <iframe
                             key={index}
-                            width="100%"
-                            height="240"
+                            className="w-full aspect-video rounded-lg"
                             src={embedUrl}
                             title={`YouTube video ${index}`}
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
-                            className={`${styles["popup-media"]} rounded-lg`}
                           />
                         );
                       }
@@ -321,7 +388,7 @@ const PAAMap = () => {
                             src={url}
                             controls
                             preload="metadata"
-                            className={`${styles["popup-media"]}`}
+                            className="w-full aspect-video rounded-lg bg-gray-100"
                           />
                         </div>
                       );
@@ -333,7 +400,7 @@ const PAAMap = () => {
                         key={index}
                         src={url}
                         alt="Mídia"
-                        className={`${styles["popup-media"]}`}
+                        className="w-full h-auto rounded-lg object-cover aspect-square bg-gray-100"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Mídia+indisponível';
                         }}
@@ -346,9 +413,17 @@ const PAAMap = () => {
 
             <button
               onClick={() => setIsMaximized(!isMaximized)}
-              className="absolute top-2 right-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2 z-10"
+              className="absolute top-3 right-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors"
             >
-              {isMaximized ? "Reduzir" : "Maximizar"}
+              {isMaximized ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+                </svg>
+              )}
             </button>
           </div>
         </InfoWindow>
@@ -369,7 +444,7 @@ const PAAMap = () => {
 
   return (
     <div className="pt-16 relative h-screen">
-      <Card className="absolute left-4 top-1/2 transform -translate-y-1/2 z-[1000] p-4 bg-white/95 shadow-lg hidden md:block">
+      <Card className={`absolute left-4 top-1/2 transform -translate-y-1/2 z-[1000] p-4 bg-white/95 shadow-lg ${styles['mobile-filter']}`}>
         <RadioGroup value={filtro} onValueChange={setFiltro}>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="todos" id="todos-paa" />
