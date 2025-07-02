@@ -48,7 +48,7 @@ const AdminPesca = () => {
   const [pescaData, setPescaData] = useState<any[]>([]);
   const { toast } = useToast();
 
-  // Todos os useEffect devem estar no topo, antes de qualquer lógica condicional
+  // useEffect para buscar dados (sempre executa)
   useEffect(() => {
     const fetchPesqueiros = async () => {
       try {
@@ -72,31 +72,7 @@ const AdminPesca = () => {
     fetchPesqueiros();
   }, []);
 
-  useEffect(() => {
-    const map = L.map("admin-map-pesca").setView([-2.87922, -52.0088], 12);
-
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(map);
-
-    map.on("click", (e) => {
-      setLatitude(e.latlng.lat);
-      setLongitude(e.latlng.lng);
-
-      map.eachLayer((layer) => {
-        if (layer instanceof L.Marker) {
-          map.removeLayer(layer);
-        }
-      });
-
-      L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
-    });
-
-    return () => map.remove();
-  }, []);
-
-  // Verificações condicionais após todos os hooks
+  // Verificações condicionais após hooks básicos
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -117,6 +93,47 @@ const AdminPesca = () => {
     setLocation("/acesso-negado");
     return null;
   }
+
+  // useEffect para inicializar mapa (só executa após verificações passarem)
+  useEffect(() => {
+    const mapElement = document.getElementById("admin-map-pesca");
+    if (!mapElement) {
+      console.warn("Elemento do mapa não encontrado no DOM");
+      return;
+    }
+
+    // Verifica se o mapa já foi inicializado
+    if ((mapElement as any)._leaflet_id) {
+      console.log("Mapa já inicializado");
+      return;
+    }
+
+    const map = L.map("admin-map-pesca").setView([-2.87922, -52.0088], 12);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    map.on("click", (e) => {
+      setLatitude(e.latlng.lat);
+      setLongitude(e.latlng.lng);
+
+      map.eachLayer((layer) => {
+        if (layer instanceof L.Marker) {
+          map.removeLayer(layer);
+        }
+      });
+
+      L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+    });
+
+    return () => {
+      if (map) {
+        map.remove();
+      }
+    };
+  }, [userAuth.isAuthenticated, hasAccess]); // Dependências para re-executar quando a autenticação mudar
 
   const atualizarStatusPesca = async (id: string, statusAtual: boolean) => {
     try {
