@@ -348,6 +348,7 @@ const AdminPesca = () => {
           variant="outline"
           size="icon"
           onClick={() => setLocation("/admin")}
+          className="bg-green-600 text-black border-green-600 hover:bg-green-700 hover:text-black"
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
@@ -386,6 +387,7 @@ const AdminPesca = () => {
                         onClick={() => atualizarStatusPesca(atividade.id, atividade.concluido)}
                         variant="outline"
                         size="sm"
+                        className="bg-green-600 text-black border-green-600 hover:bg-green-700 hover:text-black"
                       >
                         Alterar Status
                       </Button>
@@ -413,14 +415,16 @@ const AdminPesca = () => {
             </Label>
 
             {/* Componente para inserção manual de coordenadas */}
-            <IconSelector 
-              onLocationSelect={(lat, lng) => {
-                setLatitude(lat);
-                setLongitude(lng);
-              }}
-              initialLatitude={latitude}
-              initialLongitude={longitude}
-            />
+            <div className="bg-gray-500 rounded-lg p-4">
+              <IconSelector 
+                onLocationSelect={(lat, lng) => {
+                  setLatitude(lat);
+                  setLongitude(lng);
+                }}
+                initialLatitude={latitude}
+                initialLongitude={longitude}
+              />
+            </div>
 
             <div className="rounded-lg overflow-hidden border">
               <GoogleMap
@@ -601,7 +605,9 @@ const AdminPesca = () => {
 
             <div className="space-y-2">
               <Label>Fotos/Vídeos</Label>
-              <EnhancedUpload onUpload={handleUpload} />
+              <div className="bg-gray-500 rounded-lg p-4">
+                <EnhancedUpload onUpload={handleUpload} />
+              </div>
               <div className="grid grid-cols-4 gap-2 mt-2">
                 {midias.map((url, index) => (
                   <div key={index} className="relative group">
@@ -630,7 +636,7 @@ const AdminPesca = () => {
                     <Button 
                       variant="destructive" 
                       size="sm"
-                      className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-red-600 text-white hover:bg-red-700"
                       onClick={() => setMidias(midias.filter((_, i) => i !== index))}
                     >
                       ✕
@@ -641,7 +647,7 @@ const AdminPesca = () => {
             </div>
 
             <div className="flex gap-2">
-              <Button type="submit" disabled={loading} className="flex-1">
+              <Button type="submit" disabled={loading} className="flex-1 bg-green-600 text-black hover:bg-green-700 hover:text-black">
                 {loading ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -656,7 +662,7 @@ const AdminPesca = () => {
               </Button>
 
               {pesqueiroEmEdicao && (
-                <Button type="button" variant="outline" onClick={cancelarEdicao}>
+                <Button type="button" variant="outline" onClick={cancelarEdicao} className="bg-green-600 text-black border-green-600 hover:bg-green-700 hover:text-black">
                   Cancelar
                 </Button>
               )}
@@ -697,6 +703,7 @@ const AdminPesca = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => handleEditarPesqueiro(pesqueiro)}
+                      className="bg-green-600 text-black border-green-600 hover:bg-green-700 hover:text-black"
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>
@@ -704,6 +711,7 @@ const AdminPesca = () => {
                       variant="destructive"
                       size="sm"
                       onClick={() => handleExcluirPesqueiro(pesqueiro.id)}
+                      className="bg-red-600 text-white hover:bg-red-700"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
