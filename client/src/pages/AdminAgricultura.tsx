@@ -260,7 +260,7 @@ const AdminAgricultura = () => {
         fazenda,
         atividade,
         piloto,
-        dataCadastro: new Date().toISOString(),
+        dataCadastro: dataCadastro,
         concluido: false,
         latitude: latitudeNum,
         longitude: longitudeNum,
@@ -353,7 +353,13 @@ const AdminAgricultura = () => {
     setMidias(trator.midias || []);
     setTempoAtividade(trator.tempoAtividade);
     setAreaTrabalhada(trator.areaTrabalhada || 0);
-    setDataCadastro(trator.dataCadastro);
+    // Converter a data para o formato YYYY-MM-DD se necessário
+    const dataFormatada = trator.dataCadastro ? 
+      (trator.dataCadastro.includes('T') ? 
+        trator.dataCadastro.split('T')[0] : 
+        trator.dataCadastro) : 
+      new Date().toISOString().split("T")[0];
+    setDataCadastro(dataFormatada);
   };
 
   const handleExcluirTrator = async (id: string) => {
