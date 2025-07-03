@@ -250,10 +250,12 @@ const Fishing = () => {
                     <TableRow>
                       <TableHead>Localidade</TableHead>
                       <TableHead>Proprietário</TableHead>
+                      <TableHead>Espécie de Peixe</TableHead>
                       <TableHead>Tipo de Sistema</TableHead>
                       <TableHead>Técnico Responsável</TableHead>
                       <TableHead>Data</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Área (ha)</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -261,14 +263,16 @@ const Fishing = () => {
                       <TableRow key={pesca.id}>
                         <TableCell>{pesca.localidade || '-'}</TableCell>
                         <TableCell>{pesca.proprietario || '-'}</TableCell>
+                        <TableCell>{pesca.especiePeixe || '-'}</TableCell>
                         <TableCell>{pesca.tipoSistema || '-'}</TableCell>
                         <TableCell>{pesca.tecnicoResponsavel || '-'}</TableCell>
-                        <TableCell>{new Date(pesca.data).toLocaleDateString()}</TableCell>
+                        <TableCell>{new Date(pesca.dataCadastro).toLocaleDateString()}</TableCell>
                         <TableCell>
                           <span className={pesca.concluido ? 'text-green-600 font-medium' : 'text-blue-600 font-medium'}>
                             {pesca.concluido ? 'Concluído' : 'Em Andamento'}
                           </span>
                         </TableCell>
+                        <TableCell>{pesca.areaTanque ? (pesca.areaTanque / 10000).toFixed(2) : '0.00'}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

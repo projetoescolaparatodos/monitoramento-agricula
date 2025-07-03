@@ -306,27 +306,31 @@ const Agriculture = () => {
                 <Table className="w-full [&_th]:text-black [&_td]:text-gray-700 [&_tr:hover]:bg-gray-50/50">
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Localidade</TableHead>
-                      <TableHead>Proprietário</TableHead>
-                      <TableHead>Tipo de Atividade</TableHead>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>Fazenda</TableHead>
+                      <TableHead>Atividade</TableHead>
+                      <TableHead>Operador</TableHead>
                       <TableHead>Técnico Responsável</TableHead>
                       <TableHead>Data</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Área (ha)</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {tratoresData?.slice(0, visibleItems).map((trator) => (
                       <TableRow key={trator.id}>
-                        <TableCell>{trator.localidade || '-'}</TableCell>
-                        <TableCell>{trator.proprietario || '-'}</TableCell>
-                        <TableCell>{trator.tipoAtividade || '-'}</TableCell>
+                        <TableCell>{trator.nome || '-'}</TableCell>
+                        <TableCell>{trator.fazenda || '-'}</TableCell>
+                        <TableCell>{trator.atividade || '-'}</TableCell>
+                        <TableCell>{trator.piloto || '-'}</TableCell>
                         <TableCell>{trator.tecnicoResponsavel || '-'}</TableCell>
-                        <TableCell>{new Date(trator.data).toLocaleDateString()}</TableCell>
+                        <TableCell>{new Date(trator.dataCadastro).toLocaleDateString()}</TableCell>
                         <TableCell>
                           <span className={trator.concluido ? 'text-green-600 font-medium' : 'text-blue-600 font-medium'}>
-                            {trator.concluido ? 'Concluído' : 'Em Andamento'}
+                            {trator.concluido ? 'Concluído' : 'Em Serviço'}
                           </span>
                         </TableCell>
+                        <TableCell>{trator.areaTrabalhada ? (trator.areaTrabalhada / 10000).toFixed(2) : '0.00'}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

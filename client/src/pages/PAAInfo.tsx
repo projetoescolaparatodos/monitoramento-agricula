@@ -94,7 +94,7 @@ const PAAInfo = () => {
       if (window.location.hash) {
         const id = window.location.hash.substring(1); // remover o caractere #
         const element = document.getElementById(id);
-        
+
         if (element) {
           // Quando o elemento for encontrado, rolar até ele
           element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -109,7 +109,7 @@ const PAAInfo = () => {
     if (!scrollToHashElement()) {
       // Se não conseguir, tentar várias vezes com intervalos crescentes
       const attempts = [500, 1000, 1500, 2000]; // tempos em ms
-      
+
       attempts.forEach((delay, index) => {
         setTimeout(() => {
           scrollToHashElement();
@@ -124,7 +124,7 @@ const PAAInfo = () => {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       keysPressed[event.key.toLowerCase()] = true;
-      
+
       // Check for Ctrl+M+I combination
       if (event.ctrlKey && keysPressed['m'] && keysPressed['i']) {
         setShowHiddenAdminButton(true);
@@ -277,10 +277,11 @@ const PAAInfo = () => {
                       <TableHead>Localidade</TableHead>
                       <TableHead>Produtor</TableHead>
                       <TableHead>Tipo de Alimento</TableHead>
-                      <TableHead>Variedade de Alimentos</TableHead>
+                      <TableHead>Quantidade (kg)</TableHead>
                       <TableHead>Técnico Responsável</TableHead>
                       <TableHead>Data</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Área (ha)</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -289,7 +290,7 @@ const PAAInfo = () => {
                         <TableCell>{paa.localidade || '-'}</TableCell>
                         <TableCell>{paa.proprietario || '-'}</TableCell>
                         <TableCell>{paa.tipoAlimento || '-'}</TableCell>
-                        <TableCell>{paa.tipoAlimento || '-'}</TableCell>
+                        <TableCell>{paa.quantidadeProduzida || '0'}</TableCell>
                         <TableCell>{paa.tecnicoResponsavel || '-'}</TableCell>
                         <TableCell>{new Date(paa.dataCadastro).toLocaleDateString()}</TableCell>
                         <TableCell>
@@ -297,6 +298,7 @@ const PAAInfo = () => {
                             {paa.concluido ? 'Concluído' : 'Em Andamento'}
                           </span>
                         </TableCell>
+                        <TableCell>{paa.areaMecanizacao ? (paa.areaMecanizacao / 10000).toFixed(2) : '0.00'}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
