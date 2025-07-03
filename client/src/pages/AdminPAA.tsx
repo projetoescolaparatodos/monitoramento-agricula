@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useMemo } from "react";
 import { db } from "../utils/firebase";
 import {
   collection,
@@ -9,7 +10,6 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import IconSelector from "@/components/admin/IconSelector";
-import { getLeafletMapInstance, addMarkerToMap } from "@/utils/coordinateUtils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,15 +17,30 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Trash2, Edit2, Plus, ArrowLeft } from "lucide-react";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import {
+  useLoadScript,
+  GoogleMap,
+  MarkerF,
+  Polygon,
+} from "@react-google-maps/api";
 import EnhancedUpload from "@/components/EnhancedUpload";
 import { useLocation } from "wouter";
 import { useAuthProtection } from "@/hooks/useAuthProtection";
+import { useKmlBoundary, isClockwise, ensureClockwise } from "../hooks/useKmlBoundary";
+import styles from "./PAAMap.module.css";
 
 const AdminPAA = () => {
+  // Hooks sempre devem estar no topo do componente
   const { userAuth, hasAccess, getLoginUrl, isLoading } = useAuthProtection();
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+
+  // Google Maps
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: "AIzaSyC3fPdcovy7a7nQLe9aGBMR2PFY_qZZVZc",
+  });
+
+  // Estados do formulário
   const [localidade, setLocalidade] = useState("");
   const [nomeImovel, setNomeImovel] = useState("");
   const [proprietario, setProprietario] = useState("");
@@ -35,15 +50,66 @@ const AdminPAA = () => {
   const [tecnicoResponsavel, setTecnicoResponsavel] = useState("");
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
+  const [mapCenter, setMapCenter] = useState({ lat: -2.87922, lng: -52.0088 });
+  const [mapZoom, setMapZoom] = useState(12);
   const [midias, setMidias] = useState<string[]>([]);
   const [dataCadastro, setDataCadastro] = useState(
     new Date().toISOString().split("T")[0],
   );
+
+  // Estados de dados
   const [paaLocaisCadastrados, setPaaLocaisCadastrados] = useState<any[]>([]);
   const [paaLocalEmEdicao, setPaaLocalEmEdicao] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const [atividades, setAtividades] = useState<any[]>([]);
-  const { toast } = useToast();
+
+  // Estados para controle do contorno municipal
+  const [showBoundary, setShowBoundary] = useState(true);
+  const [mapLoaded, setMapLoaded] = useState(false);
+
+  // Configurações do Google Maps
+  const mapContainerStyle = {
+    width: "100%",
+    height: "400px",
+  };
+
+  const center = { lat: -2.87922, lng: -52.0088 };
+  
+  // Usando o hook personalizado para carregar o contorno do município
+  const { boundaryCoordinates, loading: loadingKml, error: kmlError } = useKmlBoundary();
+  
+  // Fallback para coordenadas caso o KML não seja carregado
+  const fallbackBoundary = useMemo(() => [
+    { lat: -2.85, lng: -52.05 },
+    { lat: -2.88, lng: -51.95 },
+    { lat: -2.93, lng: -51.98 },
+    { lat: -2.91, lng: -52.07 },
+    { lat: -2.85, lng: -52.05 }, // Fechar o polígono
+  ], []);
+  
+  // Usar coordenadas do KML se disponíveis, senão usar fallback
+  const municipioBoundary = useMemo(() => {
+    if (boundaryCoordinates.length > 0) {
+      return boundaryCoordinates;
+    }
+    return fallbackBoundary;
+  }, [boundaryCoordinates, fallbackBoundary]);
+  
+  // Estilo para o contorno do município
+  const boundaryStyle = useMemo(() => ({
+    fillColor: '#00ff88',
+    fillOpacity: 0.1,
+    strokeColor: '#00ff88',
+    strokeOpacity: 0.8,
+    strokeWeight: 2,
+    zIndex: 2,
+    clickable: false
+  }), []);
+  
+  // Garantir que o caminho do município esteja no sentido horário
+  const correctedBoundary = useMemo(() => {
+    return ensureClockwise(municipioBoundary);
+  }, [municipioBoundary]);
 
   // useEffect para buscar dados (sempre executa)
   useEffect(() => {
@@ -91,46 +157,16 @@ const AdminPAA = () => {
     return null;
   }
 
-  // useEffect para inicializar mapa (só executa após verificações passarem)
-  useEffect(() => {
-    const mapElement = document.getElementById("admin-map-paa");
-    if (!mapElement) {
-      console.warn("Elemento do mapa não encontrado no DOM");
-      return;
-    }
-
-    // Verifica se o mapa já foi inicializado
-    if ((mapElement as any)._leaflet_id) {
-      console.log("Mapa já inicializado");
-      return;
-    }
-
-    const map = L.map("admin-map-paa").setView([-2.87922, -52.0088], 12);
-
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(map);
-
-    map.on("click", (e) => {
-      setLatitude(e.latlng.lat);
-      setLongitude(e.latlng.lng);
-
-      map.eachLayer((layer) => {
-        if (layer instanceof L.Marker) {
-          map.removeLayer(layer);
-        }
-      });
-
-      L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
-    });
-
-    return () => {
-      if (map) {
-        map.remove();
-      }
-    };
-  }, [userAuth.isAuthenticated, hasAccess]); // Dependências para re-executar quando a autenticação mudar
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
+          <p>Carregando Google Maps...</p>
+        </div>
+      </div>
+    );
+  }
 
   const atualizarStatus = async (id: string, statusAtual: boolean) => {
     try {
@@ -158,6 +194,16 @@ const AdminPAA = () => {
     }
   };
 
+  const handleMapClick = (e: google.maps.MapMouseEvent) => {
+    if (e.latLng) {
+      const lat = e.latLng.lat();
+      const lng = e.latLng.lng();
+      setLatitude(lat);
+      setLongitude(lng);
+      setMapCenter({ lat, lng });
+      setMapZoom(15);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -252,6 +298,8 @@ const AdminPAA = () => {
     setTecnicoResponsavel(paaLocal.tecnicoResponsavel);
     setLatitude(paaLocal.latitude);
     setLongitude(paaLocal.longitude);
+    setMapCenter({lat: paaLocal.latitude, lng: paaLocal.longitude} || { lat: -2.87922, lng: -52.0088 });
+    setMapZoom(15);
     setMidias(paaLocal.midias || []);
     setDataCadastro(paaLocal.dataCadastro);
   };
@@ -337,39 +385,98 @@ const AdminPAA = () => {
           <CardTitle>Cadastrar Nova Atividade</CardTitle>
         </CardHeader>
         <CardContent>
-          <div
-            id="admin-map-paa"
-            className="w-full h-[400px] mb-8 rounded-lg overflow-hidden"
-          />
+          {/* Mapa do Google Maps */}
+          <div className="mb-8">
+            <Label className="text-base font-semibold mb-4 block">
+              Selecione a localização no mapa
+            </Label>
 
-          <IconSelector 
-            onLocationSelect={(lat, lng) => {
-              setLatitude(lat);
-              setLongitude(lng);
+            {/* Componente para inserção manual de coordenadas */}
+            <div className="bg-gray-100 rounded-lg p-4 mb-4">
+              <IconSelector 
+                onLocationSelect={(lat, lng) => {
+                  setLatitude(lat);
+                  setLongitude(lng);
+                }}
+                onMapCenterChange={(lat, lng) => {
+                  setMapCenter({ lat, lng });
+                  setMapZoom(15);
+                }}
+                initialLatitude={latitude}
+                initialLongitude={longitude}
+              />
+            </div>
 
-              const mapContainer = document.getElementById("admin-map-paa");
-              if (!mapContainer) {
-                console.error("Elemento do mapa não encontrado");
-                return;
-              }
+            <div className="rounded-lg overflow-hidden border relative">
+              <GoogleMap
+                mapContainerStyle={mapContainerStyle}
+                center={mapCenter}
+                zoom={mapZoom}
+                onClick={handleMapClick}
+                onLoad={() => setMapLoaded(true)}
+                options={{
+                  mapTypeId: google.maps.MapTypeId.HYBRID,
+                  mapTypeControl: true,
+                  streetViewControl: false,
+                  fullscreenControl: false,
+                }}
+              >
+                {/* Marcadores dos PAA existentes */}
+                {paaLocaisCadastrados.map((paa) => (
+                  <MarkerF
+                    key={paa.id}
+                    position={{ lat: paa.latitude, lng: paa.longitude }}
+                    icon={{
+                      url: "/paa-icon.png",
+                      scaledSize: new window.google.maps.Size(40, 40),
+                      anchor: new window.google.maps.Point(20, 40),
+                    }}
+                  />
+                ))}
 
-              const mapInstance = getLeafletMapInstance(mapContainer);
+                {/* Marcador para a nova localização selecionada */}
+                {latitude && longitude && (
+                  <MarkerF
+                    position={{ lat: latitude, lng: longitude }}
+                    icon={{
+                      url: "/paa-icon.png",
+                      scaledSize: new window.google.maps.Size(50, 50),
+                      anchor: new window.google.maps.Point(25, 50),
+                    }}
+                  />
+                )}
 
-              if (mapInstance) {
-                console.log("Instância do mapa encontrada, atualizando...");
-                addMarkerToMap(mapInstance, lat, lng, true);
-              } else {
-                console.error("Não foi possível acessar a instância do mapa");
-                toast({
-                  title: "Erro",
-                  description: "Houve um problema ao atualizar o mapa. Por favor, atualize a página.",
-                  variant: "destructive",
-                });
-              }
-            }}
-            initialLatitude={latitude}
-            initialLongitude={longitude}
-          />
+                {/* Contorno do município */}
+                {showBoundary && (
+                  <Polygon
+                    paths={correctedBoundary}
+                    options={boundaryStyle}
+                  />
+                )}
+              </GoogleMap>
+              
+              {/* Botão de controle para o limite municipal */}
+              <div className="absolute top-4 right-4 z-10">
+                <button
+                  onClick={() => setShowBoundary(!showBoundary)}
+                  className={styles["boundary-toggle"]}
+                  title={showBoundary ? "Ocultar Contorno Municipal" : "Mostrar Contorno Municipal"}
+                >
+                  <img 
+                    src="/contornoicone.png" 
+                    alt="Contorno Municipal" 
+                    className={`${showBoundary ? styles["icon-active"] : ""}`}
+                  />
+                </button>
+              </div>
+            </div>
+
+            {latitude && longitude && (
+              <div className="mt-2 text-sm text-gray-600">
+                <strong>Coordenadas selecionadas:</strong> {latitude.toFixed(6)}, {longitude.toFixed(6)}
+              </div>
+            )}
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
