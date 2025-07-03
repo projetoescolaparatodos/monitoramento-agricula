@@ -347,7 +347,7 @@ const AdminPesca = () => {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => setLocation("/admin")}
+          onClick={() => setLocation("/")}
           className="bg-green-600 text-black border-green-600 hover:bg-green-700 hover:text-black"
         >
           <ArrowLeft className="h-4 w-4" />
