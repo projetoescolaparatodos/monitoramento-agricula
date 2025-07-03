@@ -51,8 +51,11 @@ const Fishing = () => {
   const { data: pescaData } = useQuery({
     queryKey: ["pesca"],
     queryFn: () =>
-      getDocs(collection(db, "pesca")).then((snapshot) =>
-        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      getDocs(collection(db, "pesca")).then((snapshot) => {
+        const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        console.log("Dados de pesca carregados:", data);
+        return data;
+      })
       ),
   });
 
@@ -265,7 +268,7 @@ const Fishing = () => {
                         <TableCell>{pesca.localidade || '-'}</TableCell>
                         <TableCell>{pesca.proprietario || '-'}</TableCell>
                         <TableCell>{pesca.especiePeixe || '-'}</TableCell>
-                        <TableCell>{pesca.estrutura || '-'}</TableCell>
+                        <TableCell>{pesca.estrutura || pesca.tipoTanque || '-'}</TableCell>
                         <TableCell>{pesca.tecnicoResponsavel || '-'}</TableCell>
                         <TableCell>{new Date(pesca.dataCadastro).toLocaleDateString()}</TableCell>
                         <TableCell>
