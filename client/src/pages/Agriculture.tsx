@@ -313,6 +313,7 @@ const Agriculture = () => {
                       <TableHead>Técnico Responsável</TableHead>
                       <TableHead>Data</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Hora/Máquina</TableHead>
                       <TableHead>Área (ha)</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -330,7 +331,8 @@ const Agriculture = () => {
                             {trator.concluido ? 'Concluído' : 'Em Serviço'}
                           </span>
                         </TableCell>
-                        <TableCell>{trator.areaTrabalhada ? (trator.areaTrabalhada / 10000).toFixed(2) : '0.00'}</TableCell>
+                        <TableCell>{trator.horaMaquina ? trator.horaMaquina.toFixed(2) : '0.00'} h</TableCell>
+                        <TableCell>{trator.areaTrabalhada ? trator.areaTrabalhada.toFixed(2) : '0.00'}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

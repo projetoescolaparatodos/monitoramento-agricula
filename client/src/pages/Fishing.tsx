@@ -255,6 +255,7 @@ const Fishing = () => {
                       <TableHead>Técnico Responsável</TableHead>
                       <TableHead>Data</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Quantidade KG</TableHead>
                       <TableHead>Área (ha)</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -264,7 +265,7 @@ const Fishing = () => {
                         <TableCell>{pesca.localidade || '-'}</TableCell>
                         <TableCell>{pesca.proprietario || '-'}</TableCell>
                         <TableCell>{pesca.especiePeixe || '-'}</TableCell>
-                        <TableCell>{pesca.tipoSistema || '-'}</TableCell>
+                        <TableCell>{pesca.estrutura || '-'}</TableCell>
                         <TableCell>{pesca.tecnicoResponsavel || '-'}</TableCell>
                         <TableCell>{new Date(pesca.dataCadastro).toLocaleDateString()}</TableCell>
                         <TableCell>
@@ -272,7 +273,8 @@ const Fishing = () => {
                             {pesca.concluido ? 'Concluído' : 'Em Andamento'}
                           </span>
                         </TableCell>
-                        <TableCell>{pesca.areaTanque ? (pesca.areaTanque / 10000).toFixed(2) : '0.00'}</TableCell>
+                        <TableCell>{pesca.quantidadeAlevinos ? pesca.quantidadeAlevinos.toFixed(2) : '0.00'}</TableCell>
+                        <TableCell>{pesca.areaAlagada ? pesca.areaAlagada.toFixed(2) : '0.00'}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
