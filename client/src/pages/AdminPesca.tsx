@@ -604,7 +604,7 @@ const AdminPesca = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>Fotos/Vídeos</Label>
+              <Label className="text-white">Fotos/Vídeos</Label>
               <div className="bg-gray-500 rounded-lg p-4">
                 <EnhancedUpload onUpload={handleUpload} />
               </div>
