@@ -250,11 +250,11 @@ const Agriculture = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <BarChart2 className="h-5 w-5 text-primary" />
-                    Famílias Atendidas
+                    Atendimentos Registrados
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold">{tratoresData?.length || 0}</p>
+                  <p className="text-3xl font-bold">{tratoresData?.length || 0} <span className="text-lg font-normal">famílias</span></p>
                 </CardContent>
               </Card>
               <Card>
