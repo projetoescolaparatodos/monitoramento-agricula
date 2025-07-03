@@ -197,93 +197,10 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
                     transition={{ delay: 0.1 }}
                     className="texto-institucional max-w-none text-gray-800"
                   >
-                    {parse(currentPanel.content || '', {
-                      replace: (domNode) => {
-                        // Hierarquia tipográfica institucional melhorada
-                        if (domNode.type === 'tag' && domNode.name === 'h1') {
-                          return (
-                            <h1 className="text-3xl font-bold text-[#2e7d32] mb-6 pb-3 border-b-2 border-[#c8e6c9]">
-                              {domNode.children?.[0]?.data || ''}
-                            </h1>
-                          );
-                        }
-                        if (domNode.type === 'tag' && domNode.name === 'h2') {
-                          return (
-                            <h2 className="text-2xl font-semibold text-[#1b5e20] mb-5 pb-2 border-b border-[#c8e6c9] flex items-center gap-2 mt-8">
-                              <Leaf size={20} className="text-[#2e7d32]" />
-                              {domNode.children?.[0]?.data || ''}
-                            </h2>
-                          );
-                        }
-                        if (domNode.type === 'tag' && domNode.name === 'h3') {
-                          return (
-                            <h3 className="text-xl font-semibold text-[#388e3c] mb-4 mt-6 border-b border-dotted border-[#81c784] pb-1">
-                              {domNode.children?.[0]?.data || ''}
-                            </h3>
-                          );
-                        }
-                        if (domNode.type === 'tag' && domNode.name === 'p') {
-                          return (
-                            <p className="mb-6 leading-relaxed text-gray-700 text-lg">
-                              {domNode.children?.[0]?.data || ''}
-                            </p>
-                          );
-                        }
-                        if (domNode.type === 'tag' && domNode.name === 'ul') {
-                          // Retorna null para permitir que o parser padrão lide com listas
-                          return null;
-                        }
-                        if (domNode.type === 'tag' && domNode.name === 'ol') {
-                          return null;
-                        }
-                        if (domNode.type === 'tag' && domNode.name === 'a') {
-                          return (
-                            <a 
-                              className="group inline-flex items-center gap-1 text-[#1e88e5] font-medium hover:underline"
-                              href={domNode.attribs?.href}
-                            >
-                              {domNode.children?.[0]?.data || ''}
-                              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-                            </a>
-                          );
-                        }
-                        if (domNode.type === 'tag' && (domNode.name === 'strong' || domNode.name === 'b')) {
-                          return <strong className="font-semibold text-[#2e7d32]">{domNode.children?.[0]?.data || ''}</strong>;
-                        }
-                        if (domNode.type === 'tag' && domNode.name === 'pre') {
-                          return (
-                            <pre className="whitespace-pre-wrap bg-[#f5f5f5] p-4 rounded-lg my-6 border border-[#e0e0e0] text-sm font-mono">
-                              {domNode.children?.[0]?.data}
-                            </pre>
-                          );
-                        }
-                        if (domNode.type === 'tag' && domNode.name === 'blockquote') {
-                          return (
-                            <blockquote className="bg-[#f1f8e9] border-l-4 border-[#81c784] p-4 my-6 rounded-r-lg">
-                              <p className="text-[#2e7d32] italic font-medium text-lg">
-                                "{domNode.children?.[0]?.data || ''}"
-                              </p>
-                            </blockquote>
-                          );
-                        }
-                        // Permitir que o parser padrão lide com tabelas
-                        if (domNode.type === 'tag' && domNode.name === 'table') {
-                          return null;
-                        }
-                        if (domNode.type === 'tag' && domNode.name === 'thead') {
-                          return null;
-                        }
-                        if (domNode.type === 'tag' && domNode.name === 'th') {
-                          return null;
-                        }
-                        if (domNode.type === 'tag' && domNode.name === 'tbody') {
-                          return null;
-                        }
-                        if (domNode.type === 'tag' && domNode.name === 'td') {
-                          return null;
-                        }
-                      }
-                    })}
+                    <div 
+                      className="rich-content-container"
+                      dangerouslySetInnerHTML={{ __html: currentPanel.content || '' }}
+                    />
                     
                     {/* Componente adicional para contatos institucionais */}
                     <div className="mt-8 p-4 bg-[#f5f5f5] rounded-lg border border-[#e0e0e0]">

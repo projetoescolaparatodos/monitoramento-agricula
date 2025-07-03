@@ -1119,6 +1119,151 @@ iframe[src*="drive.google.com"] {
   white-space: pre-wrap !important;
 }
 
+/* Estilos específicos para o painel interativo institucional */
+.rich-content-container h1 {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: #2e7d32;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #c8e6c9;
+  margin-top: 0;
+}
+
+.rich-content-container h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1b5e20;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #c8e6c9;
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rich-content-container h2:before {
+  content: "🌿";
+  margin-right: 0.5rem;
+}
+
+.rich-content-container h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #388e3c;
+  margin-bottom: 1rem;
+  margin-top: 1.5rem;
+  border-bottom: 1px dotted #81c784;
+  padding-bottom: 0.25rem;
+}
+
+.rich-content-container p {
+  margin-bottom: 1.5rem;
+  line-height: 1.75;
+  color: #374151;
+  font-size: 1.125rem;
+}
+
+.rich-content-container ul {
+  margin-left: 1.5rem;
+  margin-bottom: 1.5rem;
+  list-style-type: disc;
+}
+
+.rich-content-container ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1.5rem;
+  list-style-type: decimal;
+}
+
+.rich-content-container li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+  color: #374151;
+}
+
+.rich-content-container strong,
+.rich-content-container b {
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+.rich-content-container a {
+  color: #1e88e5;
+  font-weight: 500;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.rich-content-container a:hover {
+  color: #1565c0;
+}
+
+.rich-content-container blockquote {
+  background-color: #f1f8e9;
+  border-left: 4px solid #81c784;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  border-radius: 0 0.5rem 0.5rem 0;
+  color: #2e7d32;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 1.125rem;
+}
+
+.rich-content-container pre {
+  white-space: pre-wrap;
+  background-color: #f5f5f5;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+  border: 1px solid #e0e0e0;
+  font-size: 0.875rem;
+  font-family: 'Courier New', monospace;
+  overflow-x: auto;
+}
+
+.rich-content-container table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  background-color: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.rich-content-container th {
+  background-color: #2e7d32;
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 2px solid #1b5e20;
+}
+
+.rich-content-container td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+  color: #374151;
+}
+
+.rich-content-container tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.rich-content-container tr:hover {
+  background-color: #f1f8e9;
+}
+
+.rich-content-container hr {
+  margin: 2rem 0;
+  border: 0;
+  border-top: 2px solid #c8e6c9;
+  border-radius: 2px;
+}
+
 /* Estilos específicos para o painel interativo */
 .texto-institucional ul {
   list-style: none;
