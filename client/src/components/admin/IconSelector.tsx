@@ -149,7 +149,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({
         </div>
       )}
 
-      <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+      <div className="text-xs text-white mt-1">
         <p>Formatos aceitos:</p>
         <ul className="list-disc pl-5 mt-1">
           <li>Decimal: -2.8792, -52.0088</li>
