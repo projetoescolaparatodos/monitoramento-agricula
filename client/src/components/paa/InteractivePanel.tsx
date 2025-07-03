@@ -195,7 +195,7 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.1 }}
-                    className="texto-institucional max-w-none"
+                    className="texto-institucional max-w-none text-gray-800"
                   >
                     {parse(currentPanel.content || '', {
                       replace: (domNode) => {
@@ -224,7 +224,7 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
                         }
                         if (domNode.type === 'tag' && domNode.name === 'p') {
                           return (
-                            <p className="mb-6 leading-relaxed text-[#37474f] text-lg">
+                            <p className="mb-6 leading-relaxed text-gray-700 text-lg">
                               {domNode.children}
                             </p>
                           );
@@ -236,7 +236,7 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
                               {domNode.children?.map((child, index) => {
                                 if (child.type === 'tag' && child.name === 'li') {
                                   return (
-                                    <li key={index} className="flex items-start gap-3 text-[#455a64] text-lg">
+                                    <li key={index} className="flex items-start gap-3 text-gray-700 text-lg">
                                       <span className="bg-[#e8f5e9] p-1 rounded-full mt-1 shrink-0">
                                         <Check size={16} className="text-[#2e7d32]" />
                                       </span>
@@ -251,7 +251,7 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
                         }
                         if (domNode.type === 'tag' && domNode.name === 'ol') {
                           return (
-                            <ol className="list-decimal pl-6 mb-6 space-y-2 text-[#455a64] text-lg">
+                            <ol className="list-decimal pl-6 mb-6 space-y-2 text-gray-700 text-lg">
                               {domNode.children}
                             </ol>
                           );
