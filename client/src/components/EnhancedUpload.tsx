@@ -75,8 +75,8 @@ const EnhancedUpload = ({
       <CardContent>
         <Tabs defaultValue="file">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="file">Arquivo</TabsTrigger>
-            <TabsTrigger value="link">Link</TabsTrigger>
+            <TabsTrigger value="file" className="text-black">Arquivo</TabsTrigger>
+            <TabsTrigger value="link" className="text-black">Link</TabsTrigger>
           </TabsList>
           <TabsContent value="file" className="mt-2">
             <Upload onUpload={handleFileUploaded} />
