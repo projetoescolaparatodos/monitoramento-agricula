@@ -267,8 +267,8 @@ const Agriculture = () => {
                 <CardContent>
                   <p className="text-3xl font-bold">
                     {tratoresData?.reduce((sum, t) => {
-                      const tempo = typeof t.tempoAtividade === 'number' ? t.tempoAtividade : 0;
-                      return sum + tempo;
+                      const horaMaquina = typeof t.horaMaquina === 'number' ? t.horaMaquina : 0;
+                      return sum + horaMaquina;
                     }, 0).toFixed(2) || '0'} h
                   </p>
                 </CardContent>
