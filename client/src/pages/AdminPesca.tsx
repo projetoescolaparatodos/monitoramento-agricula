@@ -355,7 +355,7 @@ const AdminPesca = () => {
       </div>
 
       {/* Lista de Atividades */}
-      <Card className="mb-8 bg-gray-700">
+      <Card className="mb-8 bg-gray-500">
         <CardHeader>
           <CardTitle>Lista de Atividades</CardTitle>
         </CardHeader>
@@ -399,7 +399,7 @@ const AdminPesca = () => {
       </Card>
 
       {/* Formulário de Cadastro */}
-      <Card className="mb-8 bg-gray-700">
+      <Card className="mb-8 bg-gray-500">
         <CardHeader>
           <CardTitle>
             {pesqueiroEmEdicao ? "Editar Atividade" : "Cadastrar Nova Atividade"}
@@ -666,7 +666,7 @@ const AdminPesca = () => {
       </Card>
 
       {/* Lista de Pesqueiros Cadastrados */}
-      <Card className="bg-gray-700">
+      <Card className="bg-gray-500">
         <CardHeader>
           <CardTitle>Pesqueiros Cadastrados</CardTitle>
         </CardHeader>
@@ -680,7 +680,7 @@ const AdminPesca = () => {
               pesqueirosCadastrados.map((pesqueiro) => (
                 <div
                   key={pesqueiro.id}
-                  className="flex items-center justify-between p-4 border rounded-lg bg-gray-600"
+                  className="flex items-center justify-between p-4 border rounded-lg bg-gray-400"
                 >
                   <div>
                     <h3 className="font-semibold text-white">{pesqueiro.localidade}</h3>
