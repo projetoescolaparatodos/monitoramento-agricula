@@ -246,6 +246,10 @@ const AgriculturaMap = () => {
                     <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Proprietário</span>
                     <span className="text-gray-700 font-medium">{trator.proprietario || "Não informado"}</span>
                   </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Operador</span>
+                    <span className="text-gray-700 font-medium">{trator.piloto}</span>
+                  </div>
                 </div>
               </div>
 
@@ -280,14 +284,7 @@ const AgriculturaMap = () => {
 
             {/* Rodapé com informações adicionais */}
             <div className="mt-6 pt-4 border-t border-gray-100">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-                <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                  <User size={16} className="text-gray-600" />
-                  <div>
-                    <span className="block text-xs text-gray-500 uppercase font-medium">Operador</span>
-                    <span className="font-semibold text-gray-700">{trator.piloto}</span>
-                  </div>
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
                   <HardHat size={16} className="text-gray-600" />
                   <div>
