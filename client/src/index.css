@@ -388,6 +388,108 @@
   text-decoration: underline;
 }
 
+/* Estilos específicos para o editor Quill nos painéis informativos */
+.ql-editor {
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  color: #374151;
+}
+
+.ql-editor h1, .ql-editor h2, .ql-editor h3 {
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.ql-editor h1 { 
+  font-size: 1.8rem; 
+  color: #2e7d32;
+  border-bottom: 2px solid #c8e6c9;
+  padding-bottom: 0.5rem;
+}
+
+.ql-editor h2 { 
+  font-size: 1.5rem; 
+  color: #1b5e20;
+  border-bottom: 1px solid #c8e6c9;
+  padding-bottom: 0.25rem;
+}
+
+.ql-editor h3 { 
+  font-size: 1.25rem; 
+  color: #388e3c;
+  border-bottom: 1px dotted #81c784;
+  padding-bottom: 0.25rem;
+}
+
+.ql-editor p {
+  margin-bottom: 1rem;
+}
+
+.ql-editor ul, .ql-editor ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.ql-editor li {
+  margin-bottom: 0.5rem;
+}
+
+.ql-editor blockquote {
+  background-color: #f1f8e9;
+  border-left: 4px solid #81c784;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0 0.5rem 0.5rem 0;
+  color: #2e7d32;
+  font-style: italic;
+}
+
+.ql-editor strong {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.ql-editor a {
+  color: #1e88e5;
+  text-decoration: underline;
+}
+
+.ql-editor a:hover {
+  color: #1565c0;
+}
+
+/* Cores personalizadas na barra de ferramentas do Quill */
+.ql-picker-options .ql-picker-item[data-value="#2e7d32"]:before {
+  background-color: #2e7d32;
+}
+
+.ql-picker-options .ql-picker-item[data-value="#1b5e20"]:before {
+  background-color: #1b5e20;
+}
+
+.ql-picker-options .ql-picker-item[data-value="#388e3c"]:before {
+  background-color: #388e3c;
+}
+
+/* Melhorar a visualização das abas no formulário */
+.tabs-content-panel {
+  min-height: 400px;
+  padding: 1rem 0;
+}
+
+/* Estilos para o preview dos templates */
+.template-preview {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+  font-size: 0.875rem;
+}-decoration: underline;
+}
+
 .rich-content-container blockquote {
   border-left: 4px solid #e5e7eb;
   padding-left: 1rem;
