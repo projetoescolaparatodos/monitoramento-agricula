@@ -246,10 +246,6 @@ const AgriculturaMap = () => {
                     <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Proprietário</span>
                     <span className="text-gray-700 font-medium">{trator.proprietario || "Não informado"}</span>
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Coordenadas</span>
-                    <span className="text-gray-700 font-medium text-sm">{trator.latitude.toFixed(6)}, {trator.longitude.toFixed(6)}</span>
-                  </div>
                 </div>
               </div>
 
