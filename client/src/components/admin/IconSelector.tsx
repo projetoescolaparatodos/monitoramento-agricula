@@ -104,8 +104,8 @@ const IconSelector: React.FC<IconSelectorProps> = ({
   };
 
   return (
-    <div className="space-y-4 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-      <h3 className="text-md font-medium">Definir Localização por Coordenadas</h3>
+    <div className="space-y-4 mb-6 p-4 bg-gray-500 rounded-lg">
+      <h3 className="text-md font-medium text-white">Definir Localização por Coordenadas</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
