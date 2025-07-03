@@ -281,7 +281,6 @@ const PAAInfo = () => {
                       <TableHead>Técnico Responsável</TableHead>
                       <TableHead>Data</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Área (ha)</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -298,7 +297,6 @@ const PAAInfo = () => {
                             {paa.concluido ? 'Concluído' : 'Em Andamento'}
                           </span>
                         </TableCell>
-                        <TableCell>{paa.areaMecanizacao ? (paa.areaMecanizacao / 10000).toFixed(2) : '0.00'}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
