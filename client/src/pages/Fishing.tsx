@@ -55,8 +55,7 @@ const Fishing = () => {
         const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         console.log("Dados de pesca carregados:", data);
         return data;
-      })
-      ),
+      }),
   });
 
   const backgroundStyle = {
