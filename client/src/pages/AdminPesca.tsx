@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { db } from "../utils/firebase";
 import {
   collection,
@@ -20,10 +20,13 @@ import {
   useLoadScript,
   GoogleMap,
   MarkerF,
+  Polygon,
 } from "@react-google-maps/api";
 import EnhancedUpload from "@/components/EnhancedUpload";
 import { useLocation } from "wouter";
 import { useAuthProtection } from "@/hooks/useAuthProtection";
+import { useKmlBoundary, isClockwise, ensureClockwise } from "../hooks/useKmlBoundary";
+import styles from "./PescaMap.module.css";
 
 interface Pesca {
   id: string;
@@ -84,6 +87,10 @@ const AdminPesca = () => {
   const [pesqueiroEmEdicao, setPesqueiroEmEdicao] = useState<Pesca | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState<Pesca | null>(null);
+  
+  // Estados para controle do contorno municipal
+  const [showBoundary, setShowBoundary] = useState(true);
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   // Configurações do Google Maps
   const mapContainerStyle = {
@@ -92,6 +99,42 @@ const AdminPesca = () => {
   };
 
   const center = { lat: -2.87922, lng: -52.0088 };
+  
+  // Usando o hook personalizado para carregar o contorno do município
+  const { boundaryCoordinates, loading: loadingKml, error: kmlError } = useKmlBoundary();
+  
+  // Fallback para coordenadas caso o KML não seja carregado
+  const fallbackBoundary = useMemo(() => [
+    { lat: -2.85, lng: -52.05 },
+    { lat: -2.88, lng: -51.95 },
+    { lat: -2.93, lng: -51.98 },
+    { lat: -2.91, lng: -52.07 },
+    { lat: -2.85, lng: -52.05 }, // Fechar o polígono
+  ], []);
+  
+  // Usar coordenadas do KML se disponíveis, senão usar fallback
+  const municipioBoundary = useMemo(() => {
+    if (boundaryCoordinates.length > 0) {
+      return boundaryCoordinates;
+    }
+    return fallbackBoundary;
+  }, [boundaryCoordinates, fallbackBoundary]);
+  
+  // Estilo para o contorno do município
+  const boundaryStyle = useMemo(() => ({
+    fillColor: '#00ff88',
+    fillOpacity: 0.1,
+    strokeColor: '#00ff88',
+    strokeOpacity: 0.8,
+    strokeWeight: 2,
+    zIndex: 2,
+    clickable: false
+  }), []);
+  
+  // Garantir que o caminho do município esteja no sentido horário
+  const correctedBoundary = useMemo(() => {
+    return ensureClockwise(municipioBoundary);
+  }, [municipioBoundary]);
 
   // useEffect para buscar dados (sempre executa - não condicional)
   useEffect(() => {
@@ -437,12 +480,13 @@ const AdminPesca = () => {
               />
             </div>
 
-            <div className="rounded-lg overflow-hidden border">
+            <div className="rounded-lg overflow-hidden border relative">
               <GoogleMap
                 mapContainerStyle={mapContainerStyle}
                 center={mapCenter}
                 zoom={mapZoom}
                 onClick={handleMapClick}
+                onLoad={() => setMapLoaded(true)}
                 options={{
                   mapTypeId: google.maps.MapTypeId.HYBRID,
                   mapTypeControl: true,
@@ -475,7 +519,30 @@ const AdminPesca = () => {
                     }}
                   />
                 )}
+
+                {/* Contorno do município */}
+                {showBoundary && (
+                  <Polygon
+                    paths={correctedBoundary}
+                    options={boundaryStyle}
+                  />
+                )}
               </GoogleMap>
+              
+              {/* Botão de controle para o limite municipal */}
+              <div className="absolute top-4 right-4 z-10">
+                <button
+                  onClick={() => setShowBoundary(!showBoundary)}
+                  className={styles["boundary-toggle"]}
+                  title={showBoundary ? "Ocultar Contorno Municipal" : "Mostrar Contorno Municipal"}
+                >
+                  <img 
+                    src="/contornoicone.png" 
+                    alt="Contorno Municipal" 
+                    className={`${showBoundary ? styles["icon-active"] : ""}`}
+                  />
+                </button>
+              </div>
             </div>
 
             {latitude && longitude && (
