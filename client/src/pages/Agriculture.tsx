@@ -254,7 +254,7 @@ const Agriculture = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold">{tratoresData?.length || 0} <span className="text-lg font-normal">famílias</span></p>
+                  <p className="text-3xl font-bold">{tratoresData?.length || 0} <span className="text-lg font-bold">famílias</span></p>
                 </CardContent>
               </Card>
               <Card>
