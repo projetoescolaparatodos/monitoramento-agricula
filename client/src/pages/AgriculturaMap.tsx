@@ -225,7 +225,8 @@ const AgriculturaMap = () => {
                 )}
               </div>
               <div className="flex-1">
-                <h2 className="text-2xl font-bold text-gray-800 mb-2 leading-tight">{trator.nome}</h2>
+                <h2 className="text-2xl font-bold text-gray-800 mb-1 leading-tight">{trator.fazenda}</h2>
+                <p className="text-lg text-gray-600 mb-2 font-medium">{trator.localidade || "Localidade não informada"}</p>
                 <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold shadow-sm
                   ${trator.concluido ? 'bg-green-500 text-white' : 'bg-blue-500 text-white'}`}>
                   {trator.concluido ? '✓ Concluído' : '⚡ Em Serviço'}
@@ -242,18 +243,12 @@ const AgriculturaMap = () => {
                 </h3>
                 <div className="space-y-3">
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Fazenda</span>
-                    <span className="bg-gradient-to-r from-green-50 to-green-100 px-3 py-2 rounded-lg text-green-800 font-medium">
-                      {trator.fazenda}
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-1">
                     <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Proprietário</span>
                     <span className="text-gray-700 font-medium">{trator.proprietario || "Não informado"}</span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Localidade</span>
-                    <span className="text-gray-700 font-medium">{trator.localidade || "Não informada"}</span>
+                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Coordenadas</span>
+                    <span className="text-gray-700 font-medium text-sm">{trator.latitude.toFixed(6)}, {trator.longitude.toFixed(6)}</span>
                   </div>
                 </div>
               </div>
@@ -265,6 +260,10 @@ const AgriculturaMap = () => {
                   <span>Operação</span>
                 </h3>
                 <div className="space-y-3">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Trator</span>
+                    <span className="text-gray-700 font-medium">{trator.nome}</span>
+                  </div>
                   <div className="flex flex-col gap-1">
                     <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Atividade</span>
                     <span className="text-gray-700 font-medium">{trator.atividade}</span>
