@@ -72,6 +72,8 @@ const AdminPesca = () => {
   const [tecnicoResponsavel, setTecnicoResponsavel] = useState("");
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
+  const [mapCenter, setMapCenter] = useState({ lat: -3.15, lng: -52.0088 });
+  const [mapZoom, setMapZoom] = useState(12);
   const [midias, setMidias] = useState<string[]>([]);
   const [dataCadastro, setDataCadastro] = useState(
     new Date().toISOString().split("T")[0],
@@ -180,6 +182,8 @@ const AdminPesca = () => {
       const lng = e.latLng.lng();
       setLatitude(lat);
       setLongitude(lng);
+      setMapCenter({ lat, lng });
+      setMapZoom(15);
     }
   };
 
@@ -290,6 +294,8 @@ const AdminPesca = () => {
     setTecnicoResponsavel(pesqueiro.tecnicoResponsavel || "");
     setLatitude(pesqueiro.latitude || null);
     setLongitude(pesqueiro.longitude || null);
+    setMapCenter({lat: pesqueiro.latitude, lng: pesqueiro.longitude} || { lat: -3.15, lng: -52.0088 });
+    setMapZoom(15);
     setMidias(pesqueiro.midias || []);
     setDataCadastro(pesqueiro.dataCadastro || new Date().toISOString().split("T")[0]);
   };
@@ -422,6 +428,10 @@ const AdminPesca = () => {
                   setLatitude(lat);
                   setLongitude(lng);
                 }}
+                onMapCenterChange={(lat, lng) => {
+                  setMapCenter({ lat, lng });
+                  setMapZoom(15);
+                }}
                 initialLatitude={latitude}
                 initialLongitude={longitude}
               />
@@ -430,8 +440,8 @@ const AdminPesca = () => {
             <div className="rounded-lg overflow-hidden border">
               <GoogleMap
                 mapContainerStyle={mapContainerStyle}
-                center={center}
-                zoom={12}
+                center={mapCenter}
+                zoom={mapZoom}
                 onClick={handleMapClick}
                 options={{
                   mapTypeId: google.maps.MapTypeId.HYBRID,

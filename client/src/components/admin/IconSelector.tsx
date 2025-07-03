@@ -10,12 +10,14 @@ interface IconSelectorProps {
   onLocationSelect: (lat: number, lng: number) => void;
   initialLatitude: number | null;
   initialLongitude: number | null;
+  onMapCenterChange?: (lat: number, lng: number) => void;
 }
 
 const IconSelector: React.FC<IconSelectorProps> = ({ 
   onLocationSelect, 
   initialLatitude, 
-  initialLongitude 
+  initialLongitude,
+  onMapCenterChange
 }) => {
   const { toast } = useToast();
   const [latitude, setLatitude] = useState<string>(initialLatitude?.toString() || '');
@@ -94,6 +96,11 @@ const IconSelector: React.FC<IconSelectorProps> = ({
   const handleSetLocation = () => {
     if (validateCoordinates() && parsedLat !== null && parsedLng !== null) {
       onLocationSelect(parsedLat, parsedLng);
+      
+      // Notifica a mudança de centro do mapa se a função foi fornecida
+      if (onMapCenterChange) {
+        onMapCenterChange(parsedLat, parsedLng);
+      }
       
       // Adicionamos um feedback visual para o usuário
       toast({
