@@ -68,9 +68,9 @@ const EnhancedUpload = ({
   };
 
   return (
-    <Card>
+    <Card className="bg-gray-500">
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle className="text-white">{title}</CardTitle>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="file">
