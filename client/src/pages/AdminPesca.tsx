@@ -263,9 +263,7 @@ const AdminPesca = () => {
         latitude,
         longitude,
         midias,
-        dataCadastro: pesqueiroEmEdicao
-          ? pesqueiroEmEdicao.dataCadastro
-          : dataCadastro,
+        dataCadastro: dataCadastro,
         concluido: false,
       };
 
@@ -340,7 +338,13 @@ const AdminPesca = () => {
     setMapCenter({lat: pesqueiro.latitude, lng: pesqueiro.longitude} || { lat: -3.15, lng: -52.0088 });
     setMapZoom(15);
     setMidias(pesqueiro.midias || []);
-    setDataCadastro(pesqueiro.dataCadastro || new Date().toISOString().split("T")[0]);
+    // Converter a data para o formato YYYY-MM-DD se necessário
+    const dataFormatada = pesqueiro.dataCadastro ? 
+      (pesqueiro.dataCadastro.includes('T') ? 
+        pesqueiro.dataCadastro.split('T')[0] : 
+        pesqueiro.dataCadastro) : 
+      new Date().toISOString().split("T")[0];
+    setDataCadastro(dataFormatada);
   };
 
   const handleExcluirPesqueiro = async (id: string) => {

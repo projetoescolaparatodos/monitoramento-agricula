@@ -231,9 +231,7 @@ const AdminPAA = () => {
         latitude,
         longitude,
         midias,
-        dataCadastro: paaLocalEmEdicao
-          ? paaLocalEmEdicao.dataCadastro
-          : dataCadastro,
+        dataCadastro: dataCadastro,
         concluido: false,
       };
 
@@ -301,7 +299,13 @@ const AdminPAA = () => {
     setMapCenter({lat: paaLocal.latitude, lng: paaLocal.longitude} || { lat: -2.87922, lng: -52.0088 });
     setMapZoom(15);
     setMidias(paaLocal.midias || []);
-    setDataCadastro(paaLocal.dataCadastro);
+    // Converter a data para o formato YYYY-MM-DD se necessário
+    const dataFormatada = paaLocal.dataCadastro ? 
+      (paaLocal.dataCadastro.includes('T') ? 
+        paaLocal.dataCadastro.split('T')[0] : 
+        paaLocal.dataCadastro) : 
+      new Date().toISOString().split("T")[0];
+    setDataCadastro(dataFormatada);
   };
 
   const handleExcluirPaaLocal = async (id: string) => {
