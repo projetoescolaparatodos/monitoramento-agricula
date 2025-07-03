@@ -1055,3 +1055,21 @@ iframe[src*="drive.google.com"] {
     scroll-behavior: smooth;
   }
 }
+
+/* Estilo do placeholder */
+.page-title::placeholder {
+  color: #9ca3af;
+}
+
+/* Estilos para tabelas no conteúdo prose */
+.prose table {
+  @apply w-full border-collapse my-4;
+}
+
+.prose th {
+  @apply bg-[#e8f5e9] text-left p-3 border text-[#2e7d32] font-semibold;
+}
+
+.prose td {
+  @apply p-3 border;
+}
