@@ -358,12 +358,12 @@ const AdminPesca = () => {
       {/* Lista de Atividades */}
       <Card className="mb-8 bg-gray-500">
         <CardHeader>
-          <CardTitle>Lista de Atividades</CardTitle>
+          <CardTitle className="text-white">Lista de Atividades</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {pesqueirosCadastrados.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">
+              <p className="text-white text-center py-4">
                 Nenhuma atividade cadastrada ainda.
               </p>
             ) : (
@@ -372,10 +372,10 @@ const AdminPesca = () => {
                   <div className="flex justify-between items-center">
                     <div>
                       <h4 className="font-semibold text-white">{atividade.localidade}</h4>
-                      <p className="text-sm text-gray-300">
+                      <p className="text-sm text-white">
                         Operador: {atividade.operador || "Não informado"}
                       </p>
-                      <p className="text-sm text-gray-300">
+                      <p className="text-sm text-white">
                         Data: {new Date(atividade.dataCadastro).toLocaleDateString()}
                       </p>
                     </div>
@@ -674,12 +674,12 @@ const AdminPesca = () => {
       {/* Lista de Pesqueiros Cadastrados */}
       <Card className="bg-gray-500">
         <CardHeader>
-          <CardTitle>Pesqueiros Cadastrados</CardTitle>
+          <CardTitle className="text-white">Pesqueiros Cadastrados</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {pesqueirosCadastrados.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">
+              <p className="text-white text-center py-8">
                 Nenhum pesqueiro cadastrado ainda.
               </p>
             ) : (
@@ -690,11 +690,11 @@ const AdminPesca = () => {
                 >
                   <div>
                     <h3 className="font-semibold text-white">{pesqueiro.localidade}</h3>
-                    <p className="text-sm text-gray-300">
+                    <p className="text-sm text-white">
                       {pesqueiro.nomeImovel} -{" "}
                       {pesqueiro.concluido ? "Concluído" : "Em Andamento"}
                     </p>
-                    <p className="text-xs text-gray-300">
+                    <p className="text-xs text-white">
                       Proprietário: {pesqueiro.proprietario}
                     </p>
                   </div>
