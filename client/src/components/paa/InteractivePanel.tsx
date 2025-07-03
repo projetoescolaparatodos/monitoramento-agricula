@@ -176,9 +176,9 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
               transition={{ duration: 0.2 }}
               className="h-full"
             >
-              <Card className="shadow-lg border-0 rounded-lg overflow-hidden">
+              <Card className="shadow-lg border-0 rounded-lg overflow-hidden h-[600px] flex flex-col">
                 <CardHeader 
-                  className="pb-4 border-b-0"
+                  className="pb-4 border-b-0 flex-shrink-0"
                   style={{
                     background: 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)'
                   }}
@@ -190,7 +190,7 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
                     <span>{currentPanel.title}</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-6 px-6 pb-8 bg-white">
+                <CardContent className="pt-6 px-6 pb-8 bg-white flex-1 overflow-y-auto">
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
