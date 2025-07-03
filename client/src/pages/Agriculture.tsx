@@ -170,6 +170,13 @@ const Agriculture = () => {
     } : null
   });
 
+  const [showHiddenAdminButton, setShowHiddenAdminButton] = React.useState(false);
+  const [visibleItems, setVisibleItems] = React.useState(7);
+
+  const handleLoadMore = () => {
+    setVisibleItems(prev => prev + 10);
+  };
+
   return (
     <>
       <div style={backgroundStyle}></div>
@@ -299,39 +306,42 @@ const Agriculture = () => {
                 <Table className="w-full [&_th]:text-black [&_td]:text-gray-700 [&_tr:hover]:bg-gray-50/50">
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Nome</TableHead>
-                      <TableHead>Fazenda</TableHead>
-                      <TableHead>Atividade</TableHead>
-                      <TableHead>Operador</TableHead>
+                      <TableHead>Localidade</TableHead>
+                      <TableHead>Proprietário</TableHead>
+                      <TableHead>Tipo de Atividade</TableHead>
+                      <TableHead>Técnico Responsável</TableHead>
                       <TableHead>Data</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Hora/Máquina</TableHead>
-                      <TableHead>Área (ha)</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {tratoresData?.map((trator) => (
+                    {tratoresData?.slice(0, visibleItems).map((trator) => (
                       <TableRow key={trator.id}>
-                        <TableCell>{trator.nome}</TableCell>
-                        <TableCell>{trator.fazenda}</TableCell>
-                        <TableCell>{trator.atividade}</TableCell>
-                        <TableCell>{trator.piloto}</TableCell>
-                        <TableCell>{new Date(trator.dataCadastro).toLocaleDateString()}</TableCell>
+                        <TableCell>{trator.localidade || '-'}</TableCell>
+                        <TableCell>{trator.proprietario || '-'}</TableCell>
+                        <TableCell>{trator.tipoAtividade || '-'}</TableCell>
+                        <TableCell>{trator.tecnicoResponsavel || '-'}</TableCell>
+                        <TableCell>{new Date(trator.data).toLocaleDateString()}</TableCell>
                         <TableCell>
                           <span className={trator.concluido ? 'text-green-600 font-medium' : 'text-blue-600 font-medium'}>
-                            {trator.concluido ? 'Concluído' : 'Em Serviço'}
+                            {trator.concluido ? 'Concluído' : 'Em Andamento'}
                           </span>
-                        </TableCell>
-                        <TableCell>
-                          {trator.horaMaquina || 'Não informado'}
-                        </TableCell>
-                        <TableCell>
-                          {trator.areaTrabalhada || '0'} ha
                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
+                {tratoresData && tratoresData.length > visibleItems && (
+                  <div className="p-4 border-t border-gray-200 bg-gray-50/50">
+                    <Button 
+                      onClick={handleLoadMore} 
+                      variant="outline" 
+                      className="w-full"
+                    >
+                      Ver mais atividades ({tratoresData.length - visibleItems} restantes)
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </section>

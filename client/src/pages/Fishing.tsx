@@ -109,6 +109,13 @@ const Fishing = () => {
       ),
   });
 
+  const [showHiddenAdminButton, setShowHiddenAdminButton] = React.useState(false);
+  const [visibleItems, setVisibleItems] = React.useState(7);
+
+  const handleLoadMore = () => {
+    setVisibleItems(prev => prev + 10);
+  };
+
   return (
     <>
       <div style={backgroundStyle} />
@@ -241,28 +248,22 @@ const Fishing = () => {
                 <Table className="w-full [&_th]:text-black [&_td]:text-gray-700 [&_tr:hover]:bg-gray-50/50">
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Espécie</TableHead>
-                      <TableHead>Tipo Tanque</TableHead>
                       <TableHead>Localidade</TableHead>
-                      <TableHead>Área Alagada (ha)</TableHead>
-                      <TableHead>Método Alimentação</TableHead>
-                      <TableHead>Operador</TableHead>
-                      <TableHead>Técnico</TableHead>
-                      <TableHead>Quantidade (kg)</TableHead>
+                      <TableHead>Proprietário</TableHead>
+                      <TableHead>Tipo de Sistema</TableHead>
+                      <TableHead>Técnico Responsável</TableHead>
+                      <TableHead>Data</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {pescaData?.map((pesca) => (
+                    {pescaData?.slice(0, visibleItems).map((pesca) => (
                       <TableRow key={pesca.id}>
-                        <TableCell>{pesca.especiePeixe || "—"}</TableCell>
-                        <TableCell>{pesca.tipoTanque || "—"}</TableCell>
-                        <TableCell>{pesca.localidade || "—"}</TableCell>
-                        <TableCell>{pesca.areaAlagada ? `${pesca.areaAlagada} ha` : "—"}</TableCell>
-                        <TableCell>{pesca.metodoAlimentacao || "—"}</TableCell>
-                        <TableCell>{pesca.operador || "—"}</TableCell>
-                        <TableCell>{pesca.tecnicoResponsavel || "—"}</TableCell>
-                        <TableCell>{pesca.quantidadeAlevinos ? `${pesca.quantidadeAlevinos.toFixed(2)} kg` : "—"}</TableCell>
+                        <TableCell>{pesca.localidade || '-'}</TableCell>
+                        <TableCell>{pesca.proprietario || '-'}</TableCell>
+                        <TableCell>{pesca.tipoSistema || '-'}</TableCell>
+                        <TableCell>{pesca.tecnicoResponsavel || '-'}</TableCell>
+                        <TableCell>{new Date(pesca.data).toLocaleDateString()}</TableCell>
                         <TableCell>
                           <span className={pesca.concluido ? 'text-green-600 font-medium' : 'text-blue-600 font-medium'}>
                             {pesca.concluido ? 'Concluído' : 'Em Andamento'}
@@ -272,6 +273,17 @@ const Fishing = () => {
                     ))}
                   </TableBody>
                 </Table>
+                {pescaData && pescaData.length > visibleItems && (
+                  <div className="p-4 border-t border-gray-200 bg-gray-50/50">
+                    <Button 
+                      onClick={handleLoadMore} 
+                      variant="outline" 
+                      className="w-full"
+                    >
+                      Ver mais atividades ({pescaData.length - visibleItems} restantes)
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </section>

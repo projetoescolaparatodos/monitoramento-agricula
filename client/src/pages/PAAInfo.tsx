@@ -20,6 +20,11 @@ import InteractivePanel from "@/components/paa/InteractivePanel";
 
 const PAAInfo = () => {
   const [showHiddenAdminButton, setShowHiddenAdminButton] = React.useState(false);
+  const [visibleItems, setVisibleItems] = React.useState(7);
+
+  const handleLoadMore = () => {
+    setVisibleItems(prev => prev + 10);
+  };
 
   const backgroundStyle = {
     backgroundImage: 'url("/fundo estatico.jpg")',
@@ -279,7 +284,7 @@ const PAAInfo = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {paaData?.map((paa) => (
+                    {paaData?.slice(0, visibleItems).map((paa) => (
                       <TableRow key={paa.id}>
                         <TableCell>{paa.localidade || '-'}</TableCell>
                         <TableCell>{paa.proprietario || '-'}</TableCell>
@@ -296,6 +301,17 @@ const PAAInfo = () => {
                     ))}
                   </TableBody>
                 </Table>
+                {paaData && paaData.length > visibleItems && (
+                  <div className="p-4 border-t border-gray-200 bg-gray-50/50">
+                    <Button 
+                      onClick={handleLoadMore} 
+                      variant="outline" 
+                      className="w-full"
+                    >
+                      Ver mais atividades ({paaData.length - visibleItems} restantes)
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </section>
