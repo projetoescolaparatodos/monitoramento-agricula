@@ -48,6 +48,7 @@ const AdminAgricultura = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const [agriculturasAtividades, setAgriculturasAtividades] = useState<any[]>([]);
+  const [mapInitialized, setMapInitialized] = useState(false);
 
   // useEffect para buscar dados (sempre executa)
   useEffect(() => {
@@ -71,32 +72,15 @@ const AdminAgricultura = () => {
     };
 
     fetchTratores();
-  }, []);
+  }, [toast]);
 
-  // Verificações condicionais após hooks básicos
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p>Verificando permissões...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!userAuth.isAuthenticated) {
-    setLocation(getLoginUrl('agricultura'));
-    return null;
-  }
-
-  if (!hasAccess('agricultura')) {
-    setLocation("/acesso-negado");
-    return null;
-  }
-
-  // useEffect para inicializar mapa (só executa após verificações passarem)
+  // useEffect para inicializar mapa
   useEffect(() => {
+    // Só executa se o usuário estiver autenticado e tiver acesso
+    if (!userAuth.isAuthenticated || !hasAccess('agricultura') || mapInitialized) {
+      return;
+    }
+
     const mapElement = document.getElementById("admin-map-agricultura");
     if (!mapElement) {
       console.warn("Elemento do mapa não encontrado no DOM");
@@ -106,6 +90,7 @@ const AdminAgricultura = () => {
     // Verifica se o mapa já foi inicializado
     if ((mapElement as any)._leaflet_id) {
       console.log("Mapa já inicializado");
+      setMapInitialized(true);
       return;
     }
 
@@ -132,12 +117,37 @@ const AdminAgricultura = () => {
       L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
     });
 
+    setMapInitialized(true);
+
     return () => {
       if (map) {
         map.remove();
+        setMapInitialized(false);
       }
     };
-  }, [userAuth.isAuthenticated, hasAccess]); // Dependências para re-executar quando a autenticação mudar
+  }, [userAuth.isAuthenticated, hasAccess, mapInitialized]);
+
+  // Verificações condicionais após todos os hooks
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p>Verificando permissões...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!userAuth.isAuthenticated) {
+    setLocation(getLoginUrl('agricultura'));
+    return null;
+  }
+
+  if (!hasAccess('agricultura')) {
+    setLocation("/acesso-negado");
+    return null;
+  }
 
   const atualizarStatusAgricultura = async (id: string, statusAtual: boolean) => {
     try {
