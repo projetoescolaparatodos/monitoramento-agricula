@@ -342,8 +342,9 @@ const AdminPesca = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-gray-800 text-white">
-      <div className="flex items-center gap-4 mb-6">
+    <div className="min-h-screen bg-gray-800 text-white">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center gap-4 mb-6">
         <Button
           variant="outline"
           size="icon"
@@ -722,6 +723,7 @@ const AdminPesca = () => {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 };
