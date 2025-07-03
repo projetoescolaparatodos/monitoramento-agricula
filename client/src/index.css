@@ -1073,3 +1073,51 @@ iframe[src*="drive.google.com"] {
 .prose td {
   @apply p-3 border;
 }
+
+/* Estilos específicos para charts */
+.chart-container {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Tipografia institucional */
+.texto-institucional {
+  letter-spacing: 0.5px;
+  word-spacing: 1px;
+  line-height: 1.8;
+  font-family: 'Inter', 'Open Sans', sans-serif;
+}
+
+.texto-institucional h1,
+.texto-institucional h2,
+.texto-institucional h3 {
+  font-family: 'Inter', 'Merriweather', serif;
+}
+
+/* Responsividade para tipografia */
+@media (max-width: 768px) {
+  .texto-institucional {
+    font-size: 1rem;
+    line-height: 1.6;
+    letter-spacing: 0.3px;
+  }
+
+  .texto-institucional h1 {
+    font-size: 1.5rem;
+  }
+
+  .texto-institucional h2 {
+    font-size: 1.25rem;
+  }
+
+  .texto-institucional h3 {
+    font-size: 1.125rem;
+  }
+
+  .texto-institucional p,
+  .texto-institucional li {
+    font-size: 1rem;
+  }
+}

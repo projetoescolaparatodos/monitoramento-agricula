@@ -17,7 +17,12 @@ import {
   ShoppingCart,
   Calendar,
   MapPin,
-  ArrowLeft
+  ArrowLeft,
+  Check,
+  Phone,
+  Building2,
+  ArrowRight,
+  Leaf
 } from 'lucide-react';
 
 interface InteractivePanelProps {
@@ -190,37 +195,154 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.1 }}
-                    className="prose prose-lg max-w-none text-gray-700"
+                    className="texto-institucional max-w-none"
                   >
                     {parse(currentPanel.content || '', {
                       replace: (domNode) => {
-                        // Estilização para diferentes elementos HTML
+                        // Hierarquia tipográfica institucional melhorada
+                        if (domNode.type === 'tag' && domNode.name === 'h1') {
+                          return (
+                            <h1 className="text-3xl font-bold text-[#2e7d32] mb-6 pb-3 border-b-2 border-[#c8e6c9]">
+                              {domNode.children}
+                            </h1>
+                          );
+                        }
                         if (domNode.type === 'tag' && domNode.name === 'h2') {
-                          return <h2 className="text-[#2e7d32] border-b pb-2 mt-6 mb-4">{domNode.children}</h2>;
+                          return (
+                            <h2 className="text-2xl font-semibold text-[#1b5e20] mb-5 pb-2 border-b border-[#c8e6c9] flex items-center gap-2 mt-8">
+                              <Leaf size={20} className="text-[#2e7d32]" />
+                              {domNode.children}
+                            </h2>
+                          );
                         }
                         if (domNode.type === 'tag' && domNode.name === 'h3') {
-                          return <h3 className="text-[#388e3c] mt-5 mb-3">{domNode.children}</h3>;
+                          return (
+                            <h3 className="text-xl font-semibold text-[#388e3c] mb-4 mt-6 border-b border-dotted border-[#81c784] pb-1">
+                              {domNode.children}
+                            </h3>
+                          );
                         }
                         if (domNode.type === 'tag' && domNode.name === 'p') {
-                          return <p className="mb-4 leading-relaxed">{domNode.children}</p>;
+                          return (
+                            <p className="mb-6 leading-relaxed text-[#37474f] text-lg">
+                              {domNode.children}
+                            </p>
+                          );
                         }
                         if (domNode.type === 'tag' && domNode.name === 'ul') {
-                          return <ul className="list-disc pl-5 mb-4 space-y-1">{domNode.children}</ul>;
+                          // Lista moderna com ícones customizados
+                          return (
+                            <ul className="space-y-3 list-none pl-0 mb-6">
+                              {domNode.children?.map((child, index) => {
+                                if (child.type === 'tag' && child.name === 'li') {
+                                  return (
+                                    <li key={index} className="flex items-start gap-3 text-[#455a64] text-lg">
+                                      <span className="bg-[#e8f5e9] p-1 rounded-full mt-1 shrink-0">
+                                        <Check size={16} className="text-[#2e7d32]" />
+                                      </span>
+                                      <span>{child.children}</span>
+                                    </li>
+                                  );
+                                }
+                                return null;
+                              })}
+                            </ul>
+                          );
                         }
                         if (domNode.type === 'tag' && domNode.name === 'ol') {
-                          return <ol className="list-decimal pl-5 mb-4 space-y-1">{domNode.children}</ol>;
+                          return (
+                            <ol className="list-decimal pl-6 mb-6 space-y-2 text-[#455a64] text-lg">
+                              {domNode.children}
+                            </ol>
+                          );
                         }
                         if (domNode.type === 'tag' && domNode.name === 'a') {
-                          return <a className="text-[#2e7d32] hover:underline" href={domNode.attribs.href}>{domNode.children}</a>;
+                          return (
+                            <a 
+                              className="group inline-flex items-center gap-1 text-[#1e88e5] font-medium hover:underline"
+                              href={domNode.attribs?.href}
+                            >
+                              {domNode.children}
+                              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+                            </a>
+                          );
+                        }
+                        if (domNode.type === 'tag' && domNode.name === 'strong' || domNode.name === 'b') {
+                          return <strong className="font-semibold text-[#2e7d32]">{domNode.children}</strong>;
                         }
                         if (domNode.type === 'tag' && domNode.name === 'pre') {
-                          return <pre className="whitespace-pre-wrap bg-gray-100 p-4 rounded-md my-4 border border-gray-200">{domNode.children?.[0]?.data}</pre>;
+                          return (
+                            <pre className="whitespace-pre-wrap bg-[#f5f5f5] p-4 rounded-lg my-6 border border-[#e0e0e0] text-sm font-mono">
+                              {domNode.children?.[0]?.data}
+                            </pre>
+                          );
                         }
                         if (domNode.type === 'tag' && domNode.name === 'blockquote') {
-                          return <blockquote className="border-l-4 border-[#2e7d32] pl-4 py-2 my-4 bg-gray-50 italic">{domNode.children}</blockquote>;
+                          return (
+                            <blockquote className="bg-[#f1f8e9] border-l-4 border-[#81c784] p-4 my-6 rounded-r-lg">
+                              <p className="text-[#2e7d32] italic font-medium text-lg">
+                                "{domNode.children}"
+                              </p>
+                            </blockquote>
+                          );
+                        }
+                        if (domNode.type === 'tag' && domNode.name === 'table') {
+                          return (
+                            <div className="overflow-x-auto my-6">
+                              <table className="min-w-full border border-[#c8e6c9] rounded-lg overflow-hidden">
+                                {domNode.children}
+                              </table>
+                            </div>
+                          );
+                        }
+                        if (domNode.type === 'tag' && domNode.name === 'thead') {
+                          return (
+                            <thead className="bg-[#e8f5e9]">
+                              {domNode.children}
+                            </thead>
+                          );
+                        }
+                        if (domNode.type === 'tag' && domNode.name === 'th') {
+                          return (
+                            <th className="p-3 text-left font-semibold text-[#2e7d32]">
+                              {domNode.children}
+                            </th>
+                          );
+                        }
+                        if (domNode.type === 'tag' && domNode.name === 'tbody') {
+                          return (
+                            <tbody className="divide-y divide-[#e0e0e0]">
+                              {domNode.children}
+                            </tbody>
+                          );
+                        }
+                        if (domNode.type === 'tag' && domNode.name === 'td') {
+                          return (
+                            <td className="p-3 text-gray-700">
+                              {domNode.children}
+                            </td>
+                          );
                         }
                       }
                     })}
+                    
+                    {/* Componente adicional para contatos institucionais */}
+                    <div className="mt-8 p-4 bg-[#f5f5f5] rounded-lg border border-[#e0e0e0]">
+                      <h3 className="flex items-center gap-2 text-lg font-medium text-[#2e7d32] mb-3">
+                        <Phone size={18} />
+                        Contato Oficial
+                      </h3>
+                      <div className="space-y-2 text-gray-700">
+                        <p>📧 secretaria.agricultura@estado.gov.br</p>
+                        <p>📞 (XX) XXXX-XXXX</p>
+                      </div>
+                    </div>
+
+                    {/* Rodapé institucional */}
+                    <div className="mt-8 pt-4 border-t border-[#e0e0e0] text-sm text-gray-500 flex items-center gap-2">
+                      <Building2 size={16} />
+                      <span>Secretaria de Agricultura - Dados atualizados em {new Date().toLocaleDateString('pt-BR')}</span>
+                    </div>
                   </motion.div>
                 </CardContent>
               </Card>
