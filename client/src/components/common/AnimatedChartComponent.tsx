@@ -479,8 +479,8 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
           setTimeout(() => {
             let progress = 0;
             const totalPoints = originalDataset.data.length;
-            const animationDuration = 12000; // 12 seconds total for much slower animation
-            const totalSteps = 80; // Even fewer steps for much slower, more deliberate animation
+            const animationDuration = 15000; // 15 seconds total for much slower animation
+            const totalSteps = 120; // More steps for smoother animation
             const stepDuration = animationDuration / totalSteps;
             let currentPointIndex = -1;
             let tooltipTimeout: NodeJS.Timeout | null = null;
@@ -496,71 +496,68 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
                   currentDataset.pointRadius = 0;
                 }
                 
-                // Calculate smooth progress with easing function (cubic-bezier)
+                // Calculate smooth progress with improved easing
                 const normalizedProgress = Math.min(progress / totalSteps, 1);
-                const easedProgress = 1 - Math.pow(1 - normalizedProgress, 3); // Ease-out cubic
-                const dataPointsToShow = easedProgress * (totalPoints - 1);
+                // Use a slower, more deliberate easing function
+                const easedProgress = normalizedProgress < 0.5 
+                  ? 2 * normalizedProgress * normalizedProgress 
+                  : 1 - Math.pow(-2 * normalizedProgress + 2, 2) / 2;
                 
-                // Check if we've reached a new point for tooltip
-                const newPointIndex = Math.floor(dataPointsToShow);
+                // Calculate which point we should be at
+                const exactPointProgress = easedProgress * (totalPoints - 1);
+                const currentPointToShow = Math.floor(exactPointProgress);
+                
+                // Check if we've reached a new complete point for tooltip
+                const newPointIndex = currentPointToShow;
                 if (newPointIndex > currentPointIndex && newPointIndex < totalPoints) {
                   currentPointIndex = newPointIndex;
                   
                   // Show tooltip for current point
                   if (tooltipTimeout) clearTimeout(tooltipTimeout);
                   
-                  // Simulate tooltip by temporarily showing hover state
-                  const chart = chartInstance.current;
-                  const canvasPosition = chart.canvas.getBoundingClientRect();
-                  const datasetMeta = chart.getDatasetMeta(datasetIndex);
-                  const pointElement = datasetMeta.data[currentPointIndex];
-                  
-                  if (pointElement && isFinite(pointElement.x) && isFinite(pointElement.y)) {
-                    // Create synthetic mouse event to trigger tooltip
-                    const clientX = canvasPosition.left + pointElement.x;
-                    const clientY = canvasPosition.top + pointElement.y;
-                    
-                    // Validate coordinates are finite numbers
-                    if (isFinite(clientX) && isFinite(clientY)) {
-                      const mouseEvent = new MouseEvent('mousemove', {
-                        clientX: clientX,
-                        clientY: clientY,
-                        bubbles: true
-                      });
-                    
-                    // Show tooltip
-                      chart.canvas.dispatchEvent(mouseEvent);
+                  // Wait a moment before showing tooltip to let line reach the point
+                  setTimeout(() => {
+                    if (chartInstance.current && currentPointIndex === newPointIndex) {
+                      const chart = chartInstance.current;
+                      const canvasPosition = chart.canvas.getBoundingClientRect();
+                      const datasetMeta = chart.getDatasetMeta(datasetIndex);
+                      const pointElement = datasetMeta.data[currentPointIndex];
                       
-                      // Hide tooltip after 4 seconds or when moving to next point
-                      tooltipTimeout = setTimeout(() => {
-                        const hideEvent = new MouseEvent('mouseout', {
-                          bubbles: true
-                        });
-                        chart.canvas.dispatchEvent(hideEvent);
-                      }, 4000);
+                      if (pointElement && isFinite(pointElement.x) && isFinite(pointElement.y)) {
+                        // Create synthetic mouse event to trigger tooltip
+                        const clientX = canvasPosition.left + pointElement.x;
+                        const clientY = canvasPosition.top + pointElement.y;
+                        
+                        // Validate coordinates are finite numbers
+                        if (isFinite(clientX) && isFinite(clientY)) {
+                          const mouseEvent = new MouseEvent('mousemove', {
+                            clientX: clientX,
+                            clientY: clientY,
+                            bubbles: true
+                          });
+                        
+                        // Show tooltip
+                          chart.canvas.dispatchEvent(mouseEvent);
+                          
+                          // Hide tooltip after 4 seconds or when moving to next point
+                          tooltipTimeout = setTimeout(() => {
+                            const hideEvent = new MouseEvent('mouseout', {
+                              bubbles: true
+                            });
+                            chart.canvas.dispatchEvent(hideEvent);
+                          }, 4000);
+                        }
+                      }
                     }
-                  }
+                  }, 200); // Small delay to let line reach point
                 }
                 
-                // Create smooth interpolated data with organic curve
+                // Create data array showing only completed points (no interpolation to avoid wrong values)
                 const animatedData = originalDataset.data.map((value, index) => {
-                  if (index < Math.floor(dataPointsToShow)) {
-                    return value;
-                  } else if (index === Math.floor(dataPointsToShow) && dataPointsToShow % 1 !== 0) {
-                    // Smooth interpolation between points
-                    const nextIndex = Math.min(index + 1, totalPoints - 1);
-                    const prevValue = value;
-                    const nextValue = originalDataset.data[nextIndex];
-                    const interpolationFactor = dataPointsToShow % 1;
-                    
-                    // Apply smooth curve interpolation
-                    const smoothFactor = 0.5 * (1 - Math.cos(interpolationFactor * Math.PI));
-                    return prevValue + (nextValue - prevValue) * smoothFactor;
-                  } else if (index === Math.floor(dataPointsToShow) + 1 && dataPointsToShow % 1 !== 0) {
-                    // Show partial next point for smooth transition
-                    return value;
+                  if (index <= currentPointToShow) {
+                    return value; // Show complete points with their exact values
                   } else {
-                    return null; // Hide future points
+                    return null; // Hide future points completely
                   }
                 });
                 
@@ -571,14 +568,10 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
                 const pointHoverRadii = new Array(totalPoints).fill(0);
                 
                 for (let i = 0; i < totalPoints; i++) {
-                  if (i < Math.floor(dataPointsToShow)) {
-                    pointRadii[i] = 4;
+                  if (i <= currentPointToShow) {
+                    // Show completed points
+                    pointRadii[i] = 5;
                     pointHoverRadii[i] = 8;
-                  } else if (i === Math.floor(dataPointsToShow) && dataPointsToShow % 1 !== 0) {
-                    // Smoothly scale the current point
-                    const scaleFactor = dataPointsToShow % 1;
-                    pointRadii[i] = 4 * scaleFactor;
-                    pointHoverRadii[i] = 8 * scaleFactor;
                   }
                 }
                 
@@ -618,8 +611,7 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
             };
             
             animateDataset();
-          }, datasetIndex * 400); // Slightly longer stagger for multiple datasets
-        });
+          }, datasetIndex * 600); // Longer stagger for multiple datasets to give more time between points
       };
 
       // Store animation function for manual trigger
