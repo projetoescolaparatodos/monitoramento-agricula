@@ -5,16 +5,113 @@ import ChartComponent from "@/components/common/ChartComponent";
 import AnimatedChartComponent from "@/components/common/AnimatedChartComponent";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
-import { TrendingUp, BarChart3 } from "lucide-react";
+import { TrendingUp, BarChart3, ChevronLeft, ChevronRight } from "lucide-react";
+import { 
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  type CarouselApi
+} from "@/components/ui/carousel";
+import { useEffect, useState, useCallback, useRef } from "react";
 
 const DataVisualizationSection = () => {
   const { data: charts, isLoading } = useQuery<ChartItem[]>({
     queryKey: ['/api/charts?pageType=home'],
   });
 
+  // Estados para controle do carrossel
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [count, setCount] = useState(0);
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
+  const autoScrollTimer = useRef<NodeJS.Timeout>();
+  const chartRefs = useRef<{ [key: string]: any }>({});
+
   // Buscar gráficos destacados e regulares
   const featuredCharts = charts?.filter(chart => chart.isFeatured) || [];
   const regularCharts = charts?.filter(chart => !chart.isFeatured) || [];
+
+  // Configurar carrossel
+  useEffect(() => {
+    if (!api) return;
+
+    setCount(api.scrollSnapList().length);
+    setCurrent(api.selectedScrollSnap() + 1);
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap() + 1);
+    });
+  }, [api]);
+
+  // Auto-scroll do carrossel
+  const startAutoScroll = useCallback(() => {
+    if (!autoScrollEnabled || !api || featuredCharts.length <= 1) return;
+
+    autoScrollTimer.current = setTimeout(() => {
+      if (api.canScrollNext()) {
+        api.scrollNext();
+      } else {
+        api.scrollTo(0);
+      }
+      startAutoScroll();
+    }, 8000); // 8 segundos para dar tempo da animação dos gráficos
+  }, [autoScrollEnabled, api, featuredCharts.length]);
+
+  // Iniciar auto-scroll
+  useEffect(() => {
+    startAutoScroll();
+    return () => {
+      if (autoScrollTimer.current) {
+        clearTimeout(autoScrollTimer.current);
+      }
+    };
+  }, [startAutoScroll]);
+
+  // Parar auto-scroll temporariamente
+  const stopAutoScroll = () => {
+    setAutoScrollEnabled(false);
+    if (autoScrollTimer.current) {
+      clearTimeout(autoScrollTimer.current);
+    }
+    
+    // Reativar após 10 segundos
+    setTimeout(() => {
+      setAutoScrollEnabled(true);
+    }, 10000);
+  };
+
+  // Função para iniciar animação dos gráficos
+  const startChartAnimation = (chartId: string) => {
+    const chartRef = chartRefs.current[chartId];
+    if (chartRef && chartRef.startAnimation) {
+      chartRef.startAnimation();
+    }
+  };
+
+  // Iniciar animação do primeiro gráfico destacado
+  useEffect(() => {
+    if (featuredCharts.length > 0) {
+      const timer = setTimeout(() => {
+        startChartAnimation(featuredCharts[0].id);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [featuredCharts]);
+
+  // Iniciar animação quando o slide muda
+  useEffect(() => {
+    if (featuredCharts.length > 0 && current > 0) {
+      const currentChart = featuredCharts[current - 1];
+      if (currentChart) {
+        const timer = setTimeout(() => {
+          startChartAnimation(currentChart.id);
+        }, 500);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [current, featuredCharts]);
 
   if (isLoading) {
     return (
@@ -44,7 +141,7 @@ const DataVisualizationSection = () => {
 
   return (
     <section className="mb-16 space-y-12">
-      {/* Subseção dos gráficos destacados */}
+      {/* Subseção dos gráficos destacados com carrossel */}
       {featuredCharts.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -52,18 +149,21 @@ const DataVisualizationSection = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="w-full space-y-8"
         >
-          {featuredCharts.map((chart, index) => (
+          {featuredCharts.length === 1 ? (
+            // Renderizar gráfico único sem carrossel
             <motion.div
-              key={chart.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.2, duration: 0.6 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
             >
               <AnimatedChartComponent 
-                chartData={chart.chartData} 
-                chartType={chart.chartType} 
-                title={chart.title}
-                description={chart.description}
+                ref={(ref) => {
+                  if (ref) chartRefs.current[featuredCharts[0].id] = ref;
+                }}
+                chartData={featuredCharts[0].chartData} 
+                chartType={featuredCharts[0].chartType} 
+                title={featuredCharts[0].title}
+                description={featuredCharts[0].description}
                 height={400}
                 animate={true}
                 metadata={{
@@ -74,7 +174,104 @@ const DataVisualizationSection = () => {
                 }} 
               />
             </motion.div>
-          ))}
+          ) : (
+            // Renderizar carrossel para múltiplos gráficos
+            <div className="relative">
+              <Carousel
+                setApi={setApi}
+                className="w-full"
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                onMouseEnter={stopAutoScroll}
+                onMouseLeave={() => setAutoScrollEnabled(true)}
+              >
+                <CarouselContent>
+                  {featuredCharts.map((chart, index) => (
+                    <CarouselItem key={chart.id}>
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1, duration: 0.6 }}
+                      >
+                        <AnimatedChartComponent 
+                          ref={(ref) => {
+                            if (ref) chartRefs.current[chart.id] = ref;
+                          }}
+                          chartData={chart.chartData} 
+                          chartType={chart.chartType} 
+                          title={chart.title}
+                          description={chart.description}
+                          height={400}
+                          animate={true}
+                          metadata={{
+                            source: "Secretaria Municipal de Agricultura",
+                            lastUpdated: "Janeiro 2024",
+                            units: "Unidades",
+                            period: "Dados consolidados"
+                          }} 
+                        />
+                      </motion.div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                
+                {/* Controles personalizados */}
+                <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      api?.scrollPrev();
+                      stopAutoScroll();
+                    }}
+                    className="bg-white/90 hover:bg-white shadow-lg border border-gray-200 rounded-full p-2 transition-all duration-300 hover:scale-105"
+                  >
+                    <ChevronLeft className="w-5 h-5 text-gray-600" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      api?.scrollNext();
+                      stopAutoScroll();
+                    }}
+                    className="bg-white/90 hover:bg-white shadow-lg border border-gray-200 rounded-full p-2 transition-all duration-300 hover:scale-105"
+                  >
+                    <ChevronRight className="w-5 h-5 text-gray-600" />
+                  </button>
+                </div>
+
+                {/* Indicadores */}
+                {featuredCharts.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
+                    <div className="flex space-x-2">
+                      {featuredCharts.map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            api?.scrollTo(index);
+                            stopAutoScroll();
+                          }}
+                          className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                            index === current - 1 
+                              ? 'bg-green-600 w-6' 
+                              : 'bg-white/60 hover:bg-white/80'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </Carousel>
+              
+              {/* Contador de slides */}
+              {featuredCharts.length > 1 && (
+                <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1 shadow-lg">
+                  <span className="text-sm font-medium text-gray-700">
+                    {current} / {count}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
         </motion.div>
       )}
 

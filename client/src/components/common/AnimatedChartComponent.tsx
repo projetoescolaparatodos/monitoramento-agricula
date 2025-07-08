@@ -111,7 +111,7 @@ interface AnimatedChartComponentProps {
   };
 }
 
-const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({ 
+const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps>(({ 
   chartType, 
   chartData,
   height = 400,
@@ -119,7 +119,7 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
   description,
   animate = true,
   metadata
-}) => {
+}, ref) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<ChartJS | null>(null);
   const animationRef = useRef<NodeJS.Timeout | null>(null);
@@ -883,6 +883,11 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
     }
   };
 
+  // Expor a função através da ref
+  React.useImperativeHandle(ref, () => ({
+    startAnimation: handleStartAnimation
+  }));
+
   const previewLength = 150;
   const shouldTruncate = description && description.length > previewLength;
   const previewText = shouldTruncate ? description.slice(0, previewLength) + '...' : description;
@@ -1082,6 +1087,8 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
       </Card>
     </motion.div>
   );
-};
+});
+
+AnimatedChartComponent.displayName = 'AnimatedChartComponent';
 
 export default AnimatedChartComponent;
