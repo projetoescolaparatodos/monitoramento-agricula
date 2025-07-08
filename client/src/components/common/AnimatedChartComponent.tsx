@@ -173,6 +173,7 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
         }
 
         if (chartType.toLowerCase() === 'line') {
+          // Garantir cores diferentes para cada dataset
           const color = dataset.backgroundColor || colorPalette[datasetIndex % colorPalette.length];
           const borderColor = dataset.borderColor || borderPalette[datasetIndex % borderPalette.length];
 
@@ -380,10 +381,10 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
               ...baseOptions.plugins.tooltip,
               enabled: true,
               displayColors: true,
-              mode: 'point' as const,
-              intersect: false,
+              mode: 'nearest' as const,
+              intersect: true,
               animation: {
-                duration: 300,
+                duration: 200,
                 easing: 'easeOutQuart'
               },
               filter: function(tooltipItem) {
@@ -486,8 +487,8 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
           setTimeout(() => {
             let progress = 0;
             const totalPoints = originalDataset.data.length;
-            const animationDuration = 8000; // 8 segundos por linha
-            const totalSteps = 200; // Mais passos para animação mais suave
+            const animationDuration = 12000; // 12 segundos por linha para animação mais lenta
+            const totalSteps = 300; // Mais passos para animação ainda mais suave
             const stepDuration = animationDuration / totalSteps;
             let tooltipTimeout: NodeJS.Timeout | null = null;
 
@@ -545,34 +546,44 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
                 currentDataset.pointRadius = pointRadii;
                 currentDataset.pointHoverRadius = pointHoverRadii;
 
-                // Show tooltip for completed points
-                if (currentPointToShow >= 0 && Math.floor(exactPointProgress) !== Math.floor((exactPointProgress - totalSteps/totalPoints))) {
-                  if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                // Show tooltip for completed points - apenas para o dataset atual
+                if (currentPointToShow >= 0 && currentPointToShow < totalPoints) {
+                  const shouldShowTooltip = Math.floor(exactPointProgress) > Math.floor(exactPointProgress - 1);
                   
-                  setTimeout(() => {
-                    if (chartInstance.current && currentPointToShow < totalPoints) {
-                      const chart = chartInstance.current;
-                      
-                      // Show tooltip independently for each dataset
-                      chart.tooltip.setActiveElements([{
-                        datasetIndex: datasetIndex,
-                        index: currentPointToShow
-                      }], {
-                        x: 0,
-                        y: 0
-                      });
-
-                      chart.update('none');
-
-                      // Hide tooltip after delay
-                      tooltipTimeout = setTimeout(() => {
-                        if (chart.tooltip) {
-                          chart.tooltip.setActiveElements([]);
-                          chart.update('none');
+                  if (shouldShowTooltip) {
+                    if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                    
+                    setTimeout(() => {
+                      if (chartInstance.current) {
+                        const chart = chartInstance.current;
+                        const meta = chart.getDatasetMeta(datasetIndex);
+                        
+                        if (meta && meta.data[currentPointToShow]) {
+                          const point = meta.data[currentPointToShow];
+                          const canvasPosition = chart.canvas.getBoundingClientRect();
+                          
+                          // Simular evento de mouse na posição do ponto específico
+                          const mouseEvent = new MouseEvent('mousemove', {
+                            clientX: canvasPosition.left + point.x,
+                            clientY: canvasPosition.top + point.y,
+                            bubbles: true
+                          });
+                          
+                          chart.canvas.dispatchEvent(mouseEvent);
+                          
+                          // Hide tooltip after delay
+                          tooltipTimeout = setTimeout(() => {
+                            if (chart.tooltip) {
+                              const hideEvent = new MouseEvent('mouseleave', {
+                                bubbles: true
+                              });
+                              chart.canvas.dispatchEvent(hideEvent);
+                            }
+                          }, 1500);
                         }
-                      }, 2000);
-                    }
-                  }, 100);
+                      }
+                    }, 200);
+                  }
                 }
 
                 // Animation complete
@@ -600,7 +611,7 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
             };
 
             animateDataset();
-          }, datasetIndex * 1000); // 1 segundo de delay entre cada linha
+          }, datasetIndex * 2000); // 2 segundos de delay entre cada linha para evitar conflitos
         });
       };
 
