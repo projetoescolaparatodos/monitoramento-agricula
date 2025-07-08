@@ -554,45 +554,42 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
   ) => {
     ctx.save();
 
-    // Configurações do tooltip
-    const padding = 10;
-    const fontSize = 13;
-    const borderRadius = 8;
+    // Configurações do tooltip melhoradas
+    const padding = 12;
+    const fontSize = 12;
+    const borderRadius = 6;
 
-    ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+    ctx.font = `600 ${fontSize}px 'Inter', sans-serif`;
     const textWidth = ctx.measureText(text).width;
     const tooltipWidth = textWidth + padding * 2;
     const tooltipHeight = fontSize + padding * 2;
 
-    // Posiciona o tooltip para não sair da tela
+    // Posiciona o tooltip de forma fixa
     let tooltipX = x - tooltipWidth / 2;
-    let tooltipY = y - tooltipHeight - 15;
+    let tooltipY = y;
 
     // Ajusta se sair da área do gráfico
     const chartArea = chartInstance.current?.chartArea;
     if (chartArea) {
       if (tooltipX < chartArea.left) tooltipX = chartArea.left + 5;
       if (tooltipX + tooltipWidth > chartArea.right) tooltipX = chartArea.right - tooltipWidth - 5;
-      if (tooltipY < chartArea.top) tooltipY = y + 15;
+      if (tooltipY < chartArea.top) tooltipY = chartArea.top + 10;
+      if (tooltipY + tooltipHeight > chartArea.bottom) tooltipY = chartArea.bottom - tooltipHeight - 10;
     }
 
     // Usa composite operation para evitar sobreposições problemáticas
     ctx.globalCompositeOperation = 'source-over';
 
     // Desenha a sombra do tooltip
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
     ctx.beginPath();
-    ctx.roundRect(tooltipX + 3, tooltipY + 3, tooltipWidth, tooltipHeight, borderRadius);
+    ctx.roundRect(tooltipX + 2, tooltipY + 2, tooltipWidth, tooltipHeight, borderRadius);
     ctx.fill();
 
-    // Desenha o fundo do tooltip com gradiente
-    const gradient = ctx.createLinearGradient(tooltipX, tooltipY, tooltipX, tooltipY + tooltipHeight);
-    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.98)');
-    gradient.addColorStop(1, 'rgba(248, 250, 252, 0.98)');
-
-    ctx.fillStyle = gradient;
+    // Desenha o fundo do tooltip
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
     ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1.5;
 
     // Desenha retângulo com bordas arredondadas
     ctx.beginPath();
@@ -601,21 +598,10 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
     ctx.stroke();
 
     // Desenha o texto
-    ctx.fillStyle = '#1f2937';
+    ctx.fillStyle = '#374151';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(text, tooltipX + tooltipWidth / 2, tooltipY + tooltipHeight / 2);
-
-    // Desenha uma pequena seta apontando para o ponto
-    ctx.beginPath();
-    ctx.moveTo(tooltipX + tooltipWidth / 2 - 6, tooltipY + tooltipHeight);
-    ctx.lineTo(tooltipX + tooltipWidth / 2, tooltipY + tooltipHeight + 6);
-    ctx.lineTo(tooltipX + tooltipWidth / 2 + 6, tooltipY + tooltipHeight);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.98)';
-    ctx.fill();
-    ctx.strokeStyle = color;
-    ctx.stroke();
 
     ctx.restore();
   };
@@ -645,7 +631,7 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
       label: chart.data.labels?.[index] || ''
     }));
 
-    const duration = 5000; // 5 segundos para animação mais suave
+    const duration = 12000; // 12 segundos para animação bem mais lenta
     const startTime = Date.now();
     let animationId: number;
     let permanentCanvas: HTMLCanvasElement | null = null;
@@ -661,6 +647,7 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
       permanentCanvas.style.left = '0';
       permanentCanvas.style.pointerEvents = 'none';
       permanentCanvas.style.zIndex = '10';
+      permanentCanvas.className = 'organic-animation-canvas';
       
       permanentCtx = permanentCanvas.getContext('2d');
       
@@ -678,8 +665,10 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
 
-      // Easing function mais suave - ease-out cubic
-      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      // Easing function mais suave para movimento orgânico
+      const easedProgress = progress < 0.5 
+        ? 4 * progress * progress * progress 
+        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
       if (permanentCtx && permanentCanvas) {
         // Limpa o canvas permanente
@@ -693,9 +682,10 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
         const visiblePointsFloat = totalPoints * easedProgress;
         const visiblePointsInt = Math.floor(visiblePointsFloat);
         
-        // Desenha pontos completos
+        // Desenha pontos completos com tooltips permanentes
         for (let i = 0; i < visiblePointsInt; i++) {
           if (points[i]) {
+            // Desenha o ponto
             permanentCtx.beginPath();
             permanentCtx.arc(points[i].x, points[i].y, 6, 0, 2 * Math.PI);
             permanentCtx.fillStyle = color;
@@ -703,6 +693,15 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
             permanentCtx.strokeStyle = '#ffffff';
             permanentCtx.lineWidth = 2;
             permanentCtx.stroke();
+
+            // Desenha tooltip permanente para cada ponto
+            showFloatingTooltip(
+              permanentCtx, 
+              points[i].x, 
+              points[i].y - 40, // Posição fixa acima do ponto
+              `${points[i].label}: ${points[i].value}`, 
+              color
+            );
           }
         }
 
@@ -710,6 +709,8 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
         if (visiblePointsInt < totalPoints && points[visiblePointsInt]) {
           const partialAlpha = visiblePointsFloat - visiblePointsInt;
           permanentCtx.globalAlpha = partialAlpha;
+          
+          // Ponto com fade-in
           permanentCtx.beginPath();
           permanentCtx.arc(points[visiblePointsInt].x, points[visiblePointsInt].y, 6, 0, 2 * Math.PI);
           permanentCtx.fillStyle = color;
@@ -717,31 +718,47 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
           permanentCtx.strokeStyle = '#ffffff';
           permanentCtx.lineWidth = 2;
           permanentCtx.stroke();
+
+          // Tooltip com fade-in
+          showFloatingTooltip(
+            permanentCtx, 
+            points[visiblePointsInt].x, 
+            points[visiblePointsInt].y - 40,
+            `${points[visiblePointsInt].label}: ${points[visiblePointsInt].value}`, 
+            color
+          );
+
           permanentCtx.globalAlpha = 1;
 
           // Efeito de pulsação no ponto atual
-          const pulseRadius = 8 + Math.sin(elapsed / 300) * 3;
+          const pulseRadius = 8 + Math.sin(elapsed / 400) * 4;
           permanentCtx.beginPath();
           permanentCtx.arc(points[visiblePointsInt].x, points[visiblePointsInt].y, pulseRadius, 0, 2 * Math.PI);
           permanentCtx.strokeStyle = color;
-          permanentCtx.lineWidth = 1;
-          permanentCtx.globalAlpha = 0.4 * partialAlpha;
+          permanentCtx.lineWidth = 2;
+          permanentCtx.globalAlpha = 0.3 * partialAlpha;
           permanentCtx.stroke();
           permanentCtx.globalAlpha = 1;
-        }
-
-        // Tooltip flutuante apenas no último ponto visível
-        if (visiblePointsInt > 0 && points[visiblePointsInt - 1]) {
-          const point = points[visiblePointsInt - 1];
-          showFloatingTooltip(permanentCtx, point.x, point.y, `${point.label}: ${point.value}`, color);
         }
       }
 
       if (progress < 1) {
         animationId = requestAnimationFrame(animateFrame);
       } else {
-        // Animação concluída - as linhas permanecem no canvas permanente
-        // Não restauramos o dataset original para evitar sobreposição
+        // Animação concluída - desenha todos os tooltips finais
+        if (permanentCtx) {
+          for (let i = 0; i < points.length; i++) {
+            if (points[i]) {
+              showFloatingTooltip(
+                permanentCtx, 
+                points[i].x, 
+                points[i].y - 40,
+                `${points[i].label}: ${points[i].value}`, 
+                color
+              );
+            }
+          }
+        }
         setAnimationComplete(true);
       }
     };
@@ -753,7 +770,6 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
       if (animationId) {
         cancelAnimationFrame(animationId);
       }
-      // Não remove o canvas permanente para manter as linhas visíveis
     };
   };
 
@@ -818,21 +834,11 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
         clearTimeout(animationRef.current);
       }
 
-      // Remove todos os tooltips orgânicos
-      const tooltips = document.querySelectorAll('[id^="organic-tooltip-"]');
-      tooltips.forEach(tooltip => {
-        if (tooltip.parentNode) {
-          tooltip.parentNode.removeChild(tooltip);
-        }
-      });
-
-      // Remove canvas permanentes de animações anteriores
+      // Remove todos os canvas de animação
       if (chartRef.current?.parentElement) {
-        const existingOverlays = chartRef.current.parentElement.querySelectorAll('canvas[style*="position: absolute"]');
+        const existingOverlays = chartRef.current.parentElement.querySelectorAll('.organic-animation-canvas');
         existingOverlays.forEach(overlay => {
-          if (overlay !== chartRef.current) {
-            overlay.remove();
-          }
+          overlay.remove();
         });
       }
 
@@ -849,15 +855,31 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
       setAnimationStarted(false);
       setAnimationComplete(false);
 
+      // Remove todos os canvas de animação existentes
+      if (chartRef.current?.parentElement) {
+        const existingOverlays = chartRef.current.parentElement.querySelectorAll('.organic-animation-canvas');
+        existingOverlays.forEach(overlay => {
+          overlay.remove();
+        });
+      }
+
       // Clear any existing animation
       if (animationRef.current) {
         clearTimeout(animationRef.current);
       }
 
+      // Restaura visibilidade original do chart
+      chartInstance.current.data.datasets.forEach((dataset: any) => {
+        dataset.borderWidth = 0;
+        dataset.pointRadius = 0;
+        dataset.pointHoverRadius = 0;
+      });
+      chartInstance.current.update('none');
+
       // Start animation
       setTimeout(() => {
         (chartInstance.current as any).startAnimation();
-      }, 100);
+      }, 200);
     }
   };
 
