@@ -18,6 +18,10 @@ import ChatbotAdmin from "@/components/dashboard/ChatbotAdmin";
 import InfoPanelManager from "@/components/dashboard/InfoPanelManager";
 import CadastrosSolicitacoesManager from '@/components/dashboard/CadastrosSolicitacoesManager';
 import FirebaseTest from '@/components/debug/FirebaseTest';
+import { DynamicStatsManager } from '@/components/dashboard/DynamicStatsManager';
+import { EventosManager } from '@/components/dashboard/EventosManager';
+import { InsumosManager } from '@/components/dashboard/InsumosManager';
+import { DoacoesReport } from '@/components/dashboard/DoacoesReport';
 
 const Dashboard = () => {
   const [, setLocation] = useLocation();

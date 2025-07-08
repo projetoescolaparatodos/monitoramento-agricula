@@ -59,16 +59,32 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     const { startDate, endDate } = calcularPeriodo();
     
     // Construir query base
-    let q = query(
-      collection(db, config.colecaoFonte),
-      where('createdAt', '>=', Timestamp.fromDate(startDate)),
-      where('createdAt', '<=', Timestamp.fromDate(endDate))
-    );
+    let q = query(collection(db, config.colecaoFonte));
+
+    // Adicionar filtros de data apenas se a coleção tiver createdAt
+    if (config.colecaoFonte !== 'doacoes_evento') {
+      q = query(q, 
+        where('createdAt', '>=', Timestamp.fromDate(startDate)),
+        where('createdAt', '<=', Timestamp.fromDate(endDate))
+      );
+    } else {
+      // Para doações, usar timestamp
+      q = query(q,
+        where('timestamp', '>=', Timestamp.fromDate(startDate)),
+        where('timestamp', '<=', Timestamp.fromDate(endDate))
+      );
+    }
 
     // Adicionar filtros adicionais se existirem
     if (config.filtroAdicional) {
-      // Aqui você pode adicionar filtros específicos
-      // Por exemplo: where('tipoInsumo', '==', 'mudas')
+      // Para doações de eventos específicos
+      if (Array.isArray(config.filtroAdicional)) {
+        config.filtroAdicional.forEach(filter => {
+          if (filter.fieldPath && filter.opStr && filter.value) {
+            q = query(q, where(filter.fieldPath, filter.opStr, filter.value));
+          }
+        });
+      }
     }
 
     const unsubscribe = onSnapshot(q, (snapshot) => {

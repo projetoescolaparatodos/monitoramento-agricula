@@ -1,0 +1,224 @@
+
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'wouter';
+import { db } from '@/utils/firebase';
+import { collection, query, where, onSnapshot, doc, getDoc, getDocs } from 'firebase/firestore';
+import { DynamicStatisticCard } from '@/components/common/DynamicStatisticCard';
+import { Card, CardContent } from '@/components/ui/card';
+import { Calendar, Users, Gift, TrendingUp } from 'lucide-react';
+
+interface Evento {
+  id: string;
+  nome: string;
+  dataInicio: any;
+  dataFim: any;
+}
+
+interface Insumo {
+  id: string;
+  nome: string;
+  unidade: string;
+}
+
+const EventoTelao: React.FC = () => {
+  const [location] = useLocation();
+  const eventoId = new URLSearchParams(location.split('?')[1] || '').get('evento');
+  
+  const [evento, setEvento] = useState<Evento | null>(null);
+  const [insumos, setInsumos] = useState<Insumo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!eventoId) return;
+
+    const fetchData = async () => {
+      try {
+        // Buscar dados do evento
+        const eventoDoc = await getDoc(doc(db, 'eventos', eventoId));
+        if (!eventoDoc.exists()) {
+          console.error('Evento não encontrado');
+          return;
+        }
+        setEvento({ id: eventoDoc.id, ...eventoDoc.data() } as Evento);
+
+        // Buscar insumos
+        const insumosSnapshot = await getDocs(collection(db, 'insumos'));
+        setInsumos(insumosSnapshot.docs.map(doc => ({ 
+          id: doc.id, 
+          ...doc.data() 
+        })) as Insumo[]);
+
+        setLoading(false);
+      } catch (error) {
+        console.error('Erro ao buscar dados:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [eventoId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-900 to-green-700">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white"></div>
+      </div>
+    );
+  }
+
+  if (!evento) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-900 to-green-700 text-white">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold mb-4">Evento não encontrado</h1>
+          <p className="text-xl">Verifique o ID do evento na URL</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Configurações de estatísticas padrão para eventos
+  const statsConfigs = [
+    {
+      id: 'total-doacoes',
+      titulo: 'Total de Doações',
+      colecaoFonte: 'doacoes_evento',
+      campo: '',
+      tipoAgregacao: 'count' as const,
+      periodo: 'hoje',
+      unidade: 'doações',
+      filtroAdicional: [
+        { fieldPath: 'eventoId', opStr: '==', value: eventoId }
+      ]
+    },
+    {
+      id: 'beneficiarios-atendidos',
+      titulo: 'Beneficiários Atendidos',
+      colecaoFonte: 'doacoes_evento',
+      campo: '',
+      tipoAgregacao: 'count' as const,
+      periodo: 'hoje',
+      unidade: 'pessoas',
+      filtroAdicional: [
+        { fieldPath: 'eventoId', opStr: '==', value: eventoId }
+      ]
+    }
+  ];
+
+  // Adicionar configurações específicas por insumo
+  const insumosAtivos = insumos.filter(i => i.nome);
+  insumosAtivos.slice(0, 4).forEach(insumo => {
+    statsConfigs.push({
+      id: `insumo-${insumo.id}`,
+      titulo: `${insumo.nome} Distribuídas`,
+      colecaoFonte: 'doacoes_evento',
+      campo: 'quantidade',
+      tipoAgregacao: 'sum' as const,
+      periodo: 'hoje',
+      unidade: insumo.unidade,
+      filtroAdicional: [
+        { fieldPath: 'eventoId', opStr: '==', value: eventoId },
+        { fieldPath: 'insumoId', opStr: '==', value: insumo.id }
+      ]
+    });
+  });
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-green-700 p-8 text-white">
+      {/* Header */}
+      <div className="text-center mb-12">
+        <div className="flex items-center justify-center mb-6">
+          <Calendar className="w-16 h-16 text-white mr-6" />
+          <h1 className="text-6xl font-bold">{evento.nome}</h1>
+        </div>
+        <div className="text-2xl opacity-90 mb-4">
+          Estatísticas em Tempo Real
+        </div>
+        <div className="text-xl opacity-75">
+          Atualizado em: {currentTime.toLocaleTimeString('pt-BR')} - {currentTime.toLocaleDateString('pt-BR')}
+        </div>
+      </div>
+
+      {/* Cards de Estatísticas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
+        {statsConfigs.map((config) => (
+          <div key={config.id} className="transform hover:scale-105 transition-transform duration-300">
+            <DynamicStatisticCard 
+              config={config}
+              variant="transparent"
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Informações Adicionais */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+          <CardContent className="p-8">
+            <div className="flex items-center mb-6">
+              <Users className="w-10 h-10 text-white mr-4" />
+              <h2 className="text-3xl font-bold">Impacto Social</h2>
+            </div>
+            <div className="space-y-4 text-lg">
+              <div className="flex justify-between items-center">
+                <span>Período do Evento:</span>
+                <span className="font-bold">
+                  {evento.dataInicio?.toDate().toLocaleDateString('pt-BR')} - {evento.dataFim?.toDate().toLocaleDateString('pt-BR')}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Status:</span>
+                <span className="font-bold text-green-300">Ativo</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+          <CardContent className="p-8">
+            <div className="flex items-center mb-6">
+              <TrendingUp className="w-10 h-10 text-white mr-4" />
+              <h2 className="text-3xl font-bold">Sistema</h2>
+            </div>
+            <div className="space-y-4 text-lg">
+              <div className="flex justify-between items-center">
+                <span>Atualização:</span>
+                <span className="font-bold text-green-300">Tempo Real</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Última Sincronização:</span>
+                <span className="font-bold">
+                  {currentTime.toLocaleTimeString('pt-BR')}
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Rodapé */}
+      <div className="text-center mt-12 p-6 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
+        <div className="flex items-center justify-center mb-2">
+          <Gift className="w-6 h-6 mr-2" />
+          <span className="text-xl font-semibold">
+            Secretaria Municipal de Agricultura de Vitória do Xingu
+          </span>
+        </div>
+        <p className="text-sm opacity-75">
+          Sistema de Monitoramento de Doações - Dados atualizados automaticamente
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default EventoTelao;
