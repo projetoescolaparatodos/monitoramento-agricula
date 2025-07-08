@@ -32,6 +32,8 @@ import AgricultureInfo from "./pages/AgricultureInfo";
 import BackgroundVideo from "./components/ui/BackgroundVideo";
 //import MediaGallery from "@/pages/MediaGallery"; // Removed import
 import GoogleDriveTest from "@/components/debug/GoogleDriveTest";
+import AdminPanels from '@/pages/AdminPanels';
+import AdminDynamicStats from '@/pages/AdminDynamicStats';
 
 // Formulários Setoriais - Importação lazy para melhor performance
 const FormAgricultura = lazy(() => import("./forms/agriculture/index"));
@@ -118,6 +120,9 @@ function Router() {
                 return <AdminPAA />;
               }}
             </Route>
+            <Route path="/admin-panels" component={AdminPanels} />
+            <Route path="/admin/info-panels" component={AdminPanels} />
+            <Route path="/admin/dynamic-stats" component={AdminDynamicStats} />
             {/* Panel management is integrated into dashboard */}
             <Route path="/report" component={Report} />
             <Route path="/forms/agricultura" component={FormAgricultura} />
