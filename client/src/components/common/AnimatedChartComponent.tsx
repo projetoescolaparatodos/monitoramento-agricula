@@ -611,7 +611,8 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
             };
             
             animateDataset();
-          }, datasetIndex * 600); // Longer stagger for multiple datasets to give more time between points
+          }, datasetIndex * 800); // Longer stagger for multiple datasets to give more time between points and prevent tooltip conflicts
+        });
       };
 
       // Store animation function for manual trigger
