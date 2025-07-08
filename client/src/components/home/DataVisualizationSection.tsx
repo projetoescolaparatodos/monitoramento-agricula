@@ -103,14 +103,14 @@ const DataVisualizationSection = ({ variant = "default" }: { variant?: "default"
   }
 
   return (
-    <section className="mb-16 space-y-12">
+    <section className="mb-16 space-y-12 w-full overflow-x-hidden">
       {/* Subseção dos gráficos destacados com carrossel */}
       {featuredCharts.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] px-6 md:px-8 lg:px-12 space-y-8"
+          className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] px-0 space-y-8"
         >
           {featuredCharts.length === 1 ? (
             // Renderizar gráfico único sem carrossel
@@ -118,6 +118,7 @@ const DataVisualizationSection = ({ variant = "default" }: { variant?: "default"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
+              className="px-6 md:px-8 lg:px-12"
             >
               <AnimatedChartComponent 
                 ref={(ref) => {
@@ -139,7 +140,7 @@ const DataVisualizationSection = ({ variant = "default" }: { variant?: "default"
             </motion.div>
           ) : (
             // Renderizar carrossel para múltiplos gráficos
-            <div className="relative">
+            <div className="relative px-6 md:px-8 lg:px-12">
               <Carousel
                 setApi={setApi}
                 className="w-full"
