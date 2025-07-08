@@ -1,0 +1,233 @@
+Implementação de Subseção com Gráfico Destaque
+Para adicionar uma subseção com um gráfico de destaque acima dos gráficos atuais, mantendo toda a funcionalidade existente, podemos seguir esta abordagem:
+
+1. Modificações no Componente Pai (DataVisualizationSection.tsx)
+tsx
+import { motion } from 'framer-motion';
+
+const DataVisualizationSection = () => {
+  const { data: charts, isLoading } = useQuery<ChartItem[]>({
+    queryKey: ['/api/charts?pageType=home'],
+  });
+
+  // Buscar gráfico destacado (podemos filtrar por uma flag especial ou ordem)
+  const featuredChart = charts?.find(chart => chart.isFeatured) || charts?.[0];
+
+  return (
+    <div className="space-y-8">
+      {/* Subseção do gráfico destacado */}
+      {featuredChart && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="bg-white rounded-xl shadow-lg p-6"
+        >
+          <h2 className="text-2xl font-bold mb-4 text-gray-800">Destaque do Mês</h2>
+          <div className="h-[400px]"> {/* Altura maior */}
+            <AnimatedChartComponent 
+              chartData={featuredChart.chartData}
+              chartType={featuredChart.chartType}
+              title={featuredChart.title}
+              description={featuredChart.description}
+              animate={true} // Habilita animações especiais
+            />
+          </div>
+        </motion.div>
+      )}
+
+      {/* Grid de gráficos existentes (mantido igual) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {charts
+          ?.filter(chart => !chart.isFeatured) // Exclui o gráfico destacado
+          .map((chart) => (
+            <div key={chart.id} className="relative">
+              <ChartComponent 
+                chartData={chart.chartData} 
+                chartType={chart.chartType}
+                // ... props existentes
+              />
+            </div>
+          ))}
+      </div>
+    </div>
+  );
+};
+2. Novo Componente AnimatedChartComponent.tsx
+tsx
+import { useEffect, useRef } from 'react';
+import { Chart, registerables } from 'chart.js';
+import { motion } from 'framer-motion';
+import 'chartjs-plugin-annotation';
+
+Chart.register(...registerables);
+
+const AnimatedChartComponent = ({ chartData, chartType, animate = false }) => {
+  const chartRef = useRef(null);
+  const animationRef = useRef(null);
+
+  useEffect(() => {
+    if (!chartRef.current) return;
+
+    const ctx = chartRef.current.getContext('2d');
+    
+    // Configuração especial para animação
+    const animationOptions = animate ? {
+      animation: {
+        duration: 2000,
+        onComplete: () => {
+          // Animação adicional após carregar
+          if (chartType === 'line') {
+            animateLineProgress();
+          }
+        }
+      }
+    } : {};
+
+    const chart = new Chart(ctx, {
+      type: chartType,
+      data: chartData,
+      options: {
+        ...chartData.options,
+        responsive: true,
+        maintainAspectRatio: false,
+        ...animationOptions,
+        plugins: {
+          ...chartData.options?.plugins,
+          legend: {
+            position: 'top',
+          },
+          // Plugin para animação personalizada
+          annotation: animate ? {
+            annotations: {
+              box1: {
+                type: 'box',
+                drawTime: 'beforeDatasetsDraw',
+                xMin: -0.5,
+                xMax: 0.5,
+                backgroundColor: 'rgba(75, 192, 192, 0.25)',
+                borderWidth: 0,
+              }
+            }
+          } : undefined
+        }
+      }
+    });
+
+    // Função para animar linha progressiva
+    const animateLineProgress = () => {
+      let progress = 0;
+      const totalSteps = 60;
+      const increment = 1 / totalSteps;
+      
+      animationRef.current = setInterval(() => {
+        progress += increment;
+        chart.options.animation = {
+          ...chart.options.animation,
+          x: {
+            from: 0,
+            to: progress
+          }
+        };
+        chart.update();
+        
+        if (progress >= 1) {
+          clearInterval(animationRef.current);
+        }
+      }, 30);
+    };
+
+    return () => {
+      if (animationRef.current) {
+        clearInterval(animationRef.current);
+      }
+      chart.destroy();
+    };
+  }, [chartData, chartType, animate]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    >
+      <canvas ref={chartRef} />
+    </motion.div>
+  );
+};
+3. Adaptações no Backend/Schema
+Adicione um campo para marcar gráficos como destaque:
+
+typescript
+interface ChartItem {
+  id: string;
+  title: string;
+  description: string;
+  chartType: 'bar' | 'line' | 'pie' | 'doughnut' | 'radar';
+  chartData: any;
+  isFeatured?: boolean; // Novo campo
+  order: number;
+  // ... outros campos existentes
+}
+4. Estilos Adicionais (CSS/globals.css)
+css
+/* Animação para gráficos de linha */
+@keyframes lineDrawing {
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.line-animated path {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: lineDrawing 2s ease-in-out forwards;
+}
+
+/* Efeito de hover para todos os gráficos */
+.chart-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+5. Exemplo de Uso no ChartForm.tsx
+Adicione um switch para marcar como destaque:
+
+tsx
+// No formulário de criação/edição
+<FormField
+  control={form.control}
+  name="isFeatured"
+  render={({ field }) => (
+    <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+      <FormControl>
+        <Checkbox
+          checked={field.value}
+          onCheckedChange={field.onChange}
+        />
+      </FormControl>
+      <div className="space-y-1 leading-none">
+        <FormLabel>Destaque da Página</FormLabel>
+        <FormDescription>
+          Marque para exibir este gráfico na seção superior
+        </FormDescription>
+      </div>
+    </FormItem>
+  )}
+/>
+Considerações Finais
+Performance: As animações podem ser pesadas em dispositivos móveis. Considere desativá-las abaixo de certa resolução:
+
+tsx
+const isMobile = window.innerWidth < 768;
+<AnimatedChartComponent animate={!isMobile && animate} />
+Controle de Animações: Adicione controles para pausar/retomar animações em gráficos complexos.
+
+Acessibilidade: Forneça alternativas textuais para informações animadas.
+
+Backend: Garanta que apenas um gráfico possa ser marcado como destaque por página.
+
+Esta implementação mantém todos os gráficos existentes funcionando como antes, enquanto adiciona a nova subseção de destaque com animações sofisticadas. O sistema permanece modular e fácil de manter.
