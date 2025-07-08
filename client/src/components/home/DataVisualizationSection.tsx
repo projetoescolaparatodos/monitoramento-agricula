@@ -25,8 +25,6 @@ const DataVisualizationSection = () => {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
-  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
-  const autoScrollTimer = useRef<NodeJS.Timeout>();
   const chartRefs = useRef<{ [key: string]: any }>({});
 
   // Buscar gráficos destacados e regulares
@@ -45,42 +43,7 @@ const DataVisualizationSection = () => {
     });
   }, [api]);
 
-  // Auto-scroll do carrossel
-  const startAutoScroll = useCallback(() => {
-    if (!autoScrollEnabled || !api || featuredCharts.length <= 1) return;
-
-    autoScrollTimer.current = setTimeout(() => {
-      if (api.canScrollNext()) {
-        api.scrollNext();
-      } else {
-        api.scrollTo(0);
-      }
-      startAutoScroll();
-    }, 8000); // 8 segundos para dar tempo da animação dos gráficos
-  }, [autoScrollEnabled, api, featuredCharts.length]);
-
-  // Iniciar auto-scroll
-  useEffect(() => {
-    startAutoScroll();
-    return () => {
-      if (autoScrollTimer.current) {
-        clearTimeout(autoScrollTimer.current);
-      }
-    };
-  }, [startAutoScroll]);
-
-  // Parar auto-scroll temporariamente
-  const stopAutoScroll = () => {
-    setAutoScrollEnabled(false);
-    if (autoScrollTimer.current) {
-      clearTimeout(autoScrollTimer.current);
-    }
-    
-    // Reativar após 10 segundos
-    setTimeout(() => {
-      setAutoScrollEnabled(true);
-    }, 10000);
-  };
+  
 
   // Função para iniciar animação dos gráficos
   const startChartAnimation = (chartId: string) => {
@@ -184,8 +147,6 @@ const DataVisualizationSection = () => {
                   align: "start",
                   loop: true,
                 }}
-                onMouseEnter={stopAutoScroll}
-                onMouseLeave={() => setAutoScrollEnabled(true)}
               >
                 <CarouselContent>
                   {featuredCharts.map((chart, index) => (
@@ -220,19 +181,13 @@ const DataVisualizationSection = () => {
                 {/* Controles personalizados */}
                 <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
                   <button
-                    onClick={() => {
-                      api?.scrollPrev();
-                      stopAutoScroll();
-                    }}
+                    onClick={() => api?.scrollPrev()}
                     className="bg-white/90 hover:bg-white shadow-lg border border-gray-200 rounded-full p-2 transition-all duration-300 hover:scale-105"
                   >
                     <ChevronLeft className="w-5 h-5 text-gray-600" />
                   </button>
                   <button
-                    onClick={() => {
-                      api?.scrollNext();
-                      stopAutoScroll();
-                    }}
+                    onClick={() => api?.scrollNext()}
                     className="bg-white/90 hover:bg-white shadow-lg border border-gray-200 rounded-full p-2 transition-all duration-300 hover:scale-105"
                   >
                     <ChevronRight className="w-5 h-5 text-gray-600" />
@@ -246,10 +201,7 @@ const DataVisualizationSection = () => {
                       {featuredCharts.map((_, index) => (
                         <button
                           key={index}
-                          onClick={() => {
-                            api?.scrollTo(index);
-                            stopAutoScroll();
-                          }}
+                          onClick={() => api?.scrollTo(index)}
                           className={`w-2 h-2 rounded-full transition-all duration-300 ${
                             index === current - 1 
                               ? 'bg-green-600 w-6' 
