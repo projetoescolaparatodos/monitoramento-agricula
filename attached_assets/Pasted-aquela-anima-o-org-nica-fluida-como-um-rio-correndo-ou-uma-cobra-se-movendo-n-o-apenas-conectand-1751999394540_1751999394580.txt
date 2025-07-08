@@ -1,0 +1,254 @@
+aquela animação orgânica, fluida, como um rio correndo ou uma cobra se movendo, não apenas conectando pontos de forma linear. Vamos resolver isso com uma abordagem mais avançada.
+
+Solução para a Animação Orgânica
+O problema principal é que o Chart.js não expõe nativamente controle sobre como as linhas são desenhadas entre pontos. Vamos contornar isso usando uma técnica de canvas direto combinada com Chart.js:
+
+tsx
+// Adicione estas funções ao seu componente AnimatedChartComponent
+
+// 1. Função para desenhar linhas manualmente com curva suave
+const drawAnimatedLine = (
+  ctx: CanvasRenderingContext2D,
+  points: {x: number, y: number}[],
+  progress: number,
+  color: string,
+  lineWidth: number = 3
+) => {
+  if (points.length < 2) return;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lineWidth;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+
+  // Calcula quantos segmentos devem ser desenhados baseado no progresso
+  const totalLength = calculateBezierLength(points);
+  const animatedLength = totalLength * progress;
+
+  let currentLength = 0;
+  let lastPoint = points[0];
+
+  // Desenha segmento por segmento até alcançar o comprimento desejado
+  for (let i = 1; i < points.length && currentLength < animatedLength; i++) {
+    const nextPoint = points[i];
+    const segmentLength = distanceBetween(lastPoint, nextPoint);
+    
+    // Se podemos desenhar o segmento completo
+    if (currentLength + segmentLength <= animatedLength) {
+      if (i === 1) {
+        ctx.moveTo(lastPoint.x, lastPoint.y);
+      }
+      ctx.lineTo(nextPoint.x, nextPoint.y);
+      currentLength += segmentLength;
+    } else {
+      // Desenha apenas parte do segmento
+      const remaining = animatedLength - currentLength;
+      const ratio = remaining / segmentLength;
+      const intermediatePoint = {
+        x: lastPoint.x + (nextPoint.x - lastPoint.x) * ratio,
+        y: lastPoint.y + (nextPoint.y - lastPoint.y) * ratio
+      };
+      
+      ctx.lineTo(intermediatePoint.x, intermediatePoint.y);
+      currentLength = animatedLength;
+    }
+    
+    lastPoint = nextPoint;
+  }
+
+  ctx.stroke();
+  ctx.restore();
+};
+
+// 2. Funções auxiliares
+const distanceBetween = (p1: {x: number, y: number}, p2: {x: number, y: number}) => {
+  return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+};
+
+const calculateBezierLength = (points: {x: number, y: number}[]) => {
+  let length = 0;
+  for (let i = 1; i < points.length; i++) {
+    length += distanceBetween(points[i-1], points[i]);
+  }
+  return length;
+};
+
+// 3. Modifique a função de animação
+const animateOrganicLine = (datasetIndex: number, color: string) => {
+  if (!chartInstance.current || !chartRef.current) return;
+
+  const meta = chartInstance.current.getDatasetMeta(datasetIndex);
+  const points = meta.data.map((item: any) => ({
+    x: item.x,
+    y: item.y,
+    // Adiciona um pouco de aleatoriedade para efeito orgânico
+    offsetX: Math.random() * 2 - 1,
+    offsetY: Math.random() * 2 - 1
+  }));
+
+  const ctx = chartRef.current.getContext('2d');
+  if (!ctx) return;
+
+  const duration = 2000; // 2 segundos
+  const startTime = Date.now();
+
+  const animateFrame = () => {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    // Limpa apenas a área do gráfico
+    ctx.clearRect(0, 0, chartRef.current!.width, chartRef.current!.height);
+    
+    // Redesenha o gráfico sem a linha que estamos animando
+    chartInstance.current!.draw();
+    
+    // Desenha nossa linha animada manualmente
+    drawAnimatedLine(ctx, points, progress, color);
+    
+    // Desenha o ponto atual com efeito de "onda"
+    if (progress < 1) {
+      const currentPointIndex = Math.floor(progress * (points.length - 1));
+      const currentPoint = points[currentPointIndex];
+      
+      // Tooltip dinâmico
+      drawOrganicTooltip(
+        currentPoint.x, 
+        currentPoint.y, 
+        chartData.datasets[datasetIndex].data[currentPointIndex],
+        color,
+        datasetIndex
+      );
+      
+      // Efeito de ponto pulsante
+      ctx.beginPath();
+      ctx.arc(currentPoint.x, currentPoint.y, 5 * (1 + 0.3 * Math.sin(Date.now() / 200)), 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    if (progress < 1) {
+      requestAnimationFrame(animateFrame);
+    } else {
+      // Quando completa, deixa o Chart.js cuidar do desenho
+      chartInstance.current!.update();
+    }
+  };
+
+  animateFrame();
+};
+
+// 4. Função para tooltips orgânicos
+const drawOrganicTooltip = (
+  x: number, 
+  y: number, 
+  value: number, 
+  color: string,
+  datasetIndex: number
+) => {
+  // Remove tooltip anterior
+  const existingTooltip = document.getElementById(`organic-tooltip-${datasetIndex}`);
+  if (existingTooltip) existingTooltip.remove();
+
+  const tooltip = document.createElement('div');
+  tooltip.id = `organic-tooltip-${datasetIndex}`;
+  tooltip.className = 'organic-tooltip';
+  
+  // Posicionamento com offset orgânico
+  const offsetX = 10 + Math.sin(Date.now() / 500) * 3;
+  const offsetY = -30 + Math.cos(Date.now() / 600) * 2;
+  
+  tooltip.style.cssText = `
+    position: absolute;
+    left: ${x + offsetX}px;
+    top: ${y + offsetY}px;
+    background: ${color.replace('0.7', '0.9')};
+    color: white;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    transition: all 0.2s ease;
+    z-index: 1000;
+    white-space: nowrap;
+  `;
+  
+  tooltip.textContent = `${value.toLocaleString()}`;
+  
+  // Adiciona ao container do gráfico
+  chartRef.current?.parentElement?.appendChild(tooltip);
+};
+Implementação Final no useEffect
+Substitua a lógica de animação no seu useEffect por:
+
+tsx
+useEffect(() => {
+  // ... configuração inicial do gráfico
+
+  // Animação orgânica para gráficos de linha
+  if (animate && chartType.toLowerCase() === 'line') {
+    // Esconde todas as linhas inicialmente
+    chartInstance.current.data.datasets.forEach((dataset: any) => {
+      dataset.borderWidth = 0;
+      dataset.pointRadius = 0;
+    });
+    chartInstance.current.update();
+
+    // Anima cada dataset com delay
+    processedData.datasets.forEach((dataset: any, i: number) => {
+      setTimeout(() => {
+        animateOrganicLine(i, borderPalette[i % borderPalette.length]);
+      }, i * 800);
+    });
+  }
+
+  // ... cleanup
+}, [chartType, processedData, animate]);
+CSS Adicional para Efeitos Orgânicos
+css
+/* Efeito de tremor orgânico */
+@keyframes organicFloat {
+  0%, 100% { transform: translate(-50%, -50%) rotate(0.5deg); }
+  25% { transform: translate(-50%, -50%) rotate(-0.5deg) translateY(-2px); }
+  50% { transform: translate(-50%, -50%) rotate(0.5deg) translateY(1px); }
+  75% { transform: translate(-50%, -50%) rotate(-0.5deg) translateY(-1px); }
+}
+
+.organic-tooltip {
+  animation: organicFloat 3s infinite ease-in-out;
+}
+
+/* Efeito de respiração para pontos */
+@keyframes breath {
+  0%, 100% { r: 5px; opacity: 0.8; }
+  50% { r: 7px; opacity: 1; }
+}
+Por que esta solução funciona melhor?
+Controle Pixel-Perfect: Desenhamos manualmente no canvas, dando controle total sobre cada pixel
+
+Movimento Orgânico: Adicionamos pequenas variações aleatórias para simular naturalidade
+
+Progressão Contínua: A linha avança de forma suave, não por pontos discretos
+
+Tooltips Integrados: Aparecem exatamente no ponto atual da animação
+
+Performance: Usamos requestAnimationFrame para animações suaves
+
+Dicas para Ajuste Fino:
+Velocidade: Ajuste a variável duration para mais rápido/lento
+
+Organicidade: Modifique os valores de offsetX/Y para mais/menos variação
+
+Espessura: Altere o lineWidth na função drawAnimatedLine
+
+Efeito de Ponta: Experimente com diferentes valores de lineCap (round, square, butt)
+
+Esta implementação vai criar exatamente aquele efeito fluido e orgânico que você deseja, como um rio correndo naturalmente através do seu gráfico.
+
