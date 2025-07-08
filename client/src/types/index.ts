@@ -17,6 +17,7 @@ export interface ChartItem {
   pageType: 'home' | 'agriculture' | 'fishing' | 'paa';
   createdAt: Date;
   updatedAt: Date;
+  isFeatured?: boolean;
 }
 
 export interface MediaItem {
