@@ -52,36 +52,7 @@ const DataVisualizationSection = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="w-full"
         >
-          {/* Header da seção destacada */}
-          <div className="text-center mb-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-              className="inline-flex items-center gap-3 bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-full mb-4"
-            >
-              <TrendingUp size={20} />
-              <span className="font-semibold">Destaque do Mês</span>
-            </motion.div>
-            
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-3xl md:text-4xl font-bold text-gray-900 mb-2"
-            >
-              Dados em Foco
-            </motion.h2>
-            
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="text-lg text-gray-600 max-w-2xl mx-auto"
-            >
-              Acompanhe os principais indicadores e tendências do setor agrícola municipal
-            </motion.p>
-          </div>
+          
 
           {/* Gráfico destacado */}
           <AnimatedChartComponent 
@@ -108,36 +79,7 @@ const DataVisualizationSection = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.6 }}
         >
-          {/* Header da seção regular */}
-          <div className="text-center mb-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.6 }}
-              className="inline-flex items-center gap-3 bg-gray-100 text-gray-700 px-6 py-3 rounded-full mb-4"
-            >
-              <BarChart3 size={20} />
-              <span className="font-semibold">Análises Complementares</span>
-            </motion.div>
-            
-            <motion.h3
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9, duration: 0.6 }}
-              className="text-2xl md:text-3xl font-bold text-gray-900 mb-2"
-            >
-              Panorama Completo
-            </motion.h3>
-            
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1, duration: 0.6 }}
-              className="text-gray-600 max-w-xl mx-auto"
-            >
-              Explore dados detalhados sobre diferentes aspectos da agricultura municipal
-            </motion.p>
-          </div>
+          
 
           {/* Grid de gráficos regulares */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
