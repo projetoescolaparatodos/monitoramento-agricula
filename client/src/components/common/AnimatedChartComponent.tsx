@@ -174,8 +174,8 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
 
         if (chartType.toLowerCase() === 'line') {
           // Garantir cores diferentes para cada dataset
-          const color = dataset.backgroundColor || colorPalette[datasetIndex % colorPalette.length];
-          const borderColor = dataset.borderColor || borderPalette[datasetIndex % borderPalette.length];
+          const color = dataset.backgroundColor || colorPalette[datasetIndex % datasetIndex.length];
+          const borderColor = dataset.borderColor || borderPalette[datasetIndex % datasetIndex.length];
 
           return {
             ...dataset,
@@ -459,120 +459,137 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
     if (points.length < 2) return;
 
     ctx.save();
-    ctx.beginPath();
+
+    // Configurações de estilo mais robustas
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
+    ctx.globalCompositeOperation = 'source-over';
 
-    // Calcula o comprimento total e quanto desenhar
+    // Adiciona sombra sutil para destaque
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 2;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+
     const totalLength = calculateTotalLength(points);
     const animatedLength = totalLength * progress;
 
     let currentLength = 0;
-    let currentPoint = points[0];
-    
-    ctx.moveTo(currentPoint.x, currentPoint.y);
+    let pathStarted = false;
 
-    // Desenha segmentos até alcançar o comprimento animado
     for (let i = 1; i < points.length && currentLength < animatedLength; i++) {
-      const nextPoint = points[i];
-      const segmentLength = distanceBetween(currentPoint, nextPoint);
-      
+      const prevPoint = points[i - 1];
+      const currentPoint = points[i];
+      const segmentLength = distanceBetween(prevPoint, currentPoint);
+
+      if (!pathStarted) {
+        ctx.beginPath();
+        ctx.moveTo(prevPoint.x, prevPoint.y);
+        pathStarted = true;
+      }
+
       if (currentLength + segmentLength <= animatedLength) {
-        // Adiciona variação orgânica sutil
-        const variation = Math.sin(i * 0.5 + Date.now() * 0.001) * 0.8;
-        ctx.lineTo(nextPoint.x + variation, nextPoint.y + variation * 0.5);
+        // Desenha o segmento completo
+        ctx.lineTo(currentPoint.x, currentPoint.y);
         currentLength += segmentLength;
       } else {
         // Desenha apenas parte do segmento
         const remaining = animatedLength - currentLength;
         const ratio = remaining / segmentLength;
         const intermediatePoint = {
-          x: currentPoint.x + (nextPoint.x - currentPoint.x) * ratio,
-          y: currentPoint.y + (nextPoint.y - currentPoint.y) * ratio
+          x: prevPoint.x + (currentPoint.x - prevPoint.x) * ratio,
+          y: prevPoint.y + (currentPoint.y - prevPoint.y) * ratio
         };
-        
-        const variation = Math.sin(i * 0.5 + Date.now() * 0.001) * 0.8 * ratio;
-        ctx.lineTo(intermediatePoint.x + variation, intermediatePoint.y + variation * 0.5);
+
+        ctx.lineTo(intermediatePoint.x, intermediatePoint.y);
+        currentLength = animatedLength;
         break;
       }
-      
-      currentPoint = nextPoint;
     }
 
-    ctx.stroke();
+    // Desenha o caminho apenas se foi iniciado
+    if (pathStarted && progress > 0) {
+      ctx.stroke();
+    }
+
     ctx.restore();
   };
 
-  const drawOrganicTooltip = (
+  const showFloatingTooltip = (
+    ctx: CanvasRenderingContext2D, 
     x: number, 
     y: number, 
-    value: number, 
-    label: string,
-    xLabel: string,
-    color: string,
-    datasetIndex: number
+    text: string, 
+    color: string
   ) => {
-    // Remove tooltip anterior deste dataset
-    const existingTooltip = document.getElementById(`organic-tooltip-${datasetIndex}`);
-    if (existingTooltip) existingTooltip.remove();
+    ctx.save();
 
-    const tooltip = document.createElement('div');
-    tooltip.id = `organic-tooltip-${datasetIndex}`;
-    tooltip.className = 'organic-tooltip';
-    
-    // Posicionamento com movimento orgânico sutil
-    const time = Date.now() * 0.001;
-    const offsetX = 15 + Math.sin(time + datasetIndex) * 2;
-    const offsetY = -40 + Math.cos(time * 0.8 + datasetIndex) * 1.5;
-    
-    const canvasRect = chartRef.current?.getBoundingClientRect();
-    if (!canvasRect) return;
+    // Configurações do tooltip
+    const padding = 10;
+    const fontSize = 13;
+    const borderRadius = 8;
 
-    const tooltipX = canvasRect.left + x + offsetX + window.scrollX;
-    const tooltipY = canvasRect.top + y + offsetY + window.scrollY;
-    
-    tooltip.style.cssText = `
-      position: fixed;
-      left: ${tooltipX}px;
-      top: ${tooltipY}px;
-      background: linear-gradient(135deg, ${color.replace('0.7', '0.95')}, ${color.replace('0.7', '0.85')});
-      color: white;
-      padding: 10px 16px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      z-index: ${10000 + datasetIndex};
-      white-space: nowrap;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      backdrop-filter: blur(10px);
-      animation: organicFloat 3s infinite ease-in-out;
-    `;
-    
-    tooltip.innerHTML = `
-      <div style="font-size: 11px; opacity: 0.9; margin-bottom: 4px;">${label}</div>
-      <div style="font-size: 10px; opacity: 0.7; margin-bottom: 6px;">${xLabel}</div>
-      <div style="font-size: 16px; font-weight: 800;">${value.toLocaleString('pt-BR')}</div>
-    `;
-    
-    document.body.appendChild(tooltip);
-    
-    // Remove tooltip após 2.5 segundos
-    setTimeout(() => {
-      if (tooltip && tooltip.parentNode) {
-        tooltip.style.opacity = '0';
-        tooltip.style.transform = 'translate(-50%, -50%) scale(0.8)';
-        setTimeout(() => {
-          if (tooltip && tooltip.parentNode) {
-            tooltip.parentNode.removeChild(tooltip);
-          }
-        }, 300);
-      }
-    }, 2500);
+    ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+    const textWidth = ctx.measureText(text).width;
+    const tooltipWidth = textWidth + padding * 2;
+    const tooltipHeight = fontSize + padding * 2;
+
+    // Posiciona o tooltip para não sair da tela
+    let tooltipX = x - tooltipWidth / 2;
+    let tooltipY = y - tooltipHeight - 15;
+
+    // Ajusta se sair da área do gráfico
+    const chartArea = chartInstance.current?.chartArea;
+    if (chartArea) {
+      if (tooltipX < chartArea.left) tooltipX = chartArea.left + 5;
+      if (tooltipX + tooltipWidth > chartArea.right) tooltipX = chartArea.right - tooltipWidth - 5;
+      if (tooltipY < chartArea.top) tooltipY = y + 15;
+    }
+
+    // Usa composite operation para evitar sobreposições problemáticas
+    ctx.globalCompositeOperation = 'source-over';
+
+    // Desenha a sombra do tooltip
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+    ctx.beginPath();
+    ctx.roundRect(tooltipX + 3, tooltipY + 3, tooltipWidth, tooltipHeight, borderRadius);
+    ctx.fill();
+
+    // Desenha o fundo do tooltip com gradiente
+    const gradient = ctx.createLinearGradient(tooltipX, tooltipY, tooltipX, tooltipY + tooltipHeight);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.98)');
+    gradient.addColorStop(1, 'rgba(248, 250, 252, 0.98)');
+
+    ctx.fillStyle = gradient;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+
+    // Desenha retângulo com bordas arredondadas
+    ctx.beginPath();
+    ctx.roundRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight, borderRadius);
+    ctx.fill();
+    ctx.stroke();
+
+    // Desenha o texto
+    ctx.fillStyle = '#1f2937';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, tooltipX + tooltipWidth / 2, tooltipY + tooltipHeight / 2);
+
+    // Desenha uma pequena seta apontando para o ponto
+    ctx.beginPath();
+    ctx.moveTo(tooltipX + tooltipWidth / 2 - 6, tooltipY + tooltipHeight);
+    ctx.lineTo(tooltipX + tooltipWidth / 2, tooltipY + tooltipHeight + 6);
+    ctx.lineTo(tooltipX + tooltipWidth / 2 + 6, tooltipY + tooltipHeight);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.98)';
+    ctx.fill();
+    ctx.strokeStyle = color;
+    ctx.stroke();
+
+    ctx.restore();
   };
 
   const animateOrganicDataset = (datasetIndex: number, originalDataset: any, color: string) => {
@@ -581,6 +598,10 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
     const chart = chartInstance.current;
     const ctx = chartRef.current.getContext('2d');
     if (!ctx) return;
+
+    // Oculta o dataset original temporariamente para evitar conflitos
+    chart.data.datasets[datasetIndex].hidden = true;
+    chart.update('none');
 
     // Pega as posições dos pontos no canvas
     const meta = chart.getDatasetMeta(datasetIndex);
@@ -594,77 +615,83 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
     const duration = 3000; // 3 segundos para animação mais suave
     const startTime = Date.now();
     let lastTooltipIndex = -1;
+    let animationId: number;
 
     const animateFrame = () => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      
+
       // Easing function para movimento mais natural
       const easedProgress = progress < 0.5 
         ? 2 * progress * progress 
         : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
-      // Limpa e redesenha
-      chart.draw();
-      
-      // Desenha a linha orgânica
+      // Preserva o estado atual do canvas
+      ctx.save();
+
+      // Desenha a linha orgânica animada por cima do gráfico existente
       drawOrganicLine(ctx, points, easedProgress, color, 4);
-      
-      // Desenha pontos até a posição atual
-      const currentPointIndex = Math.floor(easedProgress * (points.length - 1));
-      
-      for (let i = 0; i <= currentPointIndex; i++) {
-        const point = points[i];
-        const pointProgress = Math.min((easedProgress * (points.length - 1) - i), 1);
-        
-        if (pointProgress > 0) {
-          // Efeito de ponto pulsante
-          const pulseSize = 6 + Math.sin(Date.now() * 0.005 + i) * 1.5;
-          const alpha = 0.3 + pointProgress * 0.7;
-          
-          ctx.save();
-          ctx.globalAlpha = alpha;
+
+      // Desenha pontos progressivamente
+      const visiblePoints = Math.floor(points.length * easedProgress);
+      for (let i = 0; i <= visiblePoints; i++) {
+        if (points[i]) {
+          // Desenha o ponto com borda
           ctx.beginPath();
-          ctx.arc(point.x, point.y, pulseSize, 0, Math.PI * 2);
+          ctx.arc(points[i].x, points[i].y, 6, 0, 2 * Math.PI);
           ctx.fillStyle = color;
           ctx.fill();
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.strokeStyle = '#ffffff';
           ctx.lineWidth = 2;
           ctx.stroke();
-          ctx.restore();
+
+          // Efeito de pulsação no ponto atual
+          if (i === visiblePoints && progress < 1) {
+            ctx.beginPath();
+            ctx.arc(points[i].x, points[i].y, 8 + Math.sin(elapsed / 200) * 2, 0, 2 * Math.PI);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1;
+            ctx.globalAlpha = 0.5;
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+          }
         }
-      }
-      
-      // Mostra tooltip no ponto atual
-      if (currentPointIndex >= 0 && currentPointIndex < points.length && currentPointIndex > lastTooltipIndex) {
-        lastTooltipIndex = currentPointIndex;
-        const currentPoint = points[currentPointIndex];
-        
-        drawOrganicTooltip(
-          currentPoint.x,
-          currentPoint.y,
-          currentPoint.value,
-          originalDataset.label || `Série ${datasetIndex + 1}`,
-          currentPoint.label,
-          color,
-          datasetIndex
-        );
       }
 
+      // Tooltip flutuante
+      const currentPointIndex = Math.floor((points.length - 1) * easedProgress);
+      if (currentPointIndex >= 0 && currentPointIndex < points.length) {
+        const point = points[currentPointIndex];
+        showFloatingTooltip(ctx, point.x, point.y, `${point.label}: ${point.value}`, color);
+      }
+
+      ctx.restore();
+
       if (progress < 1) {
-        requestAnimationFrame(animateFrame);
+        animationId = requestAnimationFrame(animateFrame);
       } else {
-        // Animação completa - deixa o Chart.js assumir
-        if (datasetIndex === processedData.datasets.length - 1) {
-          setTimeout(() => {
-            setAnimationComplete(true);
-            chart.update();
-          }, 500);
-        }
+        // Animação concluída, reexibe o dataset original
+        chart.data.datasets[datasetIndex].hidden = false;
+        chart.update('none');
+
+        // Limpa qualquer sobreposição da animação
+        chart.draw();
       }
     };
 
-    animateFrame();
+    animationId = requestAnimationFrame(animateFrame);
+
+    // Cleanup function para cancelar animação se necessário
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+      // Garante que o dataset seja reexibido
+      if (chart.data.datasets[datasetIndex]) {
+        chart.data.datasets[datasetIndex].hidden = false;
+        chart.update('none');
+      }
+    };
   };
 
   useEffect(() => {
@@ -705,13 +732,13 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
       // Função para iniciar animação
       const startAnimation = () => {
         if (animationStarted) return;
-        
+
         setAnimationStarted(true);
 
         // Anima cada dataset com delay progressivo
         processedData.datasets.forEach((originalDataset, datasetIndex) => {
           const color = borderPalette[datasetIndex % borderPalette.length];
-          
+
           setTimeout(() => {
             animateOrganicDataset(datasetIndex, originalDataset, color);
           }, datasetIndex * 1000);
@@ -727,7 +754,7 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
       if (animationRef.current) {
         clearTimeout(animationRef.current);
       }
-      
+
       // Remove todos os tooltips orgânicos
       const tooltips = document.querySelectorAll('[id^="organic-tooltip-"]');
       tooltips.forEach(tooltip => {
@@ -735,7 +762,7 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
           tooltip.parentNode.removeChild(tooltip);
         }
       });
-      
+
       if (chartInstance.current) {
         chartInstance.current.destroy();
       }
@@ -903,6 +930,8 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
                         <ChevronDown size={16} className="ml-1" />
                       </>
                     )}
+                  ```text
+
                   </button>
                 </motion.div>
               )}
