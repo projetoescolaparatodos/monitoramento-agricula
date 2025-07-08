@@ -380,8 +380,10 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
               ...baseOptions.plugins.tooltip,
               enabled: true,
               displayColors: true,
+              mode: 'point' as const,
+              intersect: false,
               animation: {
-                duration: 400,
+                duration: 300,
                 easing: 'easeOutQuart'
               },
               filter: function(tooltipItem) {
@@ -395,6 +397,12 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
                   const label = context.dataset.label || '';
                   const value = context.parsed.y;
                   return `${label}: ${value.toLocaleString('pt-BR')}`;
+                },
+                labelColor: function(context) {
+                  return {
+                    borderColor: context.dataset.borderColor,
+                    backgroundColor: context.dataset.backgroundColor
+                  };
                 }
               }
             }
@@ -478,10 +486,9 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
           setTimeout(() => {
             let progress = 0;
             const totalPoints = originalDataset.data.length;
-            const animationDuration = 15000; // 15 seconds total for much slower animation
-            const totalSteps = 120; // More steps for smoother animation
+            const animationDuration = 8000; // 8 segundos por linha
+            const totalSteps = 200; // Mais passos para animação mais suave
             const stepDuration = animationDuration / totalSteps;
-            let currentPointIndex = -1;
             let tooltipTimeout: NodeJS.Timeout | null = null;
 
             const animateDataset = () => {
@@ -495,98 +502,88 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
                   currentDataset.pointRadius = 0;
                 }
 
-                // Calculate smooth progress with improved easing
+                // Calculate smooth progress
                 const normalizedProgress = Math.min(progress / totalSteps, 1);
-                // Use a slower, more deliberate easing function
                 const easedProgress = normalizedProgress < 0.5 
                   ? 2 * normalizedProgress * normalizedProgress 
                   : 1 - Math.pow(-2 * normalizedProgress + 2, 2) / 2;
 
-                // Calculate which point we should be at
+                // Calculate exact position for smooth line drawing
                 const exactPointProgress = easedProgress * (totalPoints - 1);
                 const currentPointToShow = Math.floor(exactPointProgress);
+                const nextPointProgress = exactPointProgress - currentPointToShow;
 
-                // Check if we've reached a new complete point for tooltip
-                const newPointIndex = currentPointToShow;
-                if (newPointIndex > currentPointIndex && newPointIndex < totalPoints) {
-                  currentPointIndex = newPointIndex;
-
-                  // Show tooltip for current point (independent per dataset)
-                  if (tooltipTimeout) clearTimeout(tooltipTimeout);
-
-                  // Wait a moment before showing tooltip to let line reach the point
-                  setTimeout(() => {
-                    if (chartInstance.current && currentPointIndex === newPointIndex) {
-                      const chart = chartInstance.current;
-                      const canvasPosition = chart.canvas.getBoundingClientRect();
-                      const datasetMeta = chart.getDatasetMeta(datasetIndex);
-                      const pointElement = datasetMeta.data[currentPointIndex];
-
-                      if (pointElement && isFinite(pointElement.x) && isFinite(pointElement.y)) {
-                        // Force tooltip to show only for this specific dataset and point
-                        chart.tooltip.setActiveElements([{
-                          datasetIndex: datasetIndex,
-                          index: currentPointIndex
-                        }]);
-
-                        chart.update('none');
-
-                        // Hide tooltip after 3 seconds for multiple series to avoid conflicts
-                        const hideDelay = processedData.datasets.length > 1 ? 3000 : 4000;
-                        tooltipTimeout = setTimeout(() => {
-                          if (chart.tooltip) {
-                            chart.tooltip.setActiveElements([]);
-                            chart.update('none');
-                          }
-                        }, hideDelay);
-                      }
-                    }
-                  }, 200); // Small delay to let line reach point
-                }
-
-                // Create data array showing only completed points (no interpolation to avoid wrong values)
+                // Create smooth interpolated data for gradual line drawing
                 const animatedData = originalDataset.data.map((value, index) => {
-                  if (index <= currentPointToShow) {
-                    return value; // Show complete points with their exact values
+                  if (index < currentPointToShow) {
+                    return value; // Complete points
+                  } else if (index === currentPointToShow && index < totalPoints - 1) {
+                    // Interpolate between current and next point for smooth line
+                    const nextValue = originalDataset.data[index + 1];
+                    if (nextValue !== undefined && nextPointProgress > 0) {
+                      return value + (nextValue - value) * nextPointProgress;
+                    }
+                    return value;
+                  } else if (index === currentPointToShow) {
+                    return value; // Last point
                   } else {
-                    return null; // Hide future points completely
+                    return null; // Hide future points
                   }
                 });
 
                 currentDataset.data = animatedData;
 
-                // Show points progressively with smooth scaling
+                // Show points progressively
                 const pointRadii = new Array(totalPoints).fill(0);
                 const pointHoverRadii = new Array(totalPoints).fill(0);
 
-                for (let i = 0; i < totalPoints; i++) {
-                  if (i <= currentPointToShow) {
-                    // Show completed points
-                    pointRadii[i] = 5;
-                    pointHoverRadii[i] = 8;
-                  }
+                for (let i = 0; i <= currentPointToShow && i < totalPoints; i++) {
+                  pointRadii[i] = 5;
+                  pointHoverRadii[i] = 8;
                 }
 
                 currentDataset.pointRadius = pointRadii;
                 currentDataset.pointHoverRadius = pointHoverRadii;
 
+                // Show tooltip for completed points
+                if (currentPointToShow >= 0 && Math.floor(exactPointProgress) !== Math.floor((exactPointProgress - totalSteps/totalPoints))) {
+                  if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                  
+                  setTimeout(() => {
+                    if (chartInstance.current && currentPointToShow < totalPoints) {
+                      const chart = chartInstance.current;
+                      
+                      // Show tooltip independently for each dataset
+                      chart.tooltip.setActiveElements([{
+                        datasetIndex: datasetIndex,
+                        index: currentPointToShow
+                      }], {
+                        x: 0,
+                        y: 0
+                      });
+
+                      chart.update('none');
+
+                      // Hide tooltip after delay
+                      tooltipTimeout = setTimeout(() => {
+                        if (chart.tooltip) {
+                          chart.tooltip.setActiveElements([]);
+                          chart.update('none');
+                        }
+                      }, 2000);
+                    }
+                  }, 100);
+                }
+
                 // Animation complete
                 if (progress === totalSteps) {
-                  // Ensure all points are visible and properly sized
+                  currentDataset.data = originalDataset.data;
                   const finalPointRadii = new Array(totalPoints).fill(5);
                   const finalPointHoverRadii = new Array(totalPoints).fill(8);
-
                   currentDataset.pointRadius = finalPointRadii;
                   currentDataset.pointHoverRadius = finalPointHoverRadii;
-                  currentDataset.data = originalDataset.data; // Restore complete data
 
                   if (tooltipTimeout) clearTimeout(tooltipTimeout);
-
-                  // Hide any remaining tooltip
-                  const hideEvent = new MouseEvent('mouseout', {
-                    bubbles: true
-                  });
-                  chartInstance.current.canvas.dispatchEvent(hideEvent);
 
                   if (datasetIndex === processedData.datasets.length - 1) {
                     setAnimationComplete(true);
@@ -603,7 +600,7 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
             };
 
             animateDataset();
-          }, datasetIndex * 800); // Longer stagger for multiple datasets to give more time between points and prevent tooltip conflicts
+          }, datasetIndex * 1000); // 1 segundo de delay entre cada linha
         });
       };
 
