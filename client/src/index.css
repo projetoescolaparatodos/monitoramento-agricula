@@ -1051,8 +1051,8 @@ iframe[src*="drive.google.com"] {
 .rich-content-container h3,
 .rich-content-container h4,
 .rich-content-container h5,
-.rich-content-container h6 {  font-weight: bold;
-  <replit_final_file>
+.rich-content-container h6 { 
+  font-weight: bold;
   margin-top: 1.5rem;
   margin-bottom: 1rem;
 }
