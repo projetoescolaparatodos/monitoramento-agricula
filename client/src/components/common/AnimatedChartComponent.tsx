@@ -363,13 +363,15 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
             line: {
               borderJoinStyle: 'round' as const,
               borderCapStyle: 'round' as const,
+              tension: 0.1,
             },
             point: {
-              radius: 5,
+              radius: 4,
               hoverRadius: 8,
               hoverBorderWidth: 2,
-              backgroundColor: 'rgba(255, 255, 255, 0.8)',
-              borderWidth: 2
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              borderWidth: 2,
+              pointStyle: 'circle'
             }
           },
           plugins: {
@@ -435,16 +437,18 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
 
     // Special animation for line charts
     if (animate && chartType.toLowerCase() === 'line') {
-      // Create initial empty chart
+      // Create chart with complete data but hidden lines
       chartInstance.current = new ChartJS(ctx, {
         type: chartType as any,
         data: {
           ...processedData,
-          datasets: processedData.datasets.map(dataset => ({
+          datasets: processedData.datasets.map((dataset, index) => ({
             ...dataset,
-            data: []
-          })),
-          labels: []
+            borderColor: 'transparent', // Start with invisible lines
+            backgroundColor: 'transparent',
+            pointRadius: 0, // Hide points initially
+            pointHoverRadius: 0,
+          }))
         },
         options: {
           ...options,
@@ -454,38 +458,65 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
         }
       });
 
-      let currentStep = 0;
-      const totalSteps = processedData.labels.length;
-      
-      const animateLineProgress = () => {
-        if (currentStep < totalSteps && chartInstance.current) {
-          currentStep++;
+      // Animate each dataset progressively
+      processedData.datasets.forEach((originalDataset, datasetIndex) => {
+        const color = originalDataset.borderColor || borderPalette[datasetIndex % borderPalette.length];
+        const bgColor = originalDataset.backgroundColor || colorPalette[datasetIndex % colorPalette.length];
+        
+        setTimeout(() => {
+          let progress = 0;
+          const totalPoints = originalDataset.data.length;
           
-          // Update chart data progressively
-          const animatedData = {
-            ...processedData,
-            datasets: processedData.datasets.map(dataset => ({
-              ...dataset,
-              data: dataset.data.slice(0, currentStep)
-            })),
-            labels: processedData.labels.slice(0, currentStep)
+          const animateDataset = () => {
+            if (chartInstance.current && progress <= totalPoints) {
+              const currentDataset = chartInstance.current.data.datasets[datasetIndex];
+              
+              if (progress === 0) {
+                // Start animation - make line visible
+                currentDataset.borderColor = color;
+                currentDataset.backgroundColor = bgColor;
+                currentDataset.pointRadius = 0;
+              } else if (progress === totalPoints) {
+                // Animation complete - show all points
+                currentDataset.pointRadius = 5;
+                currentDataset.pointHoverRadius = 8;
+                setAnimationComplete(true);
+              }
+              
+              // Create animated data showing progression
+              const animatedData = originalDataset.data.map((value, index) => {
+                if (index < progress) {
+                  return value;
+                } else if (index === progress - 1 && progress > 0) {
+                  return value; // Show current point
+                } else {
+                  return null; // Hide future points
+                }
+              });
+              
+              currentDataset.data = animatedData;
+              
+              // Show points up to current progress
+              if (progress > 0) {
+                const pointRadii = new Array(totalPoints).fill(0);
+                for (let i = 0; i < progress; i++) {
+                  pointRadii[i] = 4;
+                }
+                currentDataset.pointRadius = pointRadii;
+              }
+              
+              chartInstance.current.update('none');
+              progress++;
+              
+              if (progress <= totalPoints) {
+                animationRef.current = setTimeout(animateDataset, 400);
+              }
+            }
           };
           
-          chartInstance.current.data = animatedData;
-          chartInstance.current.update('none');
-          
-          if (currentStep < totalSteps) {
-            animationRef.current = setTimeout(animateLineProgress, 600);
-          } else {
-            setAnimationComplete(true);
-          }
-        }
-      };
-
-      // Start progressive animation after initial render
-      setTimeout(() => {
-        animateLineProgress();
-      }, 300);
+          animateDataset();
+        }, datasetIndex * 200); // Stagger animation for multiple datasets
+      });
     } else {
       // Create chart with normal animation for other chart types
       chartInstance.current = new ChartJS(ctx, {
