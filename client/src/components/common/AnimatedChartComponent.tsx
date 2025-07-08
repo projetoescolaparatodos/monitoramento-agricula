@@ -173,8 +173,8 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
 
         if (chartType.toLowerCase() === 'line') {
           // Garantir cores diferentes para cada dataset
-          const color = dataset.backgroundColor || colorPalette[datasetIndex % datasetIndex.length];
-          const borderColor = dataset.borderColor || borderPalette[datasetIndex % datasetIndex.length];
+          const color = dataset.backgroundColor || colorPalette[datasetIndex % colorPalette.length];
+          const borderColor = dataset.borderColor || borderPalette[datasetIndex % borderPalette.length];
 
           return {
             ...dataset,
@@ -466,11 +466,11 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
     ctx.lineCap = 'round';
     ctx.globalCompositeOperation = 'source-over';
 
-    // Adiciona sombra sutil para destaque
+    // Adiciona sombra sutil para destaque com opacity reduzida para múltiplas séries
     ctx.shadowColor = color;
-    ctx.shadowBlur = 3;
+    ctx.shadowBlur = 2;
     ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 1;
+    ctx.shadowOffsetY = 0.5;
 
     const totalLength = calculateTotalLength(points);
     const animatedLength = totalLength * progress;
@@ -612,15 +612,6 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
     const ctx = chartRef.current.getContext('2d');
     if (!ctx) return;
 
-    // Oculta apenas os pontos e linhas do dataset original, mantendo o gráfico base
-    const dataset = chart.data.datasets[datasetIndex];
-    const originalBorderWidth = dataset.borderWidth;
-    const originalPointRadius = dataset.pointRadius;
-
-    dataset.borderWidth = 0;
-    dataset.pointRadius = 0;
-    chart.update('none');
-
     // Pega as posições dos pontos no canvas
     const meta = chart.getDatasetMeta(datasetIndex);
     const points = meta.data.map((point: any, index: number) => ({
@@ -645,8 +636,8 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
       permanentCanvas.style.top = '0';
       permanentCanvas.style.left = '0';
       permanentCanvas.style.pointerEvents = 'none';
-      permanentCanvas.style.zIndex = '10';
-      permanentCanvas.className = 'organic-animation-canvas';
+      permanentCanvas.style.zIndex = `${10 + datasetIndex}`;
+      permanentCanvas.className = `organic-animation-canvas dataset-${datasetIndex}`;
 
       permanentCtx = permanentCanvas.getContext('2d');
 
@@ -693,12 +684,13 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
             permanentCtx.lineWidth = 2;
             permanentCtx.stroke();
 
-            // Desenha tooltip permanente para cada ponto
+            // Desenha tooltip permanente para cada ponto com posição ajustada por série
+            const tooltipOffset = 40 + (datasetIndex * 25); // Offset diferente para cada série
             showFloatingTooltip(
               permanentCtx, 
               points[i].x, 
-              points[i].y - 40, // Posição fixa acima do ponto
-              `${points[i].label}: ${points[i].value}`, 
+              points[i].y - tooltipOffset,
+              `${originalDataset.label || 'Série'}: ${points[i].value}`, 
               color
             );
           }
@@ -719,11 +711,12 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
           permanentCtx.stroke();
 
           // Tooltip com fade-in
+          const tooltipOffset = 40 + (datasetIndex * 25);
           showFloatingTooltip(
             permanentCtx, 
             points[visiblePointsInt].x, 
-            points[visiblePointsInt].y - 40,
-            `${points[visiblePointsInt].label}: ${points[visiblePointsInt].value}`, 
+            points[visiblePointsInt].y - tooltipOffset,
+            `${originalDataset.label || 'Série'}: ${points[visiblePointsInt].value}`, 
             color
           );
 
@@ -746,13 +739,14 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
       } else {
         // Animação concluída - desenha todos os tooltips finais
         if (permanentCtx) {
+          const tooltipOffset = 40 + (datasetIndex * 25);
           for (let i = 0; i < points.length; i++) {
             if (points[i]) {
               showFloatingTooltip(
                 permanentCtx, 
                 points[i].x, 
-                points[i].y - 40,
-                `${points[i].label}: ${points[i].value}`, 
+                points[i].y - tooltipOffset,
+                `${originalDataset.label || 'Série'}: ${points[i].value}`, 
                 color
               );
             }
@@ -813,6 +807,14 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
 
         setAnimationStarted(true);
 
+        // Remove todos os canvas de animação existentes antes de iniciar
+        if (chartRef.current?.parentElement) {
+          const existingOverlays = chartRef.current.parentElement.querySelectorAll('.organic-animation-canvas');
+          existingOverlays.forEach(overlay => {
+            overlay.remove();
+          });
+        }
+
         // Anima cada dataset com delay progressivo
         processedData.datasets.forEach((originalDataset, datasetIndex) => {
           const color = borderPalette[datasetIndex % borderPalette.length];
@@ -866,6 +868,15 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
       if (animationRef.current) {
         clearTimeout(animationRef.current);
       }
+
+      // Cancela qualquer animação em andamento
+      const allAnimationFrames = document.querySelectorAll('.organic-animation-canvas');
+      allAnimationFrames.forEach(canvas => {
+        const ctx = (canvas as HTMLCanvasElement).getContext('2d');
+        if (ctx) {
+          ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+        }
+      });
 
       // Restaura visibilidade original do chart
       chartInstance.current.data.datasets.forEach((dataset: any) => {
