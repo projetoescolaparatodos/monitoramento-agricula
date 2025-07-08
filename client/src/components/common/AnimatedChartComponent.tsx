@@ -479,8 +479,8 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
           setTimeout(() => {
             let progress = 0;
             const totalPoints = originalDataset.data.length;
-            const animationDuration = 8000; // 8 seconds total for slower animation
-            const totalSteps = 120; // Fewer steps for slower, more deliberate animation
+            const animationDuration = 12000; // 12 seconds total for much slower animation
+            const totalSteps = 80; // Even fewer steps for much slower, more deliberate animation
             const stepDuration = animationDuration / totalSteps;
             let currentPointIndex = -1;
             let tooltipTimeout: NodeJS.Timeout | null = null;
@@ -531,13 +531,13 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
                     // Show tooltip
                       chart.canvas.dispatchEvent(mouseEvent);
                       
-                      // Hide tooltip after 3 seconds or when moving to next point
+                      // Hide tooltip after 4 seconds or when moving to next point
                       tooltipTimeout = setTimeout(() => {
                         const hideEvent = new MouseEvent('mouseout', {
                           bubbles: true
                         });
                         chart.canvas.dispatchEvent(hideEvent);
-                      }, 3000);
+                      }, 4000);
                     }
                   }
                 }
@@ -587,8 +587,14 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
                 
                 // Animation complete
                 if (progress === totalSteps) {
-                  currentDataset.pointRadius = 5;
-                  currentDataset.pointHoverRadius = 8;
+                  // Ensure all points are visible and properly sized
+                  const finalPointRadii = new Array(totalPoints).fill(5);
+                  const finalPointHoverRadii = new Array(totalPoints).fill(8);
+                  
+                  currentDataset.pointRadius = finalPointRadii;
+                  currentDataset.pointHoverRadius = finalPointHoverRadii;
+                  currentDataset.data = originalDataset.data; // Restore complete data
+                  
                   if (tooltipTimeout) clearTimeout(tooltipTimeout);
                   
                   // Hide any remaining tooltip
