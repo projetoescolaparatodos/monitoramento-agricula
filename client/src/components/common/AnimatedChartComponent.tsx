@@ -379,16 +379,13 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
             ...baseOptions.plugins,
             tooltip: {
               ...baseOptions.plugins.tooltip,
-              enabled: true,
+              enabled: false, // Desabilitar tooltip padrão durante animação para usar sistema personalizado
               displayColors: true,
               mode: 'nearest' as const,
-              intersect: true,
+              intersect: false,
               animation: {
-                duration: 200,
+                duration: 150,
                 easing: 'easeOutQuart'
-              },
-              filter: function(tooltipItem) {
-                return tooltipItem.dataIndex < (chartInstance.current?.data.labels?.length || 0);
               },
               callbacks: {
                 title: function(context) {
@@ -479,7 +476,7 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
 
         setAnimationStarted(true);
 
-        // Animate each dataset progressively
+        // Animate each dataset progressively with independent tooltips
         processedData.datasets.forEach((originalDataset, datasetIndex) => {
           const color = originalDataset.borderColor || borderPalette[datasetIndex % borderPalette.length];
           const bgColor = originalDataset.backgroundColor || colorPalette[datasetIndex % colorPalette.length];
@@ -487,10 +484,11 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
           setTimeout(() => {
             let progress = 0;
             const totalPoints = originalDataset.data.length;
-            const animationDuration = 12000; // 12 segundos por linha para animação mais lenta
-            const totalSteps = 300; // Mais passos para animação ainda mais suave
+            const animationDuration = 15000; // 15 segundos por linha para mais tempo de leitura
+            const totalSteps = 400; // Mais passos para animação mais suave
             const stepDuration = animationDuration / totalSteps;
-            let tooltipTimeout: NodeJS.Timeout | null = null;
+            let currentTooltipTimeout: NodeJS.Timeout | null = null;
+            let lastPointShown = -1;
 
             const animateDataset = () => {
               if (chartInstance.current && progress <= totalSteps) {
@@ -539,65 +537,114 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
                 const pointHoverRadii = new Array(totalPoints).fill(0);
 
                 for (let i = 0; i <= currentPointToShow && i < totalPoints; i++) {
-                  pointRadii[i] = 5;
-                  pointHoverRadii[i] = 8;
+                  pointRadii[i] = 6;
+                  pointHoverRadii[i] = 9;
                 }
 
                 currentDataset.pointRadius = pointRadii;
                 currentDataset.pointHoverRadius = pointHoverRadii;
 
-                // Show tooltip for completed points - apenas para o dataset atual
-                if (currentPointToShow >= 0 && currentPointToShow < totalPoints) {
-                  const shouldShowTooltip = Math.floor(exactPointProgress) > Math.floor(exactPointProgress - 1);
+                // Show tooltip for new points with independent system per dataset
+                if (currentPointToShow >= 0 && currentPointToShow < totalPoints && currentPointToShow > lastPointShown) {
+                  lastPointShown = currentPointToShow;
                   
-                  if (shouldShowTooltip) {
-                    if (tooltipTimeout) clearTimeout(tooltipTimeout);
-                    
-                    setTimeout(() => {
-                      if (chartInstance.current) {
-                        const chart = chartInstance.current;
-                        const meta = chart.getDatasetMeta(datasetIndex);
-                        
-                        if (meta && meta.data[currentPointToShow]) {
-                          const point = meta.data[currentPointToShow];
-                          const canvasPosition = chart.canvas.getBoundingClientRect();
-                          
-                          // Simular evento de mouse na posição do ponto específico
-                          const mouseEvent = new MouseEvent('mousemove', {
-                            clientX: canvasPosition.left + point.x,
-                            clientY: canvasPosition.top + point.y,
-                            bubbles: true
-                          });
-                          
-                          chart.canvas.dispatchEvent(mouseEvent);
-                          
-                          // Hide tooltip after delay
-                          tooltipTimeout = setTimeout(() => {
-                            if (chart.tooltip) {
-                              const hideEvent = new MouseEvent('mouseleave', {
-                                bubbles: true
-                              });
-                              chart.canvas.dispatchEvent(hideEvent);
-                            }
-                          }, 1500);
-                        }
-                      }
-                    }, 200);
+                  // Clear any existing tooltip for this dataset
+                  if (currentTooltipTimeout) {
+                    clearTimeout(currentTooltipTimeout);
                   }
+                  
+                  // Create unique tooltip for this dataset with delay
+                  setTimeout(() => {
+                    if (chartInstance.current) {
+                      const chart = chartInstance.current;
+                      
+                      // Create custom tooltip element for this specific dataset
+                      const tooltipId = `tooltip-dataset-${datasetIndex}-point-${currentPointToShow}`;
+                      let tooltipElement = document.getElementById(tooltipId);
+                      
+                      if (!tooltipElement) {
+                        tooltipElement = document.createElement('div');
+                        tooltipElement.id = tooltipId;
+                        tooltipElement.style.cssText = `
+                          position: absolute;
+                          background: rgba(255, 255, 255, 0.95);
+                          border: 1px solid ${color};
+                          border-radius: 8px;
+                          padding: 8px 12px;
+                          font-size: 13px;
+                          font-family: 'Poppins', sans-serif;
+                          font-weight: 500;
+                          color: #374151;
+                          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                          z-index: 1000;
+                          pointer-events: none;
+                          transition: opacity 0.2s ease;
+                        `;
+                        document.body.appendChild(tooltipElement);
+                      }
+
+                      const meta = chart.getDatasetMeta(datasetIndex);
+                      if (meta && meta.data[currentPointToShow]) {
+                        const point = meta.data[currentPointToShow];
+                        const canvasPosition = chart.canvas.getBoundingClientRect();
+                        
+                        // Position tooltip near the point
+                        const tooltipX = canvasPosition.left + point.x + 10;
+                        const tooltipY = canvasPosition.top + point.y - 40;
+                        
+                        tooltipElement.style.left = `${tooltipX}px`;
+                        tooltipElement.style.top = `${tooltipY}px`;
+                        tooltipElement.style.opacity = '1';
+                        
+                        // Set tooltip content
+                        const label = originalDataset.label || `Série ${datasetIndex + 1}`;
+                        const value = originalDataset.data[currentPointToShow];
+                        const xLabel = chartInstance.current.data.labels?.[currentPointToShow] || '';
+                        
+                        tooltipElement.innerHTML = `
+                          <div style="color: ${color}; font-weight: 600; margin-bottom: 2px;">${label}</div>
+                          <div style="font-size: 12px; color: #6b7280;">${xLabel}: ${value.toLocaleString('pt-BR')}</div>
+                        `;
+                        
+                        // Hide tooltip after reading time (3 seconds for better readability)
+                        currentTooltipTimeout = setTimeout(() => {
+                          if (tooltipElement) {
+                            tooltipElement.style.opacity = '0';
+                            setTimeout(() => {
+                              if (tooltipElement && tooltipElement.parentNode) {
+                                tooltipElement.parentNode.removeChild(tooltipElement);
+                              }
+                            }, 200);
+                          }
+                        }, 3000);
+                      }
+                    }
+                  }, 300); // Pequeno delay para sincronizar com a animação
                 }
 
                 // Animation complete
                 if (progress === totalSteps) {
                   currentDataset.data = originalDataset.data;
-                  const finalPointRadii = new Array(totalPoints).fill(5);
-                  const finalPointHoverRadii = new Array(totalPoints).fill(8);
+                  const finalPointRadii = new Array(totalPoints).fill(6);
+                  const finalPointHoverRadii = new Array(totalPoints).fill(9);
                   currentDataset.pointRadius = finalPointRadii;
                   currentDataset.pointHoverRadius = finalPointHoverRadii;
 
-                  if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                  // Clean up any remaining tooltips for this dataset
+                  if (currentTooltipTimeout) {
+                    clearTimeout(currentTooltipTimeout);
+                  }
 
                   if (datasetIndex === processedData.datasets.length - 1) {
                     setAnimationComplete(true);
+                    
+                    // Reabilitar tooltip padrão após animação completa
+                    setTimeout(() => {
+                      if (chartInstance.current) {
+                        chartInstance.current.options.plugins!.tooltip!.enabled = true;
+                        chartInstance.current.update('none');
+                      }
+                    }, 1000);
                   }
                 }
 
@@ -611,7 +658,7 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
             };
 
             animateDataset();
-          }, datasetIndex * 2000); // 2 segundos de delay entre cada linha para evitar conflitos
+          }, datasetIndex * 1000); // 1 segundo de delay entre linhas (suficiente para evitar conflitos)
         });
       };
 
@@ -630,6 +677,15 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
       if (animationRef.current) {
         clearTimeout(animationRef.current);
       }
+      
+      // Limpar todos os tooltips personalizados
+      const tooltips = document.querySelectorAll('[id^="tooltip-dataset-"]');
+      tooltips.forEach(tooltip => {
+        if (tooltip.parentNode) {
+          tooltip.parentNode.removeChild(tooltip);
+        }
+      });
+      
       if (chartInstance.current) {
         chartInstance.current.destroy();
       }
