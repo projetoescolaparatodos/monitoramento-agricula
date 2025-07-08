@@ -515,24 +515,30 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
                   const datasetMeta = chart.getDatasetMeta(datasetIndex);
                   const pointElement = datasetMeta.data[currentPointIndex];
                   
-                  if (pointElement) {
+                  if (pointElement && isFinite(pointElement.x) && isFinite(pointElement.y)) {
                     // Create synthetic mouse event to trigger tooltip
-                    const mouseEvent = new MouseEvent('mousemove', {
-                      clientX: canvasPosition.left + pointElement.x,
-                      clientY: canvasPosition.top + pointElement.y,
-                      bubbles: true
-                    });
+                    const clientX = canvasPosition.left + pointElement.x;
+                    const clientY = canvasPosition.top + pointElement.y;
                     
-                    // Show tooltip
-                    chart.canvas.dispatchEvent(mouseEvent);
-                    
-                    // Hide tooltip after 3 seconds or when moving to next point
-                    tooltipTimeout = setTimeout(() => {
-                      const hideEvent = new MouseEvent('mouseout', {
+                    // Validate coordinates are finite numbers
+                    if (isFinite(clientX) && isFinite(clientY)) {
+                      const mouseEvent = new MouseEvent('mousemove', {
+                        clientX: clientX,
+                        clientY: clientY,
                         bubbles: true
                       });
-                      chart.canvas.dispatchEvent(hideEvent);
-                    }, 3000);
+                    
+                    // Show tooltip
+                      chart.canvas.dispatchEvent(mouseEvent);
+                      
+                      // Hide tooltip after 3 seconds or when moving to next point
+                      tooltipTimeout = setTimeout(() => {
+                        const hideEvent = new MouseEvent('mouseout', {
+                          bubbles: true
+                        });
+                        chart.canvas.dispatchEvent(hideEvent);
+                      }, 3000);
+                    }
                   }
                 }
                 
