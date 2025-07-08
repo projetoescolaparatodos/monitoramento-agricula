@@ -29,7 +29,7 @@ import {
 } from 'chart.js';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronDown, ChevronUp, Calendar, Database, Info } from 'lucide-react';
+import { ChevronDown, ChevronUp, Calendar, Database, Info, Play, RotateCcw } from 'lucide-react';
 
 ChartJS.register(
   ArcElement,
@@ -126,6 +126,7 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
   const animationRef = useRef<NodeJS.Timeout | null>(null);
   const [expanded, setExpanded] = useState(false);
   const [animationComplete, setAnimationComplete] = useState(false);
+  const [animationStarted, setAnimationStarted] = useState(false);
 
   const processedData = React.useMemo(() => {
     const isAreaChart = ['pie', 'doughnut', 'polarArea'].includes(chartType.toLowerCase());
@@ -458,65 +459,88 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
         }
       });
 
-      // Animate each dataset progressively
-      processedData.datasets.forEach((originalDataset, datasetIndex) => {
-        const color = originalDataset.borderColor || borderPalette[datasetIndex % borderPalette.length];
-        const bgColor = originalDataset.backgroundColor || colorPalette[datasetIndex % colorPalette.length];
+      // Function to start animation
+      const startAnimation = () => {
+        if (animationStarted) return;
         
-        setTimeout(() => {
-          let progress = 0;
-          const totalPoints = originalDataset.data.length;
+        setAnimationStarted(true);
+        
+        // Animate each dataset progressively
+        processedData.datasets.forEach((originalDataset, datasetIndex) => {
+          const color = originalDataset.borderColor || borderPalette[datasetIndex % borderPalette.length];
+          const bgColor = originalDataset.backgroundColor || colorPalette[datasetIndex % colorPalette.length];
           
-          const animateDataset = () => {
-            if (chartInstance.current && progress <= totalPoints) {
-              const currentDataset = chartInstance.current.data.datasets[datasetIndex];
-              
-              if (progress === 0) {
-                // Start animation - make line visible
-                currentDataset.borderColor = color;
-                currentDataset.backgroundColor = bgColor;
-                currentDataset.pointRadius = 0;
-              } else if (progress === totalPoints) {
-                // Animation complete - show all points
-                currentDataset.pointRadius = 5;
-                currentDataset.pointHoverRadius = 8;
-                setAnimationComplete(true);
-              }
-              
-              // Create animated data showing progression
-              const animatedData = originalDataset.data.map((value, index) => {
-                if (index < progress) {
-                  return value;
-                } else if (index === progress - 1 && progress > 0) {
-                  return value; // Show current point
-                } else {
-                  return null; // Hide future points
+          setTimeout(() => {
+            let progress = 0;
+            const totalPoints = originalDataset.data.length;
+            const animationDuration = 3000; // 3 seconds total
+            const totalSteps = 100; // More steps for smoother animation
+            const stepDuration = animationDuration / totalSteps;
+            
+            const animateDataset = () => {
+              if (chartInstance.current && progress <= totalSteps) {
+                const currentDataset = chartInstance.current.data.datasets[datasetIndex];
+                
+                if (progress === 0) {
+                  // Start animation - make line visible
+                  currentDataset.borderColor = color;
+                  currentDataset.backgroundColor = bgColor;
+                  currentDataset.pointRadius = 0;
                 }
-              });
-              
-              currentDataset.data = animatedData;
-              
-              // Show points up to current progress
-              if (progress > 0) {
+                
+                // Calculate smooth progress (0 to 1)
+                const normalizedProgress = Math.min(progress / totalSteps, 1);
+                const dataPointsToShow = normalizedProgress * (totalPoints - 1);
+                
+                // Create smooth interpolated data
+                const animatedData = originalDataset.data.map((value, index) => {
+                  if (index <= Math.floor(dataPointsToShow)) {
+                    return value;
+                  } else if (index === Math.floor(dataPointsToShow) + 1 && dataPointsToShow % 1 !== 0) {
+                    // Interpolate between current and next point
+                    const prevValue = originalDataset.data[Math.floor(dataPointsToShow)];
+                    const nextValue = value;
+                    const interpolationFactor = dataPointsToShow % 1;
+                    return prevValue + (nextValue - prevValue) * interpolationFactor;
+                  } else {
+                    return null; // Hide future points
+                  }
+                });
+                
+                currentDataset.data = animatedData;
+                
+                // Show points progressively with smooth radius animation
                 const pointRadii = new Array(totalPoints).fill(0);
-                for (let i = 0; i < progress; i++) {
+                for (let i = 0; i <= Math.floor(dataPointsToShow); i++) {
                   pointRadii[i] = 4;
                 }
                 currentDataset.pointRadius = pointRadii;
+                
+                // Animation complete
+                if (progress === totalSteps) {
+                  currentDataset.pointRadius = 5;
+                  currentDataset.pointHoverRadius = 8;
+                  if (datasetIndex === processedData.datasets.length - 1) {
+                    setAnimationComplete(true);
+                  }
+                }
+                
+                chartInstance.current.update('none');
+                progress++;
+                
+                if (progress <= totalSteps) {
+                  animationRef.current = setTimeout(animateDataset, stepDuration);
+                }
               }
-              
-              chartInstance.current.update('none');
-              progress++;
-              
-              if (progress <= totalPoints) {
-                animationRef.current = setTimeout(animateDataset, 400);
-              }
-            }
-          };
-          
-          animateDataset();
-        }, datasetIndex * 200); // Stagger animation for multiple datasets
-      });
+            };
+            
+            animateDataset();
+          }, datasetIndex * 300); // Stagger animation for multiple datasets
+        });
+      };
+
+      // Store animation function for manual trigger
+      (chartInstance.current as any).startAnimation = startAnimation;
     } else {
       // Create chart with normal animation for other chart types
       chartInstance.current = new ChartJS(ctx, {
@@ -535,6 +559,25 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
       }
     };
   }, [chartType, processedData, animate]);
+
+  // Function to start/restart animation
+  const handleStartAnimation = () => {
+    if (chartInstance.current && (chartInstance.current as any).startAnimation) {
+      // Reset animation state
+      setAnimationStarted(false);
+      setAnimationComplete(false);
+      
+      // Clear any existing animation
+      if (animationRef.current) {
+        clearTimeout(animationRef.current);
+      }
+      
+      // Start animation
+      setTimeout(() => {
+        (chartInstance.current as any).startAnimation();
+      }, 100);
+    }
+  };
 
   const previewLength = 150;
   const shouldTruncate = description && description.length > previewLength;
@@ -693,16 +736,38 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
           >
             <canvas ref={chartRef} className="w-full h-full" />
             
-            {animate && !animationComplete && (
+            {/* Botão de controle da animação para gráficos de linha */}
+            {animate && chartType.toLowerCase() === 'line' && (
               <motion.div
-                initial={{ opacity: 1 }}
-                animate={{ opacity: 0 }}
-                transition={{ delay: 3, duration: 0.5 }}
-                className="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.8, duration: 0.4 }}
+                className="absolute top-4 right-4 z-10"
+              >
+                <button
+                  onClick={handleStartAnimation}
+                  className="bg-white shadow-lg hover:shadow-xl border border-gray-200 rounded-full p-3 transition-all duration-300 hover:scale-105 group"
+                  title={animationStarted ? "Reiniciar animação" : "Iniciar animação"}
+                >
+                  {animationStarted ? (
+                    <RotateCcw className="w-4 h-4 text-green-600 group-hover:rotate-180 transition-transform duration-300" />
+                  ) : (
+                    <Play className="w-4 h-4 text-green-600 group-hover:scale-110 transition-transform duration-300" />
+                  )}
+                </button>
+              </motion.div>
+            )}
+            
+            {animate && animationStarted && !animationComplete && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute bottom-4 left-4 bg-white bg-opacity-90 rounded-full px-4 py-2 shadow-lg border border-gray-200"
               >
                 <div className="text-green-600 text-sm font-medium flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600 mr-2"></div>
-                  Carregando animação...
+                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-green-600 mr-2"></div>
+                  Animando gráfico...
                 </div>
               </motion.div>
             )}
