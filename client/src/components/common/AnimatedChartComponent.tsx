@@ -364,7 +364,7 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
             line: {
               borderJoinStyle: 'round' as const,
               borderCapStyle: 'round' as const,
-              tension: 0.1,
+              tension: 0.4, // Increased tension for smoother curves
             },
             point: {
               radius: 4,
@@ -379,6 +379,12 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
             ...baseOptions.plugins,
             tooltip: {
               ...baseOptions.plugins.tooltip,
+              enabled: true,
+              displayColors: true,
+              animation: {
+                duration: 400,
+                easing: 'easeOutQuart'
+              },
               filter: function(tooltipItem) {
                 return tooltipItem.dataIndex < (chartInstance.current?.data.labels?.length || 0);
               },
@@ -473,9 +479,11 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
           setTimeout(() => {
             let progress = 0;
             const totalPoints = originalDataset.data.length;
-            const animationDuration = 3000; // 3 seconds total
-            const totalSteps = 100; // More steps for smoother animation
+            const animationDuration = 4000; // 4 seconds total for smoother animation
+            const totalSteps = 200; // Much more steps for fluid animation
             const stepDuration = animationDuration / totalSteps;
+            let currentPointIndex = -1;
+            let tooltipTimeout: NodeJS.Timeout | null = null;
             
             const animateDataset = () => {
               if (chartInstance.current && progress <= totalSteps) {
@@ -488,20 +496,63 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
                   currentDataset.pointRadius = 0;
                 }
                 
-                // Calculate smooth progress (0 to 1)
+                // Calculate smooth progress with easing function (cubic-bezier)
                 const normalizedProgress = Math.min(progress / totalSteps, 1);
-                const dataPointsToShow = normalizedProgress * (totalPoints - 1);
+                const easedProgress = 1 - Math.pow(1 - normalizedProgress, 3); // Ease-out cubic
+                const dataPointsToShow = easedProgress * (totalPoints - 1);
                 
-                // Create smooth interpolated data
+                // Check if we've reached a new point for tooltip
+                const newPointIndex = Math.floor(dataPointsToShow);
+                if (newPointIndex > currentPointIndex && newPointIndex < totalPoints) {
+                  currentPointIndex = newPointIndex;
+                  
+                  // Show tooltip for current point
+                  if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                  
+                  // Simulate tooltip by temporarily showing hover state
+                  const chart = chartInstance.current;
+                  const canvasPosition = chart.canvas.getBoundingClientRect();
+                  const datasetMeta = chart.getDatasetMeta(datasetIndex);
+                  const pointElement = datasetMeta.data[currentPointIndex];
+                  
+                  if (pointElement) {
+                    // Create synthetic mouse event to trigger tooltip
+                    const mouseEvent = new MouseEvent('mousemove', {
+                      clientX: canvasPosition.left + pointElement.x,
+                      clientY: canvasPosition.top + pointElement.y,
+                      bubbles: true
+                    });
+                    
+                    // Show tooltip
+                    chart.canvas.dispatchEvent(mouseEvent);
+                    
+                    // Hide tooltip after 3 seconds or when moving to next point
+                    tooltipTimeout = setTimeout(() => {
+                      const hideEvent = new MouseEvent('mouseout', {
+                        bubbles: true
+                      });
+                      chart.canvas.dispatchEvent(hideEvent);
+                    }, 3000);
+                  }
+                }
+                
+                // Create smooth interpolated data with organic curve
                 const animatedData = originalDataset.data.map((value, index) => {
-                  if (index <= Math.floor(dataPointsToShow)) {
+                  if (index < Math.floor(dataPointsToShow)) {
                     return value;
-                  } else if (index === Math.floor(dataPointsToShow) + 1 && dataPointsToShow % 1 !== 0) {
-                    // Interpolate between current and next point
-                    const prevValue = originalDataset.data[Math.floor(dataPointsToShow)];
-                    const nextValue = value;
+                  } else if (index === Math.floor(dataPointsToShow) && dataPointsToShow % 1 !== 0) {
+                    // Smooth interpolation between points
+                    const nextIndex = Math.min(index + 1, totalPoints - 1);
+                    const prevValue = value;
+                    const nextValue = originalDataset.data[nextIndex];
                     const interpolationFactor = dataPointsToShow % 1;
-                    return prevValue + (nextValue - prevValue) * interpolationFactor;
+                    
+                    // Apply smooth curve interpolation
+                    const smoothFactor = 0.5 * (1 - Math.cos(interpolationFactor * Math.PI));
+                    return prevValue + (nextValue - prevValue) * smoothFactor;
+                  } else if (index === Math.floor(dataPointsToShow) + 1 && dataPointsToShow % 1 !== 0) {
+                    // Show partial next point for smooth transition
+                    return value;
                   } else {
                     return null; // Hide future points
                   }
@@ -509,17 +560,37 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
                 
                 currentDataset.data = animatedData;
                 
-                // Show points progressively with smooth radius animation
+                // Show points progressively with smooth scaling
                 const pointRadii = new Array(totalPoints).fill(0);
-                for (let i = 0; i <= Math.floor(dataPointsToShow); i++) {
-                  pointRadii[i] = 4;
+                const pointHoverRadii = new Array(totalPoints).fill(0);
+                
+                for (let i = 0; i < totalPoints; i++) {
+                  if (i < Math.floor(dataPointsToShow)) {
+                    pointRadii[i] = 4;
+                    pointHoverRadii[i] = 8;
+                  } else if (i === Math.floor(dataPointsToShow) && dataPointsToShow % 1 !== 0) {
+                    // Smoothly scale the current point
+                    const scaleFactor = dataPointsToShow % 1;
+                    pointRadii[i] = 4 * scaleFactor;
+                    pointHoverRadii[i] = 8 * scaleFactor;
+                  }
                 }
+                
                 currentDataset.pointRadius = pointRadii;
+                currentDataset.pointHoverRadius = pointHoverRadii;
                 
                 // Animation complete
                 if (progress === totalSteps) {
                   currentDataset.pointRadius = 5;
                   currentDataset.pointHoverRadius = 8;
+                  if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                  
+                  // Hide any remaining tooltip
+                  const hideEvent = new MouseEvent('mouseout', {
+                    bubbles: true
+                  });
+                  chartInstance.current.canvas.dispatchEvent(hideEvent);
+                  
                   if (datasetIndex === processedData.datasets.length - 1) {
                     setAnimationComplete(true);
                   }
@@ -535,7 +606,7 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
             };
             
             animateDataset();
-          }, datasetIndex * 300); // Stagger animation for multiple datasets
+          }, datasetIndex * 400); // Slightly longer stagger for multiple datasets
         });
       };
 
