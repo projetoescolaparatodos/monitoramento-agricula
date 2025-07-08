@@ -186,6 +186,8 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
             fill: dataset.fill !== undefined ? dataset.fill : false,
             pointBackgroundColor: dataset.pointBackgroundColor || borderColor,
             pointBorderColor: dataset.pointBorderColor || borderColor,
+            pointHoverBackgroundColor: dataset.pointHoverBackgroundColor || borderColor,
+            pointHoverBorderColor: dataset.pointHoverBorderColor || borderColor,
             pointHoverRadius: dataset.pointHoverRadius || 8,
             pointRadius: dataset.pointRadius || 6
           };
@@ -533,17 +535,25 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
 
                 currentDataset.data = animatedData;
 
-                // Show points progressively
+                // Show points progressively with correct colors
                 const pointRadii = new Array(totalPoints).fill(0);
                 const pointHoverRadii = new Array(totalPoints).fill(0);
+                const pointBgColors = new Array(totalPoints).fill('transparent');
+                const pointBorderColors = new Array(totalPoints).fill('transparent');
 
                 for (let i = 0; i <= currentPointToShow && i < totalPoints; i++) {
                   pointRadii[i] = 6;
                   pointHoverRadii[i] = 9;
+                  pointBgColors[i] = color;
+                  pointBorderColors[i] = color;
                 }
 
                 currentDataset.pointRadius = pointRadii;
                 currentDataset.pointHoverRadius = pointHoverRadii;
+                currentDataset.pointBackgroundColor = pointBgColors;
+                currentDataset.pointBorderColor = pointBorderColors;
+                currentDataset.pointHoverBackgroundColor = pointBgColors;
+                currentDataset.pointHoverBorderColor = pointBorderColors;
 
                 // Show tooltip for new points with independent system per dataset
                 if (currentPointToShow >= 0 && currentPointToShow < totalPoints && currentPointToShow > lastPointShown) {
@@ -558,27 +568,30 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
                   setTimeout(() => {
                     if (chartInstance.current) {
                       const chart = chartInstance.current;
+                      const currentDatasetColor = borderPalette[datasetIndex % borderPalette.length];
                       
                       // Create custom tooltip element for this specific dataset and point
-                      const tooltipId = `tooltip-${datasetIndex}-${currentPointToShow}-${Date.now()}`;
+                      const tooltipId = `tooltip-dataset-${datasetIndex}-point-${currentPointToShow}-${Date.now()}`;
                       let tooltipElement = document.createElement('div');
                       tooltipElement.id = tooltipId;
+                      tooltipElement.className = `chart-tooltip-${datasetIndex}`;
                       tooltipElement.style.cssText = `
-                        position: absolute;
+                        position: fixed;
                         background: rgba(255, 255, 255, 0.98);
-                        border: 2px solid ${color};
-                        border-radius: 10px;
-                        padding: 10px 14px;
+                        border: 2px solid ${currentDatasetColor};
+                        border-radius: 12px;
+                        padding: 12px 16px;
                         font-size: 13px;
                         font-family: 'Poppins', sans-serif;
                         font-weight: 500;
                         color: #374151;
-                        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-                        z-index: ${1000 + datasetIndex * 10 + currentPointToShow};
+                        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+                        z-index: ${10000 + datasetIndex * 100 + currentPointToShow};
                         pointer-events: none;
-                        transition: all 0.3s ease;
-                        transform: scale(0.8);
+                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                        transform: scale(0.8) translateY(10px);
                         opacity: 0;
+                        max-width: 200px;
                       `;
                       document.body.appendChild(tooltipElement);
 
@@ -587,53 +600,61 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
                         const point = meta.data[currentPointToShow];
                         const canvasPosition = chart.canvas.getBoundingClientRect();
                         
-                        // Position tooltip near the point with offset based on dataset to avoid overlap
-                        const baseOffsetX = 15;
-                        const baseOffsetY = -50;
-                        const datasetOffsetX = datasetIndex * 20; // Offset horizontal para cada série
-                        const datasetOffsetY = datasetIndex * -15; // Offset vertical para cada série
+                        // Position tooltip near the point with better spacing for multiple datasets
+                        const baseOffsetX = 20;
+                        const baseOffsetY = -60;
+                        const datasetOffsetX = datasetIndex * 25; // Maior espaçamento horizontal
+                        const datasetOffsetY = datasetIndex * -20; // Maior espaçamento vertical
                         
-                        const tooltipX = canvasPosition.left + point.x + baseOffsetX + datasetOffsetX;
-                        const tooltipY = canvasPosition.top + point.y + baseOffsetY + datasetOffsetY;
+                        let tooltipX = canvasPosition.left + point.x + baseOffsetX + datasetOffsetX + window.scrollX;
+                        let tooltipY = canvasPosition.top + point.y + baseOffsetY + datasetOffsetY + window.scrollY;
+                        
+                        // Prevent tooltip from going off-screen
+                        if (tooltipX + 200 > window.innerWidth) {
+                          tooltipX = canvasPosition.left + point.x - 220 - datasetOffsetX + window.scrollX;
+                        }
+                        if (tooltipY < 0) {
+                          tooltipY = canvasPosition.top + point.y + 30 + datasetOffsetY + window.scrollY;
+                        }
                         
                         tooltipElement.style.left = `${tooltipX}px`;
                         tooltipElement.style.top = `${tooltipY}px`;
                         
-                        // Set tooltip content
+                        // Set tooltip content with dataset-specific color
                         const label = originalDataset.label || `Série ${datasetIndex + 1}`;
                         const value = originalDataset.data[currentPointToShow];
                         const xLabel = chartInstance.current.data.labels?.[currentPointToShow] || '';
                         
                         tooltipElement.innerHTML = `
-                          <div style="color: ${color}; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center;">
-                            <div style="width: 8px; height: 8px; background: ${color}; border-radius: 50%; margin-right: 8px;"></div>
+                          <div style="color: ${currentDatasetColor}; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center;">
+                            <div style="width: 10px; height: 10px; background: ${currentDatasetColor}; border-radius: 50%; margin-right: 10px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
                             ${label}
                           </div>
-                          <div style="font-size: 12px; color: #6b7280; font-weight: 600;">${xLabel}</div>
-                          <div style="font-size: 14px; color: #1f2937; font-weight: 700; margin-top: 2px;">${value.toLocaleString('pt-BR')}</div>
+                          <div style="font-size: 12px; color: #6b7280; font-weight: 600; margin-bottom: 4px;">${xLabel}</div>
+                          <div style="font-size: 15px; color: #1f2937; font-weight: 700;">${value.toLocaleString('pt-BR')}</div>
                         `;
                         
                         // Animate tooltip appearance
                         requestAnimationFrame(() => {
                           tooltipElement.style.opacity = '1';
-                          tooltipElement.style.transform = 'scale(1)';
+                          tooltipElement.style.transform = 'scale(1) translateY(0)';
                         });
                         
-                        // Hide tooltip after reading time (2.5 seconds for better flow)
+                        // Hide tooltip after reading time
                         currentTooltipTimeout = setTimeout(() => {
-                          if (tooltipElement) {
+                          if (tooltipElement && tooltipElement.parentNode) {
                             tooltipElement.style.opacity = '0';
-                            tooltipElement.style.transform = 'scale(0.8)';
+                            tooltipElement.style.transform = 'scale(0.8) translateY(10px)';
                             setTimeout(() => {
                               if (tooltipElement && tooltipElement.parentNode) {
                                 tooltipElement.parentNode.removeChild(tooltipElement);
                               }
                             }, 300);
                           }
-                        }, 2500);
+                        }, 3000); // Tempo maior para leitura
                       }
                     }
-                  }, 200); // Delay reduzido para melhor sincronização
+                  }, 300); // Delay para sincronização melhor
                 }
 
                 // Animation complete
@@ -641,8 +662,15 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
                   currentDataset.data = originalDataset.data;
                   const finalPointRadii = new Array(totalPoints).fill(6);
                   const finalPointHoverRadii = new Array(totalPoints).fill(9);
+                  const finalPointBgColors = new Array(totalPoints).fill(color);
+                  const finalPointBorderColors = new Array(totalPoints).fill(color);
+                  
                   currentDataset.pointRadius = finalPointRadii;
                   currentDataset.pointHoverRadius = finalPointHoverRadii;
+                  currentDataset.pointBackgroundColor = finalPointBgColors;
+                  currentDataset.pointBorderColor = finalPointBorderColors;
+                  currentDataset.pointHoverBackgroundColor = finalPointBgColors;
+                  currentDataset.pointHoverBorderColor = finalPointBorderColors;
 
                   // Clean up any remaining tooltips for this dataset
                   if (currentTooltipTimeout) {
@@ -685,7 +713,7 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
       }
       
       // Limpar todos os tooltips personalizados
-      const tooltips = document.querySelectorAll('[id^="tooltip-dataset-"]');
+      const tooltips = document.querySelectorAll('[id^="tooltip-dataset-"], [class*="chart-tooltip-"]');
       tooltips.forEach(tooltip => {
         if (tooltip.parentNode) {
           tooltip.parentNode.removeChild(tooltip);
