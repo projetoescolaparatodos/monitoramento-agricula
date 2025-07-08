@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Chart as ChartJS,
@@ -468,14 +467,14 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
       // Function to start animation
       const startAnimation = () => {
         if (animationStarted) return;
-        
+
         setAnimationStarted(true);
-        
+
         // Animate each dataset progressively
         processedData.datasets.forEach((originalDataset, datasetIndex) => {
           const color = originalDataset.borderColor || borderPalette[datasetIndex % borderPalette.length];
           const bgColor = originalDataset.backgroundColor || colorPalette[datasetIndex % colorPalette.length];
-          
+
           setTimeout(() => {
             let progress = 0;
             const totalPoints = originalDataset.data.length;
@@ -484,37 +483,37 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
             const stepDuration = animationDuration / totalSteps;
             let currentPointIndex = -1;
             let tooltipTimeout: NodeJS.Timeout | null = null;
-            
+
             const animateDataset = () => {
               if (chartInstance.current && progress <= totalSteps) {
                 const currentDataset = chartInstance.current.data.datasets[datasetIndex];
-                
+
                 if (progress === 0) {
                   // Start animation - make line visible
                   currentDataset.borderColor = color;
                   currentDataset.backgroundColor = bgColor;
                   currentDataset.pointRadius = 0;
                 }
-                
+
                 // Calculate smooth progress with improved easing
                 const normalizedProgress = Math.min(progress / totalSteps, 1);
                 // Use a slower, more deliberate easing function
                 const easedProgress = normalizedProgress < 0.5 
                   ? 2 * normalizedProgress * normalizedProgress 
                   : 1 - Math.pow(-2 * normalizedProgress + 2, 2) / 2;
-                
+
                 // Calculate which point we should be at
                 const exactPointProgress = easedProgress * (totalPoints - 1);
                 const currentPointToShow = Math.floor(exactPointProgress);
-                
+
                 // Check if we've reached a new complete point for tooltip
                 const newPointIndex = currentPointToShow;
                 if (newPointIndex > currentPointIndex && newPointIndex < totalPoints) {
                   currentPointIndex = newPointIndex;
-                  
-                  // Show tooltip for current point
+
+                  // Show tooltip for current point (independent per dataset)
                   if (tooltipTimeout) clearTimeout(tooltipTimeout);
-                  
+
                   // Wait a moment before showing tooltip to let line reach the point
                   setTimeout(() => {
                     if (chartInstance.current && currentPointIndex === newPointIndex) {
@@ -522,36 +521,29 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
                       const canvasPosition = chart.canvas.getBoundingClientRect();
                       const datasetMeta = chart.getDatasetMeta(datasetIndex);
                       const pointElement = datasetMeta.data[currentPointIndex];
-                      
+
                       if (pointElement && isFinite(pointElement.x) && isFinite(pointElement.y)) {
-                        // Create synthetic mouse event to trigger tooltip
-                        const clientX = canvasPosition.left + pointElement.x;
-                        const clientY = canvasPosition.top + pointElement.y;
-                        
-                        // Validate coordinates are finite numbers
-                        if (isFinite(clientX) && isFinite(clientY)) {
-                          const mouseEvent = new MouseEvent('mousemove', {
-                            clientX: clientX,
-                            clientY: clientY,
-                            bubbles: true
-                          });
-                        
-                        // Show tooltip
-                          chart.canvas.dispatchEvent(mouseEvent);
-                          
-                          // Hide tooltip after 4 seconds or when moving to next point
-                          tooltipTimeout = setTimeout(() => {
-                            const hideEvent = new MouseEvent('mouseout', {
-                              bubbles: true
-                            });
-                            chart.canvas.dispatchEvent(hideEvent);
-                          }, 4000);
-                        }
+                        // Force tooltip to show only for this specific dataset and point
+                        chart.tooltip.setActiveElements([{
+                          datasetIndex: datasetIndex,
+                          index: currentPointIndex
+                        }]);
+
+                        chart.update('none');
+
+                        // Hide tooltip after 3 seconds for multiple series to avoid conflicts
+                        const hideDelay = processedData.datasets.length > 1 ? 3000 : 4000;
+                        tooltipTimeout = setTimeout(() => {
+                          if (chart.tooltip) {
+                            chart.tooltip.setActiveElements([]);
+                            chart.update('none');
+                          }
+                        }, hideDelay);
                       }
                     }
                   }, 200); // Small delay to let line reach point
                 }
-                
+
                 // Create data array showing only completed points (no interpolation to avoid wrong values)
                 const animatedData = originalDataset.data.map((value, index) => {
                   if (index <= currentPointToShow) {
@@ -560,13 +552,13 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
                     return null; // Hide future points completely
                   }
                 });
-                
+
                 currentDataset.data = animatedData;
-                
+
                 // Show points progressively with smooth scaling
                 const pointRadii = new Array(totalPoints).fill(0);
                 const pointHoverRadii = new Array(totalPoints).fill(0);
-                
+
                 for (let i = 0; i < totalPoints; i++) {
                   if (i <= currentPointToShow) {
                     // Show completed points
@@ -574,42 +566,42 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
                     pointHoverRadii[i] = 8;
                   }
                 }
-                
+
                 currentDataset.pointRadius = pointRadii;
                 currentDataset.pointHoverRadius = pointHoverRadii;
-                
+
                 // Animation complete
                 if (progress === totalSteps) {
                   // Ensure all points are visible and properly sized
                   const finalPointRadii = new Array(totalPoints).fill(5);
                   const finalPointHoverRadii = new Array(totalPoints).fill(8);
-                  
+
                   currentDataset.pointRadius = finalPointRadii;
                   currentDataset.pointHoverRadius = finalPointHoverRadii;
                   currentDataset.data = originalDataset.data; // Restore complete data
-                  
+
                   if (tooltipTimeout) clearTimeout(tooltipTimeout);
-                  
+
                   // Hide any remaining tooltip
                   const hideEvent = new MouseEvent('mouseout', {
                     bubbles: true
                   });
                   chartInstance.current.canvas.dispatchEvent(hideEvent);
-                  
+
                   if (datasetIndex === processedData.datasets.length - 1) {
                     setAnimationComplete(true);
                   }
                 }
-                
+
                 chartInstance.current.update('none');
                 progress++;
-                
+
                 if (progress <= totalSteps) {
                   animationRef.current = setTimeout(animateDataset, stepDuration);
                 }
               }
             };
-            
+
             animateDataset();
           }, datasetIndex * 800); // Longer stagger for multiple datasets to give more time between points and prevent tooltip conflicts
         });
@@ -642,12 +634,12 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
       // Reset animation state
       setAnimationStarted(false);
       setAnimationComplete(false);
-      
+
       // Clear any existing animation
       if (animationRef.current) {
         clearTimeout(animationRef.current);
       }
-      
+
       // Start animation
       setTimeout(() => {
         (chartInstance.current as any).startAnimation();
@@ -811,7 +803,7 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
             className="relative"
           >
             <canvas ref={chartRef} className="w-full h-full" />
-            
+
             {/* Botão de controle da animação para gráficos de linha */}
             {animate && chartType.toLowerCase() === 'line' && (
               <motion.div
@@ -833,7 +825,7 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
                 </button>
               </motion.div>
             )}
-            
+
             {animate && animationStarted && !animationComplete && (
               <motion.div
                 initial={{ opacity: 0 }}
