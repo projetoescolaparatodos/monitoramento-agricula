@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/carousel";
 import { useEffect, useState, useCallback, useRef } from "react";
 
-const DataVisualizationSection = () => {
+const DataVisualizationSection = ({ variant = "default" }: { variant?: "default" | "transparent" }) => {
   const { data: charts, isLoading } = useQuery<ChartItem[]>({
     queryKey: ['/api/charts?pageType=home'],
   });
@@ -43,7 +43,7 @@ const DataVisualizationSection = () => {
     });
   }, [api]);
 
-  
+
 
   // Função para iniciar animação dos gráficos
   const startChartAnimation = (chartId: string) => {
@@ -177,7 +177,7 @@ const DataVisualizationSection = () => {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                
+
                 {/* Controles personalizados */}
                 <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
                   <button
@@ -213,7 +213,7 @@ const DataVisualizationSection = () => {
                   </div>
                 )}
               </Carousel>
-              
+
               {/* Contador de slides */}
               {featuredCharts.length > 1 && (
                 <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1 shadow-lg">
@@ -234,7 +234,7 @@ const DataVisualizationSection = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.6 }}
         >
-          
+
 
           {/* Grid de gráficos regulares */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
