@@ -12,9 +12,9 @@ const DataVisualizationSection = () => {
     queryKey: ['/api/charts?pageType=home'],
   });
 
-  // Buscar gráfico destacado (primeiro gráfico ou o com maior ordem)
-  const featuredChart = charts?.length ? charts[0] : null;
-  const regularCharts = charts?.slice(1) || [];
+  // Buscar gráficos destacados e regulares
+  const featuredCharts = charts?.filter(chart => chart.isFeatured) || [];
+  const regularCharts = charts?.filter(chart => !chart.isFeatured) || [];
 
   if (isLoading) {
     return (
@@ -44,31 +44,37 @@ const DataVisualizationSection = () => {
 
   return (
     <section className="mb-16 space-y-12">
-      {/* Subseção do gráfico destacado */}
-      {featuredChart && (
+      {/* Subseção dos gráficos destacados */}
+      {featuredCharts.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="w-full"
+          className="w-full space-y-8"
         >
-          
-
-          {/* Gráfico destacado */}
-          <AnimatedChartComponent 
-            chartData={featuredChart.chartData} 
-            chartType={featuredChart.chartType} 
-            title={featuredChart.title}
-            description={featuredChart.description}
-            height={400}
-            animate={true}
-            metadata={{
-              source: "Secretaria Municipal de Agricultura",
-              lastUpdated: "Janeiro 2024",
-              units: "Unidades",
-              period: "Dados consolidados"
-            }} 
-          />
+          {featuredCharts.map((chart, index) => (
+            <motion.div
+              key={chart.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.2, duration: 0.6 }}
+            >
+              <AnimatedChartComponent 
+                chartData={chart.chartData} 
+                chartType={chart.chartType} 
+                title={chart.title}
+                description={chart.description}
+                height={400}
+                animate={true}
+                metadata={{
+                  source: "Secretaria Municipal de Agricultura",
+                  lastUpdated: "Janeiro 2024",
+                  units: "Unidades",
+                  period: "Dados consolidados"
+                }} 
+              />
+            </motion.div>
+          ))}
         </motion.div>
       )}
 

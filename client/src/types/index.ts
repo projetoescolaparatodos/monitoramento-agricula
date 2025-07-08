@@ -20,6 +20,27 @@ export interface ChartItem {
   isFeatured?: boolean;
 }
 
+export interface ChartFormData {
+  id?: string;
+  pageType: 'home' | 'agriculture' | 'fishing' | 'paa';
+  title: string;
+  description?: string;
+  chartType: 'bar' | 'line' | 'pie' | 'doughnut' | 'radar' | 'polarArea' | 'scatter';
+  active: boolean;
+  order: number;
+  isFeatured: boolean;
+  chartData: {
+    labels: string[];
+    datasets: {
+      label: string;
+      data: number[];
+      backgroundColor?: string | string[];
+      borderColor?: string;
+      borderWidth?: number;
+    }[];
+  };
+}
+
 export interface MediaItem {
   id: string;
   mediaUrl: string;

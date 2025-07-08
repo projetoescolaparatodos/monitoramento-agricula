@@ -43,6 +43,7 @@ const chartFormSchema = z.object({
   }),
   active: z.boolean().default(true),
   order: z.number().int().min(0).default(0),
+  isFeatured: z.boolean().default(false),
   chartData: z.object({
     labels: z.array(z.string()).min(1, {
       message: "Adicione pelo menos um rótulo"
@@ -98,6 +99,7 @@ const ChartForm: React.FC<ChartFormProps> = ({
     chartType: chartData.chartType || 'bar',
     active: chartData.active !== undefined ? chartData.active : true,
     order: chartData.order || 0,
+    isFeatured: chartData.isFeatured || false,
     chartData: chartData.chartData || {
       labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
       datasets: [
@@ -117,6 +119,7 @@ const ChartForm: React.FC<ChartFormProps> = ({
     chartType: 'bar',
     active: true,
     order: 0,
+    isFeatured: false,
     chartData: {
       labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
       datasets: [
@@ -340,6 +343,26 @@ const ChartForm: React.FC<ChartFormProps> = ({
                     <FormLabel>Ativo</FormLabel>
                     <div className="text-sm text-muted-foreground">
                       Determina se o gráfico será exibido no site
+                    </div>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="isFeatured"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between p-4 border rounded-md">
+                  <div className="space-y-0.5">
+                    <FormLabel>Gráfico Destacado</FormLabel>
+                    <div className="text-sm text-muted-foreground">
+                      Aparecerá na seção de destaque da página
                     </div>
                   </div>
                   <FormControl>
