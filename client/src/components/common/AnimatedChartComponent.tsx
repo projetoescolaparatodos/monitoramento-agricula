@@ -206,30 +206,14 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
     if (!animate) return { duration: 0 };
 
     const baseConfig = {
-      duration: 2500,
+      duration: 2000,
       easing: 'easeInOutQuart' as const,
     };
 
     switch (chartType.toLowerCase()) {
       case 'line':
-        return {
-          ...baseConfig,
-          x: {
-            type: 'number' as const,
-            easing: 'linear' as const,
-            duration: 3000,
-            from: 0,
-            to: 1,
-            loop: false
-          },
-          y: {
-            type: 'number' as const,
-            easing: 'easeOutCubic' as const,
-            duration: 2000,
-            from: 0,
-            to: 1,
-          }
-        };
+        // For line charts, we handle animation manually
+        return { duration: 0 };
       case 'bar':
         return {
           ...baseConfig,
@@ -340,6 +324,10 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
       case 'line':
         return {
           ...baseOptions,
+          interaction: {
+            intersect: false,
+            mode: 'index' as const,
+          },
           scales: {
             y: {
               beginAtZero: true,
@@ -377,8 +365,30 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
               borderCapStyle: 'round' as const,
             },
             point: {
-              hoverRadius: 10,
-              hoverBorderWidth: 3
+              radius: 5,
+              hoverRadius: 8,
+              hoverBorderWidth: 2,
+              backgroundColor: 'rgba(255, 255, 255, 0.8)',
+              borderWidth: 2
+            }
+          },
+          plugins: {
+            ...baseOptions.plugins,
+            tooltip: {
+              ...baseOptions.plugins.tooltip,
+              filter: function(tooltipItem) {
+                return tooltipItem.dataIndex < (chartInstance.current?.data.labels?.length || 0);
+              },
+              callbacks: {
+                title: function(context) {
+                  return context[0].label || '';
+                },
+                label: function(context) {
+                  const label = context.dataset.label || '';
+                  const value = context.parsed.y;
+                  return `${label}: ${value.toLocaleString('pt-BR')}`;
+                }
+              }
             }
           }
         };
@@ -423,15 +433,27 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
 
     const options = getOptions();
 
-    // Create new chart
-    chartInstance.current = new ChartJS(ctx, {
-      type: chartType as any,
-      data: processedData,
-      options: options
-    });
-
     // Special animation for line charts
     if (animate && chartType.toLowerCase() === 'line') {
+      // Create initial empty chart
+      chartInstance.current = new ChartJS(ctx, {
+        type: chartType as any,
+        data: {
+          ...processedData,
+          datasets: processedData.datasets.map(dataset => ({
+            ...dataset,
+            data: []
+          })),
+          labels: []
+        },
+        options: {
+          ...options,
+          animation: {
+            duration: 0 // Disable default animation for custom control
+          }
+        }
+      });
+
       let currentStep = 0;
       const totalSteps = processedData.labels.length;
       
@@ -452,25 +474,25 @@ const AnimatedChartComponent: React.FC<AnimatedChartComponentProps> = ({
           chartInstance.current.data = animatedData;
           chartInstance.current.update('none');
           
-          animationRef.current = setTimeout(animateLineProgress, 800);
+          if (currentStep < totalSteps) {
+            animationRef.current = setTimeout(animateLineProgress, 600);
+          } else {
+            setAnimationComplete(true);
+          }
         }
       };
 
       // Start progressive animation after initial render
       setTimeout(() => {
-        if (chartInstance.current) {
-          chartInstance.current.data = {
-            ...processedData,
-            datasets: processedData.datasets.map(dataset => ({
-              ...dataset,
-              data: []
-            })),
-            labels: []
-          };
-          chartInstance.current.update('none');
-          animateLineProgress();
-        }
-      }, 500);
+        animateLineProgress();
+      }, 300);
+    } else {
+      // Create chart with normal animation for other chart types
+      chartInstance.current = new ChartJS(ctx, {
+        type: chartType as any,
+        data: processedData,
+        options: options
+      });
     }
 
     return () => {
