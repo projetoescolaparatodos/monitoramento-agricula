@@ -1069,19 +1069,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
               </motion.div>
             )}
 
-            {animate && animationStarted && !animationComplete && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute bottom-4 left-4 bg-white bg-opacity-90 rounded-full px-4 py-2 shadow-lg border border-gray-200"
-              >
-                <div className="text-green-600 text-sm font-medium flex items-center">
-                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-green-600 mr-2"></div>
-                  Animando gráfico...
-                </div>
-              </motion.div>
-            )}
+            
           </motion.div>
         </CardContent>
       </Card>
