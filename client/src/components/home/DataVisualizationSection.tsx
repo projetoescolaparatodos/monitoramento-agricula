@@ -110,7 +110,7 @@ const DataVisualizationSection = ({ variant = "default" }: { variant?: "default"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="w-full space-y-8"
+          className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] px-6 md:px-8 lg:px-12 space-y-8"
         >
           {featuredCharts.length === 1 ? (
             // Renderizar gráfico único sem carrossel

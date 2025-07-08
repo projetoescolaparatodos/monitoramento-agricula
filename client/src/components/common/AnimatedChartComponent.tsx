@@ -123,7 +123,6 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<ChartJS | null>(null);
   const animationRef = useRef<NodeJS.Timeout | null>(null);
-  const [expanded, setExpanded] = useState(false);
   const [animationComplete, setAnimationComplete] = useState(false);
   const [animationStarted, setAnimationStarted] = useState(false);
 
@@ -481,7 +480,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
 
     // Criar um caminho suave usando curvas de Bézier
     ctx.beginPath();
-    
+
     if (points.length > 0) {
       ctx.moveTo(points[0].x, points[0].y);
       pathStarted = true;
@@ -502,13 +501,13 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
           const nextPoint = points[i + 1] || currentPoint;
           const cpX = (prevPoint.x + currentPoint.x) / 2;
           const cpY = (prevPoint.y + currentPoint.y) / 2;
-          
+
           // Ajusta o ponto de controle baseado na direção geral
           const directionX = nextPoint.x - prevPoint.x;
           const directionY = nextPoint.y - prevPoint.y;
           const adjustedCpX = cpX + directionX * 0.1;
           const adjustedCpY = cpY + directionY * 0.1;
-          
+
           ctx.quadraticCurveTo(adjustedCpX, adjustedCpY, currentPoint.x, currentPoint.y);
         }
         currentLength += segmentLength;
@@ -516,10 +515,10 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
         // Desenha apenas parte do segmento com interpolação suave
         const remaining = animatedLength - currentLength;
         const ratio = remaining / segmentLength;
-        
+
         // Aplica easing na interpolação para movimento mais fluido
         const easedRatio = ratio < 0.5 ? 2 * ratio * ratio : 1 - Math.pow(-2 * ratio + 2, 2) / 2;
-        
+
         const intermediatePoint = {
           x: prevPoint.x + (currentPoint.x - prevPoint.x) * easedRatio,
           y: prevPoint.y + (currentPoint.y - prevPoint.y) * easedRatio
@@ -617,7 +616,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
     const dataset = chart.data.datasets[datasetIndex];
     const originalBorderWidth = dataset.borderWidth;
     const originalPointRadius = dataset.pointRadius;
-    
+
     dataset.borderWidth = 0;
     dataset.pointRadius = 0;
     chart.update('none');
@@ -648,9 +647,9 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
       permanentCanvas.style.pointerEvents = 'none';
       permanentCanvas.style.zIndex = '10';
       permanentCanvas.className = 'organic-animation-canvas';
-      
+
       permanentCtx = permanentCanvas.getContext('2d');
-      
+
       // Adiciona o canvas permanente como overlay
       const container = chartRef.current!.parentElement;
       if (container && container.style.position !== 'relative') {
@@ -681,7 +680,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
         const totalPoints = points.length;
         const visiblePointsFloat = totalPoints * easedProgress;
         const visiblePointsInt = Math.floor(visiblePointsFloat);
-        
+
         // Desenha pontos completos com tooltips permanentes
         for (let i = 0; i < visiblePointsInt; i++) {
           if (points[i]) {
@@ -709,7 +708,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
         if (visiblePointsInt < totalPoints && points[visiblePointsInt]) {
           const partialAlpha = visiblePointsFloat - visiblePointsInt;
           permanentCtx.globalAlpha = partialAlpha;
-          
+
           // Ponto com fade-in
           permanentCtx.beginPath();
           permanentCtx.arc(points[visiblePointsInt].x, points[visiblePointsInt].y, 6, 0, 2 * Math.PI);
@@ -934,107 +933,8 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
                 transition={{ delay: 0.3, duration: 0.5 }}
                 className="text-gray-700"
               >
-                {expanded ? (
-                  <div className="prose prose-sm max-w-none">
-                    <p className="text-base leading-relaxed">{description}</p>
-
-                    {(metadata?.source || metadata?.lastUpdated || metadata?.units || metadata?.period) && (
-                      <div className="mt-6 p-5 bg-gray-50 rounded-lg border border-gray-100">
-                        <h4 className="text-sm font-semibold text-gray-800 mb-4 flex items-center">
-                          <Info className="w-4 h-4 mr-2 text-green-600" />
-                          Informações Adicionais
-                        </h4>
-                        <dl className="space-y-3">
-                          <div className="flex justify-between items-center">
-                            <dt className="text-sm text-gray-600">Tipo de Gráfico</dt>
-                            <dd className="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium">
-                              {getChartTypeDisplay(chartType)}
-                            </dd>
-                          </div>
-
-                          {metadata?.source && (
-                            <div className="flex justify-between items-center">
-                              <dt className="text-sm text-gray-600">Fonte dos Dados</dt>
-                              <dd className="text-sm text-gray-800 text-right max-w-48 truncate font-medium">
-                                {metadata.source}
-                              </dd>
-                            </div>
-                          )}
-
-                          {metadata?.lastUpdated && (
-                            <div className="flex justify-between items-center">
-                              <dt className="text-sm text-gray-600 flex items-center">
-                                <Calendar className="w-3 h-3 mr-1" />
-                                Última Atualização
-                              </dt>
-                              <dd className="text-sm text-gray-800 font-medium">
-                                {metadata.lastUpdated}
-                              </dd>
-                            </div>
-                          )}
-
-                          {metadata?.units && (
-                            <div className="flex justify-between items-center">
-                              <dt className="text-sm text-gray-600">Unidade</dt>
-                              <dd className="text-sm text-gray-800 font-medium">
-                                {metadata.units}
-                              </dd>
-                            </div>
-                          )}
-
-                          {metadata?.period && (
-                            <div className="flex justify-between items-center">
-                              <dt className="text-sm text-gray-600">Período</dt>
-                              <dd className="text-sm text-gray-800 font-medium">
-                                {metadata.period}
-                              </dd>
-                            </div>
-                          )}
-
-                          <div className="flex justify-between items-center">
-                            <dt className="text-sm text-gray-600 flex items-center">
-                              <Database className="w-3 h-3 mr-1" />
-                              Total de Pontos
-                            </dt>
-                            <dd className="text-sm text-gray-800 font-medium">
-                              {chartData.labels.length}
-                            </dd>
-                          </div>
-                        </dl>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <p className="text-base leading-relaxed">{shouldTruncate ? previewText : description}</p>
-                )}
+                <p className="text-base leading-relaxed">{description}</p>
               </motion.div>
-
-              {shouldTruncate && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  <button
-                    className="mt-4 text-green-600 hover:text-green-700 flex items-center text-sm font-semibold hover:underline transition-colors"
-                    onClick={() => setExpanded(!expanded)}
-                  >
-                    {expanded ? (
-                      <>
-                        <span>Mostrar menos</span>
-                        <ChevronUp size={16} className="ml-1" />
-                      </>
-                    ) : (
-                      <>
-                        <span>Ver detalhes</span>
-                        <ChevronDown size={16} className="ml-1" />
-                      </>
-                    )}
-                  ```text
-
-                  </button>
-                </motion.div>
-              )}
             </div>
           )}
 
@@ -1069,7 +969,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
               </motion.div>
             )}
 
-            
+
           </motion.div>
         </CardContent>
       </Card>
