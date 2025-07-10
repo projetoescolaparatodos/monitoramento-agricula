@@ -69,7 +69,7 @@ const NavBar = () => {
               setTimeout(() => window.scrollTo(0, 0), 100);
             }}>
               </Link>
-              <Link to="/donations" onClick={() => {
+              <Link to="/registrar-doacao" onClick={() => {
               handleNavLinkClick();
               setTimeout(() => window.scrollTo(0, 0), 100);
             }}>
