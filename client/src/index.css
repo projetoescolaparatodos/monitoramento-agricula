@@ -582,6 +582,8 @@ h3.section-title {
 .media-display {
   @apply rounded-2xl overflow-hidden w-full;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: auto !important;
+  min-height: auto !important;
 }
 
 /* Ajustes específicos para dispositivos móveis */
@@ -625,6 +627,20 @@ video.portrait-video {
 .media-display:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Garantir que carousel items não forcem altura uniforme */
+.embla__slide {
+  height: auto !important;
+  align-items: flex-start !important;
+}
+
+/* Garantir que cards no carousel tenham altura automática */
+.embla__slide .media-display,
+.embla__slide .media-card {
+  height: auto !important;
+  min-height: auto !important;
+  flex: none !important;
 }
 
 /* Estilos para melhorar a aparência do player do YouTube */

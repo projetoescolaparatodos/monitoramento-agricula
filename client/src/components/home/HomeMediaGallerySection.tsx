@@ -80,12 +80,12 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({
         {mediaItems?.map((item) => (
           <CarouselItem
             key={item.id}
-            className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3"
+            className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3 flex"
           >
-            <div className="h-full">
+            <div className="w-full">
               <MediaDisplay
                 item={item}
-                className="hover:scale-105 transition-transform duration-300 h-full"
+                className="hover:scale-105 transition-transform duration-300 w-full"
               />
             </div>
           </CarouselItem>
@@ -167,12 +167,12 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({
               {firstLineItems.map((item) => (
                 <CarouselItem
                   key={`line1-${item.id}`}
-                  className="pl-2 basis-full"
+                  className="pl-2 basis-full flex"
                 >
-                  <div className="h-full" onClick={stopAutoScroll}>
+                  <div className="w-full" onClick={stopAutoScroll}>
                     <MediaDisplay
                       item={item}
-                      className="hover:scale-105 transition-transform duration-300 h-full"
+                      className="hover:scale-105 transition-transform duration-300 w-full"
                     />
                   </div>
                 </CarouselItem>
@@ -224,12 +224,12 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({
               {secondLineItems.map((item) => (
                 <CarouselItem
                   key={`line2-${item.id}`}
-                  className="pl-2 basis-full"
+                  className="pl-2 basis-full flex"
                 >
-                  <div className="h-full" onClick={stopAutoScroll}>
+                  <div className="w-full" onClick={stopAutoScroll}>
                     <MediaDisplay
                       item={item}
-                      className="hover:scale-105 transition-transform duration-300 h-full"
+                      className="hover:scale-105 transition-transform duration-300 w-full"
                     />
                   </div>
                 </CarouselItem>
