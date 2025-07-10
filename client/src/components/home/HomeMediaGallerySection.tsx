@@ -40,7 +40,7 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({
   // Função para lidar com o auto-scroll
   const startAutoScroll = useCallback((api: any) => {
     if (!autoScrollEnabled) return;
-    
+
     autoScrollTimer.current = setTimeout(() => {
       if (api.canScrollNext()) {
         api.scrollNext();
@@ -267,9 +267,9 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({
     <section id="home-media" className="py-12">
       <div className="container mx-auto px-4 mb-12">
         <h2
-          className={`text-4xl font-bold mb-4 text-center ${variant === "transparent" ? "text-white" : "text-gray-800 dark:text-white"}`}
+          className={`section-title text-4xl font-bold mb-4 text-center ${variant === "transparent" ? "text-white" : "text-gray-800 dark:text-white"}`}
         >
-          Destaques da Semapa
+          DESTAQUES DA SEMAPA
         </h2>
         <div className="max-w-4xl mx-auto">
           <div className="relative">
@@ -289,7 +289,7 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({
             </div>
           </div>
         </div>
-        
+
         {/* Indicador de Scroll */}
         <div className="flex items-center justify-center mb-8 md:hidden">
           <div className="flex items-center space-x-3 bg-gradient-to-r from-green-600/10 via-green-500/20 to-green-600/10 px-6 py-3 rounded-full border border-green-500/30 backdrop-blur-sm">

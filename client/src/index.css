@@ -393,9 +393,69 @@
 }
 
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Fontes modernas para o site */
+:root {
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-heading: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body {
+  font-family: var(--font-primary);
+}
+
+/* Estilos para títulos das seções */
+.section-title {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+}
+
+.section-subtitle {
+  font-family: var(--font-primary);
+  font-weight: 500;
+  letter-spacing: 0.025em;
+}
+
+/* Estilos para títulos de diferentes níveis */
+h1.section-title {
+  font-size: 2.5rem;
+  letter-spacing: 0.08em;
+}
+
+h2.section-title {
+  font-size: 2rem;
+  letter-spacing: 0.1em;
+}
+
+h3.section-title {
+  font-size: 1.5rem;
+  letter-spacing: 0.12em;
+}
+
+/* Responsividade para títulos */
+@media (max-width: 768px) {
+  h1.section-title {
+    font-size: 1.875rem;
+  }
+  
+  h2.section-title {
+    font-size: 1.5rem;
+  }
+  
+  h3.section-title {
+    font-size: 1.25rem;
+  }
+}
 
 /* Estilos para cards de mídia */
 .media-display {

@@ -86,7 +86,7 @@ const Home = () => {
       <div className="bg-white relative">
         <main className="container mx-auto px-4 pt-2 pb-4">
           <section id="visualization" className="py-0">
-            <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Nossa Produção em Perspectiva</h2>
+            <h2 className="section-title text-3xl font-bold text-center mb-8 text-gray-800">NOSSA PRODUÇÃO EM PERSPECTIVA</h2>
             <DataVisualizationSection variant="default" />
           </section>
           </main>
