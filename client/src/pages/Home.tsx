@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "wouter";
 import Footer from "@/components/layout/Footer";
@@ -35,7 +34,7 @@ const Home = () => {
     } else if (pageType === 'paa') {
       setLocation('/paa');
     }
-    
+
     // Pequeno atraso para garantir que a navegação ocorra primeiro
     setTimeout(() => {
       const mediaSection = document.getElementById('media');
@@ -50,7 +49,7 @@ const Home = () => {
 
   return (
     <>
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 bg-black/40">
         <video
           autoPlay
           loop
@@ -78,10 +77,10 @@ const Home = () => {
           />
         </section>
         </main>
-      
+
       {/* Degradê de transição do vídeo para fundo branco */}
       <div className="video-to-white-gradient"></div>
-      
+
       {/* Seções com fundo branco opaco */}
       <div className="bg-white relative">
         <main className="container mx-auto px-4 pt-2 pb-4">
@@ -91,12 +90,12 @@ const Home = () => {
           </section>
           </main>
       </div>
-      
+
       {/* Degradê de transição do fundo branco para vídeo com máscara */}
       <div className="white-to-video-gradient"></div>
-      
+
       {/* Seção de mídia com vídeo de fundo reutilizado e máscara escura */}
-      <div className="relative bg-black/40">
+      <div className="relative">
         <main className="container mx-auto px-4 py-16 relative z-20">
           <section id="media" className="py-12">
             <h2 className="section-title text-4xl font-bold text-center mb-8 text-white">MÍDIAS DE TODOS OS SETORES</h2>
