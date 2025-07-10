@@ -82,10 +82,8 @@ const Home = () => {
         </section>
         </main>
       
-      {/* Transição animada do vídeo para fundo branco */}
-      <div className="video-to-white-transition relative">
-        <div className="transition-gradient"></div>
-      </div>
+      {/* Degradê de transição do vídeo para fundo branco */}
+      <div className="video-to-white-gradient"></div>
       
       {/* Seções com fundo branco opaco */}
       <div className="bg-white relative">
