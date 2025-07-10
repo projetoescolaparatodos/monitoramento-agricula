@@ -86,7 +86,7 @@ const Home = () => {
       <div className="bg-white relative">
         <main className="container mx-auto px-4 pt-2 pb-4">
           <section id="visualization" className="py-0">
-            <h2 className="section-title text-3xl font-bold text-center mb-8 text-gray-800">NOSSA PRODUÇÃO EM PERSPECTIVA</h2>
+            <h2 className="section-title text-4xl font-bold text-center mb-8 text-green-700">NOSSA PRODUÇÃO EM PERSPECTIVA</h2>
             <DataVisualizationSection variant="default" />
           </section>
           </main>
@@ -99,7 +99,8 @@ const Home = () => {
       <div className="relative bg-black/40">
         <main className="container mx-auto px-4 py-16 relative z-20">
           <section id="media" className="py-12">
-            <h2 className="text-3xl font-bold text-center mb-8 text-white">Mídias de Todos os Setores</h2>
+            <h2 className="section-title text-4xl font-bold text-center mb-8 text-white">MÍDIAS DE TODOS OS SETORES</h2>
+            <p className="section-subtitle text-xl text-center mb-8 text-white/90">Acompanhe as últimas notícias e atualizações de todos os nossos programas</p>
             <MediaGallerySection variant="transparent" />
           </section>
         </main>
