@@ -92,9 +92,34 @@ const Home = () => {
             <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Nossa Produção em Perspectiva</h2>
             <DataVisualizationSection variant="default" />
           </section>
+          </main>
+      </div>
+      
+      {/* Degradê de transição do fundo branco para vídeo com máscara */}
+      <div className="white-to-video-gradient"></div>
+      
+      {/* Video de fundo com máscara escura para a seção de mídia */}
+      <div className="relative">
+        <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute min-w-full min-h-full object-cover z-0"
+            style={{ opacity: 1 }}
+          >
+            <source src="/videos/BackgroundVideo.mp4" type="video/mp4" />
+            Seu navegador não suporta vídeos HTML5.
+          </video>
+          {/* Máscara escura e transparente sobre o vídeo */}
+          <div className="absolute top-0 left-0 w-full h-full bg-black/50 z-10" />
+        </div>
+        
+        <main className="container mx-auto px-4 py-16 relative z-20">
           <section id="media" className="py-12">
-            <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Mídias de Todos os Setores</h2>
-            <MediaGallerySection variant="default" />
+            <h2 className="text-3xl font-bold text-center mb-8 text-white">Mídias de Todos os Setores</h2>
+            <MediaGallerySection variant="transparent" />
           </section>
         </main>
       </div>
