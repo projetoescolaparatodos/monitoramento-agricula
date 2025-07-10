@@ -635,7 +635,10 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
 
   // Função principal para criar canvas dedicado para cada série
   const createDedicatedCanvas = (datasetIndex: number): HTMLCanvasElement | null => {
-    if (!chartRef.current) return null;
+    if (!chartRef.current) {
+      console.log('chartRef.current não existe');
+      return null;
+    }
 
     // Remove canvas anterior se existir
     if (dedicatedCanvases.current[datasetIndex]) {
@@ -649,8 +652,13 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
     canvas.style.left = '0';
     canvas.style.pointerEvents = 'none';
     canvas.style.zIndex = `${15 + datasetIndex}`;
-    canvas.width = chartRef.current.width;
-    canvas.height = chartRef.current.height;
+    
+    // Usa as dimensões do container do chart
+    const chartRect = chartRef.current.getBoundingClientRect();
+    canvas.width = chartRect.width;
+    canvas.height = chartRect.height;
+    canvas.style.width = chartRect.width + 'px';
+    canvas.style.height = chartRect.height + 'px';
 
     const container = chartRef.current.parentElement;
     if (container) {
@@ -659,28 +667,44 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
       }
       container.appendChild(canvas);
       dedicatedCanvases.current[datasetIndex] = canvas;
+      console.log(`Canvas criado para dataset ${datasetIndex}:`, { width: canvas.width, height: canvas.height });
       return canvas;
     }
 
+    console.log('Container não encontrado');
     return null;
   };
 
   // Função para animar uma série específica
   const animateSeriesLine = (datasetIndex: number, originalDataset: any, color: string) => {
-    if (!chartInstance.current) return;
+    if (!chartInstance.current) {
+      console.log('Chart instance não existe');
+      return;
+    }
 
     const chart = chartInstance.current;
     const meta = chart.getDatasetMeta(datasetIndex);
 
     // Verifica se a série está visível
-    if (!meta || meta.hidden) return;
+    if (!meta || meta.hidden) {
+      console.log(`Dataset ${datasetIndex} está oculto ou meta não existe`);
+      return;
+    }
+
+    console.log(`Iniciando animação para dataset ${datasetIndex}, pontos:`, meta.data.length);
 
     // Cria canvas dedicado
     const canvas = createDedicatedCanvas(datasetIndex);
-    if (!canvas) return;
+    if (!canvas) {
+      console.log('Falha ao criar canvas');
+      return;
+    }
 
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      console.log('Falha ao obter contexto do canvas');
+      return;
+    }
 
     // Mapeia pontos válidos
     const points: AnimationPoint[] = meta.data
@@ -697,7 +721,12 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
       })
       .filter(Boolean) as AnimationPoint[];
 
-    if (points.length === 0) return;
+    console.log(`Dataset ${datasetIndex} - pontos válidos:`, points.length);
+
+    if (points.length === 0) {
+      console.log('Nenhum ponto válido encontrado');
+      return;
+    }
 
     // Configurações da animação - mantendo mesmo tempo
     const duration = 8000; // 8 segundos mantido
@@ -718,10 +747,12 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
       // Verifica se ainda está visível
       const currentMeta = chart.getDatasetMeta(datasetIndex);
       if (currentMeta && !currentMeta.hidden) {
-        // Desenha apenas a linha - sem pontos ou tooltips
-        drawOrganicLine(ctx, points, easedProgress, color, 4);
+        // Desenha linha com progresso
+        if (easedProgress > 0) {
+          drawOrganicLine(ctx, points, easedProgress, color, 4);
+        }
 
-        // Desenha pontos básicos sem tooltips elaborados
+        // Desenha pontos básicos
         const totalPoints = points.length;
         const visiblePointsFloat = totalPoints * easedProgress;
         const visiblePointsInt = Math.floor(visiblePointsFloat);
@@ -787,7 +818,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
       }
 
       // Continua animação
-      if (progress < 1 && seriesAnimations[datasetIndex]) {
+      if (progress < 1 && seriesAnimations[datasetIndex] !== false) {
         animationFrameRefs.current[datasetIndex] = requestAnimationFrame(animate);
       } else {
         // Finaliza animação
@@ -798,6 +829,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
 
         if (progress >= 1) {
           setAnimationComplete(true);
+          console.log(`Animação completa para dataset ${datasetIndex}`);
         }
       }
     };
@@ -808,6 +840,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
       [datasetIndex]: true
     }));
 
+    console.log(`Iniciando requestAnimationFrame para dataset ${datasetIndex}`);
     animationFrameRefs.current[datasetIndex] = requestAnimationFrame(animate);
   };
 
@@ -868,53 +901,62 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
       }
     });
 
-    // Animação orgânica para gráficos de linha
-    if (animate && chartType.toLowerCase() === 'line') {
-      // Esconde as linhas e pontos inicialmente
-      chartInstance.current.data.datasets.forEach((dataset: any) => {
-        dataset.borderWidth = 0;
-        dataset.pointRadius = 0;
-        dataset.pointHoverRadius = 0;
-      });
-      chartInstance.current.update('none');
+    // Aguarda o chart ser renderizado completamente
+    setTimeout(() => {
+      // Animação orgânica para gráficos de linha
+      if (animate && chartType.toLowerCase() === 'line' && chartInstance.current) {
+        // Reset estados
+        setAnimationStarted(false);
+        setAnimationComplete(false);
 
-      // Função para iniciar animação
-      const startAnimation = () => {
-        if (animationStarted) return;
-
-        setAnimationStarted(true);
-
-        // Remove todos os canvas de animação existentes antes de iniciar
-        if (chartRef.current?.parentElement) {
-          const existingOverlays = chartRef.current.parentElement.querySelectorAll('.series-animation-canvas, .organic-animation-canvas');
-          existingOverlays.forEach(overlay => {
-            overlay.remove();
-          });
-        }
-
-        // Anima cada dataset com delay progressivo, mas apenas os visíveis
-        processedData.datasets.forEach((originalDataset, datasetIndex) => {
-          const meta = chartInstance.current?.getDatasetMeta(datasetIndex);
-
-          // Só anima se o dataset estiver visível
-          if (meta && !meta.hidden) {
-            const color = borderPalette[datasetIndex % borderPalette.length];
-
-            setTimeout(() => {
-              animateOrganicDataset(datasetIndex, originalDataset, color);
-            }, datasetIndex * 800);
-          }
+        // Esconde as linhas e pontos inicialmente
+        chartInstance.current.data.datasets.forEach((dataset: any) => {
+          dataset.borderWidth = 0;
+          dataset.pointRadius = 0;
+          dataset.pointHoverRadius = 0;
         });
-      };
+        chartInstance.current.update('none');
 
-      // Armazena função para controle manual
-      (chartInstance.current as any).startAnimation = startAnimation;
+        // Função para iniciar animação
+        const startAnimation = () => {
+          if (animationStarted) return;
 
-      // Inicia a animação automaticamente após um breve delay
-      setTimeout(() => {
-        startAnimation();
-      }, 500);
-    }
+          console.log('Iniciando animação para', processedData.datasets.length, 'datasets');
+          setAnimationStarted(true);
+
+          // Remove todos os canvas de animação existentes antes de iniciar
+          if (chartRef.current?.parentElement) {
+            const existingOverlays = chartRef.current.parentElement.querySelectorAll('.series-animation-canvas, .organic-animation-canvas');
+            existingOverlays.forEach(overlay => {
+              overlay.remove();
+            });
+          }
+
+          // Anima cada dataset com delay progressivo, mas apenas os visíveis
+          processedData.datasets.forEach((originalDataset, datasetIndex) => {
+            const meta = chartInstance.current?.getDatasetMeta(datasetIndex);
+
+            // Só anima se o dataset estiver visível
+            if (meta && !meta.hidden) {
+              const color = borderPalette[datasetIndex % borderPalette.length];
+              console.log(`Animando dataset ${datasetIndex} com cor ${color}`);
+
+              setTimeout(() => {
+                animateOrganicDataset(datasetIndex, originalDataset, color);
+              }, datasetIndex * 800);
+            }
+          });
+        };
+
+        // Armazena função para controle manual
+        (chartInstance.current as any).startAnimation = startAnimation;
+
+        // Inicia a animação automaticamente após um breve delay
+        setTimeout(() => {
+          startAnimation();
+        }, 1000);
+      }
+    }, 100);
 
     // Cleanup
     return () => {
