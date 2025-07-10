@@ -365,7 +365,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
             line: {
               borderJoinStyle: 'round' as const,
               borderCapStyle: 'round' as const,
-              tension: 0.4,
+              tension: 0.4, // Increased tension for smoother curves
             },
             point: {
               radius: 4,
@@ -378,38 +378,9 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
           },
           plugins: {
             ...baseOptions.plugins,
-            legend: {
-              ...baseOptions.plugins.legend,
-              onClick: (e: any, legendItem: any, legend: any) => {
-                // Lógica personalizada para lidar com cliques na legenda
-                const chart = legend.chart;
-                const index = legendItem.datasetIndex;
-                const meta = chart.getDatasetMeta(index);
-
-                // Toggle visibility
-                meta.hidden = !meta.hidden;
-
-                // Limpa animação da série se escondida
-                if (meta.hidden) {
-                  cleanupSeriesAnimation(index);
-                }
-
-                // Atualiza o gráfico
-                chart.update();
-
-                // Reinicia animação se série foi mostrada
-                if (!meta.hidden && animate) {
-                  setTimeout(() => {
-                    const color = borderPalette[index % borderPalette.length];
-                    const originalDataset = processedData.datasets[index];
-                    animateOrganicDataset(index, originalDataset, color);
-                  }, 100);
-                }
-              }
-            },
             tooltip: {
               ...baseOptions.plugins.tooltip,
-              enabled: true,
+              enabled: true, // Manter tooltip habilitado
               displayColors: true,
               mode: 'nearest' as const,
               intersect: false,
@@ -464,19 +435,6 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
     }
   };
 
-  // Estados para controle individual das animações
-  const [seriesAnimations, setSeriesAnimations] = useState<Record<number, boolean>>({});
-  const animationFrameRefs = useRef<Record<number, number>>({});
-  const dedicatedCanvases = useRef<Record<number, HTMLCanvasElement>>({});
-
-  // Interfaces para tipagem
-  interface AnimationPoint {
-    x: number;
-    y: number;
-    value: number;
-    label: string;
-  }
-
   // Funções para animação orgânica fluida
   const distanceBetween = (p1: {x: number, y: number}, p2: {x: number, y: number}) => {
     return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
@@ -492,23 +450,25 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
 
   const drawOrganicLine = (
     ctx: CanvasRenderingContext2D,
-    points: AnimationPoint[],
+    points: {x: number, y: number}[],
     progress: number,
     color: string,
-    lineWidth: number = 4
+    lineWidth: number = 3
   ) => {
     if (points.length < 2) return;
 
     ctx.save();
+
+    // Configurações de estilo mais robustas
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     ctx.globalCompositeOperation = 'source-over';
 
-    // Sombra sutil
+    // Adiciona sombra sutil para destaque com opacity reduzida para múltiplas séries
     ctx.shadowColor = color;
-    ctx.shadowBlur = 1;
+    ctx.shadowBlur = 2;
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0.5;
 
@@ -516,45 +476,47 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
     const animatedLength = totalLength * progress;
 
     let currentLength = 0;
+    let pathStarted = false;
+
+    // Criar um caminho suave usando curvas de Bézier
     ctx.beginPath();
 
-    if (points[0]) {
+    if (points.length > 0) {
       ctx.moveTo(points[0].x, points[0].y);
+      pathStarted = true;
     }
 
     for (let i = 1; i < points.length && currentLength < animatedLength; i++) {
       const prevPoint = points[i - 1];
       const currentPoint = points[i];
-
-      if (!prevPoint || !currentPoint) continue;
-
       const segmentLength = distanceBetween(prevPoint, currentPoint);
 
       if (currentLength + segmentLength <= animatedLength) {
-        // Desenha segmento completo
+        // Desenha segmento completo com curva suave
         if (i === 1) {
+          // Primeiro segmento - linha simples
           ctx.lineTo(currentPoint.x, currentPoint.y);
         } else {
-          // Curva suave para segmentos subsequentes
-          const nextPoint = points[i + 1];
+          // Segmentos subsequentes - curva quadrática para suavidade
+          const nextPoint = points[i + 1] || currentPoint;
           const cpX = (prevPoint.x + currentPoint.x) / 2;
           const cpY = (prevPoint.y + currentPoint.y) / 2;
 
-          if (nextPoint) {
-            const directionX = nextPoint.x - prevPoint.x;
-            const directionY = nextPoint.y - prevPoint.y;
-            const adjustedCpX = cpX + directionX * 0.08;
-            const adjustedCpY = cpY + directionY * 0.08;
-            ctx.quadraticCurveTo(adjustedCpX, adjustedCpY, currentPoint.x, currentPoint.y);
-          } else {
-            ctx.lineTo(currentPoint.x, currentPoint.y);
-          }
+          // Ajusta o ponto de controle baseado na direção geral
+          const directionX = nextPoint.x - prevPoint.x;
+          const directionY = nextPoint.y - prevPoint.y;
+          const adjustedCpX = cpX + directionX * 0.1;
+          const adjustedCpY = cpY + directionY * 0.1;
+
+          ctx.quadraticCurveTo(adjustedCpX, adjustedCpY, currentPoint.x, currentPoint.y);
         }
         currentLength += segmentLength;
       } else {
-        // Desenha segmento parcial
+        // Desenha apenas parte do segmento com interpolação suave
         const remaining = animatedLength - currentLength;
         const ratio = remaining / segmentLength;
+
+        // Aplica easing na interpolação para movimento mais fluido
         const easedRatio = ratio < 0.5 ? 2 * ratio * ratio : 1 - Math.pow(-2 * ratio + 2, 2) / 2;
 
         const intermediatePoint = {
@@ -569,13 +531,16 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
           const cpY = (prevPoint.y + intermediatePoint.y) / 2;
           ctx.quadraticCurveTo(cpX, cpY, intermediatePoint.x, intermediatePoint.y);
         }
+        currentLength = animatedLength;
         break;
       }
     }
 
-    if (progress > 0) {
+    // Desenha o caminho apenas se foi iniciado
+    if (pathStarted && progress > 0) {
       ctx.stroke();
     }
+
     ctx.restore();
   };
 
@@ -588,6 +553,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
   ) => {
     ctx.save();
 
+    // Configurações do tooltip melhoradas
     const padding = 12;
     const fontSize = 12;
     const borderRadius = 6;
@@ -597,10 +563,11 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
     const tooltipWidth = textWidth + padding * 2;
     const tooltipHeight = fontSize + padding * 2;
 
+    // Posiciona o tooltip de forma fixa
     let tooltipX = x - tooltipWidth / 2;
     let tooltipY = y;
 
-    // Ajusta posição se sair da área do gráfico
+    // Ajusta se sair da área do gráfico
     const chartArea = chartInstance.current?.chartArea;
     if (chartArea) {
       if (tooltipX < chartArea.left) tooltipX = chartArea.left + 5;
@@ -609,22 +576,27 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
       if (tooltipY + tooltipHeight > chartArea.bottom) tooltipY = chartArea.bottom - tooltipHeight - 10;
     }
 
-    // Sombra do tooltip
+    // Usa composite operation para evitar sobreposições problemáticas
+    ctx.globalCompositeOperation = 'source-over';
+
+    // Desenha a sombra do tooltip
     ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
     ctx.beginPath();
     ctx.roundRect(tooltipX + 2, tooltipY + 2, tooltipWidth, tooltipHeight, borderRadius);
     ctx.fill();
 
-    // Fundo do tooltip
+    // Desenha o fundo do tooltip
     ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
     ctx.strokeStyle = color;
     ctx.lineWidth = 1.5;
+
+    // Desenha retângulo com bordas arredondadas
     ctx.beginPath();
     ctx.roundRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight, borderRadius);
     ctx.fill();
     ctx.stroke();
 
-    // Texto
+    // Desenha o texto
     ctx.fillStyle = '#374151';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -633,145 +605,89 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
     ctx.restore();
   };
 
-  // Função principal para criar canvas dedicado para cada série
-  const createDedicatedCanvas = (datasetIndex: number): HTMLCanvasElement | null => {
-    if (!chartRef.current) {
-      console.log('chartRef.current não existe');
-      return null;
-    }
-
-    // Remove canvas anterior se existir
-    if (dedicatedCanvases.current[datasetIndex]) {
-      dedicatedCanvases.current[datasetIndex].remove();
-    }
-
-    const canvas = document.createElement('canvas');
-    canvas.className = `series-animation-canvas dataset-${datasetIndex}`;
-    canvas.style.position = 'absolute';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.pointerEvents = 'none';
-    canvas.style.zIndex = `${15 + datasetIndex}`;
-    
-    // Usa as dimensões do container do chart
-    const chartRect = chartRef.current.getBoundingClientRect();
-    canvas.width = chartRect.width;
-    canvas.height = chartRect.height;
-    canvas.style.width = chartRect.width + 'px';
-    canvas.style.height = chartRect.height + 'px';
-
-    const container = chartRef.current.parentElement;
-    if (container) {
-      if (container.style.position !== 'relative') {
-        container.style.position = 'relative';
-      }
-      container.appendChild(canvas);
-      dedicatedCanvases.current[datasetIndex] = canvas;
-      console.log(`Canvas criado para dataset ${datasetIndex}:`, { width: canvas.width, height: canvas.height });
-      return canvas;
-    }
-
-    console.log('Container não encontrado');
-    return null;
-  };
-
-  // Função para animar uma série específica
-  const animateSeriesLine = (datasetIndex: number, originalDataset: any, color: string) => {
-    if (!chartInstance.current) {
-      console.log('Chart instance não existe');
-      return;
-    }
+  const animateOrganicDataset = (datasetIndex: number, originalDataset: any, color: string) => {
+    if (!chartInstance.current || !chartRef.current) return;
 
     const chart = chartInstance.current;
+    const ctx = chartRef.current.getContext('2d');
+    if (!ctx) return;
+
+    // Pega as posições dos pontos no canvas
     const meta = chart.getDatasetMeta(datasetIndex);
+    const points = meta.data.map((point: any, index: number) => ({
+      x: point.x,
+      y: point.y,
+      value: originalDataset.data[index],
+      label: chart.data.labels?.[index] || ''
+    }));
 
-    // Verifica se a série está visível
-    if (!meta || meta.hidden) {
-      console.log(`Dataset ${datasetIndex} está oculto ou meta não existe`);
-      return;
-    }
-
-    console.log(`Iniciando animação para dataset ${datasetIndex}, pontos:`, meta.data.length);
-
-    // Cria canvas dedicado
-    const canvas = createDedicatedCanvas(datasetIndex);
-    if (!canvas) {
-      console.log('Falha ao criar canvas');
-      return;
-    }
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      console.log('Falha ao obter contexto do canvas');
-      return;
-    }
-
-    // Mapeia pontos válidos
-    const points: AnimationPoint[] = meta.data
-      .map((point: any, index: number) => {
-        if (!point || typeof point.x !== 'number' || typeof point.y !== 'number') {
-          return null;
-        }
-        return {
-          x: point.x,
-          y: point.y,
-          value: originalDataset.data[index],
-          label: chart.data.labels?.[index] || ''
-        };
-      })
-      .filter(Boolean) as AnimationPoint[];
-
-    console.log(`Dataset ${datasetIndex} - pontos válidos:`, points.length);
-
-    if (points.length === 0) {
-      console.log('Nenhum ponto válido encontrado');
-      return;
-    }
-
-    // Configurações da animação - mantendo mesmo tempo
-    const duration = 8000; // 8 segundos mantido
+    const duration = 12000; // 12 segundos para animação bem mais lenta
     const startTime = Date.now();
+    let animationId: number;
+    let permanentCanvas: HTMLCanvasElement | null = null;
+    let permanentCtx: CanvasRenderingContext2D | null = null;
 
-    const animate = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
+    // Cria um canvas permanente para manter as linhas
+    const createPermanentCanvas = () => {
+      permanentCanvas = document.createElement('canvas');
+      permanentCanvas.width = chartRef.current!.width;
+      permanentCanvas.height = chartRef.current!.height;
+      permanentCanvas.style.position = 'absolute';
+      permanentCanvas.style.top = '0';
+      permanentCanvas.style.left = '0';
+      permanentCanvas.style.pointerEvents = 'none';
+      permanentCanvas.style.zIndex = `${10 + datasetIndex}`;
+      permanentCanvas.className = `organic-animation-canvas dataset-${datasetIndex}`;
+
+      permanentCtx = permanentCanvas.getContext('2d');
+
+      // Adiciona o canvas permanente como overlay
+      const container = chartRef.current!.parentElement;
+      if (container && container.style.position !== 'relative') {
+        container.style.position = 'relative';
+      }
+      container?.appendChild(permanentCanvas);
+    };
+
+    createPermanentCanvas();
+
+    const animateFrame = () => {
+      const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
 
-      // Easing suave
+      // Easing function mais suave para movimento orgânico
       const easedProgress = progress < 0.5 
         ? 4 * progress * progress * progress 
         : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
-      // Limpa canvas
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (permanentCtx && permanentCanvas) {
+        // Limpa o canvas permanente
+        permanentCtx.clearRect(0, 0, permanentCanvas.width, permanentCanvas.height);
 
-      // Verifica se ainda está visível
-      const currentMeta = chart.getDatasetMeta(datasetIndex);
-      if (currentMeta && !currentMeta.hidden) {
-        // Desenha linha com progresso
-        if (easedProgress > 0) {
-          drawOrganicLine(ctx, points, easedProgress, color, 4);
-        }
+        // Desenha a linha orgânica no canvas permanente
+        drawOrganicLine(permanentCtx, points, easedProgress, color, 4);
 
-        // Desenha pontos básicos
+        // Desenha pontos progressivamente no canvas permanente
         const totalPoints = points.length;
         const visiblePointsFloat = totalPoints * easedProgress;
         const visiblePointsInt = Math.floor(visiblePointsFloat);
 
-        // Pontos simples
+        // Desenha pontos completos com tooltips permanentes
         for (let i = 0; i < visiblePointsInt; i++) {
           if (points[i]) {
-            ctx.beginPath();
-            ctx.arc(points[i].x, points[i].y, 6, 0, 2 * Math.PI);
-            ctx.fillStyle = color;
-            ctx.fill();
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 2;
-            ctx.stroke();
+            // Desenha o ponto
+            permanentCtx.beginPath();
+            permanentCtx.arc(points[i].x, points[i].y, 6, 0, 2 * Math.PI);
+            permanentCtx.fillStyle = color;
+            permanentCtx.fill();
+            permanentCtx.strokeStyle = '#ffffff';
+            permanentCtx.lineWidth = 2;
+            permanentCtx.stroke();
 
-            // Tooltip simples mantendo o offset por série
-            const tooltipOffset = 40 + (datasetIndex * 30);
+            // Desenha tooltip permanente para cada ponto com posição ajustada por série
+            const tooltipOffset = 40 + (datasetIndex * 25); // Offset diferente para cada série
             showFloatingTooltip(
-              ctx, 
+              permanentCtx, 
               points[i].x, 
               points[i].y - tooltipOffset,
               `${originalDataset.label || 'Série'}: ${points[i].value}`, 
@@ -780,100 +696,74 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
           }
         }
 
-        // Ponto atual com fade-in
+        // Desenha ponto parcial (transição suave)
         if (visiblePointsInt < totalPoints && points[visiblePointsInt]) {
           const partialAlpha = visiblePointsFloat - visiblePointsInt;
-          ctx.globalAlpha = partialAlpha;
+          permanentCtx.globalAlpha = partialAlpha;
 
-          ctx.beginPath();
-          ctx.arc(points[visiblePointsInt].x, points[visiblePointsInt].y, 6, 0, 2 * Math.PI);
-          ctx.fillStyle = color;
-          ctx.fill();
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 2;
-          ctx.stroke();
+          // Ponto com fade-in
+          permanentCtx.beginPath();
+          permanentCtx.arc(points[visiblePointsInt].x, points[visiblePointsInt].y, 6, 0, 2 * Math.PI);
+          permanentCtx.fillStyle = color;
+          permanentCtx.fill();
+          permanentCtx.strokeStyle = '#ffffff';
+          permanentCtx.lineWidth = 2;
+          permanentCtx.stroke();
 
-          // Tooltip atual
-          const tooltipOffset = 40 + (datasetIndex * 30);
+          // Tooltip com fade-in
+          const tooltipOffset = 40 + (datasetIndex * 25);
           showFloatingTooltip(
-            ctx, 
+            permanentCtx, 
             points[visiblePointsInt].x, 
             points[visiblePointsInt].y - tooltipOffset,
             `${originalDataset.label || 'Série'}: ${points[visiblePointsInt].value}`, 
             color
           );
 
-          ctx.globalAlpha = 1;
+          permanentCtx.globalAlpha = 1;
 
-          // Efeito pulsação
+          // Efeito de pulsação no ponto atual
           const pulseRadius = 8 + Math.sin(elapsed / 400) * 4;
-          ctx.beginPath();
-          ctx.arc(points[visiblePointsInt].x, points[visiblePointsInt].y, pulseRadius, 0, 2 * Math.PI);
-          ctx.strokeStyle = color;
-          ctx.lineWidth = 2;
-          ctx.globalAlpha = 0.3 * partialAlpha;
-          ctx.stroke();
-          ctx.globalAlpha = 1;
+          permanentCtx.beginPath();
+          permanentCtx.arc(points[visiblePointsInt].x, points[visiblePointsInt].y, pulseRadius, 0, 2 * Math.PI);
+          permanentCtx.strokeStyle = color;
+          permanentCtx.lineWidth = 2;
+          permanentCtx.globalAlpha = 0.3 * partialAlpha;
+          permanentCtx.stroke();
+          permanentCtx.globalAlpha = 1;
         }
       }
 
-      // Continua animação
-      if (progress < 1 && seriesAnimations[datasetIndex] !== false) {
-        animationFrameRefs.current[datasetIndex] = requestAnimationFrame(animate);
+      if (progress < 1) {
+        animationId = requestAnimationFrame(animateFrame);
       } else {
-        // Finaliza animação
-        setSeriesAnimations(prev => ({
-          ...prev,
-          [datasetIndex]: false
-        }));
-
-        if (progress >= 1) {
-          setAnimationComplete(true);
-          console.log(`Animação completa para dataset ${datasetIndex}`);
+        // Animação concluída - desenha todos os tooltips finais
+        if (permanentCtx) {
+          const tooltipOffset = 40 + (datasetIndex * 25);
+          for (let i = 0; i < points.length; i++) {
+            if (points[i]) {
+              showFloatingTooltip(
+                permanentCtx, 
+                points[i].x, 
+                points[i].y - tooltipOffset,
+                `${originalDataset.label || 'Série'}: ${points[i].value}`, 
+                color
+              );
+            }
+          }
         }
+        setAnimationComplete(true);
       }
     };
 
-    // Inicia animação
-    setSeriesAnimations(prev => ({
-      ...prev,
-      [datasetIndex]: true
-    }));
+    animationId = requestAnimationFrame(animateFrame);
 
-    console.log(`Iniciando requestAnimationFrame para dataset ${datasetIndex}`);
-    animationFrameRefs.current[datasetIndex] = requestAnimationFrame(animate);
-  };
-
-  // Função para limpar animações de uma série
-  const cleanupSeriesAnimation = (datasetIndex: number) => {
-    // Cancela animação
-    if (animationFrameRefs.current[datasetIndex]) {
-      cancelAnimationFrame(animationFrameRefs.current[datasetIndex]);
-      delete animationFrameRefs.current[datasetIndex];
-    }
-
-    // Remove canvas
-    if (dedicatedCanvases.current[datasetIndex]) {
-      dedicatedCanvases.current[datasetIndex].remove();
-      delete dedicatedCanvases.current[datasetIndex];
-    }
-
-    // Atualiza estado
-    setSeriesAnimations(prev => ({
-      ...prev,
-      [datasetIndex]: false
-    }));
-  };
-
-  // Função principal de animação (substitui animateOrganicDataset)
-  const animateOrganicDataset = (datasetIndex: number, originalDataset: any, color: string) => {
-    // Limpa animação anterior
-    cleanupSeriesAnimation(datasetIndex);
-
-    // Inicia nova animação
-    setTimeout(() => {
-      animateSeriesLine(datasetIndex, originalDataset, color);
-    }, 100);
+    // Cleanup function
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
   };
 
   useEffect(() => {
@@ -901,62 +791,43 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
       }
     });
 
-    // Aguarda o chart ser renderizado completamente
-    setTimeout(() => {
-      // Animação orgânica para gráficos de linha
-      if (animate && chartType.toLowerCase() === 'line' && chartInstance.current) {
-        // Reset estados
-        setAnimationStarted(false);
-        setAnimationComplete(false);
+    // Animação orgânica para gráficos de linha
+    if (animate && chartType.toLowerCase() === 'line') {
+      // Esconde as linhas e pontos inicialmente
+      chartInstance.current.data.datasets.forEach((dataset: any) => {
+        dataset.borderWidth = 0;
+        dataset.pointRadius = 0;
+        dataset.pointHoverRadius = 0;
+      });
+      chartInstance.current.update('none');
 
-        // Esconde as linhas e pontos inicialmente
-        chartInstance.current.data.datasets.forEach((dataset: any) => {
-          dataset.borderWidth = 0;
-          dataset.pointRadius = 0;
-          dataset.pointHoverRadius = 0;
-        });
-        chartInstance.current.update('none');
+      // Função para iniciar animação
+      const startAnimation = () => {
+        if (animationStarted) return;
 
-        // Função para iniciar animação
-        const startAnimation = () => {
-          if (animationStarted) return;
+        setAnimationStarted(true);
 
-          console.log('Iniciando animação para', processedData.datasets.length, 'datasets');
-          setAnimationStarted(true);
-
-          // Remove todos os canvas de animação existentes antes de iniciar
-          if (chartRef.current?.parentElement) {
-            const existingOverlays = chartRef.current.parentElement.querySelectorAll('.series-animation-canvas, .organic-animation-canvas');
-            existingOverlays.forEach(overlay => {
-              overlay.remove();
-            });
-          }
-
-          // Anima cada dataset com delay progressivo, mas apenas os visíveis
-          processedData.datasets.forEach((originalDataset, datasetIndex) => {
-            const meta = chartInstance.current?.getDatasetMeta(datasetIndex);
-
-            // Só anima se o dataset estiver visível
-            if (meta && !meta.hidden) {
-              const color = borderPalette[datasetIndex % borderPalette.length];
-              console.log(`Animando dataset ${datasetIndex} com cor ${color}`);
-
-              setTimeout(() => {
-                animateOrganicDataset(datasetIndex, originalDataset, color);
-              }, datasetIndex * 800);
-            }
+        // Remove todos os canvas de animação existentes antes de iniciar
+        if (chartRef.current?.parentElement) {
+          const existingOverlays = chartRef.current.parentElement.querySelectorAll('.organic-animation-canvas');
+          existingOverlays.forEach(overlay => {
+            overlay.remove();
           });
-        };
+        }
 
-        // Armazena função para controle manual
-        (chartInstance.current as any).startAnimation = startAnimation;
+        // Anima cada dataset com delay progressivo
+        processedData.datasets.forEach((originalDataset, datasetIndex) => {
+          const color = borderPalette[datasetIndex % borderPalette.length];
 
-        // Inicia a animação automaticamente após um breve delay
-        setTimeout(() => {
-          startAnimation();
-        }, 1000);
-      }
-    }, 100);
+          setTimeout(() => {
+            animateOrganicDataset(datasetIndex, originalDataset, color);
+          }, datasetIndex * 1000);
+        });
+      };
+
+      // Armazena função para controle manual
+      (chartInstance.current as any).startAnimation = startAnimation;
+    }
 
     // Cleanup
     return () => {
@@ -964,15 +835,9 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
         clearTimeout(animationRef.current);
       }
 
-      // Limpa todas as animações das séries
-      Object.keys(animationFrameRefs.current).forEach(key => {
-        const datasetIndex = Number(key);
-        cleanupSeriesAnimation(datasetIndex);
-      });
-
       // Remove todos os canvas de animação
       if (chartRef.current?.parentElement) {
-        const existingOverlays = chartRef.current.parentElement.querySelectorAll('.series-animation-canvas, .organic-animation-canvas');
+        const existingOverlays = chartRef.current.parentElement.querySelectorAll('.organic-animation-canvas');
         existingOverlays.forEach(overlay => {
           overlay.remove();
         });
@@ -991,15 +856,9 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
       setAnimationStarted(false);
       setAnimationComplete(false);
 
-      // Limpa todas as animações em andamento
-      Object.keys(animationFrameRefs.current).forEach(key => {
-        const datasetIndex = Number(key);
-        cleanupSeriesAnimation(datasetIndex);
-      });
-
       // Remove todos os canvas de animação existentes
       if (chartRef.current?.parentElement) {
-        const existingOverlays = chartRef.current.parentElement.querySelectorAll('.series-animation-canvas, .organic-animation-canvas');
+        const existingOverlays = chartRef.current.parentElement.querySelectorAll('.organic-animation-canvas');
         existingOverlays.forEach(overlay => {
           overlay.remove();
         });
@@ -1010,20 +869,20 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
         clearTimeout(animationRef.current);
       }
 
-      // Reset estado das séries
-      setSeriesAnimations({});
+      // Cancela qualquer animação em andamento
+      const allAnimationFrames = document.querySelectorAll('.organic-animation-canvas');
+      allAnimationFrames.forEach(canvas => {
+        const ctx = (canvas as HTMLCanvasElement).getContext('2d');
+        if (ctx) {
+          ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+        }
+      });
 
-      // Restaura visibilidade original do chart mantendo o estado da legenda
-      chartInstance.current.data.datasets.forEach((dataset: any, index: number) => {
+      // Restaura visibilidade original do chart
+      chartInstance.current.data.datasets.forEach((dataset: any) => {
         dataset.borderWidth = 0;
         dataset.pointRadius = 0;
         dataset.pointHoverRadius = 0;
-
-        // Mantém o estado de visibilidade da legenda
-        const meta = chartInstance.current?.getDatasetMeta(index);
-        if (meta && meta.hidden) {
-          dataset.hidden = true;
-        }
       });
       chartInstance.current.update('none');
 
