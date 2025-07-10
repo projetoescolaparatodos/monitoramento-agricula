@@ -181,10 +181,13 @@ const Fishing = () => {
             </div>
           </section>
 
-          <DataVisualizationSection 
-            charts={charts || []} 
-            isLoading={isLoadingCharts} 
-          />
+          <section className="py-12">
+            <h2 className="section-title text-4xl font-bold text-center mb-8 text-white">🐟 PSICULTURA EM CENA 🐟</h2>
+            <DataVisualizationSection 
+              charts={charts || []} 
+              isLoading={isLoadingCharts} 
+            />
+          </section>
 
           {mediaItems && mediaItems.length > 0 && (
             <MediaCarouselSection mediaItems={mediaItems} />

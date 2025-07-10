@@ -207,10 +207,14 @@ const PAAInfo = () => {
             </div>
           </section>
 
-          <DataVisualizationSection 
-            charts={charts || []} 
-            isLoading={isLoadingCharts} 
-          />
+          <section className="py-12">
+            <h2 className="section-title text-4xl font-bold text-center mb-4 text-white">NOSSA PRODUÇÃO EM PERSPECTIVA</h2>
+            <p className="section-subtitle text-xl text-center mb-8 text-white/90">🌱DA ROÇA PARA A MESA🍽️</p>
+            <DataVisualizationSection 
+              charts={charts || []} 
+              isLoading={isLoadingCharts} 
+            />
+          </section>
 
           {mediaItems && mediaItems.length > 0 && (
             <MediaCarouselSection mediaItems={mediaItems} />
