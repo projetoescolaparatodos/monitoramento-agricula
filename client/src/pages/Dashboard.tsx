@@ -146,6 +146,10 @@ const Dashboard = () => {
             {section === "chatbot" && <ChatbotAdmin />}
             {section === "solicitacoes" && <ChatbotSolicitacoes />}
             {section === "cadastros" && <CadastrosSolicitacoesManager />}
+            {section === "dynamic-stats" && <DynamicStatsManager />}
+            {section === "eventos" && <EventosManager />}
+            {section === "insumos" && <InsumosManager />}
+            {section === "doacoes" && <DoacoesReport />}
 
             {showForm && (
               <div className="flex justify-end mt-4">
