@@ -86,6 +86,11 @@ const Home = () => {
         </section>
       </main>
       
+      {/* Transição animada do vídeo para fundo branco */}
+      <div className="video-to-white-transition relative">
+        <div className="transition-gradient"></div>
+      </div>
+      
       {/* Seções com fundo branco opaco */}
       <div className="bg-white relative">
         <main className="container mx-auto px-4 py-16">
@@ -94,6 +99,11 @@ const Home = () => {
             <DataVisualizationSection variant="default" />
           </section>
         </main>
+      </div>
+      
+      {/* Transição animada do fundo branco para vídeo */}
+      <div className="white-to-video-transition relative">
+        <div className="transition-gradient-reverse"></div>
       </div>
     </>
   );
