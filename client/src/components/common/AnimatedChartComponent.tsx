@@ -385,18 +385,18 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
                 const chart = legend.chart;
                 const index = legendItem.datasetIndex;
                 const meta = chart.getDatasetMeta(index);
-                
+
                 // Toggle visibility
                 meta.hidden = !meta.hidden;
-                
+
                 // Limpa animação da série se escondida
                 if (meta.hidden) {
                   cleanupSeriesAnimation(index);
                 }
-                
+
                 // Atualiza o gráfico
                 chart.update();
-                
+
                 // Reinicia animação se série foi mostrada
                 if (!meta.hidden && animate) {
                   setTimeout(() => {
@@ -525,9 +525,9 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
     for (let i = 1; i < points.length && currentLength < animatedLength; i++) {
       const prevPoint = points[i - 1];
       const currentPoint = points[i];
-      
+
       if (!prevPoint || !currentPoint) continue;
-      
+
       const segmentLength = distanceBetween(prevPoint, currentPoint);
 
       if (currentLength + segmentLength <= animatedLength) {
@@ -671,7 +671,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
 
     const chart = chartInstance.current;
     const meta = chart.getDatasetMeta(datasetIndex);
-    
+
     // Verifica se a série está visível
     if (!meta || meta.hidden) return;
 
@@ -795,7 +795,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
           ...prev,
           [datasetIndex]: false
         }));
-        
+
         if (progress >= 1) {
           setAnimationComplete(true);
         }
@@ -836,7 +836,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
   const animateOrganicDataset = (datasetIndex: number, originalDataset: any, color: string) => {
     // Limpa animação anterior
     cleanupSeriesAnimation(datasetIndex);
-    
+
     // Inicia nova animação
     setTimeout(() => {
       animateSeriesLine(datasetIndex, originalDataset, color);
@@ -886,7 +886,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
 
         // Remove todos os canvas de animação existentes antes de iniciar
         if (chartRef.current?.parentElement) {
-          const existingOverlays = chartRef.current.parentElement.querySelectorAll('.organic-animation-canvas');
+          const existingOverlays = chartRef.current.parentElement.querySelectorAll('.series-animation-canvas, .organic-animation-canvas');
           existingOverlays.forEach(overlay => {
             overlay.remove();
           });
@@ -895,20 +895,25 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
         // Anima cada dataset com delay progressivo, mas apenas os visíveis
         processedData.datasets.forEach((originalDataset, datasetIndex) => {
           const meta = chartInstance.current?.getDatasetMeta(datasetIndex);
-          
+
           // Só anima se o dataset estiver visível
           if (meta && !meta.hidden) {
             const color = borderPalette[datasetIndex % borderPalette.length];
 
             setTimeout(() => {
               animateOrganicDataset(datasetIndex, originalDataset, color);
-            }, datasetIndex * 800); // Reduzido o delay para melhor experiência
+            }, datasetIndex * 800);
           }
         });
       };
 
       // Armazena função para controle manual
       (chartInstance.current as any).startAnimation = startAnimation;
+
+      // Inicia a animação automaticamente após um breve delay
+      setTimeout(() => {
+        startAnimation();
+      }, 500);
     }
 
     // Cleanup
@@ -971,7 +976,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
         dataset.borderWidth = 0;
         dataset.pointRadius = 0;
         dataset.pointHoverRadius = 0;
-        
+
         // Mantém o estado de visibilidade da legenda
         const meta = chartInstance.current?.getDatasetMeta(index);
         if (meta && meta.hidden) {
