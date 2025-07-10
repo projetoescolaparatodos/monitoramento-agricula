@@ -14,8 +14,8 @@ export const AreasSection = () => {
   return (
     <section className="py-16" id="areas">
       <div className="container mx-auto px-4">
-        <h2 className="section-title text-4xl font-bold text-center mb-12 text-white tracking-tight">
-          ÁREAS DE ATUAÇÃO
+        <h2 className="text-4xl font-bold text-center mb-12 text-white tracking-tight font-sans">
+          Áreas de Atuação
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Agriculture Card */}

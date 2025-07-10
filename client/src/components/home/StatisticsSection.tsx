@@ -70,10 +70,10 @@ const StatisticsSection = ({ variant = "default" }: { variant?: "default" | "tra
   return (
     <section id="estatisticas" className="mb-16">
       <div className="text-center mb-10">
-        <h2 className={`section-title text-3xl font-bold mb-3 ${variant === "transparent" ? "text-white" : "text-primary"}`}>
-          ESTATÍSTICAS PRINCIPAIS
+        <h2 className={`text-3xl font-bold mb-3 ${variant === "transparent" ? "text-white" : "text-primary"}`}>
+          Estatísticas Principais
         </h2>
-        <p className={`section-subtitle text-xl md:text-2xl font-medium tracking-wide max-w-3xl mx-auto ${variant === "transparent" ? "text-white" : "text-gray-600"}`}>
+        <p className={`text-xl md:text-2xl font-medium tracking-wide max-w-3xl mx-auto ${variant === "transparent" ? "text-white" : "text-gray-600"}`}>
           Dados Sobre a produção em Vitória do Xingu
         </p>
       </div>

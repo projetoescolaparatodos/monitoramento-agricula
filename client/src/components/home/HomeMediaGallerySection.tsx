@@ -267,9 +267,9 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({
     <section id="home-media" className="py-12">
       <div className="container mx-auto px-4 mb-12">
         <h2
-          className={`section-title text-4xl font-bold mb-4 text-center ${variant === "transparent" ? "text-white" : "text-gray-800 dark:text-white"}`}
+          className={`text-4xl font-bold mb-4 text-center ${variant === "transparent" ? "text-white" : "text-gray-800 dark:text-white"}`}
         >
-          DESTAQUES DA SEMAPA
+          Destaques da Semapa
         </h2>
         <div className="max-w-4xl mx-auto">
           <div className="relative">
