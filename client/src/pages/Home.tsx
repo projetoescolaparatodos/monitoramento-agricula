@@ -100,7 +100,6 @@ const Home = () => {
         <main className="container mx-auto px-4 py-16 relative z-20">
           <section id="media" className="py-12">
             <h2 className="section-title text-4xl font-bold text-center mb-8 text-white">MÍDIAS DE TODOS OS SETORES</h2>
-            <p className="section-subtitle text-xl text-center mb-8 text-white/90">Acompanhe as últimas notícias e atualizações de todos os nossos programas</p>
             <MediaGallerySection variant="transparent" />
           </section>
         </main>
