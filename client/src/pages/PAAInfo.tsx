@@ -164,8 +164,8 @@ const PAAInfo = () => {
         </div>
         <main className="space-y-12">
           <div className="prose max-w-none">
-            <h1 className="text-4xl font-bold text-center mb-4 text-white">PAA</h1>
-            <p className="text-center text-lg text-white/80">
+            <h1 className="section-title text-4xl font-bold text-center mb-4 text-white">PAA</h1>
+            <p className="section-subtitle text-center text-lg text-white/80">
               Informações e dados sobre o Programa de Aquisição de Alimentos em Vitória do Xingu
             </p>
           </div>
@@ -218,7 +218,7 @@ const PAAInfo = () => {
 
           {/* Seção de Estatísticas do PAA */}
           <section className="mt-16 rounded-lg p-8">
-            <h2 className="text-3xl font-bold text-center mb-8 text-white">Atividades do PAA</h2>
+            <h2 className="section-title text-3xl font-bold text-center mb-8 text-white">ATIVIDADES DO PAA</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 w-full">
               <Card>
                 <CardHeader>
