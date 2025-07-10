@@ -57,15 +57,12 @@ const Home = () => {
           muted
           playsInline
           className="absolute min-w-full min-h-full object-cover z-0"
-          style={{ opacity: 1 }}
+          preload="metadata"
         >
           <source src="/videos/BackgroundVideo.mp4" type="video/mp4" />
           Seu navegador não suporta vídeos HTML5.
         </video>
-        <div className="absolute top-0 left-0 w-full h-full z-10" 
-             style={{
-               background: 'linear-gradient(to right, rgba(22,101,52,0) 0%, rgba(22,101,52,0.4) 25%, rgba(22,101,52,0.4) 75%, rgba(22,101,52,0) 100%)'
-             }} />
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-green-900/30 to-transparent z-10" />
       </div>
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-20">
         <HeroSection />
@@ -98,24 +95,8 @@ const Home = () => {
       {/* Degradê de transição do fundo branco para vídeo com máscara */}
       <div className="white-to-video-gradient"></div>
       
-      {/* Video de fundo com máscara escura para a seção de mídia */}
-      <div className="relative">
-        <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute min-w-full min-h-full object-cover z-0"
-            style={{ opacity: 1 }}
-          >
-            <source src="/videos/BackgroundVideo.mp4" type="video/mp4" />
-            Seu navegador não suporta vídeos HTML5.
-          </video>
-          {/* Máscara escura e transparente sobre o vídeo */}
-          <div className="absolute top-0 left-0 w-full h-full bg-black/50 z-10" />
-        </div>
-        
+      {/* Seção de mídia com vídeo de fundo reutilizado e máscara escura */}
+      <div className="relative bg-black/40">
         <main className="container mx-auto px-4 py-16 relative z-20">
           <section id="media" className="py-12">
             <h2 className="text-3xl font-bold text-center mb-8 text-white">Mídias de Todos os Setores</h2>

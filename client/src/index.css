@@ -622,30 +622,18 @@ video.portrait-video {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Degradê de transição simples entre vídeo e fundo branco */
+/* Degradê de transição otimizado entre vídeo e fundo branco */
 .video-to-white-gradient {
-  height: 100px;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(255, 255, 255, 0.2) 25%,
-    rgba(255, 255, 255, 0.5) 50%,
-    rgba(255, 255, 255, 0.8) 75%,
-    rgba(255, 255, 255, 1) 100%
-  );
+  height: 80px;
+  background: linear-gradient(to bottom, transparent 0%, white 100%);
+  will-change: auto;
 }
 
-/* Degradê de transição do fundo branco para vídeo */
+/* Degradê de transição otimizado do fundo branco para vídeo */
 .white-to-video-gradient {
-  height: 100px;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 0.8) 25%,
-    rgba(255, 255, 255, 0.5) 50%,
-    rgba(255, 255, 255, 0.2) 75%,
-    rgba(0, 0, 0, 0) 100%
-  );
+  height: 80px;
+  background: linear-gradient(to bottom, white 0%, transparent 100%);
+  will-change: auto;
 }
 
 @layer base {
@@ -1569,6 +1557,22 @@ html, body {
   overflow-x: hidden;
   margin: 0;
   padding: 0;
+}
+
+/* Otimizações de performance para vídeos */
+video {
+  will-change: auto;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Reduzir repaints em elementos com gradientes */
+.video-to-white-gradient,
+.white-to-video-gradient {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* Animações orgânicas para tooltips */
