@@ -80,6 +80,10 @@ const Home = () => {
             variant="transparent" 
           />
         </section>
+        <section id="media" className="py-12">
+          <h2 className="text-3xl font-bold text-center mb-8 text-white">Mídias de Todos os Setores</h2>
+          <MediaGallerySection variant="transparent" />
+        </section>
       </main>
       
       {/* Seções com fundo branco opaco */}
@@ -88,10 +92,6 @@ const Home = () => {
           <section id="visualization" className="py-12">
             <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Nossa Produção em Perspectiva</h2>
             <DataVisualizationSection variant="default" />
-          </section>
-          <section id="media" className="py-12">
-            <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Mídias de Todos os Setores</h2>
-            <MediaGallerySection variant="default" />
           </section>
         </main>
       </div>
