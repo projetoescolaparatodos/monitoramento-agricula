@@ -1535,6 +1535,36 @@ html, body {
   padding: 0;
 }
 
+/* Estilos para os canvases de animação */
+.organic-animation-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Efeito de onda para tooltips */
+@keyframes wave {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.05); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+.organic-tooltip {
+  animation: wave 2s infinite ease-in-out;
+}
+
+/* Container do gráfico destacado */
+.featured-chart-container {
+  position: relative;
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
 /* Animações orgânicas para tooltips */
 @keyframes organicFloat {
   0%, 100% { 
