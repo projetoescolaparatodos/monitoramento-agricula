@@ -72,23 +72,31 @@ const Home = () => {
         <section id="estatisticas" className="py-12">
           <StatisticsSection variant="transparent" />
         </section>
-        <AreasSection />
-        <section id="home-media" className="py-12">
-          <HomeMediaGallerySection 
-            mediaItems={homeMediaItems} 
-            isLoading={isLoadingMedia} 
-            variant="transparent" 
-          />
-        </section>
-        <section id="visualization" className="py-12">
-          <h2 className="text-3xl font-bold text-center mb-8 text-white">Nossa Produção em Perspectiva</h2>
-          <DataVisualizationSection variant="transparent" />
-        </section>
-        <section id="media" className="py-12">
-          <h2 className="text-3xl font-bold text-center mb-8 text-white">Mídias de Todos os Setores</h2>
-          <MediaGallerySection variant="transparent" />
-        </section>
       </main>
+      
+      {/* Seções com fundo branco e gradiente verde */}
+      <div className="bg-white relative" style={{
+        background: 'linear-gradient(135deg, #ffffff 0%, #f0f9ff 25%, #e6f7ff 50%, #f0fdf4 75%, #ffffff 100%)'
+      }}>
+        <main className="container mx-auto px-4 py-16">
+          <AreasSection />
+          <section id="home-media" className="py-12">
+            <HomeMediaGallerySection 
+              mediaItems={homeMediaItems} 
+              isLoading={isLoadingMedia} 
+              variant="default" 
+            />
+          </section>
+          <section id="visualization" className="py-12">
+            <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Nossa Produção em Perspectiva</h2>
+            <DataVisualizationSection variant="default" />
+          </section>
+          <section id="media" className="py-12">
+            <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Mídias de Todos os Setores</h2>
+            <MediaGallerySection variant="default" />
+          </section>
+        </main>
+      </div>
     </>
   );
 };

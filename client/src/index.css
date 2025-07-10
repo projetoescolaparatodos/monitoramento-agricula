@@ -612,6 +612,16 @@ video.portrait-video {
   /* Filtro uniforme sem máscaras */
 }
 
+/* Gradiente verde suave para seções após estatísticas */
+.bg-gradient-green-subtle {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 25%, #e6f7ff 50%, #f0fdf4 75%, #ffffff 100%);
+}
+
+/* Transição suave entre seções */
+.section-transition {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 @layer base {
   * {
     @apply border-border;
