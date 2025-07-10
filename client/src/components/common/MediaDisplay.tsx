@@ -576,7 +576,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
                     )}
                     <span className="author">{item.author}</span>
                   </div>
-                )}
+)}
               </div>
 
               {formattedDate && (
