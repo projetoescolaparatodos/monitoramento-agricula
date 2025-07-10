@@ -27,7 +27,7 @@ export const AreasSection = () => {
           >
             <Link href="/agriculture" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
               <div
-                className="group relative bg-gray-100/90 backdrop-blur-sm rounded-2xl shadow-md p-6 cursor-pointer hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-200/50 hover:border-green-300 overflow-hidden min-h-[200px]"
+                className="group relative bg-white rounded-2xl shadow-md p-6 cursor-pointer hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-200/50 hover:border-green-300 overflow-hidden min-h-[200px]"
                 role="link"
                 aria-label="Explorar Agricultura"
               >
@@ -72,7 +72,7 @@ export const AreasSection = () => {
           >
             <Link href="/fishing" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
               <div
-                className="group relative bg-gray-100/90 backdrop-blur-sm rounded-2xl shadow-md p-6 cursor-pointer hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-200/50 hover:border-blue-300 overflow-hidden min-h-[200px]"
+                className="group relative bg-white rounded-2xl shadow-md p-6 cursor-pointer hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-200/50 hover:border-blue-300 overflow-hidden min-h-[200px]"
                 role="link"
                 aria-label="Explorar Pesca"
               >
@@ -116,7 +116,7 @@ export const AreasSection = () => {
           >
             <Link href="/paa" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
               <div
-                className="group relative bg-gray-100/90 backdrop-blur-sm rounded-2xl shadow-md p-6 cursor-pointer hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-200/50 hover:border-orange-300 overflow-hidden min-h-[200px]"
+                className="group relative bg-white rounded-2xl shadow-md p-6 cursor-pointer hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-200/50 hover:border-orange-300 overflow-hidden min-h-[200px]"
                 role="link"
                 aria-label="Explorar PAA"
               >

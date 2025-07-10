@@ -80,7 +80,7 @@ const StatisticsSection = ({ variant = "default" }: { variant?: "default" | "tra
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Estatísticas fixas */}
         {filteredStatistics?.map((stat) => (
-          <Card key={stat.id} className={`${variant === "transparent" ? "bg-white/90 backdrop-blur-sm" : "bg-white"} rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1`}>
+          <Card key={stat.id} className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
             <div className="border-t-4 border-[#00ff4c]"></div>
             <CardContent className="p-6 text-center">
               <div className="text-4xl font-bold text-primary-dark mb-3">{stat.value}</div>

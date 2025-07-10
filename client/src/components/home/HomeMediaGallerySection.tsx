@@ -320,7 +320,7 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({
                       key={index}
                       className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3"
                     >
-                      <Card className="overflow-hidden bg-white dark:bg-zinc-800 rounded-2xl shadow-md">
+                      <Card className="overflow-hidden bg-white rounded-2xl shadow-md">
                         <Skeleton className="w-full aspect-video" />
                         <CardContent className="p-4 space-y-2">
                           <Skeleton className="h-6 w-3/4" />
@@ -341,9 +341,9 @@ const HomeMediaGallerySection: React.FC<HomeMediaGallerySectionProps> = ({
             {isMobile ? renderMobileCarousels() : renderDesktopCarousel()}
           </div>
         ) : (
-          <div className="text-center py-12 bg-white dark:bg-zinc-800 rounded-2xl shadow-md">
+          <div className="text-center py-12 bg-white rounded-2xl shadow-md">
             <div
-              className={`${variant === "transparent" ? "text-white/80" : "text-gray-500 dark:text-gray-400"}`}
+              className={`${variant === "transparent" ? "text-white/80" : "text-gray-500"}`}
             >
               Nenhuma mídia disponível no momento.
             </div>
