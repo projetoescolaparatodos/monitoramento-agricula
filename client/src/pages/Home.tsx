@@ -72,21 +72,19 @@ const Home = () => {
         <section id="estatisticas" className="py-12">
           <StatisticsSection variant="transparent" />
         </section>
+        <AreasSection />
+        <section id="home-media" className="py-12">
+          <HomeMediaGallerySection 
+            mediaItems={homeMediaItems} 
+            isLoading={isLoadingMedia} 
+            variant="transparent" 
+          />
+        </section>
       </main>
       
-      {/* Seções com fundo branco e gradiente verde */}
-      <div className="bg-white relative" style={{
-        background: 'linear-gradient(135deg, #ffffff 0%, #f0f9ff 25%, #e6f7ff 50%, #f0fdf4 75%, #ffffff 100%)'
-      }}>
+      {/* Seções com fundo branco opaco */}
+      <div className="bg-white relative">
         <main className="container mx-auto px-4 py-16">
-          <AreasSection />
-          <section id="home-media" className="py-12">
-            <HomeMediaGallerySection 
-              mediaItems={homeMediaItems} 
-              isLoading={isLoadingMedia} 
-              variant="default" 
-            />
-          </section>
           <section id="visualization" className="py-12">
             <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Nossa Produção em Perspectiva</h2>
             <DataVisualizationSection variant="default" />
