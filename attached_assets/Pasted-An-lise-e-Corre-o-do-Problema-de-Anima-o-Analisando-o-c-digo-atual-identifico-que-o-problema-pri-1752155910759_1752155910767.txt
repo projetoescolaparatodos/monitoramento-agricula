@@ -1,0 +1,336 @@
+Análise e Correção do Problema de Animação
+Analisando o código atual, identifico que o problema principal está na forma como as animações são gerenciadas para múltiplas séries. Vou propor uma solução mais robusta que mantém a qualidade visual e resolve os problemas de exibição.
+
+Problemas Identificados
+Canvas sobrepostos: As animações estão conflitando porque usam o mesmo canvas
+
+Timing de animação: As séries não iniciam no momento correto
+
+Limpeza inadequada: Elementos antigos não são removidos corretamente
+
+Visibilidade: O estado de visibilidade das séries não é respeitado
+
+Solução Atualizada
+tsx
+// 1. Adicione estas interfaces e tipos no início do arquivo
+interface AnimationState {
+  isRunning: boolean;
+  progress: number;
+  startTime: number | null;
+}
+
+interface Point {
+  x: number;
+  y: number;
+  value: number;
+  label: string;
+}
+
+// 2. Estado para controle das animações
+const [animations, setAnimations] = useState<Record<number, AnimationState>>({});
+const animationRefs = useRef<Record<number, number>>({});
+const overlayCanvases = useRef<Record<number, HTMLCanvasElement>>({});
+
+// 3. Função para inicializar as animações
+const initAnimations = () => {
+  if (!chartInstance.current) return;
+
+  const newAnimations: Record<number, AnimationState> = {};
+  
+  processedData.datasets.forEach((_, index) => {
+    const meta = chartInstance.current!.getDatasetMeta(index);
+    newAnimations[index] = {
+      isRunning: !meta.hidden,
+      progress: 0,
+      startTime: null
+    };
+  });
+
+  setAnimations(newAnimations);
+};
+
+// 4. Função principal de animação (atualizada)
+const runAnimation = (datasetIndex: number) => {
+  if (!chartInstance.current || !chartRef.current) return;
+
+  const meta = chartInstance.current.getDatasetMeta(datasetIndex);
+  if (meta.hidden) return;
+
+  // Cria canvas overlay dedicado para esta série
+  if (!overlayCanvases.current[datasetIndex]) {
+    const canvas = document.createElement('canvas');
+    canvas.className = `animation-overlay dataset-${datasetIndex}`;
+    canvas.style.position = 'absolute';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.pointerEvents = 'none';
+    canvas.width = chartRef.current.width;
+    canvas.height = chartRef.current.height;
+    
+    const container = chartRef.current.parentElement;
+    if (container) {
+      container.appendChild(canvas);
+      overlayCanvases.current[datasetIndex] = canvas;
+    }
+  }
+
+  const canvas = overlayCanvases.current[datasetIndex];
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  // Obtém pontos válidos
+  const points: Point[] = meta.data
+    .map((item: any, i: number) => {
+      if (!item || typeof item.x !== 'number' || typeof item.y !== 'number') {
+        return null;
+      }
+      return {
+        x: item.x,
+        y: item.y,
+        value: processedData.datasets[datasetIndex].data[i],
+        label: processedData.labels?.[i] || ''
+      };
+    })
+    .filter(Boolean) as Point[];
+
+  if (points.length === 0) return;
+
+  const color = borderPalette[datasetIndex % borderPalette.length];
+  const duration = 3000; // 3 segundos por série
+
+  const animate = (timestamp: number) => {
+    if (!animations[datasetIndex]?.isRunning) return;
+
+    // Inicializa o tempo de início se for a primeira frame
+    const startTime = animations[datasetIndex].startTime || timestamp;
+    const elapsed = timestamp - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+
+    // Atualiza o estado de progresso
+    setAnimations(prev => ({
+      ...prev,
+      [datasetIndex]: {
+        ...prev[datasetIndex],
+        startTime: prev[datasetIndex].startTime || timestamp,
+        progress
+      }
+    }));
+
+    // Limpa o canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Desenha a linha animada
+    drawOrganicLine(ctx, points, progress, color, 4);
+
+    // Desenha pontos e tooltips
+    drawAnimatedPoints(ctx, points, progress, color, datasetIndex);
+
+    // Continua a animação se não terminou
+    if (progress < 1) {
+      animationRefs.current[datasetIndex] = requestAnimationFrame(animate);
+    } else {
+      // Finaliza a animação
+      setAnimations(prev => ({
+        ...prev,
+        [datasetIndex]: {
+          ...prev[datasetIndex],
+          isRunning: false
+        }
+      }));
+    }
+  };
+
+  // Inicia a animação
+  animationRefs.current[datasetIndex] = requestAnimationFrame(animate);
+};
+
+// 5. Função auxiliar para desenhar pontos animados
+const drawAnimatedPoints = (
+  ctx: CanvasRenderingContext2D,
+  points: Point[],
+  progress: number,
+  color: string,
+  datasetIndex: number
+) => {
+  const visiblePoints = Math.ceil(points.length * progress);
+  const currentPointIndex = Math.min(visiblePoints - 1, points.length - 1);
+  
+  // Desenha todos os pontos visíveis
+  for (let i = 0; i < visiblePoints; i++) {
+    const point = points[i];
+    const pointProgress = i < currentPointIndex ? 1 : progress * points.length - i;
+    
+    // Desenha o ponto
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, 5 * pointProgress, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Tooltip para o ponto atual
+    if (i === currentPointIndex) {
+      drawFloatingTooltip(
+        ctx,
+        point.x,
+        point.y - 40 - (datasetIndex * 15),
+        `${point.label}: ${point.value}`,
+        color
+      );
+    }
+  }
+
+  // Efeito especial no ponto atual
+  if (currentPointIndex >= 0) {
+    const point = points[currentPointIndex];
+    const pulseSize = 3 + Math.sin(Date.now() / 200) * 2;
+    
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, 6 + pulseSize, 0, Math.PI * 2);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.5;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+};
+
+// 6. Efeito para iniciar/parar animações
+useEffect(() => {
+  // Inicializa as animações quando o componente monta
+  initAnimations();
+
+  // Limpeza ao desmontar
+  return () => {
+    // Cancela todas as animações
+    Object.values(animationRefs.current).forEach(id => {
+      cancelAnimationFrame(id);
+    });
+
+    // Remove todos os canvas overlay
+    Object.values(overlayCanvases.current).forEach(canvas => {
+      canvas.remove();
+    });
+  };
+}, []);
+
+// 7. Efeito para controlar o estado das animações
+useEffect(() => {
+  if (!chartInstance.current) return;
+
+  // Inicia ou para animações conforme o estado
+  Object.entries(animations).forEach(([indexStr, state]) => {
+    const index = Number(indexStr);
+    const meta = chartInstance.current!.getDatasetMeta(index);
+
+    if (state.isRunning && !meta.hidden) {
+      if (!state.startTime) {
+        runAnimation(index);
+      }
+    } else {
+      // Para a animação se estiver rodando
+      if (animationRefs.current[index]) {
+        cancelAnimationFrame(animationRefs.current[index]);
+      }
+
+      // Limpa o canvas
+      if (overlayCanvases.current[index]) {
+        const ctx = overlayCanvases.current[index].getContext('2d');
+        ctx?.clearRect(0, 0, overlayCanvases.current[index].width, overlayCanvases.current[index].height);
+      }
+    }
+  });
+}, [animations]);
+
+// 8. Atualização quando datasets mudam
+useEffect(() => {
+  if (chartInstance.current && animate) {
+    // Esconde as linhas originais
+    chartInstance.current.data.datasets.forEach((dataset: any) => {
+      dataset.borderWidth = 0;
+      dataset.pointRadius = 0;
+    });
+    chartInstance.current.update();
+
+    // Reinicia as animações
+    initAnimations();
+  }
+}, [processedData, animate]);
+Principais Melhorias
+Controle Individual por Série:
+
+Cada série tem seu próprio estado de animação
+
+Canvas overlay dedicado para cada série
+
+Controle independente de progresso
+
+Gerenciamento de Recursos:
+
+Limpeza adequada de canvases e animações
+
+Cancelamento correto de requestAnimationFrame
+
+Remoção de elementos DOM ao desmontar
+
+Sincronização com Chart.js:
+
+Respeita o estado de visibilidade das séries
+
+Atualiza quando dados mudam
+
+Mantém consistência com interações do usuário
+
+Performance:
+
+Animação suave usando requestAnimationFrame
+
+Desenho otimizado apenas do necessário
+
+Efeitos visuais com baixo custo computacional
+
+Como Integrar na Sua Solução
+Substitua as funções de animação existentes pelas novas
+
+Adicione os estados e refs necessários
+
+Atualize o useEffect principal para usar este novo sistema
+
+Mantenha as funções de desenho (drawOrganicLine, etc.) que já estão funcionando
+
+CSS Adicional Recomendado
+css
+.animation-overlay {
+  z-index: 10;
+  transition: opacity 0.3s ease;
+}
+
+/* Efeito de pulsação para pontos ativos */
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+.active-point {
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* Tooltip estilo balão */
+.tooltip-bubble {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid currentColor;
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 20;
+  transition: all 0.2s ease;
+  color: var(--tooltip-color);
+}
+Esta solução deve resolver os problemas de exibição com múltiplas séries, mantendo a fluidez e qualidade visual das animações. O controle individual por série permite um comportamento mais previsível e fácil de depurar.
