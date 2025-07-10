@@ -58,22 +58,22 @@ ChartJS.register(
 );
 
 const colorPalette = [
-  'rgba(75, 192, 85, 0.7)',
-  'rgba(140, 176, 54, 0.7)',
-  'rgba(202, 155, 68, 0.7)',
-  'rgba(159, 112, 74, 0.7)',
-  'rgba(108, 157, 198, 0.7)',
-  'rgba(225, 190, 106, 0.7)',
-  'rgba(161, 215, 173, 0.7)',
-  'rgba(103, 126, 80, 0.7)',
-  'rgba(199, 126, 59, 0.7)',
-  'rgba(71, 140, 111, 0.7)',
-  'rgba(121, 189, 154, 0.7)',
-  'rgba(173, 216, 230, 0.7)',
-  'rgba(152, 251, 152, 0.7)',
-  'rgba(221, 187, 153, 0.7)',
-  'rgba(226, 114, 91, 0.7)',
-  'rgba(175, 238, 238, 0.7)'
+  'rgba(52, 152, 219, 0.8)',    // Azul vibrante
+  'rgba(241, 196, 15, 0.8)',    // Amarelo dourado
+  'rgba(46, 204, 113, 0.8)',    // Verde esmeralda
+  'rgba(231, 76, 60, 0.8)',     // Vermelho vibrante
+  'rgba(155, 89, 182, 0.8)',    // Roxo vibrante
+  'rgba(230, 126, 34, 0.8)',    // Laranja vibrante
+  'rgba(26, 188, 156, 0.8)',    // Turquesa
+  'rgba(243, 156, 18, 0.8)',    // Laranja dourado
+  'rgba(142, 68, 173, 0.8)',    // Violeta
+  'rgba(22, 160, 133, 0.8)',    // Verde petróleo
+  'rgba(192, 57, 43, 0.8)',     // Vermelho escuro
+  'rgba(41, 128, 185, 0.8)',    // Azul oceano
+  'rgba(39, 174, 96, 0.8)',     // Verde floresta
+  'rgba(211, 84, 0, 0.8)',      // Laranja queimado
+  'rgba(149, 165, 166, 0.8)',   // Cinza azulado
+  'rgba(232, 67, 147, 0.8)'     // Rosa vibrante
 ];
 
 const borderPalette = colorPalette.map(color => 

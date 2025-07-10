@@ -251,7 +251,24 @@ const ChartForm: React.FC<ChartFormProps> = ({
   };
 
   const DEFAULT_COLORS = ['#4CAF50', '#FF9800', '#00BCD4', '#FF5722', '#673AB7', '#2196F3', '#009688', '#795548', '#E91E63', '#9C27B0'];
-  const colorPalette = ['#FF5722', '#FF9800', '#FFEB3B', '#4CAF50', '#00BCD4', '#2196F3', '#3F51B5', '#673AB7', '#9C27B0', '#E91E63']; //Exemplo de paleta de cores
+  const colorPalette = [
+  '#3498db',  // Azul vibrante
+  '#f1c40f',  // Amarelo dourado
+  '#2ecc71',  // Verde esmeralda
+  '#e74c3c',  // Vermelho vibrante
+  '#9b59b6',  // Roxo vibrante
+  '#e67e22',  // Laranja vibrante
+  '#1abc9c',  // Turquesa
+  '#f39c12',  // Laranja dourado
+  '#8e44ad',  // Violeta
+  '#16a085',  // Verde petróleo
+  '#c0392b',  // Vermelho escuro
+  '#2980b9',  // Azul oceano
+  '#27ae60',  // Verde floresta
+  '#d35400',  // Laranja queimado
+  '#95a5a6',  // Cinza azulado
+  '#e84393'   // Rosa vibrante
+];
 
 
   return (
