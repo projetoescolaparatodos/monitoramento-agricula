@@ -24,11 +24,53 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
   variant = 'default' 
 }) => {
   const [value, setValue] = useState<number>(0);
+  const [displayValue, setDisplayValue] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [previousValue, setPreviousValue] = useState<number>(0);
   const [trend, setTrend] = useState<'up' | 'down' | 'stable'>('stable');
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  // Função para animar a contagem gradual
+  const animateValue = (startValue: number, endValue: number, duration: number = 2000) => {
+    if (startValue === endValue) {
+      setDisplayValue(endValue);
+      return;
+    }
+
+    setIsAnimating(true);
+    const startTime = Date.now();
+    const difference = endValue - startValue;
+
+    const updateValue = () => {
+      const now = Date.now();
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Função de easing para tornar a animação mais suave
+      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+      
+      const currentValue = startValue + (difference * easeOutQuart);
+      setDisplayValue(Math.round(currentValue * 100) / 100); // Arredonda para 2 casas decimais
+
+      if (progress < 1) {
+        requestAnimationFrame(updateValue);
+      } else {
+        setDisplayValue(endValue);
+        setIsAnimating(false);
+      }
+    };
+
+    requestAnimationFrame(updateValue);
+  };
+
+  // Effect para animar quando o valor muda
+  useEffect(() => {
+    if (!loading && value !== displayValue) {
+      animateValue(displayValue, value);
+    }
+  }, [value, loading]);
 
   useEffect(() => {
     const calcularPeriodo = () => {
@@ -128,6 +170,12 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
         
         setPreviousValue(value);
         setValue(calculatedValue);
+        
+        // Se é a primeira vez carregando, não anima
+        if (loading) {
+          setDisplayValue(calculatedValue);
+        }
+        
         setLastUpdate(new Date());
         setLoading(false);
         setIsUpdating(false);
@@ -160,7 +208,11 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     if (config.tipoAgregacao === 'avg') {
       return val.toFixed(1);
     }
-    return val.toLocaleString('pt-BR');
+    // Durante a animação, mostra números inteiros para uma contagem mais suave
+    if (isAnimating && Number.isInteger(val)) {
+      return Math.floor(val).toLocaleString('pt-BR');
+    }
+    return Math.round(val).toLocaleString('pt-BR');
   };
 
   const getTrendColor = () => {
@@ -185,10 +237,12 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
         <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1">
           {isUpdating ? (
             <span className="animate-spin">🔄</span>
+          ) : isAnimating ? (
+            <span className="animate-bounce">📈</span>
           ) : (
             <span>⚡</span>
           )}
-          Dinâmico
+          {isAnimating ? 'Atualizando' : 'Dinâmico'}
         </div>
         <div className="text-xs text-gray-500 bg-white/80 px-2 py-1 rounded-full shadow-sm">
           {lastUpdate.toLocaleTimeString('pt-BR', { 
@@ -209,7 +263,10 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
         ) : (
           <>
             <div className="text-6xl font-black text-transparent bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text mb-4 leading-tight">
-              {formatValue(value)}
+              {formatValue(displayValue)}
+              {isAnimating && (
+                <span className="inline-block w-2 h-12 bg-gradient-to-r from-green-600 to-emerald-700 ml-2 animate-pulse"></span>
+              )}
             </div>
             <div className="text-base font-bold tracking-wide mb-4 text-gray-800 leading-relaxed">
               {config.titulo}
