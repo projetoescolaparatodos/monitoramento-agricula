@@ -385,7 +385,7 @@ export const DynamicStatsManager: React.FC = () => {
                     </select>
                   </div>
                 
-                <div>
+                  <div>
                     <label className="block text-sm font-medium mb-1">Campo de Dados</label>
                     <select
                       className="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -447,17 +447,17 @@ export const DynamicStatsManager: React.FC = () => {
                     />
                   </div>
                 
-                <div>
-                  <label className="block text-sm font-medium mb-1">Ordem de Exibição</label>
-                  <input
-                    type="number"
-                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    value={newConfig.ordem}
-                    onChange={(e) => setNewConfig({...newConfig, ordem: parseInt(e.target.value) || 0})}
-                    min="0"
-                  />
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Ordem de Exibição</label>
+                    <input
+                      type="number"
+                      className="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      value={newConfig.ordem}
+                      onChange={(e) => setNewConfig({...newConfig, ordem: parseInt(e.target.value) || 0})}
+                      min="0"
+                    />
+                  </div>
                 </div>
-              </div>
               
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={resetForm}>
