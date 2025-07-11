@@ -37,6 +37,9 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
         case 'hoje':
           startDate.setHours(0, 0, 0, 0);
           break;
+        case '7dias':
+          startDate.setDate(now.getDate() - 7);
+          break;
         case '30dias':
           startDate.setDate(now.getDate() - 30);
           break;
@@ -61,30 +64,28 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     // Construir query base
     let q = query(collection(db, config.colecaoFonte));
 
-    // Adicionar filtros de data apenas se a coleção tiver createdAt
-    if (config.colecaoFonte !== 'doacoes_evento') {
-      q = query(q, 
-        where('createdAt', '>=', Timestamp.fromDate(startDate)),
-        where('createdAt', '<=', Timestamp.fromDate(endDate))
-      );
-    } else {
+    // Adicionar filtros de data
+    if (config.colecaoFonte === 'doacoes_evento') {
       // Para doações, usar timestamp
       q = query(q,
         where('timestamp', '>=', Timestamp.fromDate(startDate)),
         where('timestamp', '<=', Timestamp.fromDate(endDate))
       );
+    } else if (config.periodo !== 'todos') {
+      // Para outras coleções, usar createdAt
+      q = query(q, 
+        where('createdAt', '>=', Timestamp.fromDate(startDate)),
+        where('createdAt', '<=', Timestamp.fromDate(endDate))
+      );
     }
 
     // Adicionar filtros adicionais se existirem
-    if (config.filtroAdicional) {
-      // Para doações de eventos específicos
-      if (Array.isArray(config.filtroAdicional)) {
-        config.filtroAdicional.forEach(filter => {
-          if (filter.fieldPath && filter.opStr && filter.value) {
-            q = query(q, where(filter.fieldPath, filter.opStr, filter.value));
-          }
-        });
-      }
+    if (config.filtroAdicional && Array.isArray(config.filtroAdicional)) {
+      config.filtroAdicional.forEach(filter => {
+        if (filter.fieldPath && filter.opStr && filter.value) {
+          q = query(q, where(filter.fieldPath, filter.opStr, filter.value));
+        }
+      });
     }
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
