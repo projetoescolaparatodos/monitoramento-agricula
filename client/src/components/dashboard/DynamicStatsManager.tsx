@@ -459,13 +459,14 @@ export const DynamicStatsManager: React.FC = () => {
                   </div>
                 </div>
               
-              <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={resetForm}>
-                  Cancelar
-                </Button>
-                <Button type="submit" className="bg-green-600 hover:bg-green-700">
-                  {editingId ? 'Atualizar' : 'Criar'}
-                </Button>
+                <div className="flex justify-end space-x-2">
+                  <Button type="button" variant="outline" onClick={resetForm}>
+                    Cancelar
+                  </Button>
+                  <Button type="submit" className="bg-green-600 hover:bg-green-700">
+                    {editingId ? 'Atualizar' : 'Criar'}
+                  </Button>
+                </div>
               </div>
             </form>
           </CardContent>
