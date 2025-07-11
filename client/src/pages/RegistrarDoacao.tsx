@@ -28,6 +28,13 @@ const RegistrarDoacao: React.FC = () => {
   const [location, navigate] = useLocation();
   const { user, loading: authLoading } = useAuthProtection();
   const { toast } = useToast();
+
+  console.log('🎯 RegistrarDoacao - Estado atual:', {
+    location,
+    user: user ? 'Logado' : 'Não logado',
+    authLoading,
+    userEmail: user?.email
+  });
   
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [insumos, setInsumos] = useState<Insumo[]>([]);
@@ -45,7 +52,10 @@ const RegistrarDoacao: React.FC = () => {
   });
 
   useEffect(() => {
+    console.log('🎯 RegistrarDoacao - useEffect executado:', { authLoading, user: !!user });
+    
     const fetchData = async () => {
+      console.log('🎯 RegistrarDoacao - Iniciando busca de dados...');
       try {
         // Buscar eventos ativos
         const eventosQuery = query(collection(db, 'eventos'), where('ativo', '==', true));
@@ -63,23 +73,37 @@ const RegistrarDoacao: React.FC = () => {
           return inicio <= agora && agora <= fim;
         });
 
+        console.log('🎯 RegistrarDoacao - Eventos encontrados:', {
+          total: eventosData.length,
+          ativos: eventosAtivos.length,
+          eventos: eventosAtivos.map(e => e.nome)
+        });
+        
         setEventos(eventosAtivos);
 
         // Buscar insumos ativos
         const insumosQuery = query(collection(db, 'insumos'), where('ativo', '==', true));
         const insumosSnapshot = await getDocs(insumosQuery);
-        setInsumos(insumosSnapshot.docs.map(doc => ({
+        const insumosData = insumosSnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
-        })) as Insumo[]);
-
+        })) as Insumo[];
+        
+        console.log('🎯 RegistrarDoacao - Insumos encontrados:', {
+          total: insumosData.length,
+          insumos: insumosData.map(i => i.nome)
+        });
+        
+        setInsumos(insumosData);
         setLoading(false);
+        
+        console.log('🎯 RegistrarDoacao - Dados carregados com sucesso!');
       } catch (error) {
-        console.error('Erro ao buscar dados:', error);
+        console.error('🎯 RegistrarDoacao - Erro ao buscar dados:', error);
         setLoading(false);
         toast({
           title: "Erro",
-          description: "Falha ao carregar dados",
+          description: "Falha ao carregar eventos e insumos. Tente recarregar a página.",
           variant: "destructive"
         });
       }
@@ -151,20 +175,53 @@ const RegistrarDoacao: React.FC = () => {
     }
   };
 
-  if (authLoading || loading) {
+  console.log('🎯 RegistrarDoacao - Verificando condições de render:', {
+    authLoading,
+    loading,
+    user: !!user,
+    eventos: eventos?.length || 0,
+    insumos: insumos?.length || 0
+  });
+
+  if (authLoading) {
+    console.log('🎯 RegistrarDoacao - Carregando autenticação...');
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Verificando autenticação...</p>
+        </div>
       </div>
     );
   }
 
   if (!user) {
+    console.log('🎯 RegistrarDoacao - Usuário não autenticado, mostrando opção de login');
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center max-w-md mx-4">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Acesso Restrito</h2>
+          <p className="text-gray-600 mb-6">Você precisa estar logado como técnico para registrar doações.</p>
+          <div className="space-y-3">
+            <Button onClick={() => navigate('/login')} className="w-full">
+              Fazer Login
+            </Button>
+            <Button variant="outline" onClick={() => navigate('/')} className="w-full">
+              Voltar ao Início
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    console.log('🎯 RegistrarDoacao - Carregando dados...');
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Acesso Negado</h2>
-          <p className="text-gray-600">Você precisa estar logado para acessar esta página.</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando eventos e insumos...</p>
         </div>
       </div>
     );
