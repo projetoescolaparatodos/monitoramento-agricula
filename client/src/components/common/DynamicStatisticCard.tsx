@@ -92,7 +92,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
         setDisplayValue(value);
       }
     }
-  }, [value, loading, displayValue, isAnimating]);
+  }, [value, loading, displayValue, isAnimating, config]);
 
   useEffect(() => {
     const calcularPeriodo = () => {
@@ -254,9 +254,9 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
   };
 
   return (
-    <Card className="bg-white rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 overflow-hidden transform hover:-translate-y-3 hover:scale-105 relative border border-gray-100 min-h-[180px]">
+    <Card className={`bg-white rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 overflow-hidden transform hover:-translate-y-3 hover:scale-105 relative border border-gray-100 min-h-[180px] ${isAnimating ? 'ring-2 ring-green-400 ring-opacity-50' : ''}`}>
       <div className="absolute top-4 right-4">
-        <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow-lg flex items-center justify-center">
+        <div className={`w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${isAnimating ? 'animate-pulse scale-110' : ''}`}>
           {isUpdating ? (
             <span className="animate-spin text-sm">🔄</span>
           ) : isAnimating ? (
@@ -286,7 +286,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           <>
             <div className="text-5xl font-black text-transparent bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text mb-4 leading-tight tracking-tight relative">
               <span 
-                className={`statistic-value transition-colors duration-200 ${isAnimating ? 'text-green-500' : ''}`} 
+                className={`statistic-value transition-all duration-300 ${isAnimating ? 'text-green-500 animate-pulse scale-105' : ''}`} 
                 style={{ 
                   fontVariantNumeric: 'tabular-nums',
                   minWidth: '200px',
@@ -298,9 +298,9 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
               </span>
               {isAnimating && (
                 <div className="absolute -top-1 -right-1">
-                  <span className="flex h-2 w-2">
+                  <span className="flex h-3 w-3">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                   </span>
                 </div>
               )}
