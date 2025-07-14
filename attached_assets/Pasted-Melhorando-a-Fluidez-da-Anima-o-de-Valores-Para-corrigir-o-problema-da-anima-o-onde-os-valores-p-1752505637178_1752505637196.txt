@@ -1,0 +1,111 @@
+Melhorando a Fluidez da Animação de Valores
+Para corrigir o problema da animação onde os valores "pulam" diretamente em vez de transicionar suavemente, vamos implementar uma solução mais fluida. O problema atual ocorre porque a animação não está tratando adequadamente a progressão dos valores.
+
+Solução Proposta
+Vamos modificar a função animateValue para garantir uma transição suave:
+
+typescript
+const animateValue = (startValue: number, endValue: number, duration: number = 2000) => {
+  if (startValue === endValue || isAnimating) {
+    return;
+  }
+
+  setIsAnimating(true);
+  const startTime = performance.now(); // Usando performance.now() para maior precisão
+  const range = endValue - startValue;
+  
+  // Configuração adaptativa da duração
+  const baseDuration = Math.min(duration, Math.abs(range) * 20);
+  const finalDuration = Math.max(baseDuration, 1000); // Duração mínima de 1s
+
+  const animate = (currentTime: number) => {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / finalDuration, 1);
+    
+    // Função de easing cubic-bezier para suavidade
+    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+    const easedProgress = easeOutCubic(progress);
+    
+    // Cálculo do valor atual com progresso suavizado
+    const currentValue = startValue + (range * easedProgress);
+    
+    // Atualização do display baseada no tipo de agregação
+    if (config.tipoAgregacao === 'avg') {
+      setDisplayValue(parseFloat(currentValue.toFixed(2)));
+    } else {
+      // Para inteiros, mostramos todos os valores intermediários
+      setDisplayValue(Math.floor(currentValue));
+    }
+
+    // Continua a animação se não terminou
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      setDisplayValue(endValue); // Garante o valor final exato
+      setIsAnimating(false);
+    }
+  };
+
+  requestAnimationFrame(animate);
+};
+Melhorias Implementadas
+Precisão Temporal:
+
+Uso de performance.now() em vez de Date.now() para maior precisão na animação
+
+Controle de Progresso:
+
+Nova função de easing cubic-bezier para transição mais natural
+
+Cálculo preciso de valores intermediários
+
+Tratamento de Valores Inteiros:
+
+Garantia de que todos os valores inteiros intermediários serão exibidos
+
+Sem "saltos" entre valores
+
+Gerenciamento de Estado:
+
+Bloqueio de novas animações enquanto uma está em curso
+
+Garantia do valor final exato
+
+Configuração Adicional Recomendada
+Para melhorar ainda mais a experiência, adicione este CSS:
+
+css
+/* Adicione no seu arquivo CSS global */
+.statistic-value {
+  font-variant-numeric: tabular-nums; /* Mantém largura consistente */
+  transition: color 0.3s ease; /* Para mudanças de cor suaves */
+}
+
+.animating {
+  animation: pulse 0.5s infinite alternate;
+}
+
+@keyframes pulse {
+  from { opacity: 1; }
+  to { opacity: 0.8; }
+}
+Implementação no Componente
+Atualize a renderização do valor para usar essas classes:
+
+typescript
+<div className={`statistic-value ${isAnimating ? 'animating' : ''}`}>
+  {formatValue(displayValue)}
+  <span className="unit">{config.unidade}</span>
+</div>
+Teste de Validação
+Para verificar se está funcionando corretamente:
+
+A animação deve mostrar todos os valores inteiros intermediários
+
+A transição deve ser suave sem saltos visíveis
+
+O tempo total da animação deve ser proporcional à diferença de valores
+
+O valor final deve corresponder exatamente ao dado real
+
+Esta implementação resolve o problema dos "saltos" e proporciona uma experiência visual muito mais agradável e profissional para os usuários do sistema.
