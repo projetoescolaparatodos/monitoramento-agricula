@@ -234,7 +234,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
   return (
     <Card className="bg-white rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 overflow-hidden transform hover:-translate-y-3 hover:scale-105 relative border border-gray-100 min-h-[250px]">
       <div className="absolute top-4 right-4 flex flex-col items-end gap-2">
-        <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+        <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow-lg flex items-center justify-center">
           {isUpdating ? (
             <span className="animate-spin text-lg">🔄</span>
           ) : isAnimating ? (
@@ -242,9 +242,8 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           ) : (
             <span className="text-lg">⚡</span>
           )}
-          <span className="text-sm">{isAnimating ? 'Atualizando' : 'Dinâmico'}</span>
         </div>
-        <div className="text-sm text-gray-600 bg-gray-50 px-3 py-1.5 rounded-full shadow-sm font-medium">
+        <div className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-full shadow-sm font-medium">
           {lastUpdate.toLocaleTimeString('pt-BR', { 
             hour: '2-digit', 
             minute: '2-digit' 
