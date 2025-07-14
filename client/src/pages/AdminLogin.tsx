@@ -62,15 +62,7 @@ const AdminLogin = () => {
               </p>
             </CardHeader>
             <CardContent className="space-y-4 px-8 pb-8">
-              <Button 
-                onClick={() => setLocation("/login/admin/gestor")}
-                className="w-full h-16 text-lg bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 flex items-center justify-center gap-4 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] group"
-              >
-                <div className="flex items-center justify-center w-10 h-10 bg-white/20 rounded-full group-hover:bg-white/30 transition-all duration-300">
-                  <Shield className="h-6 w-6" />
-                </div>
-                <span className="font-semibold">Área do Gestor</span>
-              </Button>
+              
               
               <Button 
                 onClick={() => setLocation("/login/admin/agricultura")}

@@ -1656,6 +1656,7 @@ const Admin = () => {
     }
   };
 
+  // Add key press listener to show/hide manager button
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.key === "m") {
