@@ -34,7 +34,7 @@ const HeroSection = () => {
                       }}
                     />
                     <div 
-                      className="text-base md:text-xl text-white/90 font-medium tracking-wide mb-4 md:mb-6 max-w-xl text-justify border-l-4 border-white/40 pl-6 py-3"
+                      className="text-base md:text-xl text-white/90 font-medium tracking-wide mb-4 md:mb-6 max-w-xl text-justify border-l-4 border-white/40 pl-6 py-4 leading-relaxed md:leading-loose"
                       dangerouslySetInnerHTML={{
                         __html: content?.content || `Conheça as principais ações e iniciativas da Secretaria Municipal de Agricultura, Pesca e Abastecimento.<br><br>Fique por dentro dos projetos que estão transformando o setor agropecuário e pesqueiro do nosso município.`
                       }}
