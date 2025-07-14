@@ -23,6 +23,14 @@ interface ChatbotMessage {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Healthcheck endpoint
+  app.get('/health', (_req, res) => {
+    res.status(200).json({ 
+      status: 'OK', 
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
+    });
+  });
   app.get('/api/health', (req, res) => {
     res.status(200).json({ status: 'ok', environment: process.env.NODE_ENV });
   });

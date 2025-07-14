@@ -39,6 +39,30 @@ enableMultiTabIndexedDbPersistence(db).catch((err) => {
 // Inicializar o Storage
 const storage = getStorage(app);
 
+// Função de retry para operações do Firebase
+export const withRetry = async <T>(
+  operation: () => Promise<T>,
+  maxRetries: number = 3,
+  delay: number = 1000
+): Promise<T> => {
+  let lastError: Error;
+  
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await operation();
+    } catch (error: any) {
+      lastError = error;
+      console.warn(`Tentativa ${i + 1} falhou:`, error.message);
+      
+      if (i < maxRetries - 1) {
+        await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i)));
+      }
+    }
+  }
+  
+  throw lastError!;
+};
+
 export { db, storage };
 export const auth = getAuth(app);
 

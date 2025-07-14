@@ -2,7 +2,6 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
-
 // Create Express application
 const app = express();
 app.use(express.json());
@@ -65,15 +64,42 @@ app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
 
 // Configuração mais compatível com serverless
 const setupServer = async () => {
+  // Adicionar middleware CORS antes das rotas
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    
+    if (req.method === 'OPTIONS') {
+      res.sendStatus(200);
+    } else {
+      next();
+    }
+  });
+
+  // Middleware para timeout das requisições
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    res.setTimeout(30000, () => {
+      console.error(`Request timeout: ${req.method} ${req.url}`);
+      if (!res.headersSent) {
+        res.status(408).json({ message: 'Request timeout' });
+      }
+    });
+    next();
+  });
+
   const server = await registerRoutes(app);
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-    console.error(`Erro: ${status} - ${message}`);
+    console.error(`Erro: ${status} - ${message} - URL: ${req.url}`);
+    console.error('Stack trace:', err.stack);
 
     // Evita lançar o erro novamente, apenas envia a resposta
-    res.status(status).json({ message });
+    if (!res.headersSent) {
+      res.status(status).json({ message });
+    }
   });
 
   // Setup Vite only in development mode

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { db } from '@/utils/firebase';
+import { db, withRetry } from '@/utils/firebase';
 import { collection, query, where, onSnapshot, Timestamp } from 'firebase/firestore';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronUp, ChevronDown } from 'lucide-react';
@@ -128,36 +128,43 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     const fetchData = () => {
       const { startDate, endDate } = calcularPeriodo();
 
-      // Construir query base
-      let q = query(collection(db, config.colecaoFonte));
+      const setupQuery = () => {
+        // Construir query base
+        let q = query(collection(db, config.colecaoFonte));
 
-      // Adicionar filtros de data
-      if (config.colecaoFonte === 'doacoes_evento') {
-        // Para doações, usar timestamp
-        if (config.periodo !== 'todos') {
-          q = query(q,
-            where('timestamp', '>=', Timestamp.fromDate(startDate)),
-            where('timestamp', '<=', Timestamp.fromDate(endDate))
+        // Adicionar filtros de data
+        if (config.colecaoFonte === 'doacoes_evento') {
+          // Para doações, usar timestamp
+          if (config.periodo !== 'todos') {
+            q = query(q,
+              where('timestamp', '>=', Timestamp.fromDate(startDate)),
+              where('timestamp', '<=', Timestamp.fromDate(endDate))
+            );
+          }
+        } else if (config.periodo !== 'todos') {
+          // Para outras coleções, usar createdAt
+          q = query(q, 
+            where('createdAt', '>=', Timestamp.fromDate(startDate)),
+            where('createdAt', '<=', Timestamp.fromDate(endDate))
           );
         }
-      } else if (config.periodo !== 'todos') {
-        // Para outras coleções, usar createdAt
-        q = query(q, 
-          where('createdAt', '>=', Timestamp.fromDate(startDate)),
-          where('createdAt', '<=', Timestamp.fromDate(endDate))
-        );
-      }
 
-      // Adicionar filtros adicionais se existirem
-      if (config.filtroAdicional && Array.isArray(config.filtroAdicional)) {
-        config.filtroAdicional.forEach(filter => {
-          if (filter.fieldPath && filter.opStr && filter.value) {
-            q = query(q, where(filter.fieldPath, filter.opStr, filter.value));
-          }
-        });
-      }
+        // Adicionar filtros adicionais se existirem
+        if (config.filtroAdicional && Array.isArray(config.filtroAdicional)) {
+          config.filtroAdicional.forEach(filter => {
+            if (filter.fieldPath && filter.opStr && filter.value) {
+              q = query(q, where(filter.fieldPath, filter.opStr, filter.value));
+            }
+          });
+        }
 
-      return onSnapshot(q, (snapshot) => {
+        return q;
+      };
+
+      return withRetry(() => {
+        return new Promise((resolve, reject) => {
+          const q = setupQuery();
+          const unsubscribe = onSnapshot(q, (snapshot) => {
         let calculatedValue = 0;
 
         if (config.tipoAgregacao === 'count') {
@@ -201,11 +208,20 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
         }
 
         setLastUpdate(new Date());
+            setLoading(false);
+            setIsUpdating(false);
+            resolve(unsubscribe);
+          }, (error) => {
+            console.error('Erro ao buscar estatísticas dinâmicas:', error);
+            reject(error);
+          });
+        });
+      }).catch((error) => {
+        console.error('Falha após múltiplas tentativas:', error);
         setLoading(false);
         setIsUpdating(false);
-      }, (error) => {
-        console.error('Erro ao buscar estatísticas dinâmicas:', error);
-        setLoading(false);
+        // Retornar um unsubscribe vazio em caso de erro
+        return () => {};
       });
     };
 
