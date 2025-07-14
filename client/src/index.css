@@ -1004,7 +1004,7 @@ iframe[src*="drive.google.com"] {
   background: rgba(0, 0, 0, 0.7);
   color: white;
   border: none;
-  width: 48px,
+  width: 48px;
   height: 48px;
   border-radius: 50%;
   cursor: pointer;
