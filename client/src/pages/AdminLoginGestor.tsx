@@ -27,17 +27,30 @@ const AdminLoginGestor = () => {
       const user = userCredential.user;
 
       // Verificar se o usuário tem permissão de admin/gestor
-      const userDoc = await getDoc(doc(db, 'usuarios_admin', user.uid));
-      
-      if (!userDoc.exists()) {
-        throw new Error('Usuário não autorizado para o sistema administrativo');
-      }
+      // Primeiro tenta na coleção usuarios_admin
+      let userDoc = await getDoc(doc(db, 'usuarios_admin', user.uid));
+      let userData = null;
 
-      const userData = userDoc.data();
-      
-      // Verificar se é admin ou coordenação (gestor)
-      if (userData.setor !== 'admin' && userData.setor !== 'coordenacao') {
-        throw new Error('Você não tem permissão para acessar a área do Gestor. Acesso restrito apenas para administradores.');
+      if (userDoc.exists()) {
+        userData = userDoc.data();
+        // Verificar se é admin ou coordenação (gestor)
+        if (userData.setor !== 'admin' && userData.setor !== 'coordenacao') {
+          throw new Error('Você não tem permissão para acessar a área do Gestor. Acesso restrito apenas para administradores.');
+        }
+      } else {
+        // Se não encontrou em usuarios_admin, verifica na coleção usuarios
+        userDoc = await getDoc(doc(db, 'usuarios', user.uid));
+        
+        if (!userDoc.exists()) {
+          throw new Error('Usuário não autorizado para o sistema administrativo');
+        }
+
+        userData = userDoc.data();
+        
+        // Verificar se tem permissão de admin na coleção usuarios
+        if (userData.permissao !== 'admin') {
+          throw new Error('Você não tem permissão para acessar a área do Gestor. Acesso restrito apenas para administradores.');
+        }
       }
 
       toast({
