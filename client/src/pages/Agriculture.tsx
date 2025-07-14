@@ -181,8 +181,14 @@ const Agriculture = () => {
     <>
       <div style={backgroundStyle}></div>
       <div className="fixed inset-0 w-full min-h-screen bg-black/40 z-[1]"></div>
-      <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
-        <div className="flex flex-col sm:flex-row justify-end mb-6 gap-3">
+      <main className="container mx-auto px-4 pt-20 pb-16 relative z-10">
+        <div className="prose max-w-none mb-8">
+          <h1 className="section-title text-4xl font-bold text-center mb-4 text-white">AGRICULTURA</h1>
+          <p className="section-subtitle text-center text-lg text-white/80">
+            Informações e dados sobre a agricultura em Vitória do Xingu
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row justify-end mb-8 gap-3">
           <AgricultureTabButton className="shadow-md text-sm sm:text-base w-full sm:w-auto">
             <span className="truncate">Serviços Agricultura</span>
           </AgricultureTabButton>
@@ -195,11 +201,6 @@ const Agriculture = () => {
           </Button>
         </div>
         <main className="space-y-12">
-          <div className="prose max-w-none">
-            <h1 className="section-title text-4xl font-bold text-center mb-4 text-white">AGRICULTURA</h1>
-            <p className="section-subtitle text-center text-lg text-white/80">
-              Informações e dados sobre a agricultura em Vitória do Xingu
-            </p>
           </div>
 
           {contents && contents.length > 0 && (
