@@ -41,9 +41,9 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     const startTime = performance.now();
     const range = endValue - startValue;
     
-    // Duração adaptativa baseada na diferença de valores
-    const baseDuration = Math.min(Math.abs(range) * 10, 4000); // Máx 4s
-    const finalDuration = Math.max(baseDuration, 1000); // Mín 1s
+    // Duração adaptativa baseada na diferença de valores (mais lenta)
+    const baseDuration = Math.min(Math.abs(range) * 20, 8000); // Máx 8s
+    const finalDuration = Math.max(baseDuration, 2500); // Mín 2.5s
 
     const animate = (currentTime: number) => {
       const elapsed = currentTime - startTime;
