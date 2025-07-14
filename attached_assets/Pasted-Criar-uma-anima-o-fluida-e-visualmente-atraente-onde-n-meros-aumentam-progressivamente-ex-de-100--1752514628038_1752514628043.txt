@@ -1,0 +1,92 @@
+Criar uma animação fluida e visualmente atraente onde números aumentam progressivamente (ex: de 100 para 400), exibindo todos os valores intermediários em sequência, como os contadores de lives ou doações em tempo real. A transição deve ser suave, sem saltos, e com um efeito de "rolagem" dos dígitos.
+
+Detalhes da Animação:
+Progressão Numérica Contínua:
+
+Exibir cada número inteiro no intervalo (ex: 100 → 101 → 102 → ... → 400).
+
+Para decimais (caso tipoAgregacao = 'avg'), mostrar 1 casa decimal durante a animação (ex: 10.0 → 10.1 → ... → 15.0).
+
+Velocidade Adaptativa:
+
+Quanto maior a diferença entre valores, mais rápida a animação (ex: 100→400 em 2s, 1000→1500 em 3s).
+
+Duração mínima: 1s (mesmo para pequenas variações).
+
+Duração máxima: 4s (para evitar animações muito longas).
+
+Efeito Visual:
+
+Easing Suave: Aceleração progressiva no início e desaceleração no final (easeOutCubic).
+
+Feedback de Atualização:
+
+Cores temporárias durante a animação (ex: verde claro para aumentos).
+
+Ícone de "carregamento" (🔃) enquanto os números mudam.
+
+Performance Otimizada:
+
+Usar requestAnimationFrame para sincronizar com o refresh rate do navegador.
+
+Evitar recálculos desnecessários com useMemo ou useCallback.
+
+Importante: Não travar a thread principal (UI deve permanecer responsiva).
+
+Código de Exemplo (React + TypeScript):
+tsx
+const animateCounter = (
+  start: number, 
+  end: number, 
+  onUpdate: (value: number) => void,
+  duration: number = 2000 // Padrão: 2 segundos
+) => {
+  const startTime = performance.now();
+  const range = end - start;
+  
+  const animate = (currentTime: number) => {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1); // 0 → 1
+    const easedProgress = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+    
+    // Calcula valor atual (arredonda para inteiro ou 1 decimal)
+    const currentValue = start + (range * easedProgress);
+    const displayValue = Number.isInteger(start) 
+      ? Math.floor(currentValue) 
+      : parseFloat(currentValue.toFixed(1));
+    
+    onUpdate(displayValue);
+    
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    }
+  };
+  
+  requestAnimationFrame(animate);
+};
+Requisitos Adicionais:
+Mobile-Friendly: Funcionar sem lag em dispositivos com hardware limitado.
+
+Interrompível: Parar a animação se o componente for desmontado.
+
+Formatação:
+
+Adicionar separadores de milhar (ex: 1,000).
+
+Unidade de medida opcional (ex: "R$", "kg").
+
+Exemplo Visual:
+text
+[Valor Inicial: 100]  
+→ 101 (0.1s)  
+→ 102 (0.2s)  
+→ ...  
+→ 400 (2.0s) *com easing*  
+[Ícone de confirmação: ✔️]  
+Referência:
+
+Inspiração: Contadores de doação em lives (Twitch, YouTube).
+
+Libs Sugeridas: framer-motion (para efeitos extras) ou implementação manual com CSS/JS.
+
+Se precisar de ajustes ou exemplos mais específicos, é só pedir! 🚀
