@@ -107,9 +107,7 @@ const StatisticsSection = React.memo(({ variant = "default" }: { variant?: "defa
 
         {/* Estatísticas dinâmicas */}
         {dynamicStatsConfig?.map((config: any) => (
-          <div key={config.id} className="transform hover:scale-105 transition-transform duration-300">
-            <DynamicStatisticCard config={config} variant={variant} />
-          </div>
+          <DynamicStatisticCard key={config.id} config={config} variant={variant} />
         ))}
       </div>
     </section>
