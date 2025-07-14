@@ -1642,12 +1642,21 @@ html, body {
 
 /* Otimizações de performance para vídeos */
 video {
-  will-change: transform;
+  will-change: auto;
   transform: translateZ(0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   content-visibility: auto;
   contain-intrinsic-size: 100vw 100vh;
+}
+
+/* Otimização específica para vídeos de fundo */
+video[data-background-video] {
+  will-change: auto;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  pointer-events: none;
 }
 
 /* Otimizações para degradês */

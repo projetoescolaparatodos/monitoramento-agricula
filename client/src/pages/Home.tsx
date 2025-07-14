@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import Footer from "@/components/layout/Footer";
 import { useQuery } from "@tanstack/react-query";
 import { MediaItem } from "@/types";
+import BackgroundVideo from "@/components/ui/BackgroundVideo";
 
 // Lazy loading dos componentes pesados
 const HeroSection = React.lazy(() => import("@/components/home/HeroSection"));
@@ -63,25 +64,8 @@ const Home = () => {
 
   return (
     <>
-      {/* Vídeo de fundo otimizado com lazy loading */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute min-w-full min-h-full object-cover z-0"
-          preload="none"
-          loading="lazy"
-          poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000' viewBox='0 0 1 1'%3E%3C/svg%3E"
-          style={{ opacity: 1 }}
-        >
-          <source src="/videos/BackgroundVideo.mp4" type="video/mp4" />
-          Seu navegador não suporta vídeos HTML5.
-        </video>
-        {/* Overlay escuro para melhor legibilidade */}
-        <div className="absolute top-0 left-0 w-full h-full bg-black/60 z-10" />
-      </div>
+      {/* Vídeo de fundo otimizado */}
+      <BackgroundVideo overlay={true} overlayOpacity={0.6} />
       
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-20">
         <Suspense fallback={<SectionSkeleton height="500px" />}>
