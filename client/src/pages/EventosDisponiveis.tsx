@@ -27,7 +27,17 @@ const EventosDisponiveis: React.FC = () => {
           ...doc.data()
         })) as Evento[];
         
-        setEventos(eventosData);
+        // Filtrar apenas eventos ativos e ordenar por data de criação
+        const eventosAtivos = eventosData
+          .filter(evento => evento.ativo)
+          .sort((a, b) => {
+            if (a.criadoEm && b.criadoEm) {
+              return b.criadoEm.toDate() - a.criadoEm.toDate();
+            }
+            return 0;
+          });
+        
+        setEventos(eventosAtivos);
         setLoading(false);
       } catch (error) {
         console.error('Erro ao buscar eventos:', error);

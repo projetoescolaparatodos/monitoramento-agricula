@@ -77,7 +77,7 @@ const NavBar = () => {
                  Doações
               </Button>
             </Link>
-            <Link to="/evento-telao" onClick={() => {
+            <Link to="/eventos-disponiveis" onClick={() => {
               handleNavLinkClick();
               setTimeout(() => window.scrollTo(0, 0), 100);
             }}>

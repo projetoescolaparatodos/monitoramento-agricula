@@ -5,7 +5,7 @@ import { collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, Timestamp } 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Trash2, Edit, Eye, EyeOff, Plus, Calendar } from 'lucide-react';
+import { Trash2, Edit, Eye, EyeOff, Plus, Calendar, ExternalLink } from 'lucide-react';
 
 interface Evento {
   id: string;
@@ -167,6 +167,11 @@ export const EventosManager: React.FC = () => {
     }
   };
 
+  const openTelao = (eventoId: string) => {
+    const url = `/evento-telao?evento=${eventoId}`;
+    window.open(url, '_blank');
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-48">
@@ -259,6 +264,7 @@ export const EventosManager: React.FC = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID do Evento</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Período</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
@@ -268,6 +274,9 @@ export const EventosManager: React.FC = () => {
                   {eventos.map((evento) => (
                     <tr key={evento.id}>
                       <td className="px-6 py-4 whitespace-nowrap font-medium">{evento.nome}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-xs font-mono bg-gray-50 rounded px-2 py-1">
+                        {evento.id}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {evento.dataInicio?.toDate().toLocaleDateString('pt-BR')} a{' '}
                         {evento.dataFim?.toDate().toLocaleDateString('pt-BR')}
@@ -282,20 +291,30 @@ export const EventosManager: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <div className="flex space-x-2">
                           <button
+                            onClick={() => openTelao(evento.id)}
+                            className="text-purple-600 hover:text-purple-800"
+                            title="Abrir Telão"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </button>
+                          <button
                             onClick={() => toggleActive(evento.id, evento.ativo)}
                             className="text-blue-600 hover:text-blue-800"
+                            title={evento.ativo ? "Desativar" : "Ativar"}
                           >
                             {evento.ativo ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </button>
                           <button
                             onClick={() => handleEdit(evento)}
                             className="text-green-600 hover:text-green-800"
+                            title="Editar"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => deleteEvento(evento.id)}
                             className="text-red-600 hover:text-red-800"
+                            title="Excluir"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
