@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useQuery } from "@tanstack/react-query";
 import { StatisticItem } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,7 +7,7 @@ import { DynamicStatisticCard } from "@/components/common/DynamicStatisticCard";
 import { db } from '@/utils/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
-const StatisticsSection = ({ variant = "default" }: { variant?: "default" | "transparent" }) => {
+const StatisticsSection = React.memo(({ variant = "default" }: { variant?: "default" | "transparent" }) => {
   const { data: statistics, isLoading } = useQuery<StatisticItem[]>({
     queryKey: ['/api/statistics'],
     queryFn: async () => {
@@ -16,10 +16,12 @@ const StatisticsSection = ({ variant = "default" }: { variant?: "default" | "tra
         throw new Error('Failed to fetch statistics');
       }
       return response.json();
-    }
+    },
+    staleTime: 3 * 60 * 1000, // 3 minutos de cache
+    gcTime: 5 * 60 * 1000, // 5 minutos no garbage collector
   });
 
-  // Query para configurações de estatísticas dinâmicas
+  // Query para configurações de estatísticas dinâmicas com cache
   const { data: dynamicStatsConfig, isLoading: isLoadingDynamic } = useQuery({
     queryKey: ['dynamic-statistics-config'],
     queryFn: async () => {
@@ -37,11 +39,17 @@ const StatisticsSection = ({ variant = "default" }: { variant?: "default" | "tra
         console.error('Erro ao buscar configurações dinâmicas:', error);
         return [];
       }
-    }
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutos de cache
+    gcTime: 10 * 60 * 1000, // 10 minutos no garbage collector
   });
 
-  const filteredStatistics = statistics?.filter(stat => stat.active !== false && stat.pageType === 'home')
-    .sort((a, b) => (a.order || 0) - (b.order || 0));
+  // Memoizar filtro de estatísticas
+  const filteredStatistics = useMemo(() => 
+    statistics?.filter(stat => stat.active !== false && stat.pageType === 'home')
+      .sort((a, b) => (a.order || 0) - (b.order || 0)) || [],
+    [statistics]
+  );
 
   if (isLoading || isLoadingDynamic) {
     return (
@@ -104,6 +112,6 @@ const StatisticsSection = ({ variant = "default" }: { variant?: "default" | "tra
       </div>
     </section>
   );
-};
+});
 
 export default StatisticsSection;

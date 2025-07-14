@@ -1,31 +1,45 @@
-import React from "react";
+import React, { Suspense, useMemo, useCallback } from "react";
 import { Link, useLocation } from "wouter";
 import Footer from "@/components/layout/Footer";
-import HeroSection from "@/components/home/HeroSection";
-import StatisticsSection from "@/components/home/StatisticsSection";
-import DataVisualizationSection from "@/components/home/DataVisualizationSection";
-import MediaGallerySection from "@/components/home/MediaGallerySection";
-import HomeMediaGallerySection from "@/components/home/HomeMediaGallerySection";
-import AreasSection from "@/components/home/AreasSection";
-import BackgroundVideo from "@/components/ui/BackgroundVideo";
 import { useQuery } from "@tanstack/react-query";
 import { MediaItem } from "@/types";
+
+// Lazy loading dos componentes pesados
+const HeroSection = React.lazy(() => import("@/components/home/HeroSection"));
+const StatisticsSection = React.lazy(() => import("@/components/home/StatisticsSection"));
+const DataVisualizationSection = React.lazy(() => import("@/components/home/DataVisualizationSection"));
+const MediaGallerySection = React.lazy(() => import("@/components/home/MediaGallerySection"));
+const HomeMediaGallerySection = React.lazy(() => import("@/components/home/HomeMediaGallerySection"));
+const AreasSection = React.lazy(() => import("@/components/home/AreasSection"));
+
+// Componente de loading otimizado
+const SectionSkeleton = React.memo(({ height = "400px" }: { height?: string }) => (
+  <div 
+    className="animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%] rounded-lg"
+    style={{ height, animationDuration: '1.5s' }}
+  />
+));
 
 const Home = () => {
   const [, setLocation] = useLocation();
 
-  // Buscar mídias da página home
+  // Buscar mídias da página home com staleTime para cache
   const { data: allMediaItems, isLoading: isLoadingMedia } = useQuery<MediaItem[]>({
     queryKey: ['/api/media-items'],
+    staleTime: 5 * 60 * 1000, // 5 minutos de cache
+    gcTime: 10 * 60 * 1000, // 10 minutos no garbage collector
   });
 
-  // Filtrar apenas mídias da página home
-  const homeMediaItems = allMediaItems?.filter(item => 
-    item.active !== false && item.pageType === 'home'
+  // Memoizar filtro de mídias para evitar recálculos
+  const homeMediaItems = useMemo(() => 
+    allMediaItems?.filter(item => 
+      item.active !== false && item.pageType === 'home'
+    ) || [],
+    [allMediaItems]
   );
 
-  // Função para lidar com a rolagem para a seção de mídia
-  const scrollToMedia = (pageType: string) => {
+  // Otimizar função de scroll com useCallback
+  const scrollToMedia = useCallback((pageType: string) => {
     // Navegar para a página correspondente se não estiver nela
     if (pageType === 'agriculture') {
       setLocation('/agriculture');
@@ -45,10 +59,11 @@ const Home = () => {
         });
       }
     }, 300);
-  };
+  }, [setLocation]);
 
   return (
     <>
+      {/* Vídeo de fundo otimizado com lazy loading */}
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 bg-black/40">
         <video
           autoPlay
@@ -56,50 +71,68 @@ const Home = () => {
           muted
           playsInline
           className="absolute min-w-full min-h-full object-cover z-0"
-          preload="metadata"
+          preload="none"
+          loading="lazy"
+          poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000' viewBox='0 0 1 1'%3E%3C/svg%3E"
         >
           <source src="/videos/BackgroundVideo.mp4" type="video/mp4" />
           Seu navegador não suporta vídeos HTML5.
         </video>
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-green-900/30 to-transparent z-10" />
       </div>
+      
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-20">
-        <HeroSection />
+        <Suspense fallback={<SectionSkeleton height="500px" />}>
+          <HeroSection />
+        </Suspense>
+        
         <section id="estatisticas" className="py-12">
-          <StatisticsSection variant="transparent" />
+          <Suspense fallback={<SectionSkeleton height="300px" />}>
+            <StatisticsSection variant="transparent" />
+          </Suspense>
         </section>
-        <AreasSection />
+        
+        <Suspense fallback={<SectionSkeleton height="400px" />}>
+          <AreasSection />
+        </Suspense>
+        
         <section id="home-media" className="py-12 pb-0">
-          <HomeMediaGallerySection 
-            mediaItems={homeMediaItems} 
-            isLoading={isLoadingMedia} 
-            variant="transparent" 
-          />
+          <Suspense fallback={<SectionSkeleton height="350px" />}>
+            <HomeMediaGallerySection 
+              mediaItems={homeMediaItems} 
+              isLoading={isLoadingMedia} 
+              variant="transparent" 
+            />
+          </Suspense>
         </section>
-        </main>
+      </main>
 
-      {/* Degradê de transição do vídeo para fundo branco */}
-      <div className="video-to-white-gradient"></div>
+      {/* Degradê de transição otimizado */}
+      <div className="video-to-white-gradient will-change-transform"></div>
 
-      {/* Seções com fundo branco opaco */}
-      <div className="bg-white relative">
+      {/* Seções com fundo branco otimizado */}
+      <div className="bg-white relative will-change-transform">
         <main className="container mx-auto px-4 pt-2 pb-4">
           <section id="visualization" className="py-0">
             <h2 className="section-title text-4xl font-bold text-center mb-8 text-green-700">NOSSA PRODUÇÃO EM PERSPECTIVA</h2>
-            <DataVisualizationSection variant="default" />
+            <Suspense fallback={<SectionSkeleton height="600px" />}>
+              <DataVisualizationSection variant="default" />
+            </Suspense>
           </section>
-          </main>
+        </main>
       </div>
 
-      {/* Degradê de transição do fundo branco para vídeo com máscara */}
-      <div className="white-to-video-gradient"></div>
+      {/* Degradê de transição otimizado */}
+      <div className="white-to-video-gradient will-change-transform"></div>
 
-      {/* Seção de mídia com vídeo de fundo reutilizado e máscara escura */}
-      <div className="relative">
+      {/* Seção de mídia final otimizada */}
+      <div className="relative will-change-transform">
         <main className="container mx-auto px-4 py-16 relative z-20">
           <section id="media" className="py-12">
             <h2 className="section-title text-4xl font-bold text-center mb-8 text-white">MÍDIAS DE TODOS OS SETORES</h2>
-            <MediaGallerySection variant="transparent" />
+            <Suspense fallback={<SectionSkeleton height="400px" />}>
+              <MediaGallerySection variant="transparent" />
+            </Suspense>
           </section>
         </main>
       </div>
