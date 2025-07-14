@@ -64,7 +64,7 @@ const Home = () => {
   return (
     <>
       {/* Vídeo de fundo otimizado com lazy loading */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 bg-black/40">
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
         <video
           autoPlay
           loop
@@ -74,11 +74,13 @@ const Home = () => {
           preload="none"
           loading="lazy"
           poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000' viewBox='0 0 1 1'%3E%3C/svg%3E"
+          style={{ opacity: 1 }}
         >
           <source src="/videos/BackgroundVideo.mp4" type="video/mp4" />
           Seu navegador não suporta vídeos HTML5.
         </video>
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-green-900/30 to-transparent z-10" />
+        {/* Overlay escuro para melhor legibilidade */}
+        <div className="absolute top-0 left-0 w-full h-full bg-black/60 z-10" />
       </div>
       
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-20">
