@@ -1793,7 +1793,7 @@ const Admin = () => {
         </TabsContent>
       </Tabs>
       {showManagerButton && (
-        <Button onClick={() => window.location.href = "/dashboard"}>Área do Gestor</Button>
+        <Button onClick={() => window.location.href = "/login/admin/gestor"}>Área do Gestor</Button>
       )}
     </div>
   );
