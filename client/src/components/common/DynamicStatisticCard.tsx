@@ -31,8 +31,8 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
   const [isUpdating, setIsUpdating] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // Função para animar a contagem gradual
-  const animateValue = (startValue: number, endValue: number, duration: number = 2000) => {
+  // Função para animar a contagem gradual com contador progressivo
+  const animateValue = (startValue: number, endValue: number, duration: number = 3000) => {
     if (startValue === endValue) {
       setDisplayValue(endValue);
       return;
@@ -41,17 +41,42 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     setIsAnimating(true);
     const startTime = Date.now();
     const difference = endValue - startValue;
+    const isIncreasing = difference > 0;
+    
+    // Calcula velocidade baseada na diferença para animações mais realistas
+    const adjustedDuration = Math.min(duration, Math.abs(difference) * 50); // 50ms por unidade
+    const minDuration = 1000; // Duração mínima de 1 segundo
+    const finalDuration = Math.max(adjustedDuration, minDuration);
 
     const updateValue = () => {
       const now = Date.now();
       const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
+      const progress = Math.min(elapsed / finalDuration, 1);
 
-      // Função de easing para tornar a animação mais suave
-      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-
-      const currentValue = startValue + (difference * easeOutQuart);
-      setDisplayValue(Math.round(currentValue * 100) / 100); // Arredonda para 2 casas decimais
+      // Função de easing suavizada para contagem mais natural
+      const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+      
+      let currentValue;
+      
+      if (config.tipoAgregacao === 'avg') {
+        // Para médias, mantém decimais
+        currentValue = startValue + (difference * easeOutCubic);
+        setDisplayValue(Math.round(currentValue * 100) / 100);
+      } else {
+        // Para contadores inteiros, incrementa de 1 em 1
+        if (Math.abs(difference) <= 10) {
+          // Para diferenças pequenas, animação mais suave
+          currentValue = startValue + (difference * easeOutCubic);
+          setDisplayValue(Math.round(currentValue));
+        } else {
+          // Para diferenças grandes, conta de forma mais acelerada mas visível
+          const steps = Math.max(20, Math.min(100, Math.abs(difference) / 5));
+          const stepSize = difference / steps;
+          const currentStep = Math.floor(progress * steps);
+          currentValue = startValue + (stepSize * currentStep);
+          setDisplayValue(Math.round(currentValue));
+        }
+      }
 
       if (progress < 1) {
         requestAnimationFrame(updateValue);
@@ -209,10 +234,12 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     if (config.tipoAgregacao === 'avg') {
       return val.toFixed(1);
     }
-    // Durante a animação, mostra números inteiros para uma contagem mais suave
-    if (isAnimating && Number.isInteger(val)) {
+    
+    // Durante a animação, sempre mostra números inteiros para efeito de contador
+    if (isAnimating) {
       return Math.floor(val).toLocaleString('pt-BR');
     }
+    
     return Math.round(val).toLocaleString('pt-BR');
   };
 
@@ -263,10 +290,20 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           </div>
         ) : (
           <>
-            <div className="text-5xl font-black text-transparent bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text mb-4 leading-tight tracking-tight">
-              {formatValue(displayValue)}
+            <div className="text-5xl font-black text-transparent bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text mb-4 leading-tight tracking-tight relative">
+              <span className={isAnimating ? 'animate-pulse' : ''}>
+                {formatValue(displayValue)}
+              </span>
               {isAnimating && (
-                <span className="inline-block w-2 h-12 bg-gradient-to-r from-green-600 to-emerald-700 ml-2 animate-pulse rounded-sm"></span>
+                <span className="inline-block w-2 h-12 bg-gradient-to-r from-green-600 to-emerald-700 ml-2 animate-pulse rounded-sm opacity-80"></span>
+              )}
+              {isAnimating && (
+                <div className="absolute -top-2 -right-2">
+                  <span className="flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                  </span>
+                </div>
               )}
             </div>
             <div className="text-lg font-bold tracking-wide mb-4 text-gray-800 leading-relaxed px-2">
