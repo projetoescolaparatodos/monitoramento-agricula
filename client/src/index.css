@@ -94,10 +94,6 @@
   }
 }
 
-.quill-container .ql-container {
-  border-color: #e2e8f0;
-}
-
 /* Estilos para o modo escuro do editor */
 .dark .quill-container .ql-toolbar {
   background-color: #2d3748;
@@ -169,6 +165,10 @@
 .media-display .quill-content h1,
 .media-display .quill-content h2,
 .media-display .quill-content h3 {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+}
 
 /* Estilos para vídeos verticais (formato Instagram 9:16) */
 .aspect-[9\/16] {
@@ -185,11 +185,6 @@
   .video-container-vertical {
     max-width: 85vw;
   }
-}
-
-  margin-top: 1em;
-  margin-bottom: 0.5em;
-  font-weight: 600;
 }
 
 .media-display .quill-content h1 {
