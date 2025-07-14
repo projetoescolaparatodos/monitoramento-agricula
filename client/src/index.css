@@ -1658,7 +1658,7 @@ video {
   will-change: transform;
   transform: translateZ(0);
   backface-visibility: hidden;
-  contain: layout style paint;
+  -webkit-backface-visibility: hidden;
 }
 
 /* Otimização para elementos com lazy loading */
