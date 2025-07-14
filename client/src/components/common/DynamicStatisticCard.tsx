@@ -32,58 +32,48 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
   const [isAnimating, setIsAnimating] = useState(false);
 
   // Função para animar a contagem gradual com contador progressivo
-  const animateValue = (startValue: number, endValue: number, duration: number = 2500) => {
-    if (startValue === endValue) {
-      setDisplayValue(endValue);
+  const animateValue = (startValue: number, endValue: number, duration: number = 2000) => {
+    if (startValue === endValue || isAnimating) {
       return;
     }
 
     setIsAnimating(true);
-    const startTime = Date.now();
-    const difference = endValue - startValue;
+    const startTime = performance.now(); // Usando performance.now() para maior precisão
+    const range = endValue - startValue;
     
-    // Calcula duração baseada na diferença, mas com limites mais suaves
-    const baseDuration = Math.min(duration, Math.abs(difference) * 30); // 30ms por unidade
-    const minDuration = 800; // Duração mínima
-    const maxDuration = 4000; // Duração máxima
-    const finalDuration = Math.min(Math.max(baseDuration, minDuration), maxDuration);
+    // Configuração adaptativa da duração
+    const baseDuration = Math.min(duration, Math.abs(range) * 20);
+    const finalDuration = Math.max(baseDuration, 1000); // Duração mínima de 1s
 
-    const updateValue = () => {
-      const now = Date.now();
-      const elapsed = now - startTime;
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / finalDuration, 1);
-
-      // Função de easing mais suave - ease-out-quart
-      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
       
-      let currentValue;
+      // Função de easing cubic-bezier para suavidade
+      const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+      const easedProgress = easeOutCubic(progress);
       
+      // Cálculo do valor atual com progresso suavizado
+      const currentValue = startValue + (range * easedProgress);
+      
+      // Atualização do display baseada no tipo de agregação
       if (config.tipoAgregacao === 'avg') {
-        // Para médias, mantém decimais com transição suave
-        currentValue = startValue + (difference * easeOutQuart);
-        setDisplayValue(Math.round(currentValue * 100) / 100);
+        setDisplayValue(parseFloat(currentValue.toFixed(2)));
       } else {
-        // Para todos os outros tipos, sempre incrementa de forma suave
-        currentValue = startValue + (difference * easeOutQuart);
-        
-        // Se a diferença é muito pequena, usa decimais temporariamente para suavidade
-        if (Math.abs(difference) <= 5) {
-          setDisplayValue(Math.round(currentValue * 10) / 10);
-        } else {
-          setDisplayValue(Math.round(currentValue));
-        }
+        // Para inteiros, mostramos todos os valores intermediários
+        setDisplayValue(Math.floor(currentValue));
       }
 
+      // Continua a animação se não terminou
       if (progress < 1) {
-        requestAnimationFrame(updateValue);
+        requestAnimationFrame(animate);
       } else {
-        // Garantir que o valor final seja exato
-        setDisplayValue(endValue);
+        setDisplayValue(endValue); // Garante o valor final exato
         setIsAnimating(false);
       }
     };
 
-    requestAnimationFrame(updateValue);
+    requestAnimationFrame(animate);
   };
 
   // Effect para animar quando o valor muda
@@ -235,17 +225,11 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
 
   const formatValue = (val: number) => {
     if (config.tipoAgregacao === 'avg') {
-      return val.toFixed(1);
+      return val.toFixed(2);
     }
     
-    // Durante a animação, formatação mais suave
+    // Durante a animação, sempre mostrar valores inteiros formatados
     if (isAnimating) {
-      // Para diferenças pequenas, mostra decimais durante a animação para maior suavidade
-      if (Math.abs(value - previousValue) <= 5) {
-        return Math.floor(val * 10) / 10 < 1 ? 
-          val.toFixed(1) : 
-          Math.floor(val).toLocaleString('pt-BR');
-      }
       return Math.floor(val).toLocaleString('pt-BR');
     }
     
@@ -300,7 +284,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
         ) : (
           <>
             <div className="text-5xl font-black text-transparent bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text mb-4 leading-tight tracking-tight relative">
-              <span className={isAnimating ? 'animate-pulse' : ''}>
+              <span className={`statistic-value ${isAnimating ? 'animating' : ''}`} style={{ fontVariantNumeric: 'tabular-nums' }}>
                 {formatValue(displayValue)}
               </span>
               {isAnimating && (
