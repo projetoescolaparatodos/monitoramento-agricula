@@ -1734,7 +1734,6 @@ main {
 .statistic-value.animating {
   color: #10b981 !important; /* Verde durante animação */
   text-shadow: 0 0 10px rgba(16, 185, 129, 0.3); /* Brilho sutil */
-} mudanças de cor suaves */
 }
 
 .animating {
@@ -1744,4 +1743,9 @@ main {
 @keyframes pulse-smooth {
   from { opacity: 1; }
   to { opacity: 0.85; }
+}
+
+/* Transições suaves para mudanças de cor */
+.statistic-value {
+  transition: all 0.3s ease;
 }
