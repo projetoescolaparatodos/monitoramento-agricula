@@ -58,10 +58,20 @@ const EventoTelao: React.FC = () => {
       try {
         console.log('🎯 EventoTelao - Buscando evento com ID:', eventoId);
         
-        // Buscar dados do evento
+        // Primeiro, vamos buscar todos os eventos para ver o que existe
+        const eventosSnapshot = await getDocs(collection(db, 'eventos'));
+        const eventosDisponiveis = eventosSnapshot.docs.map(doc => ({
+          id: doc.id,
+          nome: doc.data().nome
+        }));
+        
+        console.log('🎯 EventoTelao - Eventos disponíveis:', eventosDisponiveis);
+        
+        // Buscar dados do evento específico
         const eventoDoc = await getDoc(doc(db, 'eventos', eventoId));
         if (!eventoDoc.exists()) {
           console.error('🎯 EventoTelao - Evento não encontrado:', eventoId);
+          console.log('🎯 EventoTelao - Eventos disponíveis para referência:', eventosDisponiveis);
           setLoading(false);
           return;
         }
@@ -82,14 +92,26 @@ const EventoTelao: React.FC = () => {
         setInsumos(insumosData);
 
         setLoading(false);
-        console.log('🎯 EventoTelao - Carregamento concluído');
+        console.log('🎯 EventoTelao - Carregamento concluído com sucesso');
       } catch (error) {
         console.error('🎯 EventoTelao - Erro ao buscar dados:', error);
         setLoading(false);
       }
     };
 
-    fetchData();
+    // Adicionar timeout para evitar carregamento infinito
+    const timeoutId = setTimeout(() => {
+      console.warn('🎯 EventoTelao - Timeout de carregamento');
+      setLoading(false);
+    }, 10000); // 10 segundos
+
+    fetchData().finally(() => {
+      clearTimeout(timeoutId);
+    });
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [eventoId]);
 
   if (loading) {
@@ -114,11 +136,27 @@ const EventoTelao: React.FC = () => {
 
   if (!evento && !loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-900 to-green-700 text-white">
-        <div className="text-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-900 to-green-700 text-white p-8">
+        <div className="text-center max-w-4xl">
           <h1 className="text-4xl font-bold mb-4">Evento não encontrado</h1>
-          <p className="text-xl mb-4">Verifique o ID do evento na URL: {eventoId}</p>
-          <p className="text-lg opacity-75">O evento pode ter sido removido ou o ID está incorreto</p>
+          <p className="text-xl mb-6">ID solicitado: <span className="font-mono bg-white/20 px-2 py-1 rounded">{eventoId}</span></p>
+          
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 mb-8">
+            <h2 className="text-2xl font-bold mb-4">Como acessar o telão:</h2>
+            <div className="text-left space-y-3">
+              <p>1. Acesse o dashboard administrativo</p>
+              <p>2. Vá para a seção "Eventos"</p>
+              <p>3. Copie o ID do evento desejado</p>
+              <p>4. Use: <span className="font-mono bg-white/20 px-2 py-1 rounded">/evento-telao?evento=ID_DO_EVENTO</span></p>
+            </div>
+          </div>
+
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+            <h3 className="text-xl font-bold mb-4">Exemplo para "Semana do Produtor 2025":</h3>
+            <p className="font-mono text-lg bg-white/20 px-4 py-2 rounded">
+              /evento-telao?evento=semana-produtor-2025
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -132,7 +170,7 @@ const EventoTelao: React.FC = () => {
       colecaoFonte: 'doacoes_evento',
       campo: '',
       tipoAgregacao: 'count' as const,
-      periodo: 'hoje',
+      periodo: 'total',
       unidade: 'doações',
       filtroAdicional: [
         { fieldPath: 'eventoId', opStr: '==', value: eventoId }
@@ -144,25 +182,37 @@ const EventoTelao: React.FC = () => {
       colecaoFonte: 'doacoes_evento',
       campo: '',
       tipoAgregacao: 'count' as const,
-      periodo: 'hoje',
+      periodo: 'total',
       unidade: 'pessoas',
+      filtroAdicional: [
+        { fieldPath: 'eventoId', opStr: '==', value: eventoId }
+      ]
+    },
+    {
+      id: 'total-quantidade',
+      titulo: 'Total de Itens Distribuídos',
+      colecaoFonte: 'doacoes_evento',
+      campo: 'quantidade',
+      tipoAgregacao: 'sum' as const,
+      periodo: 'total',
+      unidade: 'itens',
       filtroAdicional: [
         { fieldPath: 'eventoId', opStr: '==', value: eventoId }
       ]
     }
   ];
 
-  // Adicionar configurações específicas por insumo
+  // Adicionar configurações específicas por insumo (máximo 3 para não sobrecarregar)
   const insumosAtivos = insumos.filter(i => i.nome);
-  insumosAtivos.slice(0, 4).forEach(insumo => {
+  insumosAtivos.slice(0, 3).forEach(insumo => {
     statsConfigs.push({
       id: `insumo-${insumo.id}`,
       titulo: `${insumo.nome} Distribuídas`,
       colecaoFonte: 'doacoes_evento',
       campo: 'quantidade',
       tipoAgregacao: 'sum' as const,
-      periodo: 'hoje',
-      unidade: insumo.unidade,
+      periodo: 'total',
+      unidade: insumo.unidade || 'unidades',
       filtroAdicional: [
         { fieldPath: 'eventoId', opStr: '==', value: eventoId },
         { fieldPath: 'insumoId', opStr: '==', value: insumo.id }

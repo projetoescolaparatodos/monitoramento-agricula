@@ -35,7 +35,8 @@ import GoogleDriveTest from "@/components/debug/GoogleDriveTest";
 import AdminPanels from '@/pages/AdminPanels';
 import AdminDynamicStats from '@/pages/AdminDynamicStats';
 import RegistrarDoacao from '@/pages/RegistrarDoacao';
-import EventoTelao from '@/pages/EventoTelao';
+import EventoTelao from './pages/EventoTelao';
+import EventosDisponiveis from './pages/EventosDisponiveis';
 
 // Formulários Setoriais - Importação lazy para melhor performance
 const FormAgricultura = lazy(() => import("./forms/agriculture/index"));
@@ -127,6 +128,7 @@ function Router() {
             <Route path="/admin/dynamic-stats" component={AdminDynamicStats} />
             <Route path="/registrar-doacao" component={RegistrarDoacao} />
             <Route path="/evento-telao" component={EventoTelao} />
+            <Route path="/eventos-disponiveis" component={EventosDisponiveis} />
             {/* Panel management is integrated into dashboard */}
             <Route path="/report" component={Report} />
             <Route path="/forms/agricultura" component={FormAgricultura} />
