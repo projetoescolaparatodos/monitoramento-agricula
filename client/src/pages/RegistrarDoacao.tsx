@@ -48,7 +48,8 @@ const RegistrarDoacao: React.FC = () => {
     quantidade: '',
     beneficiarioNome: '',
     beneficiarioCpf: '',
-    beneficiarioPropriedade: ''
+    beneficiarioPropriedade: '',
+    tecnicoNome: ''
   });
 
   useEffect(() => {
@@ -117,7 +118,7 @@ const RegistrarDoacao: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.eventoId || !formData.insumoId || !formData.quantidade || !formData.beneficiarioNome || !user) {
+    if (!formData.eventoId || !formData.insumoId || !formData.quantidade || !formData.beneficiarioNome || !formData.tecnicoNome || !user) {
       toast({
         title: "Erro",
         description: "Preencha todos os campos obrigatórios",
@@ -135,7 +136,8 @@ const RegistrarDoacao: React.FC = () => {
         quantidade: Number(formData.quantidade),
         tecnico: {
           id: user.uid,
-          nome: user.displayName || user.email || 'Técnico'
+          nome: formData.tecnicoNome,
+          email: user.email || 'Não informado'
         },
         beneficiario: {
           nome: formData.beneficiarioNome,
@@ -153,7 +155,8 @@ const RegistrarDoacao: React.FC = () => {
         quantidade: '',
         beneficiarioNome: '',
         beneficiarioCpf: '',
-        beneficiarioPropriedade: ''
+        beneficiarioPropriedade: '',
+        tecnicoNome: formData.tecnicoNome // Manter nome do técnico
       });
 
       toast({
@@ -276,6 +279,27 @@ const RegistrarDoacao: React.FC = () => {
             )}
             
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Dados do Técnico */}
+              <div className="border-b border-gray-200 pb-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                  <User className="w-5 h-5" />
+                  Dados do Técnico
+                </h3>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Nome do Técnico *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.tecnicoNome}
+                    onChange={(e) => setFormData({...formData, tecnicoNome: e.target.value})}
+                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Digite seu nome completo"
+                    required
+                  />
+                </div>
+              </div>
+
               {/* Seleção de Evento */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -392,10 +416,11 @@ const RegistrarDoacao: React.FC = () => {
               </div>
               
               {/* Resumo */}
-              {eventoSelecionado && insumoSelecionado && formData.quantidade && (
+              {eventoSelecionado && insumoSelecionado && formData.quantidade && formData.tecnicoNome && (
                 <div className="bg-gray-50 p-4 rounded-lg border">
                   <h4 className="font-medium text-gray-900 mb-2">Resumo da Doação:</h4>
                   <div className="text-sm text-gray-600 space-y-1">
+                    <p><strong>Técnico:</strong> {formData.tecnicoNome}</p>
                     <p><strong>Evento:</strong> {eventoSelecionado.nome}</p>
                     <p><strong>Insumo:</strong> {insumoSelecionado.nome}</p>
                     <p><strong>Quantidade:</strong> {formData.quantidade} {insumoSelecionado.unidade}</p>

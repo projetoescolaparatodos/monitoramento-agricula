@@ -232,54 +232,53 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
   };
 
   return (
-    <Card className={`${variant === "transparent" ? "bg-white/95 backdrop-blur-md" : "bg-gradient-to-br from-white to-green-50"} rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2 hover:scale-105 relative border-0 min-h-[200px]`}>
-      <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
-        <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1">
+    <Card className="bg-white rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 overflow-hidden transform hover:-translate-y-3 hover:scale-105 relative border border-gray-100 min-h-[250px]">
+      <div className="absolute top-4 right-4 flex flex-col items-end gap-2">
+        <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
           {isUpdating ? (
-            <span className="animate-spin">🔄</span>
+            <span className="animate-spin text-lg">🔄</span>
           ) : isAnimating ? (
-            <span className="animate-bounce">📈</span>
+            <span className="animate-bounce text-lg">📈</span>
           ) : (
-            <span>⚡</span>
+            <span className="text-lg">⚡</span>
           )}
-          {isAnimating ? 'Atualizando' : 'Dinâmico'}
+          <span className="text-sm">{isAnimating ? 'Atualizando' : 'Dinâmico'}</span>
         </div>
-        <div className="text-xs text-gray-500 bg-white/80 px-2 py-1 rounded-full shadow-sm">
+        <div className="text-sm text-gray-600 bg-gray-50 px-3 py-1.5 rounded-full shadow-sm font-medium">
           {lastUpdate.toLocaleTimeString('pt-BR', { 
             hour: '2-digit', 
             minute: '2-digit' 
           })}
         </div>
       </div>
-      <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-600/10 pointer-events-none"></div>
-      <div className="border-t-4 bg-gradient-to-r from-green-500 to-emerald-600"></div>
-      <CardContent className="p-8 text-center relative z-10">
+      <div className="border-t-5 bg-gradient-to-r from-green-500 to-emerald-600"></div>
+      <CardContent className="p-10 text-center relative z-10">
         {loading ? (
-          <div className="animate-pulse space-y-4">
-            <div className="h-16 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg mb-4 mx-auto w-3/4"></div>
-            <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg mb-3 mx-auto w-2/3"></div>
-            <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg mx-auto w-1/2"></div>
+          <div className="animate-pulse space-y-6">
+            <div className="h-20 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl mb-6 mx-auto w-3/4"></div>
+            <div className="h-8 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl mb-4 mx-auto w-2/3"></div>
+            <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl mx-auto w-1/2"></div>
           </div>
         ) : (
           <>
-            <div className="text-6xl font-black text-transparent bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text mb-4 leading-tight">
+            <div className="text-7xl font-black text-transparent bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text mb-6 leading-tight tracking-tight">
               {formatValue(displayValue)}
               {isAnimating && (
-                <span className="inline-block w-2 h-12 bg-gradient-to-r from-green-600 to-emerald-700 ml-2 animate-pulse"></span>
+                <span className="inline-block w-3 h-16 bg-gradient-to-r from-green-600 to-emerald-700 ml-3 animate-pulse rounded-sm"></span>
               )}
             </div>
-            <div className="text-base font-bold tracking-wide mb-4 text-gray-800 leading-relaxed">
+            <div className="text-xl font-bold tracking-wide mb-6 text-gray-800 leading-relaxed px-2">
               {config.titulo}
               {config.unidade && (
-                <span className="block text-sm text-green-600 font-semibold mt-1">
+                <span className="block text-lg text-green-600 font-bold mt-2 tracking-normal">
                   ({config.unidade})
                 </span>
               )}
             </div>
             {trend !== 'stable' && (
-              <div className={`flex items-center justify-center text-base font-bold ${getTrendColor()} bg-white/70 rounded-full px-4 py-2 shadow-md`}>
-                <span className="text-lg mr-2">{getTrendIcon()}</span>
-                <span>
+              <div className={`flex items-center justify-center text-lg font-bold ${getTrendColor()} bg-gray-50 rounded-full px-6 py-3 shadow-md border border-gray-100`}>
+                <span className="text-2xl mr-3">{getTrendIcon()}</span>
+                <span className="text-base">
                   {trend === 'up' ? '📈 Crescendo' : '📉 Decrescendo'}
                 </span>
               </div>
