@@ -1727,7 +1727,14 @@ main {
 /* Estilos para animação de valores das estatísticas */
 .statistic-value {
   font-variant-numeric: tabular-nums; /* Mantém largura consistente */
-  transition: color 0.3s ease; /* Para mudanças de cor suaves */
+  transition: color 0.3s ease; /* Para mudanças de cor durante animação */
+  font-feature-settings: "tnum"; /* Força números tabulares */
+}
+
+.statistic-value.animating {
+  color: #10b981 !important; /* Verde durante animação */
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.3); /* Brilho sutil */
+} mudanças de cor suaves */
 }
 
 .animating {

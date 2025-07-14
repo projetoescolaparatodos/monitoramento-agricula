@@ -31,44 +31,49 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
   const [isUpdating, setIsUpdating] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // Função para animar a contagem gradual com contador progressivo
-  const animateValue = (startValue: number, endValue: number, duration: number = 2000) => {
+  // Função para animar a contagem progressiva fluida
+  const animateValue = (startValue: number, endValue: number) => {
     if (startValue === endValue || isAnimating) {
       return;
     }
 
     setIsAnimating(true);
-    const startTime = performance.now(); // Usando performance.now() para maior precisão
+    const startTime = performance.now();
     const range = endValue - startValue;
     
-    // Configuração adaptativa da duração
-    const baseDuration = Math.min(duration, Math.abs(range) * 20);
-    const finalDuration = Math.max(baseDuration, 1000); // Duração mínima de 1s
+    // Duração adaptativa baseada na diferença de valores
+    const baseDuration = Math.min(Math.abs(range) * 10, 4000); // Máx 4s
+    const finalDuration = Math.max(baseDuration, 1000); // Mín 1s
 
     const animate = (currentTime: number) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / finalDuration, 1);
       
-      // Função de easing cubic-bezier para suavidade
+      // Easing suave (easeOutCubic)
       const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
       const easedProgress = easeOutCubic(progress);
       
-      // Cálculo do valor atual com progresso suavizado
+      // Cálculo do valor atual
       const currentValue = startValue + (range * easedProgress);
       
-      // Atualização do display baseada no tipo de agregação
+      // Formatação baseada no tipo de agregação
+      let displayValue: number;
       if (config.tipoAgregacao === 'avg') {
-        setDisplayValue(parseFloat(currentValue.toFixed(2)));
+        // Para médias, 1 casa decimal durante animação
+        displayValue = parseFloat(currentValue.toFixed(1));
       } else {
-        // Para inteiros, mostramos todos os valores intermediários
-        setDisplayValue(Math.floor(currentValue));
+        // Para inteiros, mostrar todos os valores intermediários
+        displayValue = Math.floor(currentValue);
       }
+      
+      setDisplayValue(displayValue);
 
-      // Continua a animação se não terminou
+      // Continua a animação
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
-        setDisplayValue(endValue); // Garante o valor final exato
+        // Garante o valor final exato
+        setDisplayValue(endValue);
         setIsAnimating(false);
       }
     };
@@ -87,7 +92,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
         setDisplayValue(value);
       }
     }
-  }, [value, loading]);
+  }, [value, loading, displayValue, isAnimating]);
 
   useEffect(() => {
     const calcularPeriodo = () => {
@@ -225,15 +230,11 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
 
   const formatValue = (val: number) => {
     if (config.tipoAgregacao === 'avg') {
-      return val.toFixed(2);
+      return val.toFixed(1);
     }
     
-    // Durante a animação, sempre mostrar valores inteiros formatados
-    if (isAnimating) {
-      return Math.floor(val).toLocaleString('pt-BR');
-    }
-    
-    return Math.round(val).toLocaleString('pt-BR');
+    // Formatação com separador de milhares
+    return Math.floor(val).toLocaleString('pt-BR');
   };
 
   const getTrendColor = () => {
@@ -284,17 +285,22 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
         ) : (
           <>
             <div className="text-5xl font-black text-transparent bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text mb-4 leading-tight tracking-tight relative">
-              <span className={`statistic-value ${isAnimating ? 'animating' : ''}`} style={{ fontVariantNumeric: 'tabular-nums' }}>
+              <span 
+                className={`statistic-value transition-colors duration-200 ${isAnimating ? 'text-green-500' : ''}`} 
+                style={{ 
+                  fontVariantNumeric: 'tabular-nums',
+                  minWidth: '200px',
+                  display: 'inline-block',
+                  textAlign: 'center'
+                }}
+              >
                 {formatValue(displayValue)}
               </span>
               {isAnimating && (
-                <span className="inline-block w-2 h-12 bg-gradient-to-r from-green-600 to-emerald-700 ml-2 animate-pulse rounded-sm opacity-80"></span>
-              )}
-              {isAnimating && (
-                <div className="absolute -top-2 -right-2">
-                  <span className="flex h-3 w-3">
+                <div className="absolute -top-1 -right-1">
+                  <span className="flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                   </span>
                 </div>
               )}
