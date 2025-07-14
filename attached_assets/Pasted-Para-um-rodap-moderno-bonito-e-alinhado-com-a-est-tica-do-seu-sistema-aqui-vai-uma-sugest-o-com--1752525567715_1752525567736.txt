@@ -1,0 +1,74 @@
+Para um rodapé moderno, bonito e alinhado com a estética do seu sistema, aqui vai uma sugestão com:
+
+✅ Estilo clean, com gradiente suave
+
+✅ Responsividade
+
+✅ Logos da SEMAPA e Prefeitura (lado a lado no desktop, empilhadas no mobile)
+
+✅ Links úteis e institucionais
+
+✅ Informações de contato
+
+✅ Exemplo de rodapé estilizado (React + Tailwind)
+tsx
+Copiar
+Editar
+import { Separator } from "@/components/ui/separator";
+import LogoSemapa from "@/assets/logo-semapa.png"; // já existe
+import LogoPrefeitura from "@/assets/logo-prefeitura.png"; // envie o arquivo depois
+
+const Footer = () => {
+  return (
+    <footer className="bg-gradient-to-tr from-green-50 to-green-100 dark:from-zinc-900 dark:to-zinc-800 text-zinc-700 dark:text-zinc-300 mt-12 border-t border-zinc-200 dark:border-zinc-700">
+      <div className="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+        {/* Logos */}
+        <div className="flex flex-col md:flex-row items-center gap-6">
+          <img src={LogoSemapa} alt="SEMAPA" className="h-12 object-contain" />
+          <img src={LogoPrefeitura} alt="Prefeitura" className="h-10 object-contain" />
+        </div>
+
+        {/* Links rápidos */}
+        <div className="text-sm space-y-2 text-center md:text-left">
+          <p className="font-semibold">Links úteis</p>
+          <ul className="space-y-1">
+            <li><a href="/agriculture" className="hover:underline">Setor de Agricultura</a></li>
+            <li><a href="/fishing" className="hover:underline">Setor de Pesca</a></li>
+            <li><a href="/paa" className="hover:underline">Programa PAA</a></li>
+            <li><a href="/mapa" className="hover:underline">Mapa Interativo</a></li>
+          </ul>
+        </div>
+
+        {/* Contato */}
+        <div className="text-sm text-center md:text-right space-y-2">
+          <p className="font-semibold">Contato</p>
+          <p>Secretaria de Agricultura, Pesca e Abastecimento</p>
+          <p>Vitória do Xingu - PA</p>
+          <p>Email: semapa@vtx.pa.gov.br</p>
+          <p>Telefone: (93) XXXX-XXXX</p>
+        </div>
+      </div>
+      <Separator />
+      <div className="text-xs text-center py-4 text-zinc-500 dark:text-zinc-400">
+        &copy; {new Date().getFullYear()} SEMAPA Vitória do Xingu. Todos os direitos reservados.
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;
+🎨 Estética do rodapé:
+Cores suaves (verde-claro e branco para o tema claro / cinza e verde escuro para dark mode)
+
+Layout moderno com flex/grid e responsividade
+
+Separador inferior para elegância
+
+Fonte pequena mas legível
+
+🔧 Para deixar mais elegante ainda:
+Adicionar redes sociais com ícones (lucide-react)
+
+Animações leves (fade-in ou transições de hover)
+
+Versão simplificada para impressão (sem logos grandes)
