@@ -233,17 +233,19 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
   };
 
   return (
-    <Card className="bg-white rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 overflow-hidden transform hover:-translate-y-3 hover:scale-105 relative border border-gray-100 min-h-[250px]">
-      <div className="absolute top-4 right-4 flex flex-col items-end gap-2">
-        <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow-lg flex items-center justify-center">
+    <Card className="bg-white rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 overflow-hidden transform hover:-translate-y-3 hover:scale-105 relative border border-gray-100 min-h-[180px]">
+      <div className="absolute top-4 right-4">
+        <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow-lg flex items-center justify-center">
           {isUpdating ? (
-            <span className="animate-spin text-lg">🔄</span>
+            <span className="animate-spin text-sm">🔄</span>
           ) : isAnimating ? (
-            <span className="animate-bounce text-lg">📈</span>
+            <span className="animate-bounce text-sm">📈</span>
           ) : (
-            <span className="text-lg">⚡</span>
+            <span className="text-sm">⚡</span>
           )}
         </div>
+      </div>
+      <div className="absolute bottom-3 right-3">
         <div className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-full shadow-sm font-medium">
           {lastUpdate.toLocaleTimeString('pt-BR', { 
             hour: '2-digit', 
@@ -252,33 +254,33 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
         </div>
       </div>
       <div className="border-t-5 bg-gradient-to-r from-green-500 to-emerald-600"></div>
-      <CardContent className="p-10 text-center relative z-10">
+      <CardContent className="p-6 text-center relative z-10">
         {loading ? (
-          <div className="animate-pulse space-y-6">
-            <div className="h-20 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl mb-6 mx-auto w-3/4"></div>
-            <div className="h-8 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl mb-4 mx-auto w-2/3"></div>
-            <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl mx-auto w-1/2"></div>
+          <div className="animate-pulse space-y-4">
+            <div className="h-14 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl mb-4 mx-auto w-3/4"></div>
+            <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl mb-3 mx-auto w-2/3"></div>
+            <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl mx-auto w-1/2"></div>
           </div>
         ) : (
           <>
-            <div className="text-7xl font-black text-transparent bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text mb-6 leading-tight tracking-tight">
+            <div className="text-5xl font-black text-transparent bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text mb-4 leading-tight tracking-tight">
               {formatValue(displayValue)}
               {isAnimating && (
-                <span className="inline-block w-3 h-16 bg-gradient-to-r from-green-600 to-emerald-700 ml-3 animate-pulse rounded-sm"></span>
+                <span className="inline-block w-2 h-12 bg-gradient-to-r from-green-600 to-emerald-700 ml-2 animate-pulse rounded-sm"></span>
               )}
             </div>
-            <div className="text-xl font-bold tracking-wide mb-6 text-gray-800 leading-relaxed px-2">
+            <div className="text-lg font-bold tracking-wide mb-4 text-gray-800 leading-relaxed px-2">
               {config.titulo}
               {config.unidade && (
-                <span className="block text-lg text-green-600 font-bold mt-2 tracking-normal">
+                <span className="block text-base text-green-600 font-bold mt-1 tracking-normal">
                   ({config.unidade})
                 </span>
               )}
             </div>
             {trend !== 'stable' && (
-              <div className={`flex items-center justify-center text-lg font-bold ${getTrendColor()} bg-gray-50 rounded-full px-6 py-3 shadow-md border border-gray-100`}>
-                <span className="text-2xl mr-3">{getTrendIcon()}</span>
-                <span className="text-base">
+              <div className={`flex items-center justify-center text-base font-bold ${getTrendColor()} bg-gray-50 rounded-full px-4 py-2 shadow-md border border-gray-100`}>
+                <span className="text-lg mr-2">{getTrendIcon()}</span>
+                <span className="text-sm">
                   {trend === 'up' ? '📈 Crescendo' : '📉 Decrescendo'}
                 </span>
               </div>
