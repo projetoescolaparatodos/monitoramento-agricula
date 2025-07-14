@@ -15,6 +15,7 @@ import {
   type CarouselApi
 } from "@/components/ui/carousel";
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const DataVisualizationSection = ({ variant = "default" }: { variant?: "default" | "transparent" }) => {
   const { data: charts, isLoading } = useQuery<ChartItem[]>({
@@ -26,10 +27,11 @@ const DataVisualizationSection = ({ variant = "default" }: { variant?: "default"
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
   const chartRefs = useRef<{ [key: string]: any }>({});
+  const isMobile = useIsMobile();
 
   // Buscar gráficos destacados e regulares
-  const featuredCharts = charts?.filter(chart => chart.isFeatured) || [];
-  const regularCharts = charts?.filter(chart => !chart.isFeatured) || [];
+  const featuredCharts = !isMobile ? (charts?.filter(chart => chart.isFeatured) || []) : [];
+  const regularCharts = isMobile ? (charts || []) : (charts?.filter(chart => !chart.isFeatured) || []);
 
   // Configurar carrossel
   useEffect(() => {
