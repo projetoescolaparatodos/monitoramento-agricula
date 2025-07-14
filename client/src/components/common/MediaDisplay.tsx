@@ -268,79 +268,132 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
   const isMobile = useIsMobile();
 
   if (isMobile) {
-    // Em mobile, verificar se é Google Drive primeiro
-    if (isGoogleDriveMedia) {
-      return (
-        <Card className="media-display overflow-hidden shadow-md border-0 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95 rounded-xl">
-          <GoogleDrivePlayer
-            mediaUrl={item.mediaUrl || ''}
-            title={item.title || 'Mídia do Google Drive'}
-            aspectRatio={item.aspectRatio || 'horizontal'}
-            className="w-full"
-            instagramUrl={item.instagramUrl}
-          />
-          <CardContent className="p-4">
-            {item.title && (
-              <h3 className="font-semibold text-lg mb-2 text-green-800 dark:text-green-300">
-                {/<\/?[a-z][\s\S]*>/i.test(item.title) ? (
-                  <div dangerouslySetInnerHTML={{ __html: item.title }} />
-                ) : (
-                  item.title
-                )}
-              </h3>
-            )}
-
-            {item.description && (
-              <div className="text-sm text-gray-700 dark:text-gray-300 mb-3">
-                <div dangerouslySetInnerHTML={{ __html: item.description.replace(/\n/g, '<br/>') }} />
-              </div>
-            )}
-
-            {/* Metadados */}
-            <div className="flex flex-wrap items-center gap-3 mt-4 pt-3 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
-              {item.author && (
-                <div className="flex items-center">
-                  <User size={14} className="mr-1" />
-                  <span>{item.author}</span>
-                </div>
+    // Em mobile, usar sempre o layout completo com descrições visíveis
+    return (
+      <Card className="media-display overflow-hidden shadow-md border-0 bg-gradient-to-b from-white to-green-50/50 dark:from-zinc-900 dark:to-zinc-900/95 rounded-xl">
+        {/* Renderizar mídia */}
+        <div className="w-full">
+          {isGoogleDriveMedia ? (
+            <GoogleDrivePlayer
+              mediaUrl={item.mediaUrl || ''}
+              title={item.title || 'Mídia do Google Drive'}
+              aspectRatio={item.aspectRatio || 'horizontal'}
+              className="w-full"
+              instagramUrl={item.instagramUrl}
+            />
+          ) : isYouTubeVideo ? (
+            <div className="aspect-video w-full overflow-hidden">
+              <iframe
+                src={`${getYoutubeEmbedUrl(item.mediaUrl)}?rel=0&showinfo=0&controls=1`}
+                className="w-full h-full"
+                title={item.title || 'Vídeo do YouTube'}
+                allowFullScreen
+                loading="lazy"
+              />
+            </div>
+          ) : isFirebaseVideo ? (
+            <div className="w-full bg-black flex items-center justify-center relative">
+              {item.instagramUrl && (
+                <button
+                  onClick={() => window.open(item.instagramUrl, '_blank')}
+                  className="absolute top-3 right-3 z-10 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
+                  title="Ver no Instagram"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                </button>
               )}
-
-              {formattedDate && (
-                <div className="flex items-center">
-                  <Calendar size={14} className="mr-1" />
-                  <span>{formattedDate}</span>
-                </div>
-              )}
-
-              {item.location && (
-                <div className="flex items-center">
-                  <MapPin size={14} className="mr-1" />
-                  <span>{item.location}</span>
+              <video
+                src={item.mediaUrl}
+                controls
+                title={item.title || 'Vídeo'}
+                className="w-full h-auto max-h-[70vh] object-contain"
+                poster={item.thumbnailUrl}
+              />
+            </div>
+          ) : (
+            <div className="w-full bg-black/5">
+              {!imageError ? (
+                <img
+                  src={item.mediaUrl || item.thumbnailUrl}
+                  alt={item.title || 'Mídia'}
+                  className="w-full h-auto object-contain max-h-[70vh]"
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <div className="w-full h-40 flex items-center justify-center bg-gray-200">
+                  <p className="text-gray-500">Não foi possível carregar a mídia</p>
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
-      );
-    }
+          )}
+        </div>
 
-    return (
-      <div className="w-full h-auto">
-        <MediaCard
-          title={item.title || ''}
-          description={item.description || ''}
-          mediaUrl={item.mediaUrl || ''}
-          mediaType={item.mediaType || 'image'}
-          author={item.author}
-          authorImage={item.authorImage}
-          createdAt={item.createdAt}
-          location={item.location}
-          aspectRatio={item.aspectRatio}
-          displayMode={item.displayMode}
-          customAspectRatio={item.customAspectRatio}
-          instagramUrl={item.instagramUrl}
-        />
-      </div>
+        {/* Conteúdo - Título e Descrição sempre visíveis */}
+        <CardContent className="p-4 space-y-3">
+          {item.title && (
+            <h3 className="font-semibold text-lg text-green-800 dark:text-green-300">
+              {/<\/?[a-z][\s\S]*>/i.test(item.title) ? (
+                <div dangerouslySetInnerHTML={{ __html: item.title }} />
+              ) : (
+                item.title
+              )}
+            </h3>
+          )}
+
+          {item.description && (
+            <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+              <div dangerouslySetInnerHTML={{ __html: item.description.replace(/\n/g, '<br/>') }} />
+            </div>
+          )}
+
+          {/* Hashtags */}
+          {item.description && (
+            (() => {
+              const hashtagRegex = /#(\w+)/g;
+              const matches = [...item.description.matchAll(hashtagRegex)];
+              if (matches.length > 0) {
+                const hashtags = matches.map(match => match[1]);
+                return (
+                  <div className="flex flex-wrap gap-2">
+                    {hashtags.map((tag, index) => (
+                      <span key={index} className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                );
+              }
+              return null;
+            })()
+          )}
+
+          {/* Metadados */}
+          <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
+            {item.author && (
+              <div className="flex items-center">
+                <User size={14} className="mr-1" />
+                <span>{item.author}</span>
+              </div>
+            )}
+
+            {formattedDate && (
+              <div className="flex items-center">
+                <Calendar size={14} className="mr-1" />
+                <span>{formattedDate}</span>
+              </div>
+            )}
+
+            {item.location && (
+              <div className="flex items-center">
+                <MapPin size={14} className="mr-1" />
+                <span>{item.location}</span>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     );
   } else {
     // Em desktop: verificar se é vídeo vertical - padronizar para 9:16
