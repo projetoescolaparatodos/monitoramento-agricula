@@ -5,15 +5,27 @@ import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import { Building, Fish, Wheat, Shield, ArrowLeft } from "lucide-react";
 
-import BackgroundVideo from "@/components/ui/BackgroundVideo";
-
 const AdminLogin = () => {
   const [, setLocation] = useLocation();
 
   return (
     <>
       {/* Video de fundo */}
-      <BackgroundVideo overlay={true} overlayOpacity={0.6} />
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute min-w-full min-h-full object-cover z-0"
+          style={{ opacity: 1 }}
+        >
+          <source src="/videos/BackgroundVideo.mp4" type="video/mp4" />
+          Seu navegador não suporta vídeos HTML5.
+        </video>
+        {/* Overlay escuro para melhor legibilidade */}
+        <div className="absolute top-0 left-0 w-full h-full bg-black/60 z-10" />
+      </div>
 
       <div className="min-h-screen flex items-center justify-center relative z-20 px-4">
         {/* Botão de voltar */}
