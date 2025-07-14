@@ -27,9 +27,15 @@ import { useAuthProtection } from "@/hooks/useAuthProtection";
 import { useGestorAuth } from "@/hooks/useGestorAuth";
 
 const Dashboard = () => {
+  // Todos os hooks devem estar no topo, antes de qualquer retorno condicional
   const { loading, isGestor } = useGestorAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  const [showForm, setShowForm] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const params = useParams();
+  const section = params?.section || "contents";
 
   if (loading) {
     return (
@@ -45,12 +51,6 @@ const Dashboard = () => {
   if (!isGestor) {
     return null; // O hook já redireciona para acesso negado
   }
-
-  const [, setLocation] = useLocation();
-  const [showForm, setShowForm] = useState(false);
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const params = useParams();
-  const section = params?.section || "contents";
 
   const handleAddItem = () => {
     setSelectedItemId(null);
