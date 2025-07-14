@@ -225,21 +225,37 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       });
     };
 
+    let currentUnsubscribe: (() => void) | null = null;
+
     // Buscar dados imediatamente
-    const unsubscribe = fetchData();
+    fetchData().then((unsubscribeFunc) => {
+      currentUnsubscribe = unsubscribeFunc;
+    });
 
     // Configurar atualização automática a cada 1 minuto (60000ms)
-    const interval = setInterval(() => {
+    const interval = setInterval(async () => {
       console.log('🔄 Atualizando estatística dinâmica:', config.titulo);
       setIsUpdating(true);
-      // Recriar a subscription para forçar atualização
-      unsubscribe();
-      const newUnsubscribe = fetchData();
-      return newUnsubscribe;
+      
+      // Cancelar subscription anterior se existir
+      if (currentUnsubscribe) {
+        currentUnsubscribe();
+      }
+      
+      // Criar nova subscription
+      try {
+        const newUnsubscribe = await fetchData();
+        currentUnsubscribe = newUnsubscribe;
+      } catch (error) {
+        console.error('Erro ao recriar subscription:', error);
+        setIsUpdating(false);
+      }
     }, 60000);
 
     return () => {
-      unsubscribe();
+      if (currentUnsubscribe) {
+        currentUnsubscribe();
+      }
       clearInterval(interval);
     };
   }, [config]);
