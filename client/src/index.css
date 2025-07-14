@@ -72,6 +72,8 @@
 .quill-container .ql-container {
   border-bottom-left-radius: 0.375rem;
   border-bottom-right-radius: 0.375rem;
+  border-color: #e2e8f0;
+}
 
 /* Carousel styles */
 .carousel-container::-webkit-scrollbar {
