@@ -22,8 +22,30 @@ import { DynamicStatsManager } from '@/components/dashboard/DynamicStatsManager'
 import { EventosManager } from '@/components/dashboard/EventosManager';
 import { InsumosManager } from '@/components/dashboard/InsumosManager';
 import { DoacoesReport } from '@/components/dashboard/DoacoesReport';
+import { useToast } from "@/hooks/use-toast";
+import { useAuthProtection } from "@/hooks/useAuthProtection";
+import { useGestorAuth } from "@/hooks/useGestorAuth";
 
 const Dashboard = () => {
+  const { loading, isGestor } = useGestorAuth();
+  const [activeTab, setActiveTab] = useState("overview");
+  const { toast } = useToast();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Verificando permissões...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isGestor) {
+    return null; // O hook já redireciona para acesso negado
+  }
+
   const [, setLocation] = useLocation();
   const [showForm, setShowForm] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);

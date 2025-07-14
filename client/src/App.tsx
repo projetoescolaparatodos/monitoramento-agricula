@@ -37,6 +37,7 @@ import AdminDynamicStats from '@/pages/AdminDynamicStats';
 import RegistrarDoacao from '@/pages/RegistrarDoacao';
 import EventoTelao from './pages/EventoTelao';
 import EventosDisponiveis from './pages/EventosDisponiveis';
+import AdminLoginGestor from "./pages/AdminLoginGestor";
 
 // Formulários Setoriais - Importação lazy para melhor performance
 const FormAgricultura = lazy(() => import("./forms/agriculture/index"));
@@ -79,6 +80,7 @@ function Router() {
             <Route path="/dashboard/:section?" component={Dashboard} />
             <Route path="/login" component={Login} />
             <Route path="/login/admin" component={AdminLogin} />
+            <Route path="/login/admin/gestor" component={AdminLoginGestor} />
             <Route path="/login/admin/agricultura" component={AdminLoginAgricultura} />
             <Route path="/login/admin/pesca" component={AdminLoginPesca} />
             <Route path="/login/admin/paa" component={AdminLoginPAA} />
