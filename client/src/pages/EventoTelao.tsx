@@ -22,7 +22,14 @@ interface Insumo {
 
 const EventoTelao: React.FC = () => {
   const [location] = useLocation();
-  const eventoId = new URLSearchParams(location.split('?')[1] || '').get('evento');
+  
+  // Corrigir extração do parâmetro evento da URL
+  const getEventoIdFromUrl = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('evento');
+  };
+  
+  const eventoId = getEventoIdFromUrl();
   
   const [evento, setEvento] = useState<Evento | null>(null);
   const [insumos, setInsumos] = useState<Insumo[]>([]);
@@ -38,28 +45,46 @@ const EventoTelao: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!eventoId) return;
+    console.log('🎯 EventoTelao - URL atual:', window.location.href);
+    console.log('🎯 EventoTelao - EventoId extraído:', eventoId);
+    
+    if (!eventoId) {
+      console.warn('🎯 EventoTelao - Nenhum eventoId fornecido na URL');
+      setLoading(false);
+      return;
+    }
 
     const fetchData = async () => {
       try {
+        console.log('🎯 EventoTelao - Buscando evento com ID:', eventoId);
+        
         // Buscar dados do evento
         const eventoDoc = await getDoc(doc(db, 'eventos', eventoId));
         if (!eventoDoc.exists()) {
-          console.error('Evento não encontrado');
+          console.error('🎯 EventoTelao - Evento não encontrado:', eventoId);
+          setLoading(false);
           return;
         }
-        setEvento({ id: eventoDoc.id, ...eventoDoc.data() } as Evento);
+        
+        const eventoData = { id: eventoDoc.id, ...eventoDoc.data() } as Evento;
+        console.log('🎯 EventoTelao - Evento encontrado:', eventoData);
+        setEvento(eventoData);
 
         // Buscar insumos
+        console.log('🎯 EventoTelao - Buscando insumos...');
         const insumosSnapshot = await getDocs(collection(db, 'insumos'));
-        setInsumos(insumosSnapshot.docs.map(doc => ({ 
+        const insumosData = insumosSnapshot.docs.map(doc => ({ 
           id: doc.id, 
           ...doc.data() 
-        })) as Insumo[]);
+        })) as Insumo[];
+        
+        console.log('🎯 EventoTelao - Insumos encontrados:', insumosData.length);
+        setInsumos(insumosData);
 
         setLoading(false);
+        console.log('🎯 EventoTelao - Carregamento concluído');
       } catch (error) {
-        console.error('Erro ao buscar dados:', error);
+        console.error('🎯 EventoTelao - Erro ao buscar dados:', error);
         setLoading(false);
       }
     };
@@ -75,12 +100,25 @@ const EventoTelao: React.FC = () => {
     );
   }
 
-  if (!evento) {
+  if (!eventoId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-900 to-green-700 text-white">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold mb-4">Parâmetro de Evento Ausente</h1>
+          <p className="text-xl mb-4">A URL deve conter o parâmetro ?evento=ID_DO_EVENTO</p>
+          <p className="text-lg opacity-75">Exemplo: /evento-telao?evento=abc123</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!evento && !loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-900 to-green-700 text-white">
         <div className="text-center">
           <h1 className="text-4xl font-bold mb-4">Evento não encontrado</h1>
-          <p className="text-xl">Verifique o ID do evento na URL</p>
+          <p className="text-xl mb-4">Verifique o ID do evento na URL: {eventoId}</p>
+          <p className="text-lg opacity-75">O evento pode ter sido removido ou o ID está incorreto</p>
         </div>
       </div>
     );
