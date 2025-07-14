@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { db } from '@/utils/firebase';
 import { collection, query, where, onSnapshot, Timestamp } from 'firebase/firestore';
@@ -50,7 +49,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
 
       // Função de easing para tornar a animação mais suave
       const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-      
+
       const currentValue = startValue + (difference * easeOutQuart);
       setDisplayValue(Math.round(currentValue * 100) / 100); // Arredonda para 2 casas decimais
 
@@ -76,7 +75,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     const calcularPeriodo = () => {
       const now = new Date();
       let startDate = new Date();
-      
+
       switch(config.periodo) {
         case 'hoje':
           startDate.setHours(0, 0, 0, 0);
@@ -99,23 +98,25 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
         default:
           startDate = new Date(0); // Todos os dados
       }
-      
+
       return { startDate, endDate: now };
     };
 
     const fetchData = () => {
       const { startDate, endDate } = calcularPeriodo();
-      
+
       // Construir query base
       let q = query(collection(db, config.colecaoFonte));
 
       // Adicionar filtros de data
       if (config.colecaoFonte === 'doacoes_evento') {
         // Para doações, usar timestamp
-        q = query(q,
-          where('timestamp', '>=', Timestamp.fromDate(startDate)),
-          where('timestamp', '<=', Timestamp.fromDate(endDate))
-        );
+        if (config.periodo !== 'todos') {
+          q = query(q,
+            where('timestamp', '>=', Timestamp.fromDate(startDate)),
+            where('timestamp', '<=', Timestamp.fromDate(endDate))
+          );
+        }
       } else if (config.periodo !== 'todos') {
         // Para outras coleções, usar createdAt
         q = query(q, 
@@ -135,7 +136,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
 
       return onSnapshot(q, (snapshot) => {
         let calculatedValue = 0;
-        
+
         if (config.tipoAgregacao === 'count') {
           calculatedValue = snapshot.size;
         } else {
@@ -143,7 +144,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
             const data = doc.data();
             return data[config.campo] || 0;
           });
-          
+
           switch(config.tipoAgregacao) {
             case 'sum':
               calculatedValue = values.reduce((a, b) => a + b, 0);
@@ -156,7 +157,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
               break;
           }
         }
-        
+
         // Calcular tendência
         if (previousValue > 0) {
           if (calculatedValue > previousValue) {
@@ -167,15 +168,15 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
             setTrend('stable');
           }
         }
-        
+
         setPreviousValue(value);
         setValue(calculatedValue);
-        
+
         // Se é a primeira vez carregando, não anima
         if (loading) {
           setDisplayValue(calculatedValue);
         }
-        
+
         setLastUpdate(new Date());
         setLoading(false);
         setIsUpdating(false);
