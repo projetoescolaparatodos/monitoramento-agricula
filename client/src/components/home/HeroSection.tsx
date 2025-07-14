@@ -21,20 +21,20 @@ const HeroSection = () => {
                 className="w-[80%] md:w-[95%] h-[80%] md:h-[95%] object-contain"
               />
             </div>
-            <div className="relative z-10 flex flex-col h-full">
-              <div className="pt-8 md:pt-12">
+            <div className="relative z-10 flex flex-col h-full justify-between">
+              <div className="pt-2 md:pt-4">
                 {isLoading ? (
                   <div>Carregando...</div>
                 ) : (
                   <>
                     <h1 
-                      className="text-3xl md:text-5xl font-extrabold text-white mb-4 md:mb-6 leading-tight font-heading tracking-tight text-center"
+                      className="text-2xl md:text-4xl font-extrabold text-white mb-3 md:mb-4 leading-tight font-heading tracking-tight text-center"
                       dangerouslySetInnerHTML={{ 
                         __html: content?.title || "Secretaria Municipal de Agricultura, Pesca e Abastecimento" 
                       }}
                     />
                     <div 
-                      className="text-lg md:text-2xl text-white/90 font-medium tracking-wide mb-6 md:mb-8 max-w-xl text-justify border-l-4 border-white/40 pl-6 py-4"
+                      className="text-base md:text-xl text-white/90 font-medium tracking-wide mb-4 md:mb-6 max-w-xl text-justify border-l-4 border-white/40 pl-6 py-3"
                       dangerouslySetInnerHTML={{
                         __html: content?.content || `Conheça as principais ações e iniciativas da Secretaria Municipal de Agricultura, Pesca e Abastecimento.<br><br>Fique por dentro dos projetos que estão transformando o setor agropecuário e pesqueiro do nosso município.`
                       }}
@@ -42,7 +42,7 @@ const HeroSection = () => {
                   </>
                 )}
               </div>
-              <div className="mt-auto mb-6 md:mb-10">
+              <div className="pb-4 md:pb-6">
                 <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                   <Link href="#areas">
                     <button 
