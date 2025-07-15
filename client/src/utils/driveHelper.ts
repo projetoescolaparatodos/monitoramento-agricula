@@ -202,19 +202,13 @@ export const getGoogleDriveStreamingUrl = async (fileId: string): Promise<string
   try {
     const metadata = await getGoogleDriveFileMetadata(fileId);
     
-    // Para vídeos, tentar usar webContentLink se disponível (para video element)
-    if (metadata?.mimeType?.startsWith('video/')) {
-      // Se temos webContentLink, preferir para <video> element
-      if (metadata.webContentLink) {
-        console.log('Usando webContentLink para vídeo:', metadata.webContentLink);
-        return metadata.webContentLink;
-      }
-      // Fallback para preview URL
+    // Para vídeos, SEMPRE usar URL de preview (nunca webContentLink que força download)
+    if (metadata?.mimeType?.startsWith('video/') || !metadata) {
       return `https://drive.google.com/file/d/${fileId}/preview`;
     }
 
     // Para imagens, usar URL de visualização
-    if (metadata?.mimeType?.startsWith('image/')) {
+    if (metadata.mimeType?.startsWith('image/')) {
       return `https://drive.google.com/uc?export=view&id=${fileId}`;
     }
 
@@ -248,14 +242,4 @@ export const getGoogleDriveThumbnail = (fileIdOrUrl: string, size: number = 1000
 // Get optimized thumbnail for video preview
 export const getGoogleDriveVideoThumbnail = (fileId: string): string => {
   return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
-};
-
-// Get direct download URL for video playback (use with caution - may trigger downloads)
-export const getGoogleDriveDirectUrl = (fileId: string): string => {
-  return `https://drive.google.com/uc?export=download&id=${fileId}`;
-};
-
-// Get alternative streaming URL that works better with video elements
-export const getGoogleDriveVideoStreamUrl = (fileId: string): string => {
-  return `https://drive.google.com/uc?export=view&id=${fileId}`;
 };
