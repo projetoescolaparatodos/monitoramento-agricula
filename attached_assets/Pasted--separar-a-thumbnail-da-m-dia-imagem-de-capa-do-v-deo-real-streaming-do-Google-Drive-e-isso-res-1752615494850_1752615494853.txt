@@ -1,0 +1,69 @@
+ separar a thumbnail da mídia (imagem de capa) do vídeo real (streaming do Google Drive), e isso resolve 100% o problema de compatibilidade visual nas thumbnails.
+
+✅ Como funcionaria:
+Na hora que o gestor/técnico adiciona uma nova mídia via painel (admin), o sistema oferece:
+
+Campo para link do vídeo (como já existe, do Google Drive ou outro)
+
+Campo adicional de upload de thumbnail (imagem personalizada, salva no Firebase Storage)
+
+No frontend:
+
+O componente exibe a thumbnail personalizada (estática) com um botão de “play”.
+
+Ao clicar, troca para o <iframe> do Google Drive que embute o vídeo.
+
+🔧 Exemplo técnico de como implementar isso:
+1. Upload da imagem no painel:
+tsx
+Copiar
+Editar
+// Em `NovaMidiaForm.tsx`
+<Input type="file" accept="image/*" onChange={handleUploadThumbnail} />
+handleUploadThumbnail envia a imagem para o Firebase Storage
+
+O link da imagem é salvo junto com o restante da mídia no Firestore:
+
+ts
+Copiar
+Editar
+{
+  titulo: '...',
+  descricao: '...',
+  videoUrl: 'https://drive.google.com/file/d/abc123/view',
+  thumbnailUrl: 'https://firebasestorage.googleapis.com/v0/b/...'
+}
+2. Exibição no frontend:
+tsx
+Copiar
+Editar
+{!playing ? (
+  <div 
+    className="relative cursor-pointer"
+    onClick={() => setPlaying(true)}
+  >
+    <img
+      src={thumbnailUrl}
+      alt={titulo}
+      className="w-full h-auto rounded-lg object-cover"
+    />
+    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+      <Play className="w-12 h-12 text-white" />
+    </div>
+  </div>
+) : (
+  <iframe
+    src={`https://drive.google.com/file/d/${fileId}/preview`}
+    className="w-full h-auto aspect-[9/16] rounded-lg"
+    allowFullScreen
+  />
+)}
+✅ Benefícios dessa abordagem:
+🔄 Total controle visual da thumbnail, independente da tela ou dispositivo.
+
+⚙️ Flexível: Você pode padronizar a estética com imagens uniformes.
+
+🎯 Evita bugs de "compressão" ou incompatibilidade que vimos no seu notebook.
+
+🧠 Responsivo e profissional: igual sistemas como GloboPlay, YouTube e Netflix fazem com thumbs personalizadas.
+
