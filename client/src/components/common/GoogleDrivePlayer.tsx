@@ -95,6 +95,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
         setIsVideo(isLikelyVideo);
 
         // SEMPRE usar preview URL para evitar downloads forçados
+        // Adicionar parâmetros para melhor controle de vídeo
         setStreamingUrl(`https://drive.google.com/file/d/${fileId}/preview`);
 
         // Definir metadados básicos
@@ -168,6 +169,11 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   }
 
   if (isVideo && streamingUrl) {
+    // Adicionar parâmetro de autoplay à URL do Google Drive
+    const autoplayUrl = streamingUrl.includes('?') 
+      ? `${streamingUrl}&autoplay=1&mute=1`
+      : `${streamingUrl}?autoplay=1&mute=1`;
+
     return (
       <div className={`w-full ${className}`}>
         <div className={`w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-black`}>
@@ -181,7 +187,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
             </button>
           )}
           <iframe
-            src={streamingUrl}
+            src={autoplayUrl}
             title={title}
             className="w-full h-full border-0 max-w-full max-h-full"
             allowFullScreen
@@ -189,6 +195,20 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
             loading="lazy"
             style={{ width: '100%', height: '100%', maxWidth: '100%', maxHeight: '100%' }}
+            onLoad={() => {
+              // Tentar pausar o vídeo após 1 segundo
+              setTimeout(() => {
+                try {
+                  const iframe = document.querySelector(`iframe[src="${autoplayUrl}"]`) as HTMLIFrameElement;
+                  if (iframe && iframe.contentWindow) {
+                    // Enviar comando de pausa para o iframe do Google Drive
+                    iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                  }
+                } catch (error) {
+                  console.log('Não foi possível pausar automaticamente o vídeo:', error);
+                }
+              }, 1000);
+            }}
           />
         </div>
       </div>
