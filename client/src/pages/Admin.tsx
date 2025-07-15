@@ -1579,17 +1579,59 @@ const PAAForm = () => {
 };
 
 const Admin = () => {
-  // Hooks de autenticação sempre no topo
+  // Todos os hooks devem ser chamados na mesma ordem sempre
   const { userAuth, hasAccess, getLoginUrl, isLoading } = useAuthProtection();
   const [, setLocation] = useLocation();
-  
   const [showManagerButton, setShowManagerButton] = useState(false);
   const [agriculturaData, setAgriculturaData] = useState([]);
   const [pescaData, setPescaData] = useState([]);
   const [agriculturasAtividades, setAgriculturasAtividades] = useState([]);
   const { toast } = useToast();
 
-  // Verificação de autenticação - deve ocorrer antes do resto do componente
+  // useEffect hooks devem vir sempre antes dos retornos condicionais
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const agriculturaSnapshot = await getDocs(collection(db, "agricultura"));
+        const pescaSnapshot = await getDocs(collection(db, "pesca"));
+        const tratoresSnapshot = await getDocs(collection(db, "tratores"));
+
+        setAgriculturaData(agriculturaSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })));
+
+        setPescaData(pescaSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })));
+
+        setAgriculturasAtividades(tratoresSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })));
+      } catch (error) {
+        console.error("Erro ao carregar dados:", error);
+      }
+    };
+
+    if (userAuth.isAuthenticated && hasAccess('admin')) {
+      fetchData();
+    }
+  }, [userAuth.isAuthenticated, hasAccess]);
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.key === "m") {
+        setShowManagerButton(true);
+        setTimeout(() => setShowManagerButton(false), 5000);
+      }
+    };
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, []);
+
+  // Verificações condicionais após todos os hooks
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -1611,29 +1653,7 @@ const Admin = () => {
     return null;
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const agriculturaSnapshot = await getDocs(collection(db, "agricultura"));
-      const pescaSnapshot = await getDocs(collection(db, "pesca"));
-      const tratoresSnapshot = await getDocs(collection(db, "tratores"));
-
-      setAgriculturaData(agriculturaSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })));
-
-      setPescaData(pescaSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })));
-
-      setAgriculturasAtividades(tratoresSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })));
-    };
-    fetchData();
-  }, []);
+  
 
   const atualizarStatusAgricultura = async (id, statusAtual) => {
     try {
@@ -1683,17 +1703,7 @@ const Admin = () => {
     }
   };
 
-  // Add key press listener to show/hide manager button
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.key === "m") {
-        setShowManagerButton(true);
-        setTimeout(() => setShowManagerButton(false), 5000); // Hide after 5 seconds
-      }
-    };
-    window.addEventListener("keydown", handleKeyPress);
-    return () => window.removeEventListener("keydown", handleKeyPress);
-  }, []);
+  
 
   return (
     <div className="container mx-auto px-4 py-20">
