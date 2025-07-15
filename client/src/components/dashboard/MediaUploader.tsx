@@ -12,6 +12,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { apiRequest, queryClient } from "../../lib/queryClient";
 import { useToast } from "../../hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import MediaFileUploader from "./MediaFileUploader";
+import { Play } from "lucide-react";
 
 const formSchema = z.object({
   pageType: z.enum(["home", "agriculture", "fishing", "paa"]),
@@ -250,6 +252,48 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
             />
             <FormField
               control={form.control}
+              name="author"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Autor</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Nome do autor" value={field.value || ""} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="authorImageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Imagem do Autor (URL)</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="https://example.com/author.jpg" value={field.value || ""} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="hashtags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hashtags</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Separe as hashtags com espaços. Exemplo: #agricultura #sustentabilidade" value={field.value || ""} />
+                  </FormControl>
+                  <div className="text-sm text-gray-600">
+                    Separe as hashtags com espaços. Exemplo: #agricultura #sustentabilidade
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="mediaUrl"
               render={({ field }) => (
                 <FormItem>
@@ -308,14 +352,58 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
                 </div>
               </div>
             )}
+
+            <FormField
+              control={form.control}
+              name="aspectRatio"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Proporção do Conteúdo</FormLabel>
+                  <FormControl>
+                    <select
+                      {...field}
+                      className="w-full p-2 border rounded-md"
+                      value={field.value || "horizontal"}
+                    >
+                      <option value="horizontal">Horizontal (16:9)</option>
+                      <option value="vertical">Vertical (9:16)</option>
+                      <option value="square">Quadrado (1:1)</option>
+                    </select>
+                  </FormControl>
+                  <div className="text-sm text-gray-600">
+                    Escolha "Vertical" para vídeos no formato Instagram/TikTok
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="instagramUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Link do Instagram (opcional)</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="https://instagram.com/p/..." value={field.value || ""} />
+                  </FormControl>
+                  <div className="text-sm text-gray-600">
+                    Cole o link do post do Instagram relacionado a esta mídia
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             
             {/* Componente de upload com passagem correta do pageType */}
             <div className="mt-4">
+              <label className="block text-sm font-medium mb-2">Ou faça upload de um arquivo:</label>
               <MediaFileUploader 
                 onFileUploaded={(url) => form.setValue('mediaUrl', url)}
                 acceptTypes={mediaType === "image" ? "image/*" : "video/*"}
                 folderPath={`midias/${mediaType}`}
                 pageType={form.watch("pageType") as 'home' | 'agriculture' | 'fishing' | 'paa' | 'sim'}
+                buttonText={mediaType === "image" ? "Upload de Imagem" : "Upload de Vídeo"}
               />
             {mediaUrl && (
               <div className="border p-4 rounded-md">

@@ -36,7 +36,7 @@ const Dashboard = () => {
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const params = useParams();
   const section = params?.section || "contents";
-  
+
 
   if (loading) {
     return (
