@@ -52,12 +52,12 @@ const FormPAA = lazy(() => import("./forms/paa/index"));
 function Router() {
   // Verifica se a rota atual é um formulário ou página administrativa
   const [location] = useLocation();
-  const isFormPage = location.pathname.startsWith('/forms');
-  const isReportPage = location.pathname === '/report';
-  const isAdminPage = location.pathname.startsWith('/admin');
-  const isMapPage = location.pathname.includes('/map') || 
-                   location.pathname.includes('Map') ||
-                   ['/agriculture/map', '/paa/map', '/pesca/map'].includes(location.pathname);
+  const isFormPage = location.startsWith('/forms');
+  const isReportPage = location === '/report';
+  const isAdminPage = location.startsWith('/admin');
+  const isMapPage = location.includes('/map') || 
+                   location.includes('Map') ||
+                   ['/agriculture/map', '/paa/map', '/pesca/map'].includes(location);
 
   return (
     <>
