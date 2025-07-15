@@ -132,6 +132,9 @@ const ContentList = ({ onEdit, onDelete }: ContentListProps) => {
           ))}
         </TableBody>
       </Table>
+    </Card>
+  );
+      </Table>
 
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
