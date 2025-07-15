@@ -191,7 +191,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
           {/* Botão de Play manual para garantir que funcione */}
           <button
             onClick={() => {
-              const iframe = document.querySelector(`iframe[title="${title}"]`) as HTMLIFrameElement;
+              const iframe = document.querySelector(`iframe[data-file-id="${fileId}"]`) as HTMLIFrameElement;
               if (iframe && iframe.contentWindow) {
                 // Simular clique no vídeo para iniciar
                 iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
@@ -213,6 +213,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
           <iframe
             src={embedUrl}
             title={title}
+            data-file-id={fileId}
             className="w-full h-full border-0 max-w-full max-h-full"
             allowFullScreen
             sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
@@ -225,7 +226,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
               // Tentar diferentes métodos para iniciar o vídeo
               setTimeout(() => {
                 try {
-                  const iframe = document.querySelector(`iframe[title="${title}"]`) as HTMLIFrameElement;
+                  const iframe = document.querySelector(`iframe[data-file-id="${fileId}"]`) as HTMLIFrameElement;
                   if (iframe && iframe.contentWindow) {
                     console.log('🚀 Tentando iniciar autoplay...');
                     
