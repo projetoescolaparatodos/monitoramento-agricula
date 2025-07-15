@@ -1475,6 +1475,49 @@ iframe[src*="drive.google.com"] {
 .bg-warning { background-color: #FF9800; }
 .bg-danger { background-color: #F44336; }
 
+/* Estilos para ReactQuill */
+.quill-container .ql-toolbar {
+  border-top: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  border-radius: 6px 6px 0 0;
+  background: #fafafa;
+}
+
+.quill-container .ql-container {
+  border-bottom: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  border-radius: 0 0 6px 6px;
+  font-family: inherit;
+}
+
+.quill-container .ql-editor {
+  min-height: 80px;
+  color: #000;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.quill-container .ql-editor.ql-blank::before {
+  color: #999;
+  font-style: italic;
+}
+
+.quill-container .ql-snow .ql-tooltip {
+  z-index: 1000;
+}
+
+.quill-container .ql-snow .ql-picker {
+  color: #000;
+}
+
+.quill-container .ql-snow .ql-picker-options {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
 /* Animações para gráficos */
 @keyframes lineDrawing {
   from {

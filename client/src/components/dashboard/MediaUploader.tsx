@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { MediaFormData, PageType } from "../../types";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
@@ -14,6 +14,8 @@ import { useToast } from "../../hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import MediaFileUploader from "./MediaFileUploader";
 import { Play } from "lucide-react";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 const formSchema = z.object({
   pageType: z.enum(["home", "agriculture", "fishing", "paa"]),
@@ -243,8 +245,35 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Título</FormLabel>
+                  <FormDescription>
+                    Crie um título com formatação personalizada
+                  </FormDescription>
                   <FormControl>
-                    <Input {...field} placeholder="Título da mídia" />
+                    <div className="quill-container bg-white text-black rounded-md border border-gray-300 overflow-visible">
+                      <ReactQuill
+                        theme="snow"
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        modules={{
+                          toolbar: [
+                            [{ header: [1, 2, false] }],
+                            ["bold", "italic", "underline"],
+                            [{ color: [] }, { background: [] }],
+                            ["clean"],
+                          ],
+                        }}
+                        formats={[
+                          "header",
+                          "bold",
+                          "italic",
+                          "underline",
+                          "color",
+                          "background",
+                        ]}
+                        placeholder="Insira o título da mídia..."
+                        preserveWhitespace={true}
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -256,12 +285,42 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Descrição (opcional)</FormLabel>
+                  <FormDescription>
+                    Adicione uma descrição detalhada com formatação avançada
+                  </FormDescription>
                   <FormControl>
-                    <Textarea
-                      {...field}
-                      placeholder="Descrição da mídia..."
-                      value={field.value || ""}
-                    />
+                    <div className="quill-container bg-white text-black rounded-md border border-gray-300 overflow-visible">
+                      <ReactQuill
+                        theme="snow"
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        modules={{
+                          toolbar: [
+                            [{ header: [1, 2, 3, false] }],
+                            ["bold", "italic", "underline", "strike"],
+                            [{ list: "ordered" }, { list: "bullet" }],
+                            [{ color: [] }, { background: [] }],
+                            ["link"],
+                            ["clean"],
+                          ],
+                        }}
+                        formats={[
+                          "header",
+                          "bold",
+                          "italic",
+                          "underline",
+                          "strike",
+                          "list",
+                          "bullet",
+                          "color",
+                          "background",
+                          "link",
+                        ]}
+                        placeholder="Insira a descrição da mídia..."
+                        preserveWhitespace={true}
+                        style={{ minHeight: "120px" }}
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
