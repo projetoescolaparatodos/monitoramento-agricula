@@ -21,7 +21,7 @@ const Footer = () => {
                 <img 
                   src="/logoprefeitura.webp" 
                   alt="Logo Prefeitura Municipal" 
-                  className="w-32 h-32 md:w-36 md:h-36 object-contain hover:scale-105 transition-transform duration-300"
+                  className="w-36 h-36 md:w-44 md:h-44 object-contain hover:scale-105 transition-transform duration-300"
                 />
               </div>
               <div className="text-center md:text-left">
