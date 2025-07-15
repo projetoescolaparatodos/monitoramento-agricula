@@ -100,12 +100,8 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
 
         setIsVideo(isLikelyVideo);
 
-        // Usar URL otimizada com parâmetros específicos para melhor renderização
-        const optimizedUrl = screenSize.isMobile 
-          ? `https://drive.google.com/file/d/${fileId}/preview?usp=embed&embedded=true&rm=minimal&authuser=0`
-          : `https://drive.google.com/file/d/${fileId}/preview?usp=embed&embedded=true`;
-        
-        setStreamingUrl(optimizedUrl);
+        // SEMPRE usar preview URL para evitar downloads forçados
+        setStreamingUrl(`https://drive.google.com/file/d/${fileId}/preview`);
 
         // Definir metadados básicos
         setFileMetadata({
@@ -132,44 +128,37 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
       return `aspect-[${width}/${height}]`;
     }
 
-    // Ajustar baseado no tamanho da tela com dimensões específicas para cada dispositivo
+    // Ajustar baseado no tamanho da tela com melhor responsividade
     const getOptimizedDimensions = () => {
       if (screenSize.isMobile) {
-        // Telas muito pequenas (celular)
-        return 'w-full h-[280px]';
+        return 'w-full max-w-full min-h-[250px] max-h-[65vh]';
       }
       if (screenSize.isTablet) {
-        // Tablets
-        return 'w-full h-[350px]';
+        return 'w-full max-w-full min-h-[300px] max-h-[70vh]';
       }
       if (screenSize.isSmallDesktop) {
-        // Notebooks pequenos/médios (7-12 polegadas)
-        return 'w-full h-[400px]';
+        return 'w-full max-w-full min-h-[350px] max-h-[75vh]';
       }
       if (screenSize.isLargeDesktop) {
-        // Desktops grandes
-        return 'w-full h-[500px]';
+        return 'w-full max-w-full min-h-[400px] max-h-[80vh]';
       }
-      return 'w-full h-[400px]';
+      return 'w-full max-w-full min-h-[300px] max-h-[70vh]';
     };
 
     const optimizedDimensions = getOptimizedDimensions();
 
-    // Proporções nomeadas com altura fixa para melhor controle
+    // Proporções nomeadas com melhor responsividade e dimensões otimizadas
     switch (aspectRatio) {
       case 'vertical':
       case '9:16':
-        if (screenSize.isMobile) {
-          return `w-full max-w-[300px] h-[400px] mx-auto`;
-        }
-        return `w-full max-w-[400px] h-[600px] mx-auto`;
+        return `aspect-[9/16] ${optimizedDimensions} mx-auto`;
       case 'square':
       case '1:1':
-        return `${optimizedDimensions} mx-auto aspect-square`;
+        return `aspect-square ${optimizedDimensions} mx-auto`;
       case 'horizontal':
       case '16:9':
       default:
-        return optimizedDimensions;
+        return `aspect-video ${optimizedDimensions}`;
     }
   };
 
@@ -217,7 +206,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
             </button>
           )}
           <iframe
-            src={`${streamingUrl}&embedded=true&rm=minimal`}
+            src={streamingUrl}
             title={title}
             className="w-full h-full border-0"
             allowFullScreen
@@ -231,15 +220,10 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
               outline: 'none',
               backgroundColor: '#000',
               display: 'block',
-              // Força aspect ratio correto
               objectFit: 'contain',
-              objectPosition: 'center',
-              // Otimizações específicas para telas pequenas
-              imageRendering: screenSize.isMobile ? 'auto' : 'crisp-edges',
-              // Força redimensionamento adequado
-              transform: 'translateZ(0)',
-              backfaceVisibility: 'hidden',
-              WebkitBackfaceVisibility: 'hidden'
+              // Força renderização adequada em diferentes tamanhos
+              minWidth: '100%',
+              minHeight: '100%'
             }}
           />
         </div>
