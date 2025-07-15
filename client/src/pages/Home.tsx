@@ -82,22 +82,22 @@ const Home = () => {
         {/* Overlay escuro para melhor legibilidade */}
         <div className="absolute top-0 left-0 w-full h-full bg-black/60 z-10" />
       </div>
-      
+
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-20">
         <Suspense fallback={<SectionSkeleton height="500px" />}>
           <HeroSection />
         </Suspense>
-        
+
         <section id="estatisticas" className="py-12">
           <Suspense fallback={<SectionSkeleton height="300px" />}>
             <StatisticsSection variant="transparent" />
           </Suspense>
         </section>
-        
+
         <Suspense fallback={<SectionSkeleton height="400px" />}>
           <AreasSection />
         </Suspense>
-        
+
         <section id="home-media" className="py-12 pb-0">
           <Suspense fallback={<SectionSkeleton height="350px" />}>
             <HomeMediaGallerySection 

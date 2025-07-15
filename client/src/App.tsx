@@ -26,6 +26,7 @@ import AdminLoginPAA from "./pages/AdminLoginPAA";
 import AcessoNegado from "./pages/AcessoNegado";
 import NotFound from "@/pages/not-found";
 import NavBar from "@/components/NavBar";
+import Footer from "@/components/layout/Footer";
 import { auth } from "./utils/firebase";
 import FishingInfo from "@/pages/FishingInfo";
 import AgricultureInfo from "./pages/AgricultureInfo";
@@ -146,6 +147,7 @@ function Router() {
             <Route component={NotFound} />
           </Switch>
         </Suspense>
+        {!isFormPage && !isReportPage && !isAdminPage && <Footer />}
       </div>
     </>
   );
