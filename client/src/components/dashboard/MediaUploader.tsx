@@ -47,8 +47,16 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
     queryKey: [`/api/media-items/${mediaData?.id}`],
     enabled: isEdit && !!mediaData?.id,
     queryFn: async () => {
-      const response = await apiRequest("GET", `/api/media-items/${mediaData?.id}`, undefined);
-      return response;
+      console.log('Buscando dados da mídia com ID:', mediaData?.id);
+      const response = await fetch(`/api/media-items/${mediaData?.id}`);
+      
+      if (!response.ok) {
+        throw new Error(`Erro ao buscar mídia: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Dados da mídia carregados:', data);
+      return data;
     }
   });
 
