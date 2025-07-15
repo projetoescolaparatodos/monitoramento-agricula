@@ -545,6 +545,36 @@ h3.section-title {
   }
 
   /* Específico para containers de vídeo do Google Drive */
+  .media-card iframe[src*="drive.google.com"],
+  .media-display iframe[src*="drive.google.com"] {
+    /* Força dimensões adequadas em todos os tamanhos */
+    width: 100% !important;
+    height: 100% !important;
+    /* Melhora renderização da prévia */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    /* Força reflow adequado */
+    contain: layout style;
+  }
+
+  /* Container para Google Drive Player */
+  .google-drive-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    background-color: #000;
+  }
+
+  /* Força aspect ratio correto em diferentes tamanhos */
+  @media (min-width: 768px) and (max-width: 1440px) {
+    .google-drive-container {
+      min-height: 350px;
+      max-height: 75vh;
+    }
+  }
+
   .media-card .w-full.bg-black {
     isolation: isolate;
   }
@@ -563,14 +593,45 @@ h3.section-title {
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Específico para preview do Google Drive */
+  /* Específico para preview do Google Drive com melhor responsividade */
   iframe[src*="/preview"] {
     width: 100% !important;
     height: 100% !important;
-    min-height: 200px;
     border-radius: 0.5rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     contain: layout style paint;
+    /* Otimizações específicas para diferentes tamanhos */
+    object-fit: contain;
+    object-position: center;
+    display: block;
+  }
+
+  /* Otimizações específicas para telas pequenas/médias (notebooks 7-12 polegadas) */
+  @media (min-width: 768px) and (max-width: 1440px) {
+    iframe[src*="/preview"] {
+      min-height: 350px !important;
+      max-height: 75vh !important;
+      /* Força aspect ratio adequado */
+      aspect-ratio: 16/9;
+    }
+  }
+
+  /* Otimizações para telas muito pequenas */
+  @media (max-width: 767px) {
+    iframe[src*="/preview"] {
+      min-height: 250px !important;
+      max-height: 65vh !important;
+      aspect-ratio: 16/9;
+    }
+  }
+
+  /* Otimizações para telas grandes */
+  @media (min-width: 1441px) {
+    iframe[src*="/preview"] {
+      min-height: 400px !important;
+      max-height: 80vh !important;
+      aspect-ratio: 16/9;
+    }
   }
 }
 

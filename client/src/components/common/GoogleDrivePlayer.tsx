@@ -128,29 +128,37 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
       return `aspect-[${width}/${height}]`;
     }
 
-    // Ajustar baseado no tamanho da tela
-    const getMaxHeight = () => {
-      if (screenSize.isMobile) return 'max-h-[60vh]';
-      if (screenSize.isTablet) return 'max-h-[70vh]';
-      if (screenSize.isSmallDesktop) return 'max-h-[75vh]';
-      if (screenSize.isLargeDesktop) return 'max-h-[80vh]';
-      return 'max-h-[70vh]';
+    // Ajustar baseado no tamanho da tela com melhor responsividade
+    const getOptimizedDimensions = () => {
+      if (screenSize.isMobile) {
+        return 'w-full max-w-full min-h-[250px] max-h-[65vh]';
+      }
+      if (screenSize.isTablet) {
+        return 'w-full max-w-full min-h-[300px] max-h-[70vh]';
+      }
+      if (screenSize.isSmallDesktop) {
+        return 'w-full max-w-full min-h-[350px] max-h-[75vh]';
+      }
+      if (screenSize.isLargeDesktop) {
+        return 'w-full max-w-full min-h-[400px] max-h-[80vh]';
+      }
+      return 'w-full max-w-full min-h-[300px] max-h-[70vh]';
     };
 
-    const maxHeight = getMaxHeight();
+    const optimizedDimensions = getOptimizedDimensions();
 
-    // Proporções nomeadas com melhor responsividade
+    // Proporções nomeadas com melhor responsividade e dimensões otimizadas
     switch (aspectRatio) {
       case 'vertical':
       case '9:16':
-        return `aspect-[9/16] ${maxHeight} w-full max-w-md mx-auto`;
+        return `aspect-[9/16] ${optimizedDimensions} mx-auto`;
       case 'square':
       case '1:1':
-        return `aspect-square ${maxHeight} w-full max-w-lg mx-auto`;
+        return `aspect-square ${optimizedDimensions} mx-auto`;
       case 'horizontal':
       case '16:9':
       default:
-        return `aspect-video ${maxHeight} w-full`;
+        return `aspect-video ${optimizedDimensions}`;
     }
   };
 
@@ -187,7 +195,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   if (isVideo && streamingUrl) {
     return (
       <div className={`w-full ${className}`}>
-        <div className={`w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-black mx-auto`}>
+        <div className={`google-drive-container w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-black mx-auto`}>
           {instagramUrl && (
             <button
               onClick={() => window.open(instagramUrl, '_blank')}
@@ -200,7 +208,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
           <iframe
             src={streamingUrl}
             title={title}
-            className="w-full h-full border-0 object-contain"
+            className="w-full h-full border-0"
             allowFullScreen
             sandbox="allow-scripts allow-same-origin allow-presentation"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
@@ -208,8 +216,14 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
             style={{ 
               width: '100%', 
               height: '100%',
+              border: 'none',
+              outline: 'none',
+              backgroundColor: '#000',
+              display: 'block',
               objectFit: 'contain',
-              backgroundColor: '#000'
+              // Força renderização adequada em diferentes tamanhos
+              minWidth: '100%',
+              minHeight: '100%'
             }}
           />
         </div>
