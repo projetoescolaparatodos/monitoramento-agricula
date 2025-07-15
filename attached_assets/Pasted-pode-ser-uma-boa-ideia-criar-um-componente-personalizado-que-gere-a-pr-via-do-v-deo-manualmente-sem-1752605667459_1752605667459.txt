@@ -1,0 +1,51 @@
+pode ser uma boa ideia criar um componente personalizado que gere a prévia do vídeo manualmente, sem depender diretamente da thumbnail fornecida pelo Google Drive. Isso te dá mais controle sobre o layout e a responsividade. Aqui estão algumas sugestões para resolver isso:
+
+    Gerar Prévia Manualmente: Você pode extrair uma frame do vídeo (usando uma biblioteca como ffmpeg ou uma ferramenta de edição) e salvá-la como uma imagem estática. Depois, use essa imagem como prévia no seu card, definindo-a com CSS responsivo (como sugerido anteriormente com width: 100% e object-fit: cover).
+
+    Componente Personalizado: Crie um componente React (ou sua framework preferida) que:
+        Receba o link do vídeo do Google Drive ou Firebase.
+        Gere ou selecione uma prévia estática (pode ser uma captura manual ou uma API que gere thumbnails).
+        Aplique estilos responsivos para garantir que a prévia se ajuste bem em diferentes tamanhos de tela.
+
+    Exemplo básico em React:
+    jsx
+
+const VideoCard = ({ videoUrl, previewImage }) => {
+  return (
+    <div className="video-container">
+      <img src={previewImage} alt="Video Preview" className="video-preview" />
+      <video controls>
+        <source src={videoUrl} type="video/mp4" />
+      </video>
+    </div>
+  );
+};
+
+Com CSS:
+css
+
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%;
+    }
+    .video-preview {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none; /* Mostra só ao clicar */
+    }
+
+    Evitar Dependência Direta: Se o Google Drive está fornecendo a thumbnail automaticamente e ela não se ajusta bem, pular essa funcionalidade e usar uma prévia personalizada pode resolver o problema de compressão.
+
+Teste essa abordagem e veja se a prévia se comporta melhor. Se ainda houver issues, pode ser útil verificar como o Google Drive está entregando a thumbnail (resolução ou formato) ou compartilhar mais detalhes do seu código atual para uma análise mais profunda. Quer que eu pesquise algo específico sobre isso?
