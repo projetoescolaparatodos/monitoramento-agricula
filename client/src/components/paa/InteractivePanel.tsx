@@ -209,8 +209,7 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
                         Contato Oficial
                       </h3>
                       <div className="space-y-2 text-gray-700">
-                        <p>📧 secretaria.agricultura@estado.gov.br</p>
-                        <p>📞 (XX) XXXX-XXXX</p>
+                        <p>📧 secagricultura@vitoriadoxingu.pa.gov.br</p>
                       </div>
                     </div>
 
