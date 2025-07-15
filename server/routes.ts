@@ -23,6 +23,12 @@ interface ChatbotMessage {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Middleware de debug para log de todas as rotas
+  app.use('/api/*', (req, res, next) => {
+    console.log(`[API] ${req.method} ${req.path} - ${new Date().toISOString()}`);
+    next();
+  });
+
   // Healthcheck endpoint
   app.get('/health', (_req, res) => {
     res.status(200).json({ 
@@ -185,14 +191,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/media-items/:id', async (req, res) => {
     try {
       const id = req.params.id;
+      console.log(`[MEDIA GET] Buscando mídia com ID: ${id}`);
+      
       const mediaDoc = await getDoc(doc(db, 'media', id));
 
       if (!mediaDoc.exists()) {
+        console.log(`[MEDIA GET] Mídia não encontrada: ${id}`);
         return res.status(404).json({ error: true, message: 'Item de mídia não encontrado' });
       }
 
       const data = mediaDoc.data();
-      res.json({
+      const result = {
         id: mediaDoc.id,
         pageType: data.pageType,
         title: data.title || "",
@@ -208,9 +217,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         author: data.author || "",
         authorImageUrl: data.authorImageUrl || "",
         hashtags: data.hashtags || ""
-      });
+      };
+      
+      console.log(`[MEDIA GET] Mídia encontrada:`, result);
+      res.json(result);
     } catch (error) {
-      console.error('Error fetching media item:', error);
+      console.error('[MEDIA GET] Error fetching media item:', error);
       res.status(500).json({ error: true, message: 'Erro ao buscar item de mídia' });
     }
   });
