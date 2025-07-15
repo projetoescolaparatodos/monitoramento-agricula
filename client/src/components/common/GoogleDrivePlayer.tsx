@@ -9,6 +9,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, Play, Instagram } from 'lucide-react';
 import { useScreenSize } from '@/hooks/useScreenSize';
+import CustomVideoPreview from './CustomVideoPreview';
 
 interface GoogleDrivePlayerProps {
   mediaUrl: string;
@@ -177,39 +178,66 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   }
 
   if (isVideo && streamingUrl) {
-    return (
-      <div className={`w-full ${className}`}>
-        <div className={`google-drive-container ${getAspectRatioClass()} overflow-hidden rounded-lg bg-black`}>
+    // Para vídeos do Google Drive, tentar usar o player customizado se possível
+    // Se for um link direto de vídeo, usar CustomVideoPreview
+    if (streamingUrl.includes('/preview') || streamingUrl.includes('/view')) {
+      return (
+        <div className={`w-full ${className}`}>
+          <div className={`google-drive-container ${getAspectRatioClass()} overflow-hidden rounded-lg bg-black relative`}>
+            {instagramUrl && (
+              <button
+                onClick={() => window.open(instagramUrl, '_blank')}
+                className="absolute top-2 right-2 z-20 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-1.5 sm:p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
+                title="Ver no Instagram"
+              >
+                <Instagram size={isVerticalAspect ? 20 : 24} />
+              </button>
+            )}
+            <iframe
+              src={streamingUrl}
+              title={title}
+              className="absolute top-0 left-0 w-full h-full border-0"
+              allowFullScreen
+              sandbox="allow-scripts allow-same-origin allow-presentation"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+              loading="lazy"
+              style={{ 
+                width: '100%', 
+                height: '100%',
+                border: 'none',
+                outline: 'none',
+                backgroundColor: '#000',
+                display: 'block',
+                objectFit: 'cover'
+              }}
+            />
+          </div>
+        </div>
+      );
+    } else {
+      // Para URLs diretas de vídeo, usar CustomVideoPreview
+      return (
+        <div className={`w-full ${className} relative`}>
           {instagramUrl && (
             <button
               onClick={() => window.open(instagramUrl, '_blank')}
-              className="absolute top-2 right-2 z-10 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-1.5 sm:p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
+              className="absolute top-2 right-2 z-20 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-1.5 sm:p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
               title="Ver no Instagram"
             >
               <Instagram size={isVerticalAspect ? 20 : 24} />
             </button>
           )}
-          <iframe
-            src={streamingUrl}
+          <CustomVideoPreview
+            videoUrl={streamingUrl}
             title={title}
-            className="absolute top-0 left-0 w-full h-full border-0"
-            allowFullScreen
-            sandbox="allow-scripts allow-same-origin allow-presentation"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-            loading="lazy"
-            style={{ 
-              width: '100%', 
-              height: '100%',
-              border: 'none',
-              outline: 'none',
-              backgroundColor: '#000',
-              display: 'block',
-              objectFit: 'cover'
-            }}
+            aspectRatio={aspectRatio}
+            className="w-full h-full"
+            showControls={true}
+            autoPlay={false}
           />
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   if (!isVideo && streamingUrl) {
