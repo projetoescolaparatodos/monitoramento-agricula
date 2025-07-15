@@ -21,7 +21,12 @@ const formSchema = z.object({
   mediaUrl: z.string().url("URL inválida"),
   thumbnailUrl: z.string().url("URL inválida").optional().or(z.literal('')),
   active: z.boolean().default(true),
-  order: z.number().int().min(0)
+  order: z.number().int().min(0),
+  author: z.string().optional(),
+  authorImageUrl: z.string().url("URL inválida").optional().or(z.literal('')),
+  hashtags: z.string().optional(),
+  aspectRatio: z.string().optional(),
+  instagramUrl: z.string().url("URL inválida").optional().or(z.literal(''))
 });
 
 interface MediaUploaderProps {
@@ -37,15 +42,13 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
   const { data: fetchedMedia, isLoading } = useQuery({
     queryKey: ['/api/media-items', mediaData?.id || mediaData],
     queryFn: async () => {
-      if (isEdit && (mediaData?.id || mediaData)) {
-        const mediaId = mediaData?.id || mediaData;
-        const res = await fetch(`/api/media-items/${mediaId}`);
-        if (!res.ok) throw new Error('Failed to fetch media');
-        const data = await res.json();
-        console.log('Dados carregados para edição:', data);
-        return data;
-      }
-      return null;
+      const mediaId = mediaData?.id || mediaData;
+      console.log('Buscando mídia com ID:', mediaId);
+      const res = await fetch(`/api/media-items/${mediaId}`);
+      if (!res.ok) throw new Error('Failed to fetch media');
+      const data = await res.json();
+      console.log('Dados carregados para edição:', data);
+      return data;
     },
     enabled: isEdit && !!(mediaData?.id || mediaData),
   });
@@ -58,46 +61,51 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
     mediaUrl: "",
     thumbnailUrl: "",
     active: true,
-    order: 0
+    order: 0,
+    author: "",
+    authorImageUrl: "",
+    hashtags: "",
+    aspectRatio: "horizontal",
+    instagramUrl: ""
   };
-
-  // Preparar dados para edição
-  const editData = isEdit && (fetchedMedia || mediaData) ? {
-    pageType: (fetchedMedia?.pageType || mediaData?.pageType) || "home" as PageType,
-    title: (fetchedMedia?.title || mediaData?.title) || "",
-    description: (fetchedMedia?.description || mediaData?.description) || "",
-    mediaType: (fetchedMedia?.mediaType || mediaData?.mediaType) || "image",
-    mediaUrl: (fetchedMedia?.mediaUrl || mediaData?.mediaUrl) || "",
-    thumbnailUrl: (fetchedMedia?.thumbnailUrl || mediaData?.thumbnailUrl) || "",
-    active: (fetchedMedia?.active !== undefined ? fetchedMedia.active : mediaData?.active) !== undefined ? (fetchedMedia?.active !== undefined ? fetchedMedia.active : mediaData?.active) : true,
-    order: (fetchedMedia?.order || mediaData?.order) || 0
-  } : defaultValues;
 
   const form = useForm<MediaFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues,
   });
   
-  // Log para debug do pageType selecionado
-  console.log("Valor atual de pageType:", form.watch("pageType"));
+  // Log para debug
   console.log("Dados de edição:", { isEdit, mediaData, fetchedMedia });
 
   // Resetar formulário quando os dados chegarem
   useEffect(() => {
-    if (isEdit && fetchedMedia) {
+    if (isEdit && fetchedMedia && !isLoading) {
       console.log('Resetando formulário com dados:', fetchedMedia);
-      form.reset({
+      
+      const formData = {
         pageType: fetchedMedia.pageType || "home" as PageType,
         title: fetchedMedia.title || "",
         description: fetchedMedia.description || "",
-        mediaType: fetchedMedia.mediaType || "image",
+        mediaType: fetchedMedia.mediaType || "image", 
         mediaUrl: fetchedMedia.mediaUrl || "",
         thumbnailUrl: fetchedMedia.thumbnailUrl || "",
         active: fetchedMedia.active !== undefined ? fetchedMedia.active : true,
-        order: fetchedMedia.order || 0
-      });
+        order: fetchedMedia.order || 0,
+        // Campos adicionais se existirem
+        author: fetchedMedia.author || "",
+        authorImageUrl: fetchedMedia.authorImageUrl || "",
+        hashtags: fetchedMedia.hashtags || "",
+        aspectRatio: fetchedMedia.aspectRatio || "horizontal",
+        instagramUrl: fetchedMedia.instagramUrl || ""
+      };
+      
+      console.log('Dados formatados para o formulário:', formData);
+      form.reset(formData);
+    } else if (!isEdit) {
+      // Se não é edição, usar valores padrão
+      form.reset(defaultValues);
     }
-  }, [fetchedMedia, isEdit, form]);
+  }, [fetchedMedia, isEdit, isLoading, form]);
 
   const onSubmit = async (data: MediaFormData) => {
     try {
