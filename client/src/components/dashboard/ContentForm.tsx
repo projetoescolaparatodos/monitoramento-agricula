@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 // Form validation schema
@@ -240,18 +239,16 @@ export const ContentForm = ({ contentData, isEdit = false, onSuccess }: ContentF
                 <FormItem>
                   <FormLabel>Conteúdo</FormLabel>
                   <FormControl>
-                    <div className="quill-container" style={{ minHeight: '250px' }}>
-                      <ReactQuill
-                        theme="snow"
-                        value={field.value}
-                        onChange={field.onChange}
-                        modules={modules}
-                        formats={formats}
-                        placeholder="Insira o conteúdo (formatação rica disponível)"
-                        style={{ height: '200px' }}
-                      />
-                    </div>
+                    <Textarea
+                      {...field}
+                      placeholder="Digite o conteúdo aqui..."
+                      className="min-h-[200px] resize-none"
+                      value={field.value || ""}
+                    />
                   </FormControl>
+                  <div className="text-sm text-gray-600 mt-1">
+                    Suporte a formatação HTML básica: &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;ul&gt;, &lt;li&gt;, etc.
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -278,7 +275,7 @@ export const ContentForm = ({ contentData, isEdit = false, onSuccess }: ContentF
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="active"
