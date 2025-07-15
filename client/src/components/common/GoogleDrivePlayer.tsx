@@ -169,11 +169,12 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   }
 
   if (isVideo && streamingUrl) {
-    // Adicionar parâmetro de autoplay à URL do Google Drive
-    const autoplayUrl = streamingUrl.includes('?') 
-      ? `${streamingUrl}&autoplay=1&mute=1`
-      : `${streamingUrl}?autoplay=1&mute=1`;
-
+    // Usar diferentes abordagens de URL para autoplay
+    const fileId = getGoogleDriveFileId(mediaUrl);
+    
+    // Tentar URLs diferentes para maximizar compatibilidade
+    const embedUrl = `https://drive.google.com/file/d/${fileId}/preview?usp=sharing`;
+    
     return (
       <div className={`w-full ${className}`}>
         <div className={`w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-black`}>
@@ -186,26 +187,81 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
               <Instagram size={24} />
             </button>
           )}
+          
+          {/* Botão de Play manual para garantir que funcione */}
+          <button
+            onClick={() => {
+              const iframe = document.querySelector(`iframe[title="${title}"]`) as HTMLIFrameElement;
+              if (iframe && iframe.contentWindow) {
+                // Simular clique no vídeo para iniciar
+                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                // Tentar focar o iframe e simular tecla de espaço
+                iframe.focus();
+                setTimeout(() => {
+                  iframe.contentWindow?.postMessage('{"event":"video-play"}', '*');
+                }, 100);
+              }
+            }}
+            className="absolute inset-0 z-10 bg-black bg-opacity-50 flex items-center justify-center text-white hover:bg-opacity-30 transition-all duration-300 group"
+            title="Reproduzir vídeo"
+          >
+            <div className="bg-white bg-opacity-20 rounded-full p-4 group-hover:bg-opacity-30 transition-all duration-300 group-hover:scale-110">
+              <Play size={48} className="text-white fill-white ml-1" />
+            </div>
+          </button>
+
           <iframe
-            src={autoplayUrl}
+            src={embedUrl}
             title={title}
             className="w-full h-full border-0 max-w-full max-h-full"
             allowFullScreen
-            sandbox="allow-scripts allow-same-origin allow-presentation"
+            sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
             loading="lazy"
             style={{ width: '100%', height: '100%', maxWidth: '100%', maxHeight: '100%' }}
             onLoad={() => {
-              // Tentar pausar o vídeo após 1 segundo
+              console.log('🎥 Vídeo do Google Drive carregado');
+              
+              // Tentar diferentes métodos para iniciar o vídeo
               setTimeout(() => {
                 try {
-                  const iframe = document.querySelector(`iframe[src="${autoplayUrl}"]`) as HTMLIFrameElement;
+                  const iframe = document.querySelector(`iframe[title="${title}"]`) as HTMLIFrameElement;
                   if (iframe && iframe.contentWindow) {
-                    // Enviar comando de pausa para o iframe do Google Drive
-                    iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                    console.log('🚀 Tentando iniciar autoplay...');
+                    
+                    // Método 1: PostMessage para Google Drive
+                    iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                    
+                    // Método 2: Simular clique no centro do iframe
+                    setTimeout(() => {
+                      const rect = iframe.getBoundingClientRect();
+                      const clickEvent = new MouseEvent('click', {
+                        view: window,
+                        bubbles: true,
+                        cancelable: true,
+                        clientX: rect.left + rect.width / 2,
+                        clientY: rect.top + rect.height / 2
+                      });
+                      iframe.dispatchEvent(clickEvent);
+                    }, 500);
+                    
+                    // Método 3: Remover overlay de play após 2 segundos (assumindo que funcionou)
+                    setTimeout(() => {
+                      const playButton = document.querySelector(`button[title="Reproduzir vídeo"]`);
+                      if (playButton) {
+                        playButton.remove();
+                      }
+                      
+                      // Pausar após 1 segundo de reprodução
+                      setTimeout(() => {
+                        iframe.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                        console.log('⏸️ Vídeo pausado automaticamente');
+                      }, 1000);
+                    }, 2000);
+                    
                   }
                 } catch (error) {
-                  console.log('Não foi possível pausar automaticamente o vídeo:', error);
+                  console.log('❌ Erro ao tentar autoplay:', error);
                 }
               }, 1000);
             }}
