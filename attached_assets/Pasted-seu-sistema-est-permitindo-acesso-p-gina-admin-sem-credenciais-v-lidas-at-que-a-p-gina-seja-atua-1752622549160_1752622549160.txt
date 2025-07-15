@@ -1,0 +1,214 @@
+seu sistema está permitindo acesso à página admin sem credenciais válidas até que a página seja atualizada. Isso é um problema comum de sincronização no carregamento inicial da autenticação.
+Causas Prováveis
+
+    Verificação assíncrona: A verificação de autenticação está ocorrendo de forma assíncrona e o redirecionamento só acontece após a resposta, mas a página já foi renderizada.
+
+    Estado inicial incorreto: O estado de autenticação está iniciando como "não verificado" ou "autenticado" por padrão.
+
+    Efeitos colaterais mal gerenciados: O hook/contexto de autenticação não está disparando o redirecionamento no momento correto.
+
+Soluções Recomendadas
+1. Implementar um estado de "carregamento" na verificação
+typescript
+
+// No seu hook/contexto de autenticação
+const [isLoading, setIsLoading] = useState(true);
+const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+useEffect(() => {
+  const checkAuth = async () => {
+    try {
+      const user = await verifyAuth(); // Sua função de verificação
+      setIsAuthenticated(!!user);
+    } catch (error) {
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  checkAuth();
+}, []);
+
+2. Criar um componente de proteção de rota
+typescript
+
+// components/AuthRoute.tsx
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { useAuth } from '../hooks/useAuth'; // Seu hook de autenticação
+
+export default function AuthRoute({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated && isClient) {
+      router.push('/login');
+    }
+  }, [isLoading, isAuthenticated, isClient, router]);
+
+  if (isLoading || !isClient) {
+    return <div>Carregando...</div>; // Ou um spinner
+  }
+
+  return isAuthenticated ? <>{children}</> : null;
+}
+
+3. Usar o componente em suas rotas protegidas
+typescript
+
+// pages/admin.tsx
+import AuthRoute from '../components/AuthRoute';
+
+function AdminPage() {
+  return (
+    <AuthRoute>
+      {/* Seu conteúdo admin */}
+    </AuthRoute>
+  );
+}
+
+4. Verificar no lado do servidor (SSR/SSG)
+
+Se estiver usando Next.js, adicione verificação no getServerSideProps:
+typescript
+
+export async function getServerSideProps(context) {
+  const { req } = context;
+  const session = await getSession({ req }); // Depende da sua lib de autenticação
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+
+  return { props: {} };
+}
+
+Solução Completa Recomendada
+
+    Atualize seu hook de autenticação:
+
+typescript
+
+// hooks/useAuth.ts
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { auth } from '../firebase/config'; // Ajuste para seu sistema
+
+export default function useAuth() {
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((authUser) => {
+      setUser(authUser);
+      setIsLoading(false);
+      
+      if (!authUser && router.pathname.startsWith('/admin')) {
+        router.push('/login');
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  return { user, isLoading };
+}
+
+    Proteja todas as rotas admin:
+
+typescript
+
+// pages/_app.tsx
+import { useRouter } from 'next/router';
+import { useAuth } from '../hooks/useAuth';
+
+function MyApp({ Component, pageProps }) {
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && !user && router.pathname.startsWith('/admin')) {
+      router.push('/login');
+    }
+  }, [user, isLoading, router]);
+
+  return <Component {...pageProps} />;
+}
+
+    Adicione um loader global:
+
+typescript
+
+// components/AuthLoader.tsx
+import { useRouter } from 'next/router';
+import { useAuth } from '../hooks/useAuth';
+
+export default function AuthLoader() {
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
+
+  if (isLoading && router.pathname.startsWith('/admin')) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+Dicas Adicionais
+
+    Armazene a URL pretendida:
+
+        Antes de redirecionar para o login, armazene a URL atual para redirecionar de volta após o login:
+
+typescript
+
+router.push(`/login?redirect=${encodeURIComponent(router.asPath)}`);
+
+    Use middleware (Next.js 12+):
+
+        Crie um arquivo middleware.js na raiz do projeto:
+
+javascript
+
+import { NextResponse } from 'next/server';
+
+export function middleware(request) {
+  const token = request.cookies.get('auth-token');
+  if (!token && request.nextUrl.pathname.startsWith('/admin')) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+  return NextResponse.next();
+}
+
+    Verifique o cache do navegador:
+
+        Problemas podem ocorrer devido a cache agressivo. Adicione headers apropriados:
+
+javascript
+
+res.setHeader('Cache-Control', 'no-store, max-age=0');
+
+Essas soluções devem garantir que:
+
+    O redirecionamento ocorra imediatamente ao acessar rotas protegidas
+
+    A experiência do usuário seja suave com feedback de carregamento
+
+    A segurança da sua aplicação seja mantida
