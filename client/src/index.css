@@ -550,11 +550,38 @@ h3.section-title {
     /* Força dimensões adequadas em todos os tamanhos */
     width: 100% !important;
     height: 100% !important;
-    /* Melhora renderização da prévia */
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
+    /* Melhora renderização da prévia especificamente para mobile */
+    image-rendering: auto;
     /* Força reflow adequado */
-    contain: layout style;
+    contain: layout style paint;
+    /* Otimizações específicas para telas pequenas */
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    will-change: transform;
+  }
+
+  /* Otimizações específicas para telas muito pequenas */
+  @media (max-width: 480px) {
+    .google-drive-container iframe {
+      /* Força dimensões específicas para celular */
+      min-height: 280px !important;
+      max-height: 280px !important;
+      /* Otimiza renderização */
+      image-rendering: -webkit-optimize-contrast;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      /* Força aspect ratio */
+      object-fit: cover;
+      object-position: center;
+    }
+  }
+
+  /* Para tablets pequenos */
+  @media (min-width: 481px) and (max-width: 768px) {
+    .google-drive-container iframe {
+      min-height: 350px !important;
+      max-height: 350px !important;
+    }
   }
 
   /* Container para Google Drive Player */
