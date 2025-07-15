@@ -38,7 +38,7 @@ const AcessoNegado = () => {
               Voltar ao Início
             </Button>
             <Button 
-              onClick={() => setLocation("/login/admin")}
+              onClick={() => setLocation("/login")}
               className="bg-red-600 hover:bg-red-700"
             >
               Fazer Login
