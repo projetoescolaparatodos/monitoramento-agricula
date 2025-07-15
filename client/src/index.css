@@ -596,7 +596,8 @@ h3.section-title {
     /* Remove problemas de preview comprimida */
     object-fit: contain;
     /* Força carregamento direto sem preview externa */
-    image-rendering: auto;ara mobile */
+    image-rendering: auto;
+    /* Otimização para mobile */
     -webkit-overflow-scrolling: touch;
   }
 
