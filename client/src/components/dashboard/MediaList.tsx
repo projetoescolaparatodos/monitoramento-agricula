@@ -21,7 +21,7 @@ import { doc, deleteDoc } from "firebase/firestore";
 import { Clock } from "lucide-react";
 
 interface MediaListProps {
-  onEdit: (id: number) => void;
+  onEdit: (id: string) => void;
 }
 
 export const MediaList = ({ onEdit }: MediaListProps) => {
@@ -30,7 +30,7 @@ export const MediaList = ({ onEdit }: MediaListProps) => {
   });
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [mediaToDelete, setMediaToDelete] = useState<number | null>(null);
+  const [mediaToDelete, setMediaToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
 
@@ -60,8 +60,8 @@ export const MediaList = ({ onEdit }: MediaListProps) => {
     }
   };
 
-  const openDeleteDialog = (id: number) => {
-    setMediaToDelete(id);
+  const openDeleteDialog = (id: string) => {
+    setMediaToDelete(String(id));
     setIsDeleteDialogOpen(true);
   };
 
@@ -239,7 +239,7 @@ export const MediaList = ({ onEdit }: MediaListProps) => {
                     size="sm"
                     variant="outline"
                     className="flex-1"
-                    onClick={() => onEdit(media.id)}
+                    onClick={() => onEdit(String(media.id))}
                   >
                     Editar
                   </Button>
@@ -247,7 +247,7 @@ export const MediaList = ({ onEdit }: MediaListProps) => {
                     size="sm"
                     variant="destructive"
                     className="flex-1"
-                    onClick={() => openDeleteDialog(media.id)}
+                    onClick={() => openDeleteDialog(String(media.id))}
                   >
                     Excluir
                   </Button>
