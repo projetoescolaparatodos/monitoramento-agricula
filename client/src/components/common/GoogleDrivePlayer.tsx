@@ -183,12 +183,17 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
           <iframe
             src={streamingUrl}
             title={title}
-            className="w-full h-full border-0 max-w-full max-h-full"
+            className="w-full h-full border-0"
             allowFullScreen
             sandbox="allow-scripts allow-same-origin allow-presentation"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
             loading="lazy"
-            style={{ width: '100%', height: '100%', maxWidth: '100%', maxHeight: '100%' }}
+            style={{ 
+              width: '100%', 
+              height: '100%', 
+              objectFit: 'cover',
+              border: 'none'
+            }}
           />
         </div>
       </div>
@@ -211,10 +216,14 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
           <img
             src={streamingUrl}
             alt={title}
-            className="w-full h-full object-contain max-w-full max-h-full"
+            className="w-full h-full object-cover"
             loading="lazy"
             onError={() => setError('Erro ao carregar imagem')}
-            style={{ width: '100%', height: '100%', maxWidth: '100%', maxHeight: '100%' }}
+            style={{ 
+              width: '100%', 
+              height: '100%', 
+              objectFit: 'cover'
+            }}
           />
         </div>
       </div>
@@ -222,8 +231,10 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   }
 
   return (
-    <div className={`w-full ${getAspectRatioClass()} bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-center ${className}`}>
-      <p className="text-gray-500 text-sm">Formato não suportado</p>
+    <div className={`w-full ${className}`}>
+      <div className={`w-full ${getAspectRatioClass()} bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-center relative overflow-hidden`}>
+        <p className="text-gray-500 text-sm">Formato não suportado</p>
+      </div>
     </div>
   );
 };

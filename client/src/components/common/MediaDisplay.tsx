@@ -417,19 +417,19 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
           isVerticalAspect ? "max-w-[400px] mx-auto" : ""
         }`}>
           <div className="w-full relative">
-            <div className={`w-full flex justify-center ${
-              isVerticalAspect ? "h-full" : ""
+            <div className={`w-full relative ${
+              isVerticalAspect ? "max-w-[400px] mx-auto" : ""
             }`}>
               <div className={`${
                 isVerticalAspect
-                  ? "aspect-[9/16] w-full h-[600px]" 
-                  : "w-full h-auto max-h-[60vh]"
-              } overflow-hidden`}>
+                  ? "aspect-[9/16] w-full" 
+                  : "w-full aspect-video"
+              } overflow-hidden rounded-lg`}>
                 <GoogleDrivePlayer
                   mediaUrl={item.mediaUrl || ''}
                   title={item.title || 'Mídia do Google Drive'}
                   aspectRatio={isVerticalAspect ? '9:16' : (item.aspectRatio || 'horizontal')}
-                  className="w-full h-full max-w-full"
+                  className="w-full h-full"
                   instagramUrl={item.instagramUrl}
                 />
               </div>
@@ -546,9 +546,9 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
               </div>
             ) : isFirebaseVideo ? (
               // Vídeos do Firebase: tratar como verticais (Instagram) em desktop
-              <div className={`w-full flex justify-center ${
-                shouldTreatAsVertical ? "h-full" : ""
-              } relative`}>
+              <div className={`w-full relative ${
+                shouldTreatAsVertical ? "max-w-[400px] mx-auto" : ""
+              } overflow-hidden rounded-t-lg bg-black`}>
                 {item.instagramUrl && (
                   <button
                     onClick={() => window.open(item.instagramUrl, '_blank')}
@@ -561,15 +561,20 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
                   </button>
                 )}
                 <video 
-                  className={`rounded-t-lg object-cover ${
+                  className={`w-full h-full ${
                     shouldTreatAsVertical
-                      ? "aspect-[9/16] w-full h-[600px]" 
-                      : "w-full h-auto max-h-[60vh]"
+                      ? "aspect-[9/16] object-cover" 
+                      : "aspect-video object-contain"
                   }`}
                   controls
                   src={item.mediaUrl}
                   poster={item.thumbnailUrl || ''}
                   title={item.title || "Vídeo"}
+                  style={{ 
+                    width: '100%', 
+                    height: '100%',
+                    objectFit: shouldTreatAsVertical ? 'cover' : 'contain'
+                  }}
                 >
                   Seu navegador não suporta a reprodução de vídeos.
                 </video>
