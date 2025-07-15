@@ -1,0 +1,95 @@
+[vite] connecting... client:495:9
+[vite] connected. client:618:15
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools chunk-RPCDYKBN.js:21551:25
+🔧 Inicializando Firebase com config: 
+Object { projectId: "transparencia-agricola", authDomain: "transparencia-agricola.firebaseapp.com" }
+firebase.ts:15:9
+✅ Firebase app inicializada: [DEFAULT] firebase.ts:20:9
+✅ Firestore inicializado para projeto: transparencia-agricola firebase.ts:22:9
+[2025-07-15T22:47:20.772Z]  @firebase/firestore: Firestore (11.3.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead. chunk-4PY6LZXV.js:1063:20
+OpenRouter API Key disponível: true openrouter.ts:3:9
+🔐 Iniciando verificação de autenticação do gestor... useGestorAuth.ts:12:13
+🔐 Estado de autenticação mudou: Logado useGestorAuth.ts:14:15
+Respostas treinadas carregadas: 0 ChatbotWidget.tsx:600:17
+Carregadas 0 respostas treinadas ChatbotWidget.tsx:973:17
+✅ Usuário autenticado como gestor (usuarios): 
+Object { dataCriacao: "2025-03-20T16:08:22.905Z", uid: "SB4nbW0dAXRaJPly0LFeUxt4NQw2", permissao: "admin", email: "nalbertlwks@gmail.com" }
+useGestorAuth.ts:36:25
+Palavras-chave carregadas do Firestore: 21 keywordMatcher.ts:343:13
+Editando mídia com ID: nqiOl4dG6O5ofLDgH11j Dashboard.tsx:94:13
+Props recebidas: 
+Object { mediaData: {…}, isEdit: true }
+MediaUploader.tsx:53:11
+Buscando dados da mídia com ID: nqiOl4dG6O5ofLDgH11j MediaUploader.tsx:58:15
+Props recebidas: 
+Object { mediaData: {…}, isEdit: true }
+MediaUploader.tsx:53:11
+Erro ao carregar mídia: SyntaxError: JSON.parse: unexpected character at line 1 column 1 of the JSON data MediaUploader.tsx:70:15
+[vite] hot updated: /src/components/dashboard/MediaUploader.tsx client:223:19
+[vite] hot updated: /src/index.css?v=9-fw2cZnXICFmBFO9tGiP client:223:19
+Props recebidas: 
+Object { mediaData: {…}, isEdit: true }
+MediaUploader.tsx:53:11
+Buscando dados da mídia com ID: nqiOl4dG6O5ofLDgH11j MediaUploader.tsx:58:15
+Erro ao carregar mídia: SyntaxError: JSON.parse: unexpected character at line 1 column 1 of the JSON data MediaUploader.tsx:83:15
+Props recebidas: 
+Object { mediaData: {…}, isEdit: true }
+MediaUploader.tsx:53:11
+Props recebidas: 
+Object { mediaData: {…}, isEdit: true }
+MediaUploader.tsx:53:11
+Erro ao carregar mídia: SyntaxError: JSON.parse: unexpected character at line 1 column 1 of the JSON data MediaUploader.tsx:83:15
+Editando mídia com ID: CuGRubASuXpiv2VEsEJu Dashboard.tsx:94:13
+Props recebidas: 
+Object { mediaData: {…}, isEdit: true }
+MediaUploader.tsx:53:11
+Buscando dados da mídia com ID: CuGRubASuXpiv2VEsEJu MediaUploader.tsx:58:15
+Resposta não é JSON: 
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style data-vite-theme="" data-inject-first="">:root {
+      --background: 0 0% 100%;
+--foreground: 20 14.3% 4.1%;
+--muted: 60 4.8% 95.9%;
+--muted-foreground: 25 5.3% 44.7%;
+--popover: 0 0% 100%;
+--popover-foreground: 20 14.3% 4.1%;
+--card: 0 0% 100%;
+--card-foreground: 20 14.3% 4.1%;
+--border: 20 5.9% 90%;
+--input: 20 5.9% 90%;
+--primary: 120 40% 35%;
+--primary-foreground: 116 23% 98%;
+--secondary: 60 4.8% 95.9%;
+--secondary-foreground: 24 9.8% 10%;
+--accent: 60 4.8% 95.9%;
+--accent-foreground: 24 9.8% 10%;
+--destructive: 0 84.2% 60.2%;
+--destructive-foreground: 60 9.1% 97.8%;
+--ring: 20 14.3% 4.1%;
+--radius: 0.5rem;
+  }
+  .dark {
+      --background: 240 10% 3.9%;
+--foreground: 0 0% 98%;
+--muted: 240 3.7% 15.9%;
+--muted-foreground: 240 5% 64.9%;
+--popover: 240 10% 3.9%;
+--popover-foreground: 0 0% 98%;
+--card: 240 10% 3.9%;
+--card-foreground: 0 0% 98%;
+--border: 240 3.7% 15.9%;
+--input: 240 3.7% 15.9%;
+--primary: 120 40% 35%;
+--primary-fore…
+MediaUploader.tsx:69:19
+Erro detalhado ao buscar mídia: Error: Resposta do servidor não é JSON válido
+    queryFn MediaUploader.tsx:67
+MediaUploader.tsx:76:17
+Props recebidas: 
+Object { mediaData: {…}, isEdit: true }
+MediaUploader.tsx:53:11
+Erro ao carregar mídia: Error: Resposta do servidor não é JSON válido
+    queryFn MediaUploader.tsx:67
+MediaUploader.tsx:83:15
