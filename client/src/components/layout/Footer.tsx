@@ -12,8 +12,17 @@ const Footer = () => {
           {/* Logos e Identificação */}
           <div className="md:col-span-1 flex flex-col items-center md:items-start space-y-4">
             <div className="flex flex-col items-center md:items-start gap-4">
-              <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-xl">🌱</span>
+              <div className="flex items-center gap-4">
+                <img 
+                  src="/logo.png" 
+                  alt="Logo SEMAPA" 
+                  className="w-16 h-16 object-contain"
+                />
+                <img 
+                  src="/logoprefeitura.webp" 
+                  alt="Logo Prefeitura Municipal" 
+                  className="w-16 h-16 object-contain"
+                />
               </div>
               <div className="text-center md:text-left">
                 <h3 className="text-lg font-bold text-green-800 dark:text-green-400">SEMAPA</h3>
