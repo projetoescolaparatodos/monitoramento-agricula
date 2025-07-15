@@ -182,6 +182,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/media-items/:id', async (req, res) => {
+    try {
+      const id = req.params.id;
+      const mediaDoc = await getDoc(doc(db, 'media', id));
+
+      if (!mediaDoc.exists()) {
+        return res.status(404).json({ error: true, message: 'Item de mídia não encontrado' });
+      }
+
+      const data = mediaDoc.data();
+      res.json({
+        id: mediaDoc.id,
+        pageType: data.pageType,
+        title: data.title || "",
+        description: data.description || "",
+        mediaType: data.mediaType || "image",
+        mediaUrl: data.mediaUrl || "",
+        thumbnailUrl: data.thumbnailUrl || "",
+        active: data.active !== false,
+        order: data.order || 0,
+        createdAt: data.createdAt || new Date().toISOString(),
+        instagramUrl: data.instagramUrl || "",
+        aspectRatio: data.aspectRatio || "",
+        author: data.author || "",
+        authorImageUrl: data.authorImageUrl || "",
+        hashtags: data.hashtags || ""
+      });
+    } catch (error) {
+      console.error('Error fetching media item:', error);
+      res.status(500).json({ error: true, message: 'Erro ao buscar item de mídia' });
+    }
+  });
+
+  app.put('/api/media-items/:id', async (req, res) => {
+    try {
+      const id = req.params.id;
+      const mediaData = req.body;
+
+      await updateDoc(doc(db, 'media', id), {
+        ...mediaData,
+        updatedAt: new Date().toISOString()
+      });
+
+      res.json({ id, ...mediaData });
+    } catch (error) {
+      console.error('Error updating media item:', error);
+      res.status(500).json({ error: true, message: 'Erro ao atualizar item de mídia' });
+    }
+  });
+
   app.post('/api/media-items', async (req, res) => {
     try {
       const mediaData = req.body;

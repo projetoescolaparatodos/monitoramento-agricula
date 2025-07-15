@@ -50,15 +50,30 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
     enabled: isEdit && !!mediaData?.id,
     queryFn: async () => {
       console.log('Buscando dados da mídia com ID:', mediaData?.id);
-      const response = await fetch(`/api/media-items/${mediaData?.id}`);
       
-      if (!response.ok) {
-        throw new Error(`Erro ao buscar mídia: ${response.status}`);
+      try {
+        const response = await fetch(`/api/media-items/${mediaData?.id}`);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Resposta do servidor:', errorText);
+          throw new Error(`Erro ${response.status}: ${errorText}`);
+        }
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          const responseText = await response.text();
+          console.error('Resposta não é JSON:', responseText);
+          throw new Error('Resposta do servidor não é JSON válido');
+        }
+        
+        const data = await response.json();
+        console.log('Dados da mídia carregados:', data);
+        return data;
+      } catch (error) {
+        console.error('Erro detalhado ao buscar mídia:', error);
+        throw error;
       }
-      
-      const data = await response.json();
-      console.log('Dados da mídia carregados:', data);
-      return data;
     }
   });
 
@@ -122,9 +137,8 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
     try {
       console.log("Dados a serem enviados:", data);
       setIsSubmitting(true);
-      if (isEdit && (mediaData?.id || mediaData)) {
-        const mediaId = mediaData?.id || mediaData;
-        await apiRequest("PUT", `/api/media-items/${mediaId}`, data);
+      if (isEdit && mediaData?.id) {
+        await apiRequest("PUT", `/api/media-items/${mediaData.id}`, data);
         toast({
           title: "Mídia atualizada",
           description: "O item de mídia foi atualizado com sucesso.",
@@ -137,12 +151,10 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
           description: "O item de mídia foi criado com sucesso.",
         });
       }
-      queryClient.invalidateQueries({ queryKey: ['/api/media-items'] });
-
       // Invalidar todas as queries relacionadas a media para garantir dados atualizados
       queryClient.invalidateQueries({ queryKey: ['/api/media-items'] });
+      queryClient.invalidateQueries({ queryKey: ['media-item'] });
       queryClient.invalidateQueries({ queryKey: ['media'] });
-      queryClient.invalidateQueries({ queryKey: ['media', 'sim'] });
 
       if (onSuccess) {
         onSuccess();
