@@ -1,5 +1,4 @@
 import React from "react";
-import Footer from "@/components/layout/Footer";
 import BackgroundVideo from "@/components/ui/BackgroundVideo";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/utils/firebase";
@@ -297,7 +296,6 @@ const Fishing = () => {
           </section>
         </main>
       </main>
-      <Footer />
     </>
   );
 };

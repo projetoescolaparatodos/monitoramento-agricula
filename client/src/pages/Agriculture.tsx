@@ -2,14 +2,13 @@ import React from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/utils/firebase";
 import { useQuery } from "@tanstack/react-query";
-import Footer from "@/components/layout/Footer";
-import BackgroundVideo from "@/components/ui/BackgroundVideo";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
+import Navbar from "@/components/layout/Navbar";
+import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Map, BarChart2, FilePieChart } from "lucide-react";
 import { useLocation } from "wouter";
-import DataVisualizationSection from "@/components/agriculture/DataVisualizationSection";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import MediaDisplay from "@/components/common/MediaDisplay";
 import InteractivePanel from "@/components/paa/InteractivePanel";
@@ -353,7 +352,6 @@ const Agriculture = () => {
           </section>
         </main>
       </main>
-      <Footer />
     </>
   );
 };
