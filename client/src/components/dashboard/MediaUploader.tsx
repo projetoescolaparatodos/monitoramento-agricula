@@ -102,8 +102,8 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
         aspectRatio: mediaToEdit.aspectRatio || "horizontal",
         instagramUrl: mediaToEdit.instagramUrl || "",
         author: mediaToEdit.author || "",
-        authorImage: mediaToEdit.authorImage || "",
-        tags: mediaToEdit.tags || "",
+        authorImageUrl: mediaToEdit.authorImageUrl || "",
+        hashtags: mediaToEdit.hashtags || "",
       });
 
       // Definir URL de preview
@@ -303,7 +303,7 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
                 </FormItem>
               )}
             />
-            {mediaType === "video" && (
+            {form.watch("mediaType") === "video" && (
               <div className="space-y-4">
                 <FormField
                   control={form.control}
@@ -398,18 +398,18 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
               <label className="block text-sm font-medium mb-2">Ou faça upload de um arquivo:</label>
               <MediaFileUploader 
                 onFileUploaded={(url) => form.setValue('mediaUrl', url)}
-                acceptTypes={mediaType === "image" ? "image/*" : "video/*"}
-                folderPath={`midias/${mediaType}`}
+                acceptTypes={form.watch("mediaType") === "image" ? "image/*" : "video/*"}
+                folderPath={`midias/${form.watch("mediaType")}`}
                 pageType={form.watch("pageType") as 'home' | 'agriculture' | 'fishing' | 'paa' | 'sim'}
-                buttonText={mediaType === "image" ? "Upload de Imagem" : "Upload de Vídeo"}
+                buttonText={form.watch("mediaType") === "image" ? "Upload de Imagem" : "Upload de Vídeo"}
               />
-            {mediaUrl && (
+            {form.watch("mediaUrl") && (
               <div className="border p-4 rounded-md">
                 <h3 className="font-medium mb-2">Pré-visualização</h3>
-                {mediaType === "image" ? (
+                {form.watch("mediaType") === "image" ? (
                   <div className="mt-2 rounded-md overflow-hidden max-h-60 flex justify-center">
                     <img 
-                      src={mediaUrl} 
+                      src={form.watch("mediaUrl")} 
                       alt="Preview"
                       className="max-w-full h-auto object-contain" 
                       onError={(e) => {
@@ -420,7 +420,7 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
                 ) : (
                   <div className="mt-2 space-y-3">
                     <div className="bg-gray-100 rounded-md p-4 text-center">
-                      <p className="text-sm text-gray-600">Vídeo: {mediaUrl}</p>
+                      <p className="text-sm text-gray-600">Vídeo: {form.watch("mediaUrl")}</p>
                     </div>
 
                     {form.watch('thumbnailUrl') && (
