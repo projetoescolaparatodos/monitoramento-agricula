@@ -232,25 +232,28 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       currentUnsubscribe = unsubscribeFunc;
     });
 
-    // Configurar atualização automática a cada 1 minuto (60000ms)
+    // Configurar atualização automática a cada 5 minutos (300000ms) para reduzir carga
     const interval = setInterval(async () => {
-      console.log('🔄 Atualizando estatística dinâmica:', config.titulo);
-      setIsUpdating(true);
-      
-      // Cancelar subscription anterior se existir
-      if (currentUnsubscribe) {
-        currentUnsubscribe();
+      // Só atualiza se não estiver já atualizando
+      if (!isUpdating) {
+        console.log('🔄 Atualizando estatística dinâmica:', config.titulo);
+        setIsUpdating(true);
+        
+        // Cancelar subscription anterior se existir
+        if (currentUnsubscribe) {
+          currentUnsubscribe();
+        }
+        
+        // Criar nova subscription
+        try {
+          const newUnsubscribe = await fetchData();
+          currentUnsubscribe = newUnsubscribe;
+        } catch (error) {
+          console.error('Erro ao recriar subscription:', error);
+          setIsUpdating(false);
+        }
       }
-      
-      // Criar nova subscription
-      try {
-        const newUnsubscribe = await fetchData();
-        currentUnsubscribe = newUnsubscribe;
-      } catch (error) {
-        console.error('Erro ao recriar subscription:', error);
-        setIsUpdating(false);
-      }
-    }, 60000);
+    }, 300000); // 5 minutos em vez de 1 minuto
 
     return () => {
       if (currentUnsubscribe) {
@@ -258,7 +261,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       }
       clearInterval(interval);
     };
-  }, [config]);
+  }, [config, isUpdating]); // Adicionar isUpdating como dependência
 
   const formatValue = (val: number) => {
     if (config.tipoAgregacao === 'avg') {
