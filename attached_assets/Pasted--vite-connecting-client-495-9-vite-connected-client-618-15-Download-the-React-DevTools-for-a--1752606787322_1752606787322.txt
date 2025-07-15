@@ -1,0 +1,386 @@
+[vite] connecting... client:495:9
+[vite] connected. client:618:15
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools chunk-RPCDYKBN.js:21551:25
+🔧 Inicializando Firebase com config: 
+Object { projectId: "transparencia-agricola", authDomain: "transparencia-agricola.firebaseapp.com" }
+firebase.ts:15:9
+✅ Firebase app inicializada: [DEFAULT] firebase.ts:20:9
+✅ Firestore inicializado para projeto: transparencia-agricola firebase.ts:22:9
+[2025-07-15T19:08:56.858Z]  @firebase/firestore: Firestore (11.3.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead. chunk-4PY6LZXV.js:1063:20
+OpenRouter API Key disponível: true openrouter.ts:3:9
+Dados passados para InfoPage: 
+Object { contentCount: 0, chartCount: 0, mediaCount: 0, chartExample: null }
+Agriculture.tsx:151:11
+Dados passados para InfoPage: 
+Object { contentCount: 0, chartCount: 0, mediaCount: 5, chartExample: null }
+Agriculture.tsx:151:11
+MediaDisplay - Google Drive: 
+Object { id: "H5ujFjVV2COArqofS4a4", title: "<p><strong>🏆 SEMAPA Brilha na Feira do Cacau e Chocolate 2025 em Belém!</strong></p>", aspectRatio: "vertical", isVerticalAspect: true, mediaUrl: "https://drive.google.com/file/d/1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z/view?usp=sharing" }
+MediaDisplay.tsx:643:15
+MediaDisplay - Google Drive: 
+Object { id: "kMD8lCZX8ZlLP5e19hxB", title: "<p><strong>Dia de Campo Produtivo com a SEMAPA! KM 23 Norte</strong></p>", aspectRatio: "vertical", isVerticalAspect: true, mediaUrl: "https://drive.google.com/file/d/1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD/view?usp=sharing" }
+MediaDisplay.tsx:643:15
+MediaDisplay - Google Drive: 
+Object { id: "tIC0IkjqqlrWdOjtVEcN", title: '<p><strong style="background-color: rgba(240, 253, 244, 0.9); color: rgb(17, 24, 39);">Ampliação do Viveiro Municipal</strong></p>', aspectRatio: "vertical", isVerticalAspect: true, mediaUrl: "https://drive.google.com/file/d/1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn/view?usp=sharing" }
+MediaDisplay.tsx:643:15
+Tentando inicializar Google Drive API... 3 GoogleDrivePlayer.tsx:55:17
+MediaDisplay - Google Drive: 
+Object { id: "H5ujFjVV2COArqofS4a4", title: "<p><strong>🏆 SEMAPA Brilha na Feira do Cacau e Chocolate 2025 em Belém!</strong></p>", aspectRatio: "vertical", isVerticalAspect: true, mediaUrl: "https://drive.google.com/file/d/1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z/view?usp=sharing" }
+MediaDisplay.tsx:643:15
+MediaDisplay - Google Drive: 
+Object { id: "kMD8lCZX8ZlLP5e19hxB", title: "<p><strong>Dia de Campo Produtivo com a SEMAPA! KM 23 Norte</strong></p>", aspectRatio: "vertical", isVerticalAspect: true, mediaUrl: "https://drive.google.com/file/d/1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD/view?usp=sharing" }
+MediaDisplay.tsx:643:15
+MediaDisplay - Google Drive: 
+Object { id: "tIC0IkjqqlrWdOjtVEcN", title: '<p><strong style="background-color: rgba(240, 253, 244, 0.9); color: rgb(17, 24, 39);">Ampliação do Viveiro Municipal</strong></p>', aspectRatio: "vertical", isVerticalAspect: true, mediaUrl: "https://drive.google.com/file/d/1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn/view?usp=sharing" }
+MediaDisplay.tsx:643:15
+Query agriculture charts: 
+Object { collectionPath: "charts", whereField: "pageType", whereValue: "agriculture", documentsFound: 4 }
+Agriculture.tsx:99:15
+Documento CDJ8OF3347fe9K5gwd0Q: 
+Object { pageType: "agriculture", description: "Este gráfico apresenta a quantidade total de mudas distribuídas por cultura (Cacau, Açaí e Citrus), somando um total de 45.609 mudas. O cacau representa 67,3% das mudas distribuídas, seguido pelo açaí (19,0%) e citrus (13,7%). A visualização permite comparar a predominância de cada cultura no programa de distribuição", chartData: {…}, active: true, order: 0, createdAt: "2025-05-14T20:45:17.017Z", title: "Distribuição de Mudas por Cultura: Cacau, Açaí e Citrus em 2025", chartType: "pie" }
+Agriculture.tsx:115:17
+Documento VGDpKfuNTT04kSAfMdlx: 
+Object { chartData: {…}, active: true, description: "área plantada safra 2025", order: 1, pageType: "agriculture", chartType: "bar", title: "Lavouras Anuais de ciclo curto ", createdAt: "2025-04-09T14:59:11.230Z" }
+Agriculture.tsx:115:17
+Documento Z2jSEwzkfC8Bb1Xq1Xbs: 
+Object { chartData: {…}, description: "Compara a área plantada e a produção das principais culturas: o cacau lidera em área (5.500 ha) mas tem baixo rendimento (857 kg/ha), a banana é a mais eficiente (13.000 kg/ha em 400 ha) e o milho destaca-se em volume (8.300 ton). Revela trade-offs entre valor (cacau) e eficiência (banana), com o milho como base alimentar. Dados do REAGRO-PA/2025.", active: true, pageType: "agriculture", order: 2, createdAt: "2025-06-30T01:53:15.101Z", chartType: "bar", title: "Área Desempenho das Principais Culturas de Vitória do Xingu: Área vs. Produção (2025) " }
+Agriculture.tsx:115:17
+Documento p6o7XhTCkqx29vanslzX: 
+Object { active: true, chartData: {…}, chartType: "bar", order: 1, description: "", pageType: "agriculture", title: "Distribuição de Mudas por Localidade: Principais Áreas de Entrega - 2025", createdAt: "2025-05-14T21:05:52.036Z" }
+Agriculture.tsx:115:17
+Avisos de Content-Security-Policy 6
+Respostas treinadas carregadas: 0 ChatbotWidget.tsx:600:17
+Carregadas 0 respostas treinadas ChatbotWidget.tsx:973:17
+Dados passados para InfoPage: 
+Object { contentCount: 0, chartCount: 4, mediaCount: 5, chartExample: {…} }
+Agriculture.tsx:151:11
+Renderizando gráfico tipo pie: 
+Object { datasets: (1) […], labels: (3) […] }
+ChartComponent.tsx:124:11
+Renderizando gráfico tipo bar: 
+Object { datasets: (1) […], labels: (5) […] }
+ChartComponent.tsx:124:11
+Renderizando gráfico tipo bar: 
+Object { datasets: (2) […], labels: (3) […] }
+ChartComponent.tsx:124:11
+Renderizando gráfico tipo bar: 
+Object { datasets: (1) […], labels: (6) […] }
+ChartComponent.tsx:124:11
+MediaDisplay - Google Drive: 
+Object { id: "H5ujFjVV2COArqofS4a4", title: "<p><strong>🏆 SEMAPA Brilha na Feira do Cacau e Chocolate 2025 em Belém!</strong></p>", aspectRatio: "vertical", isVerticalAspect: true, mediaUrl: "https://drive.google.com/file/d/1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z/view?usp=sharing" }
+MediaDisplay.tsx:643:15
+MediaDisplay - Google Drive: 
+Object { id: "kMD8lCZX8ZlLP5e19hxB", title: "<p><strong>Dia de Campo Produtivo com a SEMAPA! KM 23 Norte</strong></p>", aspectRatio: "vertical", isVerticalAspect: true, mediaUrl: "https://drive.google.com/file/d/1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD/view?usp=sharing" }
+MediaDisplay.tsx:643:15
+MediaDisplay - Google Drive: 
+Object { id: "tIC0IkjqqlrWdOjtVEcN", title: '<p><strong style="background-color: rgba(240, 253, 244, 0.9); color: rgb(17, 24, 39);">Ampliação do Viveiro Municipal</strong></p>', aspectRatio: "vertical", isVerticalAspect: true, mediaUrl: "https://drive.google.com/file/d/1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn/view?usp=sharing" }
+MediaDisplay.tsx:643:15
+Palavras-chave carregadas do Firestore: 21 keywordMatcher.ts:343:13
+Google Drive API initialized successfully driveHelper.ts:39:13
+API inicializada: true GoogleDrivePlayer.tsx:57:17
+Buscando metadados do arquivo... GoogleDrivePlayer.tsx:60:21
+Tentando buscar metadados para arquivo: 1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD driveHelper.ts:122:13
+Google Drive API initialized successfully driveHelper.ts:39:13
+API inicializada: true GoogleDrivePlayer.tsx:57:17
+Buscando metadados do arquivo... GoogleDrivePlayer.tsx:60:21
+Tentando buscar metadados para arquivo: 1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z driveHelper.ts:122:13
+Google Drive API initialized successfully driveHelper.ts:39:13
+API inicializada: true GoogleDrivePlayer.tsx:57:17
+Buscando metadados do arquivo... GoogleDrivePlayer.tsx:60:21
+Tentando buscar metadados para arquivo: 1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn driveHelper.ts:122:13
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z",\n  "name": "A equipe da Semapa marcou presença na Feira do Cacau e Chocolate 2025!Com o apoio constante da gestão do prefeito Márcio Viana, nossos produtores brilharam mais uma vez- conquistamos o 2º e 3º lugar com chocolate.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBPyG0riAyoxXq6oAoLejbRC5n86Cb7Dl7fmyYSOF8k7RUjB4Reo4oN6Ru86PtfnIIFDnGz8aeGhpnX9clMUulotLTWr7XyK8-S9=s220",\n  "size": "12616103",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "52166"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Metadados encontrados: 
+Object { id: "1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z", name: "A equipe da Semapa marcou presença na Feira do Cacau e Chocolate 2025!Com o apoio constante da gestão do prefeito Márcio Viana, nossos produtores brilharam mais uma vez- conquistamos o 2º e 3º lugar com chocolate.mp4", mimeType: "video/mp4", webContentLink: "https://drive.google.com/uc?id=1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z&export=download", webViewLink: "https://drive.google.com/file/d/1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z/view?usp=drivesdk", thumbnailLink: "https://lh3.googleusercontent.com/drive-storage/AJQWtBPyG0riAyoxXq6oAoLejbRC5n86Cb7Dl7fmyYSOF8k7RUjB4Reo4oN6Ru86PtfnIIFDnGz8aeGhpnX9clMUulotLTWr7XyK8-S9=s220", size: "12616103", videoMediaMetadata: {…} }
+GoogleDrivePlayer.tsx:63:23
+Tentando buscar metadados para arquivo: 1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z driveHelper.ts:122:13
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD",\n  "name": "Dia de campo produtivo!Hoje estivemos com a equipe do setor de agricultura da SEMAPA visitando nossos produtores rurais que estão sendo atendidos pela prefeitura de Vitória do Xingu.Com o apoio da gestão do Prefe.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBMiGHwaLegKFBSZXst8R8JGVBuzYC1dTXVI1w1hyZKtkcEngBm-sedPje-N33qFdL8g-wsPmQZzTcFTImg1b6MedN2bYQZrsigs=s220",\n  "size": "27568225",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "55533"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Metadados encontrados: 
+Object { id: "1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD", name: "Dia de campo produtivo!Hoje estivemos com a equipe do setor de agricultura da SEMAPA visitando nossos produtores rurais que estão sendo atendidos pela prefeitura de Vitória do Xingu.Com o apoio da gestão do Prefe.mp4", mimeType: "video/mp4", webContentLink: "https://drive.google.com/uc?id=1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD&export=download", webViewLink: "https://drive.google.com/file/d/1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD/view?usp=drivesdk", thumbnailLink: "https://lh3.googleusercontent.com/drive-storage/AJQWtBMiGHwaLegKFBSZXst8R8JGVBuzYC1dTXVI1w1hyZKtkcEngBm-sedPje-N33qFdL8g-wsPmQZzTcFTImg1b6MedN2bYQZrsigs=s220", size: "27568225", videoMediaMetadata: {…} }
+GoogleDrivePlayer.tsx:63:23
+Tentando buscar metadados para arquivo: 1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD driveHelper.ts:122:13
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn",\n  "name": "O secretário Willian Alves parabenizou a equipe técnica da SEMAPA pelo excelente trabalho realizado na construção da cerca do projeto de ampliação do Viveiro Municipal. Essa obra é fundamental para garantir a seg.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBOrzBRFrKP8uwWdF3Rr3kt4G4rl2xl-EftsrTr_N5jidpvQ6BGES_xzqKe5WECBRlRZrjdRU_7l7YPkHUt53QQ6ygP0and-jL2R=s220",\n  "size": "18373420",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "30933"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Metadados encontrados: 
+Object { id: "1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn", name: "O secretário Willian Alves parabenizou a equipe técnica da SEMAPA pelo excelente trabalho realizado na construção da cerca do projeto de ampliação do Viveiro Municipal. Essa obra é fundamental para garantir a seg.mp4", mimeType: "video/mp4", webContentLink: "https://drive.google.com/uc?id=1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn&export=download", webViewLink: "https://drive.google.com/file/d/1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn/view?usp=drivesdk", thumbnailLink: "https://lh3.googleusercontent.com/drive-storage/AJQWtBOrzBRFrKP8uwWdF3Rr3kt4G4rl2xl-EftsrTr_N5jidpvQ6BGES_xzqKe5WECBRlRZrjdRU_7l7YPkHUt53QQ6ygP0and-jL2R=s220", size: "18373420", videoMediaMetadata: {…} }
+GoogleDrivePlayer.tsx:63:23
+Tentando buscar metadados para arquivo: 1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn driveHelper.ts:122:13
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD",\n  "name": "Dia de campo produtivo!Hoje estivemos com a equipe do setor de agricultura da SEMAPA visitando nossos produtores rurais que estão sendo atendidos pela prefeitura de Vitória do Xingu.Com o apoio da gestão do Prefe.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBPl5krjtMSG6enPZ7bbeENzMUsxRiHCnpBS0hS-40MDOwluXmrQhOmCTsdGaZ36VQx9JoyU88ngzoHmSiWEsaXfcQTZQQuXdWQqfA=s220",\n  "size": "27568225",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "55533"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn",\n  "name": "O secretário Willian Alves parabenizou a equipe técnica da SEMAPA pelo excelente trabalho realizado na construção da cerca do projeto de ampliação do Viveiro Municipal. Essa obra é fundamental para garantir a seg.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBMhmhfqzM7we5uq2IMNKL6EAt-Yo9Mb8muniZBdXVszOBkYL5742msgiYqZgq_lwWU3NIF1u5uYzQpYudOgU98fnYeAC9fHrRKAsQ=s220",\n  "size": "18373420",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "30933"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z",\n  "name": "A equipe da Semapa marcou presença na Feira do Cacau e Chocolate 2025!Com o apoio constante da gestão do prefeito Márcio Viana, nossos produtores brilharam mais uma vez- conquistamos o 2º e 3º lugar com chocolate.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBOp23ytj_C1eNEaLXoB40esj4DQ43fxV2GyqNX7pHOKzRuU8oIONlJeNZki6IDtJlCYQbS0FZRyBKu3uExGaCPA90qS5GvwKqSzug=s220",\n  "size": "12616103",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "52166"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “accelerometer”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “autoplay”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “clipboard-write”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “encrypted-media”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “gyroscope”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “picture-in-picture”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “accelerometer”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “autoplay”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “clipboard-write”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “encrypted-media”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “gyroscope”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “picture-in-picture”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “accelerometer”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “autoplay”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “clipboard-write”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “encrypted-media”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “gyroscope”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “picture-in-picture”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “accelerometer”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “autoplay”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “clipboard-write”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “encrypted-media”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “gyroscope”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “picture-in-picture”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “accelerometer”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “autoplay”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “clipboard-write”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “encrypted-media”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “gyroscope”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “picture-in-picture”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “accelerometer”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “autoplay”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “clipboard-write”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “encrypted-media”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “gyroscope”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “picture-in-picture”. chunk-RPCDYKBN.js:8429:26
+MediaDisplay - Google Drive: 
+Object { id: "H5ujFjVV2COArqofS4a4", title: "<p><strong>🏆 SEMAPA Brilha na Feira do Cacau e Chocolate 2025 em Belém!</strong></p>", aspectRatio: "vertical", isVerticalAspect: true, mediaUrl: "https://drive.google.com/file/d/1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z/view?usp=sharing" }
+MediaDisplay.tsx:643:15
+MediaDisplay - Google Drive: 
+Object { id: "kMD8lCZX8ZlLP5e19hxB", title: "<p><strong>Dia de Campo Produtivo com a SEMAPA! KM 23 Norte</strong></p>", aspectRatio: "vertical", isVerticalAspect: true, mediaUrl: "https://drive.google.com/file/d/1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD/view?usp=sharing" }
+MediaDisplay.tsx:643:15
+MediaDisplay - Google Drive: 
+Object { id: "tIC0IkjqqlrWdOjtVEcN", title: '<p><strong style="background-color: rgba(240, 253, 244, 0.9); color: rgb(17, 24, 39);">Ampliação do Viveiro Municipal</strong></p>', aspectRatio: "vertical", isVerticalAspect: true, mediaUrl: "https://drive.google.com/file/d/1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn/view?usp=sharing" }
+MediaDisplay.tsx:643:15
+MediaDisplay - Google Drive: 
+Object { id: "H5ujFjVV2COArqofS4a4", title: "<p><strong>🏆 SEMAPA Brilha na Feira do Cacau e Chocolate 2025 em Belém!</strong></p>", aspectRatio: "vertical", isVerticalAspect: true, mediaUrl: "https://drive.google.com/file/d/1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z/view?usp=sharing" }
+MediaDisplay.tsx:643:15
+MediaDisplay - Google Drive: 
+Object { id: "kMD8lCZX8ZlLP5e19hxB", title: "<p><strong>Dia de Campo Produtivo com a SEMAPA! KM 23 Norte</strong></p>", aspectRatio: "vertical", isVerticalAspect: true, mediaUrl: "https://drive.google.com/file/d/1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD/view?usp=sharing" }
+MediaDisplay.tsx:643:15
+MediaDisplay - Google Drive: 
+Object { id: "tIC0IkjqqlrWdOjtVEcN", title: '<p><strong style="background-color: rgba(240, 253, 244, 0.9); color: rgb(17, 24, 39);">Ampliação do Viveiro Municipal</strong></p>', aspectRatio: "vertical", isVerticalAspect: true, mediaUrl: "https://drive.google.com/file/d/1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn/view?usp=sharing" }
+MediaDisplay.tsx:643:15
+MediaDisplay - Google Drive: 
+Object { id: "H5ujFjVV2COArqofS4a4", title: "<p><strong>🏆 SEMAPA Brilha na Feira do Cacau e Chocolate 2025 em Belém!</strong></p>", aspectRatio: "vertical", isVerticalAspect: true, mediaUrl: "https://drive.google.com/file/d/1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z/view?usp=sharing" }
+MediaDisplay.tsx:643:15
+MediaDisplay - Google Drive: 
+Object { id: "kMD8lCZX8ZlLP5e19hxB", title: "<p><strong>Dia de Campo Produtivo com a SEMAPA! KM 23 Norte</strong></p>", aspectRatio: "vertical", isVerticalAspect: true, mediaUrl: "https://drive.google.com/file/d/1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD/view?usp=sharing" }
+MediaDisplay.tsx:643:15
+MediaDisplay - Google Drive: 
+Object { id: "tIC0IkjqqlrWdOjtVEcN", title: '<p><strong style="background-color: rgba(240, 253, 244, 0.9); color: rgb(17, 24, 39);">Ampliação do Viveiro Municipal</strong></p>', aspectRatio: "vertical", isVerticalAspect: true, mediaUrl: "https://drive.google.com/file/d/1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn/view?usp=sharing" }
+MediaDisplay.tsx:643:15
+Tentando inicializar Google Drive API... 3 GoogleDrivePlayer.tsx:55:17
+API inicializada: true GoogleDrivePlayer.tsx:57:17
+Buscando metadados do arquivo... GoogleDrivePlayer.tsx:60:21
+Tentando buscar metadados para arquivo: 1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z driveHelper.ts:122:13
+API inicializada: true GoogleDrivePlayer.tsx:57:17
+Buscando metadados do arquivo... GoogleDrivePlayer.tsx:60:21
+Tentando buscar metadados para arquivo: 1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD driveHelper.ts:122:13
+API inicializada: true GoogleDrivePlayer.tsx:57:17
+Buscando metadados do arquivo... GoogleDrivePlayer.tsx:60:21
+Tentando buscar metadados para arquivo: 1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn driveHelper.ts:122:13
+Tentando inicializar Google Drive API... GoogleDrivePlayer.tsx:55:17
+API inicializada: true GoogleDrivePlayer.tsx:57:17
+Buscando metadados do arquivo... GoogleDrivePlayer.tsx:60:21
+Tentando buscar metadados para arquivo: 1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z driveHelper.ts:122:13
+Tentando inicializar Google Drive API... GoogleDrivePlayer.tsx:55:17
+API inicializada: true GoogleDrivePlayer.tsx:57:17
+Buscando metadados do arquivo... GoogleDrivePlayer.tsx:60:21
+Tentando buscar metadados para arquivo: 1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD driveHelper.ts:122:13
+Tentando inicializar Google Drive API... GoogleDrivePlayer.tsx:55:17
+API inicializada: true GoogleDrivePlayer.tsx:57:17
+Buscando metadados do arquivo... GoogleDrivePlayer.tsx:60:21
+Tentando buscar metadados para arquivo: 1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn driveHelper.ts:122:13
+Tentando inicializar Google Drive API... 3 GoogleDrivePlayer.tsx:55:17
+API inicializada: true GoogleDrivePlayer.tsx:57:17
+Buscando metadados do arquivo... GoogleDrivePlayer.tsx:60:21
+Tentando buscar metadados para arquivo: 1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z driveHelper.ts:122:13
+API inicializada: true GoogleDrivePlayer.tsx:57:17
+Buscando metadados do arquivo... GoogleDrivePlayer.tsx:60:21
+Tentando buscar metadados para arquivo: 1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD driveHelper.ts:122:13
+API inicializada: true GoogleDrivePlayer.tsx:57:17
+Buscando metadados do arquivo... GoogleDrivePlayer.tsx:60:21
+Tentando buscar metadados para arquivo: 1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn driveHelper.ts:122:13
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z",\n  "name": "A equipe da Semapa marcou presença na Feira do Cacau e Chocolate 2025!Com o apoio constante da gestão do prefeito Márcio Viana, nossos produtores brilharam mais uma vez- conquistamos o 2º e 3º lugar com chocolate.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBP1tC2inqqoTiitupsPZp0cV2FC7-g_wa5QieF685SV1ws7zxA7sQsrnjKyNnUSVqZ-nPijyWJcZkotqjanNThn3clsDmwPljj8oQ=s220",\n  "size": "12616103",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "52166"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Metadados encontrados: 
+Object { id: "1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z", name: "A equipe da Semapa marcou presença na Feira do Cacau e Chocolate 2025!Com o apoio constante da gestão do prefeito Márcio Viana, nossos produtores brilharam mais uma vez- conquistamos o 2º e 3º lugar com chocolate.mp4", mimeType: "video/mp4", webContentLink: "https://drive.google.com/uc?id=1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z&export=download", webViewLink: "https://drive.google.com/file/d/1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z/view?usp=drivesdk", thumbnailLink: "https://lh3.googleusercontent.com/drive-storage/AJQWtBP1tC2inqqoTiitupsPZp0cV2FC7-g_wa5QieF685SV1ws7zxA7sQsrnjKyNnUSVqZ-nPijyWJcZkotqjanNThn3clsDmwPljj8oQ=s220", size: "12616103", videoMediaMetadata: {…} }
+GoogleDrivePlayer.tsx:63:23
+Tentando buscar metadados para arquivo: 1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z driveHelper.ts:122:13
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD",\n  "name": "Dia de campo produtivo!Hoje estivemos com a equipe do setor de agricultura da SEMAPA visitando nossos produtores rurais que estão sendo atendidos pela prefeitura de Vitória do Xingu.Com o apoio da gestão do Prefe.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBOK5iKTYl2DSJndiJyFAscb7M95AeYi0-VnsfgJ39OoRwdZIhE362mx6cR_sClo_u9jtd4JMkhkK7utFssPHRqJE7VtC1Dpl4Noqw=s220",\n  "size": "27568225",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "55533"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Metadados encontrados: 
+Object { id: "1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD", name: "Dia de campo produtivo!Hoje estivemos com a equipe do setor de agricultura da SEMAPA visitando nossos produtores rurais que estão sendo atendidos pela prefeitura de Vitória do Xingu.Com o apoio da gestão do Prefe.mp4", mimeType: "video/mp4", webContentLink: "https://drive.google.com/uc?id=1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD&export=download", webViewLink: "https://drive.google.com/file/d/1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD/view?usp=drivesdk", thumbnailLink: "https://lh3.googleusercontent.com/drive-storage/AJQWtBOK5iKTYl2DSJndiJyFAscb7M95AeYi0-VnsfgJ39OoRwdZIhE362mx6cR_sClo_u9jtd4JMkhkK7utFssPHRqJE7VtC1Dpl4Noqw=s220", size: "27568225", videoMediaMetadata: {…} }
+GoogleDrivePlayer.tsx:63:23
+Tentando buscar metadados para arquivo: 1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD driveHelper.ts:122:13
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD",\n  "name": "Dia de campo produtivo!Hoje estivemos com a equipe do setor de agricultura da SEMAPA visitando nossos produtores rurais que estão sendo atendidos pela prefeitura de Vitória do Xingu.Com o apoio da gestão do Prefe.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBMcfy7CHxYt-g7pKRYq5ySwz7x0QEL_47CkScDgCuqtXlSxSYicTMg5NFT2tiTLgdvcQ148eCt05qRCd2IT73YIasuKUAXrKhcKVQ=s220",\n  "size": "27568225",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "55533"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Metadados encontrados: 
+Object { id: "1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD", name: "Dia de campo produtivo!Hoje estivemos com a equipe do setor de agricultura da SEMAPA visitando nossos produtores rurais que estão sendo atendidos pela prefeitura de Vitória do Xingu.Com o apoio da gestão do Prefe.mp4", mimeType: "video/mp4", webContentLink: "https://drive.google.com/uc?id=1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD&export=download", webViewLink: "https://drive.google.com/file/d/1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD/view?usp=drivesdk", thumbnailLink: "https://lh3.googleusercontent.com/drive-storage/AJQWtBMcfy7CHxYt-g7pKRYq5ySwz7x0QEL_47CkScDgCuqtXlSxSYicTMg5NFT2tiTLgdvcQ148eCt05qRCd2IT73YIasuKUAXrKhcKVQ=s220", size: "27568225", videoMediaMetadata: {…} }
+GoogleDrivePlayer.tsx:63:23
+Tentando buscar metadados para arquivo: 1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD driveHelper.ts:122:13
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn",\n  "name": "O secretário Willian Alves parabenizou a equipe técnica da SEMAPA pelo excelente trabalho realizado na construção da cerca do projeto de ampliação do Viveiro Municipal. Essa obra é fundamental para garantir a seg.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBMsl9TYpHXrV2X8yX-mZIjZzumn861DuBS_0OFTGvJ3axyb-JrCtX8BL_fS4lP_m_PaBi5d_qHcALONexSCN-l4KwgU0ftHhOVfpQ=s220",\n  "size": "18373420",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "30933"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Metadados encontrados: 
+Object { id: "1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn", name: "O secretário Willian Alves parabenizou a equipe técnica da SEMAPA pelo excelente trabalho realizado na construção da cerca do projeto de ampliação do Viveiro Municipal. Essa obra é fundamental para garantir a seg.mp4", mimeType: "video/mp4", webContentLink: "https://drive.google.com/uc?id=1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn&export=download", webViewLink: "https://drive.google.com/file/d/1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn/view?usp=drivesdk", thumbnailLink: "https://lh3.googleusercontent.com/drive-storage/AJQWtBMsl9TYpHXrV2X8yX-mZIjZzumn861DuBS_0OFTGvJ3axyb-JrCtX8BL_fS4lP_m_PaBi5d_qHcALONexSCN-l4KwgU0ftHhOVfpQ=s220", size: "18373420", videoMediaMetadata: {…} }
+GoogleDrivePlayer.tsx:63:23
+Tentando buscar metadados para arquivo: 1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn driveHelper.ts:122:13
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn",\n  "name": "O secretário Willian Alves parabenizou a equipe técnica da SEMAPA pelo excelente trabalho realizado na construção da cerca do projeto de ampliação do Viveiro Municipal. Essa obra é fundamental para garantir a seg.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBNsAZaFIsQAbvOwT2BblD1DcSn7yUrKr4y-oz8NSeT7raJHmn7EOJ_tuK7VxCC8bJpBfEOM19G-XDav-uciDUQLornmGYV8hYXI7A=s220",\n  "size": "18373420",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "30933"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Metadados encontrados: 
+Object { id: "1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn", name: "O secretário Willian Alves parabenizou a equipe técnica da SEMAPA pelo excelente trabalho realizado na construção da cerca do projeto de ampliação do Viveiro Municipal. Essa obra é fundamental para garantir a seg.mp4", mimeType: "video/mp4", webContentLink: "https://drive.google.com/uc?id=1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn&export=download", webViewLink: "https://drive.google.com/file/d/1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn/view?usp=drivesdk", thumbnailLink: "https://lh3.googleusercontent.com/drive-storage/AJQWtBNsAZaFIsQAbvOwT2BblD1DcSn7yUrKr4y-oz8NSeT7raJHmn7EOJ_tuK7VxCC8bJpBfEOM19G-XDav-uciDUQLornmGYV8hYXI7A=s220", size: "18373420", videoMediaMetadata: {…} }
+GoogleDrivePlayer.tsx:63:23
+Tentando buscar metadados para arquivo: 1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn driveHelper.ts:122:13
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z",\n  "name": "A equipe da Semapa marcou presença na Feira do Cacau e Chocolate 2025!Com o apoio constante da gestão do prefeito Márcio Viana, nossos produtores brilharam mais uma vez- conquistamos o 2º e 3º lugar com chocolate.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBOPGGImmO9MvxgMmtDAuOhFF0eo7kQTdvOVFgUfmAtaZkSErGe2mHGhM9TSr7uf3lM3Z0mHI7G1Tq5NbL1n580Zfz-0RTXONaJttA=s220",\n  "size": "12616103",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "52166"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Metadados encontrados: 
+Object { id: "1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z", name: "A equipe da Semapa marcou presença na Feira do Cacau e Chocolate 2025!Com o apoio constante da gestão do prefeito Márcio Viana, nossos produtores brilharam mais uma vez- conquistamos o 2º e 3º lugar com chocolate.mp4", mimeType: "video/mp4", webContentLink: "https://drive.google.com/uc?id=1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z&export=download", webViewLink: "https://drive.google.com/file/d/1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z/view?usp=drivesdk", thumbnailLink: "https://lh3.googleusercontent.com/drive-storage/AJQWtBOPGGImmO9MvxgMmtDAuOhFF0eo7kQTdvOVFgUfmAtaZkSErGe2mHGhM9TSr7uf3lM3Z0mHI7G1Tq5NbL1n580Zfz-0RTXONaJttA=s220", size: "12616103", videoMediaMetadata: {…} }
+GoogleDrivePlayer.tsx:63:23
+Tentando buscar metadados para arquivo: 1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z driveHelper.ts:122:13
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z",\n  "name": "A equipe da Semapa marcou presença na Feira do Cacau e Chocolate 2025!Com o apoio constante da gestão do prefeito Márcio Viana, nossos produtores brilharam mais uma vez- conquistamos o 2º e 3º lugar com chocolate.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBN1XQM6RqP0ZQbmTizh1zUrxmLWOmI-p-Ws4wafpRHUfWNqfmHlI4u8NnMl8VocUSACkvLDInnMnVTKJR1PYbU7jc4Cj46NFTW6_w=s220",\n  "size": "12616103",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "52166"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Metadados encontrados: 
+Object { id: "1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z", name: "A equipe da Semapa marcou presença na Feira do Cacau e Chocolate 2025!Com o apoio constante da gestão do prefeito Márcio Viana, nossos produtores brilharam mais uma vez- conquistamos o 2º e 3º lugar com chocolate.mp4", mimeType: "video/mp4", webContentLink: "https://drive.google.com/uc?id=1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z&export=download", webViewLink: "https://drive.google.com/file/d/1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z/view?usp=drivesdk", thumbnailLink: "https://lh3.googleusercontent.com/drive-storage/AJQWtBN1XQM6RqP0ZQbmTizh1zUrxmLWOmI-p-Ws4wafpRHUfWNqfmHlI4u8NnMl8VocUSACkvLDInnMnVTKJR1PYbU7jc4Cj46NFTW6_w=s220", size: "12616103", videoMediaMetadata: {…} }
+GoogleDrivePlayer.tsx:63:23
+Tentando buscar metadados para arquivo: 1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z driveHelper.ts:122:13
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn",\n  "name": "O secretário Willian Alves parabenizou a equipe técnica da SEMAPA pelo excelente trabalho realizado na construção da cerca do projeto de ampliação do Viveiro Municipal. Essa obra é fundamental para garantir a seg.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBM23GOCnaejmAUeGA3S6iBXwczg-OPEkIX4oK3cLNqhR34Q0FUwrXryVLQ9lLD6UMJSZXQbktjBF-GMr-z3RLB5ESc3r2Wt53sz9g=s220",\n  "size": "18373420",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "30933"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Metadados encontrados: 
+Object { id: "1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn", name: "O secretário Willian Alves parabenizou a equipe técnica da SEMAPA pelo excelente trabalho realizado na construção da cerca do projeto de ampliação do Viveiro Municipal. Essa obra é fundamental para garantir a seg.mp4", mimeType: "video/mp4", webContentLink: "https://drive.google.com/uc?id=1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn&export=download", webViewLink: "https://drive.google.com/file/d/1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn/view?usp=drivesdk", thumbnailLink: "https://lh3.googleusercontent.com/drive-storage/AJQWtBM23GOCnaejmAUeGA3S6iBXwczg-OPEkIX4oK3cLNqhR34Q0FUwrXryVLQ9lLD6UMJSZXQbktjBF-GMr-z3RLB5ESc3r2Wt53sz9g=s220", size: "18373420", videoMediaMetadata: {…} }
+GoogleDrivePlayer.tsx:63:23
+Tentando buscar metadados para arquivo: 1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn driveHelper.ts:122:13
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD",\n  "name": "Dia de campo produtivo!Hoje estivemos com a equipe do setor de agricultura da SEMAPA visitando nossos produtores rurais que estão sendo atendidos pela prefeitura de Vitória do Xingu.Com o apoio da gestão do Prefe.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBNCphasugciW1Q6iFNPeO7Fc29_SKgEydjYMKsZTm_vbMGBOZIbExJ6o6HFxl0ZX8t1lDsnDaO-wQCAI_p-i0a4WlddzSY8xRhXBA=s220",\n  "size": "27568225",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "55533"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Metadados encontrados: 
+Object { id: "1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD", name: "Dia de campo produtivo!Hoje estivemos com a equipe do setor de agricultura da SEMAPA visitando nossos produtores rurais que estão sendo atendidos pela prefeitura de Vitória do Xingu.Com o apoio da gestão do Prefe.mp4", mimeType: "video/mp4", webContentLink: "https://drive.google.com/uc?id=1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD&export=download", webViewLink: "https://drive.google.com/file/d/1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD/view?usp=drivesdk", thumbnailLink: "https://lh3.googleusercontent.com/drive-storage/AJQWtBNCphasugciW1Q6iFNPeO7Fc29_SKgEydjYMKsZTm_vbMGBOZIbExJ6o6HFxl0ZX8t1lDsnDaO-wQCAI_p-i0a4WlddzSY8xRhXBA=s220", size: "27568225", videoMediaMetadata: {…} }
+GoogleDrivePlayer.tsx:63:23
+Tentando buscar metadados para arquivo: 1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD driveHelper.ts:122:13
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD",\n  "name": "Dia de campo produtivo!Hoje estivemos com a equipe do setor de agricultura da SEMAPA visitando nossos produtores rurais que estão sendo atendidos pela prefeitura de Vitória do Xingu.Com o apoio da gestão do Prefe.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBNX9FOMo7qDQ7Am0ouz6W-XNr29DDoMURebmcEZt0-ZoAONADcb68VHm-pfm0QElk13cb1lRo6qMMZ0uwmeR-o0pB-L83UjaLVJ=s220",\n  "size": "27568225",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "55533"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “accelerometer”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “autoplay”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “clipboard-write”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “encrypted-media”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “gyroscope”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “picture-in-picture”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “accelerometer”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “autoplay”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “clipboard-write”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “encrypted-media”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “gyroscope”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “picture-in-picture”. chunk-RPCDYKBN.js:8429:26
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD",\n  "name": "Dia de campo produtivo!Hoje estivemos com a equipe do setor de agricultura da SEMAPA visitando nossos produtores rurais que estão sendo atendidos pela prefeitura de Vitória do Xingu.Com o apoio da gestão do Prefe.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBNxqYjK0QE81yjf7pl4jBEHFp2QV5wwe_HWlmJS1u6kEqIR3JZ1pEgYCQ9mSXfQ00gvOBDUONnTwWNrkqz9Bx7J2WUSnWv4aanP=s220",\n  "size": "27568225",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "55533"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn",\n  "name": "O secretário Willian Alves parabenizou a equipe técnica da SEMAPA pelo excelente trabalho realizado na construção da cerca do projeto de ampliação do Viveiro Municipal. Essa obra é fundamental para garantir a seg.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBMpo3u57IZwhbRp14D6WJb68T4zwSlJaFv6O_Q6A5dvOp1OmCMAokiuvdzUcOSmzfXtn9Tza2UXxq8QCON7Rtw64x_nO-rwzmhD=s220",\n  "size": "18373420",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "30933"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn",\n  "name": "O secretário Willian Alves parabenizou a equipe técnica da SEMAPA pelo excelente trabalho realizado na construção da cerca do projeto de ampliação do Viveiro Municipal. Essa obra é fundamental para garantir a seg.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBMc60uly6jhV_2uaELd0LvJfzknd6-CBL4bDHMF3rHN3eIEoom9qJxG_IyqwA5XphbrZ97-IbbFjSIi7GMsgVFzETHvTW4aem8Z=s220",\n  "size": "18373420",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "30933"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “accelerometer”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “autoplay”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “clipboard-write”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “encrypted-media”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “gyroscope”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “picture-in-picture”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “accelerometer”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “autoplay”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “clipboard-write”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “encrypted-media”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “gyroscope”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “picture-in-picture”. chunk-RPCDYKBN.js:8429:26
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z",\n  "name": "A equipe da Semapa marcou presença na Feira do Cacau e Chocolate 2025!Com o apoio constante da gestão do prefeito Márcio Viana, nossos produtores brilharam mais uma vez- conquistamos o 2º e 3º lugar com chocolate.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBMcsJalQNKfGxsj2cAWkvf9sNiJWA1Fd7w9pT-gGBQwGvumlc_F9Zzss53qPnRRln_Hv-_ZToJ20MuPcJFV0HrHLsJTEX2VvFbr=s220",\n  "size": "12616103",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "52166"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “accelerometer”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “autoplay”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “clipboard-write”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “encrypted-media”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “gyroscope”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “picture-in-picture”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “accelerometer”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “autoplay”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “clipboard-write”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “encrypted-media”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “gyroscope”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “picture-in-picture”. chunk-RPCDYKBN.js:8429:26
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn",\n  "name": "O secretário Willian Alves parabenizou a equipe técnica da SEMAPA pelo excelente trabalho realizado na construção da cerca do projeto de ampliação do Viveiro Municipal. Essa obra é fundamental para garantir a seg.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1a54pmpKmP5h9dBYDfwkfI61j0_bGGiXn/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBOTE7goFyE_EogrOxIARhcMn5MayGTxEqCoFyG0b-ssOUveaVVUL5-bg57Gfr6F4xnn50POVRjcRoohVeW22RCVQHf5v1o9n2_J=s220",\n  "size": "18373420",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "30933"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “accelerometer”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “autoplay”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “clipboard-write”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “encrypted-media”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “gyroscope”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “picture-in-picture”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “accelerometer”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “autoplay”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “clipboard-write”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “encrypted-media”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “gyroscope”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “picture-in-picture”. chunk-RPCDYKBN.js:8429:26
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z",\n  "name": "A equipe da Semapa marcou presença na Feira do Cacau e Chocolate 2025!Com o apoio constante da gestão do prefeito Márcio Viana, nossos produtores brilharam mais uma vez- conquistamos o 2º e 3º lugar com chocolate.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBNpYa3nGDWna89TegZh7TFxjnzxuosozlo_klGddky15qgk1qc9fAjJa8zO-tmtmdbYezBIPdOkoUGQyBC34B1efFuEyz4-Cea8=s220",\n  "size": "12616103",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "52166"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “accelerometer”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “autoplay”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “clipboard-write”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “encrypted-media”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “gyroscope”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “picture-in-picture”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “accelerometer”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “autoplay”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “clipboard-write”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “encrypted-media”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “gyroscope”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “picture-in-picture”. chunk-RPCDYKBN.js:8429:26
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z",\n  "name": "A equipe da Semapa marcou presença na Feira do Cacau e Chocolate 2025!Com o apoio constante da gestão do prefeito Márcio Viana, nossos produtores brilharam mais uma vez- conquistamos o 2º e 3º lugar com chocolate.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBNj-smZDtukT2oUjT8zgxmbG-CkBr9f0GNyvlpKLQQOqkaZaZalmPxwYgAKZ_3TI3LFjtnbB0_n1-Ykjd0ghmasQAIg4DlDk78z=s220",\n  "size": "12616103",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "52166"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Resposta da API: 
+Object { result: {…}, body: '{\n  "id": "1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD",\n  "name": "Dia de campo produtivo!Hoje estivemos com a equipe do setor de agricultura da SEMAPA visitando nossos produtores rurais que estão sendo atendidos pela prefeitura de Vitória do Xingu.Com o apoio da gestão do Prefe.mp4",\n  "mimeType": "video/mp4",\n  "webContentLink": "https://drive.google.com/uc?id=1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD&export=download",\n  "webViewLink": "https://drive.google.com/file/d/1bjOnZTrvawT_DCZ73lGCC6Y7FVyCJ_QD/view?usp=drivesdk",\n  "thumbnailLink": "https://lh3.googleusercontent.com/drive-storage/AJQWtBMNHpCX1gUJixMyAVcdA8wkRwyfMJ8tXTbteJVxTCX8mO1VYOWMGzqSx7WaoSX0c2HOEXG5FiGAC6qjTYIAZx7OassLEwIfQxYE=s220",\n  "size": "27568225",\n  "videoMediaMetadata": {\n    "width": 720,\n    "height": 1280,\n    "durationMillis": "55533"\n  }\n}\n', headers: {…}, status: 200, statusText: null }
+driveHelper.ts:127:13
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “accelerometer”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “autoplay”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “clipboard-write”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “encrypted-media”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “gyroscope”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “picture-in-picture”. chunk-RPCDYKBN.js:1232:22
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “accelerometer”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “autoplay”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “clipboard-write”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “encrypted-media”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “gyroscope”. chunk-RPCDYKBN.js:8429:26
+Diretiva de recursos: Desconsiderando nome de recurso não suportado “picture-in-picture”. chunk-RPCDYKBN.js:8429:26
+Avisos de Content-Security-Policy 6
+Acesso a cookies ou armazenamento particionado foi fornecido para “https://drive.google.com/file/d/1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z/preview” porque é carregado em contexto de terceiros e o particionamento de estado dinâmico está ativado. m=v,wb:752:40
+GET
+https://accounts.google.com/v3/signin/identifier?continue=https://drive.google.com/drivesharing/clientmodel?id=1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z&foreignService=texmex&authuser=0&origin=https://drive.google.com&followup=https://drive.google.com/drivesharing/clientmodel?id=1frad4CRYEuKSwkGDCaf9V2mqN1krY54Z&foreignService=texmex&authuser=0&origin=https://drive.google.com&ifkv=AdBytiNobudX4q7jBvWS2dkrvoZQdSL5LtqHkn7fbgKkYltWPljOegjvhWFhUIrbe1-y4hhYfWKgYA&osid=1&passive=1209600&flowName=GlifWebSignIn&flowEntry=ServiceLogin&dsh=S-868540298:1752606703767004
+[HTTP/3 403  166ms]
+
+Avisos de Content-Security-Policy 2
+Esta página está em modo de compatibilidade (Quirks Mode). O layout da página pode ser afetado. Para usar o modo padrão (Standards Mode), inclua “<!DOCTYPE html>” no início. identifier
+O recurso em “https://drive.google.com/drive-viewer/AKGpihYfWMBNvFsrGFO-MGOkCWBWZdM1kLKyfksFs7kLzBHG0OFtl5a3uiTeNit_dQUt3YPBs3mX15K8gGArCp1Vub4suYNcQ0B5Tqs=s1600-rw-v1” pré-carregado com carga antecipada de link não foi usado em alguns segundos. Verifique se todos os atributos da tag de pré-carregamento estão definidos corretamente. preview
