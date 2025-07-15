@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { db } from "../utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { useKmlBoundary, isClockwise, ensureClockwise } from "../hooks/useKmlBoundary";
+import { useIsMobile } from "../hooks/use-mobile";
 import {
   useLoadScript,
   GoogleMap,
@@ -13,7 +14,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Loader2, X } from "lucide-react"; // Importando o ícone de fechar
+import { Loader2, X, ArrowLeft } from "lucide-react"; // Importando o ícone de fechar
 import styles from "./PAAMap.module.css";
 
 interface PAA {
@@ -43,6 +44,7 @@ const PAAMap = () => {
   const [selectedMarker, setSelectedMarker] = useState<PAA | null>(null);
   const [filtro, setFiltro] = useState("todos");
   const [isMaximized, setIsMaximized] = useState(false);
+  const isMobile = useIsMobile();
 
   const mapContainerStyle = {
     width: "100%",
@@ -171,11 +173,11 @@ const PAAMap = () => {
       const infoWindowStyle = {
         backgroundColor: "rgba(255, 255, 255, 0.97)",
         border: "2px solid #38a169",
-        borderRadius: "16px",
+        borderRadius: isMobile ? "12px" : "16px",
         boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05)",
-        padding: "2rem",
-        width: isMaximized ? "90vw" : "480px",
-        maxHeight: isMaximized ? "90vh" : "85vh",
+        padding: isMobile ? "1rem" : "2rem",
+        width: isMobile ? "95vw" : (isMaximized ? "90vw" : "480px"),
+        maxHeight: isMobile ? "80vh" : (isMaximized ? "90vh" : "85vh"),
         overflowY: "auto",
         backdropFilter: "blur(12px)",
         fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
@@ -189,8 +191,8 @@ const PAAMap = () => {
             setIsMaximized(false);
           }}
           options={{
-            maxWidth: isMaximized ? window.innerWidth * 0.9 : 550,
-            maxHeight: isMaximized ? window.innerHeight * 0.9 : undefined,
+            maxWidth: isMobile ? window.innerWidth * 0.95 : (isMaximized ? window.innerWidth * 0.9 : 550),
+            maxHeight: isMobile ? window.innerHeight * 0.8 : (isMaximized ? window.innerHeight * 0.9 : undefined),
           }}
         >
           <div className="relative" style={infoWindowStyle}>
@@ -218,7 +220,7 @@ const PAAMap = () => {
                 )}
               </div>
               <div className="flex-1">
-                <h2 className="text-2xl font-bold text-gray-800 mb-2 leading-tight">{paa.localidade}</h2>
+                <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-800 mb-2 leading-tight`}>{paa.localidade}</h2>
                 <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold shadow-sm
                   ${paa.concluido ? 'bg-green-500 text-white' : 'bg-orange-500 text-white'}`}>
                   {paa.concluido ? '✓ Concluído' : '🌾 Em Andamento'}
@@ -226,7 +228,7 @@ const PAAMap = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className={`grid grid-cols-1 ${isMobile ? 'gap-4' : 'md:grid-cols-2 gap-6'}`}>
               {/* Seção Localização */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2 mb-3">
@@ -443,8 +445,16 @@ const PAAMap = () => {
   if (!isLoaded) return <div>Loading...</div>;
 
   return (
-    <div className="pt-16 relative h-screen">
-      <Card className={`absolute left-4 top-1/2 transform -translate-y-1/2 z-[1000] p-4 bg-white/95 shadow-lg ${styles['mobile-filter']}`}>
+    <div className={`${isMobile ? 'pt-0' : 'pt-16'} relative h-screen`}>
+      {isMobile && (
+        <button 
+          onClick={() => window.history.back()}
+          className="absolute top-4 left-4 z-[1001] bg-white/90 hover:bg-white p-3 rounded-full shadow-lg border border-gray-200"
+        >
+          <ArrowLeft size={20} className="text-gray-700" />
+        </button>
+      )}
+      <Card className="absolute left-4 top-1/2 transform -translate-y-1/2 z-[1000] p-4 bg-white/95 shadow-lg hidden md:block"></Card>
         <RadioGroup value={filtro} onValueChange={setFiltro}>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="todos" id="todos-paa" />

@@ -178,6 +178,32 @@ const PescaMap = () => {
     });
   }, [pesqueiros, filtro]);
 
+  // Hook para detectar se é um dispositivo móvel
+  const useIsMobile = () => {
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+      const handleResize = () => {
+        setIsMobile(window.innerWidth <= 768); // Define 768px como largura máxima para dispositivos móveis
+      };
+
+      // Define o valor inicial
+      handleResize();
+
+      // Adiciona um listener para o evento de redimensionamento
+      window.addEventListener("resize", handleResize);
+
+      // Remove o listener quando o componente é desmontado
+      return () => {
+        window.removeEventListener("resize", handleResize);
+      };
+    }, []);
+
+    return isMobile;
+  };
+
+  const isMobile = useIsMobile();
+
   const renderInfoWindow = useCallback(
     (pesca: Pesca) => {
       const infoWindowStyle = {
@@ -236,7 +262,7 @@ const PescaMap = () => {
             </div>
 
             {/* Corpo das informações */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className={`grid grid-cols-1 ${isMobile ? 'gap-3' : 'md:grid-cols-2 gap-4'}`}>
               {/* Coluna 1 */}
               <div>
                 <h3 className={styles.infoSubtitle}>Identificação</h3>
@@ -278,7 +304,7 @@ const PescaMap = () => {
             {/* Seção de Responsáveis */}
             <div className="mt-4">
               <h3 className={styles.infoSubtitle}>Responsáveis</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className={`grid grid-cols-1 ${isMobile ? 'gap-3' : 'md:grid-cols-2 gap-4'}`}>
                 <p className={styles.infoText}>
                   <span className="font-medium">Operador:</span> {pesca.operador || "Não informado"}
                 </p>
@@ -298,7 +324,7 @@ const PescaMap = () => {
             {pesca.midias && pesca.midias.length > 0 && (
               <div className="mt-6">
                 <h3 className="font-semibold text-gray-700 text-lg mb-3">Mídias</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className={`grid grid-cols-1 ${isMobile ? 'gap-3' : 'md:grid-cols-2 gap-4'}`}>
                   {pesca.midias.map((url, index) => {
                     // Verifica se é um vídeo do YouTube
                     const isYouTube = url.includes("youtube.com") || url.includes("youtu.be");
@@ -390,7 +416,7 @@ const PescaMap = () => {
         </InfoWindow>
       );
     },
-    [isMaximized],
+    [isMaximized, isMobile],
   );
 
   if (loading) {
