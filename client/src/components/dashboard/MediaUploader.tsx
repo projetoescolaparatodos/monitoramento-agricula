@@ -244,23 +244,51 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
               )}
             />
             {mediaType === "video" && (
-              <FormField
-                control={form.control}
-                name="thumbnailUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>URL da Miniatura (opcional)</FormLabel>
-                    <FormControl>
-                      <Input 
-                        {...field} 
-                        placeholder="https://example.com/thumbnail.jpg"
-                        value={field.value || ""}
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="thumbnailUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>URL da Miniatura (opcional)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          placeholder="https://example.com/thumbnail.jpg"
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                {/* Upload de thumbnail personalizada */}
+                <div className="border rounded-lg p-4 bg-gray-50">
+                  <h4 className="font-medium mb-2">Upload de Thumbnail Personalizada</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Faça upload de uma imagem para usar como thumbnail do vídeo (recomendado para vídeos do Google Drive)
+                  </p>
+                  <MediaFileUploader 
+                    onFileUploaded={(url) => form.setValue('thumbnailUrl', url)}
+                    acceptTypes="image/*"
+                    folderPath="thumbnails"
+                    pageType={form.watch("pageType") as 'home' | 'agriculture' | 'fishing' | 'paa' | 'sim'}
+                    buttonText="Escolher Thumbnail"
+                    maxFileSizeMB={5}
+                  />
+                  {form.watch('thumbnailUrl') && (
+                    <div className="mt-3">
+                      <p className="text-sm text-green-600 mb-2">✅ Thumbnail carregada:</p>
+                      <img 
+                        src={form.watch('thumbnailUrl')} 
+                        alt="Thumbnail" 
+                        className="w-32 h-20 object-cover rounded border"
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
             
             {/* Componente de upload com passagem correta do pageType */}
@@ -286,8 +314,28 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
                     />
                   </div>
                 ) : (
-                  <div className="mt-2 bg-gray-100 rounded-md p-4 text-center">
-                    <p>Vídeo: {mediaUrl}</p>
+                  <div className="mt-2 space-y-3">
+                    <div className="bg-gray-100 rounded-md p-4 text-center">
+                      <p className="text-sm text-gray-600">Vídeo: {mediaUrl}</p>
+                    </div>
+                    
+                    {form.watch('thumbnailUrl') && (
+                      <div>
+                        <h4 className="font-medium text-sm mb-2">Thumbnail Personalizada:</h4>
+                        <div className="relative inline-block">
+                          <img 
+                            src={form.watch('thumbnailUrl')} 
+                            alt="Thumbnail Preview"
+                            className="max-w-xs h-auto object-cover rounded border" 
+                          />
+                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center rounded">
+                            <div className="bg-white/90 rounded-full p-2">
+                              <Play size={20} className="text-gray-800 ml-0.5" fill="currentColor" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

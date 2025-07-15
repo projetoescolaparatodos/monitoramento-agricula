@@ -61,6 +61,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
               title={title}
               aspectRatio={isVerticalVideo ? 'vertical' : 'horizontal'}
               className="w-full"
+              customThumbnail={thumbnailUrl}
             />
           </div>
         );
@@ -108,6 +109,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
               title={title}
               aspectRatio="horizontal"
               className="w-full"
+              customThumbnail={thumbnailUrl}
             />
           </div>
         );

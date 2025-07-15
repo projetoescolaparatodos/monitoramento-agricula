@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,12 +6,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/utils/firebase";
+import { Upload } from "lucide-react";
 
 interface MediaFileUploaderProps {
   onFileUploaded: (url: string) => void;
   label?: string;
   acceptTypes?: string;
   folderPath?: string;
+  pageType?: 'home' | 'agriculture' | 'fishing' | 'paa' | 'sim';
+  buttonText?: string;
+  maxFileSizeMB?: number;
 }
 
 const MediaFileUploader = ({
@@ -20,36 +23,47 @@ const MediaFileUploader = ({
   label = "Arquivo de Mídia",
   acceptTypes = "image/*,video/*",
   folderPath = "midias",
+  pageType = "home",
+  buttonText = "Escolher Arquivo",
+  maxFileSizeMB = 10
 }: MediaFileUploaderProps) => {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const { toast } = useToast();
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validar tamanho do arquivo
+    if (file.size > maxFileSizeMB * 1024 * 1024) {
+      setError(`Arquivo muito grande. Tamanho máximo: ${maxFileSizeMB}MB`);
+      return;
+    }
+
     try {
       setUploading(true);
       setProgress(10);
+      setError(null);
 
       // Criar uma referência de storage para o arquivo
       const fileType = file.type.split('/')[0]; // 'image' ou 'video'
       const timestamp = Date.now();
       const fileRef = ref(storage, `${folderPath}/${fileType}/${timestamp}_${file.name}`);
-      
+
       setProgress(30);
       // Fazer upload do arquivo
       await uploadBytes(fileRef, file);
       setProgress(70);
-      
+
       // Obter URL do arquivo enviado
       const downloadUrl = await getDownloadURL(fileRef);
       setProgress(100);
-      
+
       // Notificar o componente pai sobre o URL do arquivo
       onFileUploaded(downloadUrl);
-      
+
       toast({
         title: "Upload concluído",
         description: "O arquivo foi carregado com sucesso.",
@@ -84,6 +98,19 @@ const MediaFileUploader = ({
               disabled={uploading}
             />
           </div>
+          <Button type="button" disabled={uploading}>
+          {uploading ? (
+            <>
+              <Upload className="w-4 h-4 mr-2 animate-spin" />
+              Enviando...
+            </>
+          ) : (
+            <>
+              <Upload className="w-4 h-4 mr-2" />
+              {buttonText}
+            </>
+          )}
+        </Button>
           {uploading && (
             <div className="w-full bg-gray-200 rounded-full h-2.5">
               <div
@@ -92,6 +119,9 @@ const MediaFileUploader = ({
               ></div>
               <p className="text-xs text-center mt-1">{progress}%</p>
             </div>
+          )}
+           {error && (
+            <p className="text-red-500 text-sm mt-1">{error}</p>
           )}
         </div>
       </CardContent>

@@ -7,7 +7,7 @@ import {
   isGoogleDriveLink 
 } from '@/utils/driveHelper';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertCircle, Play, Instagram } from 'lucide-react';
+import { AlertCircle, Play, Instagram, ChevronLeft } from 'lucide-react';
 
 interface GoogleDrivePlayerProps {
   mediaUrl: string;
@@ -15,6 +15,7 @@ interface GoogleDrivePlayerProps {
   className?: string;
   aspectRatio?: 'horizontal' | 'vertical' | 'square' | '9:16' | '16:9' | string;
   instagramUrl?: string;
+  customThumbnail?: string;
 }
 
 const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
@@ -22,13 +23,15 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   title = 'Mídia do Google Drive',
   className = '',
   aspectRatio = 'horizontal',
-  instagramUrl
+  instagramUrl,
+  customThumbnail
 }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [fileMetadata, setFileMetadata] = useState<any>(null);
   const [streamingUrl, setStreamingUrl] = useState<string | null>(null);
   const [isVideo, setIsVideo] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     const loadGoogleDriveMedia = async () => {
@@ -168,6 +171,49 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   }
 
   if (isVideo && streamingUrl) {
+    // Se tem thumbnail personalizada e não está reproduzindo, mostrar preview
+    if (customThumbnail && !isPlaying) {
+      return (
+        <div className={`w-full ${className}`}>
+          <div className={`w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-black cursor-pointer group`}>
+            {instagramUrl && (
+              <button
+                onClick={() => window.open(instagramUrl, '_blank')}
+                className="absolute top-3 right-3 z-20 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
+                title="Ver no Instagram"
+              >
+                <Instagram size={24} />
+              </button>
+            )}
+            
+            {/* Thumbnail personalizada */}
+            <img
+              src={customThumbnail}
+              alt={title}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+            
+            {/* Overlay com botão de play */}
+            <div 
+              className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/50 transition-all duration-300"
+              onClick={() => setIsPlaying(true)}
+            >
+              <div className="bg-white/90 rounded-full p-4 group-hover:bg-white group-hover:scale-110 transition-all duration-300 shadow-lg">
+                <Play size={32} className="text-gray-800 ml-1" fill="currentColor" />
+              </div>
+            </div>
+            
+            {/* Indicador de vídeo */}
+            <div className="absolute bottom-3 left-3 bg-black/70 text-white px-2 py-1 rounded text-xs font-medium">
+              📹 Vídeo
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Modo de reprodução (ou sem thumbnail personalizada)
     return (
       <div className={`w-full ${className}`}>
         <div className={`w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-black`}>
@@ -180,6 +226,18 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
               <Instagram size={24} />
             </button>
           )}
+          
+          {/* Botão para voltar ao preview (se tem thumbnail personalizada) */}
+          {customThumbnail && isPlaying && (
+            <button
+              onClick={() => setIsPlaying(false)}
+              className="absolute top-3 left-3 z-10 bg-black/70 text-white p-2 rounded-full shadow-lg hover:bg-black/90 transition-all duration-200"
+              title="Voltar ao preview"
+            >
+              <ChevronLeft size={20} />
+            </button>
+          )}
+          
           <iframe
             src={streamingUrl}
             title={title}

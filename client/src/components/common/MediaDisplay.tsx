@@ -431,6 +431,7 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "" }) => 
                   aspectRatio={isVerticalAspect ? '9:16' : (item.aspectRatio || 'horizontal')}
                   className="w-full h-full"
                   instagramUrl={item.instagramUrl}
+                  customThumbnail={item.thumbnailUrl}
                 />
               </div>
             </div>
