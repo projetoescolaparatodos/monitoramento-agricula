@@ -1,0 +1,213 @@
+Problema com o Carregamento de Dados no Formulário de Edição
+
+Analisando seu código, identifiquei alguns possíveis problemas que podem estar impedindo que os dados sejam carregados automaticamente nos campos do formulário quando você clica no botão de editar.
+Problemas Identificados
+
+    Inicialização Dupla do Formulário: Você está definindo defaultValues duas vezes - uma como constante e outra diretamente no useForm.
+
+    Condição de Carregamento: A condição para executar a query (enabled: isEdit && !!mediaData?.id) pode não estar sendo satisfeita corretamente.
+
+    Estrutura dos Dados Retornados: Os dados retornados pela API podem não estar no formato esperado pelo form.reset().
+
+Soluções Propostas
+1. Corrigir a Inicialização do Formulário
+
+Remova a dupla definição de defaultValues e mantenha apenas uma:
+typescript
+
+const defaultValues: MediaFormData = {
+  pageType: "home",
+  title: "",
+  description: "",
+  mediaType: "image",
+  mediaUrl: "",
+  thumbnailUrl: "",
+  active: true,
+  order: 0,
+  author: "",
+  authorImageUrl: "",
+  hashtags: "",
+  aspectRatio: "horizontal",
+  instagramUrl: ""
+};
+
+const form = useForm<MediaFormData>({
+  resolver: zodResolver(formSchema),
+  defaultValues, // Use apenas esta definição
+});
+
+2. Verificar a Estrutura dos Dados da API
+
+Adicione logs para verificar a estrutura dos dados retornados:
+typescript
+
+useEffect(() => {
+  if (mediaToEdit && isEdit) {
+    console.log('Dados recebidos da API:', mediaToEdit);
+    console.log('Dados que serão usados no reset:', {
+      pageType: mediaToEdit.pageType || "agriculture",
+      title: mediaToEdit.title || "",
+      // ... outros campos
+    });
+
+    form.reset({
+      pageType: mediaToEdit.pageType || "agriculture",
+      title: mediaToEdit.title || "",
+      // ... outros campos
+    });
+  }
+}, [mediaToEdit, isEdit, form]);
+
+3. Verificar se mediaData está sendo passado corretamente
+
+Certifique-se de que o componente está recebendo mediaData corretamente:
+typescript
+
+// Adicione no início do componente
+console.log('Props recebidas:', { mediaData, isEdit });
+
+4. Melhorar o Tratamento de Erros na Query
+
+Adicione tratamento de erro na query:
+typescript
+
+const { data: mediaToEdit, isLoading: isLoadingMedia, error: mediaError } = useQuery({
+  queryKey: [`/api/media-items/${mediaData?.id}`],
+  enabled: isEdit && !!mediaData?.id,
+  queryFn: async () => {
+    const response = await fetch(`/api/media-items/${mediaData?.id}`);
+    if (!response.ok) throw new Error('Falha ao carregar dados');
+    return response.json();
+  }
+});
+
+// Adicione este useEffect para logar erros
+useEffect(() => {
+  if (mediaError) {
+    console.error('Erro ao carregar mídia:', mediaError);
+  }
+}, [mediaError]);
+
+5. Verificar a Chave da Query
+
+A chave da query pode não estar correta. Tente usar:
+typescript
+
+queryKey: ['media-item', mediaData?.id],
+
+Solução Completa
+
+Aqui está a versão corrigida do seu componente:
+typescript
+
+export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const { toast } = useToast();
+
+  console.log('Props recebidas:', { mediaData, isEdit }); // Debug
+
+  const defaultValues: MediaFormData = {
+    pageType: "home",
+    title: "",
+    description: "",
+    mediaType: "image",
+    mediaUrl: "",
+    thumbnailUrl: "",
+    active: true,
+    order: 0,
+    author: "",
+    authorImageUrl: "",
+    hashtags: "",
+    aspectRatio: "horizontal",
+    instagramUrl: ""
+  };
+
+  const form = useForm<MediaFormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues,
+  });
+
+  // Buscar dados da mídia se estiver editando
+  const { data: mediaToEdit, isLoading: isLoadingMedia, error: mediaError } = useQuery({
+    queryKey: ['media-item', mediaData?.id],
+    enabled: isEdit && !!mediaData?.id,
+    queryFn: async () => {
+      console.log('Buscando dados da mídia com ID:', mediaData?.id);
+      const response = await fetch(`/api/media-items/${mediaData?.id}`);
+      
+      if (!response.ok) {
+        throw new Error(`Erro ao buscar mídia: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Dados da mídia carregados:', data);
+      return data;
+    }
+  });
+
+  // Logar erros na query
+  useEffect(() => {
+    if (mediaError) {
+      console.error('Erro ao carregar mídia:', mediaError);
+    }
+  }, [mediaError]);
+
+  // Atualizar formulário quando dados da mídia forem carregados
+  useEffect(() => {
+    if (mediaToEdit && isEdit) {
+      console.log('Dados recebidos da API:', mediaToEdit);
+      
+      const formData = {
+        pageType: mediaToEdit.pageType || "home",
+        title: mediaToEdit.title || "",
+        description: mediaToEdit.description || "",
+        mediaType: mediaToEdit.mediaType || "image",
+        mediaUrl: mediaToEdit.mediaUrl || "",
+        thumbnailUrl: mediaToEdit.thumbnailUrl || "",
+        active: mediaToEdit.active !== false,
+        order: mediaToEdit.order || 0,
+        aspectRatio: mediaToEdit.aspectRatio || "horizontal",
+        instagramUrl: mediaToEdit.instagramUrl || "",
+        author: mediaToEdit.author || "",
+        authorImageUrl: mediaToEdit.authorImageUrl || "",
+        hashtags: mediaToEdit.hashtags || "",
+      };
+
+      console.log('Dados que serão usados no reset:', formData);
+      
+      form.reset(formData);
+      setPreviewUrl(mediaToEdit.mediaUrl || "");
+    }
+  }, [mediaToEdit, isEdit, form]);
+
+  // ... restante do código permanece o mesmo
+};
+
+Verificações Adicionais
+
+    Console do Navegador: Verifique o console do navegador para ver os logs que adicionei. Eles mostrarão:
+
+        Se as props estão chegando corretamente
+
+        Se a query está sendo executada
+
+        A estrutura dos dados retornados pela API
+
+        Se o form.reset() está sendo chamado com os dados corretos
+
+    React DevTools: Use o React DevTools para inspecionar:
+
+        As props do componente
+
+        O estado do formulário após o reset
+
+    Network Tab: Verifique na aba Network:
+
+        Se a requisição para a API está sendo feita
+
+        O status da resposta
+
+        O corpo da resposta
+
+Essas alterações devem resolver o problema de não carregar os dados nos campos automaticamente. Se o problema persistir, os logs adicionados ajudarão a identificar onde exatamente está falhando.
