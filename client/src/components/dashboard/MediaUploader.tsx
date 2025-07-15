@@ -42,9 +42,11 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const { toast } = useToast();
 
+  console.log('Props recebidas:', { mediaData, isEdit }); // Debug
+
   // Buscar dados da mídia se estiver editando
-  const { data: mediaToEdit, isLoading: isLoadingMedia } = useQuery({
-    queryKey: [`/api/media-items/${mediaData?.id}`],
+  const { data: mediaToEdit, isLoading: isLoadingMedia, error: mediaError } = useQuery({
+    queryKey: ['media-item', mediaData?.id],
     enabled: isEdit && !!mediaData?.id,
     queryFn: async () => {
       console.log('Buscando dados da mídia com ID:', mediaData?.id);
@@ -59,6 +61,13 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
       return data;
     }
   });
+
+  // Logar erros na query
+  useEffect(() => {
+    if (mediaError) {
+      console.error('Erro ao carregar mídia:', mediaError);
+    }
+  }, [mediaError]);
 
   const defaultValues: MediaFormData = {
     pageType: "home" as PageType,
@@ -78,28 +87,16 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
 
   const form = useForm<MediaFormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      pageType: "agriculture",
-      title: "",
-      description: "",
-      mediaType: "image",
-      mediaUrl: "",
-      thumbnailUrl: "",
-      active: true,
-      order: 0,
-      aspectRatio: "horizontal",
-      instagramUrl: "",
-    },
+    defaultValues,
   });
 
   // Atualizar formulário quando dados da mídia forem carregados
   useEffect(() => {
     if (mediaToEdit && isEdit) {
-      console.log('Carregando dados da mídia para edição:', mediaToEdit);
-
-      // Resetar formulário com dados da mídia
-      form.reset({
-        pageType: mediaToEdit.pageType || "agriculture",
+      console.log('Dados recebidos da API:', mediaToEdit);
+      
+      const formData = {
+        pageType: mediaToEdit.pageType || "home",
         title: mediaToEdit.title || "",
         description: mediaToEdit.description || "",
         mediaType: mediaToEdit.mediaType || "image",
@@ -112,9 +109,11 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
         author: mediaToEdit.author || "",
         authorImageUrl: mediaToEdit.authorImageUrl || "",
         hashtags: mediaToEdit.hashtags || "",
-      });
+      };
 
-      // Definir URL de preview
+      console.log('Dados que serão usados no reset:', formData);
+      
+      form.reset(formData);
       setPreviewUrl(mediaToEdit.mediaUrl || "");
     }
   }, [mediaToEdit, isEdit, form]);
