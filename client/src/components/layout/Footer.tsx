@@ -135,7 +135,7 @@ const Footer = () => {
               Todos os direitos reservados.
             </p>
             <div className="flex items-center gap-4">
-              <span>✨ Sistema desenvolvido com tecnologia avançada</span>
+              <span>Sistema desenvolvido por Zenita — uso institucional autorizado pela SEMAPA</span>
             </div>
           </div>
         </div>
