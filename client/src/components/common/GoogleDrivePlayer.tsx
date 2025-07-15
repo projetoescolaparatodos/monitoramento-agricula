@@ -8,8 +8,6 @@ import {
 } from '@/utils/driveHelper';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, Play, Instagram } from 'lucide-react';
-import { useScreenSize } from '@/hooks/useScreenSize';
-import CustomVideoPreview from './CustomVideoPreview';
 
 interface GoogleDrivePlayerProps {
   mediaUrl: string;
@@ -31,7 +29,6 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   const [fileMetadata, setFileMetadata] = useState<any>(null);
   const [streamingUrl, setStreamingUrl] = useState<string | null>(null);
   const [isVideo, setIsVideo] = useState(false);
-  const screenSize = useScreenSize();
 
   useEffect(() => {
     const loadGoogleDriveMedia = async () => {
@@ -86,18 +83,14 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
         // Fallback: usar URLs diretas sem API
         console.log('Usando URLs diretas como fallback');
 
-        // Detecção melhorada de tipo de mídia
+        // Para garantir que não haja download, sempre assumir vídeo primeiro
+        // e usar URL de preview que funciona tanto para vídeos quanto imagens
         const isLikelyVideo = mediaUrl.includes('video') || 
                              mediaUrl.includes('.mp4') || 
                              mediaUrl.includes('.avi') ||
                              mediaUrl.includes('.mov') ||
-                             mediaUrl.includes('.webm') ||
-                             mediaUrl.includes('.mkv') ||
                              title?.toLowerCase().includes('video') ||
-                             title?.toLowerCase().includes('vídeo') ||
-                             title?.toLowerCase().includes('instagram') ||
-                             title?.toLowerCase().includes('reels') ||
-                             title?.toLowerCase().includes('stories');
+                             title?.toLowerCase().includes('vídeo');
 
         setIsVideo(isLikelyVideo);
 
@@ -123,27 +116,24 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   }, [mediaUrl, title]);
 
   const getAspectRatioClass = () => {
-    // Implementação baseada no documento: controle explícito de aspect ratio
-    // Usar CSS aspect-ratio para melhor controle responsivo
-    
     // Verificar se é proporção específica (ex: "9:16", "16:9")
     if (aspectRatio?.includes(':')) {
       const [width, height] = aspectRatio.split(':');
-      return `relative w-full max-w-full aspect-[${width}/${height}]`;
+      return `aspect-[${width}/${height}]`;
     }
 
-    // Proporções nomeadas com aspect ratio explícito
+    // Proporções nomeadas
     switch (aspectRatio) {
       case 'vertical':
       case '9:16':
-        return 'relative w-full max-w-[400px] mx-auto aspect-[9/16]';
+        return 'aspect-[9/16]';
       case 'square':
       case '1:1':
-        return 'relative w-full max-w-full aspect-square';
+        return 'aspect-square';
       case 'horizontal':
       case '16:9':
       default:
-        return 'relative w-full max-w-full aspect-video';
+        return 'aspect-video';
     }
   };
 
@@ -178,37 +168,27 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   }
 
   if (isVideo && streamingUrl) {
-    // Para vídeos do Google Drive, sempre usar iframe com URL de preview
-    // Isso garante melhor compatibilidade e evita problemas de CORS
     return (
       <div className={`w-full ${className}`}>
-        <div className={`google-drive-container ${getAspectRatioClass()} overflow-hidden rounded-lg bg-black relative`}>
+        <div className={`w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-black`}>
           {instagramUrl && (
             <button
               onClick={() => window.open(instagramUrl, '_blank')}
-              className="absolute top-2 right-2 z-20 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-1.5 sm:p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
+              className="absolute top-3 right-3 z-10 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
               title="Ver no Instagram"
             >
-              <Instagram size={isVerticalAspect ? 20 : 24} />
+              <Instagram size={24} />
             </button>
           )}
           <iframe
             src={streamingUrl}
             title={title}
-            className="absolute top-0 left-0 w-full h-full border-0"
+            className="w-full h-full border-0 max-w-full max-h-full"
             allowFullScreen
             sandbox="allow-scripts allow-same-origin allow-presentation"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
             loading="lazy"
-            style={{ 
-              width: '100%', 
-              height: '100%',
-              border: 'none',
-              outline: 'none',
-              backgroundColor: '#000',
-              display: 'block',
-              objectFit: 'cover'
-            }}
+            style={{ width: '100%', height: '100%', maxWidth: '100%', maxHeight: '100%' }}
           />
         </div>
       </div>
@@ -218,27 +198,23 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   if (!isVideo && streamingUrl) {
     return (
       <div className={`w-full ${className}`}>
-        <div className={`${getAspectRatioClass()} overflow-hidden rounded-lg bg-gray-100`}>
+        <div className={`w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-gray-100`}>
           {instagramUrl && (
             <button
               onClick={() => window.open(instagramUrl, '_blank')}
-              className="absolute top-2 right-2 z-10 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-1.5 sm:p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
+              className="absolute top-3 right-3 z-10 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
               title="Ver no Instagram"
             >
-              <Instagram size={isVerticalAspect ? 20 : 24} />
+              <Instagram size={24} />
             </button>
           )}
           <img
             src={streamingUrl}
             alt={title}
-            className="absolute top-0 left-0 w-full h-full object-cover"
+            className="w-full h-full object-contain max-w-full max-h-full"
             loading="lazy"
             onError={() => setError('Erro ao carregar imagem')}
-            style={{ 
-              width: '100%', 
-              height: '100%',
-              objectFit: 'cover'
-            }}
+            style={{ width: '100%', height: '100%', maxWidth: '100%', maxHeight: '100%' }}
           />
         </div>
       </div>
