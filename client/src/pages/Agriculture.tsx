@@ -227,7 +227,6 @@ const Agriculture = () => {
                 <AgricultureTabButton className="shadow-md text-sm md:text-lg py-3 px-4 md:px-6 rounded-lg w-full md:w-auto">
                   <span className="truncate">Sou Agricultor, Quero me Cadastrar</span>
                 </AgricultureTabButton>
-                </AgricultureTabButton>
 
                 <Button
                   onClick={() => setLocation("/agriculture/map")}
