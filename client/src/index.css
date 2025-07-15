@@ -597,40 +597,38 @@ h3.section-title {
   iframe[src*="/preview"] {
     width: 100% !important;
     height: 100% !important;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    contain: layout style paint;
-    /* Otimizações específicas para diferentes tamanhos */
-    object-fit: contain;
-    object-position: center;
+    border: none !important;
     display: block;
+    object-fit: cover;
+    object-position: center;
   }
 
-  /* Otimizações específicas para telas pequenas/médias (notebooks 7-12 polegadas) */
-  @media (min-width: 768px) and (max-width: 1440px) {
-    iframe[src*="/preview"] {
-      min-height: 350px !important;
-      max-height: 75vh !important;
-      /* Força aspect ratio adequado */
-      aspect-ratio: 16/9;
+  /* Media queries específicas para diferentes resoluções conforme documento */
+  
+  /* Notebooks e telas médias (768px - 1200px) */
+  @media (min-width: 768px) and (max-width: 1200px) {
+    .google-drive-container {
+      max-width: 90%;
+      margin: 0 auto;
     }
   }
-
-  /* Otimizações para telas muito pequenas */
+  
+  /* Telas pequenas (até 767px) */
   @media (max-width: 767px) {
-    iframe[src*="/preview"] {
-      min-height: 250px !important;
-      max-height: 65vh !important;
-      aspect-ratio: 16/9;
+    .google-drive-container {
+      max-width: 100%;
+    }
+    
+    .google-drive-container iframe,
+    .google-drive-container img {
+      object-fit: cover;
     }
   }
-
-  /* Otimizações para telas grandes */
-  @media (min-width: 1441px) {
-    iframe[src*="/preview"] {
-      min-height: 400px !important;
-      max-height: 80vh !important;
-      aspect-ratio: 16/9;
+  
+  /* Telas grandes (acima de 1200px) */
+  @media (min-width: 1201px) {
+    .google-drive-container {
+      max-width: 100%;
     }
   }
 }

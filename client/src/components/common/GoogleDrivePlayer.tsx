@@ -122,43 +122,27 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   }, [mediaUrl, title]);
 
   const getAspectRatioClass = () => {
+    // Implementação baseada no documento: controle explícito de aspect ratio
+    // Usar CSS aspect-ratio para melhor controle responsivo
+    
     // Verificar se é proporção específica (ex: "9:16", "16:9")
     if (aspectRatio?.includes(':')) {
       const [width, height] = aspectRatio.split(':');
-      return `aspect-[${width}/${height}]`;
+      return `relative w-full max-w-full aspect-[${width}/${height}]`;
     }
 
-    // Ajustar baseado no tamanho da tela com melhor responsividade
-    const getOptimizedDimensions = () => {
-      if (screenSize.isMobile) {
-        return 'w-full max-w-full min-h-[250px] max-h-[65vh]';
-      }
-      if (screenSize.isTablet) {
-        return 'w-full max-w-full min-h-[300px] max-h-[70vh]';
-      }
-      if (screenSize.isSmallDesktop) {
-        return 'w-full max-w-full min-h-[350px] max-h-[75vh]';
-      }
-      if (screenSize.isLargeDesktop) {
-        return 'w-full max-w-full min-h-[400px] max-h-[80vh]';
-      }
-      return 'w-full max-w-full min-h-[300px] max-h-[70vh]';
-    };
-
-    const optimizedDimensions = getOptimizedDimensions();
-
-    // Proporções nomeadas com melhor responsividade e dimensões otimizadas
+    // Proporções nomeadas com aspect ratio explícito
     switch (aspectRatio) {
       case 'vertical':
       case '9:16':
-        return `aspect-[9/16] ${optimizedDimensions} mx-auto`;
+        return 'relative w-full max-w-[400px] mx-auto aspect-[9/16]';
       case 'square':
       case '1:1':
-        return `aspect-square ${optimizedDimensions} mx-auto`;
+        return 'relative w-full max-w-full aspect-square';
       case 'horizontal':
       case '16:9':
       default:
-        return `aspect-video ${optimizedDimensions}`;
+        return 'relative w-full max-w-full aspect-video';
     }
   };
 
@@ -195,7 +179,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   if (isVideo && streamingUrl) {
     return (
       <div className={`w-full ${className}`}>
-        <div className={`google-drive-container w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-black mx-auto`}>
+        <div className={`google-drive-container ${getAspectRatioClass()} overflow-hidden rounded-lg bg-black`}>
           {instagramUrl && (
             <button
               onClick={() => window.open(instagramUrl, '_blank')}
@@ -208,7 +192,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
           <iframe
             src={streamingUrl}
             title={title}
-            className="w-full h-full border-0"
+            className="absolute top-0 left-0 w-full h-full border-0"
             allowFullScreen
             sandbox="allow-scripts allow-same-origin allow-presentation"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
@@ -220,10 +204,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
               outline: 'none',
               backgroundColor: '#000',
               display: 'block',
-              objectFit: 'contain',
-              // Força renderização adequada em diferentes tamanhos
-              minWidth: '100%',
-              minHeight: '100%'
+              objectFit: 'cover'
             }}
           />
         </div>
@@ -234,7 +215,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   if (!isVideo && streamingUrl) {
     return (
       <div className={`w-full ${className}`}>
-        <div className={`w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-gray-100 mx-auto`}>
+        <div className={`${getAspectRatioClass()} overflow-hidden rounded-lg bg-gray-100`}>
           {instagramUrl && (
             <button
               onClick={() => window.open(instagramUrl, '_blank')}
@@ -247,14 +228,13 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
           <img
             src={streamingUrl}
             alt={title}
-            className="w-full h-full object-contain"
+            className="absolute top-0 left-0 w-full h-full object-cover"
             loading="lazy"
             onError={() => setError('Erro ao carregar imagem')}
             style={{ 
               width: '100%', 
               height: '100%',
-              objectFit: 'contain',
-              backgroundColor: '#f3f4f6'
+              objectFit: 'cover'
             }}
           />
         </div>
