@@ -541,6 +541,32 @@ h3.section-title {
     isolation: isolate;
   }
 
+  /* Estilos para video elements do Google Drive */
+  video[poster] {
+    background-color: #000;
+    border-radius: 0.5rem;
+    /* Força hardware acceleration */
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    /* Melhora compatibilidade */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  /* Específico para vídeos verticais */
+  .aspect-\[9\/16\] video {
+    object-fit: cover !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* Específico para vídeos horizontais */
+  .aspect-video video {
+    object-fit: contain !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
   /* Força renderização correta dos iframes do Google Drive */
   iframe[src*="drive.google.com/file"] {
     border: none !important;

@@ -97,11 +97,13 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
         // SEMPRE usar preview URL para evitar downloads forçados
         setStreamingUrl(`https://drive.google.com/file/d/${fileId}/preview`);
 
-        // Definir metadados básicos
+        // Definir metadados básicos com thumbnail
         setFileMetadata({
           id: fileId,
           name: title || 'Arquivo do Google Drive',
-          mimeType: isLikelyVideo ? 'video/mp4' : 'image/jpeg'
+          mimeType: isLikelyVideo ? 'video/mp4' : 'image/jpeg',
+          thumbnailLink: `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`,
+          webContentLink: isLikelyVideo ? `https://drive.google.com/uc?export=view&id=${fileId}` : null
         });
 
       } catch (err: any) {
@@ -168,36 +170,72 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   }
 
   if (isVideo && streamingUrl) {
-    return (
-      <div className={`w-full ${className}`}>
-        <div className={`w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-black`}>
-          {instagramUrl && (
-            <button
-              onClick={() => window.open(instagramUrl, '_blank')}
-              className="absolute top-3 right-3 z-10 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
-              title="Ver no Instagram"
+    // Tentar usar video element se temos metadados e links diretos
+    if (fileMetadata?.mimeType?.startsWith('video/') && fileMetadata?.webContentLink) {
+      return (
+        <div className={`w-full ${className}`}>
+          <div className={`w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-black`}>
+            {instagramUrl && (
+              <button
+                onClick={() => window.open(instagramUrl, '_blank')}
+                className="absolute top-3 right-3 z-10 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
+                title="Ver no Instagram"
+              >
+                <Instagram size={24} />
+              </button>
+            )}
+            <video
+              controls
+              poster={fileMetadata.thumbnailLink}
+              className={`w-full h-full object-${isVerticalAspect ? 'cover' : 'contain'} rounded-lg`}
+              title={title}
+              preload="metadata"
+              style={{ 
+                width: '100%', 
+                height: '100%',
+                objectFit: isVerticalAspect ? 'cover' : 'contain'
+              }}
             >
-              <Instagram size={24} />
-            </button>
-          )}
-          <iframe
-            src={streamingUrl}
-            title={title}
-            className="w-full h-full border-0"
-            allowFullScreen
-            sandbox="allow-scripts allow-same-origin allow-presentation"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-            loading="lazy"
-            style={{ 
-              width: '100%', 
-              height: '100%', 
-              objectFit: 'cover',
-              border: 'none'
-            }}
-          />
+              <source src={fileMetadata.webContentLink} type="video/mp4" />
+              <source src={streamingUrl} type="video/mp4" />
+              Seu navegador não suporta a reprodução de vídeos.
+            </video>
+          </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      // Fallback para iframe quando não temos links diretos
+      return (
+        <div className={`w-full ${className}`}>
+          <div className={`w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-black`}>
+            {instagramUrl && (
+              <button
+                onClick={() => window.open(instagramUrl, '_blank')}
+                className="absolute top-3 right-3 z-10 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
+                title="Ver no Instagram"
+              >
+                <Instagram size={24} />
+              </button>
+            )}
+            <iframe
+              src={streamingUrl}
+              title={title}
+              className="w-full h-full border-0"
+              allowFullScreen
+              sandbox="allow-scripts allow-same-origin allow-presentation"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+              loading="lazy"
+              style={{ 
+                width: '100%', 
+                height: '100%', 
+                objectFit: 'cover',
+                border: 'none'
+              }}
+            />
+          </div>
+        </div>
+      );
+    }
   }
 
   if (!isVideo && streamingUrl) {
