@@ -388,7 +388,7 @@ const AdminAgricultura = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen container mx-auto px-4 py-8">
       <div className="flex items-center gap-4 mb-6">
         <Button
           variant="outline"

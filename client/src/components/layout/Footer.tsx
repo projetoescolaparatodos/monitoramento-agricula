@@ -5,9 +5,9 @@ import { Phone, Mail, MapPin, ExternalLink } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="relative z-50 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-zinc-900 dark:to-zinc-800 text-zinc-700 dark:text-zinc-300 mt-16 border-t border-green-200 dark:border-zinc-700">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="relative z-50 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-zinc-900 dark:to-zinc-800 text-zinc-700 dark:text-zinc-300 mt-8 border-t border-green-200 dark:border-zinc-700">
+      <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           
           {/* Logos e Identificação */}
           <div className="md:col-span-1 flex flex-col items-center md:items-start space-y-4">
@@ -127,7 +127,7 @@ const Footer = () => {
       <Separator className="bg-green-200 dark:bg-zinc-700" />
       
       {/* Copyright */}
-      <div className="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-zinc-800 dark:to-zinc-900 py-3">
+      <div className="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-zinc-800 dark:to-zinc-900 py-2">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-2 text-xs text-zinc-500 dark:text-zinc-400">
             <p>

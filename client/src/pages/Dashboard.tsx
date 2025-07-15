@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation, useParams } from "wouter";
 import { useQuery } from '@tanstack/react-query';
-import Footer from "@/components/layout/Footer";
+
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
@@ -188,7 +188,6 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </>
   );
 };
