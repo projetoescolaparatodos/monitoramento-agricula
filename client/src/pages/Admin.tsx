@@ -16,12 +16,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, MapPin, Trash2, Edit2, Plus } from "lucide-react";
+import { Loader2, MapPin, Trash2, Edit2, Plus, ArrowLeft } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Upload from "@/components/Upload";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useLocation } from "wouter";
+import { useAuthProtection } from "@/hooks/useAuthProtection";
 
 // Importing the EnhancedUpload component
 import EnhancedUpload from "@/components/EnhancedUpload";
@@ -1578,11 +1579,37 @@ const PAAForm = () => {
 };
 
 const Admin = () => {
+  // Hooks de autenticação sempre no topo
+  const { userAuth, hasAccess, getLoginUrl, isLoading } = useAuthProtection();
+  const [, setLocation] = useLocation();
+  
   const [showManagerButton, setShowManagerButton] = useState(false);
   const [agriculturaData, setAgriculturaData] = useState([]);
   const [pescaData, setPescaData] = useState([]);
   const [agriculturasAtividades, setAgriculturasAtividades] = useState([]);
   const { toast } = useToast();
+
+  // Verificação de autenticação - deve ocorrer antes do resto do componente
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
+          <p>Verificando permissões...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!userAuth.isAuthenticated) {
+    setLocation(getLoginUrl('admin'));
+    return null;
+  }
+
+  if (!hasAccess('admin')) {
+    setLocation("/acesso-negado");
+    return null;
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -1671,7 +1698,16 @@ const Admin = () => {
   return (
     <div className="container mx-auto px-4 py-20">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-6">Administração Geral</h1>
+        <div className="flex items-center gap-4 mb-6">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setLocation("/")}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <h1 className="text-3xl font-bold">Administração Geral</h1>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Button 
             onClick={() => window.location.href = '/admin/agricultura'}

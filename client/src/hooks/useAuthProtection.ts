@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -67,19 +66,27 @@ export const useAuthProtection = () => {
     return () => unsubscribe();
   }, [setLocation]);
 
-  const hasAccess = (requiredArea: string) => {
+  const hasAccess = (area: 'agricultura' | 'pesca' | 'paa' | 'admin') => {
     if (!userData) return false;
-    
+
     // Admin e coordenação têm acesso a tudo
     if (userData.setor === 'admin' || userData.setor === 'coordenacao' || userData.permissao === 'admin') {
       return true;
     }
-    
+
+    // Para a página admin geral, apenas coordenação tem acesso
+    if (area === 'admin') {
+      return userData.setor === 'coordenacao';
+    }
+
     // Verificar se o setor do usuário corresponde à área solicitada
-    return userData.setor === requiredArea;
+    return userData.setor === area;
   };
 
-  const getLoginUrl = (area: string) => {
+  const getLoginUrl = (area: 'agricultura' | 'pesca' | 'paa' | 'admin') => {
+    if (area === 'admin') {
+      return '/login/admin';
+    }
     return `/login/admin/${area}`;
   };
 

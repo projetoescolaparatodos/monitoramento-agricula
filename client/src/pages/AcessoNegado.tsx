@@ -1,45 +1,47 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useLocation } from "wouter";
-import { Shield, ArrowLeft } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useLocation } from 'wouter';
+import { Shield, ArrowLeft } from 'lucide-react';
 
 const AcessoNegado = () => {
   const [, setLocation] = useLocation();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100">
-      <Card className="w-full max-w-md mx-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100 px-4">
+      <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <Shield className="h-16 w-16 text-red-500" />
+            <div className="bg-red-100 p-3 rounded-full">
+              <Shield className="h-8 w-8 text-red-600" />
+            </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-red-800">
+          <CardTitle className="text-2xl text-red-800">
             Acesso Negado
           </CardTitle>
         </CardHeader>
         <CardContent className="text-center space-y-4">
-          <p className="text-gray-700">
+          <p className="text-gray-600">
             Você não tem permissão para acessar esta área do sistema.
           </p>
-          <p className="text-gray-600 text-sm">
-            Por favor, entre com uma conta autorizada para este setor ou entre em contato com o administrador do sistema.
+          <p className="text-sm text-gray-500">
+            Entre em contato com o administrador do sistema se você acredita que isso é um erro.
           </p>
-          <div className="space-y-2 pt-4">
+          <div className="flex flex-col sm:flex-row gap-2 pt-4">
             <Button 
-              onClick={() => setLocation("/login/admin")}
-              className="w-full"
-              variant="outline"
+              variant="outline" 
+              onClick={() => setLocation("/")}
+              className="flex items-center gap-2"
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Voltar ao Login
+              <ArrowLeft className="h-4 w-4" />
+              Voltar ao Início
             </Button>
             <Button 
-              onClick={() => setLocation("/")}
-              className="w-full"
+              onClick={() => setLocation("/login/admin")}
+              className="bg-red-600 hover:bg-red-700"
             >
-              Ir para Página Inicial
+              Fazer Login
             </Button>
           </div>
         </CardContent>
