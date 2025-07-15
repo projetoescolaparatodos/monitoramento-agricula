@@ -54,16 +54,19 @@ function Router() {
   const [location] = useLocation();
   const isFormPage = location.startsWith('/forms');
   const isReportPage = location === '/report';
-  const isAdminPage = location.startsWith('/admin');
+  const isAdminPage = location.startsWith('/admin') || location === '/dashboard';
   const isMapPage = location.includes('/map') || 
                    location.includes('Map') ||
                    ['/agriculture/map', '/paa/map', '/pesca/map'].includes(location);
+  const isLoginPage = location.startsWith('/login/admin');
+  const isDoacaoPage = location === '/registrar-doacao';
+  const isTelaoPage = location.startsWith('/evento-telao');
 
   return (
     <>
       <BackgroundVideo videoPath="/videos/BackgroundVideo.mp4" opacity={0.3} />
       <div className="relative z-10">
-        {!isFormPage && !isReportPage && !isAdminPage && <NavBar />}
+        {!isFormPage && !isReportPage && !isAdminPage && !isLoginPage && !isDoacaoPage && !isTelaoPage && <NavBar />}
         <Suspense
           fallback={
             <div className="flex items-center justify-center h-screen">
@@ -150,7 +153,7 @@ function Router() {
             <Route component={NotFound} />
           </Switch>
         </Suspense>
-        {!isFormPage && !isReportPage && !isAdminPage && !isMapPage && <Footer />}
+        {!isFormPage && !isReportPage && !isAdminPage && !isLoginPage && !isDoacaoPage && !isTelaoPage && <Footer />}
       </div>
     </>
   );
