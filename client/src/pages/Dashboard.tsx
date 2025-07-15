@@ -36,6 +36,7 @@ const Dashboard = () => {
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const params = useParams();
   const section = params?.section || "contents";
+  const [editingMedia, setEditingMedia] = useState<string | MediaFormData | null>(null);
 
   if (loading) {
     return (
@@ -70,6 +71,12 @@ const Dashboard = () => {
     setShowForm(false);
     setSelectedItemId(null);
     setLocation(`/dashboard/${value}`);
+  };
+
+  const handleEditMedia = (mediaId: string) => {
+    console.log('Editando mídia com ID:', mediaId);
+    setEditingMedia(mediaId);
+    setActiveTab('media');
   };
 
   return (
@@ -138,7 +145,7 @@ const Dashboard = () => {
                       <h2 className="text-xl font-heading font-semibold text-secondary">Mídias</h2>
                       <Button onClick={handleAddItem}>Adicionar Mídia</Button>
                     </div>
-                    <MediaList onEdit={handleEditItem} />
+                    <MediaList onEdit={handleEditMedia} />
                   </>
                 )}
               </>

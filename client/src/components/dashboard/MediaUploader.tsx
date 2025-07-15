@@ -35,16 +35,19 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
   const { toast } = useToast();
 
   const { data: fetchedMedia, isLoading } = useQuery({
-    queryKey: ['/api/media-items', mediaData?.id],
+    queryKey: ['/api/media-items', mediaData?.id || mediaData],
     queryFn: async () => {
-      if (isEdit && mediaData?.id) {
-        const res = await fetch(`/api/media-items/${mediaData.id}`);
+      if (isEdit && (mediaData?.id || mediaData)) {
+        const mediaId = mediaData?.id || mediaData;
+        const res = await fetch(`/api/media-items/${mediaId}`);
         if (!res.ok) throw new Error('Failed to fetch media');
-        return res.json();
+        const data = await res.json();
+        console.log('Dados carregados para edição:', data);
+        return data;
       }
       return null;
     },
-    enabled: isEdit && !!mediaData?.id,
+    enabled: isEdit && !!(mediaData?.id || mediaData),
   });
 
   const defaultValues: MediaFormData = {
@@ -59,43 +62,50 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
   };
 
   // Preparar dados para edição
-  const editData = isEdit && mediaData ? {
-    pageType: mediaData.pageType || "home" as PageType,
-    title: mediaData.title || "",
-    description: mediaData.description || "",
-    mediaType: mediaData.mediaType || "image",
-    mediaUrl: mediaData.mediaUrl || "",
-    thumbnailUrl: mediaData.thumbnailUrl || "",
-    active: mediaData.active !== undefined ? mediaData.active : true,
-    order: mediaData.order || 0
+  const editData = isEdit && (fetchedMedia || mediaData) ? {
+    pageType: (fetchedMedia?.pageType || mediaData?.pageType) || "home" as PageType,
+    title: (fetchedMedia?.title || mediaData?.title) || "",
+    description: (fetchedMedia?.description || mediaData?.description) || "",
+    mediaType: (fetchedMedia?.mediaType || mediaData?.mediaType) || "image",
+    mediaUrl: (fetchedMedia?.mediaUrl || mediaData?.mediaUrl) || "",
+    thumbnailUrl: (fetchedMedia?.thumbnailUrl || mediaData?.thumbnailUrl) || "",
+    active: (fetchedMedia?.active !== undefined ? fetchedMedia.active : mediaData?.active) !== undefined ? (fetchedMedia?.active !== undefined ? fetchedMedia.active : mediaData?.active) : true,
+    order: (fetchedMedia?.order || mediaData?.order) || 0
   } : defaultValues;
 
   const form = useForm<MediaFormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: fetchedMedia || editData,
+    defaultValues: defaultValues,
   });
   
   // Log para debug do pageType selecionado
   console.log("Valor atual de pageType:", form.watch("pageType"));
+  console.log("Dados de edição:", { isEdit, mediaData, fetchedMedia });
 
   // Resetar formulário quando os dados chegarem
   useEffect(() => {
-    if (isEdit && (fetchedMedia || mediaData)) {
-      const dataToUse = fetchedMedia || editData;
-      form.reset(dataToUse);
+    if (isEdit && fetchedMedia) {
+      console.log('Resetando formulário com dados:', fetchedMedia);
+      form.reset({
+        pageType: fetchedMedia.pageType || "home" as PageType,
+        title: fetchedMedia.title || "",
+        description: fetchedMedia.description || "",
+        mediaType: fetchedMedia.mediaType || "image",
+        mediaUrl: fetchedMedia.mediaUrl || "",
+        thumbnailUrl: fetchedMedia.thumbnailUrl || "",
+        active: fetchedMedia.active !== undefined ? fetchedMedia.active : true,
+        order: fetchedMedia.order || 0
+      });
     }
-  }, [fetchedMedia, mediaData, isEdit, form]);
-
-  if (isEdit && fetchedMedia && !form.formState.isDirty) {
-    form.reset(fetchedMedia);
-  }
+  }, [fetchedMedia, isEdit, form]);
 
   const onSubmit = async (data: MediaFormData) => {
     try {
       console.log("Dados a serem enviados:", data);
       setIsSubmitting(true);
-      if (isEdit && mediaData?.id) {
-        await apiRequest("PUT", `/api/media-items/${mediaData.id}`, data);
+      if (isEdit && (mediaData?.id || mediaData)) {
+        const mediaId = mediaData?.id || mediaData;
+        await apiRequest("PUT", `/api/media-items/${mediaId}`, data);
         toast({
           title: "Mídia atualizada",
           description: "O item de mídia foi atualizado com sucesso.",
