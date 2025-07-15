@@ -136,7 +136,7 @@ const Dashboard = () => {
                 {showForm ? (
                   <MediaUploader 
                     isEdit={selectedItemId !== null}
-                    mediaData={selectedItemId ? { id: selectedItemId } as any : undefined}
+                    mediaData={selectedItemId ? { id: parseInt(selectedItemId) } : undefined}
                     onSuccess={handleCloseForm}
                   />
                 ) : (
@@ -145,7 +145,7 @@ const Dashboard = () => {
                       <h2 className="text-xl font-heading font-semibold text-secondary">Mídias</h2>
                       <Button onClick={handleAddItem}>Adicionar Mídia</Button>
                     </div>
-                    <MediaList onEdit={handleEditItem} />
+                    <MediaList onEdit={handleEditMedia} />
                   </>
                 )}
               </>

@@ -39,20 +39,17 @@ interface MediaUploaderProps {
 
 export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUploaderProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
   const { toast } = useToast();
 
-  const { data: fetchedMedia, isLoading } = useQuery({
-    queryKey: ['/api/media-items', mediaData?.id || mediaData],
+  // Buscar dados da mídia se estiver editando
+  const { data: mediaToEdit, isLoading: isLoadingMedia } = useQuery({
+    queryKey: [`/api/media-items/${mediaData?.id}`],
+    enabled: isEdit && !!mediaData?.id,
     queryFn: async () => {
-      const mediaId = mediaData?.id || mediaData;
-      console.log('Buscando mídia com ID:', mediaId);
-      const res = await fetch(`/api/media-items/${mediaId}`);
-      if (!res.ok) throw new Error('Failed to fetch media');
-      const data = await res.json();
-      console.log('Dados carregados para edição:', data);
-      return data;
-    },
-    enabled: isEdit && !!(mediaData?.id || mediaData),
+      const response = await apiRequest("GET", `/api/media-items/${mediaData?.id}`, undefined);
+      return response;
+    }
   });
 
   const defaultValues: MediaFormData = {
@@ -73,41 +70,46 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
 
   const form = useForm<MediaFormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: defaultValues,
+    defaultValues: {
+      pageType: "agriculture",
+      title: "",
+      description: "",
+      mediaType: "image",
+      mediaUrl: "",
+      thumbnailUrl: "",
+      active: true,
+      order: 0,
+      aspectRatio: "horizontal",
+      instagramUrl: "",
+    },
   });
-  
-  // Log para debug
-  console.log("Dados de edição:", { isEdit, mediaData, fetchedMedia });
 
-  // Resetar formulário quando os dados chegarem
+  // Atualizar formulário quando dados da mídia forem carregados
   useEffect(() => {
-    if (isEdit && fetchedMedia && !isLoading) {
-      console.log('Resetando formulário com dados:', fetchedMedia);
-      
-      const formData = {
-        pageType: fetchedMedia.pageType || "home" as PageType,
-        title: fetchedMedia.title || "",
-        description: fetchedMedia.description || "",
-        mediaType: fetchedMedia.mediaType || "image", 
-        mediaUrl: fetchedMedia.mediaUrl || "",
-        thumbnailUrl: fetchedMedia.thumbnailUrl || "",
-        active: fetchedMedia.active !== undefined ? fetchedMedia.active : true,
-        order: fetchedMedia.order || 0,
-        // Campos adicionais se existirem
-        author: fetchedMedia.author || "",
-        authorImageUrl: fetchedMedia.authorImageUrl || "",
-        hashtags: fetchedMedia.hashtags || "",
-        aspectRatio: fetchedMedia.aspectRatio || "horizontal",
-        instagramUrl: fetchedMedia.instagramUrl || ""
-      };
-      
-      console.log('Dados formatados para o formulário:', formData);
-      form.reset(formData);
-    } else if (!isEdit) {
-      // Se não é edição, usar valores padrão
-      form.reset(defaultValues);
+    if (mediaToEdit && isEdit) {
+      console.log('Carregando dados da mídia para edição:', mediaToEdit);
+
+      // Resetar formulário com dados da mídia
+      form.reset({
+        pageType: mediaToEdit.pageType || "agriculture",
+        title: mediaToEdit.title || "",
+        description: mediaToEdit.description || "",
+        mediaType: mediaToEdit.mediaType || "image",
+        mediaUrl: mediaToEdit.mediaUrl || "",
+        thumbnailUrl: mediaToEdit.thumbnailUrl || "",
+        active: mediaToEdit.active !== false,
+        order: mediaToEdit.order || 0,
+        aspectRatio: mediaToEdit.aspectRatio || "horizontal",
+        instagramUrl: mediaToEdit.instagramUrl || "",
+        author: mediaToEdit.author || "",
+        authorImage: mediaToEdit.authorImage || "",
+        tags: mediaToEdit.tags || "",
+      });
+
+      // Definir URL de preview
+      setPreviewUrl(mediaToEdit.mediaUrl || "");
     }
-  }, [fetchedMedia, isEdit, isLoading, form]);
+  }, [mediaToEdit, isEdit, form]);
 
   const onSubmit = async (data: MediaFormData) => {
     try {
@@ -134,7 +136,7 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
       queryClient.invalidateQueries({ queryKey: ['/api/media-items'] });
       queryClient.invalidateQueries({ queryKey: ['media'] });
       queryClient.invalidateQueries({ queryKey: ['media', 'sim'] });
-      
+
       if (onSuccess) {
         onSuccess();
       }
@@ -150,25 +152,21 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
     }
   };
 
-  if (isEdit && isLoading) {
+  // Mostrar loading enquanto carrega dados da mídia
+  if (isEdit && isLoadingMedia) {
     return (
-      <Card>
+      <Card className="w-full">
         <CardHeader>
-          <CardTitle>Carregando Mídia...</CardTitle>
+          <CardTitle>Carregando dados da mídia...</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="h-10 bg-gray-100 animate-pulse rounded" />
-            <div className="h-10 bg-gray-100 animate-pulse rounded" />
-            <div className="h-10 bg-gray-100 animate-pulse rounded" />
+          <div className="flex items-center justify-center p-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         </CardContent>
       </Card>
     );
   }
-
-  const mediaUrl = form.watch('mediaUrl');
-  const mediaType = form.watch('mediaType');
 
   return (
     <Card>
@@ -324,7 +322,7 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
                     </FormItem>
                   )}
                 />
-                
+
                 {/* Upload de thumbnail personalizada */}
                 <div className="border rounded-lg p-4 bg-gray-50">
                   <h4 className="font-medium mb-2">Upload de Thumbnail Personalizada</h4>
@@ -394,7 +392,7 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
                 </FormItem>
               )}
             />
-            
+
             {/* Componente de upload com passagem correta do pageType */}
             <div className="mt-4">
               <label className="block text-sm font-medium mb-2">Ou faça upload de um arquivo:</label>
@@ -424,7 +422,7 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
                     <div className="bg-gray-100 rounded-md p-4 text-center">
                       <p className="text-sm text-gray-600">Vídeo: {mediaUrl}</p>
                     </div>
-                    
+
                     {form.watch('thumbnailUrl') && (
                       <div>
                         <h4 className="font-medium text-sm mb-2">Thumbnail Personalizada:</h4>
