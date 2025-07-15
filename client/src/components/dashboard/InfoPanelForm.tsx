@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -25,6 +26,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import {
   Info,
@@ -398,16 +400,30 @@ const InfoPanelForm: React.FC<InfoPanelFormProps> = ({
                           Conteúdo do Painel
                         </FormLabel>
                         <FormControl>
-                          <Textarea
-                            {...field}
-                            placeholder="Digite o conteúdo do painel..."
-                            className="min-h-[200px] resize-none"
-                            value={field.value || ""}
-                          />
+                          <div className="border border-gray-200 rounded-lg overflow-hidden">
+                            <ReactQuill
+                              theme="snow"
+                              value={field.value}
+                              onChange={field.onChange}
+                              modules={modules}
+                              formats={formats}
+                              placeholder="Digite o conteúdo do painel usando a formatação rica..."
+                              style={{ minHeight: '300px' }}
+                            />
+                          </div>
                         </FormControl>
-                        <div className="text-sm text-gray-600 mt-1">
-                          Suporte a formatação HTML básica: &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;ul&gt;, &lt;li&gt;, etc.
-                        </div>
+                        <FormDescription className="text-sm">
+                          <div className="space-y-2 text-gray-600">
+                            <p><strong>Dicas de formatação institucional:</strong></p>
+                            <ul className="list-disc list-inside space-y-1 text-xs">
+                              <li>Use <strong>Título 2 (H2)</strong> para seções principais com ícone de folha</li>
+                              <li>Use <strong>Título 3 (H3)</strong> para subseções com sublinhado pontilhado</li>
+                              <li>Cores recomendadas: Verde (#2e7d32) para títulos, Azul (#1e88e5) para links</li>
+                              <li>Use listas com marcadores para organizar informações</li>
+                              <li>Citações em bloco para destacar compromissos institucionais</li>
+                            </ul>
+                          </div>
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
