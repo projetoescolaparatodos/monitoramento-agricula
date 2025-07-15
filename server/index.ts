@@ -64,11 +64,17 @@ app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
 
 // Configuração mais compatível com serverless
 const setupServer = async () => {
-  // Adicionar middleware CORS antes das rotas
+  // Adicionar middleware CORS e CSP antes das rotas
   app.use((req: Request, res: Response, next: NextFunction) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    
+    // Headers de segurança para permitir iframes do Google Drive
+    res.header('X-Frame-Options', 'SAMEORIGIN');
+    res.header('Content-Security-Policy', "frame-src 'self' https://drive.google.com https://*.google.com https://www.youtube.com https://*.youtube.com https://*.googleapis.com; frame-ancestors 'self'");
+    res.header('X-Content-Type-Options', 'nosniff');
+    res.header('Referrer-Policy', 'strict-origin-when-cross-origin');
     
     if (req.method === 'OPTIONS') {
       res.sendStatus(200);
