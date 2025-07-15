@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
 import InfoPage from "@/components/common/InfoPage";
 import MediaDisplay from "@/components/common/MediaDisplay";
@@ -92,7 +91,6 @@ const AgricultureInfo = () => {
           </div>
         </section>
       </InfoPage>
-      <Footer />
     </>
   );
 };

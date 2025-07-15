@@ -5,7 +5,7 @@ import { Phone, Mail, MapPin, ExternalLink } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-zinc-900 dark:to-zinc-800 text-zinc-700 dark:text-zinc-300 mt-16 border-t border-green-200 dark:border-zinc-700">
+    <footer className="relative z-50 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-zinc-900 dark:to-zinc-800 text-zinc-700 dark:text-zinc-300 mt-16 border-t border-green-200 dark:border-zinc-700">
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           

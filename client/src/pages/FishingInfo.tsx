@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
 import InfoPage from "@/components/common/InfoPage";
 import MediaCarouselSection from "@/components/fishing/MediaCarouselSection";
@@ -47,7 +46,6 @@ const FishingInfo = () => {
           </div>
         </section>
       </InfoPage>
-      <Footer />
     </>
   );
 };

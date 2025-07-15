@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/utils/firebase";
 import { useQuery } from "@tanstack/react-query";
-import Footer from "@/components/layout/Footer";
 import { ContentItem, ChartItem, MediaItem } from "@/types";
 import parse from 'html-react-parser';
 import { Button } from "@/components/ui/button";
@@ -331,7 +330,6 @@ const PAAInfo = () => {
 
           </main>
       </main>
-      <Footer />
     </>
   );
 };
