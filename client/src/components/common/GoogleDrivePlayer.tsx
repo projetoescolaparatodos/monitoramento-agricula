@@ -193,13 +193,29 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
             onClick={() => {
               const iframe = document.querySelector(`iframe[data-file-id="${fileId}"]`) as HTMLIFrameElement;
               if (iframe && iframe.contentWindow) {
-                // Simular clique no vídeo para iniciar
+                // Simular clique no centro do iframe
+                const rect = iframe.getBoundingClientRect();
+                const clickEvent = new MouseEvent('click', {
+                  view: window,
+                  bubbles: true,
+                  cancelable: true,
+                  clientX: rect.left + rect.width / 2,
+                  clientY: rect.top + rect.height / 2
+                });
+                iframe.dispatchEvent(clickEvent);
+                
+                // Métodos adicionais
                 iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-                // Tentar focar o iframe e simular tecla de espaço
                 iframe.focus();
+                
+                // Ocultar overlay temporariamente
+                (event?.target as HTMLElement)?.style.setProperty('display', 'none');
+                
+                // Pausar após 1 segundo e mostrar overlay novamente
                 setTimeout(() => {
-                  iframe.contentWindow?.postMessage('{"event":"video-play"}', '*');
-                }, 100);
+                  iframe.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                  (event?.target as HTMLElement)?.style.setProperty('display', 'flex');
+                }, 1000);
               }
             }}
             className="absolute inset-0 z-10 bg-black bg-opacity-50 flex items-center justify-center text-white hover:bg-opacity-30 transition-all duration-300 group"
@@ -223,48 +239,66 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
             onLoad={() => {
               console.log('🎥 Vídeo do Google Drive carregado');
               
-              // Tentar diferentes métodos para iniciar o vídeo
+              // Autoplay automático após carregar
               setTimeout(() => {
                 try {
                   const iframe = document.querySelector(`iframe[data-file-id="${fileId}"]`) as HTMLIFrameElement;
                   if (iframe && iframe.contentWindow) {
-                    console.log('🚀 Tentando iniciar autoplay...');
+                    console.log('🚀 Iniciando autoplay automático...');
                     
-                    // Método 1: PostMessage para Google Drive
-                    iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                    // Método 1: Simular clique no centro do iframe (mais efetivo)
+                    const rect = iframe.getBoundingClientRect();
+                    const clickEvent = new MouseEvent('click', {
+                      view: window,
+                      bubbles: true,
+                      cancelable: true,
+                      clientX: rect.left + rect.width / 2,
+                      clientY: rect.top + rect.height / 2
+                    });
+                    iframe.dispatchEvent(clickEvent);
                     
-                    // Método 2: Simular clique no centro do iframe
+                    // Método 2: PostMessage para Google Drive
                     setTimeout(() => {
-                      const rect = iframe.getBoundingClientRect();
-                      const clickEvent = new MouseEvent('click', {
-                        view: window,
-                        bubbles: true,
-                        cancelable: true,
-                        clientX: rect.left + rect.width / 2,
-                        clientY: rect.top + rect.height / 2
-                      });
-                      iframe.dispatchEvent(clickEvent);
-                    }, 500);
+                      iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                    }, 200);
                     
-                    // Método 3: Remover overlay de play após 2 segundos (assumindo que funcionou)
+                    // Método 3: Tentar focus + space key
+                    setTimeout(() => {
+                      iframe.focus();
+                      const spaceKeyEvent = new KeyboardEvent('keydown', {
+                        key: ' ',
+                        code: 'Space',
+                        keyCode: 32,
+                        bubbles: true
+                      });
+                      iframe.dispatchEvent(spaceKeyEvent);
+                    }, 400);
+                    
+                    // Remover overlay de play após iniciar
                     setTimeout(() => {
                       const playButton = document.querySelector(`button[title="Reproduzir vídeo"]`);
                       if (playButton) {
-                        playButton.remove();
+                        (playButton as HTMLElement).style.display = 'none';
                       }
+                    }, 800);
+                    
+                    // Pausar após 1 segundo de reprodução
+                    setTimeout(() => {
+                      iframe.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                      console.log('⏸️ Vídeo pausado automaticamente após 1 segundo');
                       
-                      // Pausar após 1 segundo de reprodução
-                      setTimeout(() => {
-                        iframe.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-                        console.log('⏸️ Vídeo pausado automaticamente');
-                      }, 1000);
-                    }, 2000);
+                      // Mostrar overlay de play novamente
+                      const playButton = document.querySelector(`button[title="Reproduzir vídeo"]`);
+                      if (playButton) {
+                        (playButton as HTMLElement).style.display = 'flex';
+                      }
+                    }, 1800); // 800ms para iniciar + 1000ms de reprodução
                     
                   }
                 } catch (error) {
                   console.log('❌ Erro ao tentar autoplay:', error);
                 }
-              }, 1000);
+              }, 500); // Reduzido para 500ms para resposta mais rápida
             }}
           />
         </div>
