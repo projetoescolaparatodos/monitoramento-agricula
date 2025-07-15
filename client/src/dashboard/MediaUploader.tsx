@@ -27,8 +27,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css"; // Importação explícita do CSS
+import 'react-quill/dist/quill.snow.css'; // Importação explícita do CSS
 import MediaFileUploader from "@/components/dashboard/MediaFileUploader";
 
 // Form validation schema
@@ -221,29 +220,6 @@ const MediaUploader = ({
                   </FormDescription>
                   <FormControl>
                     <div className="quill-container bg-white text-black rounded-md border border-gray-300 overflow-visible">
-                      <ReactQuill
-                        theme="snow"
-                        value={field.value || ""}
-                        onChange={field.onChange}
-                        modules={{
-                          toolbar: [
-                            [{ header: [1, 2, false] }],
-                            ["bold", "italic", "underline"],
-                            [{ color: [] }, { background: [] }],
-                            ["clean"],
-                          ],
-                        }}
-                        formats={[
-                          "header",
-                          "bold",
-                          "italic",
-                          "underline",
-                          "color",
-                          "background",
-                        ]}
-                        placeholder="Insira o título da mídia..."
-                        preserveWhitespace={true}
-                      />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -313,57 +289,15 @@ const MediaUploader = ({
                     Crie uma descrição rica com formatação avançada
                   </FormDescription>
                   <FormControl>
-                    <div className="quill-container bg-white text-black rounded-md border border-gray-300 overflow-visible">
-                      <ReactQuill
-                        theme="snow"
-                        value={field.value || ""}
-                        onChange={field.onChange}
-                        modules={{
-                          toolbar: [
-                            [{ header: [1, 2, 3, false] }],
-                            ["bold", "italic", "underline", "strike"],
-                            [{ list: "ordered" }, { list: "bullet" }],
-                            [{ align: [] }],
-                            [{ color: [] }, { background: [] }],
-                            ["link"],
-                            ["clean"],
-                          ],
-                        }}
-                        formats={[
-                          "header",
-                          "bold",
-                          "italic",
-                          "underline",
-                          "strike",
-                          "list",
-                          "bullet",
-                          "align",
-                          "color",
-                          "background",
-                          "link",
-                        ]}
-                        placeholder="Descreva a mídia com formatação detalhada..."
-                        preserveWhitespace={true}
-                      />
-                    </div>
+                    <Textarea
+                      {...field}
+                      placeholder="Insira a descrição da mídia..."
+                      className="min-h-[120px] resize-none"
+                      value={field.value || ""}
+                    />
                   </FormControl>
-                  <div className="text-xs text-muted-foreground mt-2 space-y-1">
-                    <p>
-                      <span className="font-medium">Dicas de formatação:</span>
-                    </p>
-                    <ul className="list-disc pl-4 space-y-0.5">
-                      <li>
-                        Use <strong>#palavras</strong> para criar hashtags que
-                        serão destacadas
-                      </li>
-                      <li>
-                        Adicione títulos, listas e formatação para melhor
-                        organização
-                      </li>
-                      <li>
-                        Inclua links para referências externas quando necessário
-                      </li>
-                    </ul>
+                  <div className="text-sm text-gray-600 mt-1">
+                    Suporte a formatação HTML básica: &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;a&gt;, etc.
                   </div>
                   <FormMessage />
                 </FormItem>
