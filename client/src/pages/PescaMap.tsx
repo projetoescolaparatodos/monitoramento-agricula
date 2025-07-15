@@ -209,15 +209,17 @@ const PescaMap = () => {
       const infoWindowStyle = {
         backgroundColor: "rgba(255, 255, 255, 0.97)",
         border: "2px solid #38a169",
-        borderRadius: isMobile ? "16px" : "12px",
+        borderRadius: isMobile ? "12px" : "12px",
         boxShadow: "0 10px 25px rgba(0, 0, 0, 0.2)",
-        padding: isMobile ? "1.5rem" : "1.5rem",
-        width: isMobile ? "98vw" : (isMaximized ? "90vw" : "420px"),
-        maxHeight: isMobile ? "85vh" : (isMaximized ? "90vh" : "80vh"),
+        padding: isMobile ? "1rem" : "1.5rem",
+        width: isMobile ? `${Math.floor(window.innerWidth * 0.92)}px` : (isMaximized ? "90vw" : "420px"),
+        maxWidth: isMobile ? `${Math.floor(window.innerWidth * 0.92)}px` : "none",
+        maxHeight: isMobile ? "75vh" : (isMaximized ? "90vh" : "80vh"),
         overflowY: "auto",
         backdropFilter: "blur(8px)",
-        position: isMobile ? "relative" : "static",
-        margin: isMobile ? "0 auto" : "0",
+        position: "relative",
+        margin: "0",
+        boxSizing: "border-box",
       };
 
       return (
@@ -228,9 +230,10 @@ const PescaMap = () => {
             setIsMaximized(false);
           }}
           options={{
-            maxWidth: isMobile ? window.innerWidth * 0.98 : (isMaximized ? window.innerWidth * 0.9 : 500),
-            maxHeight: isMobile ? window.innerHeight * 0.85 : (isMaximized ? window.innerHeight * 0.9 : undefined),
+            maxWidth: isMobile ? Math.floor(window.innerWidth * 0.95) : (isMaximized ? window.innerWidth * 0.9 : 500),
+            maxHeight: isMobile ? Math.floor(window.innerHeight * 0.8) : (isMaximized ? window.innerHeight * 0.9 : undefined),
             pixelOffset: isMobile ? new google.maps.Size(0, -10) : new google.maps.Size(0, 0),
+            disableAutoPan: isMobile ? false : true,
           }}
         >
           <div className="relative" style={infoWindowStyle}>
