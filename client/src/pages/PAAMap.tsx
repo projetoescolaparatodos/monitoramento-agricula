@@ -173,14 +173,16 @@ const PAAMap = () => {
       const infoWindowStyle = {
         backgroundColor: "rgba(255, 255, 255, 0.97)",
         border: "2px solid #38a169",
-        borderRadius: isMobile ? "12px" : "16px",
+        borderRadius: isMobile ? "16px" : "16px",
         boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05)",
-        padding: isMobile ? "1rem" : "2rem",
-        width: isMobile ? "95vw" : (isMaximized ? "90vw" : "480px"),
-        maxHeight: isMobile ? "80vh" : (isMaximized ? "90vh" : "85vh"),
+        padding: isMobile ? "1.5rem" : "2rem",
+        width: isMobile ? "98vw" : (isMaximized ? "90vw" : "480px"),
+        maxHeight: isMobile ? "85vh" : (isMaximized ? "90vh" : "85vh"),
         overflowY: "auto",
         backdropFilter: "blur(12px)",
         fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
+        position: isMobile ? "relative" : "static",
+        margin: isMobile ? "0 auto" : "0",
       };
 
       return (
@@ -191,8 +193,9 @@ const PAAMap = () => {
             setIsMaximized(false);
           }}
           options={{
-            maxWidth: isMobile ? window.innerWidth * 0.95 : (isMaximized ? window.innerWidth * 0.9 : 550),
-            maxHeight: isMobile ? window.innerHeight * 0.8 : (isMaximized ? window.innerHeight * 0.9 : undefined),
+            maxWidth: isMobile ? window.innerWidth * 0.98 : (isMaximized ? window.innerWidth * 0.9 : 550),
+            maxHeight: isMobile ? window.innerHeight * 0.85 : (isMaximized ? window.innerHeight * 0.9 : undefined),
+            pixelOffset: isMobile ? new google.maps.Size(0, -10) : new google.maps.Size(0, 0),
           }}
         >
           <div className="relative" style={infoWindowStyle}>
@@ -207,50 +210,50 @@ const PAAMap = () => {
             </button>
 
             {/* Cabeçalho melhorado */}
-            <div className="flex items-start gap-4 mb-6 pb-4 border-b border-gray-100">
-              <div className={`p-4 rounded-xl shadow-sm ${paa.concluido ? 'bg-gradient-to-br from-green-50 to-green-100 text-green-700' : 'bg-gradient-to-br from-orange-50 to-orange-100 text-orange-700'}`}>
+            <div className={`flex items-start gap-${isMobile ? '3' : '4'} mb-${isMobile ? '4' : '6'} pb-${isMobile ? '3' : '4'} border-b border-gray-100`}>
+              <div className={`p-${isMobile ? '3' : '4'} rounded-xl shadow-sm ${paa.concluido ? 'bg-gradient-to-br from-green-50 to-green-100 text-green-700' : 'bg-gradient-to-br from-orange-50 to-orange-100 text-orange-700'}`}>
                 {paa.concluido ? (
-                  <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className={`${isMobile ? 'w-6 h-6' : 'w-7 h-7'}`} fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                 ) : (
-                  <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className={`${isMobile ? 'w-6 h-6' : 'w-7 h-7'}`} fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clipRule="evenodd" />
                   </svg>
                 )}
               </div>
-              <div className="flex-1">
-                <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-800 mb-2 leading-tight`}>{paa.localidade}</h2>
-                <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold shadow-sm
+              <div className="flex-1 min-w-0">
+                <h2 className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-gray-800 mb-2 leading-tight line-clamp-2`}>{paa.localidade}</h2>
+                <div className={`inline-flex items-center px-${isMobile ? '3' : '4'} py-${isMobile ? '1.5' : '2'} rounded-full text-${isMobile ? 'xs' : 'sm'} font-semibold shadow-sm
                   ${paa.concluido ? 'bg-green-500 text-white' : 'bg-orange-500 text-white'}`}>
                   {paa.concluido ? '✓ Concluído' : '🌾 Em Andamento'}
                 </div>
               </div>
             </div>
 
-            <div className={`grid grid-cols-1 ${isMobile ? 'gap-4' : 'md:grid-cols-2 gap-6'}`}>
+            <div className={`grid grid-cols-1 ${isMobile ? 'gap-3' : 'md:grid-cols-2 gap-6'}`}>
               {/* Seção Localização */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2 mb-3">
-                  <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+              <div className={`space-y-${isMobile ? '3' : '4'}`}>
+                <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold text-gray-700 flex items-center gap-2 mb-${isMobile ? '2' : '3'}`}>
+                  <svg className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-green-600`} fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                   </svg>
                   <span>Localização</span>
                 </h3>
-                <div className="space-y-3">
+                <div className={`space-y-${isMobile ? '2' : '3'}`}>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Localidade</span>
-                    <span className="bg-gradient-to-r from-green-50 to-green-100 px-3 py-2 rounded-lg text-green-800 font-medium">
+                    <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-500 uppercase tracking-wide`}>Localidade</span>
+                    <span className={`bg-gradient-to-r from-green-50 to-green-100 px-${isMobile ? '2' : '3'} py-${isMobile ? '1.5' : '2'} rounded-lg text-green-800 font-medium ${isMobile ? 'text-sm' : 'text-base'} line-clamp-2`}>
                       {paa.localidade}
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Proprietário</span>
-                    <span className="text-gray-700 font-medium">{paa.proprietario || "Não informado"}</span>
+                    <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-500 uppercase tracking-wide`}>Proprietário</span>
+                    <span className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-700 font-medium line-clamp-2`}>{paa.proprietario || "Não informado"}</span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Área de Mecanização</span>
-                    <span className="bg-orange-50 px-3 py-2 rounded-lg text-orange-800 font-bold text-lg">
+                    <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-500 uppercase tracking-wide`}>Área de Mecanização</span>
+                    <span className={`bg-orange-50 px-${isMobile ? '2' : '3'} py-${isMobile ? '1.5' : '2'} rounded-lg text-orange-800 font-bold ${isMobile ? 'text-base' : 'text-lg'}`}>
                       {(() => {
                         const areaValue = paa.areaMecanization || paa.areaMecanizacao || paa.areaTrabalhada || paa.area;
                         const area = typeof areaValue === 'number' 
@@ -268,21 +271,21 @@ const PAAMap = () => {
               </div>
 
               {/* Seção Produção */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2 mb-3">
-                  <svg className="w-5 h-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+              <div className={`space-y-${isMobile ? '3' : '4'}`}>
+                <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold text-gray-700 flex items-center gap-2 mb-${isMobile ? '2' : '3'}`}>
+                  <svg className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-orange-600`} fill="currentColor" viewBox="0 0 20 20">
                     <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
                   </svg>
                   <span>Produção</span>
                 </h3>
-                <div className="space-y-3">
+                <div className={`space-y-${isMobile ? '2' : '3'}`}>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Tipo de Alimento</span>
-                    <span className="text-gray-700 font-medium">{paa.tipoAlimento}</span>
+                    <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-500 uppercase tracking-wide`}>Tipo de Alimento</span>
+                    <span className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-700 font-medium line-clamp-2`}>{paa.tipoAlimento}</span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Quantidade Produzida</span>
-                    <span className="text-gray-700 font-medium">
+                    <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-500 uppercase tracking-wide`}>Quantidade Produzida</span>
+                    <span className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-700 font-medium`}>
                       {(() => {
                         const quantidade = typeof paa.quantidadeProduzida === 'number' 
                           ? paa.quantidadeProduzida 
@@ -296,8 +299,8 @@ const PAAMap = () => {
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Método de Colheita</span>
-                    <span className="text-gray-700 font-medium">{paa.metodoColheita}</span>
+                    <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-500 uppercase tracking-wide`}>Método de Colheita</span>
+                    <span className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-700 font-medium line-clamp-2`}>{paa.metodoColheita}</span>
                   </div>
                 </div>
               </div>

@@ -184,14 +184,16 @@ const AgriculturaMap = () => {
       const infoWindowStyle = {
         backgroundColor: "rgba(255, 255, 255, 0.97)",
         border: "2px solid #38a169",
-        borderRadius: isMobile ? "12px" : "16px",
+        borderRadius: isMobile ? "16px" : "16px",
         boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05)",
-        padding: isMobile ? "1rem" : "2rem",
-        width: isMobile ? "95vw" : (isMaximized ? "90vw" : "480px"),
-        maxHeight: isMobile ? "80vh" : (isMaximized ? "90vh" : "85vh"),
+        padding: isMobile ? "1.5rem" : "2rem",
+        width: isMobile ? "98vw" : (isMaximized ? "90vw" : "480px"),
+        maxHeight: isMobile ? "85vh" : (isMaximized ? "90vh" : "85vh"),
         overflowY: "auto",
         backdropFilter: "blur(12px)",
         fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
+        position: isMobile ? "relative" : "static",
+        margin: isMobile ? "0 auto" : "0",
       };
 
       return (
@@ -202,8 +204,9 @@ const AgriculturaMap = () => {
             setIsMaximized(false);
           }}
           options={{
-            maxWidth: isMobile ? window.innerWidth * 0.95 : (isMaximized ? window.innerWidth * 0.9 : 550),
-            maxHeight: isMobile ? window.innerHeight * 0.8 : (isMaximized ? window.innerHeight * 0.9 : undefined),
+            maxWidth: isMobile ? window.innerWidth * 0.98 : (isMaximized ? window.innerWidth * 0.9 : 550),
+            maxHeight: isMobile ? window.innerHeight * 0.85 : (isMaximized ? window.innerHeight * 0.9 : undefined),
+            pixelOffset: isMobile ? new google.maps.Size(0, -10) : new google.maps.Size(0, 0),
           }}
         >
           <div className="relative" style={infoWindowStyle}>
@@ -218,96 +221,96 @@ const AgriculturaMap = () => {
             </button>
 
             {/* Cabeçalho melhorado */}
-            <div className="flex items-start gap-4 mb-6 pb-4 border-b border-gray-100">
-              <div className={`p-4 rounded-xl shadow-sm ${trator.concluido ? 'bg-gradient-to-br from-green-50 to-green-100 text-green-700' : 'bg-gradient-to-br from-blue-50 to-blue-100 text-blue-700'}`}>
+            <div className={`flex items-start gap-${isMobile ? '3' : '4'} mb-${isMobile ? '4' : '6'} pb-${isMobile ? '3' : '4'} border-b border-gray-100`}>
+              <div className={`p-${isMobile ? '3' : '4'} rounded-xl shadow-sm ${trator.concluido ? 'bg-gradient-to-br from-green-50 to-green-100 text-green-700' : 'bg-gradient-to-br from-blue-50 to-blue-100 text-blue-700'}`}>
                 {trator.concluido ? (
-                  <CheckCircle size={28} />
+                  <CheckCircle size={isMobile ? 24 : 28} />
                 ) : (
-                  <Activity size={28} />
+                  <Activity size={isMobile ? 24 : 28} />
                 )}
               </div>
-              <div className="flex-1">
-                <h2 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-800 mb-1 leading-tight`}>{trator.fazenda}</h2>
-                <p className={`${isMobile ? 'text-base' : 'text-lg'} text-gray-600 mb-2 font-medium`}>{trator.localidade || "Localidade não informada"}</p>
-                <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold shadow-sm
+              <div className="flex-1 min-w-0">
+                <h2 className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-gray-800 mb-1 leading-tight truncate`}>{trator.fazenda}</h2>
+                <p className={`${isMobile ? 'text-sm' : 'text-lg'} text-gray-600 mb-2 font-medium line-clamp-2`}>{trator.localidade || "Localidade não informada"}</p>
+                <div className={`inline-flex items-center px-${isMobile ? '3' : '4'} py-${isMobile ? '1.5' : '2'} rounded-full text-${isMobile ? 'xs' : 'sm'} font-semibold shadow-sm
                   ${trator.concluido ? 'bg-green-500 text-white' : 'bg-blue-500 text-white'}`}>
                   {trator.concluido ? '✓ Concluído' : '⚡ Em Serviço'}
                 </div>
               </div>
             </div>
 
-            <div className={`grid grid-cols-1 ${isMobile ? 'gap-4' : 'md:grid-cols-2 gap-6'}`}>
+            <div className={`grid grid-cols-1 ${isMobile ? 'gap-3' : 'md:grid-cols-2 gap-6'}`}>
               {/* Seção Localização */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2 mb-3">
-                  <MapPin size={20} className="text-green-600" /> 
+              <div className={`space-y-${isMobile ? '3' : '4'}`}>
+                <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold text-gray-700 flex items-center gap-2 mb-${isMobile ? '2' : '3'}`}>
+                  <MapPin size={isMobile ? 18 : 20} className="text-green-600" /> 
                   <span>Localização</span>
                 </h3>
-                <div className="space-y-3">
+                <div className={`space-y-${isMobile ? '2' : '3'}`}>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Proprietário</span>
-                    <span className="text-gray-700 font-medium">{trator.proprietario || "Não informado"}</span>
+                    <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-500 uppercase tracking-wide`}>Proprietário</span>
+                    <span className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-700 font-medium line-clamp-2`}>{trator.proprietario || "Não informado"}</span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Operador</span>
-                    <span className="text-gray-700 font-medium">{trator.piloto}</span>
+                    <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-500 uppercase tracking-wide`}>Operador</span>
+                    <span className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-700 font-medium line-clamp-2`}>{trator.piloto}</span>
                   </div>
                 </div>
               </div>
 
               {/* Seção Operação */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2 mb-3">
-                  <HardHat size={20} className="text-blue-600" /> 
+              <div className={`space-y-${isMobile ? '3' : '4'}`}>
+                <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold text-gray-700 flex items-center gap-2 mb-${isMobile ? '2' : '3'}`}>
+                  <HardHat size={isMobile ? 18 : 20} className="text-blue-600" /> 
                   <span>Operação</span>
                 </h3>
-                <div className="space-y-3">
+                <div className={`space-y-${isMobile ? '2' : '3'}`}>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Trator</span>
-                    <span className="text-gray-700 font-medium">{trator.nome}</span>
+                    <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-500 uppercase tracking-wide`}>Trator</span>
+                    <span className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-700 font-medium line-clamp-2`}>{trator.nome}</span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Atividade</span>
-                    <span className="text-gray-700 font-medium">{trator.atividade}</span>
+                    <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-500 uppercase tracking-wide`}>Atividade</span>
+                    <span className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-700 font-medium line-clamp-2`}>{trator.atividade}</span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Área Trabalhada</span>
-                    <span className="bg-blue-50 px-3 py-2 rounded-lg text-blue-800 font-bold text-lg">
+                    <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-500 uppercase tracking-wide`}>Área Trabalhada</span>
+                    <span className={`bg-blue-50 px-${isMobile ? '2' : '3'} py-${isMobile ? '1.5' : '2'} rounded-lg text-blue-800 font-bold ${isMobile ? 'text-base' : 'text-lg'}`}>
                       {trator.areaTrabalhada?.toFixed(2) || "0"} ha
                     </span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">Hora/Máquina</span>
-                    <span className="text-gray-700 font-medium">{trator.horaMaquina || "Não informado"}</span>
+                    <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-500 uppercase tracking-wide`}>Hora/Máquina</span>
+                    <span className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-700 font-medium line-clamp-2`}>{trator.horaMaquina || "Não informado"}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Rodapé com informações adicionais */}
-            <div className="mt-6 pt-4 border-t border-gray-100">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                  <HardHat size={16} className="text-gray-600" />
-                  <div>
-                    <span className="block text-xs text-gray-500 uppercase font-medium">Técnico</span>
-                    <span className="font-semibold text-gray-700">{trator.tecnicoResponsavel || "Não informado"}</span>
+            <div className={`mt-${isMobile ? '4' : '6'} pt-${isMobile ? '3' : '4'} border-t border-gray-100`}>
+              <div className={`grid grid-cols-1 ${isMobile ? 'gap-2' : 'sm:grid-cols-2 gap-4'} ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                <div className={`flex items-center gap-2 p-${isMobile ? '2' : '3'} bg-gray-50 rounded-lg`}>
+                  <HardHat size={isMobile ? 14 : 16} className="text-gray-600" />
+                  <div className="min-w-0 flex-1">
+                    <span className={`block ${isMobile ? 'text-xs' : 'text-xs'} text-gray-500 uppercase font-medium`}>Técnico</span>
+                    <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-semibold text-gray-700 line-clamp-1`}>{trator.tecnicoResponsavel || "Não informado"}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                  <Calendar size={16} className="text-gray-600" />
-                  <div>
-                    <span className="block text-xs text-gray-500 uppercase font-medium">Data</span>
-                    <span className="font-semibold text-gray-700">{new Date(trator.dataCadastro).toLocaleDateString()}</span>
+                <div className={`flex items-center gap-2 p-${isMobile ? '2' : '3'} bg-gray-50 rounded-lg`}>
+                  <Calendar size={isMobile ? 14 : 16} className="text-gray-600" />
+                  <div className="min-w-0 flex-1">
+                    <span className={`block ${isMobile ? 'text-xs' : 'text-xs'} text-gray-500 uppercase font-medium`}>Data</span>
+                    <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-semibold text-gray-700`}>{new Date(trator.dataCadastro).toLocaleDateString()}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {trator.midias && trator.midias.length > 0 && (
-              <div className="mt-6">
-                <h3 className="font-semibold text-gray-700 text-lg mb-3">Mídias</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className={`mt-${isMobile ? '4' : '6'}`}>
+                <h3 className={`font-semibold text-gray-700 ${isMobile ? 'text-base' : 'text-lg'} mb-${isMobile ? '2' : '3'}`}>Mídias</h3>
+                <div className={`grid grid-cols-${isMobile ? '1' : '2'} ${isMobile ? 'gap-2' : 'sm:grid-cols-3 gap-3'}`}>
                   {trator.midias.map((url, index) => {
                     const isYouTube = url.includes("youtube.com") || url.includes("youtu.be");
 

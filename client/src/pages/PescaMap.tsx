@@ -207,15 +207,17 @@ const PescaMap = () => {
   const renderInfoWindow = useCallback(
     (pesca: Pesca) => {
       const infoWindowStyle = {
-        backgroundColor: "rgba(255, 255, 255, 0.95)",
+        backgroundColor: "rgba(255, 255, 255, 0.97)",
         border: "2px solid #38a169",
-        borderRadius: "12px",
+        borderRadius: isMobile ? "16px" : "12px",
         boxShadow: "0 10px 25px rgba(0, 0, 0, 0.2)",
-        padding: "1.5rem",
-        width: isMaximized ? "90vw" : "420px",
-        maxHeight: isMaximized ? "90vh" : "80vh",
+        padding: isMobile ? "1.5rem" : "1.5rem",
+        width: isMobile ? "98vw" : (isMaximized ? "90vw" : "420px"),
+        maxHeight: isMobile ? "85vh" : (isMaximized ? "90vh" : "80vh"),
         overflowY: "auto",
         backdropFilter: "blur(8px)",
+        position: isMobile ? "relative" : "static",
+        margin: isMobile ? "0 auto" : "0",
       };
 
       return (
@@ -226,8 +228,9 @@ const PescaMap = () => {
             setIsMaximized(false);
           }}
           options={{
-            maxWidth: isMaximized ? window.innerWidth * 0.9 : 500,
-            maxHeight: isMaximized ? window.innerHeight * 0.9 : undefined,
+            maxWidth: isMobile ? window.innerWidth * 0.98 : (isMaximized ? window.innerWidth * 0.9 : 500),
+            maxHeight: isMobile ? window.innerHeight * 0.85 : (isMaximized ? window.innerHeight * 0.9 : undefined),
+            pixelOffset: isMobile ? new google.maps.Size(0, -10) : new google.maps.Size(0, 0),
           }}
         >
           <div className="relative" style={infoWindowStyle}>
@@ -240,21 +243,21 @@ const PescaMap = () => {
             </button>
 
             {/* Cabeçalho */}
-            <div className="flex items-start gap-3 mb-4">
-              <div className={`p-3 rounded-lg ${pesca.concluido ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+            <div className={`flex items-start gap-${isMobile ? '2' : '3'} mb-${isMobile ? '3' : '4'}`}>
+              <div className={`p-${isMobile ? '2' : '3'} rounded-lg ${pesca.concluido ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
                 {pesca.concluido ? (
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'}`} fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                 ) : (
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'}`} fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 8A8 8 0 11.344 6.024C.845 5.427 1.42 5 2.071 5H5.07c.652 0 1.226.427 1.428 1.024L8.5 10.5 10 8l1.5 2.5 2.002-4.476C13.926 5.427 14.5 5 15.15 5h3c.651 0 1.226.427 1.428 1.024A8.003 8.003 0 0118 8z" clipRule="evenodd" />
                   </svg>
                 )}
               </div>
-              <div>
-                <h2 className={styles.infoTitle}>{pesca.localidade}</h2>
-                <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+              <div className="flex-1 min-w-0">
+                <h2 className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold text-gray-800 mb-1 leading-tight line-clamp-2`}>{pesca.localidade}</h2>
+                <div className={`inline-flex items-center px-${isMobile ? '2' : '3'} py-1 rounded-full text-${isMobile ? 'xs' : 'sm'} font-medium 
                   ${pesca.concluido ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
                   {pesca.concluido ? 'Concluído' : 'Em Andamento'}
                 </div>
@@ -262,69 +265,86 @@ const PescaMap = () => {
             </div>
 
             {/* Corpo das informações */}
-            <div className={`grid grid-cols-1 ${isMobile ? 'gap-3' : 'md:grid-cols-2 gap-4'}`}>
+            <div className={`grid grid-cols-1 ${isMobile ? 'gap-2' : 'md:grid-cols-2 gap-4'}`}>
               {/* Coluna 1 */}
-              <div>
-                <h3 className={styles.infoSubtitle}>Identificação</h3>
-                <p className={styles.infoText}>
-                  <span className="font-medium">N° Registro:</span> <span className={styles.infoHighlight}>{pesca.numeroRegistro || "Não informado"}</span>
-                </p>
-                <p className={styles.infoText}>
-                  <span className="font-medium">Localidade:</span> {pesca.localidade}
-                </p>
-                <p className={styles.infoText}>
-                  <span className="font-medium">Imóvel Rural:</span> {pesca.nomeImovel || "Não informado"}
-                </p>
-                <p className={styles.infoText}>
-                  <span className="font-medium">Proprietário:</span> {pesca.proprietario || "Não informado"}
-                </p>
+              <div className={`space-y-${isMobile ? '2' : '3'}`}>
+                <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold text-gray-700 mb-${isMobile ? '2' : '3'}`}>Identificação</h3>
+                <div className={`space-y-${isMobile ? '1.5' : '2'}`}>
+                  <p className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-600`}>
+                    <span className="font-medium">N° Registro:</span> 
+                    <span className={`ml-1 ${isMobile ? 'text-xs' : 'text-sm'} bg-blue-50 px-2 py-1 rounded text-blue-800`}>
+                      {pesca.numeroRegistro || "Não informado"}
+                    </span>
+                  </p>
+                  <p className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-600`}>
+                    <span className="font-medium">Localidade:</span> 
+                    <span className="ml-1 line-clamp-2">{pesca.localidade}</span>
+                  </p>
+                  <p className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-600`}>
+                    <span className="font-medium">Imóvel Rural:</span> 
+                    <span className="ml-1 line-clamp-2">{pesca.nomeImovel || "Não informado"}</span>
+                  </p>
+                  <p className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-600`}>
+                    <span className="font-medium">Proprietário:</span> 
+                    <span className="ml-1 line-clamp-2">{pesca.proprietario || "Não informado"}</span>
+                  </p>
+                </div>
               </div>
 
               {/* Coluna 2 */}
-              <div>
-                <h3 className={styles.infoSubtitle}>Operação Aquícola</h3>
-                <p className={styles.infoText}>
-                  <span className="font-medium">Estrutura:</span> {pesca.tipoTanque}
-                </p>
-                <p className={styles.infoText}>
-                  <span className="font-medium">Área Alagada:</span> {pesca.areaAlagada || 0} ha
-                </p>
-                <p className={styles.infoText}>
-                  <span className="font-medium">Espécie:</span> {pesca.especiePeixe}
-                </p>
-                <p className={styles.infoText}>
-                  <span className="font-medium">Alevinos:</span> {pesca.quantidadeAlevinos ? `${pesca.quantidadeAlevinos} kg` : 'N/A'}
-                </p>
-                <p className={styles.infoText}>
-                  <span className="font-medium">Alimentação:</span> {pesca.metodoAlimentacao}
-                </p>
+              <div className={`space-y-${isMobile ? '2' : '3'}`}>
+                <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold text-gray-700 mb-${isMobile ? '2' : '3'}`}>Operação Aquícola</h3>
+                <div className={`space-y-${isMobile ? '1.5' : '2'}`}>
+                  <p className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-600`}>
+                    <span className="font-medium">Estrutura:</span> 
+                    <span className="ml-1 line-clamp-2">{pesca.tipoTanque}</span>
+                  </p>
+                  <p className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-600`}>
+                    <span className="font-medium">Área Alagada:</span> 
+                    <span className="ml-1">{pesca.areaAlagada || 0} ha</span>
+                  </p>
+                  <p className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-600`}>
+                    <span className="font-medium">Espécie:</span> 
+                    <span className="ml-1 line-clamp-2">{pesca.especiePeixe}</span>
+                  </p>
+                  <p className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-600`}>
+                    <span className="font-medium">Alevinos:</span> 
+                    <span className="ml-1">{pesca.quantidadeAlevinos ? `${pesca.quantidadeAlevinos} kg` : 'N/A'}</span>
+                  </p>
+                  <p className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-600`}>
+                    <span className="font-medium">Alimentação:</span> 
+                    <span className="ml-1 line-clamp-2">{pesca.metodoAlimentacao}</span>
+                  </p>
+                </div>
               </div>
             </div>
 
             {/* Seção de Responsáveis */}
-            <div className="mt-4">
-              <h3 className={styles.infoSubtitle}>Responsáveis</h3>
-              <div className={`grid grid-cols-1 ${isMobile ? 'gap-3' : 'md:grid-cols-2 gap-4'}`}>
-                <p className={styles.infoText}>
-                  <span className="font-medium">Operador:</span> {pesca.operador || "Não informado"}
+            <div className={`mt-${isMobile ? '3' : '4'}`}>
+              <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold text-gray-700 mb-${isMobile ? '2' : '3'}`}>Responsáveis</h3>
+              <div className={`grid grid-cols-1 ${isMobile ? 'gap-2' : 'md:grid-cols-2 gap-4'}`}>
+                <p className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-600`}>
+                  <span className="font-medium">Operador:</span> 
+                  <span className="ml-1 line-clamp-2">{pesca.operador || "Não informado"}</span>
                 </p>
-                <p className={styles.infoText}>
-                  <span className="font-medium">Técnico:</span> {pesca.tecnicoResponsavel || "Não informado"}
+                <p className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-600`}>
+                  <span className="font-medium">Técnico:</span> 
+                  <span className="ml-1 line-clamp-2">{pesca.tecnicoResponsavel || "Não informado"}</span>
                 </p>
               </div>
             </div>
 
             {/* Rodapé */}
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <p className="text-sm text-gray-500">
+            <div className={`mt-${isMobile ? '3' : '4'} pt-${isMobile ? '2' : '4'} border-t border-gray-200`}>
+              <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-500`}>
                 Cadastrado em: {new Date(pesca.dataCadastro).toLocaleDateString('pt-BR')}
               </p>
             </div>
 
             {pesca.midias && pesca.midias.length > 0 && (
-              <div className="mt-6">
-                <h3 className="font-semibold text-gray-700 text-lg mb-3">Mídias</h3>
-                <div className={`grid grid-cols-1 ${isMobile ? 'gap-3' : 'md:grid-cols-2 gap-4'}`}>
+              <div className={`mt-${isMobile ? '4' : '6'}`}>
+                <h3 className={`font-semibold text-gray-700 ${isMobile ? 'text-base' : 'text-lg'} mb-${isMobile ? '2' : '3'}`}>Mídias</h3>
+                <div className={`grid grid-cols-${isMobile ? '1' : '1'} ${isMobile ? 'gap-2' : 'md:grid-cols-2 gap-4'}`}>
                   {pesca.midias.map((url, index) => {
                     // Verifica se é um vídeo do YouTube
                     const isYouTube = url.includes("youtube.com") || url.includes("youtu.be");
