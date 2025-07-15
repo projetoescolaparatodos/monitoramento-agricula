@@ -95,7 +95,6 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
         setIsVideo(isLikelyVideo);
 
         // SEMPRE usar preview URL para evitar downloads forçados
-        // Adicionar parâmetros para melhor controle de vídeo
         setStreamingUrl(`https://drive.google.com/file/d/${fileId}/preview`);
 
         // Definir metadados básicos
@@ -169,12 +168,6 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   }
 
   if (isVideo && streamingUrl) {
-    // Usar diferentes abordagens de URL para autoplay
-    const fileId = getGoogleDriveFileId(mediaUrl);
-    
-    // URL otimizada para autoplay com parâmetros específicos
-    const embedUrl = `https://drive.google.com/file/d/${fileId}/preview?usp=sharing&autoplay=1&start=0&enablejsapi=1&origin=${window.location.origin}`;
-    
     return (
       <div className={`w-full ${className}`}>
         <div className={`w-full ${getAspectRatioClass()} relative overflow-hidden rounded-lg bg-black`}>
@@ -187,204 +180,15 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
               <Instagram size={24} />
             </button>
           )}
-          
-          {/* Botão de Play manual para garantir que funcione */}
-          <button
-            onClick={() => {
-              const iframe = document.querySelector(`iframe[data-file-id="${fileId}"]`) as HTMLIFrameElement;
-              if (iframe && iframe.contentWindow) {
-                // Simular clique no centro do iframe
-                const rect = iframe.getBoundingClientRect();
-                const clickEvent = new MouseEvent('click', {
-                  view: window,
-                  bubbles: true,
-                  cancelable: true,
-                  clientX: rect.left + rect.width / 2,
-                  clientY: rect.top + rect.height / 2
-                });
-                iframe.dispatchEvent(clickEvent);
-                
-                // Métodos adicionais
-                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-                iframe.focus();
-                
-                // Ocultar overlay temporariamente
-                (event?.target as HTMLElement)?.style.setProperty('display', 'none');
-                
-                // Pausar após 1 segundo e mostrar overlay novamente
-                setTimeout(() => {
-                  iframe.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-                  (event?.target as HTMLElement)?.style.setProperty('display', 'flex');
-                }, 1000);
-              }
-            }}
-            className="absolute inset-0 z-10 bg-black bg-opacity-50 flex items-center justify-center text-white hover:bg-opacity-30 transition-all duration-300 group"
-            title="Reproduzir vídeo"
-          >
-            <div className="bg-white bg-opacity-20 rounded-full p-4 group-hover:bg-opacity-30 transition-all duration-300 group-hover:scale-110">
-              <Play size={48} className="text-white fill-white ml-1" />
-            </div>
-          </button>
-
           <iframe
-            src={embedUrl}
+            src={streamingUrl}
             title={title}
-            data-file-id={fileId}
             className="w-full h-full border-0 max-w-full max-h-full"
             allowFullScreen
-            sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
+            sandbox="allow-scripts allow-same-origin allow-presentation"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
             loading="lazy"
             style={{ width: '100%', height: '100%', maxWidth: '100%', maxHeight: '100%' }}
-            onLoad={() => {
-              console.log('🎥 Vídeo do Google Drive carregado');
-              
-              // Múltiplas tentativas de autoplay com estratégias diferentes
-              const attemptAutoplay = (attempt: number = 1) => {
-                try {
-                  const iframe = document.querySelector(`iframe[data-file-id="${fileId}"]`) as HTMLIFrameElement;
-                  if (!iframe || !iframe.contentWindow) {
-                    console.log(`❌ Tentativa ${attempt}: Iframe não encontrado`);
-                    return;
-                  }
-
-                  console.log(`🚀 Tentativa ${attempt} de autoplay...`);
-                  
-                  // Estratégia 1: Clique múltiplo no centro
-                  const rect = iframe.getBoundingClientRect();
-                  const centerX = rect.left + rect.width / 2;
-                  const centerY = rect.top + rect.height / 2;
-                  
-                  // Simular múltiplos cliques
-                  for (let i = 0; i < 3; i++) {
-                    setTimeout(() => {
-                      const clickEvent = new MouseEvent('click', {
-                        view: window,
-                        bubbles: true,
-                        cancelable: true,
-                        clientX: centerX,
-                        clientY: centerY
-                      });
-                      iframe.dispatchEvent(clickEvent);
-                      
-                      // Também tentar no documento do iframe
-                      try {
-                        if (iframe.contentDocument) {
-                          iframe.contentDocument.dispatchEvent(clickEvent);
-                        }
-                      } catch (e) {}
-                    }, i * 100);
-                  }
-                  
-                  // Estratégia 2: PostMessage com diferentes comandos
-                  setTimeout(() => {
-                    const commands = [
-                      '{"event":"command","func":"playVideo","args":""}',
-                      '{"event":"video-progress","info":{"currentTime":0,"playerState":1}}',
-                      'play',
-                      '{"event":"command","func":"seekTo","args":[0,true]}'
-                    ];
-                    
-                    commands.forEach((cmd, index) => {
-                      setTimeout(() => {
-                        iframe.contentWindow?.postMessage(cmd, '*');
-                      }, index * 50);
-                    });
-                  }, 200);
-                  
-                  // Estratégia 3: Eventos de teclado
-                  setTimeout(() => {
-                    iframe.focus();
-                    
-                    const keyEvents = [
-                      { key: ' ', code: 'Space', keyCode: 32 },
-                      { key: 'k', code: 'KeyK', keyCode: 75 },
-                      { key: 'Enter', code: 'Enter', keyCode: 13 }
-                    ];
-                    
-                    keyEvents.forEach((keyData, index) => {
-                      setTimeout(() => {
-                        const keyEvent = new KeyboardEvent('keydown', {
-                          ...keyData,
-                          bubbles: true,
-                          cancelable: true
-                        });
-                        iframe.dispatchEvent(keyEvent);
-                        
-                        // Tentar também keyup
-                        const keyUpEvent = new KeyboardEvent('keyup', {
-                          ...keyData,
-                          bubbles: true,
-                          cancelable: true
-                        });
-                        iframe.dispatchEvent(keyUpEvent);
-                      }, index * 100);
-                    });
-                  }, 400);
-                  
-                  // Estratégia 4: Manipular URL para forçar autoplay
-                  setTimeout(() => {
-                    try {
-                      const currentSrc = iframe.src;
-                      if (!currentSrc.includes('autoplay=1')) {
-                        const newSrc = currentSrc + (currentSrc.includes('?') ? '&' : '?') + 'autoplay=1&start=0';
-                        iframe.src = newSrc;
-                        console.log('🔄 URL atualizada com autoplay:', newSrc);
-                      }
-                    } catch (e) {
-                      console.log('Não foi possível modificar URL:', e);
-                    }
-                  }, 600);
-                  
-                  // Remover overlay temporariamente
-                  setTimeout(() => {
-                    const playButton = document.querySelector(`button[title="Reproduzir vídeo"]`) as HTMLElement;
-                    if (playButton) {
-                      playButton.style.display = 'none';
-                      console.log('🔇 Overlay removido');
-                    }
-                  }, 800);
-                  
-                  // Pausar após 1 segundo e restaurar overlay
-                  setTimeout(() => {
-                    // Tentar pausar com todos os métodos
-                    iframe.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-                    iframe.contentWindow?.postMessage('pause', '*');
-                    
-                    const pauseKeyEvent = new KeyboardEvent('keydown', {
-                      key: ' ',
-                      code: 'Space',
-                      keyCode: 32,
-                      bubbles: true
-                    });
-                    iframe.dispatchEvent(pauseKeyEvent);
-                    
-                    console.log('⏸️ Vídeo pausado automaticamente após 1 segundo');
-                    
-                    // Restaurar overlay
-                    const playButton = document.querySelector(`button[title="Reproduzir vídeo"]`) as HTMLElement;
-                    if (playButton) {
-                      playButton.style.display = 'flex';
-                      console.log('🔊 Overlay restaurado');
-                    }
-                  }, 1800);
-                  
-                } catch (error) {
-                  console.log(`❌ Erro na tentativa ${attempt}:`, error);
-                  
-                  // Tentar novamente até 3 vezes
-                  if (attempt < 3) {
-                    setTimeout(() => attemptAutoplay(attempt + 1), 1000);
-                  }
-                }
-              };
-              
-              // Começar primeira tentativa após o carregamento
-              setTimeout(() => attemptAutoplay(1), 300);
-              
-              // Tentativa adicional após 2 segundos (caso o iframe ainda esteja carregando internamente)
-              setTimeout(() => attemptAutoplay(4), 2000);
-            }}
           />
         </div>
       </div>
