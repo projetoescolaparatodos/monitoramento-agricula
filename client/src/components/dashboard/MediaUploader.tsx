@@ -410,62 +410,10 @@ export const MediaUploader = ({ mediaData, isEdit = false, onSuccess }: MediaUpl
                 folderPath={`midias/${form.watch("mediaType")}`}
                 pageType={form.watch("pageType") as 'home' | 'agriculture' | 'fishing' | 'paa' | 'sim'}
                 buttonText={form.watch("mediaType") === "image" ? "Upload de Imagem" : "Upload de Vídeo"}
+                maxFileSizeMB={50}
               />
               {form.watch("mediaUrl") && (
-                <div className="border p-4 rounded-md">
-                  <h3 className="font-medium mb-2">Pré-visualização</h3>
-                  {form.watch("mediaType") === "image" ? (
-                    <div className="mt-2 rounded-md overflow-hidden max-h-60 flex justify-center">
-                      <img 
-                        src={form.watch("mediaUrl")} 
-                        alt="Preview"
-                        className="max-w-full h-auto object-contain" 
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Imagem+não+encontrada';
-                        }}
-                      />
-                    </div>
-                  ) : (
-                    <div className="mt-2 space-y-3">
-                      <div className="bg-gray-100 rounded-md p-4 text-center">
-                        <p className="text-sm text-gray-600">Vídeo: {form.watch("mediaUrl")}</p>
-                      </div>
-
-                      {form.watch('thumbnailUrl') && (
-                        <div>
-                          <h4 className="font-medium text-sm mb-2">Thumbnail Personalizada:</h4>
-                          <div className="relative inline-block">
-                            <img 
-                              src={form.watch('thumbnailUrl')} 
-                              alt="Thumbnail Preview"
-                              className="max-w-xs h-auto object-cover rounded border" 
-                            />
-                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center rounded">
-                              <div className="bg-white/90 rounded-full p-2">
-                                <Play size={20} className="text-gray-800 ml-0.5" fill="currentColor" />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Componente de upload com passagem correta do pageType */}
-            <div className="mt-4">
-              <label className="block text-sm font-medium mb-2">Ou faça upload de um arquivo:</label>
-              <MediaFileUploader 
-                onFileUploaded={(url) => form.setValue('mediaUrl', url)}
-                acceptTypes={form.watch("mediaType") === "image" ? "image/*" : "video/*"}
-                folderPath={`midias/${form.watch("mediaType")}`}
-                pageType={form.watch("pageType") as 'home' | 'agriculture' | 'fishing' | 'paa' | 'sim'}
-                buttonText={form.watch("mediaType") === "image" ? "Upload de Imagem" : "Upload de Vídeo"}
-              />
-              {form.watch("mediaUrl") && (
-                <div className="border p-4 rounded-md">
+                <div className="border p-4 rounded-md mt-4">
                   <h3 className="font-medium mb-2">Pré-visualização</h3>
                   {form.watch("mediaType") === "image" ? (
                     <div className="mt-2 rounded-md overflow-hidden max-h-60 flex justify-center">
