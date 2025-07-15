@@ -550,11 +550,12 @@ h3.section-title {
     /* Força dimensões adequadas em todos os tamanhos */
     width: 100% !important;
     height: 100% !important;
-    /* Melhora renderização da prévia */
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
+    /* Melhora renderização */
+    image-rendering: auto;
     /* Força reflow adequado */
-    contain: layout style;
+    contain: layout style paint;
+    /* Evita problemas de loading */
+    pointer-events: auto;
   }
 
   /* Container para Google Drive Player */
@@ -565,6 +566,9 @@ h3.section-title {
     overflow: hidden;
     border-radius: 0.5rem;
     background-color: #000;
+    /* Melhora performance */
+    will-change: transform;
+    contain: layout style paint;
   }
 
   /* Força aspect ratio correto em diferentes tamanhos */
@@ -589,7 +593,10 @@ h3.section-title {
     /* Melhora compatibilidade */
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    /* Otimização para mobile */
+    /* Remove problemas de preview comprimida */
+    object-fit: contain;
+    /* Força carregamento direto sem preview externa */
+    image-rendering: auto;ara mobile */
     -webkit-overflow-scrolling: touch;
   }
 
