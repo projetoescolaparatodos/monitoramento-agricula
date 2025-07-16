@@ -1,10 +1,21 @@
-
 import React, { useState, useEffect } from 'react';
 import { db } from '@/utils/firebase';
-import { collection, query, where, orderBy, getDocs, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, orderBy, getDocs, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Gift, Users, Calendar, Package } from 'lucide-react';
+import { Download, Gift, Users, Calendar, Package, Trash2, AlertTriangle } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { toast } from "@/components/ui/use-toast"
 
 interface Doacao {
   id: string;
@@ -41,6 +52,7 @@ export const DoacoesReport: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedEvento, setSelectedEvento] = useState('');
   const [selectedInsumo, setSelectedInsumo] = useState('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -82,7 +94,7 @@ export const DoacoesReport: React.FC = () => {
         id: doc.id,
         ...doc.data()
       })) as Doacao[];
-      
+
       setDoacoes(doacoesData);
     });
 
@@ -101,7 +113,7 @@ export const DoacoesReport: React.FC = () => {
 
   const exportToCSV = () => {
     const headers = ['Data', 'Evento', 'Insumo', 'Quantidade', 'Beneficiário', 'CPF', 'Propriedade', 'Técnico'];
-    
+
     const csvData = doacoes.map(doacao => [
       doacao.timestamp?.toDate().toLocaleDateString('pt-BR') || '',
       getEventoNome(doacao.eventoId),
@@ -126,6 +138,29 @@ export const DoacoesReport: React.FC = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleDeleteDoacao = async (doacaoId: string) => {
+    setDeletingId(doacaoId);
+    try {
+      await deleteDoc(doc(db, 'doacoes_evento', doacaoId));
+      toast({
+        title: "Sucesso! 🗑️",
+        description: "Doação removida com sucesso!",
+        duration: 3000
+      });
+      console.log(`✅ Doação ${doacaoId} removida com sucesso`);
+    } catch (error) {
+      console.error('❌ Erro ao remover doação:', error);
+      toast({
+        title: "Erro",
+        description: "Falha ao remover a doação. Tente novamente.",
+        variant: "destructive",
+        duration: 5000
+      });
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   // Calcular estatísticas
@@ -188,41 +223,132 @@ export const DoacoesReport: React.FC = () => {
           <CardTitle>Filtros e Exportação</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-4 items-end">
-            <div className="flex-1 min-w-48">
-              <label className="block text-sm font-medium mb-1">Evento</label>
+          <div className="flex gap-4 mb-6">
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-2">Filtrar por Evento</label>
               <select
                 value={selectedEvento}
                 onChange={(e) => setSelectedEvento(e.target.value)}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full p-2 border rounded-md"
               >
                 <option value="">Todos os eventos</option>
-                {eventos.map(evento => (
-                  <option key={evento.id} value={evento.id}>{evento.nome}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex-1 min-w-48">
-              <label className="block text-sm font-medium mb-1">Insumo</label>
-              <select
-                value={selectedInsumo}
-                onChange={(e) => setSelectedInsumo(e.target.value)}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              >
-                <option value="">Todos os insumos</option>
-                {insumos.map(insumo => (
-                  <option key={insumo.id} value={insumo.id}>
-                    {insumo.nome} ({insumo.unidade})
+                {eventos.map((evento) => (
+                  <option key={evento.id} value={evento.id}>
+                    {evento.nome}
                   </option>
                 ))}
               </select>
             </div>
 
-            <Button onClick={exportToCSV} className="bg-green-600 hover:bg-green-700">
-              <Download className="w-4 h-4 mr-2" />
-              Exportar CSV
-            </Button>
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-2">Filtrar por Insumo</label>
+              <select
+                value={selectedInsumo}
+                onChange={(e) => setSelectedInsumo(e.target.value)}
+                className="w-full p-2 border rounded-md"
+              >
+                <option value="">Todos os insumos</option>
+                {insumos.map((insumo) => (
+                  <option key={insumo.id} value={insumo.id}>
+                    {insumo.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-end gap-2">
+              <Button onClick={exportToCSV} className="flex items-center gap-2">
+                <Download className="w-4 h-4" />
+                Exportar CSV
+              </Button>
+
+              {doacoes.length > 0 && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      variant="destructive" 
+                      className="flex items-center gap-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Limpar Filtradas ({doacoes.length})
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5 text-red-500" />
+                        Confirmar Limpeza em Massa
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        <div className="space-y-2">
+                          <p className="text-red-600 font-medium">
+                            ⚠️ ATENÇÃO: Esta ação é IRREVERSÍVEL!
+                          </p>
+                          <p>
+                            Você está prestes a remover <strong>{doacoes.length} doações</strong> que estão sendo exibidas nos filtros atuais.
+                          </p>
+                          <div className="bg-red-50 p-3 rounded-md text-sm">
+                            <p><strong>Filtros aplicados:</strong></p>
+                            <p>• Evento: {selectedEvento ? getEventoNome(selectedEvento) : 'Todos'}</p>
+                            <p>• Insumo: {selectedInsumo ? getInsumoInfo(selectedInsumo) : 'Todos'}</p>
+                          </div>
+                          <p className="font-medium">
+                            Todas essas doações serão removidas permanentemente do Firebase. 
+                            Tem certeza que deseja continuar?
+                          </p>
+                        </div>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={async () => {
+                          setDeletingId('bulk');
+                          try {
+                            const promises = doacoes.map(doacao => 
+                              deleteDoc(doc(db, 'doacoes_evento', doacao.id))
+                            );
+                            await Promise.all(promises);
+
+                            toast({
+                              title: "Sucesso! 🗑️",
+                              description: `${doacoes.length} doações removidas com sucesso!`,
+                              duration: 3000
+                            });
+
+                            console.log(`✅ ${doacoes.length} doações removidas em massa`);
+                          } catch (error) {
+                            console.error('❌ Erro ao remover doações em massa:', error);
+                            toast({
+                              title: "Erro",
+                              description: "Falha ao remover algumas doações. Tente novamente.",
+                              variant: "destructive",
+                              duration: 5000
+                            });
+                          } finally {
+                            setDeletingId(null);
+                          }
+                        }}
+                        className="bg-red-600 hover:bg-red-700 focus:ring-red-500"
+                        disabled={deletingId === 'bulk'}
+                      >
+                        {deletingId === 'bulk' ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            Removendo...
+                          </>
+                        ) : (
+                          <>
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Remover Todas ({doacoes.length})
+                          </>
+                        )}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -248,36 +374,86 @@ export const DoacoesReport: React.FC = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantidade</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Beneficiário</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Técnico</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {doacoes.map((doacao) => (
-                    <tr key={doacao.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <tr key={doacao.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {doacao.timestamp?.toDate().toLocaleDateString('pt-BR')}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {getEventoNome(doacao.eventoId)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {getInsumoInfo(doacao.insumoId)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                        {doacao.quantidade.toLocaleString()}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {doacao.quantidade}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <div>
                           <div className="font-medium">{doacao.beneficiario.nome}</div>
                           {doacao.beneficiario.cpf && (
-                            <div className="text-gray-500">CPF: {doacao.beneficiario.cpf}</div>
+                            <div className="text-gray-500 text-xs">CPF: {doacao.beneficiario.cpf}</div>
                           )}
                           {doacao.beneficiario.propriedade && (
-                            <div className="text-gray-500">{doacao.beneficiario.propriedade}</div>
+                            <div className="text-gray-500 text-xs">Propriedade: {doacao.beneficiario.propriedade}</div>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {doacao.tecnico.nome}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                              disabled={deletingId === doacao.id}
+                            >
+                              {deletingId === doacao.id ? (
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle className="flex items-center gap-2">
+                                <AlertTriangle className="h-5 w-5 text-red-500" />
+                                Confirmar Remoção
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                <div className="space-y-2">
+                                  <p>Esta ação é <strong>irreversível</strong> e removerá permanentemente:</p>
+                                  <div className="bg-gray-50 p-3 rounded-md text-sm">
+                                    <p><strong>Evento:</strong> {getEventoNome(doacao.eventoId)}</p>
+                                    <p><strong>Insumo:</strong> {getInsumoInfo(doacao.insumoId)}</p>
+                                    <p><strong>Quantidade:</strong> {doacao.quantidade}</p>
+                                    <p><strong>Beneficiário:</strong> {doacao.beneficiario.nome}</p>
+                                    <p><strong>Data:</strong> {doacao.timestamp?.toDate().toLocaleDateString('pt-BR')}</p>
+                                  </div>
+                                  <p className="text-red-600 font-medium">Tem certeza que deseja remover esta doação?</p>
+                                </div>
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteDoacao(doacao.id)}
+                                className="bg-red-600 hover:bg-red-700 focus:ring-red-500"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Remover Definitivamente
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </td>
                     </tr>
                   ))}
