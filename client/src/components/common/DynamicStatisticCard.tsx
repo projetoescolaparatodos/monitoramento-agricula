@@ -40,8 +40,10 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
   const [forceUpdate, setForceUpdate] = useState(0);
   const [targetValue, setTargetValue] = useState<number>(0);
   const [updateQueue, setUpdateQueue] = useState<number[]>([]);
+  const [forceUpdateActive, setForceUpdateActive] = useState(false);
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const incrementInterval = useRef<NodeJS.Timeout>();
+  const forceUpdateTimeout = useRef<NodeJS.Timeout>();
   const stepsPerSecond = 3; // 3 incrementos por segundo para fluidez
 
   const startIncrementalUpdate = (newValue: number) => {
@@ -51,7 +53,12 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     }
 
     const difference = newValue - displayValue;
-    if (difference === 0) return;
+    if (difference === 0) {
+      // Se não houve mudança, limpa estado de força
+      setForceUpdateActive(false);
+      clearTimeout(forceUpdateTimeout.current);
+      return;
+    }
 
     setIsAnimating(true);
     setTargetValue(newValue);
@@ -76,6 +83,8 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
             clearInterval(incrementInterval.current);
           }
           setIsAnimating(false);
+          setForceUpdateActive(false); // Limpa estado de força
+          clearTimeout(forceUpdateTimeout.current);
           setForceUpdate(0);
           return newValue;
         }
@@ -105,18 +114,40 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     }
   }, [value, loading, targetValue, displayValue]);
 
-  // Listener para teclas de atalho (Ctrl + A) - removido o console.log
+  // Listener para teclas de atalho (Ctrl+A para forçar atualização, Ctrl+L para cancelar)
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Atalho Ctrl+A - Forçar atualização
       if (event.ctrlKey && event.key.toLowerCase() === "a") {
         event.preventDefault();
-        setForceUpdate((prev) => prev + 1);
+        if (!forceUpdateActive) {
+          console.log(`🎯 Atualização forçada iniciada para: ${config.titulo}`);
+          setForceUpdateActive(true);
+          setForceUpdate((prev) => prev + 1);
+          
+          // Timeout automático após 30 segundos (fallback)
+          forceUpdateTimeout.current = setTimeout(() => {
+            console.log(`⏰ Atualização forçada finalizada (timeout) para: ${config.titulo}`);
+            setForceUpdateActive(false);
+          }, 30000);
+        }
+      }
+      
+      // Atalho Ctrl+L - Cancelar atualização forçada
+      if (event.ctrlKey && event.key.toLowerCase() === "l") {
+        event.preventDefault();
+        if (forceUpdateActive) {
+          console.log(`🛑 Atualização forçada cancelada manualmente para: ${config.titulo}`);
+          clearTimeout(forceUpdateTimeout.current);
+          setForceUpdateActive(false);
+          setForceUpdate(0);
+        }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [config.titulo]);
+  }, [forceUpdateActive, config.titulo]);
 
   useEffect(() => {
     const calcularPeriodo = () => {
@@ -316,8 +347,10 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
         clearInterval(incrementInterval.current);
       }
       clearInterval(interval);
+      clearTimeout(forceUpdateTimeout.current);
+      setForceUpdateActive(false);
     };
-  }, [config, isUpdating, forceUpdate]);
+  }, [config, isUpdating, forceUpdate, forceUpdateActive]);
 
   const formatValue = (val: number) => {
     if (config.tipoAgregacao === "avg") {
@@ -372,6 +405,12 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       {hasNewData && (
         <div className="absolute top-2 left-2 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-bounce shadow-lg">
           ✨ Atualizado!
+        </div>
+      )}
+
+      {forceUpdateActive && (
+        <div className="absolute top-2 right-12 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse shadow-lg">
+          🔄 Forçada (Ctrl+L para cancelar)
         </div>
       )}
 
