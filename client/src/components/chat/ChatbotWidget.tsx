@@ -1275,7 +1275,7 @@ const ChatbotWidget: React.FC = () => {
           className="w-80 sm:w-96 md:w-[420px] lg:w-[450px] xl:w-96 shadow-xl flex flex-col"
           style={{ 
             height: "580px", 
-            maxHeight: "80vh",
+            maxHeight: "min(580px, 80vh)",
             minHeight: "500px",
             position: "relative"
           }}
@@ -1336,8 +1336,9 @@ const ChatbotWidget: React.FC = () => {
                 <div 
                   className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent"
                   style={{
-                    paddingBottom: suggestions.length > 0 ? "180px" : "80px",
-                    minHeight: "300px"
+                    paddingBottom: suggestions.length > 0 ? "140px" : "70px",
+                    minHeight: "280px",
+                    maxHeight: "calc(500px - 140px)"
                   }}
                 >
                   {messages.map((msg, idx) => (
@@ -1404,12 +1405,12 @@ const ChatbotWidget: React.FC = () => {
                     className="p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10 w-full rounded-b-lg shadow-md"
                     style={{
                       position: "absolute",
-                      bottom: "60px",
+                      bottom: "70px",
                       left: "0",
                       right: "0",
                       width: "100%",
                       zIndex: 10,
-                      maxHeight: "120px",
+                      maxHeight: "70px",
                       overflowY: "auto"
                     }}
                   >
@@ -1435,14 +1436,15 @@ const ChatbotWidget: React.FC = () => {
 
                 <form
                   onSubmit={handleSubmit}
-                  className="p-3 border-t flex items-center sticky bottom-0 bg-white z-20 w-full min-h-[60px]"
+                  className="p-3 border-t flex items-center bg-white z-20 w-full min-h-[70px]"
                   style={{
-                    position: "sticky",
+                    position: "absolute",
                     bottom: "0",
                     left: "0",
                     right: "0",
                     width: "100%",
                     zIndex: 20,
+                    borderTop: "1px solid #e5e7eb"
                   }}
                 >
                   <Input
@@ -1518,7 +1520,7 @@ const ChatbotWidget: React.FC = () => {
               <div
                 className="p-3 bg-green-50/50 flex flex-col"
                 style={{
-                  height: "450px",
+                  height: "500px",
                   display: "flex",
                   flexDirection: "column",
                   position: "relative",
@@ -1526,7 +1528,7 @@ const ChatbotWidget: React.FC = () => {
               >
                 <div
                   className="flex-1 overflow-y-auto mb-4"
-                  style={{ maxHeight: "290px", minHeight: "250px" }}
+                  style={{ maxHeight: "410px", minHeight: "350px" }}
                 >
                   <h4 className="font-semibold text-green-800 mb-2">
                     Setor de Agricultura
@@ -1575,12 +1577,13 @@ const ChatbotWidget: React.FC = () => {
                 <div
                   className="grid grid-cols-2 gap-2 py-3 border-t bg-green-50/80"
                   style={{
-                    position: "sticky",
+                    position: "absolute",
                     bottom: "0",
                     left: "0",
                     right: "0",
                     padding: "0.75rem",
                     zIndex: 10,
+                    borderTop: "1px solid #d1d5db"
                   }}
                 >
                   <Button
@@ -1603,7 +1606,7 @@ const ChatbotWidget: React.FC = () => {
               <div
                 className="p-3 bg-blue-50/50 flex flex-col"
                 style={{
-                  height: "450px",
+                  height: "500px",
                   display: "flex",
                   flexDirection: "column",
                   position: "relative",
@@ -1611,7 +1614,7 @@ const ChatbotWidget: React.FC = () => {
               >
                 <div
                   className="flex-1 overflow-y-auto mb-2"
-                  style={{ maxHeight: "300px", minHeight: "250px" }}
+                  style={{ maxHeight: "410px", minHeight: "350px" }}
                 >
                   <h4 className="font-semibold text-blue-800 mb-2">
                     Setor de Pesca
@@ -1656,12 +1659,13 @@ const ChatbotWidget: React.FC = () => {
                 <div
                   className="grid grid-cols-2 gap-2 py-3 border-t bg-blue-50/80"
                   style={{
-                    position: "sticky",
+                    position: "absolute",
                     bottom: "0",
                     left: "0",
                     right: "0",
                     padding: "0.75rem",
                     zIndex: 10,
+                    borderTop: "1px solid #d1d5db"
                   }}
                 >
                   <Button
@@ -1684,7 +1688,7 @@ const ChatbotWidget: React.FC = () => {
               <div
                 className="p-3 bg-amber-50/50 flex flex-col"
                 style={{
-                  height: "450px",
+                  height: "500px",
                   display: "flex",
                   flexDirection: "column",
                   position: "relative",
@@ -1692,7 +1696,7 @@ const ChatbotWidget: React.FC = () => {
               >
                 <div
                   className="flex-1 overflow-y-auto mb-2"
-                  style={{ maxHeight: "300px", minHeight: "250px" }}
+                  style={{ maxHeight: "410px", minHeight: "350px" }}
                 >
                   <h4 className="font-semibold text-amber-800 mb-2">
                     Programa de Aquisição de Alimentos
@@ -1743,12 +1747,13 @@ const ChatbotWidget: React.FC = () => {
                 <div
                   className="py-3 border-t bg-amber-50/80"
                   style={{
-                    position: "sticky",
+                    position: "absolute",
                     bottom: "0",
                     left: "0",
                     right: "0",
                     padding: "0.75rem",
                     zIndex: 10,
+                    borderTop: "1px solid #d1d5db"
                   }}
                 >
                   <Button
