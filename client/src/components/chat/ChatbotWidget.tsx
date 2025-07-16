@@ -1518,17 +1518,21 @@ const ChatbotWidget: React.FC = () => {
 
             <TabsContent value="agricultura" className="p-0 m-0">
               <div
-                className="p-3 bg-green-50/50 flex flex-col"
+                className="flex flex-col"
                 style={{
                   height: "500px",
                   display: "flex",
                   flexDirection: "column",
                   position: "relative",
+                  overflow: "hidden"
                 }}
               >
                 <div
-                  className="flex-1 overflow-y-auto mb-4"
-                  style={{ maxHeight: "410px", minHeight: "350px" }}
+                  className="flex-1 overflow-y-auto bg-green-50/50"
+                  style={{
+                    padding: "0.75rem",
+                    paddingBottom: "80px"
+                  }}
                 >
                   <h4 className="font-semibold text-green-800 mb-2">
                     Setor de Agricultura
@@ -1575,46 +1579,52 @@ const ChatbotWidget: React.FC = () => {
                 </div>
 
                 <div
-                  className="grid grid-cols-2 gap-2 py-3 border-t bg-green-50/80"
                   style={{
                     position: "absolute",
                     bottom: "0",
                     left: "0",
                     right: "0",
                     padding: "0.75rem",
-                    zIndex: 10,
-                    borderTop: "1px solid #d1d5db"
+                    backgroundColor: "white",
+                    borderTop: "1px solid #e5e7eb",
+                    zIndex: 10
                   }}
                 >
-                  <Button
-                    onClick={() => abrirFormulario("agricultura")}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    Solicitar serviços
-                  </Button>
-                  <Button
-                    onClick={() => abrirFormulario("agricultura-completo")}
-                    className="bg-green-800 hover:bg-green-900"
-                  >
-                    Cadastro Completo
-                  </Button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      onClick={() => abrirFormulario("agricultura")}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      Solicitar serviços
+                    </Button>
+                    <Button
+                      onClick={() => abrirFormulario("agricultura-completo")}
+                      className="bg-green-800 hover:bg-green-900"
+                    >
+                      Cadastro Completo
+                    </Button>
+                  </div>
                 </div>
               </div>
             </TabsContent>
 
             <TabsContent value="pesca" className="p-0 m-0">
               <div
-                className="p-3 bg-blue-50/50 flex flex-col"
+                className="flex flex-col"
                 style={{
                   height: "500px",
                   display: "flex",
                   flexDirection: "column",
                   position: "relative",
+                  overflow: "hidden"
                 }}
               >
                 <div
-                  className="flex-1 overflow-y-auto mb-2"
-                  style={{ maxHeight: "410px", minHeight: "350px" }}
+                  className="flex-1 overflow-y-auto bg-blue-50/50"
+                  style={{
+                    padding: "0.75rem",
+                    paddingBottom: "80px"
+                  }}
                 >
                   <h4 className="font-semibold text-blue-800 mb-2">
                     Setor de Pesca
@@ -1657,46 +1667,52 @@ const ChatbotWidget: React.FC = () => {
                 </div>
 
                 <div
-                  className="grid grid-cols-2 gap-2 py-3 border-t bg-blue-50/80"
                   style={{
                     position: "absolute",
                     bottom: "0",
                     left: "0",
                     right: "0",
                     padding: "0.75rem",
-                    zIndex: 10,
-                    borderTop: "1px solid #d1d5db"
+                    backgroundColor: "white",
+                    borderTop: "1px solid #e5e7eb",
+                    zIndex: 10
                   }}
                 >
-                  <Button
-                    onClick={() => abrirFormulario("pesca")}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    Solicitar serviços
-                  </Button>
-                  <Button
-                    onClick={() => abrirFormulario("pesca-completo")}
-                    className="bg-blue-800 hover:bg-blue-900"
-                  >
-                    Cadastro Completo
-                  </Button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      onClick={() => abrirFormulario("pesca")}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      Solicitar serviços
+                    </Button>
+                    <Button
+                      onClick={() => abrirFormulario("pesca-completo")}
+                      className="bg-blue-800 hover:bg-blue-900"
+                    >
+                      Cadastro Completo
+                    </Button>
+                  </div>
                 </div>
               </div>
             </TabsContent>
 
             <TabsContent value="paa" className="p-0 m-0">
               <div
-                className="p-3 bg-amber-50/50 flex flex-col"
+                className="flex flex-col"
                 style={{
                   height: "500px",
                   display: "flex",
                   flexDirection: "column",
                   position: "relative",
+                  overflow: "hidden"
                 }}
               >
                 <div
-                  className="flex-1 overflow-y-auto mb-2"
-                  style={{ maxHeight: "410px", minHeight: "350px" }}
+                  className="flex-1 overflow-y-auto bg-amber-50/50"
+                  style={{
+                    padding: "0.75rem",
+                    paddingBottom: "80px"
+                  }}
                 >
                   <h4 className="font-semibold text-amber-800 mb-2">
                     Programa de Aquisição de Alimentos
@@ -1745,15 +1761,15 @@ const ChatbotWidget: React.FC = () => {
                 </div>
 
                 <div
-                  className="py-3 border-t bg-amber-50/80"
                   style={{
                     position: "absolute",
                     bottom: "0",
                     left: "0",
                     right: "0",
                     padding: "0.75rem",
-                    zIndex: 10,
-                    borderTop: "1px solid #d1d5db"
+                    backgroundColor: "white",
+                    borderTop: "1px solid #e5e7eb",
+                    zIndex: 10
                   }}
                 >
                   <Button
