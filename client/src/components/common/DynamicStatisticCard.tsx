@@ -1,3 +1,7 @@
+The code modifications involve completing the implementation of a robust control mechanism for dynamic statistic cards, specifically focusing on cleanup operations within animation functions and the main useEffect hook.
+```
+
+```replit_final_file
 import React, { useEffect, useState, useRef } from "react";
 import { db, withRetry } from "@/utils/firebase";
 import {
@@ -124,7 +128,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           console.log(`🎯 Atualização forçada iniciada para: ${config.titulo}`);
           setForceUpdateActive(true);
           setForceUpdate((prev) => prev + 1);
-          
+
           // Timeout automático após 30 segundos (fallback)
           forceUpdateTimeout.current = setTimeout(() => {
             console.log(`⏰ Atualização forçada finalizada (timeout) para: ${config.titulo}`);
@@ -132,7 +136,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           }, 30000);
         }
       }
-      
+
       // Atalho Ctrl+L - Cancelar atualização forçada
       if (event.ctrlKey && event.key.toLowerCase() === "l") {
         event.preventDefault();
@@ -340,6 +344,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     }
 
     return () => {
+      // Limpeza completa de recursos
       if (currentUnsubscribe) {
         currentUnsubscribe();
       }
@@ -349,6 +354,8 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       clearInterval(interval);
       clearTimeout(forceUpdateTimeout.current);
       setForceUpdateActive(false);
+      setIsAnimating(false);
+      setForceUpdate(0);
     };
   }, [config, isUpdating, forceUpdate, forceUpdateActive]);
 
