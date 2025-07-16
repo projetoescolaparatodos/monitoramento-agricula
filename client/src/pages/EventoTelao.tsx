@@ -35,6 +35,7 @@ const EventoTelao: React.FC = () => {
   const [insumos, setInsumos] = useState<Insumo[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [statsConfigs, setStatsConfigs] = useState<any[]>([]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -54,7 +55,7 @@ const EventoTelao: React.FC = () => {
       return;
     }
 
-    const fetchData = async () => {
+    const fetchInitialData = async () => {
       try {
         console.log('🎯 EventoTelao - Buscando evento com ID:', eventoId);
         
@@ -91,33 +92,86 @@ const EventoTelao: React.FC = () => {
         console.log('🎯 EventoTelao - Insumos encontrados:', insumosData.length);
         setInsumos(insumosData);
 
+        // Configurar estatísticas padrão para eventos
+        const baseStatsConfigs = [
+          {
+            id: 'total-doacoes',
+            titulo: 'Total de Doações',
+            colecaoFonte: 'doacoes_evento',
+            campo: '',
+            tipoAgregacao: 'count' as const,
+            periodo: 'todos',
+            unidade: 'doações',
+            filtroAdicional: [
+              { fieldPath: 'eventoId', opStr: '==', value: eventoId }
+            ]
+          },
+          {
+            id: 'beneficiarios-atendidos',
+            titulo: 'Beneficiários Atendidos',
+            colecaoFonte: 'doacoes_evento',
+            campo: '',
+            tipoAgregacao: 'count' as const,
+            periodo: 'todos',
+            unidade: 'pessoas',
+            filtroAdicional: [
+              { fieldPath: 'eventoId', opStr: '==', value: eventoId }
+            ]
+          },
+          {
+            id: 'total-quantidade',
+            titulo: 'Total de Itens Distribuídos',
+            colecaoFonte: 'doacoes_evento',
+            campo: 'quantidade',
+            tipoAgregacao: 'sum' as const,
+            periodo: 'todos',
+            unidade: 'itens',
+            filtroAdicional: [
+              { fieldPath: 'eventoId', opStr: '==', value: eventoId }
+            ]
+          }
+        ];
+
+        // Adicionar configurações específicas por insumo (máximo 5 para maior cobertura)
+        const insumosAtivos = insumosData.filter(i => i.nome);
+        insumosAtivos.slice(0, 5).forEach(insumo => {
+          baseStatsConfigs.push({
+            id: `insumo-${insumo.id}`,
+            titulo: `${insumo.nome} Distribuídas`,
+            colecaoFonte: 'doacoes_evento',
+            campo: 'quantidade',
+            tipoAgregacao: 'sum' as const,
+            periodo: 'todos',
+            unidade: insumo.unidade || 'unidades',
+            filtroAdicional: [
+              { fieldPath: 'eventoId', opStr: '==', value: eventoId },
+              { fieldPath: 'insumoId', opStr: '==', value: insumo.id }
+            ]
+          });
+        });
+
+        console.log('🎯 EventoTelao - Configurações de estatísticas criadas:', baseStatsConfigs.length);
+        setStatsConfigs(baseStatsConfigs);
         setLoading(false);
-        console.log('🎯 EventoTelao - Carregamento concluído com sucesso');
+
       } catch (error) {
         console.error('🎯 EventoTelao - Erro ao buscar dados:', error);
         setLoading(false);
       }
     };
 
-    // Adicionar timeout para evitar carregamento infinito
-    const timeoutId = setTimeout(() => {
-      console.warn('🎯 EventoTelao - Timeout de carregamento');
-      setLoading(false);
-    }, 10000); // 10 segundos
+    // Fetch inicial apenas uma vez
+    fetchInitialData();
 
-    fetchData().finally(() => {
-      clearTimeout(timeoutId);
-    });
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [eventoId]);
+  }, [eventoId]); // Dependência apenas do eventoId
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-900 to-green-700">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white"></div>
+        <div className="text-center text-white">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white mb-4 mx-auto"></div>
+          <p className="text-xl">Carregando dados do evento...</p>
+        </div>
       </div>
     );
   }
@@ -162,71 +216,13 @@ const EventoTelao: React.FC = () => {
     );
   }
 
-  // Configurações de estatísticas padrão para eventos
-  const statsConfigs = [
-    {
-      id: 'total-doacoes',
-      titulo: 'Total de Doações',
-      colecaoFonte: 'doacoes_evento',
-      campo: '',
-      tipoAgregacao: 'count' as const,
-      periodo: 'todos',
-      unidade: 'doações',
-      filtroAdicional: [
-        { fieldPath: 'eventoId', opStr: '==', value: eventoId }
-      ]
-    },
-    {
-      id: 'beneficiarios-atendidos',
-      titulo: 'Beneficiários Atendidos',
-      colecaoFonte: 'doacoes_evento',
-      campo: '',
-      tipoAgregacao: 'count' as const,
-      periodo: 'todos',
-      unidade: 'pessoas',
-      filtroAdicional: [
-        { fieldPath: 'eventoId', opStr: '==', value: eventoId }
-      ]
-    },
-    {
-      id: 'total-quantidade',
-      titulo: 'Total de Itens Distribuídos',
-      colecaoFonte: 'doacoes_evento',
-      campo: 'quantidade',
-      tipoAgregacao: 'sum' as const,
-      periodo: 'todos',
-      unidade: 'itens',
-      filtroAdicional: [
-        { fieldPath: 'eventoId', opStr: '==', value: eventoId }
-      ]
-    }
-  ];
-
-  // Adicionar configurações específicas por insumo (máximo 5 para maior cobertura)
-  const insumosAtivos = insumos.filter(i => i.nome);
-  insumosAtivos.slice(0, 5).forEach(insumo => {
-    statsConfigs.push({
-      id: `insumo-${insumo.id}`,
-      titulo: `${insumo.nome} Distribuídas`,
-      colecaoFonte: 'doacoes_evento',
-      campo: 'quantidade',
-      tipoAgregacao: 'sum' as const,
-      periodo: 'todos',
-      unidade: insumo.unidade || 'unidades',
-      filtroAdicional: [
-        { fieldPath: 'eventoId', opStr: '==', value: eventoId },
-        { fieldPath: 'insumoId', opStr: '==', value: insumo.id }
-      ]
-    });
-  });
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-green-700 p-8 text-white">
       {/* Header */}
       <div className="text-center mb-12">
         <div className="flex items-center justify-center mb-6">
           <Calendar className="w-16 h-16 text-white mr-6" />
-          <h1 className="text-6xl font-bold">{evento.nome}</h1>
+          <h1 className="text-6xl font-bold">{evento?.nome}</h1>
         </div>
         <div className="text-2xl opacity-90 mb-4">
           Estatísticas em Tempo Real
@@ -248,7 +244,7 @@ const EventoTelao: React.FC = () => {
             </div>
           </div>
           <div className="mt-3 text-sm opacity-75">
-            Os dados são atualizados automaticamente a cada 30 segundos
+            Os dados são atualizados automaticamente em tempo real
           </div>
         </div>
       </div>
@@ -277,7 +273,7 @@ const EventoTelao: React.FC = () => {
               <div className="flex justify-between items-center">
                 <span>Período do Evento:</span>
                 <span className="font-bold">
-                  {evento.dataInicio?.toDate().toLocaleDateString('pt-BR')} - {evento.dataFim?.toDate().toLocaleDateString('pt-BR')}
+                  {evento?.dataInicio?.toDate().toLocaleDateString('pt-BR')} - {evento?.dataFim?.toDate().toLocaleDateString('pt-BR')}
                 </span>
               </div>
               <div className="flex justify-between items-center">
