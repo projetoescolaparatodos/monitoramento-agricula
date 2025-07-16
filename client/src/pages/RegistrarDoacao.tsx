@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthProtection } from '@/hooks/useAuthProtection';
-import { Gift, User, Package, ArrowLeft } from 'lucide-react';
+import { Gift, User, Package, ArrowLeft, Wifi, WifiOff } from 'lucide-react';
+import { FirebaseOptimizer, useFirebaseStatus } from '@/utils/firebaseOptimizations';
 
 interface Evento {
   id: string;
@@ -28,6 +29,7 @@ const RegistrarDoacao: React.FC = () => {
   const [location, navigate] = useLocation();
   const { user, loading: authLoading } = useAuthProtection();
   const { toast } = useToast();
+  const { isOnline, isConnected } = useFirebaseStatus();
 
   console.log('🎯 RegistrarDoacao - Estado atual:', {
     location,
@@ -58,9 +60,13 @@ const RegistrarDoacao: React.FC = () => {
     const fetchData = async () => {
       console.log('🎯 RegistrarDoacao - Iniciando busca de dados...');
       try {
-        // Buscar eventos ativos
-        const eventosQuery = query(collection(db, 'eventos'), where('ativo', '==', true));
-        const eventosSnapshot = await getDocs(eventosQuery);
+        // Usar Promise.all para buscar dados em paralelo (mais rápido)
+        const [eventosSnapshot, insumosSnapshot] = await Promise.all([
+          getDocs(query(collection(db, 'eventos'), where('ativo', '==', true))),
+          getDocs(query(collection(db, 'insumos'), where('ativo', '==', true)))
+        ]);
+
+        // Processar eventos
         const eventosData = eventosSnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
@@ -82,9 +88,7 @@ const RegistrarDoacao: React.FC = () => {
         
         setEventos(eventosAtivos);
 
-        // Buscar insumos ativos
-        const insumosQuery = query(collection(db, 'insumos'), where('ativo', '==', true));
-        const insumosSnapshot = await getDocs(insumosQuery);
+        // Processar insumos
         const insumosData = insumosSnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
@@ -102,10 +106,20 @@ const RegistrarDoacao: React.FC = () => {
       } catch (error) {
         console.error('🎯 RegistrarDoacao - Erro ao buscar dados:', error);
         setLoading(false);
+        
+        let errorMessage = "Falha ao carregar eventos e insumos. Tente recarregar a página.";
+        
+        if (error.code === 'permission-denied') {
+          errorMessage = "Sem permissão para acessar os dados. Verifique sua autenticação.";
+        } else if (error.code === 'unavailable') {
+          errorMessage = "Serviço temporariamente indisponível. Tente novamente em alguns momentos.";
+        }
+        
         toast({
           title: "Erro",
-          description: "Falha ao carregar eventos e insumos. Tente recarregar a página.",
-          variant: "destructive"
+          description: errorMessage,
+          variant: "destructive",
+          duration: 5000
         });
       }
     };
@@ -130,7 +144,8 @@ const RegistrarDoacao: React.FC = () => {
     setSubmitting(true);
 
     try {
-      await addDoc(collection(db, 'doacoes_evento'), {
+      // Preparar dados da doação com timestamp único para evitar conflitos
+      const doacaoData = {
         eventoId: formData.eventoId,
         insumoId: formData.insumoId,
         quantidade: Number(formData.quantidade),
@@ -145,10 +160,24 @@ const RegistrarDoacao: React.FC = () => {
           ...(formData.beneficiarioPropriedade && { propriedade: formData.beneficiarioPropriedade })
         },
         timestamp: Timestamp.now(),
-        createdAt: Timestamp.now()
-      });
+        createdAt: Timestamp.now(),
+        // Adicionar ID único para evitar duplicatas
+        uniqueId: `${user.uid}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      };
+
+      // Usar Promise com timeout para evitar travamento em caso de lentidão
+      const registroPromise = addDoc(collection(db, 'doacoes_evento'), doacaoData);
+      
+      // Timeout de 15 segundos para evitar travamento
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout: Operação demorou mais que 15 segundos')), 15000)
+      );
+
+      await Promise.race([registroPromise, timeoutPromise]);
 
       setSuccess(true);
+      
+      // Limpar formulário mantendo dados relevantes
       setFormData({
         eventoId: formData.eventoId, // Manter evento selecionado
         insumoId: '',
@@ -161,17 +190,31 @@ const RegistrarDoacao: React.FC = () => {
 
       toast({
         title: "Sucesso",
-        description: "Doação registrada com sucesso!"
+        description: "Doação registrada com sucesso!",
+        duration: 3000
       });
 
       // Resetar mensagem de sucesso após 3 segundos
       setTimeout(() => setSuccess(false), 3000);
+      
     } catch (error) {
       console.error('Erro ao registrar doação:', error);
+      
+      let errorMessage = "Falha ao registrar doação";
+      
+      if (error.message?.includes('Timeout')) {
+        errorMessage = "Operação demorou muito para ser concluída. Tente novamente.";
+      } else if (error.code === 'permission-denied') {
+        errorMessage = "Sem permissão para registrar doação. Verifique sua autenticação.";
+      } else if (error.code === 'unavailable') {
+        errorMessage = "Serviço temporariamente indisponível. Tente novamente em alguns momentos.";
+      }
+      
       toast({
         title: "Erro",
-        description: "Falha ao registrar doação",
-        variant: "destructive"
+        description: errorMessage,
+        variant: "destructive",
+        duration: 5000
       });
     } finally {
       setSubmitting(false);
@@ -263,9 +306,24 @@ const RegistrarDoacao: React.FC = () => {
 
         <Card className="shadow-lg">
           <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white">
-            <CardTitle className="flex items-center gap-3 text-xl">
-              <Gift className="w-6 h-6" />
-              Registrar Doação
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Gift className="w-6 h-6" />
+                <span className="text-xl">Registrar Doação</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {isOnline && isConnected ? (
+                  <div className="flex items-center gap-1 text-green-100">
+                    <Wifi className="w-4 h-4" />
+                    <span className="text-sm">Online</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1 text-red-200">
+                    <WifiOff className="w-4 h-4" />
+                    <span className="text-sm">Offline</span>
+                  </div>
+                )}
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -354,12 +412,23 @@ const RegistrarDoacao: React.FC = () => {
                   <input
                     type="number"
                     value={formData.quantidade}
-                    onChange={(e) => setFormData({...formData, quantidade: e.target.value})}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Validar que é um número positivo
+                      if (value === '' || (Number(value) > 0 && Number(value) <= 999999)) {
+                        setFormData({...formData, quantidade: value});
+                      }
+                    }}
                     className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     placeholder="Ex: 100"
                     min="1"
+                    max="999999"
+                    step="1"
                     required
                   />
+                  {formData.quantidade && Number(formData.quantidade) <= 0 && (
+                    <p className="text-red-500 text-xs mt-1">A quantidade deve ser maior que zero</p>
+                  )}
                 </div>
               </div>
               
@@ -435,12 +504,12 @@ const RegistrarDoacao: React.FC = () => {
                 <Button
                   type="submit"
                   disabled={submitting}
-                  className="bg-green-600 hover:bg-green-700 px-8 py-3"
+                  className="bg-green-600 hover:bg-green-700 px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                 >
                   {submitting ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Registrando...
+                      <span className="animate-pulse">Registrando doação...</span>
                     </>
                   ) : (
                     <>
@@ -450,6 +519,19 @@ const RegistrarDoacao: React.FC = () => {
                   )}
                 </Button>
               </div>
+              
+              {/* Indicador de progresso durante submit */}
+              {submitting && (
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center gap-2 text-blue-700">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                    <span className="text-sm">Processando registro... Por favor, aguarde.</span>
+                  </div>
+                  <div className="mt-2 bg-blue-200 rounded-full h-2 overflow-hidden">
+                    <div className="bg-blue-500 h-full rounded-full animate-pulse" style={{ width: '100%' }}></div>
+                  </div>
+                </div>
+              )}
             </form>
           </CardContent>
         </Card>
