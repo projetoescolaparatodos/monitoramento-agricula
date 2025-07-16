@@ -1336,7 +1336,7 @@ const ChatbotWidget: React.FC = () => {
                 <div 
                   className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent"
                   style={{
-                    paddingBottom: suggestions.length > 0 ? "140px" : "70px",
+                    paddingBottom: "70px",
                     minHeight: "280px",
                     maxHeight: "calc(500px - 140px)"
                   }}
@@ -1400,12 +1400,26 @@ const ChatbotWidget: React.FC = () => {
                   <div ref={messagesEndRef} className="h-4" />
                 </div>
 
+                <form
+                  onSubmit={handleSubmit}
+                  className="p-3 border-t flex items-center bg-white z-20 w-full min-h-[70px]"
+                  style={{
+                    position: "absolute",
+                    bottom: suggestions.length > 0 ? "70px" : "0",
+                    left: "0",
+                    right: "0",
+                    width: "100%",
+                    zIndex: 20,
+                    borderTop: "1px solid #e5e7eb"
+                  }}
+                
+
                 {suggestions.length > 0 && (
                   <div 
                     className="p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10 w-full rounded-b-lg shadow-md"
                     style={{
                       position: "absolute",
-                      bottom: "70px",
+                      bottom: "0",
                       left: "0",
                       right: "0",
                       width: "100%",
@@ -1433,20 +1447,6 @@ const ChatbotWidget: React.FC = () => {
                     </div>
                   </div>
                 )}
-
-                <form
-                  onSubmit={handleSubmit}
-                  className="p-3 border-t flex items-center bg-white z-20 w-full min-h-[70px]"
-                  style={{
-                    position: "absolute",
-                    bottom: "0",
-                    left: "0",
-                    right: "0",
-                    width: "100%",
-                    zIndex: 20,
-                    borderTop: "1px solid #e5e7eb"
-                  }}
-                >
                   <Input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
