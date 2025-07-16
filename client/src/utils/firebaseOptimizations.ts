@@ -1,7 +1,7 @@
 // Utilitários para otimizar operações Firebase
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { db } from './firebase';
-import { doc, onSnapshot, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import { doc, onSnapshot, collection, query, where, orderBy, limit, getDocs, enableNetwork, disableNetwork } from 'firebase/firestore';
 
 export class FirebaseOptimizer {
   private static retryCount = 3;
