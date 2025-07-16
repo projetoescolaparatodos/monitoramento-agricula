@@ -38,61 +38,72 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const [hasNewData, setHasNewData] = useState(false);
   const [forceUpdate, setForceUpdate] = useState(0);
+  const [targetValue, setTargetValue] = useState<number>(0);
+  const [updateQueue, setUpdateQueue] = useState<number[]>([]);
   const unsubscribeRef = useRef<(() => void) | null>(null);
+  const incrementInterval = useRef<NodeJS.Timeout>();
+  const stepsPerSecond = 3; // 3 incrementos por segundo para fluidez
 
-  const animateValue = (startValue: number, endValue: number) => {
-    if (startValue === endValue || isAnimating) {
-      return;
+  const startIncrementalUpdate = (newValue: number) => {
+    // Limpa qualquer intervalo existente
+    if (incrementInterval.current) {
+      clearInterval(incrementInterval.current);
     }
+
+    const difference = newValue - displayValue;
+    if (difference === 0) return;
 
     setIsAnimating(true);
-    const startTime = performance.now();
-    const range = endValue - startValue;
+    setTargetValue(newValue);
 
-    const baseDuration = Math.min(Math.abs(range) * 35, 15000);
-    const finalDuration = Math.max(baseDuration, 4000);
+    // Calcula o incremento por passo
+    const increment = difference > 0 ? 1 : -1;
+    const totalSteps = Math.abs(difference);
+    const stepDuration = 1000 / stepsPerSecond;
 
-    const animate = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / finalDuration, 1);
+    let stepsCompleted = 0;
 
-      const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
-      const easedProgress = easeOutCubic(progress);
+    incrementInterval.current = setInterval(() => {
+      setDisplayValue(prev => {
+        const newDisplayValue = prev + increment;
+        stepsCompleted++;
 
-      const currentValue = startValue + range * easedProgress;
+        // Finaliza quando atingir o valor alvo
+        if (stepsCompleted >= totalSteps || 
+            (increment > 0 && newDisplayValue >= newValue) || 
+            (increment < 0 && newDisplayValue <= newValue)) {
+          if (incrementInterval.current) {
+            clearInterval(incrementInterval.current);
+          }
+          setIsAnimating(false);
+          setForceUpdate(0);
+          return newValue;
+        }
 
-      let displayValue: number;
-      if (config.tipoAgregacao === "avg") {
-        displayValue = parseFloat(currentValue.toFixed(1));
-      } else {
-        displayValue = Math.floor(currentValue);
-      }
-
-      setDisplayValue(displayValue);
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      } else {
-        setDisplayValue(endValue);
-        setIsAnimating(false);
-        // Resetar o estado de forceUpdate quando a animação terminar
-        setForceUpdate(0);
-      }
-    };
-
-    requestAnimationFrame(animate);
+        return newDisplayValue;
+      });
+    }, stepDuration);
   };
 
+  // Gerenciamento da fila de atualizações para evitar sobreposição
   useEffect(() => {
-    if (!loading && value !== displayValue && !isAnimating) {
-      const difference = Math.abs(value - displayValue);
-      if (difference > 0.1) {
-        animateValue(displayValue, value);
-      } else {
-        setDisplayValue(value);
-      }
+    if (updateQueue.length > 0 && !isAnimating) {
+      const nextValue = updateQueue[0];
+      setUpdateQueue(prev => prev.slice(1));
+      startIncrementalUpdate(nextValue);
     }
-  }, [value, loading, displayValue, isAnimating, config]);
+  }, [updateQueue, isAnimating]);
+
+  useEffect(() => {
+    if (!loading && value !== targetValue && value !== displayValue) {
+      // Adiciona à fila de atualizações
+      setUpdateQueue(prev => {
+        // Evita duplicatas na fila
+        if (prev.includes(value)) return prev;
+        return [...prev, value];
+      });
+    }
+  }, [value, loading, targetValue, displayValue]);
 
   // Listener para teclas de atalho (Ctrl + A) - removido o console.log
   useEffect(() => {
@@ -301,6 +312,9 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       if (currentUnsubscribe) {
         currentUnsubscribe();
       }
+      if (incrementInterval.current) {
+        clearInterval(incrementInterval.current);
+      }
       clearInterval(interval);
     };
   }, [config, isUpdating, forceUpdate]);
@@ -381,12 +395,13 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           <>
             <div className="text-5xl font-black text-transparent bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text mb-4 leading-tight tracking-tight relative">
               <span
-                className={`statistic-value transition-all duration-300 ${isAnimating ? "text-green-500 animate-pulse scale-105" : ""}`}
+                className={`statistic-value transition-all duration-100 ${isAnimating ? "text-green-500 scale-110 animate-pulse" : "scale-100"}`}
                 style={{
                   fontVariantNumeric: "tabular-nums",
                   minWidth: "200px",
                   display: "inline-block",
                   textAlign: "center",
+                  transformOrigin: "center",
                 }}
               >
                 {formatValue(displayValue)}
@@ -399,7 +414,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
                   </span>
                 </div>
               )}
-            </div>
+            </div></div>
             <div className="text-lg font-bold tracking-wide mb-4 text-gray-800 leading-relaxed px-2">
               {config.titulo}
               {config.unidade && (
