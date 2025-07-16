@@ -355,7 +355,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/chatbot/mensagens', async (req, res) => {
     try {
       const messageData: ChatbotMessage = req.body;
-      await db.collection('chatbot_messages').add(messageData); 
+      await addDoc(collection(db, 'chatbot_messages'), messageData); 
       res.status(200).json({ success: true, message: 'Dados salvos com sucesso' });
     } catch (error) {
       console.error('Erro ao salvar dados do chatbot:', error);

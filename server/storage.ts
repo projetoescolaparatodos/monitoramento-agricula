@@ -73,7 +73,7 @@ export class FirebaseStorage implements IStorage {
 
       if (querySnapshot.empty) return undefined;
 
-      const docData = querySnapshot.docs[0].data();
+      const docData = querySnapshot.docs[0].data() as { id: number; username: string; password: string };
       return { id: docData.id, username: docData.username, password: docData.password };
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);
@@ -88,7 +88,7 @@ export class FirebaseStorage implements IStorage {
 
       if (querySnapshot.empty) return undefined;
 
-      const docData = querySnapshot.docs[0].data();
+      const docData = querySnapshot.docs[0].data() as { id: number; username: string; password: string };
       return { id: docData.id, username: docData.username, password: docData.password };
     } catch (error) {
       console.error("Erro ao buscar usuário por nome:", error);

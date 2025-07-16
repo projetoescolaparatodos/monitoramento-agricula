@@ -8,7 +8,7 @@ channel = "stable-24_05"
 [deployment]
 deploymentTarget = "cloudrun"
 run = ["sh", "-c", "npx tsx server/index.ts"]
-build = ["sh", "-c", "npm run build && npx tsc server/index.ts --outDir dist --module ESNext --target ES2020 --moduleResolution bundler --allowImportingTsExtensions false"]
+build = ["sh", "-c", "npm run build && npx tsc server/index.ts --outDir dist --module ESNext --target ES2020 --moduleResolution bundler --allowImportingTsExtensions false --skipLibCheck"]
 
 [[ports]]
 localPort = 5000
@@ -159,4 +159,4 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "PORT=5001 npm run dev"
+args = "PORT=5002 npm run dev"
