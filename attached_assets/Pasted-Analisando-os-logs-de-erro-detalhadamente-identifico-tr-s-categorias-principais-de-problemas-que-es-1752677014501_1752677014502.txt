@@ -1,0 +1,124 @@
+Analisando os logs de erro detalhadamente, identifico três categorias principais de problemas que estão causando a falha no build:
+1. Problemas de Tipagem no TypeScript (Críticos)
+
+Erros específicos:
+typescript
+
+server/storage.ts(107,22): error TS2339: Property 'id' does not exist on type 'unknown'
+server/storage.ts(116,7): error TS2739: Type '{ id: number; }' is missing properties: username, password
+shared/schema.ts(13,3): error TS2322: Type 'boolean' is not assignable to type 'never'
+
+Soluções:
+
+    Para `Property 'id' does not exist on type 'unknown':
+    typescript
+
+// Adicione type assertion ou modifique a interface
+const data = doc.data() as { id: string; /* outras props */ };
+
+Para missing properties:
+typescript
+
+// Atualize a interface ou torne as propriedades opcionais
+interface User {
+  id: number;
+  username?: string;  // Opcional
+  password?: string;  // Opcional
+}
+
+Para boolean vs never:
+typescript
+
+    // No shared/schema.ts, linha 13:
+    // Altere de:
+    const feature: never = true;
+    // Para:
+    const feature: boolean = true;
+
+2. Problemas com o Firebase Firestore (Importação)
+
+Aviso:
+typescript
+
+(!) firestore/dist/esm/index.esm.js is dynamically imported but also statically imported
+
+Solução unificada:
+
+    Escolha uma única forma de importação em todo o projeto:
+    typescript
+
+    // Recomendado (estático):
+    import { getFirestore } from 'firebase/firestore';
+
+    // OU (dinâmico, se necessário):
+    const firestore = await import('firebase/firestore');
+
+    Execute um refactor global para padronizar todas as importações.
+
+3. Problemas de CSS e Dependências (Secundários)
+
+Avisos:
+css
+
+.aspect-[9\/16] { ... }  // Sintaxe inválida
+@keyframes slide-in-right { ... }  // Warning de sintaxe
+
+Soluções:
+
+    Para classes CSS dinâmicas:
+    css
+
+/* Substitua: */
+.aspect-\[9\\/16\] { ... }
+
+/* Por: */
+.aspect-ratio-9x16 { ... }
+
+Para keyframes:
+Verifique se a definição está correta:
+css
+
+    @keyframes slide-in-right {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(0); }
+    }
+
+Plano de Ação Recomendado:
+
+    Corrija primeiro os erros de TypeScript (prioridade máxima):
+    bash
+
+npm run type-check  # Para identificar todos os erros
+
+Padronize as importações do Firebase:
+bash
+
+# Use este comando para encontrar todas as importações:
+grep -r "import.*firestore" src/
+
+Atualize as dependências problemáticas:
+bash
+
+npm update @dotlottie/player-component
+npm install -g npm@latest  # Atualize o npm
+
+Execute uma build limpa:
+bash
+
+    rm -rf node_modules dist
+    npm install
+    npm run build
+
+Arquivo tsconfig.json Recomendado (adicione se não existir):
+json
+
+{
+  "compilerOptions": {
+    "strict": true,
+    "skipLibCheck": true,  // Ignora warnings de libs externas
+    "noImplicitAny": false // Temporário, para facilitar a migração
+  },
+  "exclude": ["node_modules"]
+}
+
+Isso deve resolver todos os problemas críticos de build enquanto mantém a funcionalidade existente. Os warnings de CSS e de dependências podem ser tratados posteriormente, pois não impedem o build.
