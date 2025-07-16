@@ -1,0 +1,167 @@
+[vite] connecting... client:495:9
+[vite] connected. client:618:15
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools chunk-RPCDYKBN.js:21551:25
+🔧 Inicializando Firebase com config: 
+Object { projectId: "transparencia-agricola", authDomain: "transparencia-agricola.firebaseapp.com" }
+firebase.ts:15:9
+✅ Firebase app inicializada: [DEFAULT] firebase.ts:20:9
+✅ Firestore inicializado para projeto: transparencia-agricola firebase.ts:22:9
+[2025-07-16T12:21:30.342Z]  @firebase/firestore: Firestore (11.3.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead. chunk-4PY6LZXV.js:1063:20
+OpenRouter API Key disponível: true openrouter.ts:3:9
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: true, eventos: 0, insumos: 0 }
+RegistrarDoacao.tsx:187:11
+🎯 RegistrarDoacao - Carregando dados... RegistrarDoacao.tsx:194:13
+🎯 RegistrarDoacao - useEffect executado: 
+Object { authLoading: false, user: false }
+RegistrarDoacao.tsx:55:13
+🎯 RegistrarDoacao - Iniciando busca de dados... RegistrarDoacao.tsx:57:15
+🎯 RegistrarDoacao - Eventos encontrados: 
+Object { total: 1, ativos: 1, eventos: (1) […] }
+RegistrarDoacao.tsx:75:17
+🎯 RegistrarDoacao - Insumos encontrados: 
+Object { total: 3, insumos: (3) […] }
+RegistrarDoacao.tsx:85:17
+🎯 RegistrarDoacao - Dados carregados com sucesso! RegistrarDoacao.tsx:91:17
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+Respostas treinadas carregadas: 0 ChatbotWidget.tsx:600:17
+Carregadas 0 respostas treinadas ChatbotWidget.tsx:973:17
+Erro ao registrar doação: Error: Timeout: Operação demorou mais que 15 segundos
+    timeoutPromise RegistrarDoacao.tsx:174
+RegistrarDoacao.tsx:168:15
+    handleSubmit RegistrarDoacao.tsx:202
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+Erro ao registrar doação: Error: Timeout: Operação demorou mais que 15 segundos
+    timeoutPromise RegistrarDoacao.tsx:174
+    setTimeout handler*RegistrarDoacao/handleSubmit/timeoutPromise< RegistrarDoacao.tsx:174
+    handleSubmit RegistrarDoacao.tsx:173
+    React 15
+RegistrarDoacao.tsx:168:15
+🎯 RegistrarDoacao - Estado atual: 
+Object { location: "/registrar-doacao", user: "Não logado", authLoading: false, userEmail: undefined }
+RegistrarDoacao.tsx:34:11
+🎯 RegistrarDoacao - Verificando condições de render: 
+Object { authLoading: false, loading: false, eventos: 1, insumos: 3 }
+RegistrarDoacao.tsx:187:11
+Palavras-chave carregadas do Firestore: 21 keywordMatcher.ts:343:13
