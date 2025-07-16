@@ -1,7 +1,7 @@
-
 // Utilitários para otimizar operações Firebase
-import { enableNetwork, disableNetwork } from 'firebase/firestore';
+import React, { useState, useEffect } from 'react';
 import { db } from './firebase';
+import { doc, onSnapshot, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 
 export class FirebaseOptimizer {
   private static retryCount = 3;
@@ -13,13 +13,13 @@ export class FirebaseOptimizer {
     maxRetries: number = this.retryCount
   ): Promise<T> {
     let lastError: Error;
-    
+
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
         return await operation();
       } catch (error) {
         lastError = error as Error;
-        
+
         if (attempt < maxRetries) {
           // Delay exponencial: 1s, 2s, 4s
           const delay = this.retryDelay * Math.pow(2, attempt);
@@ -28,7 +28,7 @@ export class FirebaseOptimizer {
         }
       }
     }
-    
+
     throw lastError!;
   }
 
@@ -61,13 +61,13 @@ export class FirebaseOptimizer {
     batchSize: number = 5
   ): Promise<T[]> {
     const results: T[] = [];
-    
+
     for (let i = 0; i < operations.length; i += batchSize) {
       const batch = operations.slice(i, i + batchSize);
       const batchResults = await Promise.all(batch.map(op => op()));
       results.push(...batchResults);
     }
-    
+
     return results;
   }
 }
