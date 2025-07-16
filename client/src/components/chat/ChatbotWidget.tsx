@@ -1412,7 +1412,23 @@ const ChatbotWidget: React.FC = () => {
                     zIndex: 20,
                     borderTop: "1px solid #e5e7eb"
                   }}
-                
+                >
+                  <Input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Digite sua mensagem..."
+                    className="flex-1 min-w-0"
+                    disabled={isLoading}
+                  />
+                  <Button
+                    type="submit"
+                    size="icon"
+                    className="ml-2 bg-green-600 hover:bg-green-700 flex-shrink-0"
+                    disabled={isLoading || !input.trim()}
+                  >
+                    <Send size={20} />
+                  </Button>
+                </form>
 
                 {suggestions.length > 0 && (
                   <div 
@@ -1447,22 +1463,6 @@ const ChatbotWidget: React.FC = () => {
                     </div>
                   </div>
                 )}
-                  <Input
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Digite sua mensagem..."
-                    className="flex-1 min-w-0"
-                    disabled={isLoading}
-                  />
-                  <Button
-                    type="submit"
-                    size="icon"
-                    className="ml-2 bg-green-600 hover:bg-green-700 flex-shrink-0"
-                    disabled={isLoading || !input.trim()}
-                  >
-                    <Send size={20} />
-                  </Button>
-                </form>
 
                 {isAdmin && (
                   <div className="p-3 border-t bg-gray-50">
