@@ -7,8 +7,8 @@ channel = "stable-24_05"
 
 [deployment]
 deploymentTarget = "cloudrun"
-run = ["sh", "-c", "node dist/index.js"]
-build = ["sh", "-c", "npm run build && npx tsc server/index.ts --outDir dist --target es2020 --module commonjs --esModuleInterop --allowSyntheticDefaultImports --resolveJsonModule --skipLibCheck"]
+run = ["sh", "-c", "node server/index.js"]
+build = ["sh", "-c", "npm run build"]
 
 [[ports]]
 localPort = 5000
