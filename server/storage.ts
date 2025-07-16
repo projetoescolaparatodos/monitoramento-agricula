@@ -1,3 +1,4 @@
+
 import { users, type User, type InsertUser } from "../shared/schema";
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, doc, getDoc, getDocs, addDoc, query, where } from "firebase/firestore";
@@ -46,7 +47,12 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentId++;
-    const user: User = { ...insertUser, id };
+    const user: User = { 
+      id,
+      username: insertUser.username || '',
+      password: insertUser.password || '',
+      isAdmin: insertUser.isAdmin || false
+    };
     this.users.set(id, user);
     return user;
   }
@@ -62,7 +68,7 @@ export class FirebaseStorage implements IStorage {
       console.log("Firebase inicializado com sucesso");
     } catch (error) {
       console.error("Erro ao inicializar Firebase:", error);
-      throw new Error(`Falha ao inicializar Firebase: ${error.message}`);
+      throw new Error(`Falha ao inicializar Firebase: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -133,8 +139,9 @@ export class FirebaseStorage implements IStorage {
 
       const newId = maxId + 1;
       const newUser: User = { 
-        ...insertUser, 
         id: newId,
+        username: insertUser.username || '',
+        password: insertUser.password || '',
         isAdmin: insertUser.isAdmin || false
       };
 
