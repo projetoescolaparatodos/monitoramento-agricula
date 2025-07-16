@@ -1,0 +1,132 @@
+Implementação do Contador Incremental (Twitch-style)
+typescript
+
+const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({ config }) => {
+  // ... (outros estados permanecem iguais)
+  const [targetValue, setTargetValue] = useState(0);
+  const incrementInterval = useRef<NodeJS.Timeout>();
+  const stepsPerSecond = 2; // 2 incrementos por segundo
+
+  // Substituir a animateValue por esta lógica:
+  const startIncrementalUpdate = (newValue: number) => {
+    // Limpa qualquer intervalo existente
+    if (incrementInterval.current) {
+      clearInterval(incrementInterval.current);
+    }
+
+    const difference = newValue - displayValue;
+    if (difference === 0) return;
+
+    setIsAnimating(true);
+    setTargetValue(newValue);
+
+    // Calcula o incremento por passo
+    const increment = difference > 0 ? 1 : -1;
+    const totalSteps = Math.abs(difference);
+    const stepDuration = 1000 / stepsPerSecond;
+
+    let stepsCompleted = 0;
+
+    incrementInterval.current = setInterval(() => {
+      setDisplayValue(prev => {
+        const newDisplayValue = prev + increment;
+        stepsCompleted++;
+
+        // Finaliza quando atingir o valor alvo
+        if (stepsCompleted >= totalSteps || 
+            (increment > 0 && newDisplayValue >= newValue) || 
+            (increment < 0 && newDisplayValue <= newValue)) {
+          clearInterval(incrementInterval.current);
+          setIsAnimating(false);
+          setForceUpdate(0);
+          return newValue;
+        }
+
+        return newDisplayValue;
+      });
+    }, stepDuration);
+  };
+
+  // Modificar onde o valor é atualizado:
+  useEffect(() => {
+    if (!loading && value !== targetValue) {
+      startIncrementalUpdate(value);
+    }
+  }, [value, loading]);
+
+  // Limpeza do intervalo ao desmontar
+  useEffect(() => {
+    return () => {
+      if (incrementInterval.current) {
+        clearInterval(incrementInterval.current);
+      }
+    };
+  }, []);
+
+  // ... (restante do componente permanece igual)
+}
+
+Como Funciona:
+
+    Lógica de Incremento Gradual:
+
+        Quando uma nova doação chega (ex: valor total muda de 100 para 108)
+
+        O contador vai incrementar +1 +1 +1... até chegar em 108
+
+        Velocidade controlada por stepsPerSecond (2 passos/segundo no exemplo)
+
+    Detalhes de Implementação:
+
+        Usa setInterval para os incrementos
+
+        Calcula a diferença entre o valor atual e o novo
+
+        Limpa intervalos anteriores para evitar sobreposição
+
+        Para corretamente quando atinge o valor alvo
+
+    Efeitos Visuais Adicionais (Opcional):
+    typescript
+
+// Adicionar no retorno do componente (JSX):
+<div className={`transition-all duration-100 ${isAnimating ? 'scale-105 text-green-500' : 'scale-100'}`}>
+  {formatValue(displayValue)}
+</div>
+
+Otimização para Múltiplas Atualizações:
+typescript
+
+    const [updateQueue, setUpdateQueue] = useState<number[]>([]);
+
+    useEffect(() => {
+      if (updateQueue.length > 0 && !isAnimating) {
+        const nextValue = updateQueue[0];
+        setUpdateQueue(prev => prev.slice(1));
+        startIncrementalUpdate(nextValue);
+      }
+    }, [updateQueue, isAnimating]);
+
+    // Quando receber novo valor:
+    setUpdateQueue(prev => [...prev, newValue]);
+
+Vantagens desta Abordagem:
+
+    Efeito Twitch-like: Exatamente como os contadores de doação ao vivo
+
+    Controle Preciso: Velocidade ajustável via stepsPerSecond
+
+    Performance: Mais eficiente que requestAnimationFrame para este caso simples
+
+    Fluidez Visual: O incremento passo-a-passo é mais visível para os usuários
+
+Exemplo Completo de Uso:
+typescript
+
+// No seu listener do Firestore:
+onSnapshot(q, (snapshot) => {
+  const newTotal = calcularTotal(snapshot); // Ex: 108
+  setValue(newTotal); // Disparará a animação incremental
+});
+
+Isso criará exatamente o efeito que você deseja - quando uma nova doação chegar (digamos aumentando o total de 100 para 108), o número no card vai subindo gradualmente: 100 → 101 → 102 → ... → 108, a uma taxa de 2 números por segundo.
