@@ -1,4 +1,4 @@
-import { users, type User, type InsertUser } from "@shared/schema";
+import { users, type User, type InsertUser } from "../shared/schema";
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, doc, getDoc, getDocs, addDoc, query, where } from "firebase/firestore";
 import { getStorage } from "firebase/storage";

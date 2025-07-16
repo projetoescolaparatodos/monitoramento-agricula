@@ -6,33 +6,6 @@ import { doc, onSnapshot, collection, query, where, orderBy, limit, getDocs, ena
 export class FirebaseOptimizer {
   private static retryCount = 3;
 
-  // Método público para operações com retry
-  static async withRetry<T>(
-    operation: () => Promise<T>,
-    maxAttempts: number = 3,
-    delayMs: number = 1000
-  ): Promise<T> {
-    let lastError: Error;
-    
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      try {
-        console.log(`🔄 Firebase retry - Tentativa ${attempt}/${maxAttempts}`);
-        return await operation();
-      } catch (error) {
-        lastError = error as Error;
-        console.error(`❌ Tentativa ${attempt} falhou:`, error);
-        
-        // Se não é a última tentativa, aguarda antes de tentar novamente
-        if (attempt < maxAttempts) {
-          console.log(`⏳ Aguardando ${delayMs}ms antes da próxima tentativa...`);
-          await new Promise(resolve => setTimeout(resolve, delayMs));
-          delayMs *= 1.5; // Aumenta o delay progressivamente
-        }
-      }
-    }
-    
-    throw lastError;
-  }
   private static retryDelay = 1000; // 1 segundo
 
   // Retry automático para operações que falharam
@@ -44,13 +17,16 @@ export class FirebaseOptimizer {
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
+        console.log(`🔄 Firebase retry - Tentativa ${attempt + 1}/${maxRetries + 1}`);
         return await operation();
       } catch (error) {
         lastError = error as Error;
+        console.error(`❌ Tentativa ${attempt + 1} falhou:`, error);
 
         if (attempt < maxRetries) {
           // Delay exponencial: 1s, 2s, 4s
           const delay = this.retryDelay * Math.pow(2, attempt);
+          console.log(`⏳ Aguardando ${delay}ms antes da próxima tentativa...`);
           await new Promise(resolve => setTimeout(resolve, delay));
           continue;
         }
