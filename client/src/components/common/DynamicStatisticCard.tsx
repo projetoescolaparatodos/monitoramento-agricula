@@ -43,7 +43,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     setIsAnimating(true);
     const startTime = performance.now();
     const range = endValue - startValue;
-
+    
     // Duração adaptativa baseada na diferença de valores (mais lenta e suave)
     const baseDuration = Math.min(Math.abs(range) * 35, 15000); // Máx 15s
     const finalDuration = Math.max(baseDuration, 4000); // Mín 4s
@@ -51,14 +51,14 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     const animate = (currentTime: number) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / finalDuration, 1);
-
+      
       // Easing suave (easeOutCubic)
       const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
       const easedProgress = easeOutCubic(progress);
-
+      
       // Cálculo do valor atual
       const currentValue = startValue + (range * easedProgress);
-
+      
       // Formatação baseada no tipo de agregação
       let displayValue: number;
       if (config.tipoAgregacao === 'avg') {
@@ -68,7 +68,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
         // Para inteiros, mostrar todos os valores intermediários
         displayValue = Math.floor(currentValue);
       }
-
+      
       setDisplayValue(displayValue);
 
       // Continua a animação
@@ -217,11 +217,20 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
         }
 
         setPreviousValue(value);
+        
+        // Ativar animação sempre que houver mudança no valor
+        const hasValueChanged = calculatedValue !== value;
+        
+        setValue(calculatedValue);
 
-        // Se o valor mudou, ativa a animação
-        if (hasValueChanged) {
+        // Se é a primeira vez carregando, não anima
+        if (loading) {
+          setDisplayValue(calculatedValue);
+        } else if (hasValueChanged) {
+          // Se o valor mudou, ativa a animação e notificação visual
           console.log(`🎯 Valor mudou para estatística "${config.titulo}": ${value} → ${calculatedValue}`);
-
+          setHasNewData(true);
+          
           // Feedback sonoro sutil (opcional)
           try {
             const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+LyvmEeADOFz/LNfTEGJG+/9+J+LA');
@@ -230,6 +239,11 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           } catch (error) {
             // Ignora erro de áudio
           }
+          
+          // Remove a notificação após 3 segundos
+          setTimeout(() => {
+            setHasNewData(false);
+          }, 3000);
         }
 
         setLastUpdate(new Date());
@@ -263,12 +277,12 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       if (!isUpdating) {
         console.log('🔄 Atualizando estatística dinâmica:', config.titulo);
         setIsUpdating(true);
-
+        
         // Cancelar subscription anterior se existir
         if (currentUnsubscribe) {
           currentUnsubscribe();
         }
-
+        
         // Criar nova subscription
         try {
           const newUnsubscribe = await fetchData();
@@ -284,12 +298,12 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     if (forceUpdate > 0) {
       console.log('⚡ Executando atualização forçada para:', config.titulo);
       setIsUpdating(true);
-
+      
       // Cancelar subscription anterior se existir
       if (currentUnsubscribe) {
         currentUnsubscribe();
       }
-
+      
       // Criar nova subscription imediatamente
       fetchData().then((unsubscribeFunc) => {
         currentUnsubscribe = unsubscribeFunc;
@@ -311,7 +325,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     if (config.tipoAgregacao === 'avg') {
       return val.toFixed(1);
     }
-
+    
     // Formatação com separador de milhares
     return Math.floor(val).toLocaleString('pt-BR');
   };
@@ -341,13 +355,26 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           ) : isAnimating ? (
             <span className="animate-bounce text-sm">📈</span>
           ) : hasNewData ? (
-            <span className="animate-pulse text-sm">⚡</span>
+            <span className="animate-pulse text-sm">🔥</span>
           ) : (
             <span className="text-sm">⚡</span>
           )}
         </div>
       </div>
-
+      
+      {/* Notificação de dados novos */}
+      {hasNewData && (
+        <div className="absolute top-2 left-2 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-bounce shadow-lg">
+          ✨ Atualizado!
+        </div>
+      )}
+      
+      {/* Indicador de atualização forçada */}
+      {forceUpdate > 0 && isUpdating && (
+        <div className="absolute top-2 right-16 bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse shadow-lg">
+          ⚡ Ctrl+A
+        </div>
+      )}
       <div className="absolute bottom-3 right-3">
         <div className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-full shadow-sm font-medium">
           {lastUpdate.toLocaleTimeString('pt-BR', { 
