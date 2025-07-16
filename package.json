@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "tsx server/index.ts",
     "build": "vite build",
+    "build:server": "node build-server.js",
+    "build:full": "npm run build && npm run build:server",
     "vercel-build": "npm run build",
     "db:push": "drizzle-kit push:pg"
   },
