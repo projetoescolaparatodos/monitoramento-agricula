@@ -32,12 +32,7 @@ const RegistrarDoacao: React.FC = () => {
   const { toast } = useToast();
   const { isOnline, isConnected } = useFirebaseStatus();
 
-  console.log('🎯 RegistrarDoacao - Estado atual:', {
-    location,
-    user: user ? 'Logado' : 'Não logado',
-    authLoading,
-    userEmail: user?.email
-  });
+  // Estado atual do componente (log removido para performance)
   
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [insumos, setInsumos] = useState<Insumo[]>([]);
@@ -56,10 +51,7 @@ const RegistrarDoacao: React.FC = () => {
   });
 
   useEffect(() => {
-    console.log('🎯 RegistrarDoacao - useEffect executado:', { authLoading, user: !!user });
-    
     const fetchData = async () => {
-      console.log('🎯 RegistrarDoacao - Iniciando busca de dados...');
       try {
         // Usar Promise.all para buscar dados em paralelo (mais rápido)
         const [eventosSnapshot, insumosSnapshot] = await Promise.all([
@@ -81,12 +73,6 @@ const RegistrarDoacao: React.FC = () => {
           return inicio <= agora && agora <= fim;
         });
 
-        console.log('🎯 RegistrarDoacao - Eventos encontrados:', {
-          total: eventosData.length,
-          ativos: eventosAtivos.length,
-          eventos: eventosAtivos.map(e => e.nome)
-        });
-        
         setEventos(eventosAtivos);
 
         // Processar insumos
@@ -95,17 +81,12 @@ const RegistrarDoacao: React.FC = () => {
           ...doc.data()
         })) as Insumo[];
         
-        console.log('🎯 RegistrarDoacao - Insumos encontrados:', {
-          total: insumosData.length,
-          insumos: insumosData.map(i => i.nome)
-        });
-        
         setInsumos(insumosData);
         setLoading(false);
         
-        console.log('🎯 RegistrarDoacao - Dados carregados com sucesso!');
+        console.log('✅ Dados carregados - Eventos:', eventosAtivos.length, 'Insumos:', insumosData.length);
       } catch (error) {
-        console.error('🎯 RegistrarDoacao - Erro ao buscar dados:', error);
+        console.error('❌ Erro ao buscar dados:', error);
         setLoading(false);
         
         let errorMessage = "Falha ao carregar eventos e insumos. Tente recarregar a página.";
@@ -144,95 +125,121 @@ const RegistrarDoacao: React.FC = () => {
     
     setSubmitting(true);
 
-    try {
-      // Preparar dados da doação com timestamp único para evitar conflitos
-      const doacaoData = {
-        eventoId: formData.eventoId,
-        insumoId: formData.insumoId,
-        quantidade: Number(formData.quantidade),
-        tecnico: {
-          id: `public_${Date.now()}`,
-          nome: formData.tecnicoNome,
-          email: 'Acesso público'
-        },
-        beneficiario: {
-          nome: formData.beneficiarioNome,
-          ...(formData.beneficiarioCpf && { cpf: formData.beneficiarioCpf }),
-          ...(formData.beneficiarioPropriedade && { propriedade: formData.beneficiarioPropriedade })
-        },
-        timestamp: Timestamp.now(),
-        createdAt: Timestamp.now(),
-        // Adicionar ID único para evitar duplicatas
-        uniqueId: `public_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      };
+    // Função para tentar registrar com retry
+    const registrarComRetry = async (tentativa = 1, maxTentativas = 3): Promise<void> => {
+      try {
+        console.log(`🎯 Tentativa ${tentativa} de ${maxTentativas} - Registrando doação...`);
+        
+        // Preparar dados da doação de forma mais simples
+        const doacaoData = {
+          eventoId: formData.eventoId,
+          insumoId: formData.insumoId,
+          quantidade: Number(formData.quantidade),
+          tecnico: {
+            id: `public_${Date.now()}_${tentativa}`,
+            nome: formData.tecnicoNome,
+            email: 'Acesso público'
+          },
+          beneficiario: {
+            nome: formData.beneficiarioNome,
+            ...(formData.beneficiarioCpf && { cpf: formData.beneficiarioCpf }),
+            ...(formData.beneficiarioPropriedade && { propriedade: formData.beneficiarioPropriedade })
+          },
+          timestamp: Timestamp.now(),
+          createdAt: Timestamp.now(),
+          uniqueId: `public_${Date.now()}_${tentativa}_${Math.random().toString(36).substr(2, 6)}`
+        };
 
-      // Usar Promise com timeout para evitar travamento em caso de lentidão
-      const registroPromise = addDoc(collection(db, 'doacoes_evento'), doacaoData);
-      
-      // Timeout de 15 segundos para evitar travamento
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout: Operação demorou mais que 15 segundos')), 15000)
-      );
+        // Usar timeout mais generoso (30 segundos) e sistema de retry
+        const registroPromise = FirebaseOptimizer.withRetry(
+          () => addDoc(collection(db, 'doacoes_evento'), doacaoData),
+          3, // 3 tentativas
+          2000 // 2 segundos entre tentativas
+        );
+        
+        // Timeout de 30 segundos
+        const timeoutPromise = new Promise<never>((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout: Operação demorou mais que 30 segundos')), 30000)
+        );
 
-      await Promise.race([registroPromise, timeoutPromise]);
+        await Promise.race([registroPromise, timeoutPromise]);
+        
+        console.log(`✅ Doação registrada com sucesso na tentativa ${tentativa}!`);
+        
+        setSuccess(true);
+        
+        // Limpar formulário mantendo dados relevantes
+        setFormData({
+          eventoId: formData.eventoId, // Manter evento selecionado
+          insumoId: '',
+          quantidade: '',
+          beneficiarioNome: '',
+          beneficiarioCpf: '',
+          beneficiarioPropriedade: '',
+          tecnicoNome: formData.tecnicoNome // Manter nome do técnico
+        });
 
-      setSuccess(true);
-      
-      // Limpar formulário mantendo dados relevantes
-      setFormData({
-        eventoId: formData.eventoId, // Manter evento selecionado
-        insumoId: '',
-        quantidade: '',
-        beneficiarioNome: '',
-        beneficiarioCpf: '',
-        beneficiarioPropriedade: '',
-        tecnicoNome: formData.tecnicoNome // Manter nome do técnico
-      });
+        toast({
+          title: "Sucesso! 🎉",
+          description: "Doação registrada com sucesso!",
+          duration: 3000
+        });
 
-      toast({
-        title: "Sucesso",
-        description: "Doação registrada com sucesso!",
-        duration: 3000
-      });
-
-      // Resetar mensagem de sucesso após 3 segundos
-      setTimeout(() => setSuccess(false), 3000);
-      
-    } catch (error) {
-      console.error('Erro ao registrar doação:', error);
-      
-      let errorMessage = "Falha ao registrar doação";
-      
-      if (error.message?.includes('Timeout')) {
-        errorMessage = "Operação demorou muito para ser concluída. Tente novamente.";
-      } else if (error.code === 'permission-denied') {
-        errorMessage = "Sem permissão para registrar doação. Verifique sua autenticação.";
-      } else if (error.code === 'unavailable') {
-        errorMessage = "Serviço temporariamente indisponível. Tente novamente em alguns momentos.";
+        // Resetar mensagem de sucesso após 3 segundos
+        setTimeout(() => setSuccess(false), 3000);
+        
+      } catch (error) {
+        console.error(`❌ Erro na tentativa ${tentativa}:`, error);
+        
+        // Se não foi a última tentativa e o erro é recuperável, tenta novamente
+        if (tentativa < maxTentativas && (
+          error.message?.includes('Timeout') || 
+          error.code === 'unavailable' ||
+          error.code === 'deadline-exceeded'
+        )) {
+          console.log(`🔄 Tentando novamente em 2 segundos... (${tentativa + 1}/${maxTentativas})`);
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          return registrarComRetry(tentativa + 1, maxTentativas);
+        }
+        
+        // Erro final - não conseguiu registrar
+        let errorMessage = "Falha ao registrar doação após múltiplas tentativas";
+        
+        if (error.message?.includes('Timeout')) {
+          errorMessage = "Operação demorou muito para ser concluída. Verifique sua conexão e tente novamente.";
+        } else if (error.code === 'permission-denied') {
+          errorMessage = "Sem permissão para registrar doação. Verifique sua autenticação.";
+        } else if (error.code === 'unavailable') {
+          errorMessage = "Serviço temporariamente indisponível. Tente novamente em alguns momentos.";
+        } else if (error.code === 'deadline-exceeded') {
+          errorMessage = "Tempo limite excedido. Verifique sua conexão de internet.";
+        }
+        
+        toast({
+          title: "Erro",
+          description: errorMessage,
+          variant: "destructive",
+          duration: 5000
+        });
+        
+        throw error; // Re-throw para ser capturado pelo finally
       }
-      
-      toast({
-        title: "Erro",
-        description: errorMessage,
-        variant: "destructive",
-        duration: 5000
-      });
+    };
+
+    try {
+      await registrarComRetry();
+    } catch (error) {
+      // Erro já tratado na função registrarComRetry
     } finally {
       setSubmitting(false);
     }
   };
 
-  console.log('🎯 RegistrarDoacao - Verificando condições de render:', {
-    authLoading,
-    loading,
-    eventos: eventos?.length || 0,
-    insumos: insumos?.length || 0
-  });
+  // Verificando condições de render (log removido para performance)
 
   
 
   if (loading) {
-    console.log('🎯 RegistrarDoacao - Carregando dados...');
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
