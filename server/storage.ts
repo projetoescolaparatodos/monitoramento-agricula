@@ -79,12 +79,12 @@ export class FirebaseStorage implements IStorage {
         password: string; 
         isAdmin?: boolean;
       };
-      
+
       return { 
         id: docData.id, 
         username: docData.username, 
         password: docData.password,
-        isAdmin: docData.isAdmin
+        isAdmin: docData.isAdmin || false
       };
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);
@@ -105,12 +105,12 @@ export class FirebaseStorage implements IStorage {
         password: string; 
         isAdmin?: boolean;
       };
-      
+
       return { 
         id: docData.id, 
         username: docData.username, 
         password: docData.password,
-        isAdmin: docData.isAdmin
+        isAdmin: docData.isAdmin || false
       };
     } catch (error) {
       console.error("Erro ao buscar usuário por nome:", error);
