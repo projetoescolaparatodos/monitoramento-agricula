@@ -1,10 +1,7 @@
+
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 console.log('🔧 Iniciando processo de build para produção...');
 
@@ -13,6 +10,11 @@ try {
   if (fs.existsSync('dist')) {
     console.log('🗑️  Limpando diretório dist anterior...');
     fs.rmSync('dist', { recursive: true, force: true });
+  }
+
+  // Criar diretório dist se não existir
+  if (!fs.existsSync('dist')) {
+    fs.mkdirSync('dist', { recursive: true });
   }
 
   // Compilar cliente
@@ -25,34 +27,44 @@ try {
     console.log('📂 Arquivos no build:', files.slice(0, 10).join(', ') + (files.length > 10 ? '...' : ''));
   }
 
-  // Criar diretório dist se não existir
-  if (!fs.existsSync('dist')) {
-    fs.mkdirSync('dist', { recursive: true });
-  }
+  // Criar tsconfig temporário para compilação
+  const tsconfigContent = {
+    "compilerOptions": {
+      "target": "es2020",
+      "module": "es2020",
+      "lib": ["es2020", "dom"],
+      "outDir": "./dist",
+      "rootDir": "./",
+      "strict": false,
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "moduleResolution": "node",
+      "resolveJsonModule": true,
+      "declaration": false,
+      "declarationMap": false,
+      "sourceMap": false
+    },
+    "include": [
+      "server/**/*",
+      "shared/**/*"
+    ],
+    "exclude": [
+      "node_modules",
+      "client",
+      "dist"
+    ]
+  };
+
+  fs.writeFileSync('tsconfig.build.json', JSON.stringify(tsconfigContent, null, 2));
 
   // Compilar servidor TypeScript para JavaScript
   console.log('⚡ Compilando servidor TypeScript...');
-  execSync('npx tsc server/index.ts --outDir dist --target es2020 --module es2020 --esModuleInterop --allowSyntheticDefaultImports --resolveJsonModule --skipLibCheck --moduleResolution node --lib es2020,dom', { stdio: 'inherit' });
+  execSync('npx tsc --project tsconfig.build.json', { stdio: 'inherit' });
 
-  // Compilar outros arquivos TypeScript do servidor se existirem
-  const serverFiles = ['routes.ts', 'storage.ts', 'firebase-config.ts', 'dynamic-stats-config.ts'];
-  for (const file of serverFiles) {
-    const filePath = path.join('server', file);
-    if (fs.existsSync(filePath)) {
-      console.log(`⚡ Compilando ${file}...`);
-      execSync(`npx tsc ${filePath} --outDir dist --target es2020 --module es2020 --esModuleInterop --allowSyntheticDefaultImports --resolveJsonModule --skipLibCheck --moduleResolution node --lib es2020,dom`, { stdio: 'inherit' });
-    }
-  }
-
-  // Compilar arquivos shared se existirem
-  const sharedFiles = ['schema.ts', 'schema2.ts'];
-  for (const file of sharedFiles) {
-    const filePath = path.join('shared', file);
-    if (fs.existsSync(filePath)) {
-      console.log(`⚡ Compilando shared/${file}...`);
-      execSync(`npx tsc ${filePath} --outDir dist/shared --target es2020 --module es2020 --esModuleInterop --allowSyntheticDefaultImports --resolveJsonModule --skipLibCheck --moduleResolution node --lib es2020,dom`, { stdio: 'inherit' });
-    }
-  }
+  // Remover tsconfig temporário
+  fs.unlinkSync('tsconfig.build.json');
 
   // Verificar se o servidor JavaScript compilado existe
   const serverJsPath = path.join('dist', 'server', 'index.js');
