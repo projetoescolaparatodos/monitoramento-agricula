@@ -1272,8 +1272,13 @@ const ChatbotWidget: React.FC = () => {
         </Button>
       ) : (
         <Card
-          className="w-80 sm:w-96 shadowxl flex flex-col"
-          style={{ height: "580px", maxHeight: "80vh" }}
+          className="w-80 sm:w-96 md:w-[420px] lg:w-[450px] xl:w-96 shadow-xl flex flex-col"
+          style={{ 
+            height: "580px", 
+            maxHeight: "80vh",
+            minHeight: "500px",
+            position: "relative"
+          }}
           data-chat-open="true"
         >
           <div className="bg-green-600 text-white p-3 flex justify-between items-center rounded-t-lg">
@@ -1327,8 +1332,14 @@ const ChatbotWidget: React.FC = () => {
             </TabsList>
 
             <TabsContent value="chat" className="p-0 m-0">
-              <CardContent className="p-0 flex flex-col h-[500px] relative">
-                <div className="flex-1 overflow-y-auto p-4 pb-32 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
+              <CardContent className="p-0 flex flex-col h-[500px] relative overflow-hidden">
+                <div 
+                  className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent"
+                  style={{
+                    paddingBottom: suggestions.length > 0 ? "180px" : "80px",
+                    minHeight: "300px"
+                  }}
+                >
                   {messages.map((msg, idx) => (
                     <div
                       key={idx}
@@ -1389,7 +1400,19 @@ const ChatbotWidget: React.FC = () => {
                 </div>
 
                 {suggestions.length > 0 && (
-                  <div className="absolute bottom-[60px] left-0 right-0 p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10 mx-auto w-full rounded-b-lg shadow-md">
+                  <div 
+                    className="p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10 w-full rounded-b-lg shadow-md"
+                    style={{
+                      position: "absolute",
+                      bottom: "60px",
+                      left: "0",
+                      right: "0",
+                      width: "100%",
+                      zIndex: 10,
+                      maxHeight: "120px",
+                      overflowY: "auto"
+                    }}
+                  >
                     <div className="w-full flex flex-wrap gap-2">
                       {suggestions.map((suggestion, index) => (
                         <Button
@@ -1412,19 +1435,27 @@ const ChatbotWidget: React.FC = () => {
 
                 <form
                   onSubmit={handleSubmit}
-                  className="p-3 border-t flex items-center sticky bottom-0 bg-white z-20"
+                  className="p-3 border-t flex items-center sticky bottom-0 bg-white z-20 w-full min-h-[60px]"
+                  style={{
+                    position: "sticky",
+                    bottom: "0",
+                    left: "0",
+                    right: "0",
+                    width: "100%",
+                    zIndex: 20,
+                  }}
                 >
                   <Input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Digite sua mensagem..."
-                    className="flex-1"
+                    className="flex-1 min-w-0"
                     disabled={isLoading}
                   />
                   <Button
                     type="submit"
                     size="icon"
-                    className="ml-2 bg-green-600 hover:bg-green-700"
+                    className="ml-2 bg-green-600 hover:bg-green-700 flex-shrink-0"
                     disabled={isLoading || !input.trim()}
                   >
                     <Send size={20} />
