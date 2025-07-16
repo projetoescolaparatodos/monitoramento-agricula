@@ -1,0 +1,51 @@
+O layout foi forçado antes que a página fosse totalmente carregada. Se houver folhas de estilo ainda não carregadas, isso pode causar piscamento de conteúdo sem estilo. ThumbnailsChild.sys.mjs:26:13
+[vite] connecting... client:495:9
+[vite] connected. client:618:15
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools chunk-RPCDYKBN.js:21551:25
+🔧 Inicializando Firebase com config: 
+Object { projectId: "transparencia-agricola", authDomain: "transparencia-agricola.firebaseapp.com" }
+firebase.ts:15:9
+✅ Firebase app inicializada: [DEFAULT] firebase.ts:20:9
+✅ Firestore inicializado para projeto: transparencia-agricola firebase.ts:22:9
+[2025-07-16T12:00:28.714Z]  @firebase/firestore: Firestore (11.3.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead. chunk-4PY6LZXV.js:1063:20
+OpenRouter API Key disponível: true openrouter.ts:3:9
+Uncaught ReferenceError: useState is not defined
+    useFirebaseStatus firebaseOptimizations.ts:77
+    RegistrarDoacao RegistrarDoacao.tsx:32
+    React 11
+    workLoop scheduler.development.js:266
+    flushWork scheduler.development.js:239
+    performWorkUntilDeadline scheduler.development.js:533
+firebaseOptimizations.ts:57:35
+Uncaught ReferenceError: useState is not defined
+    useFirebaseStatus firebaseOptimizations.ts:77
+    RegistrarDoacao RegistrarDoacao.tsx:32
+    React 12
+    workLoop scheduler.development.js:266
+    flushWork scheduler.development.js:239
+    performWorkUntilDeadline scheduler.development.js:533
+firebaseOptimizations.ts:57:35
+The above error occurred in the <RegistrarDoacao> component:
+
+RegistrarDoacao@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:5000/src/pages/RegistrarDoacao.tsx:30:32
+Route@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=12b88d91:323:13
+Switch@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=12b88d91:379:14
+Suspense
+div
+Router@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:5000/src/App.tsx?t=1752667150472&v=Sz6jGWKIoVH2H2FnBAE5p:71:22
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27
+App
+Router@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:6386:16
+BrowserRouter@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:8613:23
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. chunk-RPCDYKBN.js:14032:23
+Uncaught ReferenceError: useState is not defined
+    useFirebaseStatus firebaseOptimizations.ts:77
+    RegistrarDoacao RegistrarDoacao.tsx:32
+    React 9
+    workLoop scheduler.development.js:266
+    flushWork scheduler.development.js:239
+    performWorkUntilDeadline scheduler.development.js:533
+firebaseOptimizations.ts:57:35
