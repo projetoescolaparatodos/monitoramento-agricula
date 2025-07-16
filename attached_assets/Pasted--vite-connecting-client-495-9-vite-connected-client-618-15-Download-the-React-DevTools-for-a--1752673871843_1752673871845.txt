@@ -1,0 +1,201 @@
+[vite] connecting... client:495:9
+[vite] connected. client:618:15
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools chunk-RPCDYKBN.js:21551:25
+🔧 Inicializando Firebase com config: 
+Object { projectId: "transparencia-agricola", authDomain: "transparencia-agricola.firebaseapp.com" }
+firebase.ts:15:9
+✅ Firebase app inicializada: [DEFAULT] firebase.ts:20:9
+✅ Firestore inicializado para projeto: transparencia-agricola firebase.ts:22:9
+[2025-07-16T13:46:06.168Z]  @firebase/firestore: Firestore (11.3.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead. chunk-4PY6LZXV.js:1063:20
+OpenRouter API Key disponível: true openrouter.ts:3:9
+Renderizando gráfico tipo pie: 
+Object { labels: (4) […], datasets: (1) […] }
+ChartComponent.tsx:124:11
+Renderizando gráfico tipo bar: 
+Object { labels: (3) […], datasets: (2) […] }
+ChartComponent.tsx:124:11
+Renderizando gráfico tipo line: 
+Object { datasets: (1) […], labels: (4) […] }
+ChartComponent.tsx:124:11
+Renderizando gráfico tipo bar: 
+Object { datasets: (1) […], labels: (4) […] }
+ChartComponent.tsx:124:11
+Respostas treinadas carregadas: 0 ChatbotWidget.tsx:600:17
+Carregadas 0 respostas treinadas ChatbotWidget.tsx:973:17
+🔄 Atualizando estatística dinâmica: total de familias atendidas no dia do produtor rural 2025 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de kit aviarios doados na semana do agricultor 2025 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de Doações Hoje DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total de familias atendidas no dia do produtor rural 2025 DynamicStatisticCard.tsx:214:15
+🎯 Valor mudou para estatística "total": 0 → 10 DynamicStatisticCard.tsx:268:25
+🔄 Atualizando estatística dinâmica: total DynamicStatisticCard.tsx:214:15
+🎯 Valor mudou para estatística "Total de kit aviarios doados na semana do agricultor 2025": 0 → 1114 DynamicStatisticCard.tsx:268:25
+🔄 Atualizando estatística dinâmica: Total de kit aviarios doados na semana do agricultor 2025 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de Doações Hoje DynamicStatisticCard.tsx:214:15
+Palavras-chave carregadas do Firestore: 21 keywordMatcher.ts:343:13
+A resource is blocked by OpaqueResponseBlocking, please check browser console for details. thumbnails/1752619884988_IMG_4123.HEIC
+Warning: Invalid prop `data-replit-metadata` supplied to `React.Fragment`. React.Fragment can only have `key` and `children` props.
+ChatbotWidget@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/components/chat/ChatbotWidget.tsx?t=1752673426934:368:39
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27
+App
+Router@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:6386:16
+BrowserRouter@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:8613:23
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27 react_jsx-dev-runtime.js:64:38
+🔄 Atualizando estatística dinâmica: total de familias atendidas no dia do produtor rural 2025 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total de familias atendidas no dia do produtor rural 2025 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total 3 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de kit aviarios doados na semana do agricultor 2025 3 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de Doações Hoje 3 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total de familias atendidas no dia do produtor rural 2025 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total de familias atendidas no dia do produtor rural 2025 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de kit aviarios doados na semana do agricultor 2025 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de Doações Hoje DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de kit aviarios doados na semana do agricultor 2025 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de Doações Hoje DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de kit aviarios doados na semana do agricultor 2025 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de Doações Hoje DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total de familias atendidas no dia do produtor rural 2025 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total de familias atendidas no dia do produtor rural 2025 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de kit aviarios doados na semana do agricultor 2025 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de Doações Hoje 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de kit aviarios doados na semana do agricultor 2025 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de Doações Hoje DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total de familias atendidas no dia do produtor rural 2025 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total de familias atendidas no dia do produtor rural 2025 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de kit aviarios doados na semana do agricultor 2025 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de Doações Hoje 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de kit aviarios doados na semana do agricultor 2025 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de Doações Hoje DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total de familias atendidas no dia do produtor rural 2025 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total de familias atendidas no dia do produtor rural 2025 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de kit aviarios doados na semana do agricultor 2025 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de kit aviarios doados na semana do agricultor 2025 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de Doações Hoje 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de Doações Hoje DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total de familias atendidas no dia do produtor rural 2025 3 DynamicStatisticCard.tsx:214:15
+🔄 Iniciando sistema de resposta hierárquico ChatbotWidget.tsx:808:13
+Verificando 0 exemplos de treinamento para: "pesca" ChatbotWidget.tsx:625:13
+🔍 HIERARQUIA 1: Buscando correspondência exata com respostas treinadas ChatbotWidget.tsx:628:13
+🔍 HIERARQUIA 2: Buscando correspondência por palavras-chave ChatbotWidget.tsx:638:13
+🔍 Analisando palavras-chave para: "pesca" keywordMatcher.ts:225:11
+Avaliando: "licenciamento pesca" keywordMatcher.ts:240:15
+  📝 1 palavra completa = +2 keywordMatcher.ts:213:19
+  Base: 3, Total: 5.5 keywordMatcher.ts:243:15
+✅ Melhor correspondência: "licenciamento pesca" com pontuação 5.5 keywordMatcher.ts:250:13
+✅ Palavra-chave encontrada: "licenciamento pesca" ChatbotWidget.tsx:641:15
+✅ Resposta encontrada nas hierarquias 1 ou 2 ChatbotWidget.tsx:812:17
+Warning: Invalid prop `data-replit-metadata` supplied to `React.Fragment`. React.Fragment can only have `key` and `children` props.
+ChatbotWidget@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/components/chat/ChatbotWidget.tsx?t=1752673426934:368:39
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27
+App
+Router@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:6386:16
+BrowserRouter@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:8613:23
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27 3 react_jsx-dev-runtime.js:64:38
+🔄 Atualizando estatística dinâmica: total 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de kit aviarios doados na semana do agricultor 2025 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de kit aviarios doados na semana do agricultor 2025 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de Doações Hoje 3 DynamicStatisticCard.tsx:214:15
+Warning: Invalid prop `data-replit-metadata` supplied to `React.Fragment`. React.Fragment can only have `key` and `children` props.
+ChatbotWidget@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/components/chat/ChatbotWidget.tsx?t=1752673426934:368:39
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27
+App
+Router@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:6386:16
+BrowserRouter@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:8613:23
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27 12 react_jsx-dev-runtime.js:64:38
+🔄 Iniciando sistema de resposta hierárquico ChatbotWidget.tsx:808:13
+Verificando 0 exemplos de treinamento para: "como" ChatbotWidget.tsx:625:13
+🔍 HIERARQUIA 1: Buscando correspondência exata com respostas treinadas ChatbotWidget.tsx:628:13
+🔍 HIERARQUIA 2: Buscando correspondência por palavras-chave ChatbotWidget.tsx:638:13
+🔍 Analisando palavras-chave para: "como" keywordMatcher.ts:225:11
+❌ Nenhuma correspondência de palavra-chave encontrada keywordMatcher.ts:252:13
+🔍 HIERARQUIA 2: Tentando encontrar correspondência parcial em treinamentos ChatbotWidget.tsx:660:13
+🔍 HIERARQUIA 2: Verificando fluxos de conversa predefinidos ChatbotWidget.tsx:697:13
+🔍 HIERARQUIA 3: Recorrendo à IA generativa ChatbotWidget.tsx:753:13
+🤖 HIERARQUIA 3: Recorrendo à IA generativa ChatbotWidget.tsx:822:13
+Verificando disponibilidade da chave API: true ChatbotWidget.tsx:823:13
+Usando 0 exemplos relevantes para o contexto da IA ChatbotWidget.tsx:841:15
+Enviando requisição para OpenRouter com prompt: como openrouter.ts:22:13
+Warning: Invalid prop `data-replit-metadata` supplied to `React.Fragment`. React.Fragment can only have `key` and `children` props.
+ChatbotWidget@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/components/chat/ChatbotWidget.tsx?t=1752673426934:368:39
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27
+App
+Router@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:6386:16
+BrowserRouter@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:8613:23
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27 react_jsx-dev-runtime.js:64:38
+Warning: Invalid prop `data-replit-metadata` supplied to `React.Fragment`. React.Fragment can only have `key` and `children` props.
+ChatbotWidget@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/components/chat/ChatbotWidget.tsx?t=1752673426934:368:39
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27
+App
+Router@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:6386:16
+BrowserRouter@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:8613:23
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27 react_jsx-dev-runtime.js:64:38
+Warning: Invalid prop `data-replit-metadata` supplied to `React.Fragment`. React.Fragment can only have `key` and `children` props.
+ChatbotWidget@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/components/chat/ChatbotWidget.tsx?t=1752673426934:368:39
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27
+App
+Router@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:6386:16
+BrowserRouter@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:8613:23
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27 react_jsx-dev-runtime.js:64:38
+Warning: Invalid prop `data-replit-metadata` supplied to `React.Fragment`. React.Fragment can only have `key` and `children` props.
+ChatbotWidget@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/components/chat/ChatbotWidget.tsx?t=1752673426934:368:39
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27
+App
+Router@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:6386:16
+BrowserRouter@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:8613:23
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27 react_jsx-dev-runtime.js:64:38
+XHRPOST
+https://openrouter.ai/api/v1/chat/completions
+[HTTP/2 404  2103ms]
+
+	
+POST
+	https://openrouter.ai/api/v1/chat/completions
+Status
+404
+VersãoHTTP/2
+Transferido651 B (tamanho 124 B)
+Referrer Policystrict-origin-when-cross-origin
+Prioridade da requisiçãoHighest
+Resolução de DNSSistema
+
+Erro na chamada à API OpenRouter: 
+Object { message: "Request failed with status code 404", name: "AxiosError", code: "ERR_BAD_REQUEST", config: {…}, request: XMLHttpRequest, response: {…}, status: 404, stack: "", … }
+openrouter.ts:46:13
+Detalhes do erro: 
+Object { error: {…}, user_id: "user_2vXRcnBOQjzK0rWWaJe8Chqz2LX" }
+openrouter.ts:48:15
+✅ Resposta da IA recebida: Desculpe, estou com dificuldades para processar sua solicitação. Por favor, tente novamente mais tar... ChatbotWidget.tsx:858:15
+Warning: Invalid prop `data-replit-metadata` supplied to `React.Fragment`. React.Fragment can only have `key` and `children` props.
+ChatbotWidget@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/src/components/chat/ChatbotWidget.tsx?t=1752673426934:368:39
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27
+App
+Router@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:6386:16
+BrowserRouter@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:8613:23
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27 5 react_jsx-dev-runtime.js:64:38
+🔄 Atualizando estatística dinâmica: total de familias atendidas no dia do produtor rural 2025 3 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total 3 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de kit aviarios doados na semana do agricultor 2025 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de kit aviarios doados na semana do agricultor 2025 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de Doações Hoje 3 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total de familias atendidas no dia do produtor rural 2025 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total de familias atendidas no dia do produtor rural 2025 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total 3 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de kit aviarios doados na semana do agricultor 2025 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de kit aviarios doados na semana do agricultor 2025 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de Doações Hoje 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de Doações Hoje DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total de familias atendidas no dia do produtor rural 2025 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total de familias atendidas no dia do produtor rural 2025 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total 2 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: total DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de kit aviarios doados na semana do agricultor 2025 3 DynamicStatisticCard.tsx:214:15
+🔄 Atualizando estatística dinâmica: Total de Doações Hoje 3 DynamicStatisticCard.tsx:214:15
