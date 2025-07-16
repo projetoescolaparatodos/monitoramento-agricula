@@ -66,7 +66,19 @@ app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
 const setupServer = async () => {
   // Adicionar middleware CORS e CSP antes das rotas
   app.use((req: Request, res: Response, next: NextFunction) => {
-    res.header('Access-Control-Allow-Origin', '*');
+    const allowedOrigins = [
+      'https://semapavtx.replit.app',
+      'https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev',
+      'https://303548ff-1da9-44e3-82ae-34ecd1b6f479-00-knd92yva2khn.janeway.replit.dev',
+      'https://70ce0eac-1b8f-41e8-b2c8-9237dbaf5480-00-25pfeu9a8onft.worf.replit.dev',
+      'https://18116612-0326-4ade-87da-5c8c89c7febd-00-2keq9gd9zgq51.kirk.replit.dev'
+    ];
+    
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin) || !origin) {
+      res.header('Access-Control-Allow-Origin', origin || '*');
+    }
+    
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
 
