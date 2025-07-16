@@ -1,9 +1,7 @@
-
-import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, jsonb, varchar, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Users table (duplicated from schema.ts for completeness)
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
@@ -11,33 +9,30 @@ export const users = pgTable("users", {
   isAdmin: boolean("is_admin").default(false).notNull(),
 });
 
-// Contents table
 export const contents = pgTable("contents", {
   id: serial("id").primaryKey(),
-  pageType: text("page_type").notNull(),
-  sectionType: text("section_type").notNull(),
+  pageType: text("page_type").notNull(), // "home", "agriculture", "fishing", "paa"
+  sectionType: text("section_type").notNull(), // "hero", "info", "statistics", etc.
   title: text("title").notNull(),
   content: text("content").notNull(),
   active: boolean("active").default(true).notNull(),
-  order: integer("order").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Charts table
 export const charts = pgTable("charts", {
   id: serial("id").primaryKey(),
   pageType: text("page_type").notNull(),
   title: text("title").notNull(),
-  chartType: text("chart_type").notNull(),
-  data: text("data").notNull(),
+  description: text("description"),
+  chartType: text("chart_type").notNull(), // "bar", "line", "pie", etc.
+  chartData: jsonb("chart_data").notNull(),
   active: boolean("active").default(true).notNull(),
   order: integer("order").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Media items table
 export const mediaItems = pgTable("media_items", {
   id: serial("id").primaryKey(),
   pageType: text("page_type").notNull(),
@@ -51,7 +46,6 @@ export const mediaItems = pgTable("media_items", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// Statistics table
 export const statistics = pgTable("statistics", {
   id: serial("id").primaryKey(),
   label: text("label").notNull(),

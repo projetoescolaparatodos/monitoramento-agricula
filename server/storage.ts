@@ -1,5 +1,4 @@
-
-import { type User, type InsertUser } from "../shared/schema";
+import { users, type User, type InsertUser } from "../shared/schema";
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, doc, getDoc, getDocs, addDoc, query, where } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
@@ -47,12 +46,7 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentId++;
-    const user: User = { 
-      id,
-      username: insertUser.username,
-      password: insertUser.password,
-      isAdmin: insertUser.isAdmin ?? false
-    };
+    const user: User = { ...insertUser, id };
     this.users.set(id, user);
     return user;
   }
@@ -68,7 +62,7 @@ export class FirebaseStorage implements IStorage {
       console.log("Firebase inicializado com sucesso");
     } catch (error) {
       console.error("Erro ao inicializar Firebase:", error);
-      throw new Error(`Falha ao inicializar Firebase: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(`Falha ao inicializar Firebase: ${error.message}`);
     }
   }
 
@@ -79,13 +73,18 @@ export class FirebaseStorage implements IStorage {
 
       if (querySnapshot.empty) return undefined;
 
-      const docData = querySnapshot.docs[0].data();
+      const docData = querySnapshot.docs[0].data() as { 
+        id: number; 
+        username: string; 
+        password: string; 
+        isAdmin?: boolean;
+      };
       
       return { 
-        id: docData.id as number, 
-        username: docData.username as string, 
-        password: docData.password as string,
-        isAdmin: (docData.isAdmin as boolean) ?? false
+        id: docData.id, 
+        username: docData.username, 
+        password: docData.password,
+        isAdmin: docData.isAdmin
       };
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);
@@ -100,13 +99,18 @@ export class FirebaseStorage implements IStorage {
 
       if (querySnapshot.empty) return undefined;
 
-      const docData = querySnapshot.docs[0].data();
-
+      const docData = querySnapshot.docs[0].data() as { 
+        id: number; 
+        username: string; 
+        password: string; 
+        isAdmin?: boolean;
+      };
+      
       return { 
-        id: docData.id as number, 
-        username: docData.username as string, 
-        password: docData.password as string,
-        isAdmin: (docData.isAdmin as boolean) ?? false
+        id: docData.id, 
+        username: docData.username, 
+        password: docData.password,
+        isAdmin: docData.isAdmin
       };
     } catch (error) {
       console.error("Erro ao buscar usuário por nome:", error);
@@ -121,18 +125,17 @@ export class FirebaseStorage implements IStorage {
       let maxId = 0;
 
       querySnapshot.forEach((doc) => {
-        const userData = doc.data();
-        if (userData.id && (userData.id as number) > maxId) {
-          maxId = userData.id as number;
+        const userData = doc.data() as { id?: number };
+        if (userData.id && userData.id > maxId) {
+          maxId = userData.id;
         }
       });
 
       const newId = maxId + 1;
       const newUser: User = { 
+        ...insertUser, 
         id: newId,
-        username: insertUser.username,
-        password: insertUser.password,
-        isAdmin: insertUser.isAdmin ?? false
+        isAdmin: insertUser.isAdmin || false
       };
 
       await addDoc(this.usersCollection, newUser);
