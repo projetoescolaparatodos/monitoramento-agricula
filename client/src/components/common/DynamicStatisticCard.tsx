@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { db, withRetry } from '@/utils/firebase';
 import { collection, query, where, onSnapshot, Timestamp } from 'firebase/firestore';
 import { Card, CardContent } from '@/components/ui/card';
@@ -31,6 +31,8 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
   const [isUpdating, setIsUpdating] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [hasNewData, setHasNewData] = useState(false);
+  const [forceUpdate, setForceUpdate] = useState(0);
+  const unsubscribeRef = useRef<(() => void) | null>(null);
 
   // Função para animar a contagem progressiva fluida
   const animateValue = (startValue: number, endValue: number) => {
@@ -94,6 +96,20 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       }
     }
   }, [value, loading, displayValue, isAnimating, config]);
+
+  // Listener para teclas de atalho (Ctrl + A)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.key.toLowerCase() === 'a') {
+        event.preventDefault();
+        console.log('🔄 Atualização forçada ativada para:', config.titulo);
+        setForceUpdate(prev => prev + 1);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [config.titulo]);
 
   useEffect(() => {
     const calcularPeriodo = () => {
@@ -278,13 +294,32 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       }
     }, 30000); // 30 segundos para ser mais responsivo
 
+    // Atualização forçada quando forceUpdate muda
+    if (forceUpdate > 0) {
+      console.log('⚡ Executando atualização forçada para:', config.titulo);
+      setIsUpdating(true);
+      
+      // Cancelar subscription anterior se existir
+      if (currentUnsubscribe) {
+        currentUnsubscribe();
+      }
+      
+      // Criar nova subscription imediatamente
+      fetchData().then((unsubscribeFunc) => {
+        currentUnsubscribe = unsubscribeFunc;
+      }).catch((error) => {
+        console.error('Erro na atualização forçada:', error);
+        setIsUpdating(false);
+      });
+    }
+
     return () => {
       if (currentUnsubscribe) {
         currentUnsubscribe();
       }
       clearInterval(interval);
     };
-  }, [config, isUpdating]); // Adicionar isUpdating como dependência
+  }, [config, isUpdating, forceUpdate]); // Adicionar forceUpdate como dependência
 
   const formatValue = (val: number) => {
     if (config.tipoAgregacao === 'avg') {
@@ -331,6 +366,13 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       {hasNewData && (
         <div className="absolute top-2 left-2 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-bounce shadow-lg">
           ✨ Atualizado!
+        </div>
+      )}
+      
+      {/* Indicador de atualização forçada */}
+      {forceUpdate > 0 && isUpdating && (
+        <div className="absolute top-2 right-16 bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse shadow-lg">
+          ⚡ Ctrl+A
         </div>
       )}
       <div className="absolute bottom-3 right-3">
