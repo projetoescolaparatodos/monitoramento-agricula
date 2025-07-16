@@ -162,13 +162,26 @@ task = "shell.exec"
 args = "PORT=5001 npm run dev"
 
 [[workflows.workflow]]
-name = "Deploy Production"
+name = "Test Production Build"
 author = 40255565
 mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run build:full"
+args = "node build-server.js"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node dist/server.js"
+
+[[workflows.workflow]]
+name = "Test Production Build"
+author = 40255565
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node build-server.js"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
