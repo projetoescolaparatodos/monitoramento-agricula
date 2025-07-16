@@ -1353,10 +1353,10 @@ const ChatbotWidget: React.FC = () => {
                         }`}
                       >
                         {msg.text.split("\n").map((line, i) => (
-                          <React.Fragment key={i}>
+                          <span key={i}>
                             {line}
                             {i < msg.text.split("\n").length - 1 && <br />}
-                          </React.Fragment>
+                          </span>
                         ))}
                         {!msg.isUser && (
                           <div className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 bg-white/80 rounded p-1">
