@@ -1,4 +1,3 @@
-
 import { users, type User, type InsertUser } from "../shared/schema";
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, doc, getDoc, getDocs, addDoc, query, where } from "firebase/firestore";
@@ -90,7 +89,7 @@ export class FirebaseStorage implements IStorage {
         id: docData.id, 
         username: docData.username, 
         password: docData.password,
-        isAdmin: docData.isAdmin || false
+        isAdmin: docData.isAdmin ?? false
       };
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);
@@ -116,7 +115,7 @@ export class FirebaseStorage implements IStorage {
         id: docData.id, 
         username: docData.username, 
         password: docData.password,
-        isAdmin: docData.isAdmin || false
+        isAdmin: docData.isAdmin ?? false
       };
     } catch (error) {
       console.error("Erro ao buscar usuário por nome:", error);
