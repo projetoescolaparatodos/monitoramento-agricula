@@ -170,7 +170,7 @@ const EventoTelao: React.FC = () => {
       colecaoFonte: 'doacoes_evento',
       campo: '',
       tipoAgregacao: 'count' as const,
-      periodo: 'total',
+      periodo: 'todos',
       unidade: 'doações',
       filtroAdicional: [
         { fieldPath: 'eventoId', opStr: '==', value: eventoId }
@@ -182,7 +182,7 @@ const EventoTelao: React.FC = () => {
       colecaoFonte: 'doacoes_evento',
       campo: '',
       tipoAgregacao: 'count' as const,
-      periodo: 'total',
+      periodo: 'todos',
       unidade: 'pessoas',
       filtroAdicional: [
         { fieldPath: 'eventoId', opStr: '==', value: eventoId }
@@ -194,7 +194,7 @@ const EventoTelao: React.FC = () => {
       colecaoFonte: 'doacoes_evento',
       campo: 'quantidade',
       tipoAgregacao: 'sum' as const,
-      periodo: 'total',
+      periodo: 'todos',
       unidade: 'itens',
       filtroAdicional: [
         { fieldPath: 'eventoId', opStr: '==', value: eventoId }
@@ -202,16 +202,16 @@ const EventoTelao: React.FC = () => {
     }
   ];
 
-  // Adicionar configurações específicas por insumo (máximo 3 para não sobrecarregar)
+  // Adicionar configurações específicas por insumo (máximo 5 para maior cobertura)
   const insumosAtivos = insumos.filter(i => i.nome);
-  insumosAtivos.slice(0, 3).forEach(insumo => {
+  insumosAtivos.slice(0, 5).forEach(insumo => {
     statsConfigs.push({
       id: `insumo-${insumo.id}`,
       titulo: `${insumo.nome} Distribuídas`,
       colecaoFonte: 'doacoes_evento',
       campo: 'quantidade',
       tipoAgregacao: 'sum' as const,
-      periodo: 'total',
+      periodo: 'todos',
       unidade: insumo.unidade || 'unidades',
       filtroAdicional: [
         { fieldPath: 'eventoId', opStr: '==', value: eventoId },
@@ -231,25 +231,42 @@ const EventoTelao: React.FC = () => {
         <div className="text-2xl opacity-90 mb-4">
           Estatísticas em Tempo Real
         </div>
-        <div className="text-xl opacity-75">
+        <div className="text-xl opacity-75 mb-6">
           Atualizado em: {currentTime.toLocaleTimeString('pt-BR')} - {currentTime.toLocaleDateString('pt-BR')}
+        </div>
+        
+        {/* Controles de Telão */}
+        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 mx-auto max-w-4xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-base">
+            <div className="flex items-center justify-center space-x-2">
+              <span className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></span>
+              <span>Ctrl + A = Forçar Atualização</span>
+            </div>
+            <div className="flex items-center justify-center space-x-2">
+              <span className="w-3 h-3 bg-red-400 rounded-full animate-pulse"></span>
+              <span>Ctrl + L = Cancelar Atualização</span>
+            </div>
+          </div>
+          <div className="mt-3 text-sm opacity-75">
+            Os dados são atualizados automaticamente a cada 30 segundos
+          </div>
         </div>
       </div>
 
       {/* Cards de Estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8 mb-12">
         {statsConfigs.map((config) => (
           <div key={config.id} className="transform hover:scale-105 transition-transform duration-300">
             <DynamicStatisticCard 
               config={config}
-              variant="transparent"
+              variant="default"
             />
           </div>
         ))}
       </div>
 
       {/* Informações Adicionais */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <Card className="bg-white/10 backdrop-blur-sm border-white/20">
           <CardContent className="p-8">
             <div className="flex items-center mb-6">
@@ -287,6 +304,33 @@ const EventoTelao: React.FC = () => {
                 <span className="font-bold">
                   {currentTime.toLocaleTimeString('pt-BR')}
                 </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Animações:</span>
+                <span className="font-bold text-blue-300">Otimizadas</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+          <CardContent className="p-8">
+            <div className="flex items-center mb-6">
+              <Gift className="w-10 h-10 text-white mr-4" />
+              <h2 className="text-3xl font-bold">Controles</h2>
+            </div>
+            <div className="space-y-4 text-lg">
+              <div className="flex justify-between items-center">
+                <span>Atualização Forçada:</span>
+                <span className="font-bold text-yellow-300">Ctrl + A</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Cancelar Operação:</span>
+                <span className="font-bold text-red-300">Ctrl + L</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Timeout Máximo:</span>
+                <span className="font-bold text-blue-300">1 minuto</span>
               </div>
             </div>
           </CardContent>
