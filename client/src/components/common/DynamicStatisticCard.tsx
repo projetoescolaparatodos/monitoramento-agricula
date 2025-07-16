@@ -309,7 +309,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           })}
         </div>
       </div>
-      <div className="border-t-5 bg-gradient-to-r from-green-500 to-emerald-600"></div>
+      <div className="h-1 bg-gradient-to-r from-green-500 to-emerald-600"></div>
       <CardContent className="p-6 text-center relative z-10">
         {loading ? (
           <div className="animate-pulse space-y-4">
