@@ -15,7 +15,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { toast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 
 interface Doacao {
   id: string;
@@ -144,7 +144,7 @@ export const DoacoesReport: React.FC = () => {
     setDeletingId(doacaoId);
     try {
       await deleteDoc(doc(db, 'doacoes_evento', doacaoId));
-      toast({
+      useToast({
         title: "Sucesso! 🗑️",
         description: "Doação removida com sucesso!",
         duration: 3000
@@ -152,7 +152,7 @@ export const DoacoesReport: React.FC = () => {
       console.log(`✅ Doação ${doacaoId} removida com sucesso`);
     } catch (error) {
       console.error('❌ Erro ao remover doação:', error);
-      toast({
+      useToast({
         title: "Erro",
         description: "Falha ao remover a doação. Tente novamente.",
         variant: "destructive",
@@ -310,7 +310,7 @@ export const DoacoesReport: React.FC = () => {
                             );
                             await Promise.all(promises);
 
-                            toast({
+                            useToast({
                               title: "Sucesso! 🗑️",
                               description: `${doacoes.length} doações removidas com sucesso!`,
                               duration: 3000
@@ -319,7 +319,7 @@ export const DoacoesReport: React.FC = () => {
                             console.log(`✅ ${doacoes.length} doações removidas em massa`);
                           } catch (error) {
                             console.error('❌ Erro ao remover doações em massa:', error);
-                            toast({
+                            useToast({
                               title: "Erro",
                               description: "Falha ao remover algumas doações. Tente novamente.",
                               variant: "destructive",
