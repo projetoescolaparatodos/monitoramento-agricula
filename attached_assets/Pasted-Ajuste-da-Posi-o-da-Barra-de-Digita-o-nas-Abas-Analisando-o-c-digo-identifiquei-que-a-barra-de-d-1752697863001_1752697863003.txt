@@ -1,0 +1,134 @@
+Ajuste da Posição da Barra de Digitação nas Abas
+
+Analisando o código, identifiquei que a barra de digitação e os botões de formulários estão posicionados de forma diferente nas abas:
+
+    Aba Chat: Tem a barra de digitação normal com campo de texto e botão enviar
+
+    Abas Agricultura/Pesca/PAA: Tem botões de formulários fixos no rodapé
+
+Problemas Identificados
+
+    Posicionamento inconsistente: A barra de digitação fica em posições diferentes
+
+    Altura variável: O conteúdo das abas tem alturas diferentes
+
+    Z-index conflitante: Pode haver sobreposição indesejada
+
+Solução Proposta
+
+Vou ajustar o posicionamento para ser consistente em todas as abas:
+tsx
+
+// Estilos comuns para todas as abas
+const tabContentStyle = {
+  height: "500px",
+  display: "flex",
+  flexDirection: "column",
+  position: "relative",
+  overflow: "hidden" // Adicionado para evitar scroll duplo
+};
+
+const tabScrollableContentStyle = {
+  flex: 1,
+  overflowY: "auto",
+  padding: "0.75rem",
+  paddingBottom: "80px" // Espaço para os botões
+};
+
+const tabFooterStyle = {
+  position: "absolute",
+  bottom: "0",
+  left: "0",
+  right: "0",
+  padding: "0.75rem",
+  backgroundColor: "white",
+  borderTop: "1px solid #e5e7eb",
+  zIndex: 10
+};
+
+// Aplicando nos TabsContent
+<TabsContent value="agricultura" className="p-0 m-0">
+  <div className="flex flex-col" style={tabContentStyle}>
+    <div style={tabScrollableContentStyle}>
+      {/* Conteúdo da aba Agricultura */}
+    </div>
+    
+    <div style={tabFooterStyle}>
+      <div className="grid grid-cols-2 gap-2">
+        <Button onClick={() => abrirFormulario("agricultura")} className="bg-green-600 hover:bg-green-700">
+          Solicitar serviços
+        </Button>
+        <Button onClick={() => abrirFormulario("agricultura-completo")} className="bg-green-800 hover:bg-green-900">
+          Cadastro Completo
+        </Button>
+      </div>
+    </div>
+  </div>
+</TabsContent>
+
+<TabsContent value="pesca" className="p-0 m-0">
+  <div className="flex flex-col" style={tabContentStyle}>
+    <div style={tabScrollableContentStyle}>
+      {/* Conteúdo da aba Pesca */}
+    </div>
+    
+    <div style={tabFooterStyle}>
+      <div className="grid grid-cols-2 gap-2">
+        <Button onClick={() => abrirFormulario("pesca")} className="bg-blue-600 hover:bg-blue-700">
+          Solicitar serviços
+        </Button>
+        <Button onClick={() => abrirFormulario("pesca-completo")} className="bg-blue-800 hover:bg-blue-900">
+          Cadastro Completo
+        </Button>
+      </div>
+    </div>
+  </div>
+</TabsContent>
+
+<TabsContent value="paa" className="p-0 m-0">
+  <div className="flex flex-col" style={tabContentStyle}>
+    <div style={tabScrollableContentStyle}>
+      {/* Conteúdo da aba PAA */}
+    </div>
+    
+    <div style={tabFooterStyle}>
+      <Button 
+        disabled={true}
+        className="w-full bg-gray-400 cursor-not-allowed opacity-70"
+        title="Inscrições temporariamente indisponíveis"
+      >
+        Participar do PAA
+      </Button>
+    </div>
+  </div>
+</TabsContent>
+
+Melhorias Implementadas:
+
+    Consistência visual: Todas as abas seguem o mesmo padrão de layout
+
+    Scroll organizado: Conteúdo rolável com espaço reservado para os botões
+
+    Posicionamento fixo: Botões sempre visíveis no rodapé
+
+    Responsividade: Mantém funcionamento em diferentes tamanhos de tela
+
+    Hierarquia visual: Z-index adequado para evitar sobreposições
+
+Detalhes Técnicos:
+
+    tabContentStyle: Define o container principal como flex column
+
+    tabScrollableContentStyle: Área de conteúdo com scroll e padding para os botões
+
+    tabFooterStyle: Posicionamento absoluto no rodapé com fundo branco e borda
+
+Isso garante que:
+
+    Os botões de formulário ficarão sempre visíveis
+
+    O conteúdo será rolável sem esconder os botões
+
+    O layout será consistente em todas as abas
+
+    A experiência do usuário será uniforme
