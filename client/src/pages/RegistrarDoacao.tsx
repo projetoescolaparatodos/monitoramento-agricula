@@ -6,7 +6,7 @@ import { collection, query, where, getDocs, addDoc, doc, getDoc, Timestamp } fro
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { useAuthProtection } from '@/hooks/useAuthProtection';
+
 import { Gift, User, Package, ArrowLeft, Wifi, WifiOff } from 'lucide-react';
 import { FirebaseOptimizer, useFirebaseStatus } from '@/utils/firebaseOptimizations';
 
@@ -27,7 +27,8 @@ interface Insumo {
 
 const RegistrarDoacao: React.FC = () => {
   const [location, navigate] = useLocation();
-  const { user, loading: authLoading } = useAuthProtection();
+  const [user] = useState(null); // Remover autenticação obrigatória
+  const authLoading = false;
   const { toast } = useToast();
   const { isOnline, isConnected } = useFirebaseStatus();
 
@@ -124,15 +125,15 @@ const RegistrarDoacao: React.FC = () => {
       }
     };
 
-    if (!authLoading && user) {
+    if (!authLoading) {
       fetchData();
     }
-  }, [authLoading, user, toast]);
+  }, [authLoading, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.eventoId || !formData.insumoId || !formData.quantidade || !formData.beneficiarioNome || !formData.tecnicoNome || !user) {
+    if (!formData.eventoId || !formData.insumoId || !formData.quantidade || !formData.beneficiarioNome || !formData.tecnicoNome) {
       toast({
         title: "Erro",
         description: "Preencha todos os campos obrigatórios",
@@ -150,9 +151,9 @@ const RegistrarDoacao: React.FC = () => {
         insumoId: formData.insumoId,
         quantidade: Number(formData.quantidade),
         tecnico: {
-          id: user.uid,
+          id: `public_${Date.now()}`,
           nome: formData.tecnicoNome,
-          email: user.email || 'Não informado'
+          email: 'Acesso público'
         },
         beneficiario: {
           nome: formData.beneficiarioNome,
@@ -162,7 +163,7 @@ const RegistrarDoacao: React.FC = () => {
         timestamp: Timestamp.now(),
         createdAt: Timestamp.now(),
         // Adicionar ID único para evitar duplicatas
-        uniqueId: `${user.uid}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        uniqueId: `public_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
       };
 
       // Usar Promise com timeout para evitar travamento em caso de lentidão
@@ -224,42 +225,11 @@ const RegistrarDoacao: React.FC = () => {
   console.log('🎯 RegistrarDoacao - Verificando condições de render:', {
     authLoading,
     loading,
-    user: !!user,
     eventos: eventos?.length || 0,
     insumos: insumos?.length || 0
   });
 
-  if (authLoading) {
-    console.log('🎯 RegistrarDoacao - Carregando autenticação...');
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Verificando autenticação...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    console.log('🎯 RegistrarDoacao - Usuário não autenticado, mostrando opção de login');
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center max-w-md mx-4">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Acesso Restrito</h2>
-          <p className="text-gray-600 mb-6">Você precisa estar logado como técnico para registrar doações.</p>
-          <div className="space-y-3">
-            <Button onClick={() => navigate('/login')} className="w-full">
-              Fazer Login
-            </Button>
-            <Button variant="outline" onClick={() => navigate('/')} className="w-full">
-              Voltar ao Início
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  
 
   if (loading) {
     console.log('🎯 RegistrarDoacao - Carregando dados...');
