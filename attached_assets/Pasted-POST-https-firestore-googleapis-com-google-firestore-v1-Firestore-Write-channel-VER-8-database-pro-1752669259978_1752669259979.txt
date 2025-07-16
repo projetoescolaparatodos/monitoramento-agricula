@@ -1,0 +1,76 @@
+POST
+https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?VER=8&database=projects/transparencia-agricola/databases/(default)&gsessionid=DB_82xKfK7pBcaZW5oTwEJabKNbT79_qnM4MWXQocHc&SID=fflMZd5Gdl-HKWLdiGtkOQ&RID=28231&TYPE=terminate&zx=ogh6bmqalsm1
+NS_BINDING_ABORTED
+
+	
+POST
+	https://firestore.googleapis.com/google.firestore.v1.Firestore/Write/channel?VER=8&database=projects/transparencia-agricola/databases/(default)&gsessionid=DB_82xKfK7pBcaZW5oTwEJabKNbT79_qnM4MWXQocHc&SID=fflMZd5Gdl-HKWLdiGtkOQ&RID=28231&TYPE=terminate&zx=ogh6bmqalsm1
+Status
+400
+VersãoHTTP/3
+Transferido429 B (tamanho 0 B)
+Referrer Policystrict-origin-when-cross-origin
+Prioridade da requisiçãoLowest
+Resolução de DNSSistema
+
+    	
+    access-control-allow-credentials
+    	true
+    access-control-allow-origin
+    	https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev
+    alt-svc
+    	h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+    content-length
+    	1566
+    content-type
+    	text/html; charset=UTF-8
+    date
+    	Wed, 16 Jul 2025 12:28:28 GMT
+    server
+    	ESF
+    vary
+    	origin
+    x-content-type-options
+    	nosniff
+    x-frame-options
+    	SAMEORIGIN
+    x-xss-protection
+    	0
+    	
+    Accept
+    	*/*
+    Accept-Encoding
+    	gzip, deflate, br, zstd
+    Accept-Language
+    	pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3
+    Alt-Used
+    	firestore.googleapis.com
+    Connection
+    	keep-alive
+    Content-Length
+    	0
+    Content-Type
+    	text/plain;charset=UTF-8
+    Host
+    	firestore.googleapis.com
+    Origin
+    	https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev
+    Priority
+    	u=6
+    Referer
+    	https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev/
+    Sec-Fetch-Dest
+    	empty
+    Sec-Fetch-Mode
+    	no-cors
+    Sec-Fetch-Site
+    	cross-site
+    User-Agent
+    	Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0Uncaught Error: FIRESTORE (11.3.1) INTERNAL ASSERTION FAILED: Unexpected state
+    fail assert.ts:40
+    Du async_queue_impl.ts:239
+    enqueue async_queue_impl.ts:120
+    enqueueAndForget async_queue_impl.ts:94
+    enqueueRetryable async_queue_impl.ts:142
+    Ms shared_client_state.ts:779
+assert.ts:40:9
