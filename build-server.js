@@ -61,6 +61,14 @@ try {
     console.log('📂 Arquivos no build:', files.slice(0, 10).join(', ') + (files.length > 10 ? '...' : ''));
   }
 
+  // Verificar se o servidor JavaScript compilado existe
+  const serverJsPath = path.join('dist', 'server.js');
+  if (fs.existsSync(serverJsPath)) {
+    console.log('✅ Servidor JavaScript encontrado em dist/server.js');
+  } else {
+    console.log('⚠️  Servidor JavaScript não encontrado, mas continuando...');
+  }
+
   console.log('✅ Processo de build concluído com sucesso');
 
 } catch (error) {
