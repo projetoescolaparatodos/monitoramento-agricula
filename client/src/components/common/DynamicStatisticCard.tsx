@@ -42,20 +42,49 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
   const [targetValue, setTargetValue] = useState<number>(0);
   const [updateQueue, setUpdateQueue] = useState<number[]>([]);
   const [forceUpdateActive, setForceUpdateActive] = useState(false);
+  
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const incrementInterval = useRef<NodeJS.Timeout>();
   const forceUpdateTimeout = useRef<NodeJS.Timeout>();
-  const stepsPerSecond = 3;
+  const animationTimeout = useRef<NodeJS.Timeout>();
+
+  const calculateAnimationSpeed = (difference: number): { stepsPerSecond: number; maxDuration: number } => {
+    const absDifference = Math.abs(difference);
+    
+    // Para valores acima de 100, animação mais rápida
+    if (absDifference >= 100) {
+      return {
+        stepsPerSecond: Math.min(20, Math.max(10, absDifference / 10)), // 10-20 steps/sec
+        maxDuration: 60000 // 1 minuto máximo
+      };
+    } else if (absDifference >= 10) {
+      return {
+        stepsPerSecond: 5,
+        maxDuration: 60000
+      };
+    } else {
+      return {
+        stepsPerSecond: 3,
+        maxDuration: 60000
+      };
+    }
+  };
 
   const startIncrementalUpdate = (newValue: number) => {
+    // Limpar intervalos e timeouts anteriores
     if (incrementInterval.current) {
       clearInterval(incrementInterval.current);
+    }
+    if (animationTimeout.current) {
+      clearTimeout(animationTimeout.current);
     }
 
     const difference = newValue - displayValue;
     if (difference === 0) {
       setForceUpdateActive(false);
-      clearTimeout(forceUpdateTimeout.current);
+      if (forceUpdateTimeout.current) {
+        clearTimeout(forceUpdateTimeout.current);
+      }
       return;
     }
 
@@ -64,32 +93,59 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     setIsAnimating(true);
     setTargetValue(newValue);
 
-    const increment = difference > 0 ? 1 : -1;
-    const totalSteps = Math.abs(difference);
+    const { stepsPerSecond, maxDuration } = calculateAnimationSpeed(difference);
+    const increment = difference > 0 ? Math.max(1, Math.ceil(Math.abs(difference) / (stepsPerSecond * (maxDuration / 1000)))) : 
+                                       -Math.max(1, Math.ceil(Math.abs(difference) / (stepsPerSecond * (maxDuration / 1000))));
     const stepDuration = 1000 / stepsPerSecond;
 
-    let stepsCompleted = 0;
+    console.log(`📊 Parâmetros de animação: increment=${increment}, stepDuration=${stepDuration}ms, stepsPerSecond=${stepsPerSecond}`);
+
+    let currentValue = displayValue;
+
+    // Timeout de segurança para garantir que a animação não dure mais que 1 minuto
+    animationTimeout.current = setTimeout(() => {
+      console.log(`⏰ Timeout de animação atingido, finalizando em: ${newValue}`);
+      if (incrementInterval.current) {
+        clearInterval(incrementInterval.current);
+      }
+      setDisplayValue(newValue);
+      setIsAnimating(false);
+      setForceUpdateActive(false);
+      if (forceUpdateTimeout.current) {
+        clearTimeout(forceUpdateTimeout.current);
+      }
+      setForceUpdate(0);
+    }, maxDuration);
 
     incrementInterval.current = setInterval(() => {
       setDisplayValue(prev => {
-        const newDisplayValue = prev + increment;
-        stepsCompleted++;
-
-        if (stepsCompleted >= totalSteps || 
-            (increment > 0 && newDisplayValue >= newValue) || 
-            (increment < 0 && newDisplayValue <= newValue)) {
+        const nextValue = prev + increment;
+        
+        // Verificar se chegamos ao valor alvo ou se ultrapassamos
+        const shouldStop = increment > 0 ? nextValue >= newValue : nextValue <= newValue;
+        
+        if (shouldStop) {
+          console.log(`✅ Animação concluída: ${newValue}`);
+          
           if (incrementInterval.current) {
             clearInterval(incrementInterval.current);
           }
+          if (animationTimeout.current) {
+            clearTimeout(animationTimeout.current);
+          }
+          
           setIsAnimating(false);
           setForceUpdateActive(false);
-          clearTimeout(forceUpdateTimeout.current);
+          if (forceUpdateTimeout.current) {
+            clearTimeout(forceUpdateTimeout.current);
+          }
           setForceUpdate(0);
-          console.log(`✅ Animação concluída: ${newValue}`);
+          
           return newValue;
         }
 
-        return newDisplayValue;
+        currentValue = nextValue;
+        return nextValue;
       });
     }, stepDuration);
   };
@@ -100,16 +156,16 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       setUpdateQueue(prev => prev.slice(1));
       startIncrementalUpdate(nextValue);
     }
-  }, [updateQueue, isAnimating]);
+  }, [updateQueue, isAnimating, displayValue]);
 
   useEffect(() => {
-    if (!loading && value !== targetValue && value !== displayValue) {
+    if (!loading && value !== targetValue && value !== displayValue && !isAnimating) {
       setUpdateQueue(prev => {
         if (prev.includes(value)) return prev;
         return [...prev, value];
       });
     }
-  }, [value, loading, targetValue, displayValue]);
+  }, [value, loading, targetValue, displayValue, isAnimating]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -132,12 +188,17 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
         event.preventDefault();
         if (forceUpdateActive) {
           console.log(`🛑 Atualização forçada cancelada manualmente para: ${config.titulo}`);
-          clearTimeout(forceUpdateTimeout.current);
+          if (forceUpdateTimeout.current) {
+            clearTimeout(forceUpdateTimeout.current);
+          }
           setForceUpdateActive(false);
           setForceUpdate(0);
           
           if (incrementInterval.current) {
             clearInterval(incrementInterval.current);
+          }
+          if (animationTimeout.current) {
+            clearTimeout(animationTimeout.current);
           }
           setIsAnimating(false);
         }
@@ -351,8 +412,13 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       if (incrementInterval.current) {
         clearInterval(incrementInterval.current);
       }
+      if (animationTimeout.current) {
+        clearTimeout(animationTimeout.current);
+      }
       clearInterval(interval);
-      clearTimeout(forceUpdateTimeout.current);
+      if (forceUpdateTimeout.current) {
+        clearTimeout(forceUpdateTimeout.current);
+      }
       setForceUpdateActive(false);
       setIsAnimating(false);
       setForceUpdate(0);
