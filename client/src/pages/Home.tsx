@@ -22,23 +22,6 @@ const SectionSkeleton = React.memo(({ height = "400px" }: { height?: string }) =
 
 const Home = () => {
   const [, setLocation] = useLocation();
-  const [showShortcutNotification, setShowShortcutNotification] = useState(false);
-
-  // Mostrar notificação sobre atalho por alguns segundos
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowShortcutNotification(true);
-    }, 2000);
-
-    const hideTimer = setTimeout(() => {
-      setShowShortcutNotification(false);
-    }, 8000);
-
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(hideTimer);
-    };
-  }, []);
 
   // Buscar mídias da página home com staleTime para cache
   const { data: allMediaItems, isLoading: isLoadingMedia } = useQuery<MediaItem[]>({
@@ -101,16 +84,6 @@ const Home = () => {
       </div>
 
       <main className="container mx-auto px-4 pt-28 pb-16 relative z-20">
-        {/* Notificação do atalho de atualização */}
-        {showShortcutNotification && (
-          <div className="fixed top-24 right-4 bg-purple-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-slide-in-right">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-bold">⚡ Dica:</span>
-              <span className="text-sm">Pressione <kbd className="bg-purple-800 px-2 py-1 rounded text-xs">Ctrl + A</kbd> para atualizar estatísticas</span>
-            </div>
-          </div>
-        )}
-
         <Suspense fallback={<SectionSkeleton height="500px" />}>
           <HeroSection />
         </Suspense>
