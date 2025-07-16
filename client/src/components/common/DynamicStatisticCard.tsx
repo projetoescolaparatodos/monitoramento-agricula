@@ -1,7 +1,4 @@
-The code modifications involve completing the implementation of a robust control mechanism for dynamic statistic cards, specifically focusing on cleanup operations within animation functions and the main useEffect hook.
-```
 
-```replit_final_file
 import React, { useEffect, useState, useRef } from "react";
 import { db, withRetry } from "@/utils/firebase";
 import {
@@ -48,26 +45,25 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const incrementInterval = useRef<NodeJS.Timeout>();
   const forceUpdateTimeout = useRef<NodeJS.Timeout>();
-  const stepsPerSecond = 3; // 3 incrementos por segundo para fluidez
+  const stepsPerSecond = 3;
 
   const startIncrementalUpdate = (newValue: number) => {
-    // Limpa qualquer intervalo existente
     if (incrementInterval.current) {
       clearInterval(incrementInterval.current);
     }
 
     const difference = newValue - displayValue;
     if (difference === 0) {
-      // Se não houve mudança, limpa estado de força
       setForceUpdateActive(false);
       clearTimeout(forceUpdateTimeout.current);
       return;
     }
 
+    console.log(`🎯 Iniciando animação: ${displayValue} → ${newValue} (diferença: ${difference})`);
+    
     setIsAnimating(true);
     setTargetValue(newValue);
 
-    // Calcula o incremento por passo
     const increment = difference > 0 ? 1 : -1;
     const totalSteps = Math.abs(difference);
     const stepDuration = 1000 / stepsPerSecond;
@@ -79,7 +75,6 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
         const newDisplayValue = prev + increment;
         stepsCompleted++;
 
-        // Finaliza quando atingir o valor alvo
         if (stepsCompleted >= totalSteps || 
             (increment > 0 && newDisplayValue >= newValue) || 
             (increment < 0 && newDisplayValue <= newValue)) {
@@ -87,9 +82,10 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
             clearInterval(incrementInterval.current);
           }
           setIsAnimating(false);
-          setForceUpdateActive(false); // Limpa estado de força
+          setForceUpdateActive(false);
           clearTimeout(forceUpdateTimeout.current);
           setForceUpdate(0);
+          console.log(`✅ Animação concluída: ${newValue}`);
           return newValue;
         }
 
@@ -98,7 +94,6 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     }, stepDuration);
   };
 
-  // Gerenciamento da fila de atualizações para evitar sobreposição
   useEffect(() => {
     if (updateQueue.length > 0 && !isAnimating) {
       const nextValue = updateQueue[0];
@@ -109,19 +104,15 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
 
   useEffect(() => {
     if (!loading && value !== targetValue && value !== displayValue) {
-      // Adiciona à fila de atualizações
       setUpdateQueue(prev => {
-        // Evita duplicatas na fila
         if (prev.includes(value)) return prev;
         return [...prev, value];
       });
     }
   }, [value, loading, targetValue, displayValue]);
 
-  // Listener para teclas de atalho (Ctrl+A para forçar atualização, Ctrl+L para cancelar)
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Atalho Ctrl+A - Forçar atualização
       if (event.ctrlKey && event.key.toLowerCase() === "a") {
         event.preventDefault();
         if (!forceUpdateActive) {
@@ -129,15 +120,14 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           setForceUpdateActive(true);
           setForceUpdate((prev) => prev + 1);
 
-          // Timeout automático após 30 segundos (fallback)
           forceUpdateTimeout.current = setTimeout(() => {
             console.log(`⏰ Atualização forçada finalizada (timeout) para: ${config.titulo}`);
             setForceUpdateActive(false);
+            setForceUpdate(0);
           }, 30000);
         }
       }
 
-      // Atalho Ctrl+L - Cancelar atualização forçada
       if (event.ctrlKey && event.key.toLowerCase() === "l") {
         event.preventDefault();
         if (forceUpdateActive) {
@@ -145,6 +135,11 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           clearTimeout(forceUpdateTimeout.current);
           setForceUpdateActive(false);
           setForceUpdate(0);
+          
+          if (incrementInterval.current) {
+            clearInterval(incrementInterval.current);
+          }
+          setIsAnimating(false);
         }
       }
     };
@@ -185,6 +180,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
 
     const fetchData = () => {
       const { startDate, endDate } = calcularPeriodo();
+      console.log(`🔄 Atualizando estatística dinâmica:`, config.titulo);
 
       const setupQuery = () => {
         let q = query(collection(db, config.colecaoFonte));
@@ -249,38 +245,40 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
                 }
               }
 
-              if (previousValue > 0) {
-                if (calculatedValue > previousValue) {
-                  setTrend("up");
-                } else if (calculatedValue < previousValue) {
-                  setTrend("down");
-                } else {
-                  setTrend("stable");
+              // Verificar se houve mudança real no valor
+              if (calculatedValue !== value) {
+                console.log(`🎯 Valor mudou para estatística "${config.titulo}": ${value} → ${calculatedValue}`);
+                
+                if (previousValue > 0) {
+                  if (calculatedValue > previousValue) {
+                    setTrend("up");
+                  } else if (calculatedValue < previousValue) {
+                    setTrend("down");
+                  } else {
+                    setTrend("stable");
+                  }
                 }
-              }
 
-              setPreviousValue(value);
+                setPreviousValue(value);
+                setValue(calculatedValue);
 
-              const hasValueChanged = calculatedValue !== value;
+                if (loading) {
+                  setDisplayValue(calculatedValue);
+                } else {
+                  setHasNewData(true);
+                  
+                  try {
+                    const audio = new Audio(
+                      "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+LyvmEeADOFz/LNfTEGJG+/9+J+LA",
+                    );
+                    audio.volume = 0.1;
+                    audio.play().catch(() => {});
+                  } catch (error) {}
 
-              setValue(calculatedValue);
-
-              if (loading) {
-                setDisplayValue(calculatedValue);
-              } else if (hasValueChanged) {
-                setHasNewData(true);
-
-                try {
-                  const audio = new Audio(
-                    "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+LyvmEeADOFz/LNfTEGJG+/9+J+LA",
-                  );
-                  audio.volume = 0.1;
-                  audio.play().catch(() => {});
-                } catch (error) {}
-
-                setTimeout(() => {
-                  setHasNewData(false);
-                }, 3000);
+                  setTimeout(() => {
+                    setHasNewData(false);
+                  }, 3000);
+                }
               }
 
               setLastUpdate(new Date());
@@ -304,12 +302,14 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
 
     let currentUnsubscribe: (() => void) | null = null;
 
+    // Fetch inicial
     fetchData().then((unsubscribeFunc) => {
       currentUnsubscribe = unsubscribeFunc;
     });
 
+    // Atualização automática a cada 30 segundos
     const interval = setInterval(async () => {
-      if (!isUpdating) {
+      if (!isUpdating && !forceUpdateActive) {
         setIsUpdating(true);
 
         if (currentUnsubscribe) {
@@ -326,6 +326,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       }
     }, 30000);
 
+    // Atualização forçada
     if (forceUpdate > 0) {
       setIsUpdating(true);
 
@@ -344,7 +345,6 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     }
 
     return () => {
-      // Limpeza completa de recursos
       if (currentUnsubscribe) {
         currentUnsubscribe();
       }
@@ -357,13 +357,12 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       setIsAnimating(false);
       setForceUpdate(0);
     };
-  }, [config, isUpdating, forceUpdate, forceUpdateActive]);
+  }, [config, isUpdating, forceUpdate, forceUpdateActive, value, loading, previousValue]);
 
   const formatValue = (val: number) => {
     if (config.tipoAgregacao === "avg") {
       return val.toFixed(1);
     }
-
     return Math.floor(val).toLocaleString("pt-BR");
   };
 
@@ -429,7 +428,9 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           })}
         </div>
       </div>
+      
       <div className="h-1 bg-gradient-to-r from-green-500 to-emerald-600"></div>
+      
       <CardContent className="p-6 text-center relative z-10">
         {loading ? (
           <div className="animate-pulse space-y-4">
