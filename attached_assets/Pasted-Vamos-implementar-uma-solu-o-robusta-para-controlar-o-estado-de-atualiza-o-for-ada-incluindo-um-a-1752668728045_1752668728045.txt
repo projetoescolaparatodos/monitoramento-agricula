@@ -1,0 +1,155 @@
+Vamos implementar uma solução robusta para controlar o estado de atualização forçada, incluindo um atalho (Ctrl+L) para encerrá-lo manualmente. Aqui está a implementação completa:
+1. Primeiro, adicione estes estados adicionais:
+typescript
+
+const [forceUpdateActive, setForceUpdateActive] = useState(false);
+const forceUpdateTimeout = useRef<NodeJS.Timeout>();
+
+2. Modifique o useEffect do listener de teclado:
+typescript
+
+useEffect(() => {
+  const handleKeyDown = (event: KeyboardEvent) => {
+    // Atalho Ctrl+A - Forçar atualização
+    if (event.ctrlKey && event.key.toLowerCase() === 'a') {
+      event.preventDefault();
+      if (!forceUpdateActive) {
+        console.log('Atualização forçada iniciada');
+        setForceUpdateActive(true);
+        setForceUpdate(prev => prev + 1);
+        
+        // Timeout automático após 30 segundos (fallback)
+        forceUpdateTimeout.current = setTimeout(() => {
+          console.log('Atualização forçada finalizada (timeout)');
+          setForceUpdateActive(false);
+        }, 30000);
+      }
+    }
+    
+    // Atalho Ctrl+L - Cancelar atualização forçada
+    if (event.ctrlKey && event.key.toLowerCase() === 'l') {
+      event.preventDefault();
+      if (forceUpdateActive) {
+        console.log('Atualização forçada cancelada manualmente');
+        clearTimeout(forceUpdateTimeout.current);
+        setForceUpdateActive(false);
+        setForceUpdate(0);
+      }
+    }
+  };
+
+  window.addEventListener('keydown', handleKeyDown);
+  return () => window.removeEventListener('keydown', handleKeyDown);
+}, [forceUpdateActive]);
+
+3. Ajuste o useEffect principal para limpar corretamente:
+typescript
+
+useEffect(() => {
+  // ... resto do seu código existente ...
+
+  return () => {
+    // Limpeza completa
+    if (currentUnsubscribe) currentUnsubscribe();
+    clearInterval(interval);
+    clearTimeout(forceUpdateTimeout.current);
+    setForceUpdateActive(false);
+  };
+}, [config, isUpdating, forceUpdate, forceUpdateActive]);
+
+4. Modifique a lógica de animação para limpar o estado:
+typescript
+
+const startIncrementalUpdate = (newValue: number) => {
+  // Limpeza prévia
+  if (incrementInterval.current) {
+    clearInterval(incrementInterval.current);
+  }
+
+  const difference = newValue - displayValue;
+  if (difference === 0) {
+    // Se não houve mudança, limpa estado de força
+    setForceUpdateActive(false);
+    clearTimeout(forceUpdateTimeout.current);
+    return;
+  }
+
+  setIsAnimating(true);
+
+  incrementInterval.current = setInterval(() => {
+    setDisplayValue(prev => {
+      const newDisplayValue = prev + (difference > 0 ? 1 : -1);
+      
+      // Verifica se atingiu o valor alvo
+      if ((difference > 0 && newDisplayValue >= newValue) || 
+          (difference < 0 && newDisplayValue <= newValue)) {
+        clearInterval(incrementInterval.current);
+        setIsAnimating(false);
+        setForceUpdateActive(false); // Limpa estado de força
+        clearTimeout(forceUpdateTimeout.current);
+        return newValue;
+      }
+      
+      return newDisplayValue;
+    });
+  }, 500); // 500ms = 2 incrementos por segundo
+};
+
+5. Adicione feedback visual opcional:
+typescript
+
+{forceUpdateActive && (
+  <div className="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse">
+    Atualização Forçada (Ctrl+L para cancelar)
+  </div>
+)}
+
+Como funciona agora:
+
+    Ctrl+A:
+
+        Inicia a atualização forçada
+
+        Define um timeout de 30 segundos (fallback)
+
+        Ativa o estado forceUpdateActive
+
+    Durante a animação:
+
+        O contador incrementa normalmente
+
+        Ao completar, limpa automaticamente o estado forçado
+
+    Ctrl+L:
+
+        Cancela imediatamente o estado forçado
+
+        Limpa todos os timeouts
+
+        Interrompe qualquer animação em andamento
+
+    Proteções:
+
+        Evita múltiplas ativações simultâneas
+
+        Limpeza completa ao desmontar o componente
+
+        Fallback automático após 30 segundos
+
+Benefícios desta solução:
+
+    Controle preciso do estado de atualização forçada
+
+    Limpeza de recursos completa (memory leaks resolvidos)
+
+    Feedback visual do estado atual
+
+    Dois atalhos complementares:
+
+        Ctrl+A para forçar atualização
+
+        Ctrl+L para cancelar e limpar
+
+    Sistema de fallback automático após 30 segundos
+
+Isso deve resolver completamente o problema do estado preso e o consumo excessivo de memória, enquanto mantém todas as funcionalidades existentes
