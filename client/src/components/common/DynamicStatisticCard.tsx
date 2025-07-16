@@ -30,6 +30,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [isUpdating, setIsUpdating] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [hasNewData, setHasNewData] = useState(false);
 
   // Função para animar a contagem progressiva fluida
   const animateValue = (startValue: number, endValue: number) => {
@@ -200,11 +201,33 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
         }
 
         setPreviousValue(value);
+        
+        // Ativar animação sempre que houver mudança no valor
+        const hasValueChanged = calculatedValue !== value;
+        
         setValue(calculatedValue);
 
         // Se é a primeira vez carregando, não anima
         if (loading) {
           setDisplayValue(calculatedValue);
+        } else if (hasValueChanged) {
+          // Se o valor mudou, ativa a animação e notificação visual
+          console.log(`🎯 Valor mudou para estatística "${config.titulo}": ${value} → ${calculatedValue}`);
+          setHasNewData(true);
+          
+          // Feedback sonoro sutil (opcional)
+          try {
+            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+LyvmEeADOFz/LNfTEGJG+/9+J+LA');
+            audio.volume = 0.1;
+            audio.play().catch(() => {}); // Ignora erro se não conseguir tocar
+          } catch (error) {
+            // Ignora erro de áudio
+          }
+          
+          // Remove a notificação após 3 segundos
+          setTimeout(() => {
+            setHasNewData(false);
+          }, 3000);
         }
 
         setLastUpdate(new Date());
@@ -232,7 +255,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       currentUnsubscribe = unsubscribeFunc;
     });
 
-    // Configurar atualização automática a cada 5 minutos (300000ms) para reduzir carga
+    // Configurar atualização automática a cada 30 segundos para ser mais responsivo
     const interval = setInterval(async () => {
       // Só atualiza se não estiver já atualizando
       if (!isUpdating) {
@@ -253,7 +276,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           setIsUpdating(false);
         }
       }
-    }, 300000); // 5 minutos em vez de 1 minuto
+    }, 30000); // 30 segundos para ser mais responsivo
 
     return () => {
       if (currentUnsubscribe) {
@@ -289,18 +312,27 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
   };
 
   return (
-    <Card className={`bg-white rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 overflow-hidden transform hover:-translate-y-3 hover:scale-105 relative border border-gray-100 min-h-[180px] ${isAnimating ? 'ring-2 ring-green-400 ring-opacity-50' : ''}`}>
+    <Card className={`bg-white rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 overflow-hidden transform hover:-translate-y-3 hover:scale-105 relative border border-gray-100 min-h-[180px] ${isAnimating ? 'ring-2 ring-green-400 ring-opacity-50' : ''} ${hasNewData ? 'ring-4 ring-blue-400 ring-opacity-70 animate-pulse' : ''}`}>
       <div className="absolute top-4 right-4">
-        <div className={`w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${isAnimating ? 'animate-pulse scale-110' : ''}`}>
+        <div className={`w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${isAnimating ? 'animate-pulse scale-110' : ''} ${hasNewData ? 'bg-gradient-to-r from-blue-500 to-blue-600 animate-bounce' : ''}`}>
           {isUpdating ? (
             <span className="animate-spin text-sm">🔄</span>
           ) : isAnimating ? (
             <span className="animate-bounce text-sm">📈</span>
+          ) : hasNewData ? (
+            <span className="animate-pulse text-sm">🔥</span>
           ) : (
             <span className="text-sm">⚡</span>
           )}
         </div>
       </div>
+      
+      {/* Notificação de dados novos */}
+      {hasNewData && (
+        <div className="absolute top-2 left-2 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-bounce shadow-lg">
+          ✨ Atualizado!
+        </div>
+      )}
       <div className="absolute bottom-3 right-3">
         <div className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-full shadow-sm font-medium">
           {lastUpdate.toLocaleTimeString('pt-BR', { 
