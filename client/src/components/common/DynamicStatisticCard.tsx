@@ -41,16 +41,17 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     const startTime = performance.now();
     const range = endValue - startValue;
     
-    // Duração mais rápida e consistente
-    const duration = 2000; // 2 segundos fixos
+    // Duração adaptativa baseada na diferença de valores (mais lenta)
+    const baseDuration = Math.min(Math.abs(range) * 20, 8000); // Máx 8s
+    const finalDuration = Math.max(baseDuration, 2500); // Mín 2.5s
 
     const animate = (currentTime: number) => {
       const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
+      const progress = Math.min(elapsed / finalDuration, 1);
       
-      // Easing mais suave
-      const easeOutQuart = (t: number) => 1 - Math.pow(1 - t, 4);
-      const easedProgress = easeOutQuart(progress);
+      // Easing suave (easeOutCubic)
+      const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+      const easedProgress = easeOutCubic(progress);
       
       // Cálculo do valor atual
       const currentValue = startValue + (range * easedProgress);
@@ -58,8 +59,10 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       // Formatação baseada no tipo de agregação
       let displayValue: number;
       if (config.tipoAgregacao === 'avg') {
+        // Para médias, 1 casa decimal durante animação
         displayValue = parseFloat(currentValue.toFixed(1));
       } else {
+        // Para inteiros, mostrar todos os valores intermediários
         displayValue = Math.floor(currentValue);
       }
       
@@ -69,6 +72,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
+        // Garante o valor final exato
         setDisplayValue(endValue);
         setIsAnimating(false);
       }
@@ -285,21 +289,19 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
   };
 
   return (
-    <Card className={`bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1 relative border border-gray-100 ${isAnimating ? 'ring-2 ring-green-400 ring-opacity-50' : ''}`}>
-      {/* Linha verde superior igual às estatísticas normais */}
-      <div className="border-t-4 border-[#00ff4c]"></div>
+    <Card className={`bg-white rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 overflow-hidden transform hover:-translate-y-3 hover:scale-105 relative border border-gray-100 min-h-[180px] ${isAnimating ? 'ring-2 ring-green-400 ring-opacity-50' : ''}`}>
       <div className="absolute top-4 right-4">
-        <div className={`w-6 h-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${isAnimating ? 'animate-pulse scale-110' : ''}`}>
+        <div className={`w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${isAnimating ? 'animate-pulse scale-110' : ''}`}>
           {isUpdating ? (
-            <span className="animate-spin text-xs">🔄</span>
+            <span className="animate-spin text-sm">🔄</span>
           ) : isAnimating ? (
-            <span className="animate-bounce text-xs">📈</span>
+            <span className="animate-bounce text-sm">📈</span>
           ) : (
-            <span className="text-xs">⚡</span>
+            <span className="text-sm">⚡</span>
           )}
         </div>
       </div>
-      <div className="absolute bottom-2 right-2">
+      <div className="absolute bottom-3 right-3">
         <div className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-full shadow-sm font-medium">
           {lastUpdate.toLocaleTimeString('pt-BR', { 
             hour: '2-digit', 
@@ -307,6 +309,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           })}
         </div>
       </div>
+      <div className="border-t-5 bg-gradient-to-r from-green-500 to-emerald-600"></div>
       <CardContent className="p-6 text-center relative z-10">
         {loading ? (
           <div className="animate-pulse space-y-4">
@@ -316,11 +319,14 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           </div>
         ) : (
           <>
-            <div className="text-4xl font-bold text-primary-dark mb-3">
+            <div className="text-5xl font-black text-transparent bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text mb-4 leading-tight tracking-tight relative">
               <span 
-                className={`statistic-value transition-all duration-300 ${isAnimating ? 'counting' : ''}`} 
+                className={`statistic-value transition-all duration-300 ${isAnimating ? 'text-green-500 animate-pulse scale-105' : ''}`} 
                 style={{ 
-                  fontVariantNumeric: 'tabular-nums'
+                  fontVariantNumeric: 'tabular-nums',
+                  minWidth: '200px',
+                  display: 'inline-block',
+                  textAlign: 'center'
                 }}
               >
                 {formatValue(displayValue)}
@@ -334,21 +340,19 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
                 </div>
               )}
             </div>
-            <div className="text-sm uppercase font-semibold tracking-wider mb-3 text-gray-700">
+            <div className="text-lg font-bold tracking-wide mb-4 text-gray-800 leading-relaxed px-2">
               {config.titulo}
               {config.unidade && (
-                <span className="block text-xs text-green-600 font-normal mt-1 tracking-normal lowercase">
+                <span className="block text-base text-green-600 font-bold mt-1 tracking-normal">
                   ({config.unidade})
                 </span>
               )}
             </div>
             {trend !== 'stable' && (
-              <div className={`flex items-center justify-center text-sm font-medium ${getTrendColor()}`}>
-                <span className="flex items-center">
-                  {getTrendIcon()}
-                  <span className="ml-1">
-                    {trend === 'up' ? 'Crescendo' : 'Decrescendo'}
-                  </span>
+              <div className={`flex items-center justify-center text-base font-bold ${getTrendColor()} bg-gray-50 rounded-full px-4 py-2 shadow-md border border-gray-100`}>
+                <span className="text-lg mr-2">{getTrendIcon()}</span>
+                <span className="text-sm">
+                  {trend === 'up' ? '📈 Crescendo' : '📉 Decrescendo'}
                 </span>
               </div>
             )}
