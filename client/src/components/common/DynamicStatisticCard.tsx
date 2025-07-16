@@ -414,7 +414,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
                   </span>
                 </div>
               )}
-            </div></div>
+            </div>
             <div className="text-lg font-bold tracking-wide mb-4 text-gray-800 leading-relaxed px-2">
               {config.titulo}
               {config.unidade && (
