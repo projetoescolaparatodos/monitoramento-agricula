@@ -193,10 +193,10 @@ const Agriculture = () => {
           </AgricultureTabButton>
           <Button
             onClick={() => setLocation("/agricultura/map")}
-            className="flex items-center justify-center gap-2 text-sm sm:text-base w-full sm:w-auto"
+            className="flex items-center justify-center gap-2 text-xs sm:text-sm md:text-base w-full sm:w-auto px-2 sm:px-4"
           >
-            <Map className="h-4 w-4 flex-shrink-0" />
-            <span className="truncate">Acompanhar Serviços</span>
+            <Map className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+            <span className="truncate text-xs sm:text-sm md:text-base whitespace-nowrap">Acompanhar Serviços</span>
           </Button>
         </div>
         <main className="space-y-12">
