@@ -1536,23 +1536,8 @@ const ChatbotWidget: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="agricultura" className="p-0 m-0">
-              <div
-                className="flex flex-col"
-                style={{
-                  height: "500px",
-                  display: "flex",
-                  flexDirection: "column",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  className="flex-1 overflow-y-auto bg-green-50/50"
-                  style={{
-                    padding: "1rem",
-                    paddingBottom: "140px",
-                  }}
-                >
+              <div className="h-[500px] flex flex-col">
+                <div className="flex-1 overflow-y-auto bg-green-50/50 p-4 pb-20">
                   <h4 className="font-semibold text-green-800 mb-2">
                     Setor de Agricultura
                   </h4>
@@ -1597,29 +1582,17 @@ const ChatbotWidget: React.FC = () => {
                   </div>
                 </div>
 
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "0",
-                    left: "0",
-                    right: "0",
-                    padding: "0.75rem",
-                    backgroundColor: "white",
-                    borderTop: "1px solid #e5e7eb",
-                    zIndex: 10,
-                    minHeight: "70px",
-                  }}
-                >
+                <div className="p-3 bg-white border-t border-gray-200 flex-shrink-0">
                   <div className="grid grid-cols-2 gap-2">
                     <Button
                       onClick={() => abrirFormulario("agricultura")}
-                      className="bg-green-600 hover:bg-green-700 h-10"
+                      className="bg-green-600 hover:bg-green-700 h-10 text-sm"
                     >
                       Solicitar serviços
                     </Button>
                     <Button
                       onClick={() => abrirFormulario("agricultura-completo")}
-                      className="bg-green-800 hover:bg-green-900 h-10"
+                      className="bg-green-800 hover:bg-green-900 h-10 text-sm"
                     >
                       Cadastro Completo
                     </Button>
@@ -1629,23 +1602,8 @@ const ChatbotWidget: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="pesca" className="p-0 m-0">
-              <div
-                className="flex flex-col"
-                style={{
-                  height: "500px",
-                  display: "flex",
-                  flexDirection: "column",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  className="flex-1 overflow-y-auto bg-blue-50/50"
-                  style={{
-                    padding: "1rem",
-                    paddingBottom: "140px",
-                  }}
-                >
+              <div className="h-[500px] flex flex-col">
+                <div className="flex-1 overflow-y-auto bg-blue-50/50 p-4 pb-20">
                   <h4 className="font-semibold text-blue-800 mb-2">
                     Setor de Pesca
                   </h4>
@@ -1686,29 +1644,17 @@ const ChatbotWidget: React.FC = () => {
                   </div>
                 </div>
 
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "0",
-                    left: "0",
-                    right: "0",
-                    padding: "0.75rem",
-                    backgroundColor: "white",
-                    borderTop: "1px solid #e5e7eb",
-                    zIndex: 10,
-                    minHeight: "70px",
-                  }}
-                >
+                <div className="p-3 bg-white border-t border-gray-200 flex-shrink-0">
                   <div className="grid grid-cols-2 gap-2">
                     <Button
                       onClick={() => abrirFormulario("pesca")}
-                      className="bg-blue-600 hover:bg-blue-700 h-10"
+                      className="bg-blue-600 hover:bg-blue-700 h-10 text-sm"
                     >
                       Solicitar serviços
                     </Button>
                     <Button
                       onClick={() => abrirFormulario("pesca-completo")}
-                      className="bg-blue-800 hover:bg-blue-900 h-10"
+                      className="bg-blue-800 hover:bg-blue-900 h-10 text-sm"
                     >
                       Cadastro Completo
                     </Button>
@@ -1718,23 +1664,8 @@ const ChatbotWidget: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="paa" className="p-0 m-0">
-              <div
-                className="flex flex-col"
-                style={{
-                  height: "500px",
-                  display: "flex",
-                  flexDirection: "column",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  className="flex-1 overflow-y-auto bg-amber-50/50"
-                  style={{
-                    padding: "1rem",
-                    paddingBottom: "140px",
-                  }}
-                >
+              <div className="h-[500px] flex flex-col">
+                <div className="flex-1 overflow-y-auto bg-amber-50/50 p-4 pb-20">
                   <h4 className="font-semibold text-amber-800 mb-2">
                     Programa de Aquisição de Alimentos
                   </h4>
@@ -1783,22 +1714,10 @@ const ChatbotWidget: React.FC = () => {
                   </div>
                 </div>
 
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "0",
-                    left: "0",
-                    right: "0",
-                    padding: "0.75rem",
-                    backgroundColor: "white",
-                    borderTop: "1px solid #e5e7eb",
-                    zIndex: 10,
-                    minHeight: "70px",
-                  }}
-                >
+                <div className="p-3 bg-white border-t border-gray-200 flex-shrink-0">
                   <Button
                     disabled={true}
-                    className="w-full bg-gray-400 cursor-not-allowed opacity-70 h-10"
+                    className="w-full bg-gray-400 cursor-not-allowed opacity-70 h-10 text-sm"
                     title="Inscrições temporariamente indisponíveis"
                   >
                     Participar do PAA
