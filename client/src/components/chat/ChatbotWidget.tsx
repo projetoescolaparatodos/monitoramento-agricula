@@ -1549,8 +1549,8 @@ const ChatbotWidget: React.FC = () => {
                 <div
                   className="flex-1 overflow-y-auto bg-green-50/50"
                   style={{
-                    padding: "0.75rem",
-                    paddingBottom: "80px",
+                    padding: "1rem",
+                    paddingBottom: "140px",
                   }}
                 >
                   <h4 className="font-semibold text-green-800 mb-2">
@@ -1607,18 +1607,19 @@ const ChatbotWidget: React.FC = () => {
                     backgroundColor: "white",
                     borderTop: "1px solid #e5e7eb",
                     zIndex: 10,
+                    minHeight: "70px",
                   }}
                 >
                   <div className="grid grid-cols-2 gap-2">
                     <Button
                       onClick={() => abrirFormulario("agricultura")}
-                      className="bg-green-600 hover:bg-green-700"
+                      className="bg-green-600 hover:bg-green-700 h-10"
                     >
                       Solicitar serviços
                     </Button>
                     <Button
                       onClick={() => abrirFormulario("agricultura-completo")}
-                      className="bg-green-800 hover:bg-green-900"
+                      className="bg-green-800 hover:bg-green-900 h-10"
                     >
                       Cadastro Completo
                     </Button>
@@ -1641,8 +1642,8 @@ const ChatbotWidget: React.FC = () => {
                 <div
                   className="flex-1 overflow-y-auto bg-blue-50/50"
                   style={{
-                    padding: "0.75rem",
-                    paddingBottom: "80px",
+                    padding: "1rem",
+                    paddingBottom: "140px",
                   }}
                 >
                   <h4 className="font-semibold text-blue-800 mb-2">
@@ -1695,18 +1696,19 @@ const ChatbotWidget: React.FC = () => {
                     backgroundColor: "white",
                     borderTop: "1px solid #e5e7eb",
                     zIndex: 10,
+                    minHeight: "70px",
                   }}
                 >
                   <div className="grid grid-cols-2 gap-2">
                     <Button
                       onClick={() => abrirFormulario("pesca")}
-                      className="bg-blue-600 hover:bg-blue-700"
+                      className="bg-blue-600 hover:bg-blue-700 h-10"
                     >
                       Solicitar serviços
                     </Button>
                     <Button
                       onClick={() => abrirFormulario("pesca-completo")}
-                      className="bg-blue-800 hover:bg-blue-900"
+                      className="bg-blue-800 hover:bg-blue-900 h-10"
                     >
                       Cadastro Completo
                     </Button>
@@ -1729,8 +1731,8 @@ const ChatbotWidget: React.FC = () => {
                 <div
                   className="flex-1 overflow-y-auto bg-amber-50/50"
                   style={{
-                    padding: "0.75rem",
-                    paddingBottom: "80px",
+                    padding: "1rem",
+                    paddingBottom: "140px",
                   }}
                 >
                   <h4 className="font-semibold text-amber-800 mb-2">
@@ -1791,11 +1793,12 @@ const ChatbotWidget: React.FC = () => {
                     backgroundColor: "white",
                     borderTop: "1px solid #e5e7eb",
                     zIndex: 10,
+                    minHeight: "70px",
                   }}
                 >
                   <Button
                     disabled={true}
-                    className="w-full bg-gray-400 cursor-not-allowed opacity-70"
+                    className="w-full bg-gray-400 cursor-not-allowed opacity-70 h-10"
                     title="Inscrições temporariamente indisponíveis"
                   >
                     Participar do PAA
