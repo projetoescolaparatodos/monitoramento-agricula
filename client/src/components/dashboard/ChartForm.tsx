@@ -626,7 +626,7 @@ const ChartForm: React.FC<ChartFormProps> = ({
                                     <Input 
                                       type="color" 
                                       {...field} 
-                                      defaultValue={DEFAULT_COLORS[datasetIndex % DEFAULT_COLORS.length]}
+                                      value={field.value || DEFAULT_COLORS[datasetIndex % DEFAULT_COLORS.length]}
                                     />
                                   </FormControl>
                                   <div 
@@ -650,7 +650,7 @@ const ChartForm: React.FC<ChartFormProps> = ({
                                   <Input 
                                     type="color" 
                                     {...field} 
-                                    defaultValue={DEFAULT_COLORS[datasetIndex % DEFAULT_COLORS.length]}
+                                    value={field.value || DEFAULT_COLORS[datasetIndex % DEFAULT_COLORS.length]}
                                   />
                                 </FormControl>
                                 <div 
