@@ -230,10 +230,10 @@ const Agriculture = () => {
 
                 <Button
                   onClick={() => setLocation("/agricultura/map")}
-                  className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-sm md:text-lg py-3 px-4 md:px-6 rounded-lg shadow-md w-full md:w-auto"
+                  className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-xs sm:text-sm md:text-lg py-3 px-2 sm:px-4 md:px-6 rounded-lg shadow-md w-full md:w-auto"
                 >
-                  <Map className="h-4 w-4 flex-shrink-0" />
-                  Acompanhe nossas Atividades em tempo real
+                  <Map className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="truncate text-xs sm:text-sm md:text-lg whitespace-nowrap">Acompanhe nossas Atividades em tempo real</span>
                 </Button>
               </div>
             </div>
