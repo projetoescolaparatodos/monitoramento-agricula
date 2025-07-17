@@ -23,11 +23,13 @@ interface DynamicStatisticCardProps {
     filtroAdicional?: any;
   };
   variant?: "default" | "transparent";
+  enableAutoUpdate?: boolean;
 }
 
 export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
   config,
   variant = "default",
+  enableAutoUpdate = true,
 }) => {
   const [value, setValue] = useState<number>(0);
   const [displayValue, setDisplayValue] = useState<number>(0);
@@ -368,24 +370,27 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       currentUnsubscribe = unsubscribeFunc;
     });
 
-    // Atualização automática a cada 30 segundos
-    const interval = setInterval(async () => {
-      if (!isUpdating && !forceUpdateActive) {
-        setIsUpdating(true);
+    // Atualização automática a cada 30 segundos (apenas se enableAutoUpdate for true)
+    let interval: NodeJS.Timeout | null = null;
+    if (enableAutoUpdate) {
+      interval = setInterval(async () => {
+        if (!isUpdating && !forceUpdateActive) {
+          setIsUpdating(true);
 
-        if (currentUnsubscribe) {
-          currentUnsubscribe();
-        }
+          if (currentUnsubscribe) {
+            currentUnsubscribe();
+          }
 
-        try {
-          const newUnsubscribe = await fetchData();
-          currentUnsubscribe = newUnsubscribe;
-        } catch (error) {
-          console.error("Erro ao recriar subscription:", error);
-          setIsUpdating(false);
+          try {
+            const newUnsubscribe = await fetchData();
+            currentUnsubscribe = newUnsubscribe;
+          } catch (error) {
+            console.error("Erro ao recriar subscription:", error);
+            setIsUpdating(false);
+          }
         }
-      }
-    }, 30000);
+      }, 30000);
+    }
 
     // Atualização forçada
     if (forceUpdate > 0) {
@@ -415,7 +420,9 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       if (animationTimeout.current) {
         clearTimeout(animationTimeout.current);
       }
-      clearInterval(interval);
+      if (interval) {
+        clearInterval(interval);
+      }
       if (forceUpdateTimeout.current) {
         clearTimeout(forceUpdateTimeout.current);
       }
@@ -423,7 +430,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       setIsAnimating(false);
       setForceUpdate(0);
     };
-  }, [config, isUpdating, forceUpdate, forceUpdateActive, value, loading, previousValue]);
+  }, [config, isUpdating, forceUpdate, forceUpdateActive, value, loading, previousValue, enableAutoUpdate]);
 
   const formatValue = (val: number) => {
     if (config.tipoAgregacao === "avg") {

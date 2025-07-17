@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 
@@ -23,8 +22,6 @@ const StatisticsSection = () => {
                   {stat.trendValue && `${stat.trendValue} `}{stat.trend}
                 </p>
               )}
-            </Card>
-          ))}
         </div>
       )}
     </section>

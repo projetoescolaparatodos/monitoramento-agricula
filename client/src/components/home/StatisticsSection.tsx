@@ -107,7 +107,7 @@ const StatisticsSection = React.memo(({ variant = "default" }: { variant?: "defa
 
         {/* Estatísticas dinâmicas */}
         {dynamicStatsConfig?.map((config: any) => (
-          <DynamicStatisticCard key={config.id} config={config} variant={variant} />
+          <DynamicStatisticCard key={config.id} config={config} variant={variant} enableAutoUpdate={true} />
         ))}
       </div>
     </section>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { DynamicStatisticCard } from './DynamicStatisticCard';
 import { Card, CardContent } from '@/components/ui/card';
@@ -77,7 +76,12 @@ export const EventStatsDisplay: React.FC<EventStatsDisplayProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {eventStatsConfig.map(config => (
             <div key={config.id} className="transform hover:scale-105 transition-transform duration-300">
-              <DynamicStatisticCard config={config} variant="default" />
+              <DynamicStatisticCard 
+              key={config.id} 
+              config={config} 
+              variant="transparent" 
+              enableAutoUpdate={true}
+            />
             </div>
           ))}
         </div>
