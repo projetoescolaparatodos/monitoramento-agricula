@@ -1301,14 +1301,15 @@ const ChatbotWidget: React.FC = () => {
         <Card
           className={`shadow-xl flex flex-col ${
             isMobile 
-              ? "w-[calc(100vw-32px)] max-w-sm" 
+              ? "fixed bottom-0 right-0 w-full" 
               : "w-80 sm:w-96 md:w-[420px] lg:w-[450px] xl:w-96"
           }`}
           style={{
-            height: isMobile ? "500px" : (isSmallScreen ? "calc(100vh - 60px)" : "580px"),
-            maxHeight: isMobile ? "500px" : (isSmallScreen ? "calc(100vh - 60px)" : "min(580px, 80vh)"),
-            minHeight: isMobile ? "500px" : (isSmallScreen ? "400px" : "500px"),
-            position: "relative",
+            height: isMobile ? "calc(100vh - 4rem)" : (isSmallScreen ? "calc(100vh - 60px)" : "580px"),
+            maxHeight: isMobile ? "none" : (isSmallScreen ? "calc(100vh - 60px)" : "min(580px, 80vh)"),
+            minHeight: isMobile ? "auto" : (isSmallScreen ? "400px" : "500px"),
+            position: isMobile ? "fixed" : "relative",
+            borderRadius: isMobile ? "0" : "0.5rem",
           }}
           data-chat-open="true"
         >
@@ -1367,11 +1368,11 @@ const ChatbotWidget: React.FC = () => {
                 <div
                   className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent"
                   style={{
-                    paddingBottom: suggestions.length > 0 ? (isMobile ? "150px" : isSmallScreen ? "120px" : "140px") : (isMobile ? "90px" : "70px"),
-                    minHeight: isMobile ? "250px" : (isSmallScreen ? "200px" : "280px"),
+                    paddingBottom: isMobile ? "160px" : (suggestions.length > 0 ? (isSmallScreen ? "120px" : "140px") : "70px"),
+                    minHeight: isMobile ? "auto" : (isSmallScreen ? "200px" : "280px"),
                     maxHeight: isMobile 
-                      ? "calc(500px - 200px)" 
-                      : (isSmallScreen ? "calc(100vh - 240px)" : "calc(500px - 140px)"),
+                      ? "none" 
+                      : (isSmallScreen ? "calc(100vh - 240px)" : "calc(100% - 140px)"),
                   }}
                 >
                   {messages.map((msg, idx) => (
@@ -1435,12 +1436,16 @@ const ChatbotWidget: React.FC = () => {
 
                 <form
                   onSubmit={handleSubmit}
-                  className="p-3 border-t flex items-center bg-white z-20 w-full min-h-[70px]"
+                  className={`p-3 border-t flex items-center bg-white ${
+                    isMobile ? "sticky" : "absolute"
+                  } ${
+                    suggestions.length > 0 ? (isMobile ? "bottom-16" : "z-20") : "bottom-0"
+                  } w-full min-h-[70px]`}
                   style={{
-                    position: "absolute",
-                    bottom: suggestions.length > 0 ? (isMobile ? "80px" : isSmallScreen ? "50px" : "70px") : "0",
-                    left: "0",
-                    right: "0",
+                    position: isMobile ? "sticky" : "absolute",
+                    bottom: isMobile ? (suggestions.length > 0 ? "4rem" : "0") : (suggestions.length > 0 ? (isSmallScreen ? "50px" : "70px") : "0"),
+                    left: isMobile ? "auto" : "0",
+                    right: isMobile ? "auto" : "0",
                     width: "100%",
                     zIndex: 20,
                     borderTop: "1px solid #e5e7eb",
@@ -1465,16 +1470,22 @@ const ChatbotWidget: React.FC = () => {
 
                 {suggestions.length > 0 && (
                   <div
-                    className="p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10 w-full rounded-b-lg shadow-md"
+                    className={`${
+                      isMobile ? "sticky bottom-0" : "absolute"
+                    } p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10 w-full ${
+                      isMobile ? "" : "rounded-b-lg shadow-md"
+                    } ${
+                      isMobile ? "max-h-[30vh] overflow-y-auto" : "max-h-[120px]"
+                    }`}
                     style={{
-                      position: "absolute",
+                      position: isMobile ? "sticky" : "absolute",
                       bottom: "0",
-                      left: "0",
-                      right: "0",
+                      left: isMobile ? "auto" : "0",
+                      right: isMobile ? "auto" : "0",
                       width: "100%",
                       zIndex: 10,
-                      maxHeight: isMobile ? "80px" : (isSmallScreen ? "50px" : "calc(100% - 70px)"),
-                      minHeight: isMobile ? "60px" : "auto",
+                      maxHeight: isMobile ? "30vh" : (isSmallScreen ? "50px" : "120px"),
+                      minHeight: isMobile ? "auto" : "auto",
                       overflowY: "auto",
                     }}
                   >
@@ -1483,13 +1494,12 @@ const ChatbotWidget: React.FC = () => {
                         <Button
                           key={index}
                           variant="outline"
-                          size={isMobile ? "sm" : (isSmallScreen ? "sm" : "sm")}
+                          size="sm"
                           className={`text-xs bg-white hover:bg-green-50 border-green-200 text-green-800 ${
-                            isMobile ? "px-2 py-1 text-[10px] h-7" : (isSmallScreen ? "px-2 py-1 text-[10px]" : "px-3 py-2")
+                            isMobile ? "whitespace-normal h-auto min-h-[2.5rem]" : (isSmallScreen ? "px-2 py-1 text-[10px]" : "px-3 py-2")
                           }`}
                           onClick={() => {
                             handleSuggestionClick(suggestion);
-                            // Force scroll to bottom after suggestion click
                             setTimeout(() => scrollToBottom(), 100);
                           }}
                         >
