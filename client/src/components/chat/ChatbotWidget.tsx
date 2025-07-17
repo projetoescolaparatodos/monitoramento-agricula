@@ -395,6 +395,7 @@ const ChatbotWidget: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [trainingData, setTrainingData] = useState("");
   const [isMobile, setIsMobile] = useState(false); // Added for responsiveness
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
 
   // Efeito para abrir automaticamente o chat após 10 segundos apenas na página inicial
   useEffect(() => {
@@ -570,8 +571,14 @@ const ChatbotWidget: React.FC = () => {
     const mediaQuery = window.matchMedia("(max-width: 768px)");
     setIsMobile(mediaQuery.matches);
 
-    const handleResize = () => setIsMobile(mediaQuery.matches);
-    mediaQuery.addEventListener("change", handleResize);
+    const checkScreenSize = () => {
+      setIsMobile(mediaQuery.matches);
+      setIsSmallScreen(window.innerWidth < 1024 || window.innerHeight < 700);
+    };
+
+    checkScreenSize();
+    const handleResize = () => checkScreenSize();
+    window.addEventListener("resize", handleResize);
 
     // Adiciona ouvinte para eventos de abertura do chat em abas específicas
     const handleChatOpenTab = (event: CustomEvent) => {
@@ -585,7 +592,7 @@ const ChatbotWidget: React.FC = () => {
     );
 
     return () => {
-      mediaQuery.removeEventListener("change", handleResize);
+      window.removeEventListener("resize", handleResize);
       window.removeEventListener(
         "chat_instance_open_tab",
         handleChatOpenTab as EventListener,
@@ -1293,9 +1300,9 @@ const ChatbotWidget: React.FC = () => {
         <Card
           className="w-80 sm:w-96 md:w-[420px] lg:w-[450px] xl:w-96 shadow-xl flex flex-col"
           style={{
-            height: "580px",
-            maxHeight: "min(580px, 80vh)",
-            minHeight: "500px",
+            height: isSmallScreen ? "calc(100vh - 60px)" : "580px",
+            maxHeight: isSmallScreen ? "calc(100vh - 60px)" : "min(580px, 80vh)",
+            minHeight: isSmallScreen ? "400px" : "500px",
             position: "relative",
           }}
           data-chat-open="true"
@@ -1355,9 +1362,11 @@ const ChatbotWidget: React.FC = () => {
                 <div
                   className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent"
                   style={{
-                    paddingBottom: "70px",
-                    minHeight: "280px",
-                    maxHeight: "calc(500px - 140px)",
+                    paddingBottom: suggestions.length > 0 ? (isSmallScreen ? "120px" : "140px") : "70px",
+                    minHeight: isSmallScreen ? "200px" : "280px",
+                    maxHeight: isSmallScreen 
+                      ? "calc(100vh - 240px)" 
+                      : "calc(500px - 140px)",
                   }}
                 >
                   {messages.map((msg, idx) => (
@@ -1424,7 +1433,7 @@ const ChatbotWidget: React.FC = () => {
                   className="p-3 border-t flex items-center bg-white z-20 w-full min-h-[70px]"
                   style={{
                     position: "absolute",
-                    bottom: suggestions.length > 0 ? "70px" : "0",
+                    bottom: suggestions.length > 0 ? (isSmallScreen ? "50px" : "70px") : "0",
                     left: "0",
                     right: "0",
                     width: "100%",
@@ -1459,7 +1468,7 @@ const ChatbotWidget: React.FC = () => {
                       right: "0",
                       width: "100%",
                       zIndex: 10,
-                      maxHeight: "70px",
+                      maxHeight: isSmallScreen ? "50px" : "calc(100% - 70px)",
                       overflowY: "auto",
                     }}
                   >
@@ -1468,8 +1477,10 @@ const ChatbotWidget: React.FC = () => {
                         <Button
                           key={index}
                           variant="outline"
-                          size="sm"
-                          className="text-xs bg-white hover:bg-green-50 border-green-200 text-green-800"
+                          size={isSmallScreen ? "sm" : "sm"}
+                          className={`text-xs bg-white hover:bg-green-50 border-green-200 text-green-800 ${
+                            isSmallScreen ? "px-2 py-1 text-[10px]" : "px-3 py-2"
+                          }`}
                           onClick={() => {
                             handleSuggestionClick(suggestion);
                             // Force scroll to bottom after suggestion click
