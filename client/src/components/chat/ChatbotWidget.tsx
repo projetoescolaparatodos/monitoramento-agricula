@@ -1367,10 +1367,10 @@ const ChatbotWidget: React.FC = () => {
                 <div
                   className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent"
                   style={{
-                    paddingBottom: suggestions.length > 0 ? (isMobile ? "100px" : isSmallScreen ? "120px" : "140px") : "70px",
-                    minHeight: isMobile ? "280px" : (isSmallScreen ? "200px" : "280px"),
+                    paddingBottom: suggestions.length > 0 ? (isMobile ? "150px" : isSmallScreen ? "120px" : "140px") : (isMobile ? "90px" : "70px"),
+                    minHeight: isMobile ? "250px" : (isSmallScreen ? "200px" : "280px"),
                     maxHeight: isMobile 
-                      ? "calc(500px - 160px)" 
+                      ? "calc(500px - 200px)" 
                       : (isSmallScreen ? "calc(100vh - 240px)" : "calc(500px - 140px)"),
                   }}
                 >
@@ -1438,7 +1438,7 @@ const ChatbotWidget: React.FC = () => {
                   className="p-3 border-t flex items-center bg-white z-20 w-full min-h-[70px]"
                   style={{
                     position: "absolute",
-                    bottom: suggestions.length > 0 ? (isMobile ? "30px" : isSmallScreen ? "50px" : "70px") : "0",
+                    bottom: suggestions.length > 0 ? (isMobile ? "80px" : isSmallScreen ? "50px" : "70px") : "0",
                     left: "0",
                     right: "0",
                     width: "100%",
@@ -1473,7 +1473,8 @@ const ChatbotWidget: React.FC = () => {
                       right: "0",
                       width: "100%",
                       zIndex: 10,
-                      maxHeight: isMobile ? "30px" : (isSmallScreen ? "50px" : "calc(100% - 70px)"),
+                      maxHeight: isMobile ? "80px" : (isSmallScreen ? "50px" : "calc(100% - 70px)"),
+                      minHeight: isMobile ? "60px" : "auto",
                       overflowY: "auto",
                     }}
                   >
@@ -1484,7 +1485,7 @@ const ChatbotWidget: React.FC = () => {
                           variant="outline"
                           size={isMobile ? "sm" : (isSmallScreen ? "sm" : "sm")}
                           className={`text-xs bg-white hover:bg-green-50 border-green-200 text-green-800 ${
-                            isMobile ? "px-1 py-0.5 text-[9px] h-6" : (isSmallScreen ? "px-2 py-1 text-[10px]" : "px-3 py-2")
+                            isMobile ? "px-2 py-1 text-[10px] h-7" : (isSmallScreen ? "px-2 py-1 text-[10px]" : "px-3 py-2")
                           }`}
                           onClick={() => {
                             handleSuggestionClick(suggestion);
@@ -1553,7 +1554,7 @@ const ChatbotWidget: React.FC = () => {
 
             <TabsContent value="agricultura" className="p-0 m-0">
               <div className="h-[500px] flex flex-col">
-                <div className={`flex-1 overflow-y-auto bg-green-50/50 p-4 ${isMobile ? "pb-16" : "pb-20"}`}>
+                <div className={`flex-1 overflow-y-auto bg-green-50/50 p-4 ${isMobile ? "pb-24" : "pb-20"}`}>
                   <h4 className="font-semibold text-green-800 mb-2">
                     Setor de Agricultura
                   </h4>
@@ -1619,7 +1620,7 @@ const ChatbotWidget: React.FC = () => {
 
             <TabsContent value="pesca" className="p-0 m-0">
               <div className="h-[500px] flex flex-col">
-                <div className={`flex-1 overflow-y-auto bg-blue-50/50 p-4 ${isMobile ? "pb-16" : "pb-20"}`}>
+                <div className={`flex-1 overflow-y-auto bg-blue-50/50 p-4 ${isMobile ? "pb-24" : "pb-20"}`}>
                   <h4 className="font-semibold text-blue-800 mb-2">
                     Setor de Pesca
                   </h4>
@@ -1681,7 +1682,7 @@ const ChatbotWidget: React.FC = () => {
 
             <TabsContent value="paa" className="p-0 m-0">
               <div className="h-[500px] flex flex-col">
-                <div className={`flex-1 overflow-y-auto bg-amber-50/50 p-4 ${isMobile ? "pb-16" : "pb-20"}`}>
+                <div className={`flex-1 overflow-y-auto bg-amber-50/50 p-4 ${isMobile ? "pb-24" : "pb-20"}`}>
                   <h4 className="font-semibold text-amber-800 mb-2">
                     Programa de Aquisição de Alimentos
                   </h4>
