@@ -209,7 +209,7 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
                         Contato Oficial
                       </h3>
                       <div className="space-y-2 text-gray-700">
-                        <p>📧 secagricultura@vitoriadoxingu.pa.gov.br</p>
+                        <p className="break-words overflow-wrap-anywhere">📧 secagricultura@vitoriadoxingu.pa.gov.br</p>
                       </div>
                     </div>
 
