@@ -1,0 +1,177 @@
+Correção para Mobile - ChatbotWidget
+
+Vamos ajustar o componente para que fique bem posicionado em dispositivos móveis, especialmente os botões de sugestão. Aqui está a solução completa:
+Solução para o Problema Mobile
+
+    Primeiro, ajuste o container principal:
+
+tsx
+
+<Card
+  className={`fixed bottom-0 sm:bottom-4 right-0 sm:right-4 w-full sm:w-96 md:w-[420px] lg:w-[450px] shadow-xl flex flex-col`}
+  style={{
+    height: isMobile ? 'calc(100vh - 4rem)' : '580px',
+    maxHeight: isMobile ? 'none' : 'min(580px, 80vh)',
+    minHeight: isMobile ? 'auto' : '500px',
+    borderRadius: isMobile ? '0' : '0.5rem',
+  }}
+>
+
+    Ajuste a área de mensagens:
+
+tsx
+
+<div
+  className="flex-1 overflow-y-auto p-4"
+  style={{
+    paddingBottom: isMobile ? '160px' : '140px',
+    maxHeight: isMobile ? 'none' : 'calc(100% - 140px)',
+  }}
+>
+
+    Correção do formulário de entrada:
+
+tsx
+
+<form
+  onSubmit={handleSubmit}
+  className={`p-3 border-t flex items-center bg-white sticky bottom-0 ${
+    suggestions.length > 0 ? 'bottom-16' : 'bottom-0'
+  }`}
+>
+
+    Ajuste dos botões de sugestão:
+
+tsx
+
+{suggestions.length > 0 && (
+  <div className={`sticky bottom-0 p-2 bg-gray-50 border-t flex flex-wrap gap-2 ${
+    isMobile ? 'max-h-[30vh] overflow-y-auto' : 'max-h-[120px]'
+  }`}>
+    {suggestions.map((suggestion, index) => (
+      <Button
+        key={index}
+        variant="outline"
+        size="sm"
+        className="text-xs whitespace-normal h-auto min-h-[2.5rem]"
+        onClick={() => handleSuggestionClick(suggestion)}
+      >
+        {suggestion.text}
+      </Button>
+    ))}
+  </div>
+)}
+
+Implementação Completa para Mobile
+
+Aqui está como deve ficar a parte relevante do componente:
+tsx
+
+<Card
+  className={`fixed bottom-0 sm:bottom-4 right-0 sm:right-4 w-full sm:w-96 md:w-[420px] lg:w-[450px] shadow-xl flex flex-col`}
+  style={{
+    height: isMobile ? 'calc(100vh - 4rem)' : '580px',
+    maxHeight: isMobile ? 'none' : 'min(580px, 80vh)',
+    minHeight: isMobile ? 'auto' : '500px',
+    borderRadius: isMobile ? '0' : '0.5rem',
+  }}
+  data-chat-open="true"
+>
+  {/* Cabeçalho */}
+  <div className="bg-green-600 text-white p-3 flex justify-between items-center rounded-t-lg">
+    {/* ... conteúdo do cabeçalho ... */}
+  </div>
+
+  {/* Área de mensagens */}
+  <div
+    className="flex-1 overflow-y-auto p-4"
+    style={{
+      paddingBottom: isMobile ? '160px' : '140px',
+      maxHeight: isMobile ? 'none' : 'calc(100% - 140px)',
+    }}
+  >
+    {/* ... mensagens ... */}
+  </div>
+
+  {/* Formulário de entrada */}
+  <form
+    onSubmit={handleSubmit}
+    className={`p-3 border-t flex items-center bg-white sticky bottom-0 ${
+      suggestions.length > 0 ? 'bottom-16' : 'bottom-0'
+    }`}
+  >
+    <Input
+      value={input}
+      onChange={(e) => setInput(e.target.value)}
+      placeholder="Digite sua mensagem..."
+      className="flex-1 min-w-0"
+      disabled={isLoading}
+    />
+    <Button
+      type="submit"
+      size="icon"
+      className="ml-2 bg-green-600 hover:bg-green-700 flex-shrink-0"
+      disabled={isLoading || !input.trim()}
+    >
+      <Send size={20} />
+    </Button>
+  </form>
+
+  {/* Botões de sugestão */}
+  {suggestions.length > 0 && (
+    <div className={`sticky bottom-0 p-2 bg-gray-50 border-t flex flex-wrap gap-2 ${
+      isMobile ? 'max-h-[30vh] overflow-y-auto' : 'max-h-[120px]'
+    }`}>
+      {suggestions.map((suggestion, index) => (
+        <Button
+          key={index}
+          variant="outline"
+          size="sm"
+          className="text-xs whitespace-normal h-auto min-h-[2.5rem]"
+          onClick={() => handleSuggestionClick(suggestion)}
+        >
+          {suggestion.text}
+        </Button>
+      ))}
+    </div>
+  )}
+</Card>
+
+Principais Melhorias:
+
+    Posicionamento correto em mobile:
+
+        O chat agora ocupa a tela toda no mobile (com margem inferior de 4rem)
+
+        Bordas arredondadas removidas no mobile para melhor aproveitamento de espaço
+
+    Botões de sugestão ajustados:
+
+        Agora ficam colados na parte inferior
+
+        Têm altura máxima de 30% da viewport no mobile
+
+        São scrolláveis quando têm muitos itens
+
+        Texto quebra linha corretamente
+
+    Área de mensagens responsiva:
+
+        Padding inferior ajustado conforme dispositivo
+
+        Não tem altura máxima no mobile (expande conforme conteúdo)
+
+    Formulário de entrada fixo:
+
+        Fica sempre visível na parte inferior
+
+        Ajusta sua posição baseado na presença de sugestões
+
+Essas mudanças garantem que:
+
+    Os botões ficarão sempre visíveis e acessíveis
+
+    O chat ocupará o espaço adequado em qualquer dispositivo
+
+    A experiência do usuário será consistente entre desktop e mobile
+
