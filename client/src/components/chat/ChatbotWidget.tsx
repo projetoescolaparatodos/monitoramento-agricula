@@ -375,7 +375,7 @@ const servicosSugestoes: SuggestionButton[] = [
 
 const ChatbotWidget: React.FC = () => {
   // Verificar se está em uma página de mapa
-  const isMapPage = window.location.pathname.includes('Map');
+  const isMapPage = window.location.pathname.includes("Map");
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -435,18 +435,26 @@ const ChatbotWidget: React.FC = () => {
   useEffect(() => {
     // Função especial para tratar evento direto do PAAButton
     const handleDirectPAAOpen = (event: CustomEvent) => {
-      if (event.detail && event.detail.directTab === 'paa') {
-        console.log("ChatbotWidget: Recebido evento para abrir diretamente na aba PAA");
-        setActiveTab('paa');
+      if (event.detail && event.detail.directTab === "paa") {
+        console.log(
+          "ChatbotWidget: Recebido evento para abrir diretamente na aba PAA",
+        );
+        setActiveTab("paa");
       }
     };
 
     // Adiciona o listener para o evento especial
-    window.addEventListener('direct_paa_open', handleDirectPAAOpen as EventListener);
+    window.addEventListener(
+      "direct_paa_open",
+      handleDirectPAAOpen as EventListener,
+    );
 
     // Remove o listener ao desmontar
     return () => {
-      window.removeEventListener('direct_paa_open', handleDirectPAAOpen as EventListener);
+      window.removeEventListener(
+        "direct_paa_open",
+        handleDirectPAAOpen as EventListener,
+      );
     };
   }, []);
 
@@ -454,12 +462,12 @@ const ChatbotWidget: React.FC = () => {
   useEffect(() => {
     // Função para verificar e aplicar a aba salva no localStorage
     const checkSavedTab = () => {
-      const tabToOpen = localStorage.getItem('open_chat_tab');
+      const tabToOpen = localStorage.getItem("open_chat_tab");
       if (tabToOpen) {
         console.log("ChatbotWidget: Aplicando aba do localStorage:", tabToOpen);
         setActiveTab(tabToOpen);
         // Limpamos depois de aplicar para evitar reaplicação indesejada
-        localStorage.removeItem('open_chat_tab');
+        localStorage.removeItem("open_chat_tab");
       }
     };
 
@@ -477,14 +485,21 @@ const ChatbotWidget: React.FC = () => {
         // Se for pedido para abrir o chat
         if (event.detail.isOpen === true) {
           // Se o evento vem específicamente do botão PAA
-          if (event.detail.source === 'paa-button' && event.detail.tab === 'paa') {
+          if (
+            event.detail.source === "paa-button" &&
+            event.detail.tab === "paa"
+          ) {
             console.log("ChatbotWidget: Recebido pedido para abrir na aba PAA");
             // Abrimos o chat e definimos a aba imediatamente
             setIsOpen(true);
-            setActiveTab('paa');
-          } 
+            setActiveTab("paa");
+          }
           // Se outra instância está pedindo para abrir, mas não é do nosso botão
-          else if (isOpen && !event.detail.source && !event.detail.preventClose) {
+          else if (
+            isOpen &&
+            !event.detail.source &&
+            !event.detail.preventClose
+          ) {
             // Só fechamos se não houver flag para prevenir fechamento
             setIsOpen(false);
           }
@@ -506,14 +521,20 @@ const ChatbotWidget: React.FC = () => {
     };
 
     // Registramos o listener
-    window.addEventListener('chat_instance_toggle', handleChatToggle as EventListener);
+    window.addEventListener(
+      "chat_instance_toggle",
+      handleChatToggle as EventListener,
+    );
 
     // Evitamos disparar evento ao montar para não causar fechamentos indesejados
     // Apenas se o isOpen mudar explicitamente
 
     // Limpeza ao desmontar
     return () => {
-      window.removeEventListener('chat_instance_toggle', handleChatToggle as EventListener);
+      window.removeEventListener(
+        "chat_instance_toggle",
+        handleChatToggle as EventListener,
+      );
     };
   }, [isOpen, activeTab]);
 
@@ -636,7 +657,7 @@ const ChatbotWidget: React.FC = () => {
     addMessage(
       "Você pode continuar nossa conversa aqui após preencher o formulário.",
       false,
-      );
+    );
 
     return false; // Impede processamento adicional
   };
@@ -870,9 +891,7 @@ const ChatbotWidget: React.FC = () => {
     let resposta = "";
 
     // Verificar se a mensagem corresponde a alguma ação no fluxo atual
-    if (
-      fluxoConversa[activeFluxo as keyof typeof fluxoConversa]
-    ) {
+    if (fluxoConversa[activeFluxo as keyof typeof fluxoConversa]) {
       const fluxoAtual = fluxoConversa[
         activeFluxo as keyof typeof fluxoConversa
       ] as any;
@@ -1273,11 +1292,11 @@ const ChatbotWidget: React.FC = () => {
       ) : (
         <Card
           className="w-80 sm:w-96 md:w-[420px] lg:w-[450px] xl:w-96 shadow-xl flex flex-col"
-          style={{ 
-            height: "580px", 
+          style={{
+            height: "580px",
             maxHeight: "min(580px, 80vh)",
             minHeight: "500px",
-            position: "relative"
+            position: "relative",
           }}
           data-chat-open="true"
         >
@@ -1295,9 +1314,9 @@ const ChatbotWidget: React.FC = () => {
             </Button>
           </div>
 
-          <Tabs 
-            defaultValue="chat" 
-            value={activeTab} 
+          <Tabs
+            defaultValue="chat"
+            value={activeTab}
             onValueChange={(value) => {
               console.log("ChatbotWidget: Alterando aba para:", value);
               setActiveTab(value);
@@ -1333,12 +1352,12 @@ const ChatbotWidget: React.FC = () => {
 
             <TabsContent value="chat" className="p-0 m-0">
               <CardContent className="p-0 flex flex-col h-[500px] relative overflow-hidden">
-                <div 
+                <div
                   className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent"
                   style={{
                     paddingBottom: "70px",
                     minHeight: "280px",
-                    maxHeight: "calc(500px - 140px)"
+                    maxHeight: "calc(500px - 140px)",
                   }}
                 >
                   {messages.map((msg, idx) => (
@@ -1410,7 +1429,7 @@ const ChatbotWidget: React.FC = () => {
                     right: "0",
                     width: "100%",
                     zIndex: 20,
-                    borderTop: "1px solid #e5e7eb"
+                    borderTop: "1px solid #e5e7eb",
                   }}
                 >
                   <Input
@@ -1431,7 +1450,7 @@ const ChatbotWidget: React.FC = () => {
                 </form>
 
                 {suggestions.length > 0 && (
-                  <div 
+                  <div
                     className="p-2 border-t flex flex-wrap gap-2 bg-gray-50 z-10 w-full rounded-b-lg shadow-md"
                     style={{
                       position: "absolute",
@@ -1441,7 +1460,7 @@ const ChatbotWidget: React.FC = () => {
                       width: "100%",
                       zIndex: 10,
                       maxHeight: "70px",
-                      overflowY: "auto"
+                      overflowY: "auto",
                     }}
                   >
                     <div className="w-full flex flex-wrap gap-2">
@@ -1524,14 +1543,14 @@ const ChatbotWidget: React.FC = () => {
                   display: "flex",
                   flexDirection: "column",
                   position: "relative",
-                  overflow: "hidden"
+                  overflow: "hidden",
                 }}
               >
                 <div
                   className="flex-1 overflow-y-auto bg-green-50/50"
                   style={{
                     padding: "0.75rem",
-                    paddingBottom: "80px"
+                    paddingBottom: "80px",
                   }}
                 >
                   <h4 className="font-semibold text-green-800 mb-2">
@@ -1587,7 +1606,7 @@ const ChatbotWidget: React.FC = () => {
                     padding: "0.75rem",
                     backgroundColor: "white",
                     borderTop: "1px solid #e5e7eb",
-                    zIndex: 10
+                    zIndex: 10,
                   }}
                 >
                   <div className="grid grid-cols-2 gap-2">
@@ -1616,14 +1635,14 @@ const ChatbotWidget: React.FC = () => {
                   display: "flex",
                   flexDirection: "column",
                   position: "relative",
-                  overflow: "hidden"
+                  overflow: "hidden",
                 }}
               >
                 <div
                   className="flex-1 overflow-y-auto bg-blue-50/50"
                   style={{
                     padding: "0.75rem",
-                    paddingBottom: "80px"
+                    paddingBottom: "80px",
                   }}
                 >
                   <h4 className="font-semibold text-blue-800 mb-2">
@@ -1675,7 +1694,7 @@ const ChatbotWidget: React.FC = () => {
                     padding: "0.75rem",
                     backgroundColor: "white",
                     borderTop: "1px solid #e5e7eb",
-                    zIndex: 10
+                    zIndex: 10,
                   }}
                 >
                   <div className="grid grid-cols-2 gap-2">
@@ -1704,14 +1723,14 @@ const ChatbotWidget: React.FC = () => {
                   display: "flex",
                   flexDirection: "column",
                   position: "relative",
-                  overflow: "hidden"
+                  overflow: "hidden",
                 }}
               >
                 <div
                   className="flex-1 overflow-y-auto bg-amber-50/50"
                   style={{
                     padding: "0.75rem",
-                    paddingBottom: "80px"
+                    paddingBottom: "80px",
                   }}
                 >
                   <h4 className="font-semibold text-amber-800 mb-2">
@@ -1740,9 +1759,10 @@ const ChatbotWidget: React.FC = () => {
                         </span>
                       </div>
                       <p className="text-xs text-red-800">
-                        Atualmente o PAA está com inscrições encerradas. Quando novas vagas forem abertas, 
-                        você será notificado aqui. O programa atende agricultores familiares com CAF ativa 
-                        e CadÚnico atualizado.
+                        Atualmente o PAA está com inscrições encerradas. Quando
+                        novas vagas forem abertas, você será notificado aqui. O
+                        programa atende agricultores familiares com CAF ativa e
+                        CadÚnico atualizado.
                       </p>
                     </div>
 
@@ -1751,10 +1771,11 @@ const ChatbotWidget: React.FC = () => {
                         Como funciona:
                       </h5>
                       <p className="text-xs">
-                        A equipe do PAA visita sua propriedade semanalmente para coletar os produtos. 
-                        O pagamento é feito diretamente pelo governo federal em uma conta do Banco do Brasil.
-                        Os alimentos são destinados a pessoas em vulnerabilidade social através do CRAS 
-                        e outras entidades cadastradas.
+                        A equipe do PAA visita sua propriedade semanalmente para
+                        coletar os produtos. O pagamento é feito diretamente
+                        pelo governo federal em uma conta do Banco do Brasil. Os
+                        alimentos são destinados a pessoas em vulnerabilidade
+                        social através do CRAS e outras entidades cadastradas.
                       </p>
                     </div>
                   </div>
@@ -1769,7 +1790,7 @@ const ChatbotWidget: React.FC = () => {
                     padding: "0.75rem",
                     backgroundColor: "white",
                     borderTop: "1px solid #e5e7eb",
-                    zIndex: 10
+                    zIndex: 10,
                   }}
                 >
                   <Button

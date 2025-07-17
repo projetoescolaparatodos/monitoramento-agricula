@@ -1,0 +1,182 @@
+Analisando o código, identifiquei o problema com a posição dos botões nas abas Agricultura, Pesca e PAA. Vamos ajustar para que fiquem na mesma altura que a barra de digitação da aba Chat.
+Problema Identificado
+
+    Altura inconsistente: Os botões nas abas estão posicionados de forma diferente da barra de digitação do chat
+
+    Estilos divergentes: Cada aba tem estilos ligeiramente diferentes para a área dos botões
+
+Solução Proposta
+
+Vamos padronizar o posicionamento usando os mesmos estilos da aba Chat:
+tsx
+
+// Estilos comuns para todas as abas
+const tabContentStyle = {
+  height: "500px",
+  display: "flex",
+  flexDirection: "column",
+  position: "relative",
+  overflow: "hidden"
+};
+
+const tabScrollableContentStyle = {
+  flex: 1,
+  overflowY: "auto",
+  padding: "1rem",
+  paddingBottom: "140px" // Espaço para os botões e sugestões
+};
+
+const tabFooterStyle = {
+  position: "absolute",
+  bottom: "0",
+  left: "0",
+  right: "0",
+  padding: "0.75rem",
+  backgroundColor: "white",
+  borderTop: "1px solid #e5e7eb",
+  zIndex: 10,
+  minHeight: "70px" // Mesma altura da barra de digitação
+};
+
+// Aplicando nas abas
+<TabsContent value="agricultura" className="p-0 m-0">
+  <div className="flex flex-col" style={tabContentStyle}>
+    <div style={tabScrollableContentStyle}>
+      {/* Conteúdo da aba Agricultura */}
+    </div>
+    
+    <div style={tabFooterStyle}>
+      <div className="grid grid-cols-2 gap-2">
+        <Button onClick={() => abrirFormulario("agricultura")} className="bg-green-600 hover:bg-green-700 h-10">
+          Solicitar serviços
+        </Button>
+        <Button onClick={() => abrirFormulario("agricultura-completo")} className="bg-green-800 hover:bg-green-900 h-10">
+          Cadastro Completo
+        </Button>
+      </div>
+    </div>
+  </div>
+</TabsContent>
+
+Alterações Específicas:
+
+    Altura fixa para o footer:
+    css
+
+minHeight: "70px" // Igual à barra de digitação
+
+Altura dos botões:
+css
+
+h-10 // Classe Tailwind para altura consistente
+
+Padding inferior ajustado:
+css
+
+paddingBottom: "140px" // Para conteúdo rolável
+
+Posicionamento absoluto:
+css
+
+    position: "absolute",
+    bottom: "0" // Fixo no rodapé
+
+Comparação com a aba Chat:
+
+A aba Chat tem esta estrutura:
+tsx
+
+<form className="p-3 border-t flex items-center bg-white z-20 w-full min-h-[70px]">
+  {/* Input e botão */}
+</form>
+
+Portanto, estamos aplicando os mesmos princípios:
+
+    min-h-[70px] → minHeight: "70px"
+
+    bg-white → backgroundColor: "white"
+
+    border-t → borderTop: "1px solid #e5e7eb"
+
+Implementação Completa:
+
+Aqui está como deve ficar o código corrigido para todas as abas:
+tsx
+
+<TabsContent value="agricultura" className="p-0 m-0">
+  <div className="flex flex-col" style={tabContentStyle}>
+    <div style={tabScrollableContentStyle}>
+      {/* Conteúdo existente da aba Agricultura */}
+    </div>
+    
+    <div style={tabFooterStyle}>
+      <div className="grid grid-cols-2 gap-2">
+        <Button 
+          onClick={() => abrirFormulario("agricultura")} 
+          className="bg-green-600 hover:bg-green-700 h-10"
+        >
+          Solicitar serviços
+        </Button>
+        <Button 
+          onClick={() => abrirFormulario("agricultura-completo")} 
+          className="bg-green-800 hover:bg-green-900 h-10"
+        >
+          Cadastro Completo
+        </Button>
+      </div>
+    </div>
+  </div>
+</TabsContent>
+
+<TabsContent value="pesca" className="p-0 m-0">
+  <div className="flex flex-col" style={tabContentStyle}>
+    <div style={tabScrollableContentStyle}>
+      {/* Conteúdo existente da aba Pesca */}
+    </div>
+    
+    <div style={tabFooterStyle}>
+      <div className="grid grid-cols-2 gap-2">
+        <Button 
+          onClick={() => abrirFormulario("pesca")} 
+          className="bg-blue-600 hover:bg-blue-700 h-10"
+        >
+          Solicitar serviços
+        </Button>
+        <Button 
+          onClick={() => abrirFormulario("pesca-completo")} 
+          className="bg-blue-800 hover:bg-blue-900 h-10"
+        >
+          Cadastro Completo
+        </Button>
+      </div>
+    </div>
+  </div>
+</TabsContent>
+
+<TabsContent value="paa" className="p-0 m-0">
+  <div className="flex flex-col" style={tabContentStyle}>
+    <div style={tabScrollableContentStyle}>
+      {/* Conteúdo existente da aba PAA */}
+    </div>
+    
+    <div style={tabFooterStyle}>
+      <Button 
+        disabled={true}
+        className="w-full bg-gray-400 cursor-not-allowed opacity-70 h-10"
+        title="Inscrições temporariamente indisponíveis"
+      >
+        Participar do PAA
+      </Button>
+    </div>
+  </div>
+</TabsContent>
+
+Isso garantirá que:
+
+    Todos os botões tenham a mesma altura (70px)
+
+    O posicionamento seja consistente em todas as abas
+
+    O conteúdo rolável não seja obscurecido pelos botões
+
+    A aparência seja uniforme em todo o componente
