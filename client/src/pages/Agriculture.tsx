@@ -192,7 +192,7 @@ const Agriculture = () => {
             <span className="truncate">Serviços Agricultura</span>
           </AgricultureTabButton>
           <Button
-            onClick={() => setLocation("/agriculture/map")}
+            onClick={() => setLocation("/agricultura/map")}
             className="flex items-center justify-center gap-2 text-sm sm:text-base w-full sm:w-auto"
           >
             <Map className="h-4 w-4 flex-shrink-0" />
@@ -229,7 +229,7 @@ const Agriculture = () => {
                 </AgricultureTabButton>
 
                 <Button
-                  onClick={() => setLocation("/agriculture/map")}
+                  onClick={() => setLocation("/agricultura/map")}
                   className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-sm md:text-lg py-3 px-4 md:px-6 rounded-lg shadow-md w-full md:w-auto"
                 >
                   <Map className="h-4 w-4 flex-shrink-0" />

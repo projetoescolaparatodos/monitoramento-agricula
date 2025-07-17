@@ -59,7 +59,7 @@ const NavBar = () => {
 
           {/* Menu de Navegação */}
           <div className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row absolute md:relative top-full left-0 w-full md:w-auto bg-white/80 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none gap-2 md:gap-4 p-4 md:p-0 border-b md:border-0`}>
-            <Link to="/agriculture" onClick={() => {
+            <Link to="/agricultura" onClick={() => {
               handleNavLinkClick();
               setTimeout(() => window.scrollTo(0, 0), 100);
             }}>
@@ -68,7 +68,7 @@ const NavBar = () => {
                 Agricultura
               </Button>
             </Link>
-            <Link to="/fishing" onClick={() => {
+            <Link to="/pesca" onClick={() => {
               handleNavLinkClick();
               setTimeout(() => window.scrollTo(0, 0), 100);
             }}>

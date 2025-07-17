@@ -42,9 +42,9 @@ const Home = () => {
   const scrollToMedia = useCallback((pageType: string) => {
     // Navegar para a página correspondente se não estiver nela
     if (pageType === 'agriculture') {
-      setLocation('/agriculture');
+      setLocation('/agricultura');
     } else if (pageType === 'fishing') {
-      setLocation('/fishing');
+      setLocation('/pesca');
     } else if (pageType === 'paa') {
       setLocation('/paa');
     }

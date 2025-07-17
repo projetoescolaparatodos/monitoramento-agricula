@@ -127,7 +127,7 @@ const Fishing = () => {
             Serviços Pesca
           </FishingTabButton>
           <Button
-            onClick={() => setLocation("/fishing/map")}
+            onClick={() => setLocation("/pesca/map")}
             className="flex items-center justify-center gap-2 w-full text-sm sm:text-base md:w-auto px-6 py-3 bg-primary text-white rounded-lg shadow-md overflow-hidden transition-transform duration-150 hover:scale-105"
           >
             <Map className="h-4 w-4 flex-shrink-0" />
@@ -170,7 +170,7 @@ const Fishing = () => {
                 </FishingTabButton>
 
                 <Button
-                  onClick={() => setLocation("/fishing/map")}
+                  onClick={() => setLocation("/pesca/map")}
                   className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-lg py-3 px-6 rounded-lg shadow-md"
                 >
                   <Map className="h-5 w-5 flex-shrink-0" />

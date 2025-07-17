@@ -66,7 +66,7 @@ function Router() {
     const [location] = useLocation();
   
     // Lista de rotas onde o Footer não deve aparecer
-    const mapRoutes = ['/agriculture/map', '/fishing/map', '/paa/map'];
+    const mapRoutes = ['/agricultura/map', '/pesca/map', '/paa/map'];
   
     // Não renderiza o Footer se a rota atual estiver na lista de mapas
     if (mapRoutes.includes(location)) {
@@ -90,12 +90,12 @@ function Router() {
         >
           <Switch>
             <Route path="/" component={Home} />
-            <Route path="/agriculture" component={Agriculture} />
-            <Route path="/agriculture/info" component={AgricultureInfo} />
-            <Route path="/agriculture/map" component={AgriculturaMap} />
-            <Route path="/fishing" component={Fishing} />
-            <Route path="/fishing/info" component={FishingInfo} />
-            <Route path="/fishing/map" component={PescaMap} />
+            <Route path="/agricultura" component={Agriculture} />
+            <Route path="/agricultura/info" component={AgricultureInfo} />
+            <Route path="/agricultura/map" component={AgriculturaMap} />
+            <Route path="/pesca" component={Fishing} />
+            <Route path="/pesca/info" component={FishingInfo} />
+            <Route path="/pesca/map" component={PescaMap} />
             <Route path="/paa" component={PAAInfo} />
             <Route path="/paa/map" component={PAAMap} />
             <Route path="/dashboard/:section?" component={Dashboard} />
