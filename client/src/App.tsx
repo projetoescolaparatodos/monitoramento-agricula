@@ -62,6 +62,20 @@ function Router() {
   const isDoacaoPage = location === '/registrar-doacao';
   const isTelaoPage = location.startsWith('/evento-telao');
 
+  function ConditionalFooter() {
+    const [location] = useLocation();
+  
+    // Lista de rotas onde o Footer não deve aparecer
+    const mapRoutes = ['/agriculture/map', '/fishing/map', '/paa/map'];
+  
+    // Não renderiza o Footer se a rota atual estiver na lista de mapas
+    if (mapRoutes.includes(location)) {
+      return null;
+    }
+  
+    return <Footer />;
+  }
+
   return (
     <>
       <BackgroundVideo videoPath="/videos/BackgroundVideo.mp4" opacity={0.3} />
@@ -153,7 +167,7 @@ function Router() {
             <Route component={NotFound} />
           </Switch>
         </Suspense>
-        {!isFormPage && !isReportPage && !isAdminPage && !isLoginPage && !isDoacaoPage && !isTelaoPage && <Footer />}
+        {!isFormPage && !isReportPage && !isAdminPage && !isLoginPage && !isDoacaoPage && !isTelaoPage && <ConditionalFooter />}
       </div>
     </>
   );
