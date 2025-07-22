@@ -1367,17 +1367,17 @@ const ChatbotWidget: React.FC = () => {
               <CardContent className="p-0 flex flex-col relative overflow-hidden" 
                 style={{
                   height: isMobile ? "calc(100vh - 4rem)" : "auto",
-                  maxHeight: isMobile ? "none" : "75vh",
+                  maxHeight: isMobile ? "none" : "85vh",
                 }}
               >
                 <div
                   className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent"
                   style={{
                     paddingBottom: isMobile ? "160px" : (suggestions.length > 0 ? (isSmallScreen ? "120px" : "140px") : "70px"),
-                    minHeight: isMobile ? "auto" : (isSmallScreen ? "200px" : "280px"),
+                    minHeight: isMobile ? "auto" : (isSmallScreen ? "300px" : "400px"),
                     maxHeight: isMobile 
                       ? "calc(100vh - 200px)" 
-                      : (isSmallScreen ? "calc(75vh - 180px)" : "calc(75vh - 140px)"),
+                      : (isSmallScreen ? "calc(85vh - 180px)" : "calc(85vh - 140px)"),
                   }}
                 >
                   {messages.map((msg, idx) => (
