@@ -435,6 +435,15 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
     }
   };
 
+  // Função para limpar animações anteriores
+  const clearPreviousAnimations = () => {
+    const elements = document.querySelectorAll('.organic-animation-canvas');
+    elements.forEach(el => el.remove());
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+  };
+
   // Funções para animação orgânica fluida
   const distanceBetween = (p1: {x: number, y: number}, p2: {x: number, y: number}) => {
     return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
@@ -629,7 +638,11 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
 
     // Cria um canvas permanente para manter as linhas
     const createPermanentCanvas = () => {
+      // Adiciona um identificador único para cada canvas
+      const canvasId = `organic-animation-${Date.now()}-${datasetIndex}`;
+      
       permanentCanvas = document.createElement('canvas');
+      permanentCanvas.id = canvasId;
       permanentCanvas.width = chartRef.current!.width;
       permanentCanvas.height = chartRef.current!.height;
       permanentCanvas.style.position = 'absolute';
@@ -685,7 +698,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
             permanentCtx.stroke();
 
             // Desenha tooltip permanente para cada ponto com posição ajustada por série
-            const tooltipOffset = 40 + (datasetIndex * 25); // Offset diferente para cada série
+            const tooltipOffset = 30 + (datasetIndex * 20); // Reduzido para evitar sobreposição
             showFloatingTooltip(
               permanentCtx, 
               points[i].x, 
@@ -711,7 +724,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
           permanentCtx.stroke();
 
           // Tooltip com fade-in
-          const tooltipOffset = 40 + (datasetIndex * 25);
+          const tooltipOffset = 30 + (datasetIndex * 20);
           showFloatingTooltip(
             permanentCtx, 
             points[visiblePointsInt].x, 
@@ -739,7 +752,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
       } else {
         // Animação concluída - desenha todos os tooltips finais
         if (permanentCtx) {
-          const tooltipOffset = 40 + (datasetIndex * 25);
+          const tooltipOffset = 30 + (datasetIndex * 20);
           for (let i = 0; i < points.length; i++) {
             if (points[i]) {
               showFloatingTooltip(
@@ -759,6 +772,76 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
     animationId = requestAnimationFrame(animateFrame);
 
     // Cleanup function
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  };
+
+  // Animação para gráficos de barras
+  const animateBars = (datasetIndex: number, color: string) => {
+    if (!chartInstance.current || !chartRef.current) return;
+
+    const chart = chartInstance.current;
+    const ctx = chartRef.current.getContext('2d');
+    if (!ctx) return;
+
+    const meta = chart.getDatasetMeta(datasetIndex);
+    const duration = 2000;
+    const startTime = Date.now();
+    let animationId: number;
+
+    const animateFrame = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Easing function para efeito de "quicar"
+      const easedProgress = progress < 0.6 
+        ? (1 - Math.cos(progress * Math.PI * 1.67)) / 2
+        : 1 - Math.pow(1 - (progress - 0.6) / 0.4, 3);
+
+      ctx.clearRect(0, 0, chartRef.current!.width, chartRef.current!.height);
+      chartInstance.current!.draw();
+
+      meta.data.forEach((bar: any, barIndex: number) => {
+        const model = bar.getProps(['x', 'y', 'base', 'width']);
+        const barHeight = model.base - model.y;
+        const animatedHeight = barHeight * easedProgress;
+
+        ctx.fillStyle = color;
+        ctx.fillRect(
+          model.x - model.width / 2,
+          model.base - animatedHeight,
+          model.width,
+          animatedHeight
+        );
+
+        // Adiciona rótulo animado
+        if (progress > 0.3) {
+          const labelProgress = Math.min((progress - 0.3) / 0.7, 1);
+          ctx.globalAlpha = labelProgress;
+          ctx.fillStyle = '#374151';
+          ctx.font = 'bold 12px Poppins';
+          ctx.textAlign = 'center';
+          ctx.fillText(
+            bar.$context.raw.toLocaleString(),
+            model.x,
+            model.base - animatedHeight - 10
+          );
+          ctx.globalAlpha = 1;
+        }
+      });
+
+      if (progress < 1) {
+        animationId = requestAnimationFrame(animateFrame);
+      } else {
+        setAnimationComplete(true);
+      }
+    };
+
+    animationId = requestAnimationFrame(animateFrame);
+
     return () => {
       if (animationId) {
         cancelAnimationFrame(animationId);
@@ -791,42 +874,58 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
       }
     });
 
-    // Animação orgânica para gráficos de linha
-    if (animate && chartType.toLowerCase() === 'line') {
-      // Esconde as linhas e pontos inicialmente
-      chartInstance.current.data.datasets.forEach((dataset: any) => {
-        dataset.borderWidth = 0;
-        dataset.pointRadius = 0;
-        dataset.pointHoverRadius = 0;
-      });
-      chartInstance.current.update('none');
-
-      // Função para iniciar animação
-      const startAnimation = () => {
-        if (animationStarted) return;
-
-        setAnimationStarted(true);
-
-        // Remove todos os canvas de animação existentes antes de iniciar
-        if (chartRef.current?.parentElement) {
-          const existingOverlays = chartRef.current.parentElement.querySelectorAll('.organic-animation-canvas');
-          existingOverlays.forEach(overlay => {
-            overlay.remove();
-          });
-        }
-
-        // Anima cada dataset com delay progressivo
-        processedData.datasets.forEach((originalDataset, datasetIndex) => {
-          const color = borderPalette[datasetIndex % borderPalette.length];
-
-          setTimeout(() => {
-            animateOrganicDataset(datasetIndex, originalDataset, color);
-          }, datasetIndex * 1000);
+    // Animação para diferentes tipos de gráfico
+    if (animate) {
+      if (chartType.toLowerCase() === 'line') {
+        // Esconde as linhas e pontos inicialmente
+        chartInstance.current.data.datasets.forEach((dataset: any) => {
+          dataset.borderWidth = 0;
+          dataset.pointRadius = 0;
+          dataset.pointHoverRadius = 0;
         });
-      };
+        chartInstance.current.update('none');
 
-      // Armazena função para controle manual
-      (chartInstance.current as any).startAnimation = startAnimation;
+        // Função para iniciar animação
+        const startAnimation = () => {
+          if (animationStarted) return;
+
+          setAnimationStarted(true);
+
+          // Remove todos os canvas de animação existentes antes de iniciar
+          clearPreviousAnimations();
+
+          // Anima cada dataset com delay progressivo
+          processedData.datasets.forEach((originalDataset, datasetIndex) => {
+            const color = borderPalette[datasetIndex % borderPalette.length];
+
+            setTimeout(() => {
+              animateOrganicDataset(datasetIndex, originalDataset, color);
+            }, datasetIndex * 1000);
+          });
+        };
+
+        // Armazena função para controle manual
+        (chartInstance.current as any).startAnimation = startAnimation;
+      } 
+      else if (chartType.toLowerCase() === 'bar') {
+        // Para gráficos de barras, anima automaticamente após criação
+        const startBarAnimation = () => {
+          if (animationStarted) return;
+          
+          setAnimationStarted(true);
+          clearPreviousAnimations();
+
+          chartInstance.current!.data.datasets.forEach((_, index) => {
+            setTimeout(() => {
+              animateBars(index, colorPalette[index % colorPalette.length]);
+            }, index * 300);
+          });
+        };
+
+        // Inicia animação automaticamente para barras
+        setTimeout(startBarAnimation, 500);
+        (chartInstance.current as any).startAnimation = startBarAnimation;
+      }
     }
 
     // Cleanup
@@ -836,12 +935,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
       }
 
       // Remove todos os canvas de animação
-      if (chartRef.current?.parentElement) {
-        const existingOverlays = chartRef.current.parentElement.querySelectorAll('.organic-animation-canvas');
-        existingOverlays.forEach(overlay => {
-          overlay.remove();
-        });
-      }
+      clearPreviousAnimations();
 
       if (chartInstance.current) {
         chartInstance.current.destroy();
@@ -852,39 +946,27 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
   // Function to start/restart animation
   const handleStartAnimation = () => {
     if (chartInstance.current && (chartInstance.current as any).startAnimation) {
+      // Limpar animações anteriores
+      clearPreviousAnimations();
+
       // Reset animation state
       setAnimationStarted(false);
       setAnimationComplete(false);
-
-      // Remove todos os canvas de animação existentes
-      if (chartRef.current?.parentElement) {
-        const existingOverlays = chartRef.current.parentElement.querySelectorAll('.organic-animation-canvas');
-        existingOverlays.forEach(overlay => {
-          overlay.remove();
-        });
-      }
 
       // Clear any existing animation
       if (animationRef.current) {
         clearTimeout(animationRef.current);
       }
 
-      // Cancela qualquer animação em andamento
-      const allAnimationFrames = document.querySelectorAll('.organic-animation-canvas');
-      allAnimationFrames.forEach(canvas => {
-        const ctx = (canvas as HTMLCanvasElement).getContext('2d');
-        if (ctx) {
-          ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-        }
-      });
-
-      // Restaura visibilidade original do chart
-      chartInstance.current.data.datasets.forEach((dataset: any) => {
-        dataset.borderWidth = 0;
-        dataset.pointRadius = 0;
-        dataset.pointHoverRadius = 0;
-      });
-      chartInstance.current.update('none');
+      // Restaura visibilidade original do chart para gráficos de linha
+      if (chartType.toLowerCase() === 'line') {
+        chartInstance.current.data.datasets.forEach((dataset: any) => {
+          dataset.borderWidth = 0;
+          dataset.pointRadius = 0;
+          dataset.pointHoverRadius = 0;
+        });
+        chartInstance.current.update('none');
+      }
 
       // Start animation
       setTimeout(() => {
@@ -958,8 +1040,8 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
           >
             <canvas ref={chartRef} className="w-full h-full" />
 
-            {/* Botão de controle da animação para gráficos de linha */}
-            {animate && chartType.toLowerCase() === 'line' && (
+            {/* Botão de controle da animação para gráficos de linha e barras */}
+            {animate && ['line', 'bar'].includes(chartType.toLowerCase()) && (
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
