@@ -1373,10 +1373,10 @@ const ChatbotWidget: React.FC = () => {
                 <div
                   className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent"
                   style={{
-                    paddingBottom: isMobile ? "160px" : (suggestions.length > 0 ? (isSmallScreen ? "120px" : "140px") : "70px"),
+                    paddingBottom: isMobile ? "200px" : (suggestions.length > 0 ? (isSmallScreen ? "120px" : "140px") : "70px"),
                     minHeight: isMobile ? "auto" : (isSmallScreen ? "300px" : "400px"),
                     maxHeight: isMobile 
-                      ? "calc(100vh - 200px)" 
+                      ? "calc(100vh - 240px)" 
                       : (isSmallScreen ? "calc(85vh - 180px)" : "calc(85vh - 140px)"),
                   }}
                 >
@@ -1448,7 +1448,7 @@ const ChatbotWidget: React.FC = () => {
                   } w-full min-h-[70px]`}
                   style={{
                     position: isMobile ? "sticky" : "absolute",
-                    bottom: isMobile ? (suggestions.length > 0 ? "4rem" : "0") : (suggestions.length > 0 ? (isSmallScreen ? "50px" : "70px") : "0"),
+                    bottom: isMobile ? (suggestions.length > 0 ? "6rem" : "2rem") : (suggestions.length > 0 ? (isSmallScreen ? "50px" : "70px") : "0"),
                     left: isMobile ? "auto" : "0",
                     right: isMobile ? "auto" : "0",
                     width: "100%",
@@ -1484,7 +1484,7 @@ const ChatbotWidget: React.FC = () => {
                     }`}
                     style={{
                       position: isMobile ? "sticky" : "absolute",
-                      bottom: "0",
+                      bottom: isMobile ? "2rem" : "0",
                       left: isMobile ? "auto" : "0",
                       right: isMobile ? "auto" : "0",
                       width: "100%",
