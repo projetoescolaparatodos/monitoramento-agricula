@@ -1,0 +1,126 @@
+Analisando o código, identifiquei os principais problemas que estão causando falhas na animação, especialmente com múltiplas séries, e proponho as seguintes correções:
+Problemas Identificados e Soluções
+
+    Sobreposição de Canvas nas Animações:
+    typescript
+
+// No método animateOrganicDataset, modifique a criação do canvas:
+const createPermanentCanvas = () => {
+  // Adicione um identificador único para cada canvas
+  const canvasId = `organic-animation-${Date.now()}-${datasetIndex}`;
+  
+  permanentCanvas = document.createElement('canvas');
+  permanentCanvas.id = canvasId;
+  // ... restante do código
+};
+
+Problema com Múltiplas Séries:
+typescript
+
+// No mesmo método, ajuste o cálculo do offset:
+const tooltipOffset = 30 + (datasetIndex * 20); // Reduzido para evitar sobreposição
+
+Animação para Gráficos de Barras (Novo Método):
+typescript
+
+    const animateBars = (datasetIndex: number, color: string) => {
+      if (!chartInstance.current || !chartRef.current) return;
+
+      const chart = chartInstance.current;
+      const ctx = chartRef.current.getContext('2d');
+      if (!ctx) return;
+
+      const meta = chart.getDatasetMeta(datasetIndex);
+      const duration = 2000;
+      const startTime = Date.now();
+
+      const animateFrame = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Easing function para efeito de "quicar"
+        const easedProgress = progress < 0.6 
+          ? (1 - Math.cos(progress * Math.PI * 1.67)) / 2
+          : 1 - Math.pow(1 - (progress - 0.6) / 0.4, 3);
+
+        ctx.clearRect(0, 0, chartRef.current!.width, chartRef.current!.height);
+        chartInstance.current!.draw();
+
+        meta.data.forEach((bar: any) => {
+          const model = bar.getProps(['x', 'y', 'base', 'width']);
+          const barHeight = model.base - model.y;
+          const animatedHeight = barHeight * easedProgress;
+
+          ctx.fillStyle = color;
+          ctx.fillRect(
+            model.x - model.width / 2,
+            model.base - animatedHeight,
+            model.width,
+            animatedHeight
+          );
+
+          // Adiciona rótulo animado
+          if (progress > 0.3) {
+            const labelProgress = Math.min((progress - 0.3) / 0.7, 1);
+            ctx.fillStyle = '#374151';
+            ctx.font = 'bold 12px Poppins';
+            ctx.textAlign = 'center';
+            ctx.fillText(
+              bar.$context.raw.toLocaleString(),
+              model.x,
+              model.base - animatedHeight - 10,
+              model.width
+            );
+          }
+        });
+
+        if (progress < 1) {
+          requestAnimationFrame(animateFrame);
+        }
+      };
+
+      requestAnimationFrame(animateFrame);
+    };
+
+Implementação Atualizada no useEffect
+typescript
+
+useEffect(() => {
+  // ... código existente ...
+
+  // Modifique esta parte para suportar ambos os tipos
+  if (animate) {
+    if (chartType.toLowerCase() === 'line') {
+      // Configuração existente para linhas
+    } 
+    else if (chartType.toLowerCase() === 'bar') {
+      chartInstance.current.data.datasets.forEach((_, index) => {
+        setTimeout(() => {
+          animateBars(index, colorPalette[index % colorPalette.length]);
+        }, index * 300);
+      });
+    }
+  }
+
+  // ... restante do código ...
+}, [chartType, processedData, animate]);
+
+Correções Adicionais
+
+    Otimização de Performance:
+    typescript
+
+// Adicione este método para limpar animações anteriores
+const clearPreviousAnimations = () => {
+  const elements = document.querySelectorAll('.organic-animation-canvas');
+  elements.forEach(el => el.remove());
+  if (animationRef.current) {
+    cancelAnimationFrame(animationRef.current);
+  }
+};
+
+// Chame no início do handleStartAnimation
+const handleStartAnimation = () => {
+  clearPreviousAnimations();
+  // ... restante do código
+};
