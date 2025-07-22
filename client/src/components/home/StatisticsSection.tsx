@@ -6,8 +6,11 @@ import { ChevronUp, ChevronDown } from "lucide-react";
 import { DynamicStatisticCard } from "@/components/common/DynamicStatisticCard";
 import { db } from '@/utils/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const StatisticsSection = React.memo(({ variant = "default" }: { variant?: "default" | "transparent" }) => {
+  const isMobile = useIsMobile();
+  
   const { data: statistics, isLoading } = useQuery<StatisticItem[]>({
     queryKey: ['/api/statistics'],
     queryFn: async () => {
@@ -105,8 +108,8 @@ const StatisticsSection = React.memo(({ variant = "default" }: { variant?: "defa
           </Card>
         ))}
 
-        {/* Estatísticas dinâmicas */}
-        {dynamicStatsConfig?.map((config: any) => (
+        {/* Estatísticas dinâmicas - apenas no desktop */}
+        {!isMobile && dynamicStatsConfig?.map((config: any) => (
           <DynamicStatisticCard key={config.id} config={config} variant={variant} enableAutoUpdate={true} />
         ))}
       </div>
