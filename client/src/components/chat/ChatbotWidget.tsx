@@ -1305,9 +1305,9 @@ const ChatbotWidget: React.FC = () => {
               : "w-80 sm:w-96 md:w-[420px] lg:w-[450px] xl:w-96"
           }`}
           style={{
-            height: isMobile ? "calc(100vh - 4rem)" : (isSmallScreen ? "calc(100vh - 60px)" : "580px"),
-            maxHeight: isMobile ? "none" : (isSmallScreen ? "calc(100vh - 60px)" : "min(580px, 80vh)"),
-            minHeight: isMobile ? "auto" : (isSmallScreen ? "400px" : "500px"),
+            height: isMobile ? "calc(100vh - 4rem)" : "auto",
+            maxHeight: isMobile ? "none" : "80vh",
+            minHeight: isMobile ? "auto" : "400px",
             position: isMobile ? "fixed" : "relative",
             borderRadius: isMobile ? "0" : "0.5rem",
           }}
@@ -1364,15 +1364,20 @@ const ChatbotWidget: React.FC = () => {
             </TabsList>
 
             <TabsContent value="chat" className="p-0 m-0">
-              <CardContent className="p-0 flex flex-col h-[500px] relative overflow-hidden">
+              <CardContent className="p-0 flex flex-col relative overflow-hidden" 
+                style={{
+                  height: isMobile ? "calc(100vh - 4rem)" : "auto",
+                  maxHeight: isMobile ? "none" : "75vh",
+                }}
+              >
                 <div
                   className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent"
                   style={{
                     paddingBottom: isMobile ? "160px" : (suggestions.length > 0 ? (isSmallScreen ? "120px" : "140px") : "70px"),
                     minHeight: isMobile ? "auto" : (isSmallScreen ? "200px" : "280px"),
                     maxHeight: isMobile 
-                      ? "none" 
-                      : (isSmallScreen ? "calc(100vh - 240px)" : "calc(100% - 140px)"),
+                      ? "calc(100vh - 200px)" 
+                      : (isSmallScreen ? "calc(75vh - 180px)" : "calc(75vh - 140px)"),
                   }}
                 >
                   {messages.map((msg, idx) => (
@@ -1563,8 +1568,10 @@ const ChatbotWidget: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="agricultura" className="p-0 m-0">
-              <div className="h-[500px] flex flex-col">
-                <div className={`flex-1 overflow-y-auto bg-green-50/50 p-4 ${isMobile ? "pb-24" : "pb-20"}`}>
+              <div className="flex flex-col" style={{ maxHeight: isMobile ? "calc(100vh - 4rem)" : "75vh" }}>
+                <div className={`flex-1 overflow-y-auto bg-green-50/50 p-4 ${isMobile ? "pb-24" : "pb-20"}`} 
+                  style={{ maxHeight: isMobile ? "calc(100vh - 150px)" : "calc(75vh - 100px)" }}
+                >
                   <h4 className="font-semibold text-green-800 mb-2">
                     Setor de Agricultura
                   </h4>
@@ -1629,8 +1636,10 @@ const ChatbotWidget: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="pesca" className="p-0 m-0">
-              <div className="h-[500px] flex flex-col">
-                <div className={`flex-1 overflow-y-auto bg-blue-50/50 p-4 ${isMobile ? "pb-24" : "pb-20"}`}>
+              <div className="flex flex-col" style={{ maxHeight: isMobile ? "calc(100vh - 4rem)" : "75vh" }}>
+                <div className={`flex-1 overflow-y-auto bg-blue-50/50 p-4 ${isMobile ? "pb-24" : "pb-20"}`}
+                  style={{ maxHeight: isMobile ? "calc(100vh - 150px)" : "calc(75vh - 100px)" }}
+                >
                   <h4 className="font-semibold text-blue-800 mb-2">
                     Setor de Pesca
                   </h4>
@@ -1691,8 +1700,10 @@ const ChatbotWidget: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="paa" className="p-0 m-0">
-              <div className="h-[500px] flex flex-col">
-                <div className={`flex-1 overflow-y-auto bg-amber-50/50 p-4 ${isMobile ? "pb-24" : "pb-20"}`}>
+              <div className="flex flex-col" style={{ maxHeight: isMobile ? "calc(100vh - 4rem)" : "75vh" }}>
+                <div className={`flex-1 overflow-y-auto bg-amber-50/50 p-4 ${isMobile ? "pb-24" : "pb-20"}`}
+                  style={{ maxHeight: isMobile ? "calc(100vh - 150px)" : "calc(75vh - 100px)" }}
+                >
                   <h4 className="font-semibold text-amber-800 mb-2">
                     Programa de Aquisição de Alimentos
                   </h4>
