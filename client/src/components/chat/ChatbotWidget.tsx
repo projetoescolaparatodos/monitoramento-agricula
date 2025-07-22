@@ -1609,17 +1609,17 @@ const ChatbotWidget: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-3 bg-white border-t border-gray-200 flex-shrink-0">
+                <div className={`p-3 bg-white border-t border-gray-200 flex-shrink-0 ${isMobile ? 'min-h-auto' : 'min-h-[70px]'}`}>
                   <div className="grid grid-cols-2 gap-2">
                     <Button
                       onClick={() => abrirFormulario("agricultura")}
-                      className="bg-green-600 hover:bg-green-700 h-10 text-sm"
+                      className={`bg-green-600 hover:bg-green-700 text-sm ${isMobile ? 'h-10' : 'h-12'}`}
                     >
                       Solicitar serviços
                     </Button>
                     <Button
                       onClick={() => abrirFormulario("agricultura-completo")}
-                      className="bg-green-800 hover:bg-green-900 h-10 text-sm"
+                      className={`bg-green-800 hover:bg-green-900 text-sm ${isMobile ? 'h-10' : 'h-12'}`}
                     >
                       Cadastro Completo
                     </Button>
@@ -1671,17 +1671,17 @@ const ChatbotWidget: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-3 bg-white border-t border-gray-200 flex-shrink-0">
+                <div className={`p-3 bg-white border-t border-gray-200 flex-shrink-0 ${isMobile ? 'min-h-auto' : 'min-h-[70px]'}`}>
                   <div className="grid grid-cols-2 gap-2">
                     <Button
                       onClick={() => abrirFormulario("pesca")}
-                      className="bg-blue-600 hover:bg-blue-700 h-10 text-sm"
+                      className={`bg-blue-600 hover:bg-blue-700 text-sm ${isMobile ? 'h-10' : 'h-12'}`}
                     >
                       Solicitar serviços
                     </Button>
                     <Button
                       onClick={() => abrirFormulario("pesca-completo")}
-                      className="bg-blue-800 hover:bg-blue-900 h-10 text-sm"
+                      className={`bg-blue-800 hover:bg-blue-900 text-sm ${isMobile ? 'h-10' : 'h-12'}`}
                     >
                       Cadastro Completo
                     </Button>
@@ -1741,10 +1741,10 @@ const ChatbotWidget: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-3 bg-white border-t border-gray-200 flex-shrink-0">
+                <div className={`p-3 bg-white border-t border-gray-200 flex-shrink-0 ${isMobile ? 'min-h-auto' : 'min-h-[70px]'}`}>
                   <Button
                     disabled={true}
-                    className="w-full bg-gray-400 cursor-not-allowed opacity-70 h-10 text-sm"
+                    className={`w-full bg-gray-400 cursor-not-allowed opacity-70 text-sm ${isMobile ? 'h-10' : 'h-12'}`}
                     title="Inscrições temporariamente indisponíveis"
                   >
                     Participar do PAA
