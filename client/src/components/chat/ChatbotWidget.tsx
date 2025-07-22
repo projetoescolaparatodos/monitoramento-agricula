@@ -1563,8 +1563,8 @@ const ChatbotWidget: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="agricultura" className="p-0 m-0">
-              <div className="h-[500px] flex flex-col">
-                <div className={`flex-1 overflow-y-auto bg-green-50/50 p-4 ${isMobile ? "pb-24" : "pb-20"}`}>
+              <div className={`flex flex-col ${isMobile ? 'h-auto min-h-[400px]' : 'h-[500px]'}`}>
+                <div className={`flex-1 overflow-y-auto bg-green-50/50 p-4 ${isMobile ? "pb-4" : "pb-4"}`}>
                   <h4 className="font-semibold text-green-800 mb-2">
                     Setor de Agricultura
                   </h4>
@@ -1629,8 +1629,8 @@ const ChatbotWidget: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="pesca" className="p-0 m-0">
-              <div className="h-[500px] flex flex-col">
-                <div className={`flex-1 overflow-y-auto bg-blue-50/50 p-4 ${isMobile ? "pb-24" : "pb-20"}`}>
+              <div className={`flex flex-col ${isMobile ? 'h-auto min-h-[400px]' : 'h-[500px]'}`}>
+                <div className={`flex-1 overflow-y-auto bg-blue-50/50 p-4 ${isMobile ? "pb-4" : "pb-4"}`}>
                   <h4 className="font-semibold text-blue-800 mb-2">
                     Setor de Pesca
                   </h4>
@@ -1691,8 +1691,8 @@ const ChatbotWidget: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="paa" className="p-0 m-0">
-              <div className="h-[500px] flex flex-col">
-                <div className={`flex-1 overflow-y-auto bg-amber-50/50 p-4 ${isMobile ? "pb-24" : "pb-20"}`}>
+              <div className={`flex flex-col ${isMobile ? 'h-auto min-h-[400px]' : 'h-[500px]'}`}>
+                <div className={`flex-1 overflow-y-auto bg-amber-50/50 p-4 ${isMobile ? "pb-4" : "pb-4"}`}>
                   <h4 className="font-semibold text-amber-800 mb-2">
                     Programa de Aquisição de Alimentos
                   </h4>
