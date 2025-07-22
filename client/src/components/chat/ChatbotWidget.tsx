@@ -1563,8 +1563,8 @@ const ChatbotWidget: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="agricultura" className="p-0 m-0">
-              <div className={`flex flex-col ${isMobile ? 'h-auto min-h-[400px]' : 'h-[500px]'}`}>
-                <div className={`flex-1 overflow-y-auto bg-green-50/50 p-4 ${isMobile ? "pb-4" : "pb-4"}`}>
+              <div className="h-[500px] flex flex-col">
+                <div className={`flex-1 overflow-y-auto bg-green-50/50 p-4 ${isMobile ? "pb-24" : "pb-20"}`}>
                   <h4 className="font-semibold text-green-800 mb-2">
                     Setor de Agricultura
                   </h4>
@@ -1609,17 +1609,17 @@ const ChatbotWidget: React.FC = () => {
                   </div>
                 </div>
 
-                <div className={`p-3 bg-white border-t border-gray-200 flex-shrink-0 ${isMobile ? 'min-h-auto' : 'min-h-[70px]'}`}>
+                <div className="p-3 bg-white border-t border-gray-200 flex-shrink-0">
                   <div className="grid grid-cols-2 gap-2">
                     <Button
                       onClick={() => abrirFormulario("agricultura")}
-                      className={`bg-green-600 hover:bg-green-700 text-sm ${isMobile ? 'h-10' : 'h-12'}`}
+                      className="bg-green-600 hover:bg-green-700 h-10 text-sm"
                     >
                       Solicitar serviços
                     </Button>
                     <Button
                       onClick={() => abrirFormulario("agricultura-completo")}
-                      className={`bg-green-800 hover:bg-green-900 text-sm ${isMobile ? 'h-10' : 'h-12'}`}
+                      className="bg-green-800 hover:bg-green-900 h-10 text-sm"
                     >
                       Cadastro Completo
                     </Button>
@@ -1629,8 +1629,8 @@ const ChatbotWidget: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="pesca" className="p-0 m-0">
-              <div className={`flex flex-col ${isMobile ? 'h-auto min-h-[400px]' : 'h-[500px]'}`}>
-                <div className={`flex-1 overflow-y-auto bg-blue-50/50 p-4 ${isMobile ? "pb-4" : "pb-4"}`}>
+              <div className="h-[500px] flex flex-col">
+                <div className={`flex-1 overflow-y-auto bg-blue-50/50 p-4 ${isMobile ? "pb-24" : "pb-20"}`}>
                   <h4 className="font-semibold text-blue-800 mb-2">
                     Setor de Pesca
                   </h4>
@@ -1671,17 +1671,17 @@ const ChatbotWidget: React.FC = () => {
                   </div>
                 </div>
 
-                <div className={`p-3 bg-white border-t border-gray-200 flex-shrink-0 ${isMobile ? 'min-h-auto' : 'min-h-[70px]'}`}>
+                <div className="p-3 bg-white border-t border-gray-200 flex-shrink-0">
                   <div className="grid grid-cols-2 gap-2">
                     <Button
                       onClick={() => abrirFormulario("pesca")}
-                      className={`bg-blue-600 hover:bg-blue-700 text-sm ${isMobile ? 'h-10' : 'h-12'}`}
+                      className="bg-blue-600 hover:bg-blue-700 h-10 text-sm"
                     >
                       Solicitar serviços
                     </Button>
                     <Button
                       onClick={() => abrirFormulario("pesca-completo")}
-                      className={`bg-blue-800 hover:bg-blue-900 text-sm ${isMobile ? 'h-10' : 'h-12'}`}
+                      className="bg-blue-800 hover:bg-blue-900 h-10 text-sm"
                     >
                       Cadastro Completo
                     </Button>
@@ -1691,8 +1691,8 @@ const ChatbotWidget: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="paa" className="p-0 m-0">
-              <div className={`flex flex-col ${isMobile ? 'h-auto min-h-[400px]' : 'h-[500px]'}`}>
-                <div className={`flex-1 overflow-y-auto bg-amber-50/50 p-4 ${isMobile ? "pb-4" : "pb-4"}`}>
+              <div className="h-[500px] flex flex-col">
+                <div className={`flex-1 overflow-y-auto bg-amber-50/50 p-4 ${isMobile ? "pb-24" : "pb-20"}`}>
                   <h4 className="font-semibold text-amber-800 mb-2">
                     Programa de Aquisição de Alimentos
                   </h4>
@@ -1741,10 +1741,10 @@ const ChatbotWidget: React.FC = () => {
                   </div>
                 </div>
 
-                <div className={`p-3 bg-white border-t border-gray-200 flex-shrink-0 ${isMobile ? 'min-h-auto' : 'min-h-[70px]'}`}>
+                <div className="p-3 bg-white border-t border-gray-200 flex-shrink-0">
                   <Button
                     disabled={true}
-                    className={`w-full bg-gray-400 cursor-not-allowed opacity-70 text-sm ${isMobile ? 'h-10' : 'h-12'}`}
+                    className="w-full bg-gray-400 cursor-not-allowed opacity-70 h-10 text-sm"
                     title="Inscrições temporariamente indisponíveis"
                   >
                     Participar do PAA
