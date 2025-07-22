@@ -1,0 +1,59 @@
+A seguir, vou te mostrar como corrigir esse problema, mantendo a boa exibição em celulares (responsividade) e permitindo que todo o conteúdo seja acessível em telas menores sem precisar reduzir o zoom do navegador.
+✅ Solução sugerida:
+
+1. Adicione overflow-y: auto e limite de altura com max-height no contêiner principal do chatbot.
+
+Você deve localizar o container principal que envolve os conteúdos com botões e mensagens — normalmente algo como Card, CardContent, ou um div que recebe as mensagens e sugestões.
+
+Aqui vai um exemplo prático com Tailwind CSS (ou estilização similar):
+🔧 Envolva o conteúdo com rolagem condicional:
+
+<CardContent
+  className="overflow-y-auto max-h-[75vh] sm:max-h-[80vh] px-4"
+>
+  {/* Conteúdo do chatbot: mensagens, sugestões, botões etc. */}
+</CardContent>
+
+Explicação:
+
+    overflow-y-auto: adiciona barra de rolagem vertical automaticamente se necessário.
+
+    max-h-[75vh]: limita a altura máxima do conteúdo a 75% da altura da tela (vh = viewport height).
+
+    sm:max-h-[80vh]: um pouco mais generoso em telas menores, se quiser ajustar.
+
+    px-4: padding horizontal para espaçamento adequado.
+
+2. Caso você tenha um contêiner específico para os botões ou sugestões, também aplique overflow e max-height nele, ou garanta que ele esteja dentro do container rolável.
+
+Se você usa um bloco específico para exibir os botões de ações ou formulários, como:
+
+<div className="flex flex-col gap-2 mt-4">
+  {suggestions.map((btn) => (
+    <Button key={btn.text} onClick={() => handleSuggestion(btn.action)}>
+      {btn.text}
+    </Button>
+  ))}
+</div>
+
+Certifique-se de que esse bloco não esteja fora de um contêiner com rolagem, ou ficará invisível em telas pequenas. Envolva com um div com rolagem se necessário.
+
+3. Para celular: garanta que o ajuste acima não quebre o layout.
+
+Como usamos unidades vh e overflow-y-auto, o comportamento já é naturalmente responsivo. Mas você pode condicionar algum comportamento específico ao valor de isMobile:
+
+<CardContent
+  className={`overflow-y-auto ${
+    isMobile ? "max-h-[80vh]" : "max-h-[75vh]"
+  } px-4`}
+>
+  {/* conteúdo */}
+</CardContent>
+
+✅ Resultado esperado:
+
+    No notebook de 14", o conteúdo que ultrapassar o espaço visível (por exemplo, os botões no final) ficará acessível com scroll dentro do chat, sem precisar alterar o zoom do navegador.
+
+    No celular, o comportamento permanece o mesmo, com rolagem se necessário.
+
+    A aparência e layout do chatbot continuam consistentes.
