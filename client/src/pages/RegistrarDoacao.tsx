@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { db } from '@/utils/firebase';
 import { collection, query, where, getDocs, addDoc, doc, getDoc, Timestamp } from 'firebase/firestore';
@@ -35,9 +36,11 @@ const RegistrarDoacao: React.FC = () => {
   const authLoading = false;
   const { toast } = useToast();
   const { isOnline, isConnected } = useFirebaseStatus();
+  
+  // Ref para controlar se o componente está montado
+  const isMountedRef = useRef(true);
 
-  // Estado atual do componente (log removido para performance)
-
+  // Estado atual do componente
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [insumos, setInsumos] = useState<Insumo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,6 +57,13 @@ const RegistrarDoacao: React.FC = () => {
     tecnicoNome: ''
   });
 
+  // Cleanup ao desmontar componente
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -62,6 +72,9 @@ const RegistrarDoacao: React.FC = () => {
           getDocs(query(collection(db, 'eventos'), where('ativo', '==', true))),
           getDocs(query(collection(db, 'insumos'), where('ativo', '==', true)))
         ]);
+
+        // Verificar se o componente ainda está montado antes de atualizar estado
+        if (!isMountedRef.current) return;
 
         // Processar eventos
         const eventosData = eventosSnapshot.docs.map(doc => ({
@@ -91,6 +104,8 @@ const RegistrarDoacao: React.FC = () => {
         console.log('✅ Dados carregados - Eventos:', eventosAtivos.length, 'Insumos:', insumosData.length);
       } catch (error) {
         console.error('❌ Erro ao buscar dados:', error);
+        if (!isMountedRef.current) return;
+        
         setLoading(false);
 
         let errorMessage = "Falha ao carregar eventos e insumos. Tente recarregar a página.";
@@ -133,6 +148,7 @@ const RegistrarDoacao: React.FC = () => {
       return;
     }
 
+    if (!isMountedRef.current) return;
     setSubmitting(true);
 
     // Função para tentar registrar com retry
@@ -167,10 +183,10 @@ const RegistrarDoacao: React.FC = () => {
             ...(formData.beneficiarioCpf && { cpf: formData.beneficiarioCpf }),
             ...(formData.beneficiarioPropriedade && { propriedade: formData.beneficiarioPropriedade })
           },
-          timestamp: Timestamp.now(), // Timestamp definido corretamente
-          createdAt: Timestamp.now(), // Timestamp de criação
+          timestamp: Timestamp.now(),
+          createdAt: Timestamp.now(),
           uniqueId: generateRobustId(),
-          clientTimestamp: Timestamp.now() // Para debug/auditoria
+          clientTimestamp: Timestamp.now()
         };
 
         // Função para processar doação de kit
@@ -200,8 +216,8 @@ const RegistrarDoacao: React.FC = () => {
                 quantidade: quantidadeIndividual,
                 tecnico: doacaoData.tecnico,
                 beneficiario: doacaoData.beneficiario,
-                timestamp: Timestamp.now(), // Timestamp definido corretamente
-                createdAt: Timestamp.now(), // Timestamp de criação
+                timestamp: Timestamp.now(),
+                createdAt: Timestamp.now(),
                 kitOrigemId: insumo.id,
                 kitOrigemNome: insumo.nome,
                 kitOrigemQuantidade: quantidade,
@@ -224,8 +240,8 @@ const RegistrarDoacao: React.FC = () => {
         // Sistema de retry robusto com backoff exponencial
         const registroPromise = FirebaseOptimizer.withRetry(
           () => processarDoacaoKit(doacaoData, insumoSelecionado!, Number(formData.quantidade)),
-          5, // 5 tentativas para maior robustez
-          1000 // 1 segundo inicial, crescendo exponencialmente
+          5,
+          1000
         );
 
         // Timeout de 45 segundos para operações complexas de kit
@@ -237,17 +253,20 @@ const RegistrarDoacao: React.FC = () => {
 
         console.log(`✅ Doação registrada com sucesso na tentativa ${tentativa}!`);
 
+        // Verificar se o componente ainda está montado antes de atualizar estado
+        if (!isMountedRef.current) return;
+
         setSuccess(true);
 
         // Limpar formulário mantendo dados relevantes
         setFormData({
-          eventoId: formData.eventoId, // Manter evento selecionado
+          eventoId: formData.eventoId,
           insumoId: '',
           quantidade: '',
           beneficiarioNome: '',
           beneficiarioCpf: '',
           beneficiarioPropriedade: '',
-          tecnicoNome: formData.tecnicoNome // Manter nome do técnico
+          tecnicoNome: formData.tecnicoNome
         });
 
         toast({
@@ -257,7 +276,11 @@ const RegistrarDoacao: React.FC = () => {
         });
 
         // Resetar mensagem de sucesso após 3 segundos
-        setTimeout(() => setSuccess(false), 3000);
+        setTimeout(() => {
+          if (isMountedRef.current) {
+            setSuccess(false);
+          }
+        }, 3000);
 
       } catch (error) {
         console.error(`❌ Erro na tentativa ${tentativa}:`, error);
@@ -272,6 +295,9 @@ const RegistrarDoacao: React.FC = () => {
           await new Promise(resolve => setTimeout(resolve, 2000));
           return registrarComRetry(tentativa + 1, maxTentativas);
         }
+
+        // Verificar se o componente ainda está montado antes de mostrar erro
+        if (!isMountedRef.current) return;
 
         // Erro final - não conseguiu registrar
         let errorMessage = "Falha ao registrar doação após múltiplas tentativas";
@@ -293,7 +319,7 @@ const RegistrarDoacao: React.FC = () => {
           duration: 5000
         });
 
-        throw error; // Re-throw para ser capturado pelo finally
+        throw error;
       }
     };
 
@@ -302,13 +328,11 @@ const RegistrarDoacao: React.FC = () => {
     } catch (error) {
       // Erro já tratado na função registrarComRetry
     } finally {
-      setSubmitting(false);
+      if (isMountedRef.current) {
+        setSubmitting(false);
+      }
     }
   }, [formData, insumos, toast]);
-
-  // Verificando condições de render (log removido para performance)
-
-
 
   if (loading) {
     return (
@@ -462,7 +486,6 @@ const RegistrarDoacao: React.FC = () => {
                     value={formData.quantidade}
                     onChange={(e) => {
                       const value = e.target.value;
-                      // Validar que é um número positivo
                       if (value === '' || (Number(value) > 0 && Number(value) <= 999999)) {
                         setFormData({...formData, quantidade: value});
                       }
@@ -545,7 +568,6 @@ const RegistrarDoacao: React.FC = () => {
                       <p><strong>Beneficiário:</strong> {formData.beneficiarioNome}</p>
                     )}
 
-                    {/* Mostrar composição do kit se aplicável */}
                     {insumoSelecionado.isKit && insumoSelecionado.kitComposicao && (
                       <div className="mt-3 pt-3 border-t border-gray-300">
                         <p className="font-medium text-gray-700 mb-2">Composição do Kit:</p>
@@ -584,7 +606,6 @@ const RegistrarDoacao: React.FC = () => {
                 </Button>
               </div>
 
-              {/* Indicador de progresso durante submit */}
               {submitting && (
                 <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                   <div className="flex items-center gap-2 text-blue-700">
