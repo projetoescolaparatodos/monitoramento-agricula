@@ -718,9 +718,8 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "", onVid
                 📍 {item.location}
               </div>
             )}
-          </CardContent>```python
-        </Card>
-      );
+          </CardContent>
+        </Card>      );
     }
 
     // Renderização padrão para imagens e outros tipos de mídia
