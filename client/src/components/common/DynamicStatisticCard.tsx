@@ -9,6 +9,7 @@ import {
 } from "firebase/firestore";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronUp, ChevronDown } from "lucide-react";
+import { fixStatisticValueDisplay, initStatisticValueWatcher } from "@/utils/browserCompatibility";
 
 interface DynamicStatisticCardProps {
   config: {
@@ -167,6 +168,18 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       });
     }
   }, [value, loading, targetValue, displayValue, isAnimating]);
+
+  // Effect para inicializar watchers de compatibilidade do navegador
+  useEffect(() => {
+    initStatisticValueWatcher();
+  }, []);
+
+  // Effect para aplicar fix quando o valor muda
+  useEffect(() => {
+    if (!loading) {
+      setTimeout(() => fixStatisticValueDisplay(), 100);
+    }
+  }, [displayValue, loading]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -520,15 +533,21 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           </div>
         ) : (
           <>
-            <div className="text-5xl font-black text-transparent bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text mb-4 leading-tight tracking-tight relative">
+            <div className="text-5xl font-black mb-4 leading-tight tracking-tight relative">
               <span
-                className={`statistic-value transition-all duration-100 ${isAnimating ? "text-green-500 scale-110 animate-pulse" : "scale-100"}`}
+                className={`statistic-value transition-all duration-100 ${isAnimating ? "scale-110 animate-pulse" : "scale-100"}`}
                 style={{
                   fontVariantNumeric: "tabular-nums",
                   minWidth: "200px",
                   display: "inline-block",
                   textAlign: "center",
                   transformOrigin: "center",
+                  background: isAnimating ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #059669, #10b981)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  // Fallback para navegadores que não suportam background-clip
+                  color: isAnimating ? '#10b981' : '#059669',
                 }}
               >
                 {formatValue(displayValue)}

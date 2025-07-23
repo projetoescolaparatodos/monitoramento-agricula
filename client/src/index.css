@@ -1752,13 +1752,29 @@ main {
 /* Estilos para animação de valores das estatísticas */
 .statistic-value {
   font-variant-numeric: tabular-nums; /* Mantém largura consistente */
-  transition: color 0.3s ease; /* Para mudanças de cor durante animação */
+  transition: all 0.3s ease; /* Para mudanças de cor durante animação */
   font-feature-settings: "tnum"; /* Força números tabulares */
+  /* Garante visibilidade em todos os navegadores */
+  position: relative;
+  z-index: 1;
 }
 
 .statistic-value.animating {
-  color: #10b981 !important; /* Verde durante animação */
   text-shadow: 0 0 10px rgba(16, 185, 129, 0.3); /* Brilho sutil */
+  transform: scale(1.05);
+}
+
+/* Backup para navegadores que não suportam background-clip adequadamente */
+@supports not (-webkit-background-clip: text) {
+  .statistic-value {
+    color: #059669 !important;
+    -webkit-text-fill-color: initial !important;
+    background: none !important;
+  }
+  
+  .statistic-value.animating {
+    color: #10b981 !important;
+  }
 }
 
 .animating {
@@ -1785,7 +1801,7 @@ main {
   box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);
 }
 
-/* Efeito de brilho durante animação */
+/* Efeito de brilho durante animação - versão compatível com todos os navegadores */
 .statistic-value.counting {
   background: linear-gradient(45deg, #10b981, #34d399, #10b981);
   background-size: 200% 200%;
@@ -1793,6 +1809,8 @@ main {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  /* Fallback para navegadores com problemas */
+  color: #10b981;
 }
 
 @keyframes shimmer {
