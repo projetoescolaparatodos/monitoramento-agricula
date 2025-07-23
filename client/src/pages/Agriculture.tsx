@@ -360,41 +360,6 @@ const Agriculture = () => {
                 </CardContent>
               </Card>
               )}
-
-              {/* Mobile responsive cards for small screens */}
-              {tratoresData && tratoresData.length > 0 && (
-              <div className="sm:hidden space-y-4">
-                <h3 className="text-lg sm:text-xl font-bold text-white mb-4">Detalhes das Atividades</h3>
-                {tratoresData.slice(0, visibleItems).map((trator) => (
-                  <Card key={trator.id} className="bg-white/90 backdrop-blur-sm p-4">
-                    <div className="space-y-2 text-sm">
-                      <div><strong>Nome:</strong> {trator.nome || '-'}</div>
-                      <div><strong>Fazenda:</strong> {trator.fazenda || '-'}</div>
-                      <div><strong>Atividade:</strong> {trator.atividade || '-'}</div>
-                      <div><strong>Operador:</strong> {trator.piloto || '-'}</div>
-                      <div><strong>Técnico:</strong> {trator.tecnicoResponsavel || '-'}</div>
-                      <div><strong>Data:</strong> {new Date(trator.dataCadastro).toLocaleDateString()}</div>
-                      <div><strong>Status:</strong> 
-                        <span className={trator.concluido ? 'text-green-600 font-medium ml-1' : 'text-blue-600 font-medium ml-1'}>
-                          {trator.concluido ? 'Concluído' : 'Em Serviço'}
-                        </span>
-                      </div>
-                      <div><strong>Hora/Máquina:</strong> {trator.horaMaquina ? trator.horaMaquina.toFixed(2) : '0.00'} h</div>
-                      <div><strong>Área:</strong> {trator.areaTrabalhada ? trator.areaTrabalhada.toFixed(2) : '0.00'} ha</div>
-                    </div>
-                  </Card>
-                ))}
-                {tratoresData.length > visibleItems && (
-                  <Button 
-                    onClick={handleLoadMore} 
-                    variant="outline" 
-                    className="w-full bg-white/90"
-                  >
-                    Ver mais atividades ({tratoresData.length - visibleItems} restantes)
-                  </Button>
-                )}
-              </div>
-              )}
             </section>
           </div>
         </main>

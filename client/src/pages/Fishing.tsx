@@ -303,41 +303,6 @@ const Fishing = () => {
                   </CardContent>
                 </Card>
               )}
-
-              {/* Mobile responsive cards for small screens */}
-              {pescaData && pescaData.length > 0 && (
-                <div className="sm:hidden space-y-4">
-                  <h3 className="text-lg sm:text-xl font-bold text-white mb-4">Detalhes das Atividades</h3>
-                  {pescaData.slice(0, visibleItems).map((pesca) => (
-                    <Card key={pesca.id} className="bg-white/90 backdrop-blur-sm p-4">
-                      <div className="space-y-2 text-sm">
-                        <div><strong>Localidade:</strong> {pesca.localidade || '-'}</div>
-                        <div><strong>Proprietário:</strong> {pesca.proprietario || '-'}</div>
-                        <div><strong>Espécie:</strong> {pesca.especiePeixe || '-'}</div>
-                        <div><strong>Sistema:</strong> {pesca.estrutura || pesca.tipoTanque || '-'}</div>
-                        <div><strong>Técnico:</strong> {pesca.tecnicoResponsavel || '-'}</div>
-                        <div><strong>Data:</strong> {new Date(pesca.dataCadastro).toLocaleDateString()}</div>
-                        <div><strong>Status:</strong>
-                          <span className={pesca.concluido ? 'text-green-600 font-medium ml-1' : 'text-blue-600 font-medium ml-1'}>
-                            {pesca.concluido ? 'Concluído' : 'Em Andamento'}
-                          </span>
-                        </div>
-                        <div><strong>Quantidade:</strong> {pesca.quantidadeAlevinos ? pesca.quantidadeAlevinos.toFixed(2) : '0.00'} kg</div>
-                        <div><strong>Área:</strong> {pesca.areaAlagada ? pesca.areaAlagada.toFixed(2) : '0.00'} ha</div>
-                      </div>
-                    </Card>
-                  ))}
-                  {pescaData.length > visibleItems && (
-                    <Button
-                      onClick={handleLoadMore}
-                      variant="outline"
-                      className="w-full bg-white/90"
-                    >
-                      Ver mais atividades ({pescaData.length - visibleItems} restantes)
-                    </Button>
-                  )}
-                </div>
-              )}
             </section>
           </div>
         </main>
