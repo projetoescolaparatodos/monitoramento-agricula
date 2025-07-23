@@ -277,7 +277,8 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
           family: "'Poppins', 'Helvetica', 'Arial', sans-serif",
           weight: 'bold' as const,
           size: isMobile ? 12 : 14
-        }
+        },
+        zIndex: 9999
       }
     },
     onAnimationComplete: () => {
@@ -649,7 +650,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
       permanentCanvas.style.top = '0';
       permanentCanvas.style.left = '0';
       permanentCanvas.style.pointerEvents = 'none';
-      permanentCanvas.style.zIndex = `${10 + datasetIndex}`;
+      permanentCanvas.style.zIndex = `${100 + datasetIndex}`;
       permanentCanvas.className = `organic-animation-canvas dataset-${datasetIndex}`;
 
       permanentCtx = permanentCanvas.getContext('2d');
@@ -1038,6 +1039,14 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
             style={{ height: isMobile ? Math.min(height, 300) : height }}
             className="relative"
           >
+            <style>
+              {`
+                .chartjs-tooltip {
+                  z-index: 10000 !important;
+                  position: relative !important;
+                }
+              `}
+            </style>
             <canvas ref={chartRef} className="w-full h-full" />
 
             {/* Botão de controle da animação para gráficos de linha e barras */}
