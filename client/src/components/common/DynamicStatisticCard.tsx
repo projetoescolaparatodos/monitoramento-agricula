@@ -486,7 +486,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
 
   return (
     <Card
-      className={`bg-white rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 overflow-visible transform hover:-translate-y-3 hover:scale-105 relative border border-gray-100 min-h-[180px] ${isAnimating ? "ring-2 ring-green-400 ring-opacity-30" : ""} ${hasNewData && !isAnimating ? "ring-2 ring-blue-400 ring-opacity-50" : ""}`}
+      className={`bg-white rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 overflow-visible transform hover:-translate-y-3 hover:scale-105 relative border border-gray-100 min-h-[180px] ${isAnimating ? "ring-2 ring-emerald-400 ring-opacity-50" : ""}`}
     >
       <CardContent className="p-6 text-center relative">
         {/* Indicadores posicionados sem interferir no conteúdo principal */}
@@ -506,11 +506,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           </div>
         </div>
 
-        {hasNewData && (
-          <div className="absolute -top-2 -left-2 bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse shadow-lg z-50">
-            ✨ Novo
-          </div>
-        )}
+        
 
         {forceUpdateActive && (
           <div className="absolute -top-2 right-8 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse shadow-lg z-50">
@@ -537,31 +533,17 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           <>
             <div className="text-5xl font-black mb-4 leading-tight tracking-tight relative z-10">
               <span
-                className={`statistic-value transition-all duration-100 ${isAnimating ? "scale-110 animate-pulse" : "scale-100"}`}
+                className={`statistic-value transition-all duration-300 ${isAnimating ? "text-emerald-600" : "text-emerald-700"}`}
                 style={{
                   fontVariantNumeric: "tabular-nums",
                   minWidth: "200px",
                   display: "inline-block",
                   textAlign: "center",
                   transformOrigin: "center",
-                  background: isAnimating ? 'linear-gradient(45deg, #10b981, #34d399)' : 'linear-gradient(45deg, #059669, #10b981)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  // Fallback para navegadores que não suportam background-clip
-                  color: isAnimating ? '#10b981' : '#059669',
                 }}
               >
                 {formatValue(displayValue)}
               </span>
-              {isAnimating && (
-                <div className="absolute -top-1 -right-1 z-20">
-                  <span className="flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                  </span>
-                </div>
-              )}
             </div>
             <div className="text-lg font-bold tracking-wide mb-4 text-gray-800 leading-relaxed px-2 relative z-10">
               {config.titulo}
