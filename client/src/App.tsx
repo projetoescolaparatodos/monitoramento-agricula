@@ -1,5 +1,5 @@
 import { Switch, Route, useLocation } from "wouter";
-import React, { Suspense, lazy, useEffect } from "react";
+import React, { Suspense, lazy } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ChatButton } from "@/components/chat/ChatButton";
 import ChatbotWidget from "@/components/chat/ChatbotWidget";
@@ -39,7 +39,6 @@ import RegistrarDoacao from '@/pages/RegistrarDoacao';
 import EventoTelao from './pages/EventoTelao';
 import EventosDisponiveis from './pages/EventosDisponiveis';
 import AdminLoginGestor from "./pages/AdminLoginGestor";
-import { initBrowserCompatibility } from "@/utils/browserCompatibility";
 
 // Formulários Setoriais - Importação lazy para melhor performance
 const FormAgricultura = lazy(() => import("./forms/agriculture/index"));
@@ -65,15 +64,15 @@ function Router() {
 
   function ConditionalFooter() {
     const [location] = useLocation();
-
+  
     // Lista de rotas onde o Footer não deve aparecer
     const mapRoutes = ['/agricultura/map', '/pesca/map', '/paa/map'];
-
+  
     // Não renderiza o Footer se a rota atual estiver na lista de mapas
     if (mapRoutes.includes(location)) {
       return null;
     }
-
+  
     return <Footer />;
   }
 
@@ -175,11 +174,6 @@ function Router() {
 }
 
 function App() {
-  // Inicializa compatibilidade de navegadores
-  useEffect(() => {
-    initBrowserCompatibility();
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <Router />
