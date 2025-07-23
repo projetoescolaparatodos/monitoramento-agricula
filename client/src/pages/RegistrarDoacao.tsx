@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { db } from '@/utils/firebase';
 import { collection, query, where, getDocs, addDoc, doc, getDoc, Timestamp } from 'firebase/firestore';
@@ -115,7 +115,7 @@ const RegistrarDoacao: React.FC = () => {
     }
   }, [authLoading, toast]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.eventoId || !formData.insumoId || !formData.quantidade || !formData.beneficiarioNome || !formData.tecnicoNome) {
@@ -176,7 +176,7 @@ const RegistrarDoacao: React.FC = () => {
         // Função para processar doação de kit
         const processarDoacaoKit = async (doacaoData: any, insumo: Insumo, quantidade: number) => {
           console.log(`🎯 Processando doação de kit: ${insumo.nome} (quantidade: ${quantidade})`);
-          
+
           if (insumo.isKit && insumo.kitComposicao && insumo.kitComposicao.length > 0) {
             // 1. Registrar a doação principal do kit
             const doacaoKitPrincipal = {
@@ -184,14 +184,14 @@ const RegistrarDoacao: React.FC = () => {
               isKit: true,
               kitComposicao: insumo.kitComposicao
             };
-            
+
             console.log(`📦 Registrando kit principal:`, doacaoKitPrincipal);
             await addDoc(collection(db, 'doacoes_evento'), doacaoKitPrincipal);
 
             // 2. Para cada item do kit, criar doação individual proporcional
             for (const kitItem of insumo.kitComposicao) {
               const quantidadeIndividual = kitItem.quantidade * quantidade;
-              
+
               console.log(`🔢 Item do kit: ${kitItem.insumoId} - Quantidade no kit: ${kitItem.quantidade} × Kits doados: ${quantidade} = Total: ${quantidadeIndividual}`);
 
               const doacaoIndividual = {
@@ -212,7 +212,7 @@ const RegistrarDoacao: React.FC = () => {
               console.log(`📋 Registrando item individual:`, doacaoIndividual);
               await addDoc(collection(db, 'doacoes_evento'), doacaoIndividual);
             }
-            
+
             console.log(`✅ Kit processado com sucesso: ${insumo.kitComposicao.length} itens registrados`);
           } else {
             // Se não é um kit, registra normalmente
@@ -304,7 +304,7 @@ const RegistrarDoacao: React.FC = () => {
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [formData, insumos, toast]);
 
   // Verificando condições de render (log removido para performance)
 
