@@ -1,0 +1,94 @@
+1. Problemas de responsividade (CSS / Tailwind / media queries)
+Pode haver estilos quebrando o layout ou fazendo display: none em determinadas resoluções.
+
+Em telas maiores (como celulares dobráveis ou tablets menores), breakpoints não previstos podem estar sendo ativados sem tratamento adequado.
+
+Soluções:
+
+Revise o uso de hidden, absolute, overflow-hidden, max-w, h-[100vh], min-h-screen, e flex que pode estar forçando o layout.
+
+Use o DevTools do navegador no modo responsivo (F12 > ícone de celular) e teste diferentes larguras (ex: 375px, 400px, 420px, 600px, etc.).
+
+Adicione classes como sm:, md:, lg: para garantir estilos apropriados por faixa.
+
+✅ 2. Erros de renderização ou falha no useEffect (em React)
+Pode haver um erro de JavaScript em algum useEffect ou map() sem checar se os dados existem antes.
+
+Em telas diferentes, os tempos de carregamento variam. Pode ocorrer tentativa de renderizar undefined.
+
+Soluções:
+
+Envolva as renderizações com if (data) ou use optional chaining (data?.field).
+
+Adicione console.log nos dados que estão carregando parcialmente para investigar o que quebra.
+
+✅ 3. Componentes que ocupam 100% da tela com comportamento inconsistente
+Alguns layouts usam height: 100vh, o que não funciona igual em todos os celulares (por conta da barra do navegador).
+
+Isso pode fazer a página parecer que carregou, mas está toda em branco.
+
+Soluções:
+
+Evite h-screen e 100vh como fixos — prefira min-h-screen com overflow-auto.
+
+Verifique se não há position: absolute ou fixed com top: 0 sem z-index correto.
+
+✅ 4. Firebase ou API falhando parcialmente
+Dados que não carregam podem ser por:
+
+Problema de rede
+
+Problema com permissões diferentes (por usuário, login, ou device)
+
+Timeout por má conexão (ex: 3G)
+
+Soluções:
+
+Verifique com try/catch se há erro de leitura do Firestore.
+
+Faça console.log das respostas dos dados que não estão aparecendo.
+
+Adicione um fallback visual como:
+
+ts
+Copiar
+Editar
+{data ? renderContent(data) : <p>Carregando dados...</p>}
+✅ 5. Falta de uso de key única em listas
+Se você estiver fazendo algo como:
+
+tsx
+Copiar
+Editar
+{items.map(item => (
+  <Card>{item.name}</Card>
+))}
+e esquecer de colocar um key, pode causar erros sutis de render.
+
+✅ 6. Lazy loading ou suspense mal implementado
+Pode estar usando React.lazy, Suspense ou dynamic import() de forma que falha silenciosamente.
+
+🧪 Como testar e ajustar isso corretamente
+Acesse o site em diferentes celulares e abra o console remoto (via chrome://inspect ou Remote Debugging via USB)
+
+Olhe o console e veja se há algum erro.
+
+Teste no DevTools com:
+
+Dispositivos: Galaxy Fold, iPhone 13 Pro Max, Pixel 5, etc.
+
+Tamanhos: 360x800, 390x844, 412x915...
+
+Use a função de performance para verificar se há travamentos.
+
+🛠️ Sugestão de correção emergencial:
+Para evitar layout quebrado por telas muito grandes ou muito pequenas:
+
+tsx
+Copiar
+Editar
+<div className="max-w-[480px] w-full mx-auto px-4">
+  {/* conteúdo responsivo */}
+</div>
+Isso limita a largura em telas maiores e centraliza o conteúdo, criando uma "área segura" para seu design mobile.
+
