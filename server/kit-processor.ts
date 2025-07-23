@@ -37,23 +37,31 @@ export async function processarDoacaoKit(
       return;
     }
 
-    // Se é um kit, registra a doação do kit principal
-    await addDoc(collection(db, 'doacoes_evento'), doacaoData);
+    // Marcar a doação principal como kit
+    const doacaoKitPrincipal = {
+      ...doacaoData,
+      isKit: true
+    };
 
-    // Para cada item do kit, cria uma doação individual
+    // Registrar a doação do kit principal
+    await addDoc(collection(db, 'doacoes_evento'), doacaoKitPrincipal);
+
+    // Para cada item do kit, criar uma doação individual proporcional
     for (const kitItem of insumo.kitComposicao) {
+      // Calcular quantidade proporcional: quantidade do kit × quantidade do item no kit
       const quantidadeIndividual = kitItem.quantidade * quantidadeKit;
       
       const doacaoIndividual = {
-        ...doacaoData,
+        eventoId: doacaoData.eventoId,
         insumoId: kitItem.insumoId,
         quantidade: quantidadeIndividual,
+        timestamp: Timestamp.now(),
         kitOrigemId: insumoId,
+        kitOrigemNome: insumo.nome,
         kitOrigemQuantidade: quantidadeKit,
         isFromKit: true,
-        timestamp: Timestamp.now(),
         createdAt: Timestamp.now(),
-        uniqueId: `kit_${doacaoData.uniqueId}_${kitItem.insumoId}_${Date.now()}`
+        uniqueId: `kit_${doacaoData.uniqueId}_${kitItem.insumoId}_${Date.now()}_${Math.random()}`
       };
 
       await addDoc(collection(db, 'doacoes_evento'), doacaoIndividual);

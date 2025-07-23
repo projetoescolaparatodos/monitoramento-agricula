@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { db } from '@/utils/firebase';
@@ -38,7 +37,7 @@ const RegistrarDoacao: React.FC = () => {
   const { isOnline, isConnected } = useFirebaseStatus();
 
   // Estado atual do componente (log removido para performance)
-  
+
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [insumos, setInsumos] = useState<Insumo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,23 +84,23 @@ const RegistrarDoacao: React.FC = () => {
           id: doc.id,
           ...doc.data()
         })) as Insumo[];
-        
+
         setInsumos(insumosData);
         setLoading(false);
-        
+
         console.log('✅ Dados carregados - Eventos:', eventosAtivos.length, 'Insumos:', insumosData.length);
       } catch (error) {
         console.error('❌ Erro ao buscar dados:', error);
         setLoading(false);
-        
+
         let errorMessage = "Falha ao carregar eventos e insumos. Tente recarregar a página.";
-        
+
         if (error.code === 'permission-denied') {
           errorMessage = "Sem permissão para acessar os dados. Verifique sua autenticação.";
         } else if (error.code === 'unavailable') {
           errorMessage = "Serviço temporariamente indisponível. Tente novamente em alguns momentos.";
         }
-        
+
         toast({
           title: "Erro",
           description: errorMessage,
@@ -118,7 +117,7 @@ const RegistrarDoacao: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.eventoId || !formData.insumoId || !formData.quantidade || !formData.beneficiarioNome || !formData.tecnicoNome) {
       toast({
         title: "Erro",
@@ -127,17 +126,17 @@ const RegistrarDoacao: React.FC = () => {
       });
       return;
     }
-    
+
     setSubmitting(true);
 
     // Função para tentar registrar com retry
     const registrarComRetry = async (tentativa = 1, maxTentativas = 3): Promise<void> => {
       try {
         console.log(`🎯 Tentativa ${tentativa} de ${maxTentativas} - Registrando doação...`);
-        
+
         // Buscar dados do insumo para verificar se é kit
         const insumoSelecionado = insumos.find(i => i.id === formData.insumoId);
-        
+
         // Preparar dados da doação de forma mais simples
         const doacaoData = {
           eventoId: formData.eventoId,
@@ -167,7 +166,7 @@ const RegistrarDoacao: React.FC = () => {
           if (insumo.isKit && insumo.kitComposicao) {
             for (const kitItem of insumo.kitComposicao) {
               const quantidadeIndividual = kitItem.quantidade * quantidade;
-              
+
               const doacaoIndividual = {
                 ...doacaoData,
                 insumoId: kitItem.insumoId,
@@ -189,18 +188,18 @@ const RegistrarDoacao: React.FC = () => {
           3, // 3 tentativas
           2000 // 2 segundos entre tentativas
         );
-        
+
         // Timeout de 30 segundos
         const timeoutPromise = new Promise<never>((_, reject) => 
           setTimeout(() => reject(new Error('Timeout: Operação demorou mais que 30 segundos')), 30000)
         );
 
         await Promise.race([registroPromise, timeoutPromise]);
-        
+
         console.log(`✅ Doação registrada com sucesso na tentativa ${tentativa}!`);
-        
+
         setSuccess(true);
-        
+
         // Limpar formulário mantendo dados relevantes
         setFormData({
           eventoId: formData.eventoId, // Manter evento selecionado
@@ -220,10 +219,10 @@ const RegistrarDoacao: React.FC = () => {
 
         // Resetar mensagem de sucesso após 3 segundos
         setTimeout(() => setSuccess(false), 3000);
-        
+
       } catch (error) {
         console.error(`❌ Erro na tentativa ${tentativa}:`, error);
-        
+
         // Se não foi a última tentativa e o erro é recuperável, tenta novamente
         if (tentativa < maxTentativas && (
           error.message?.includes('Timeout') || 
@@ -234,10 +233,10 @@ const RegistrarDoacao: React.FC = () => {
           await new Promise(resolve => setTimeout(resolve, 2000));
           return registrarComRetry(tentativa + 1, maxTentativas);
         }
-        
+
         // Erro final - não conseguiu registrar
         let errorMessage = "Falha ao registrar doação após múltiplas tentativas";
-        
+
         if (error.message?.includes('Timeout')) {
           errorMessage = "Operação demorou muito para ser concluída. Verifique sua conexão e tente novamente.";
         } else if (error.code === 'permission-denied') {
@@ -247,14 +246,14 @@ const RegistrarDoacao: React.FC = () => {
         } else if (error.code === 'deadline-exceeded') {
           errorMessage = "Tempo limite excedido. Verifique sua conexão de internet.";
         }
-        
+
         toast({
           title: "Erro",
           description: errorMessage,
           variant: "destructive",
           duration: 5000
         });
-        
+
         throw error; // Re-throw para ser capturado pelo finally
       }
     };
@@ -270,7 +269,7 @@ const RegistrarDoacao: React.FC = () => {
 
   // Verificando condições de render (log removido para performance)
 
-  
+
 
   if (loading) {
     return (
@@ -345,7 +344,7 @@ const RegistrarDoacao: React.FC = () => {
                 </div>
               </div>
             )}
-            
+
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Dados do Técnico */}
               <div className="border-b border-gray-200 pb-6">
@@ -409,7 +408,7 @@ const RegistrarDoacao: React.FC = () => {
                     ))}
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Quantidade *
@@ -441,14 +440,14 @@ const RegistrarDoacao: React.FC = () => {
                   )}
                 </div>
               </div>
-              
+
               {/* Dados do Beneficiário */}
               <div className="border-t border-gray-200 pt-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
                   <User className="w-5 h-5" />
                   Dados do Beneficiário
                 </h3>
-                
+
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -463,7 +462,7 @@ const RegistrarDoacao: React.FC = () => {
                       required
                     />
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -477,7 +476,7 @@ const RegistrarDoacao: React.FC = () => {
                         placeholder="000.000.000-00"
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Nome da Propriedade (opcional)
@@ -493,7 +492,7 @@ const RegistrarDoacao: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Resumo */}
               {eventoSelecionado && insumoSelecionado && formData.quantidade && formData.tecnicoNome && (
                 <div className="bg-gray-50 p-4 rounded-lg border">
@@ -506,7 +505,7 @@ const RegistrarDoacao: React.FC = () => {
                     {formData.beneficiarioNome && (
                       <p><strong>Beneficiário:</strong> {formData.beneficiarioNome}</p>
                     )}
-                    
+
                     {/* Mostrar composição do kit se aplicável */}
                     {insumoSelecionado.isKit && insumoSelecionado.kitComposicao && (
                       <div className="mt-3 pt-3 border-t border-gray-300">
@@ -525,7 +524,7 @@ const RegistrarDoacao: React.FC = () => {
                   </div>
                 </div>
               )}
-              
+
               <div className="flex justify-end">
                 <Button
                   type="submit"
@@ -545,7 +544,7 @@ const RegistrarDoacao: React.FC = () => {
                   )}
                 </Button>
               </div>
-              
+
               {/* Indicador de progresso durante submit */}
               {submitting && (
                 <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
