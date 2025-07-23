@@ -159,26 +159,49 @@ const RegistrarDoacao: React.FC = () => {
 
         // Função para processar doação de kit
         const processarDoacaoKit = async (doacaoData: any, insumo: Insumo, quantidade: number) => {
-          // Registrar a doação principal do kit
-          await addDoc(collection(db, 'doacoes_evento'), doacaoData);
+          console.log(`🎯 Processando doação de kit: ${insumo.nome} (quantidade: ${quantidade})`);
+          
+          if (insumo.isKit && insumo.kitComposicao && insumo.kitComposicao.length > 0) {
+            // 1. Registrar a doação principal do kit
+            const doacaoKitPrincipal = {
+              ...doacaoData,
+              isKit: true,
+              kitComposicao: insumo.kitComposicao
+            };
+            
+            console.log(`📦 Registrando kit principal:`, doacaoKitPrincipal);
+            await addDoc(collection(db, 'doacoes_evento'), doacaoKitPrincipal);
 
-          // Se é um kit, registrar doações individuais para cada item
-          if (insumo.isKit && insumo.kitComposicao) {
+            // 2. Para cada item do kit, criar doação individual proporcional
             for (const kitItem of insumo.kitComposicao) {
               const quantidadeIndividual = kitItem.quantidade * quantidade;
+              
+              console.log(`🔢 Item do kit: ${kitItem.insumoId} - Quantidade no kit: ${kitItem.quantidade} × Kits doados: ${quantidade} = Total: ${quantidadeIndividual}`);
 
               const doacaoIndividual = {
-                ...doacaoData,
+                eventoId: doacaoData.eventoId,
                 insumoId: kitItem.insumoId,
                 quantidade: quantidadeIndividual,
+                tecnico: doacaoData.tecnico,
+                beneficiario: doacaoData.beneficiario,
+                timestamp: doacaoData.timestamp,
+                createdAt: doacaoData.createdAt,
                 kitOrigemId: insumo.id,
+                kitOrigemNome: insumo.nome,
                 kitOrigemQuantidade: quantidade,
                 isFromKit: true,
-                uniqueId: `kit_${doacaoData.uniqueId}_${kitItem.insumoId}_${Date.now()}`
+                uniqueId: `kit_${doacaoData.uniqueId}_${kitItem.insumoId}_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`
               };
 
+              console.log(`📋 Registrando item individual:`, doacaoIndividual);
               await addDoc(collection(db, 'doacoes_evento'), doacaoIndividual);
             }
+            
+            console.log(`✅ Kit processado com sucesso: ${insumo.kitComposicao.length} itens registrados`);
+          } else {
+            // Se não é um kit, registra normalmente
+            console.log(`📦 Registrando insumo individual:`, doacaoData);
+            await addDoc(collection(db, 'doacoes_evento'), doacaoData);
           }
         };
 

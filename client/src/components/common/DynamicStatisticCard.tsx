@@ -265,8 +265,16 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
 
         if (config.filtroAdicional && Array.isArray(config.filtroAdicional)) {
           config.filtroAdicional.forEach((filter) => {
-            if (filter.fieldPath && filter.opStr && filter.value) {
-              q = query(q, where(filter.fieldPath, filter.opStr, filter.value));
+            if (filter.fieldPath && filter.opStr && filter.value !== undefined) {
+              // Tratar valores booleanos corretamente
+              let filterValue = filter.value;
+              if (typeof filterValue === 'string') {
+                if (filterValue === 'true') filterValue = true;
+                if (filterValue === 'false') filterValue = false;
+              }
+              
+              console.log(`🔍 Aplicando filtro: ${filter.fieldPath} ${filter.opStr} ${filterValue} (tipo: ${typeof filterValue})`);
+              q = query(q, where(filter.fieldPath, filter.opStr, filterValue));
             }
           });
         }
