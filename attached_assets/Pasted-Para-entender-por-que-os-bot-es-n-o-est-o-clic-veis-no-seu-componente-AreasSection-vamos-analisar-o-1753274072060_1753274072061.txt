@@ -1,0 +1,219 @@
+Para entender por que os botões não estão clicáveis no seu componente AreasSection, vamos analisar o código e identificar possíveis problemas. O componente usa Link do wouter para navegação e button dentro dele, mas os botões podem não estar funcionando como esperado. Aqui estão as possíveis causas e soluções:
+
+1. Conflito entre Link e button
+O componente Link do wouter já é um elemento de navegação que gera uma tag <a> internamente. Colocar um button dentro de um Link pode causar comportamento inesperado, como o botão não responder aos cliques corretamente, devido a conflitos de eventos ou renderização. O Link já lida com a navegação, então o button pode ser redundante.
+
+Solução: Remova o button e estilize o próprio Link para se parecer com um botão. O Link pode receber classes CSS e eventos como onClick.
+
+jsx
+
+Recolher
+
+Encapsular
+
+Copiar
+<Link
+  href="/agricultura"
+  className="flex items-center text-green-600 font-semibold hover:text-green-700 transition-colors cursor-pointer w-full text-left p-2 rounded-lg hover:bg-green-50"
+  onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}
+>
+  <span className="mr-2 text-sm uppercase tracking-wider">Explorar</span>
+  <svg
+    className="w-5 h-5 hover:translate-x-2 transition-transform duration-300"
+    fill="currentColor"
+    viewBox="0 0 20 20"
+    aria-hidden="true"
+  >
+    <path
+      fillRule="evenodd"
+      d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+      clipRule="evenodd"
+    />
+  </svg>
+</Link>
+Aplique isso a todos os Links no componente.
+
+2. CSS ou Propriedades Bloqueando Interatividade
+O CSS pode estar interferindo na interatividade dos botões. Propriedades como pointer-events: none, z-index negativo, ou elementos sobrepostos (como o div com a classe absolute inset-0) podem bloquear cliques.
+
+Verifique o div com gradiente de fundo:
+jsx
+
+Recolher
+
+Encapsular
+
+Copiar
+<div className="absolute inset-0 bg-gradient-to-br from-green-400/10 to-transparent opacity-0 group-hover:opacity-30 transition-opacity duration-500" />
+Esse elemento com absolute inset-0 cobre toda a área do cartão. Se ele estiver acima do conteúdo (maior z-index implícito ou explícito), pode impedir cliques nos botões.
+Solução: Adicione pointer-events: none a esse div para garantir que ele não bloqueie interações com elementos abaixo:
+
+css
+
+Recolher
+
+Encapsular
+
+Copiar
+.absolute.inset-0 {
+  pointer-events: none;
+}
+Ou, no JSX:
+
+jsx
+
+Recolher
+
+Encapsular
+
+Copiar
+<div
+  className="absolute inset-0 bg-gradient-to-br from-green-400/10 to-transparent opacity-0 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none"
+/>
+Verifique outros elementos com absolute: O ícone no canto superior direito também é posicionado com absolute. Certifique-se de que ele não está sobrepondo os botões. Adicione pointer-events: none a ele, se necessário.
+3. Problemas com o wouter ou Configuração de Rotas
+Se o Link não está navegando, pode haver um problema com a configuração do wouter. Certifique-se de que:
+
+O componente está dentro de um Router fornecido pelo wouter.
+As rotas /agricultura, /agricultura/map, /pesca, /pesca/map, /paa, /paa/map estão definidas corretamente no seu aplicativo.
+Solução: Verifique o componente principal (geralmente em App.jsx ou similar) e confirme que o Router está configurado:
+
+jsx
+
+Recolher
+
+Encapsular
+
+Copiar
+import { Router } from "wouter";
+
+function App() {
+  return (
+    <Router>
+      <AreasSection />
+      {/* Outros componentes e rotas */}
+    </Router>
+  );
+}
+Se as rotas não estiverem definidas, o Link não funcionará, mesmo que os botões sejam clicáveis. Você pode testar isso temporariamente substituindo href por uma URL externa (como href="https://google.com") para verificar se o clique funciona.
+
+4. Evento onClick no button
+O onClick no button está configurado para executar setTimeout(() => window.scrollTo(0, 0), 100). Isso deve funcionar, mas se o evento de clique não está sendo disparado, pode ser um sinal de que o botão está sendo bloqueado (veja o ponto 2) ou que há um erro no JavaScript.
+
+Solução: Para testar, adicione um console.log no onClick para verificar se o evento está sendo disparado:
+
+jsx
+
+Recolher
+
+Encapsular
+
+Copiar
+<button
+  className="flex items-center text-green-600 font-semibold hover:text-green-700 transition-colors cursor-pointer w-full text-left p-2 rounded-lg hover:bg-green-50"
+  onClick={() => {
+    console.log("Botão clicado!");
+    setTimeout(() => window.scrollTo(0, 0), 100);
+  }}
+>
+Se o console.log não aparecer, o problema está no bloqueio de cliques (provavelmente CSS). Se aparecer, mas a navegação não ocorre, o problema está no wouter.
+
+5. Teste de Acessibilidade e Navegação
+Certifique-se de que os botões são acessíveis via teclado (usando Tab e Enter). O Link do wouter suporta navegação por teclado, mas o button dentro dele pode confundir o comportamento. Após remover o button (conforme sugerido no ponto 1), teste a acessibilidade:
+
+jsx
+
+Recolher
+
+Encapsular
+
+Copiar
+<Link
+  href="/agricultura"
+  className="focus:outline-none focus:ring-2 focus:ring-green-500 ..."
+  onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}
+>
+Adicione estilos de foco (focus:outline-none, focus:ring) para melhorar a acessibilidade.
+
+Código Corrigido (Exemplo para o Cartão de Agricultura)
+Aqui está como o cartão de agricultura ficaria após as correções:
+
+jsx
+
+Recolher
+
+Encapsular
+
+Copiar
+<motion.div
+  initial="hidden"
+  whileInView="visible"
+  viewport={{ once: true }}
+  variants={cardVariants}
+>
+  <div className="group relative bg-white rounded-2xl shadow-md p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 border border-gray-200/50 hover:border-green-300 overflow-hidden min-h-[280px]">
+    <div className="absolute inset-0 bg-gradient-to-br from-green-400/10 to-transparent opacity-0 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none" />
+    <div className="absolute top-4 right-4 flex items-center justify-center w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full pointer-events-none">
+      <AgricultureTractorIcon />
+    </div>
+    <div className="pt-8">
+      <h3 className="text-xl font-semibold mb-3 text-gray-800 group-hover:text-green-600 transition-colors duration-300 tracking-wide">
+        Agricultura
+      </h3>
+      <p className="text-gray-600 leading-relaxed group-hover:text-gray-800 transition-colors text-sm mb-2">
+        Informações sobre agricultura e produção rural
+      </p>
+      <p className="text-gray-500 text-xs mb-4">
+        Cadastro e solicitação de serviços disponíveis
+      </p>
+    </div>
+    <div className="mt-6 flex flex-col gap-3">
+      <Link
+        href="/agricultura"
+        className="flex items-center text-green-600 font-semibold hover:text-green-700 transition-colors cursor-pointer w-full text-left p-2 rounded-lg hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-500"
+        onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}
+      >
+        <span className="mr-2 text-sm uppercase tracking-wider">Explorar</span>
+        <svg
+          className="w-5 h-5 hover:translate-x-2 transition-transform duration-300"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+          aria-hidden="true"
+        >
+          <path
+            fillRule="evenodd"
+            d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </Link>
+      <Link
+        href="/agricultura/map"
+        className="flex items-center text-green-600 font-semibold hover:text-green-700 transition-colors cursor-pointer w-full text-left p-2 rounded-lg hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-500"
+        onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}
+      >
+        <span className="mr-2 text-sm uppercase tracking-wider">Acompanhe as atividades</span>
+        <svg
+          className="w-5 h-5 hover:translate-x-2 transition-transform duration-300"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+          aria-hidden="true"
+        >
+          <path
+            fillRule="evenodd"
+            d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </Link>
+    </div>
+  </div>
+</motion.div>
+Repita o mesmo padrão para os outros cartões (Pesca e PAA).
+
+Passos para Depuração
+Teste os cliques: Adicione console.log no onClick para confirmar se o evento está sendo disparado.
+Inspecione o CSS: Use as ferramentas de desenvolvedor do navegador (F12) para verificar se algum elemento está sobrepondo os botões. Passe o mouse sobre os elementos no inspetor para verificar a hierarquia.
+Verifique as rotas: Confirme se as rotas estão configuradas no wouter. Você pode logar o componente Link para verificar se o href está sendo aplicado corretamente.
+Teste sem button: Aplique a solução do ponto 1 e veja se o Link sozinho funciona.
+Se o problema persistir após essas correções, compartilhe m
