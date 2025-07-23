@@ -127,6 +127,12 @@ const RegistrarDoacao: React.FC = () => {
       return;
     }
 
+    // Prevenir envios duplos
+    if (submitting) {
+      console.log('⚠️ Submissão já em andamento, ignorando nova tentativa');
+      return;
+    }
+
     setSubmitting(true);
 
     // Função para tentar registrar com retry
@@ -137,13 +143,22 @@ const RegistrarDoacao: React.FC = () => {
         // Buscar dados do insumo para verificar se é kit
         const insumoSelecionado = insumos.find(i => i.id === formData.insumoId);
 
-        // Preparar dados da doação de forma mais simples
+        // Gerar ID único mais robusto para alta concorrência
+        const generateRobustId = () => {
+          const timestamp = Date.now();
+          const random = Math.random().toString(36).substr(2, 12);
+          const performance_now = performance.now().toString(36).substr(2, 8);
+          const userAgent = navigator.userAgent.slice(-6);
+          return `public_${timestamp}_${performance_now}_${random}_${userAgent}_${tentativa}`;
+        };
+
+        // Preparar dados da doação com controle de concorrência
         const doacaoData = {
           eventoId: formData.eventoId,
           insumoId: formData.insumoId,
           quantidade: Number(formData.quantidade),
           tecnico: {
-            id: `public_${Date.now()}_${tentativa}`,
+            id: generateRobustId(),
             nome: formData.tecnicoNome,
             email: 'Acesso público'
           },
@@ -152,9 +167,9 @@ const RegistrarDoacao: React.FC = () => {
             ...(formData.beneficiarioCpf && { cpf: formData.beneficiarioCpf }),
             ...(formData.beneficiarioPropriedade && { propriedade: formData.beneficiarioPropriedade })
           },
-          timestamp: Timestamp.now(),
-          createdAt: Timestamp.now(),
-          uniqueId: `public_${Date.now()}_${tentativa}_${Math.random().toString(36).substr(2, 6)}`
+          // Timestamp será definido no servidor para consistência
+          uniqueId: generateRobustId(),
+          clientTimestamp: Timestamp.now() // Para debug/auditoria
         };
 
         // Função para processar doação de kit
@@ -205,16 +220,16 @@ const RegistrarDoacao: React.FC = () => {
           }
         };
 
-        // Usar timeout mais generoso (30 segundos) e sistema de retry
+        // Sistema de retry robusto com backoff exponencial
         const registroPromise = FirebaseOptimizer.withRetry(
           () => processarDoacaoKit(doacaoData, insumoSelecionado!, Number(formData.quantidade)),
-          3, // 3 tentativas
-          2000 // 2 segundos entre tentativas
+          5, // 5 tentativas para maior robustez
+          1000 // 1 segundo inicial, crescendo exponencialmente
         );
 
-        // Timeout de 30 segundos
+        // Timeout de 45 segundos para operações complexas de kit
         const timeoutPromise = new Promise<never>((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout: Operação demorou mais que 30 segundos')), 30000)
+          setTimeout(() => reject(new Error('Timeout: Operação demorou mais que 45 segundos')), 45000)
         );
 
         await Promise.race([registroPromise, timeoutPromise]);
