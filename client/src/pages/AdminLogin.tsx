@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import { Building, Fish, Wheat, Shield, ArrowLeft } from "lucide-react";
+import BackgroundVideo from "@/components/ui/BackgroundVideo";
 
 const AdminLogin = () => {
   const [, setLocation] = useLocation();
@@ -62,8 +62,8 @@ const AdminLogin = () => {
               </p>
             </CardHeader>
             <CardContent className="space-y-4 px-8 pb-8">
-              
-              
+
+
               <Button 
                 onClick={() => setLocation("/login/admin/agricultura")}
                 className="w-full h-16 text-lg bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 flex items-center justify-center gap-4 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] group"
@@ -73,7 +73,7 @@ const AdminLogin = () => {
                 </div>
                 <span className="font-semibold">Área de Agricultura</span>
               </Button>
-              
+
               <Button 
                 onClick={() => setLocation("/login/admin/pesca")}
                 className="w-full h-16 text-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 flex items-center justify-center gap-4 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] group"
@@ -83,7 +83,7 @@ const AdminLogin = () => {
                 </div>
                 <span className="font-semibold">Área de Pesca</span>
               </Button>
-              
+
               <Button 
                 onClick={() => setLocation("/login/admin/paa")}
                 className="w-full h-16 text-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 flex items-center justify-center gap-4 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] group"

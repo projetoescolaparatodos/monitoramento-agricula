@@ -1676,10 +1676,18 @@ html, body {
   scroll-behavior: smooth;
 }
 
-/* Otimizações de performance para vídeos */
+/* Otimizações de performance para vídeos - sem transformações que causam zoom */
 video {
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+}
+
+/* Garantir que vídeos de fundo não sejam ampliados */
+video[src*="BackgroundVideo"] {
+  transform: none !important;
+  -webkit-transform: none !important;
+  scale: none !important;
+  zoom: 1 !important;
 }
 
 /* Otimizações para degradês */
