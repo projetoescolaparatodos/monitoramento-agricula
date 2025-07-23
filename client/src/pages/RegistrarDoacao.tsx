@@ -167,7 +167,8 @@ const RegistrarDoacao: React.FC = () => {
             ...(formData.beneficiarioCpf && { cpf: formData.beneficiarioCpf }),
             ...(formData.beneficiarioPropriedade && { propriedade: formData.beneficiarioPropriedade })
           },
-          // Timestamp será definido no servidor para consistência
+          timestamp: Timestamp.now(), // Timestamp definido corretamente
+          createdAt: Timestamp.now(), // Timestamp de criação
           uniqueId: generateRobustId(),
           clientTimestamp: Timestamp.now() // Para debug/auditoria
         };
@@ -199,8 +200,8 @@ const RegistrarDoacao: React.FC = () => {
                 quantidade: quantidadeIndividual,
                 tecnico: doacaoData.tecnico,
                 beneficiario: doacaoData.beneficiario,
-                timestamp: doacaoData.timestamp,
-                createdAt: doacaoData.createdAt,
+                timestamp: Timestamp.now(), // Timestamp definido corretamente
+                createdAt: Timestamp.now(), // Timestamp de criação
                 kitOrigemId: insumo.id,
                 kitOrigemNome: insumo.nome,
                 kitOrigemQuantidade: quantidade,
