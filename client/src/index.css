@@ -1680,9 +1680,6 @@ html, body {
 video {
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  transform: none !important;
-  -webkit-transform: none !important;
-  scale: none !important;
 }
 
 /* Otimizações para degradês */
@@ -1893,41 +1890,7 @@ video {
   transform: translateZ(0);
 }
 
-/* Estilos específicos para vídeo de fundo */
-.background-video {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  object-fit: cover;
-  object-position: center;
-  z-index: -1;
-  transform: none !important;
-  -webkit-transform: none !important;
-  scale: none !important;
-}
 
-/* Garantir que container do vídeo não cause zoom */
-.background-video-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  z-index: -1;
-}
-
-.background-video-container video {
-  width: 100vw;
-  height: 100vh;
-  object-fit: cover;
-  object-position: center;
-  transform: none !important;
-  -webkit-transform: none !important;
-  scale: none !important;
-}
 
 /* Fix para iframes que não carregam corretamente */
 iframe {
