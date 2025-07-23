@@ -1790,17 +1790,40 @@ main {
 .statistic-value {
   transition: all 0.3s ease;
   position: relative;
-  z-index: 20;
+  z-index: 100 !important;
+  isolation: isolate;
 }
 
 /* Animação específica para cards dinâmicos */
 .dynamic-statistic-card {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  isolation: isolate;
 }
 
 .dynamic-statistic-card.animating {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);
+}
+
+/* Garantir que elementos no DynamicStatisticCard não interfiram */
+.dynamic-statistic-card .statistic-value {
+  z-index: 999 !important;
+  position: relative;
+  isolation: isolate;
+  pointer-events: auto;
+}
+
+/* Prevenir sobreposição de outros elementos */
+.dynamic-statistic-card .absolute {
+  z-index: 1;
+}
+
+.dynamic-statistic-card .absolute.z-50 {
+  z-index: 50;
+}
+
+.dynamic-statistic-card .absolute.z-40 {
+  z-index: 40;
 }
 
 /* Efeito de brilho durante animação - versão compatível com todos os navegadores */
