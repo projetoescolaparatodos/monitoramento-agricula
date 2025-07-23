@@ -266,6 +266,7 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
                         <MediaDisplay
                           item={item}
                           className="hover:scale-105 transition-transform duration-300 h-full"
+                          onVideoPlay={stopAutoScroll}
                         />
                       </div>
                     </CarouselItem>
@@ -336,6 +337,7 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
                         <MediaDisplay
                           item={item}
                           className="hover:scale-105 transition-transform duration-300 h-full"
+                          onVideoPlay={stopAutoScroll}
                         />
                       </div>
                     </CarouselItem>

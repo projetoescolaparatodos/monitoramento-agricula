@@ -16,6 +16,7 @@ interface GoogleDrivePlayerProps {
   aspectRatio?: 'horizontal' | 'vertical' | 'square' | '9:16' | '16:9' | string;
   instagramUrl?: string;
   customThumbnail?: string;
+  onVideoPlay?: () => void;
 }
 
 const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
@@ -24,7 +25,8 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   className = '',
   aspectRatio = 'horizontal',
   instagramUrl,
-  customThumbnail
+  customThumbnail,
+  onVideoPlay
 }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -197,7 +199,10 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
             {/* Overlay com botão de play */}
             <div 
               className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/50 transition-all duration-300"
-              onClick={() => setIsPlaying(true)}
+              onClick={() => {
+                setIsPlaying(true);
+                onVideoPlay?.();
+              }}
             >
               <div className="bg-white/90 rounded-full p-4 group-hover:bg-white group-hover:scale-110 transition-all duration-300 shadow-lg">
                 <Play size={32} className="text-gray-800 ml-1" fill="currentColor" />
