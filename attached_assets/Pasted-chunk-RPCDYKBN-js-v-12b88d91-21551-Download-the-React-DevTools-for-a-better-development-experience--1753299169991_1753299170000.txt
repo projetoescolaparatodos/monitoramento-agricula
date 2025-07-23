@@ -1,0 +1,71 @@
+chunk-RPCDYKBN.js?v=12b88d91:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+firebase.ts:17 🔧 Inicializando Firebase com config: Object
+firebase.ts:24 ✅ Firebase app inicializada: [DEFAULT]
+firebase.ts:28 ✅ Firestore inicializado para projeto: transparencia-agricola
+chunk-4PY6LZXV.js?v=12b88d91:1063 [2025-07-23T19:31:44.747Z]  @firebase/firestore: Firestore (11.3.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead.
+defaultLogHandler @ chunk-4PY6LZXV.js?v=12b88d91:1063
+openrouter.ts:7 OpenRouter API Key disponível: true
+RegistrarDoacao.tsx:91 ✅ Dados carregados - Eventos: 1 Insumos: 4
+ChatbotWidget.tsx:734 Respostas treinadas carregadas: 0
+ChatbotWidget.tsx:1276 Carregadas 0 respostas treinadas
+keywordMatcher.ts:424 Palavras-chave carregadas do Firestore: 21
+client:536 WebSocket connection to 'wss://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:24678/?token=RHZobuBkN8fg' failed: 
+setupWebSocket @ client:536
+(anonymous) @ client:531
+client:560 [vite] server connection lost. Polling for restart...
+RegistrarDoacao.tsx:141 🎯 Tentativa 1 de 3 - Registrando doação...
+firebaseOptimizations.ts:20 🔄 Firebase retry - Tentativa 1/6
+RegistrarDoacao.tsx:178 🎯 Processando doação de kit: Pintainhos (quantidade: 11)
+RegistrarDoacao.tsx:219 📦 Registrando insumo individual: Object
+chunk-RPCDYKBN.js?v=12b88d91:16670 Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at removeChild (chunk-RPCDYKBN.js?v=12b88d91:8456:26)
+    at commitDeletionEffectsOnFiber (chunk-RPCDYKBN.js?v=12b88d91:17510:21)
+    at commitDeletionEffects (chunk-RPCDYKBN.js?v=12b88d91:17477:13)
+    at recursivelyTraverseMutationEffects (chunk-RPCDYKBN.js?v=12b88d91:17674:17)
+    at commitMutationEffectsOnFiber (chunk-RPCDYKBN.js?v=12b88d91:17737:15)
+    at recursivelyTraverseMutationEffects (chunk-RPCDYKBN.js?v=12b88d91:17685:15)
+    at commitMutationEffectsOnFiber (chunk-RPCDYKBN.js?v=12b88d91:17699:15)
+    at recursivelyTraverseMutationEffects (chunk-RPCDYKBN.js?v=12b88d91:17685:15)
+    at commitMutationEffectsOnFiber (chunk-RPCDYKBN.js?v=12b88d91:17737:15)
+    at recursivelyTraverseMutationEffects (chunk-RPCDYKBN.js?v=12b88d91:17685:15)
+chunk-RPCDYKBN.js?v=12b88d91:14032 The above error occurred in the <Text> component:
+
+    at button
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/components/ui/button.tsx:32:6
+    at div
+    at form
+    at div
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/components/ui/card.tsx:97:41
+    at div
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/components/ui/card.tsx:20:6
+    at div
+    at div
+    at RegistrarDoacao (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/pages/RegistrarDoacao.tsx:12:32)
+    at Route (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=12b88d91:323:16)
+    at Switch (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=12b88d91:379:17)
+    at Suspense
+    at div
+    at Router (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/App.tsx?v=zx8HiOg8joeCy1gP97FHc:49:22)
+    at QueryClientProvider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2805:3)
+    at App
+    at Router (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:6387:13)
+    at BrowserRouter (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:8614:3)
+    at QueryClientProvider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2805:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-RPCDYKBN.js?v=12b88d91:14032
+chunk-RPCDYKBN.js?v=12b88d91:9129 Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at removeChild (chunk-RPCDYKBN.js?v=12b88d91:8456:26)
+    at commitDeletionEffectsOnFiber (chunk-RPCDYKBN.js?v=12b88d91:17510:21)
+    at commitDeletionEffects (chunk-RPCDYKBN.js?v=12b88d91:17477:13)
+    at recursivelyTraverseMutationEffects (chunk-RPCDYKBN.js?v=12b88d91:17674:17)
+    at commitMutationEffectsOnFiber (chunk-RPCDYKBN.js?v=12b88d91:17737:15)
+    at recursivelyTraverseMutationEffects (chunk-RPCDYKBN.js?v=12b88d91:17685:15)
+    at commitMutationEffectsOnFiber (chunk-RPCDYKBN.js?v=12b88d91:17699:15)
+    at recursivelyTraverseMutationEffects (chunk-RPCDYKBN.js?v=12b88d91:17685:15)
+    at commitMutationEffectsOnFiber (chunk-RPCDYKBN.js?v=12b88d91:17737:15)
+    at recursivelyTraverseMutationEffects (chunk-RPCDYKBN.js?v=12b88d91:17685:15)
+RegistrarDoacao.tsx:238 ✅ Doação registrada com sucesso na tentativa 1!
+:24678/:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUT
+:24678/:1  Failed to load resource: net::ERR_CONNECTION_TIMED_OUT
