@@ -22,12 +22,11 @@ const DataVisualizationSection = ({ variant = "default" }: { variant?: "default"
     queryKey: ['/api/charts?pageType=home'],
   });
 
-  // Estados para controle do carrossel
+  const isMobile = useIsMobile();
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
   const chartRefs = useRef<{ [key: string]: any }>({});
-  const isMobile = useIsMobile();
 
   // Buscar gráficos destacados e regulares
   const featuredCharts = !isMobile ? (charts?.filter(chart => chart.isFeatured) || []) : [];

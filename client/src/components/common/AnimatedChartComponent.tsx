@@ -203,6 +203,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
   }, [chartType, chartData]);
 
   const isMobile = window.innerWidth <= 768;
+  const isLargeScreen = window.innerWidth >= 1440;
 
   const getAnimationConfig = () => {
     if (!animate) return { duration: 0 };
@@ -1037,7 +1038,9 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5, duration: 0.6 }}
-            style={{ height: isMobile ? Math.min(height, 300) : height }}
+            style={{ 
+              height: isMobile ? Math.min(height, 300) : isLargeScreen ? Math.max(height, 500) : height 
+            }}
             className="relative"
           >
             <style>
@@ -1067,17 +1070,23 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.8, duration: 0.4 }}
-                className="absolute top-4 right-4 z-10"
+                className={`absolute top-4 right-4 z-50 ${isLargeScreen ? 'top-6 right-6' : ''}`}
               >
                 <button
                   onClick={handleStartAnimation}
-                  className="bg-white shadow-lg hover:shadow-xl border border-gray-200 rounded-full p-3 transition-all duration-300 hover:scale-105 group"
+                  className={`bg-white shadow-lg hover:shadow-xl border border-gray-200 rounded-full transition-all duration-300 hover:scale-105 group ${
+                    isLargeScreen ? 'p-4' : 'p-3'
+                  }`}
                   title={animationStarted ? "Reiniciar animação" : "Iniciar animação"}
                 >
                   {animationStarted ? (
-                    <RotateCcw className="w-4 h-4 text-green-600 group-hover:rotate-180 transition-transform duration-300" />
+                    <RotateCcw className={`text-green-600 group-hover:rotate-180 transition-transform duration-300 ${
+                      isLargeScreen ? 'w-6 h-6' : 'w-4 h-4'
+                    }`} />
                   ) : (
-                    <Play className="w-4 h-4 text-green-600 group-hover:scale-110 transition-transform duration-300" />
+                    <Play className={`text-green-600 group-hover:scale-110 transition-transform duration-300 ${
+                      isLargeScreen ? 'w-6 h-6' : 'w-4 h-4'
+                    }`} />
                   )}
                 </button>
               </motion.div>
