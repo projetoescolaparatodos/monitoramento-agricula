@@ -5,7 +5,7 @@ import { collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, Timestamp } 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Trash2, Edit, Eye, EyeOff, Plus, Package } from 'lucide-react';
+import { Trash2, Edit, Eye, EyeOff, Plus, Package, Gift } from 'lucide-react';
 
 interface Insumo {
   id: string;
