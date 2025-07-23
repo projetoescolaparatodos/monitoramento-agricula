@@ -35,28 +35,69 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
 
   // Função para lidar com o auto-scroll
   const startAutoScroll = useCallback((api: any) => {
-    if (!autoScrollEnabled) return;
+    if (!autoScrollEnabled || !api) return;
+
+    // Limpa timer anterior se existir
+    if (autoScrollTimer.current) {
+      clearTimeout(autoScrollTimer.current);
+    }
 
     autoScrollTimer.current = setTimeout(() => {
-      if (api.canScrollNext()) {
+      if (autoScrollEnabled && api.canScrollNext()) {
         api.scrollNext();
-      } else {
-        api.scrollTo(0); // Volta ao início
+        startAutoScroll(api);
+      } else if (autoScrollEnabled) {
+        api.scrollTo(0);
+        startAutoScroll(api);
       }
-      startAutoScroll(api);
     }, 5000);
   }, [autoScrollEnabled]);
 
-  // Efeito para limpar o timer
+  // Função para parar completamente o auto-scroll
+  const stopAllAutoScroll = useCallback(() => {
+    setAutoScrollEnabled(false);
+    
+    // Limpa todos os timers
+    if (autoScrollTimer.current) {
+      clearTimeout(autoScrollTimer.current);
+      autoScrollTimer.current = undefined;
+    }
+    
+    // Cancela animation frames
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = undefined;
+    }
+  }, []);
+
+  // Função para reativar o auto-scroll
+  const startAllAutoScroll = useCallback(() => {
+    setAutoScrollEnabled(true);
+    
+    // Para mobile - reinicia os carrosséis
+    if (isMobile) {
+      if (carouselApi1.current) {
+        setTimeout(() => startAutoScroll(carouselApi1.current), 100);
+      }
+      if (carouselApi2.current) {
+        setTimeout(() => startAutoScroll(carouselApi2.current), 2600);
+      }
+    }
+  }, [isMobile, startAutoScroll]);
+
+  // Efeito para limpar timers na desmontagem
   useEffect(() => {
     return () => {
       if (autoScrollTimer.current) {
         clearTimeout(autoScrollTimer.current);
       }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
   }, []);
 
-  // Lógica do carrossel infinito para desktop (sem duplicação)
+  // Lógica do carrossel infinito para desktop
   useEffect(() => {
     if (!carouselRef.current || isMobile) return;
 
@@ -64,7 +105,7 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
     const speed = 0.8;
 
     const animate = () => {
-      if (autoScrollEnabled) {
+      if (autoScrollEnabled && carousel) {
         carousel.scrollLeft += speed;
 
         // Reinicia ao chegar no final
@@ -73,10 +114,14 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
         }
       }
 
-      animationFrameRef.current = requestAnimationFrame(animate);
+      if (autoScrollEnabled) {
+        animationFrameRef.current = requestAnimationFrame(animate);
+      }
     };
 
-    animationFrameRef.current = requestAnimationFrame(animate);
+    if (autoScrollEnabled) {
+      animationFrameRef.current = requestAnimationFrame(animate);
+    }
 
     return () => {
       if (animationFrameRef.current) {
@@ -100,12 +145,9 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
     }
   };
 
-  // Função para parar o auto-scroll
+  // Função para parar o auto-scroll (compatibilidade)
   const stopAutoScroll = () => {
-    setAutoScrollEnabled(false);
-    if (autoScrollTimer.current) {
-      clearTimeout(autoScrollTimer.current);
-    }
+    stopAllAutoScroll();
   };
 
   const handleCardInteraction = () => {
@@ -190,14 +232,9 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
           <button
             onClick={() => {
               if (autoScrollEnabled) {
-                setAutoScrollEnabled(false);
-                if (autoScrollTimer.current) {
-                  clearTimeout(autoScrollTimer.current);
-                }
+                stopAllAutoScroll();
               } else {
-                setAutoScrollEnabled(true);
-                if (carouselApi1.current) startAutoScroll(carouselApi1.current);
-                if (carouselApi2.current) setTimeout(() => startAutoScroll(carouselApi2.current), 2500);
+                startAllAutoScroll();
               }
             }}
             className={`flex items-center gap-2 px-6 py-3 rounded-full text-white font-semibold transition-all duration-300 ${
@@ -417,12 +454,9 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
         <button
           onClick={() => {
             if (autoScrollEnabled) {
-              setAutoScrollEnabled(false);
-              if (autoScrollTimer.current) {
-                clearTimeout(autoScrollTimer.current);
-              }
+              stopAllAutoScroll();
             } else {
-              setAutoScrollEnabled(true);
+              startAllAutoScroll();
             }
           }}
           className={`flex items-center gap-2 px-6 py-3 rounded-full text-white font-semibold transition-all duration-300 ${
