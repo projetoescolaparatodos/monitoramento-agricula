@@ -260,7 +260,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
         }
       },
       tooltip: {
-        backgroundColor: 'rgba(255, 255, 255, 0.98)',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
         titleColor: '#1f2937',
         bodyColor: '#374151',
         borderColor: '#d1d5db',
@@ -590,16 +590,16 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
     // Usa composite operation para evitar sobreposições problemáticas
     ctx.globalCompositeOperation = 'source-over';
 
-    // Desenha a sombra do tooltip
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+    // Desenha a sombra do tooltip mais pronunciada
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
     ctx.beginPath();
     ctx.roundRect(tooltipX + 2, tooltipY + 2, tooltipWidth, tooltipHeight, borderRadius);
     ctx.fill();
 
-    // Desenha o fundo do tooltip
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+    // Desenha o fundo do tooltip completamente opaco
+    ctx.fillStyle = 'rgba(255, 255, 255, 1.0)';
     ctx.strokeStyle = color;
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth = 2;
 
     // Desenha retângulo com bordas arredondadas
     ctx.beginPath();
@@ -607,8 +607,8 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
     ctx.fill();
     ctx.stroke();
 
-    // Desenha o texto
-    ctx.fillStyle = '#374151';
+    // Desenha o texto com cor mais forte
+    ctx.fillStyle = '#1f2937';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(text, tooltipX + tooltipWidth / 2, tooltipY + tooltipHeight / 2);
@@ -1045,6 +1045,9 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
                 .chartjs-tooltip {
                   z-index: 999999 !important;
                   position: fixed !important;
+                  background-color: rgba(255, 255, 255, 1.0) !important;
+                  border: 2px solid #d1d5db !important;
+                  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
                 }
                 canvas {
                   position: relative;
