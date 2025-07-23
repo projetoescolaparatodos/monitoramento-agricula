@@ -184,6 +184,47 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
         </button>
       </div>
 
+      {/* Controle de Pausa/Play do Carrossel - Mobile */}
+      {isMobile && (
+        <div className="flex justify-center mb-6 md:hidden">
+          <button
+            onClick={() => {
+              if (autoScrollEnabled) {
+                setAutoScrollEnabled(false);
+                if (autoScrollTimer.current) {
+                  clearTimeout(autoScrollTimer.current);
+                }
+              } else {
+                setAutoScrollEnabled(true);
+                if (carouselApi1.current) startAutoScroll(carouselApi1.current);
+                if (carouselApi2.current) setTimeout(() => startAutoScroll(carouselApi2.current), 2500);
+              }
+            }}
+            className={`flex items-center gap-2 px-6 py-3 rounded-full text-white font-semibold transition-all duration-300 ${
+              autoScrollEnabled 
+                ? 'bg-orange-500 hover:bg-orange-600 shadow-lg hover:shadow-xl' 
+                : 'bg-green-500 hover:bg-green-600 shadow-lg hover:shadow-xl'
+            }`}
+          >
+            {autoScrollEnabled ? (
+              <>
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                </svg>
+                Pausar Carrossel
+              </>
+            ) : (
+              <>
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+                Reativar Carrossel
+              </>
+            )}
+          </button>
+        </div>
+      )}
+
       {/* Carrossel Mobile (2 linhas independentes com controles de toque) */}
       {isMobile && (
         <div className="md:hidden space-y-8">
@@ -371,8 +412,8 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
         </div>
       )}
 
-      {/* Controle de Pausa/Play do Carrossel */}
-      <div className="flex justify-center mt-6 mb-4">
+      {/* Controle de Pausa/Play do Carrossel - Desktop */}
+      <div className="hidden md:flex justify-center mt-6 mb-4">
         <button
           onClick={() => {
             if (autoScrollEnabled) {
@@ -382,10 +423,6 @@ const MediaCarouselSection: React.FC<MediaCarouselSectionProps> = ({ mediaItems 
               }
             } else {
               setAutoScrollEnabled(true);
-              if (isMobile) {
-                if (carouselApi1.current) startAutoScroll(carouselApi1.current);
-                if (carouselApi2.current) setTimeout(() => startAutoScroll(carouselApi2.current), 2500);
-              }
             }
           }}
           className={`flex items-center gap-2 px-6 py-3 rounded-full text-white font-semibold transition-all duration-300 ${
