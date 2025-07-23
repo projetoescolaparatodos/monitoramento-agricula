@@ -260,11 +260,11 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
         }
       },
       tooltip: {
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        backgroundColor: 'rgba(255, 255, 255, 0.98)',
         titleColor: '#1f2937',
         bodyColor: '#374151',
         borderColor: '#d1d5db',
-        borderWidth: 1,
+        borderWidth: 2,
         padding: isMobile ? 10 : 16,
         cornerRadius: 8,
         boxPadding: 6,
@@ -278,7 +278,8 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
           weight: 'bold' as const,
           size: isMobile ? 12 : 14
         },
-        zIndex: 9999
+        zIndex: 99999,
+        position: 'nearest' as const
       }
     },
     onAnimationComplete: () => {
@@ -650,7 +651,7 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
       permanentCanvas.style.top = '0';
       permanentCanvas.style.left = '0';
       permanentCanvas.style.pointerEvents = 'none';
-      permanentCanvas.style.zIndex = `${100 + datasetIndex}`;
+      permanentCanvas.style.zIndex = `${50 + datasetIndex}`;
       permanentCanvas.className = `organic-animation-canvas dataset-${datasetIndex}`;
 
       permanentCtx = permanentCanvas.getContext('2d');
@@ -1042,8 +1043,16 @@ const AnimatedChartComponent = React.forwardRef<any, AnimatedChartComponentProps
             <style>
               {`
                 .chartjs-tooltip {
-                  z-index: 10000 !important;
-                  position: relative !important;
+                  z-index: 999999 !important;
+                  position: fixed !important;
+                }
+                canvas {
+                  position: relative;
+                  z-index: 1;
+                }
+                .organic-animation-canvas {
+                  z-index: 10 !important;
+                  pointer-events: none !important;
                 }
               `}
             </style>
