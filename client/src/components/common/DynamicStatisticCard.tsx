@@ -488,30 +488,30 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     <Card
       className={`bg-white rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 overflow-hidden transform hover:-translate-y-3 hover:scale-105 relative border border-gray-100 min-h-[180px] ${isAnimating ? "ring-2 ring-green-400 ring-opacity-30" : ""} ${hasNewData && !isAnimating ? "ring-2 ring-blue-400 ring-opacity-50" : ""}`}
     >
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-3 right-3 z-30">
         <div
-          className={`w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${isAnimating ? "animate-pulse scale-110" : ""} ${hasNewData ? "bg-gradient-to-r from-blue-500 to-blue-600 animate-bounce" : ""}`}
+          className={`w-7 h-7 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${isAnimating ? "animate-pulse scale-110" : ""} ${hasNewData ? "bg-gradient-to-r from-blue-500 to-blue-600 animate-bounce" : ""}`}
         >
           {isUpdating ? (
-            <span className="animate-spin text-sm">🔄</span>
+            <span className="animate-spin text-xs">🔄</span>
           ) : isAnimating ? (
-            <span className="animate-bounce text-sm">📈</span>
+            <span className="animate-bounce text-xs">📈</span>
           ) : hasNewData ? (
-            <span className="animate-pulse text-sm">🔥</span>
+            <span className="animate-pulse text-xs">🔥</span>
           ) : (
-            <span className="text-sm">⚡</span>
+            <span className="text-xs">⚡</span>
           )}
         </div>
       </div>
 
       {hasNewData && (
-        <div className="absolute top-2 left-2 bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse shadow-lg z-50">
+        <div className="absolute top-2 left-2 bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse shadow-lg z-30">
           ✨ Novo
         </div>
       )}
 
       {forceUpdateActive && (
-        <div className="absolute top-2 right-12 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse shadow-lg z-40">
+        <div className="absolute top-2 right-10 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse shadow-lg z-30">
           🔄 Manual
         </div>
       )}
@@ -524,8 +524,6 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           })}
         </div>
       </div>
-
-      <div className="h-1 bg-gradient-to-r from-green-500 to-emerald-600"></div>
 
       <CardContent className="p-6 text-center relative z-10">
         {loading ? (
