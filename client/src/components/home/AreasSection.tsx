@@ -43,8 +43,11 @@ export const AreasSection = () => {
                 </p>
               </div>
               <div className="mt-6 flex flex-col gap-3">
-                <Link href="/agricultura" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
-                  <div className="flex items-center text-green-600 font-semibold hover:text-green-700 transition-colors cursor-pointer">
+                <Link href="/agricultura">
+                  <button 
+                    className="flex items-center text-green-600 font-semibold hover:text-green-700 transition-colors cursor-pointer w-full text-left p-2 rounded-lg hover:bg-green-50"
+                    onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}
+                  >
                     <span className="mr-2 text-sm uppercase tracking-wider">Explorar</span>
                     <svg
                       className="w-5 h-5 hover:translate-x-2 transition-transform duration-300"
@@ -58,10 +61,13 @@ export const AreasSection = () => {
                         clipRule="evenodd"
                       />
                     </svg>
-                  </div>
+                  </button>
                 </Link>
-                <Link href="/agricultura/map" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
-                  <div className="flex items-center text-green-600 font-semibold hover:text-green-700 transition-colors cursor-pointer">
+                <Link href="/agricultura/map">
+                  <button 
+                    className="flex items-center text-green-600 font-semibold hover:text-green-700 transition-colors cursor-pointer w-full text-left p-2 rounded-lg hover:bg-green-50"
+                    onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}
+                  >
                     <span className="mr-2 text-sm uppercase tracking-wider">Acompanhe as atividades</span>
                     <svg
                       className="w-5 h-5 hover:translate-x-2 transition-transform duration-300"
@@ -75,7 +81,7 @@ export const AreasSection = () => {
                         clipRule="evenodd"
                       />
                     </svg>
-                  </div>
+                  </button>
                 </Link>
               </div>
             </div>
@@ -105,8 +111,11 @@ export const AreasSection = () => {
                 </p>
               </div>
               <div className="mt-6 flex flex-col gap-3">
-                <Link href="/pesca" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
-                  <div className="flex items-center text-blue-600 font-semibold hover:text-blue-700 transition-colors cursor-pointer">
+                <Link href="/pesca">
+                  <button 
+                    className="flex items-center text-blue-600 font-semibold hover:text-blue-700 transition-colors cursor-pointer w-full text-left p-2 rounded-lg hover:bg-blue-50"
+                    onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}
+                  >
                     <span className="mr-2 text-sm uppercase tracking-wider">Explorar</span>
                     <svg
                       className="w-5 h-5 hover:translate-x-2 transition-transform duration-300"
@@ -120,10 +129,13 @@ export const AreasSection = () => {
                         clipRule="evenodd"
                       />
                     </svg>
-                  </div>
+                  </button>
                 </Link>
-                <Link href="/pesca/map" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
-                  <div className="flex items-center text-blue-600 font-semibold hover:text-blue-700 transition-colors cursor-pointer">
+                <Link href="/pesca/map">
+                  <button 
+                    className="flex items-center text-blue-600 font-semibold hover:text-blue-700 transition-colors cursor-pointer w-full text-left p-2 rounded-lg hover:bg-blue-50"
+                    onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}
+                  >
                     <span className="mr-2 text-sm uppercase tracking-wider">Acompanhe as atividades</span>
                     <svg
                       className="w-5 h-5 hover:translate-x-2 transition-transform duration-300"
@@ -137,7 +149,7 @@ export const AreasSection = () => {
                         clipRule="evenodd"
                       />
                     </svg>
-                  </div>
+                  </button>
                 </Link>
               </div>
             </div>
@@ -167,8 +179,11 @@ export const AreasSection = () => {
                 </p>
               </div>
               <div className="mt-6 flex flex-col gap-3">
-                <Link href="/paa" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
-                  <div className="flex items-center text-orange-600 font-semibold hover:text-orange-700 transition-colors cursor-pointer">
+                <Link href="/paa">
+                  <button 
+                    className="flex items-center text-orange-600 font-semibold hover:text-orange-700 transition-colors cursor-pointer w-full text-left p-2 rounded-lg hover:bg-orange-50"
+                    onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}
+                  >
                     <span className="mr-2 text-sm uppercase tracking-wider">Explorar</span>
                     <svg
                       className="w-5 h-5 hover:translate-x-2 transition-transform duration-300"
@@ -182,10 +197,13 @@ export const AreasSection = () => {
                         clipRule="evenodd"
                       />
                     </svg>
-                  </div>
+                  </button>
                 </Link>
-                <Link href="/paa/map" onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}>
-                  <div className="flex items-center text-orange-600 font-semibold hover:text-orange-700 transition-colors cursor-pointer">
+                <Link href="/paa/map">
+                  <button 
+                    className="flex items-center text-orange-600 font-semibold hover:text-orange-700 transition-colors cursor-pointer w-full text-left p-2 rounded-lg hover:bg-orange-50"
+                    onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}
+                  >
                     <span className="mr-2 text-sm uppercase tracking-wider">Acompanhe as atividades</span>
                     <svg
                       className="w-5 h-5 hover:translate-x-2 transition-transform duration-300"
@@ -199,7 +217,7 @@ export const AreasSection = () => {
                         clipRule="evenodd"
                       />
                     </svg>
-                  </div>
+                  </button>
                 </Link>
               </div>
             </div>
