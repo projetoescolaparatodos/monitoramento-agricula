@@ -68,7 +68,7 @@ const Fishing = () => {
     right: 0,
     bottom: 0,
     width: '100vw',
-    height: '100vh',
+    minHeight: '100vh',
     zIndex: 0,
     opacity: 0.8,
     pointerEvents: 'none',
@@ -121,7 +121,8 @@ const Fishing = () => {
     <>
       <div style={backgroundStyle} />
       <div className="fixed inset-0 w-full min-h-screen bg-black/40 z-[1]"></div>
-      <main className="container mx-auto px-4 pt-28 pb-16 relative z-10">
+      <div className="max-w-[480px] sm:max-w-none w-full mx-auto relative z-10">
+      <main className="container mx-auto px-2 sm:px-4 pt-28 pb-16 relative z-10 overflow-x-hidden">
         <div className="flex flex-wrap justify-end items-center mb-6 gap-3">
           <FishingTabButton className="shadow-md whitespace-nowrap">
             Serviços Pesca
@@ -190,41 +191,42 @@ const Fishing = () => {
           )}
 
           {/* Fishing Report Section */}
-          <section className="mt-16 rounded-lg p-8">
-            <h2 className="section-title text-3xl font-bold text-center mb-8 text-white">ATIVIDADES DA PESCA</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 w-full">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Fish className="h-5 w-5 text-blue-500" />
-                    Produção Total de Pescado
+          <section className="mt-16 rounded-lg p-2 sm:p-8">
+            <h2 className="section-title text-2xl sm:text-3xl font-bold text-center mb-8 text-white">ATIVIDADES DA PESCA</h2>
+            {pescaData ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 w-full">
+              <Card className="w-full">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                    <Fish className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 flex-shrink-0" />
+                    <span className="truncate">Produção Total de Pescado</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{(pescaData?.reduce((sum, p) => sum + (p.quantidadePescado || 0) + (p.quantidadeAlevinos || 0), 0) || 0).toFixed(2)} kg</p>
+                <CardContent className="pt-0">
+                  <p className="text-2xl sm:text-3xl font-bold">{(pescaData.reduce((sum, p) => sum + (p.quantidadePescado || 0) + (p.quantidadeAlevinos || 0), 0) || 0).toFixed(2)} kg</p>
                 </CardContent>
               </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart2 className="h-5 w-5 text-primary" />
-                    Sistemas Registrados
+              <Card className="w-full">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                    <BarChart2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
+                    <span className="truncate">Sistemas Registrados</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{pescaData?.length || 0}</p>
+                <CardContent className="pt-0">
+                  <p className="text-2xl sm:text-3xl font-bold">{pescaData.length || 0}</p>
                 </CardContent>
               </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FilePieChart className="h-5 w-5 text-green-500" />
-                    Área de Criação
+              <Card className="w-full sm:col-span-2 lg:col-span-1">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                    <FilePieChart className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 flex-shrink-0" />
+                    <span className="truncate">Área de Criação</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">
-                    {pescaData?.reduce((sum, p) => {
+                <CardContent className="pt-0">
+                  <p className="text-2xl sm:text-3xl font-bold">
+                    {pescaData.reduce((sum, p) => {
                       // Soma os valores de areaAlagada
                       if (typeof p.areaAlagada === 'number') {
                         return sum + p.areaAlagada;
@@ -238,10 +240,15 @@ const Fishing = () => {
                   </p>
                 </CardContent>
               </Card>
-
             </div>
+            ) : (
+              <div className="text-center text-white mb-8">
+                <p>Carregando dados das atividades...</p>
+              </div>
+            )}
 
-            <Card className="bg-white/80 backdrop-blur-sm hidden md:block shadow-lg">
+            {pescaData && pescaData.length > 0 && (
+            <Card className="bg-white/80 backdrop-blur-sm hidden sm:block shadow-lg overflow-hidden">
               <CardHeader className="border-b border-gray-200">
                 <CardTitle className="text-2xl font-bold text-black">Detalhes das Atividades</CardTitle>
               </CardHeader>
@@ -293,9 +300,45 @@ const Fishing = () => {
                 )}
               </CardContent>
             </Card>
+            )}
+
+            {/* Mobile responsive cards for small screens */}
+            {pescaData && pescaData.length > 0 && (
+            <div className="sm:hidden space-y-4">
+              <h3 className="text-xl font-bold text-white mb-4">Detalhes das Atividades</h3>
+              {pescaData.slice(0, visibleItems).map((pesca) => (
+                <Card key={pesca.id} className="bg-white/90 backdrop-blur-sm p-4">
+                  <div className="space-y-2 text-sm">
+                    <div><strong>Localidade:</strong> {pesca.localidade || '-'}</div>
+                    <div><strong>Proprietário:</strong> {pesca.proprietario || '-'}</div>
+                    <div><strong>Espécie:</strong> {pesca.especiePeixe || '-'}</div>
+                    <div><strong>Sistema:</strong> {pesca.estrutura || pesca.tipoTanque || '-'}</div>
+                    <div><strong>Técnico:</strong> {pesca.tecnicoResponsavel || '-'}</div>
+                    <div><strong>Data:</strong> {new Date(pesca.dataCadastro).toLocaleDateString()}</div>
+                    <div><strong>Status:</strong> 
+                      <span className={pesca.concluido ? 'text-green-600 font-medium ml-1' : 'text-blue-600 font-medium ml-1'}>
+                        {pesca.concluido ? 'Concluído' : 'Em Andamento'}
+                      </span>
+                    </div>
+                    <div><strong>Quantidade:</strong> {pesca.quantidadeAlevinos ? pesca.quantidadeAlevinos.toFixed(2) : '0.00'} kg</div>
+                    <div><strong>Área:</strong> {pesca.areaAlagada ? pesca.areaAlagada.toFixed(2) : '0.00'} ha</div>
+                  </div>
+                </Card>
+              ))}
+              {pescaData.length > visibleItems && (
+                <Button 
+                  onClick={handleLoadMore} 
+                  variant="outline" 
+                  className="w-full bg-white/90"
+                >
+                  Ver mais atividades ({pescaData.length - visibleItems} restantes)
+                </Button>
+              )}
+            </div>
+            )}
           </section>
         </main>
-      </main>
+      </div>
     </>
   );
 };

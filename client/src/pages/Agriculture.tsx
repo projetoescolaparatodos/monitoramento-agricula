@@ -66,7 +66,7 @@ const Agriculture = () => {
     right: 0,
     bottom: 0,
     width: '100vw',
-    height: '100vh',
+    minHeight: '100vh',
     zIndex: 0,
     opacity: 0.8,
     pointerEvents: 'none',
@@ -180,7 +180,8 @@ const Agriculture = () => {
     <>
       <div style={backgroundStyle}></div>
       <div className="fixed inset-0 w-full min-h-screen bg-black/40 z-[1]"></div>
-      <main className="container mx-auto px-4 pt-20 pb-16 relative z-10">
+      <div className="max-w-[480px] sm:max-w-none w-full mx-auto relative z-10">
+      <main className="container mx-auto px-2 sm:px-4 pt-20 pb-16 relative z-10 overflow-x-hidden">
         <div className="prose max-w-none mb-8">
           <h1 className="section-title text-4xl font-bold text-center mb-4 text-white">AGRICULTURA</h1>
           <p className="section-subtitle text-center text-lg text-white/80">
@@ -249,55 +250,62 @@ const Agriculture = () => {
           )}
 
           {/* Agriculture Report Section */}
-          <section className="mt-16 rounded-lg p-8">
-            <h2 className="section-title text-3xl font-bold text-center mb-8 text-white">ATIVIDADES DA AGRICULTURA</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart2 className="h-5 w-5 text-primary" />
-                    Atendimentos Registrados
+          <section className="mt-16 rounded-lg p-2 sm:p-8">
+            <h2 className="section-title text-2xl sm:text-3xl font-bold text-center mb-8 text-white">ATIVIDADES DA AGRICULTURA</h2>
+            {tratoresData ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
+              <Card className="w-full">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                    <BarChart2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
+                    <span className="truncate">Atendimentos Registrados</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{tratoresData?.length || 0} <span className="text-2xl font-bold">famílias</span></p>
+                <CardContent className="pt-0">
+                  <p className="text-2xl sm:text-3xl font-bold">{tratoresData.length || 0} <span className="text-lg sm:text-2xl font-bold">famílias</span></p>
                 </CardContent>
               </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FilePieChart className="h-5 w-5 text-blue-500" />
-                    Hora/Máquina
+              <Card className="w-full">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                    <FilePieChart className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 flex-shrink-0" />
+                    <span className="truncate">Hora/Máquina</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">
-                    {tratoresData?.reduce((sum, t) => {
+                <CardContent className="pt-0">
+                  <p className="text-2xl sm:text-3xl font-bold">
+                    {tratoresData.reduce((sum, t) => {
                       const horaMaquina = typeof t.horaMaquina === 'number' ? t.horaMaquina : 0;
                       return sum + horaMaquina;
-                    }, 0).toFixed(2) || '0'} h
+                    }, 0).toFixed(2)} h
                   </p>
                 </CardContent>
               </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FilePieChart className="h-5 w-5 text-green-500" />
-                    Área Trabalhada
+              <Card className="w-full sm:col-span-2 lg:col-span-1">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                    <FilePieChart className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 flex-shrink-0" />
+                    <span className="truncate">Área Trabalhada</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">
-                    {tratoresData?.reduce((sum, t) => {
+                <CardContent className="pt-0">
+                  <p className="text-2xl sm:text-3xl font-bold">
+                    {tratoresData.reduce((sum, t) => {
                       const area = typeof t.areaTrabalhada === 'number' ? t.areaTrabalhada : 0;
                       return sum + area;
-                    }, 0).toFixed(2) || '0'} ha
+                    }, 0).toFixed(2)} ha
                   </p>
                 </CardContent>
               </Card>
             </div>
+            ) : (
+              <div className="text-center text-white mb-8">
+                <p>Carregando dados das atividades...</p>
+              </div>
+            )}
 
-            <Card className="bg-white/80 backdrop-blur-sm hidden md:block shadow-lg">
+            {tratoresData && tratoresData.length > 0 && (
+            <Card className="bg-white/80 backdrop-blur-sm hidden sm:block shadow-lg overflow-hidden">
               <CardHeader className="border-b border-gray-200">
                 <CardTitle className="text-2xl font-bold text-black">Detalhes das Atividades</CardTitle>
               </CardHeader>
@@ -349,9 +357,45 @@ const Agriculture = () => {
                 )}
               </CardContent>
             </Card>
+            )}
+
+            {/* Mobile responsive cards for small screens */}
+            {tratoresData && tratoresData.length > 0 && (
+            <div className="sm:hidden space-y-4">
+              <h3 className="text-xl font-bold text-white mb-4">Detalhes das Atividades</h3>
+              {tratoresData.slice(0, visibleItems).map((trator) => (
+                <Card key={trator.id} className="bg-white/90 backdrop-blur-sm p-4">
+                  <div className="space-y-2 text-sm">
+                    <div><strong>Nome:</strong> {trator.nome || '-'}</div>
+                    <div><strong>Fazenda:</strong> {trator.fazenda || '-'}</div>
+                    <div><strong>Atividade:</strong> {trator.atividade || '-'}</div>
+                    <div><strong>Operador:</strong> {trator.piloto || '-'}</div>
+                    <div><strong>Técnico:</strong> {trator.tecnicoResponsavel || '-'}</div>
+                    <div><strong>Data:</strong> {new Date(trator.dataCadastro).toLocaleDateString()}</div>
+                    <div><strong>Status:</strong> 
+                      <span className={trator.concluido ? 'text-green-600 font-medium ml-1' : 'text-blue-600 font-medium ml-1'}>
+                        {trator.concluido ? 'Concluído' : 'Em Serviço'}
+                      </span>
+                    </div>
+                    <div><strong>Hora/Máquina:</strong> {trator.horaMaquina ? trator.horaMaquina.toFixed(2) : '0.00'} h</div>
+                    <div><strong>Área:</strong> {trator.areaTrabalhada ? trator.areaTrabalhada.toFixed(2) : '0.00'} ha</div>
+                  </div>
+                </Card>
+              ))}
+              {tratoresData.length > visibleItems && (
+                <Button 
+                  onClick={handleLoadMore} 
+                  variant="outline" 
+                  className="w-full bg-white/90"
+                >
+                  Ver mais atividades ({tratoresData.length - visibleItems} restantes)
+                </Button>
+              )}
+            </div>
+            )}
           </section>
         </main>
-      </main>
+      </div>
     </>
   );
 };
