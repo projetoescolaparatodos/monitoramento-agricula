@@ -181,220 +181,224 @@ const Agriculture = () => {
       <div style={backgroundStyle}></div>
       <div className="fixed inset-0 w-full min-h-screen bg-black/40 z-[1]"></div>
       <div className="max-w-[480px] sm:max-w-none w-full mx-auto relative z-10">
-      <main className="container mx-auto px-2 sm:px-4 pt-20 pb-16 relative z-10 overflow-x-hidden">
-        <div className="prose max-w-none mb-8">
-          <h1 className="section-title text-4xl font-bold text-center mb-4 text-white">AGRICULTURA</h1>
-          <p className="section-subtitle text-center text-lg text-white/80">
-            Informações e dados sobre a agricultura em Vitória do Xingu
-          </p>
-        </div>
-        <div className="flex flex-col sm:flex-row justify-end mb-8 gap-3">
-          <AgricultureTabButton className="shadow-md text-sm sm:text-base w-full sm:w-auto">
-            <span className="truncate">Serviços Agricultura</span>
-          </AgricultureTabButton>
-          <Button
-            onClick={() => setLocation("/agricultura/map")}
-            className="flex items-center justify-center gap-2 text-xs sm:text-sm md:text-base w-full sm:w-auto px-2 sm:px-4"
-          >
-            <Map className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-            <span className="truncate text-xs sm:text-sm md:text-base whitespace-nowrap">Acompanhar Serviços</span>
-          </Button>
-        </div>
-        <main className="space-y-12">
+        <main className="container mx-auto px-2 sm:px-4 lg:px-6 pt-20 pb-16 relative z-10 overflow-x-hidden">
+          <div className="prose max-w-none mb-6 sm:mb-8">
+            <h1 className="section-title text-3xl sm:text-4xl lg:text-5xl font-bold text-center mb-4 text-white">AGRICULTURA</h1>
+            <p className="section-subtitle text-center text-base sm:text-lg lg:text-xl text-white/80">
+              Informações e dados sobre a agricultura em Vitória do Xingu
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row justify-end mb-6 sm:mb-8 gap-3">
+            <AgricultureTabButton className="shadow-md text-sm sm:text-base lg:text-lg w-full sm:w-auto">
+              <span className="truncate">Serviços Agricultura</span>
+            </AgricultureTabButton>
+            <Button
+              onClick={() => setLocation("/agricultura/map")}
+              className="flex items-center justify-center gap-2 text-xs sm:text-sm lg:text-base w-full sm:w-auto px-2 sm:px-4 lg:px-6"
+            >
+              <Map className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 flex-shrink-0" />
+              <span className="truncate text-xs sm:text-sm lg:text-base whitespace-nowrap">Acompanhar Serviços</span>
+            </Button>
+          </div>
+          <div className="space-y-8 sm:space-y-12">
 
           {contents && contents.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {contents
-                .sort((a, b) => (a.order || 0) - (b.order || 0))
-                .map((content) => (
-                <Card key={content.id} className="p-6 border-0 bg-white/10 backdrop-blur-sm">
-                  <h3 className="text-2xl font-bold mb-4 text-white drop-shadow-sm">{content.title}</h3>
-                  <p className="text-white text-lg leading-relaxed">{content.content}</p>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          {/* Seção de Painéis Interativos */}
-          <section className="mt-16">
-            <div className="p-6">
-              <InteractivePanel 
-                pageType="agriculture" 
-                className="text-white"
-              />
-
-              {/* Novos botões abaixo do painel */}
-              <div className="flex flex-col md:flex-row justify-center gap-4 mt-8">
-                <AgricultureTabButton className="shadow-md text-sm md:text-lg py-3 px-4 md:px-6 rounded-lg w-full md:w-auto">
-                  <span className="truncate">Sou Agricultor, Quero me Cadastrar</span>
-                </AgricultureTabButton>
-
-                <Button
-                  onClick={() => setLocation("/agricultura/map")}
-                  className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-xs sm:text-sm md:text-lg py-3 px-2 sm:px-4 md:px-6 rounded-lg shadow-md w-full md:w-auto"
-                >
-                  <Map className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                  <span className="truncate text-xs sm:text-sm md:text-lg whitespace-nowrap">Acompanhe nossas Atividades em tempo real</span>
-                </Button>
-              </div>
-            </div>
-          </section>
-
-          <DataVisualizationSection 
-            charts={charts || []} 
-            isLoading={isLoadingCharts} 
-          />
-
-          {mediaItems && mediaItems.length > 0 && (
-            <MediaCarouselSection mediaItems={mediaItems} />
-          )}
-
-          {/* Agriculture Report Section */}
-          <section className="mt-16 rounded-lg p-2 sm:p-8">
-            <h2 className="section-title text-2xl sm:text-3xl font-bold text-center mb-8 text-white">ATIVIDADES DA AGRICULTURA</h2>
-            {tratoresData ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
-              <Card className="w-full">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                    <BarChart2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
-                    <span className="truncate">Atendimentos Registrados</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <p className="text-2xl sm:text-3xl font-bold">{tratoresData.length || 0} <span className="text-lg sm:text-2xl font-bold">famílias</span></p>
-                </CardContent>
-              </Card>
-              <Card className="w-full">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                    <FilePieChart className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 flex-shrink-0" />
-                    <span className="truncate">Hora/Máquina</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <p className="text-2xl sm:text-3xl font-bold">
-                    {tratoresData.reduce((sum, t) => {
-                      const horaMaquina = typeof t.horaMaquina === 'number' ? t.horaMaquina : 0;
-                      return sum + horaMaquina;
-                    }, 0).toFixed(2)} h
-                  </p>
-                </CardContent>
-              </Card>
-              <Card className="w-full sm:col-span-2 lg:col-span-1">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                    <FilePieChart className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 flex-shrink-0" />
-                    <span className="truncate">Área Trabalhada</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <p className="text-2xl sm:text-3xl font-bold">
-                    {tratoresData.reduce((sum, t) => {
-                      const area = typeof t.areaTrabalhada === 'number' ? t.areaTrabalhada : 0;
-                      return sum + area;
-                    }, 0).toFixed(2)} ha
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-            ) : (
-              <div className="text-center text-white mb-8">
-                <p>Carregando dados das atividades...</p>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                {contents
+                  .sort((a, b) => (a.order || 0) - (b.order || 0))
+                  .map((content) => (
+                  <Card key={content.id} className="p-4 sm:p-6 border-0 bg-white/10 backdrop-blur-sm">
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4 text-white drop-shadow-sm">{content.title}</h3>
+                    <p className="text-white text-base sm:text-lg leading-relaxed">{content.content}</p>
+                  </Card>
+                ))}
               </div>
             )}
 
-            {tratoresData && tratoresData.length > 0 && (
-            <Card className="bg-white/80 backdrop-blur-sm hidden sm:block shadow-lg overflow-hidden">
-              <CardHeader className="border-b border-gray-200">
-                <CardTitle className="text-2xl font-bold text-black">Detalhes das Atividades</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <Table className="w-full [&_th]:text-black [&_td]:text-gray-700 [&_tr:hover]:bg-gray-50/50">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nome</TableHead>
-                      <TableHead>Fazenda</TableHead>
-                      <TableHead>Atividade</TableHead>
-                      <TableHead>Operador</TableHead>
-                      <TableHead>Técnico Responsável</TableHead>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Hora/Máquina</TableHead>
-                      <TableHead>Área (ha)</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {tratoresData?.slice(0, visibleItems).map((trator) => (
-                      <TableRow key={trator.id}>
-                        <TableCell>{trator.nome || '-'}</TableCell>
-                        <TableCell>{trator.fazenda || '-'}</TableCell>
-                        <TableCell>{trator.atividade || '-'}</TableCell>
-                        <TableCell>{trator.piloto || '-'}</TableCell>
-                        <TableCell>{trator.tecnicoResponsavel || '-'}</TableCell>
-                        <TableCell>{new Date(trator.dataCadastro).toLocaleDateString()}</TableCell>
-                        <TableCell>
-                          <span className={trator.concluido ? 'text-green-600 font-medium' : 'text-blue-600 font-medium'}>
-                            {trator.concluido ? 'Concluído' : 'Em Serviço'}
-                          </span>
-                        </TableCell>
-                        <TableCell>{trator.horaMaquina ? trator.horaMaquina.toFixed(2) : '0.00'} h</TableCell>
-                        <TableCell>{trator.areaTrabalhada ? trator.areaTrabalhada.toFixed(2) : '0.00'}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                {tratoresData && tratoresData.length > visibleItems && (
-                  <div className="p-4 border-t border-gray-200 bg-gray-50/50">
-                    <Button 
-                      onClick={handleLoadMore} 
-                      variant="outline" 
-                      className="w-full"
-                    >
-                      Ver mais atividades ({tratoresData.length - visibleItems} restantes)
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            {/* Seção de Painéis Interativos */}
+            <section className="mt-12 sm:mt-16">
+              <div className="p-4 sm:p-6">
+                <InteractivePanel 
+                  pageType="agriculture" 
+                  className="text-white"
+                />
+
+                {/* Novos botões abaixo do painel */}
+                <div className="flex flex-col lg:flex-row justify-center gap-4 mt-6 sm:mt-8">
+                  <AgricultureTabButton className="shadow-md text-sm lg:text-lg py-3 px-4 lg:px-6 rounded-lg w-full lg:w-auto">
+                    <span className="truncate">Sou Agricultor, Quero me Cadastrar</span>
+                  </AgricultureTabButton>
+
+                  <Button
+                    onClick={() => setLocation("/agricultura/map")}
+                    className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-xs sm:text-sm lg:text-lg py-3 px-2 sm:px-4 lg:px-6 rounded-lg shadow-md w-full lg:w-auto"
+                  >
+                    <Map className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 flex-shrink-0" />
+                    <span className="truncate text-xs sm:text-sm lg:text-lg whitespace-nowrap">Acompanhe nossas Atividades em tempo real</span>
+                  </Button>
+                </div>
+              </div>
+            </section>
+
+            <DataVisualizationSection 
+              charts={charts || []} 
+              isLoading={isLoadingCharts} 
+            />
+
+            {mediaItems && mediaItems.length > 0 && (
+              <MediaCarouselSection mediaItems={mediaItems} />
             )}
 
-            {/* Mobile responsive cards for small screens */}
-            {tratoresData && tratoresData.length > 0 && (
-            <div className="sm:hidden space-y-4">
-              <h3 className="text-xl font-bold text-white mb-4">Detalhes das Atividades</h3>
-              {tratoresData.slice(0, visibleItems).map((trator) => (
-                <Card key={trator.id} className="bg-white/90 backdrop-blur-sm p-4">
-                  <div className="space-y-2 text-sm">
-                    <div><strong>Nome:</strong> {trator.nome || '-'}</div>
-                    <div><strong>Fazenda:</strong> {trator.fazenda || '-'}</div>
-                    <div><strong>Atividade:</strong> {trator.atividade || '-'}</div>
-                    <div><strong>Operador:</strong> {trator.piloto || '-'}</div>
-                    <div><strong>Técnico:</strong> {trator.tecnicoResponsavel || '-'}</div>
-                    <div><strong>Data:</strong> {new Date(trator.dataCadastro).toLocaleDateString()}</div>
-                    <div><strong>Status:</strong> 
-                      <span className={trator.concluido ? 'text-green-600 font-medium ml-1' : 'text-blue-600 font-medium ml-1'}>
-                        {trator.concluido ? 'Concluído' : 'Em Serviço'}
-                      </span>
-                    </div>
-                    <div><strong>Hora/Máquina:</strong> {trator.horaMaquina ? trator.horaMaquina.toFixed(2) : '0.00'} h</div>
-                    <div><strong>Área:</strong> {trator.areaTrabalhada ? trator.areaTrabalhada.toFixed(2) : '0.00'} ha</div>
-                  </div>
+            {/* Agriculture Report Section */}
+            <section className="mt-12 sm:mt-16 rounded-lg p-2 sm:p-6 lg:p-8">
+              <h2 className="section-title text-2xl sm:text-3xl lg:text-4xl font-bold text-center mb-6 sm:mb-8 text-white">ATIVIDADES DA AGRICULTURA</h2>
+              {tratoresData ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                <Card className="w-full">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+                      <BarChart2 className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-primary flex-shrink-0" />
+                      <span className="truncate">Atendimentos Registrados</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <p className="text-2xl sm:text-3xl lg:text-4xl font-bold">{tratoresData.length || 0} <span className="text-lg sm:text-2xl lg:text-3xl font-bold">famílias</span></p>
+                  </CardContent>
                 </Card>
-              ))}
-              {tratoresData.length > visibleItems && (
-                <Button 
-                  onClick={handleLoadMore} 
-                  variant="outline" 
-                  className="w-full bg-white/90"
-                >
-                  Ver mais atividades ({tratoresData.length - visibleItems} restantes)
-                </Button>
+                <Card className="w-full">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+                      <FilePieChart className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-blue-500 flex-shrink-0" />
+                      <span className="truncate">Hora/Máquina</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <p className="text-2xl sm:text-3xl lg:text-4xl font-bold">
+                      {tratoresData.reduce((sum, t) => {
+                        const horaMaquina = typeof t.horaMaquina === 'number' ? t.horaMaquina : 0;
+                        return sum + horaMaquina;
+                      }, 0).toFixed(2)} h
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="w-full sm:col-span-2 lg:col-span-1">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base lg:text-lg">
+                      <FilePieChart className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-green-500 flex-shrink-0" />
+                      <span className="truncate">Área Trabalhada</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <p className="text-2xl sm:text-3xl lg:text-4xl font-bold">
+                      {tratoresData.reduce((sum, t) => {
+                        const area = typeof t.areaTrabalhada === 'number' ? t.areaTrabalhada : 0;
+                        return sum + area;
+                      }, 0).toFixed(2)} ha
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+              ) : (
+                <div className="text-center text-white mb-6 sm:mb-8">
+                  <p className="text-base sm:text-lg">Carregando dados das atividades...</p>
+                </div>
               )}
-            </div>
-            )}
-          </section>
+
+              {tratoresData && tratoresData.length > 0 && (
+              <Card className="bg-white/80 backdrop-blur-sm hidden sm:block shadow-lg overflow-hidden">
+                <CardHeader className="border-b border-gray-200">
+                  <CardTitle className="text-xl sm:text-2xl lg:text-3xl font-bold text-black">Detalhes das Atividades</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="overflow-x-auto">
+                    <Table className="w-full min-w-[800px] [&_th]:text-black [&_td]:text-gray-700 [&_tr:hover]:bg-gray-50/50">
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-sm lg:text-base">Nome</TableHead>
+                          <TableHead className="text-sm lg:text-base">Fazenda</TableHead>
+                          <TableHead className="text-sm lg:text-base">Atividade</TableHead>
+                          <TableHead className="text-sm lg:text-base">Operador</TableHead>
+                          <TableHead className="text-sm lg:text-base">Técnico Responsável</TableHead>
+                          <TableHead className="text-sm lg:text-base">Data</TableHead>
+                          <TableHead className="text-sm lg:text-base">Status</TableHead>
+                          <TableHead className="text-sm lg:text-base">Hora/Máquina</TableHead>
+                          <TableHead className="text-sm lg:text-base">Área (ha)</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {tratoresData?.slice(0, visibleItems).map((trator) => (
+                          <TableRow key={trator.id}>
+                            <TableCell className="text-sm lg:text-base">{trator.nome || '-'}</TableCell>
+                            <TableCell className="text-sm lg:text-base">{trator.fazenda || '-'}</TableCell>
+                            <TableCell className="text-sm lg:text-base">{trator.atividade || '-'}</TableCell>
+                            <TableCell className="text-sm lg:text-base">{trator.piloto || '-'}</TableCell>
+                            <TableCell className="text-sm lg:text-base">{trator.tecnicoResponsavel || '-'}</TableCell>
+                            <TableCell className="text-sm lg:text-base">{new Date(trator.dataCadastro).toLocaleDateString()}</TableCell>
+                            <TableCell>
+                              <span className={`text-sm lg:text-base font-medium ${trator.concluido ? 'text-green-600' : 'text-blue-600'}`}>
+                                {trator.concluido ? 'Concluído' : 'Em Serviço'}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-sm lg:text-base">{trator.horaMaquina ? trator.horaMaquina.toFixed(2) : '0.00'} h</TableCell>
+                            <TableCell className="text-sm lg:text-base">{trator.areaTrabalhada ? trator.areaTrabalhada.toFixed(2) : '0.00'}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  {tratoresData && tratoresData.length > visibleItems && (
+                    <div className="p-4 border-t border-gray-200 bg-gray-50/50">
+                      <Button 
+                        onClick={handleLoadMore} 
+                        variant="outline" 
+                        className="w-full text-sm lg:text-base"
+                      >
+                        Ver mais atividades ({tratoresData.length - visibleItems} restantes)
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+              )}
+
+              {/* Mobile responsive cards for small screens */}
+              {tratoresData && tratoresData.length > 0 && (
+              <div className="sm:hidden space-y-4">
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-4">Detalhes das Atividades</h3>
+                {tratoresData.slice(0, visibleItems).map((trator) => (
+                  <Card key={trator.id} className="bg-white/90 backdrop-blur-sm p-4">
+                    <div className="space-y-2 text-sm">
+                      <div><strong>Nome:</strong> {trator.nome || '-'}</div>
+                      <div><strong>Fazenda:</strong> {trator.fazenda || '-'}</div>
+                      <div><strong>Atividade:</strong> {trator.atividade || '-'}</div>
+                      <div><strong>Operador:</strong> {trator.piloto || '-'}</div>
+                      <div><strong>Técnico:</strong> {trator.tecnicoResponsavel || '-'}</div>
+                      <div><strong>Data:</strong> {new Date(trator.dataCadastro).toLocaleDateString()}</div>
+                      <div><strong>Status:</strong> 
+                        <span className={trator.concluido ? 'text-green-600 font-medium ml-1' : 'text-blue-600 font-medium ml-1'}>
+                          {trator.concluido ? 'Concluído' : 'Em Serviço'}
+                        </span>
+                      </div>
+                      <div><strong>Hora/Máquina:</strong> {trator.horaMaquina ? trator.horaMaquina.toFixed(2) : '0.00'} h</div>
+                      <div><strong>Área:</strong> {trator.areaTrabalhada ? trator.areaTrabalhada.toFixed(2) : '0.00'} ha</div>
+                    </div>
+                  </Card>
+                ))}
+                {tratoresData.length > visibleItems && (
+                  <Button 
+                    onClick={handleLoadMore} 
+                    variant="outline" 
+                    className="w-full bg-white/90"
+                  >
+                    Ver mais atividades ({tratoresData.length - visibleItems} restantes)
+                  </Button>
+                )}
+              </div>
+              )}
+            </section>
+          </div>
         </main>
+      </div>
       </div>
     </>
   );
