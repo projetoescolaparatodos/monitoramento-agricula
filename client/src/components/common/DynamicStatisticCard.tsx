@@ -348,19 +348,22 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
                 if (loading) {
                   setDisplayValue(calculatedValue);
                 } else {
-                  setHasNewData(true);
+                  // Só mostrar indicador se não estiver animando
+                  if (!isAnimating) {
+                    setHasNewData(true);
 
-                  try {
-                    const audio = new Audio(
-                      "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+LyvmEeADOFz/LNfTEGJG+/9+J+LA",
-                    );
-                    audio.volume = 0.1;
-                    audio.play().catch(() => {});
-                  } catch (error) {}
+                    try {
+                      const audio = new Audio(
+                        "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+LyvmEeADOFz/LNfTEGJG+/9+J+LA",
+                      );
+                      audio.volume = 0.1;
+                      audio.play().catch(() => {});
+                    } catch (error) {}
 
-                  setTimeout(() => {
-                    setHasNewData(false);
-                  }, 3000);
+                    setTimeout(() => {
+                      setHasNewData(false);
+                    }, 2000);
+                  }
                 }
               }
 
@@ -483,7 +486,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
 
   return (
     <Card
-      className={`bg-white rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 overflow-hidden transform hover:-translate-y-3 hover:scale-105 relative border border-gray-100 min-h-[180px] ${isAnimating ? "ring-2 ring-green-400 ring-opacity-50" : ""} ${hasNewData ? "ring-4 ring-blue-400 ring-opacity-70 animate-pulse" : ""}`}
+      className={`bg-white rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 overflow-hidden transform hover:-translate-y-3 hover:scale-105 relative border border-gray-100 min-h-[180px] ${isAnimating ? "ring-2 ring-green-400 ring-opacity-30" : ""} ${hasNewData && !isAnimating ? "ring-2 ring-blue-400 ring-opacity-50" : ""}`}
     >
       <div className="absolute top-4 right-4">
         <div
@@ -502,14 +505,14 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
       </div>
 
       {hasNewData && (
-        <div className="absolute top-2 left-2 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-bounce shadow-lg">
-          ✨ Atualizado!
+        <div className="absolute top-2 left-2 bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse shadow-lg z-50">
+          ✨ Novo
         </div>
       )}
 
       {forceUpdateActive && (
-        <div className="absolute top-2 right-12 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse shadow-lg">
-          🔄 Forçada (Ctrl+L para cancelar)
+        <div className="absolute top-2 right-12 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse shadow-lg z-40">
+          🔄 Manual
         </div>
       )}
 
