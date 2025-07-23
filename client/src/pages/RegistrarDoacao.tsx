@@ -23,6 +23,11 @@ interface Insumo {
   nome: string;
   unidade: string;
   ativo: boolean;
+  isKit?: boolean;
+  kitComposicao?: Array<{
+    insumoId: string;
+    quantidade: number;
+  }>;
 }
 
 const RegistrarDoacao: React.FC = () => {
@@ -130,6 +135,9 @@ const RegistrarDoacao: React.FC = () => {
       try {
         console.log(`🎯 Tentativa ${tentativa} de ${maxTentativas} - Registrando doação...`);
         
+        // Buscar dados do insumo para verificar se é kit
+        const insumoSelecionado = insumos.find(i => i.id === formData.insumoId);
+        
         // Preparar dados da doação de forma mais simples
         const doacaoData = {
           eventoId: formData.eventoId,
@@ -150,9 +158,34 @@ const RegistrarDoacao: React.FC = () => {
           uniqueId: `public_${Date.now()}_${tentativa}_${Math.random().toString(36).substr(2, 6)}`
         };
 
+        // Função para processar doação de kit
+        const processarDoacaoKit = async (doacaoData: any, insumo: Insumo, quantidade: number) => {
+          // Registrar a doação principal do kit
+          await addDoc(collection(db, 'doacoes_evento'), doacaoData);
+
+          // Se é um kit, registrar doações individuais para cada item
+          if (insumo.isKit && insumo.kitComposicao) {
+            for (const kitItem of insumo.kitComposicao) {
+              const quantidadeIndividual = kitItem.quantidade * quantidade;
+              
+              const doacaoIndividual = {
+                ...doacaoData,
+                insumoId: kitItem.insumoId,
+                quantidade: quantidadeIndividual,
+                kitOrigemId: insumo.id,
+                kitOrigemQuantidade: quantidade,
+                isFromKit: true,
+                uniqueId: `kit_${doacaoData.uniqueId}_${kitItem.insumoId}_${Date.now()}`
+              };
+
+              await addDoc(collection(db, 'doacoes_evento'), doacaoIndividual);
+            }
+          }
+        };
+
         // Usar timeout mais generoso (30 segundos) e sistema de retry
         const registroPromise = FirebaseOptimizer.withRetry(
-          () => addDoc(collection(db, 'doacoes_evento'), doacaoData),
+          () => processarDoacaoKit(doacaoData, insumoSelecionado!, Number(formData.quantidade)),
           3, // 3 tentativas
           2000 // 2 segundos entre tentativas
         );
@@ -468,10 +501,26 @@ const RegistrarDoacao: React.FC = () => {
                   <div className="text-sm text-gray-600 space-y-1">
                     <p><strong>Técnico:</strong> {formData.tecnicoNome}</p>
                     <p><strong>Evento:</strong> {eventoSelecionado.nome}</p>
-                    <p><strong>Insumo:</strong> {insumoSelecionado.nome}</p>
+                    <p><strong>Insumo:</strong> {insumoSelecionado.nome} {insumoSelecionado.isKit ? '(Kit)' : ''}</p>
                     <p><strong>Quantidade:</strong> {formData.quantidade} {insumoSelecionado.unidade}</p>
                     {formData.beneficiarioNome && (
                       <p><strong>Beneficiário:</strong> {formData.beneficiarioNome}</p>
+                    )}
+                    
+                    {/* Mostrar composição do kit se aplicável */}
+                    {insumoSelecionado.isKit && insumoSelecionado.kitComposicao && (
+                      <div className="mt-3 pt-3 border-t border-gray-300">
+                        <p className="font-medium text-gray-700 mb-2">Composição do Kit:</p>
+                        {insumoSelecionado.kitComposicao.map((item, index) => {
+                          const insumoDoItem = insumos.find(i => i.id === item.insumoId);
+                          const quantidadeTotal = item.quantidade * Number(formData.quantidade);
+                          return (
+                            <p key={index} className="text-xs text-gray-600 ml-2">
+                              • {insumoDoItem?.nome}: {quantidadeTotal} {insumoDoItem?.unidade}
+                            </p>
+                          );
+                        })}
+                      </div>
                     )}
                   </div>
                 </div>

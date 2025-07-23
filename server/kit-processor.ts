@@ -1,0 +1,66 @@
+
+import { db } from './storage';
+import { collection, doc, getDoc, addDoc, Timestamp } from 'firebase/firestore';
+
+export interface KitItem {
+  insumoId: string;
+  quantidade: number;
+}
+
+export interface Insumo {
+  id: string;
+  nome: string;
+  unidade: string;
+  ativo: boolean;
+  isKit?: boolean;
+  kitComposicao?: KitItem[];
+}
+
+export async function processarDoacaoKit(
+  doacaoData: any,
+  insumoId: string,
+  quantidadeKit: number
+): Promise<void> {
+  try {
+    // Buscar dados do insumo para verificar se é um kit
+    const insumoDoc = await getDoc(doc(db, 'insumos', insumoId));
+    
+    if (!insumoDoc.exists()) {
+      throw new Error('Insumo não encontrado');
+    }
+
+    const insumo = { id: insumoDoc.id, ...insumoDoc.data() } as Insumo;
+
+    if (!insumo.isKit || !insumo.kitComposicao) {
+      // Se não é um kit, registra a doação normalmente
+      await addDoc(collection(db, 'doacoes_evento'), doacaoData);
+      return;
+    }
+
+    // Se é um kit, registra a doação do kit principal
+    await addDoc(collection(db, 'doacoes_evento'), doacaoData);
+
+    // Para cada item do kit, cria uma doação individual
+    for (const kitItem of insumo.kitComposicao) {
+      const quantidadeIndividual = kitItem.quantidade * quantidadeKit;
+      
+      const doacaoIndividual = {
+        ...doacaoData,
+        insumoId: kitItem.insumoId,
+        quantidade: quantidadeIndividual,
+        kitOrigemId: insumoId,
+        kitOrigemQuantidade: quantidadeKit,
+        isFromKit: true,
+        timestamp: Timestamp.now(),
+        createdAt: Timestamp.now(),
+        uniqueId: `kit_${doacaoData.uniqueId}_${kitItem.insumoId}_${Date.now()}`
+      };
+
+      await addDoc(collection(db, 'doacoes_evento'), doacaoIndividual);
+    }
+
+  } catch (error) {
+    console.error('Erro ao processar doação de kit:', error);
+    throw error;
+  }
+}

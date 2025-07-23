@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from "react";
 import { db, withRetry } from "@/utils/firebase";
 import {
@@ -44,7 +43,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
   const [targetValue, setTargetValue] = useState<number>(0);
   const [updateQueue, setUpdateQueue] = useState<number[]>([]);
   const [forceUpdateActive, setForceUpdateActive] = useState(false);
-  
+
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const incrementInterval = useRef<NodeJS.Timeout>();
   const forceUpdateTimeout = useRef<NodeJS.Timeout>();
@@ -52,7 +51,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
 
   const calculateAnimationSpeed = (difference: number): { stepsPerSecond: number; maxDuration: number } => {
     const absDifference = Math.abs(difference);
-    
+
     // Para valores acima de 100, animação mais rápida
     if (absDifference >= 100) {
       return {
@@ -91,7 +90,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     }
 
     console.log(`🎯 Iniciando animação: ${displayValue} → ${newValue} (diferença: ${difference})`);
-    
+
     setIsAnimating(true);
     setTargetValue(newValue);
 
@@ -122,27 +121,27 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     incrementInterval.current = setInterval(() => {
       setDisplayValue(prev => {
         const nextValue = prev + increment;
-        
+
         // Verificar se chegamos ao valor alvo ou se ultrapassamos
         const shouldStop = increment > 0 ? nextValue >= newValue : nextValue <= newValue;
-        
+
         if (shouldStop) {
           console.log(`✅ Animação concluída: ${newValue}`);
-          
+
           if (incrementInterval.current) {
             clearInterval(incrementInterval.current);
           }
           if (animationTimeout.current) {
             clearTimeout(animationTimeout.current);
           }
-          
+
           setIsAnimating(false);
           setForceUpdateActive(false);
           if (forceUpdateTimeout.current) {
             clearTimeout(forceUpdateTimeout.current);
           }
           setForceUpdate(0);
-          
+
           return newValue;
         }
 
@@ -195,7 +194,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           }
           setForceUpdateActive(false);
           setForceUpdate(0);
-          
+
           if (incrementInterval.current) {
             clearInterval(incrementInterval.current);
           }
@@ -311,7 +310,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
               // Verificar se houve mudança real no valor
               if (calculatedValue !== value) {
                 console.log(`🎯 Valor mudou para estatística "${config.titulo}": ${value} → ${calculatedValue}`);
-                
+
                 if (previousValue > 0) {
                   if (calculatedValue > previousValue) {
                     setTrend("up");
@@ -329,7 +328,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
                   setDisplayValue(calculatedValue);
                 } else {
                   setHasNewData(true);
-                  
+
                   try {
                     const audio = new Audio(
                       "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+LyvmEeADOFz/LNfTEGJG+/9+J+LA",
@@ -501,9 +500,9 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           })}
         </div>
       </div>
-      
+
       <div className="h-1 bg-gradient-to-r from-green-500 to-emerald-600"></div>
-      
+
       <CardContent className="p-6 text-center relative z-10">
         {loading ? (
           <div className="animate-pulse space-y-4">

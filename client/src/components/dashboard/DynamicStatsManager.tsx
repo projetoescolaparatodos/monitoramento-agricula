@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { db } from '@/utils/firebase';
 import { collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, Timestamp, getDocs, query, where } from 'firebase/firestore';
@@ -22,6 +21,7 @@ interface DynamicStatsConfig {
   insumoId?: string;
   eventoId?: string;
   filtroAdicional?: any[];
+  includeKitItems?: boolean;
 }
 
 interface Insumo {
@@ -59,7 +59,8 @@ export const DynamicStatsManager: React.FC = () => {
     ordem: 0,
     insumoId: '',
     eventoId: '',
-    filtroAdicional: []
+    filtroAdicional: [],
+    includeKitItems: false
   });
 
   useEffect(() => {
@@ -96,7 +97,7 @@ export const DynamicStatsManager: React.FC = () => {
           id: doc.id,
           ...doc.data()
         })) as DynamicStatsConfig[];
-        
+
         setConfigs(configsData.sort((a, b) => (a.ordem || 0) - (b.ordem || 0)));
         setLoading(false);
       },
@@ -105,13 +106,13 @@ export const DynamicStatsManager: React.FC = () => {
         setLoading(false);
       }
     );
-    
+
     return () => unsubscribe();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!newConfig.titulo) {
       toast({
         title: "Erro",
@@ -165,7 +166,7 @@ export const DynamicStatsManager: React.FC = () => {
           description: "Estatística criada com sucesso"
         });
       }
-      
+
       resetForm();
     } catch (error) {
       console.error('Erro ao salvar configuração:', error);
@@ -182,14 +183,15 @@ export const DynamicStatsManager: React.FC = () => {
       titulo: '',
       colecaoFonte: 'doacoes_evento',
       campo: 'quantidade',
-      tipoAgregacao: 'sum',
+      tipoAgregacao: 'sum' as const,
       periodo: 'hoje',
       unidade: '',
       ativo: true,
       ordem: 0,
       insumoId: '',
       eventoId: '',
-      filtroAdicional: []
+      filtroAdicional: [],
+      includeKitItems: false
     });
     setShowForm(false);
     setEditingId(null);
@@ -207,7 +209,8 @@ export const DynamicStatsManager: React.FC = () => {
       ordem: config.ordem,
       insumoId: config.insumoId || '',
       eventoId: config.eventoId || '',
-      filtroAdicional: config.filtroAdicional || []
+      filtroAdicional: config.filtroAdicional || [],
+      includeKitItems: config.includeKitItems || false
     });
     setEditingId(config.id);
     setShowForm(true);
@@ -266,7 +269,8 @@ export const DynamicStatsManager: React.FC = () => {
       ordem: configs.length,
       insumoId: '',
       eventoId: '',
-      filtroAdicional: []
+      filtroAdicional: [],
+      includeKitItems: false
     });
     setShowForm(true);
   };
@@ -342,6 +346,19 @@ export const DynamicStatsManager: React.FC = () => {
                   </select>
                 </div>
 
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="includeKitItems"
+                    checked={newConfig.includeKitItems || false}
+                    onChange={(e) => setNewConfig({...newConfig, includeKitItems: e.target.checked})}
+                    className="rounded focus:ring-2 focus:ring-green-500"
+                  />
+                  <label htmlFor="includeKitItems" className="text-sm font-medium">
+                    Incluir itens de kits (doações expandidas)
+                  </label>
+                </div>
+
                 {/* Insumo */}
                 <div>
                   <label className="block text-sm font-medium mb-1">
@@ -384,7 +401,7 @@ export const DynamicStatsManager: React.FC = () => {
                       <option value="contents">Conteúdos</option>
                     </select>
                   </div>
-                
+
                   <div>
                     <label className="block text-sm font-medium mb-1">Campo de Dados</label>
                     <select
@@ -406,7 +423,7 @@ export const DynamicStatsManager: React.FC = () => {
                       )}
                     </select>
                   </div>
-                
+
                   <div>
                     <label className="block text-sm font-medium mb-1">Tipo de Cálculo</label>
                     <select
@@ -420,7 +437,7 @@ export const DynamicStatsManager: React.FC = () => {
                       <option value="max">Máximo</option>
                     </select>
                   </div>
-                
+
                   <div>
                     <label className="block text-sm font-medium mb-1">Período</label>
                     <select
@@ -435,7 +452,7 @@ export const DynamicStatsManager: React.FC = () => {
                       <option value="safraAtual">Safra atual</option>
                     </select>
                   </div>
-                
+
                   <div>
                     <label className="block text-sm font-medium mb-1">Unidade</label>
                     <input
@@ -446,7 +463,7 @@ export const DynamicStatsManager: React.FC = () => {
                       placeholder="Ex: mudas, kg, unidades"
                     />
                   </div>
-                
+
                   <div>
                     <label className="block text-sm font-medium mb-1">Ordem de Exibição</label>
                     <input
@@ -458,7 +475,7 @@ export const DynamicStatsManager: React.FC = () => {
                     />
                   </div>
                 </div>
-              
+
                 <div className="flex justify-end space-x-2">
                   <Button type="button" variant="outline" onClick={resetForm}>
                     Cancelar
@@ -472,7 +489,7 @@ export const DynamicStatsManager: React.FC = () => {
           </CardContent>
         </Card>
       )}
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Estatísticas Configuradas</CardTitle>
@@ -500,7 +517,7 @@ export const DynamicStatsManager: React.FC = () => {
                   {configs.map((config) => {
                     const eventoNome = config.eventoId ? eventos.find(e => e.id === config.eventoId)?.nome || 'Evento não encontrado' : 'Todos';
                     const insumoNome = config.insumoId ? insumos.find(i => i.id === config.insumoId)?.nome || 'Insumo não encontrado' : 'Todos';
-                    
+
                     return (
                       <tr key={config.id}>
                         <td className="px-6 py-4 whitespace-nowrap font-medium">{config.titulo}</td>
