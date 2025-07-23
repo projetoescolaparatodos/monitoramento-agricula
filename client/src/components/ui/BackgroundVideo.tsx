@@ -10,19 +10,23 @@ const BackgroundVideo: React.FC<BackgroundVideoProps> = ({
   className = "" 
 }) => {
   return (
-    <div className={`fixed inset-0 w-full h-full overflow-hidden ${className}`}>
+    <div className={`fixed inset-0 w-screen h-screen overflow-hidden ${className}`} style={{ zIndex: -1 }}>
       <video
         autoPlay
         muted
         loop
         playsInline
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full"
         style={{
           objectFit: 'cover',
           objectPosition: 'center',
-          transform: 'scale(1)', // Garantir escala normal
-          minWidth: '100%',
-          minHeight: '100%'
+          transform: 'none',
+          WebkitTransform: 'none',
+          scale: 'none',
+          width: '100vw',
+          height: '100vh',
+          minWidth: 'unset',
+          minHeight: 'unset'
         }}
       >
         <source src={src} type="video/mp4" />
