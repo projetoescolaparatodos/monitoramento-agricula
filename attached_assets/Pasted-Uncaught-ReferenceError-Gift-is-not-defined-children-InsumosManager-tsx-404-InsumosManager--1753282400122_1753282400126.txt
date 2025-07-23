@@ -1,0 +1,43 @@
+Uncaught ReferenceError: Gift is not defined
+    children InsumosManager.tsx:404
+    InsumosManager InsumosManager.tsx:398
+    React 11
+    workLoop scheduler.development.js:266
+    flushWork scheduler.development.js:239
+    performWorkUntilDeadline scheduler.development.js:533
+InsumosManager.tsx:404:30
+Uncaught ReferenceError: Gift is not defined
+    children InsumosManager.tsx:404
+    InsumosManager InsumosManager.tsx:398
+    React 12
+    workLoop scheduler.development.js:266
+    flushWork scheduler.development.js:239
+    performWorkUntilDeadline scheduler.development.js:533
+InsumosManager.tsx:404:30
+The above error occurred in the <InsumosManager> component:
+
+InsumosManager@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/components/dashboard/InsumosManager.tsx:10:41
+div
+div
+main
+Dashboard@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/pages/Dashboard.tsx:26:33
+Route@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=12b88d91:323:13
+Switch@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=12b88d91:379:14
+Suspense
+div
+Router@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/App.tsx?v=zYnRB6NY0dnB2dxgQ0x2z:49:22
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27
+App
+Router@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:6386:16
+BrowserRouter@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:8613:23
+QueryClientProvider@https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2804:27
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. react-dom.development.js:18704:15
+Uncaught ReferenceError: Gift is not defined
+    children InsumosManager.tsx:404
+    InsumosManager InsumosManager.tsx:398
+    React 9
+    workLoop scheduler.development.js:266
+    flushWork scheduler.development.js:239
+    performWorkUntilDeadline scheduler.development.js:533
