@@ -181,23 +181,23 @@ const Agriculture = () => {
       <div style={backgroundStyle}></div>
       <div className="fixed inset-0 w-full min-h-screen bg-black/40 z-[1]"></div>
       <div className="max-w-[480px] sm:max-w-none w-full mx-auto relative z-10">
-        <main className="container mx-auto px-2 sm:px-4 lg:px-6 pt-20 pb-16 relative z-10 overflow-x-hidden">
+        <main className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 xl:px-10 pt-20 pb-16 relative z-10 overflow-x-hidden">
           <div className="prose max-w-none mb-6 sm:mb-8">
-            <h1 className="section-title text-3xl sm:text-4xl lg:text-5xl font-bold text-center mb-4 text-white">AGRICULTURA</h1>
-            <p className="section-subtitle text-center text-base sm:text-lg lg:text-xl text-white/80">
+            <h1 className="section-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-center mb-4 text-white">AGRICULTURA</h1>
+            <p className="section-subtitle text-center text-base sm:text-lg md:text-xl lg:text-2xl text-white/80">
               Informações e dados sobre a agricultura em Vitória do Xingu
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row justify-end mb-6 sm:mb-8 gap-3">
-            <AgricultureTabButton className="shadow-md text-sm sm:text-base lg:text-lg w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row justify-end mb-6 sm:mb-8 md:mb-10 gap-3 md:gap-4">
+            <AgricultureTabButton className="shadow-md text-sm sm:text-base md:text-lg lg:text-xl w-full sm:w-auto py-3 md:py-4">
               <span className="truncate">Serviços Agricultura</span>
             </AgricultureTabButton>
             <Button
               onClick={() => setLocation("/agricultura/map")}
-              className="flex items-center justify-center gap-2 text-xs sm:text-sm lg:text-base w-full sm:w-auto px-2 sm:px-4 lg:px-6"
+              className="flex items-center justify-center gap-2 text-xs sm:text-sm md:text-lg lg:text-xl w-full sm:w-auto px-2 sm:px-4 md:px-6 lg:px-8 py-3 md:py-4"
             >
-              <Map className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 flex-shrink-0" />
-              <span className="truncate text-xs sm:text-sm lg:text-base whitespace-nowrap">Acompanhar Serviços</span>
+              <Map className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 flex-shrink-0" />
+              <span className="truncate text-xs sm:text-sm md:text-lg lg:text-xl whitespace-nowrap">Acompanhar Serviços</span>
             </Button>
           </div>
           <div className="space-y-8 sm:space-y-12">
@@ -398,7 +398,6 @@ const Agriculture = () => {
             </section>
           </div>
         </main>
-      </div>
       </div>
     </>
   );
