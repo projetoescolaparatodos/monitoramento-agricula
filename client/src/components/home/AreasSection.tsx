@@ -38,7 +38,7 @@ export const AreasSection = () => {
                 <p className="text-gray-600 leading-relaxed group-hover:text-gray-800 transition-colors text-sm mb-2">
                   Informações sobre agricultura e produção rural
                 </p>
-                <p className="text-gray-500 text-xs mb-4">
+                <p className="text-gray-500 text-sm mb-4">
                   Cadastro e solicitação de serviços disponíveis
                 </p>
               </div>
@@ -104,7 +104,7 @@ export const AreasSection = () => {
                 <p className="text-gray-600 leading-relaxed group-hover:text-gray-800 transition-colors text-sm mb-2">
                   Dados sobre pesca e atividades pesqueiras
                 </p>
-                <p className="text-gray-500 text-xs mb-4">
+                <p className="text-gray-500 text-sm mb-4">
                   Cadastro e solicitação de serviços disponíveis
                 </p>
               </div>
@@ -170,7 +170,7 @@ export const AreasSection = () => {
                 <p className="text-gray-600 leading-relaxed group-hover:text-gray-800 transition-colors text-sm mb-2">
                   Programa de Aquisição de Alimentos
                 </p>
-                <p className="text-gray-500 text-xs mb-4">
+                <p className="text-gray-500 text-sm mb-4">
                   Cadastro e solicitação de serviços disponíveis
                 </p>
               </div>
