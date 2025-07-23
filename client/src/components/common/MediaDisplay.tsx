@@ -1,9 +1,98 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { MediaItem } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
-import { isYoutubeUrl, getYoutubeEmbedUrl } from '@/utils/mediaUtils';
-import { isGoogleDriveLink } from '@/utils/driveHelper';
-import GoogleDrivePlayer from './GoogleDrivePlayer';
+import { getYoutubeEmbedUrl, isYoutubeUrl, detectMediaType } from '@/utils/mediaUtils';
+import GoogleDrivePlayer from '@/components/common/GoogleDrivePlayer';
+import { isGoogleDriveLink, getGoogleDriveFileId } from '@/utils/driveHelper';
+
+// Componente específico para vídeos do Firebase com pré-carregamento
+const FirebaseVideoPlayer: React.FC<{
+  src: string;
+  title: string;
+  shouldTreatAsVertical: boolean;
+  onVideoPlay?: () => void;
+}> = ({ src, title, shouldTreatAsVertical, onVideoPlay }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [actualAspectRatio, setActualAspectRatio] = useState<'vertical' | 'horizontal' | null>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleLoadedMetadata = () => {
+      const { videoWidth, videoHeight } = video;
+
+      // Determinar a proporção real do vídeo
+      const aspectRatio = videoWidth / videoHeight;
+      const detectedRatio = aspectRatio < 1 ? 'vertical' : 'horizontal';
+
+      setActualAspectRatio(detectedRatio);
+      setIsLoaded(true);
+
+      console.log('Vídeo Firebase carregado:', {
+        width: videoWidth,
+        height: videoHeight,
+        aspectRatio,
+        detectedRatio
+      });
+    };
+
+    // Forçar o carregamento dos metadados
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+
+    // Definir preload como metadata para garantir que as dimensões sejam carregadas
+    video.preload = 'metadata';
+
+    // Forçar o load se necessário
+    if (video.readyState >= 1) {
+      handleLoadedMetadata();
+    } else {
+      video.load();
+    }
+
+    return () => {
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+    };
+  }, [src]);
+
+  // Usar a proporção real detectada ou fallback para a assumida
+  const isVertical = actualAspectRatio === 'vertical' || (actualAspectRatio === null && shouldTreatAsVertical);
+
+  return (
+    <div className={`w-full relative ${
+      isVertical ? "max-w-[400px] mx-auto" : ""
+    }`}>
+      {!isLoaded && (
+        <div className={`w-full rounded-t-lg bg-gray-200 animate-pulse flex items-center justify-center ${
+          shouldTreatAsVertical ? "aspect-[9/16]" : "aspect-video"
+        }`}>
+          <div className="text-gray-500 text-sm">Carregando vídeo...</div>
+        </div>
+      )}
+
+      <video
+        ref={videoRef}
+        className={`w-full rounded-t-lg transition-opacity duration-300 ${
+          isVertical ? "aspect-[9/16]" : "aspect-video"
+        } ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+        controls
+        preload="metadata"
+        title={title}
+        onPlay={() => {
+          onVideoPlay?.();
+        }}
+        style={{
+          objectFit: 'cover'
+        }}
+      >
+        <source src={src} type="video/mp4" />
+        Seu navegador não suporta o elemento de vídeo.
+      </video>
+    </div>
+  );
+};
+
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -296,28 +385,13 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "", onVid
               />
             </div>
           ) : isFirebaseVideo ? (
-            <div className="w-full bg-black relative">
-              {item.instagramUrl && (
-                <button
-                  onClick={() => window.open(item.instagramUrl, '_blank')}
-                  className="absolute top-3 right-3 z-10 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
-                  title="Ver no Instagram"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.40s-.644-1.44-1.439-1.44z"/>
-                  </svg>
-                </button>
-              )}
-              <div className="w-full aspect-video">
-                <video
-                  src={item.mediaUrl}
-                  controls
-                  title={item.title || 'Vídeo'}
-                  className="w-full h-full object-contain"
-                  poster={item.thumbnailUrl}
-                />
-              </div>
-            </div>
+              // Vídeos do Firebase: forçar pré-carregamento para obter dimensões corretas
+              <FirebaseVideoPlayer
+                src={item.mediaUrl}
+                title={item.title || "Vídeo"}
+                shouldTreatAsVertical={false}
+                onVideoPlay={onVideoPlay}
+              />
           ) : (
             <div className="w-full bg-black/5">
               {!imageError ? (
@@ -553,40 +627,13 @@ const MediaDisplay: React.FC<MediaDisplayProps> = ({ item, className = "", onVid
                 />
               </div>
             ) : isFirebaseVideo ? (
-              // Vídeos do Firebase: tratar como verticais (Instagram) em desktop
-              <div className={`w-full relative ${
-                shouldTreatAsVertical ? "max-w-[400px] mx-auto" : ""
-              } overflow-hidden rounded-t-lg bg-black`}>
-                {item.instagramUrl && (
-                  <button
-                    onClick={() => window.open(item.instagramUrl, '_blank')}
-                    className="absolute top-3 right-3 z-10 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform duration-200"
-                    title="Ver no Instagram"
-                  >
-                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.4849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                    </svg>
-                  </button>
-                )}
-                <video 
-                  className={`w-full h-full ${
-                    shouldTreatAsVertical
-                      ? "aspect-[9/16] object-cover" 
-                      : "aspect-video object-contain"
-                  }`}
-                  controls
-                  src={item.mediaUrl}
-                  poster={item.thumbnailUrl || ''}
-                  title={item.title || "Vídeo"}
-                  style={{ 
-                    width: '100%', 
-                    height: '100%',
-                    objectFit: shouldTreatAsVertical ? 'cover' : 'contain'
-                  }}
-                >
-                  Seu navegador não suporta a reprodução de vídeos.
-                </video>
-              </div>
+              // Vídeos do Firebase: forçar pré-carregamento para obter dimensões corretas
+              <FirebaseVideoPlayer
+                src={item.mediaUrl}
+                title={item.title || "Vídeo"}
+                shouldTreatAsVertical={shouldTreatAsVertical}
+                onVideoPlay={onVideoPlay}
+              />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gray-200 rounded-t-lg">
                 <p className="text-gray-500">Não foi possível carregar o vídeo</p>

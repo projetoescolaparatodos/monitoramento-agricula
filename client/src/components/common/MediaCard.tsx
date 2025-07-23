@@ -92,8 +92,15 @@ const MediaCard: React.FC<MediaCardProps> = ({ title, description, mediaUrl, med
                 ref={videoRef}
                 src={mediaUrl}
                 controls
+                preload="metadata"
                 title={title}
                 className={`${isVerticalVideo ? 'aspect-[9/16] max-h-[70vh] w-auto' : 'w-full h-auto object-contain aspect-video'}`}
+                onLoadedMetadata={() => {
+                  console.log('Metadados do vídeo MediaCard carregados');
+                }}
+                style={{
+                  objectFit: 'cover'
+                }}
               />
             </div>
           </div>

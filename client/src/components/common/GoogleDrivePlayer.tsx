@@ -34,6 +34,7 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
   const [streamingUrl, setStreamingUrl] = useState<string | null>(null);
   const [isVideo, setIsVideo] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
   useEffect(() => {
     const loadGoogleDriveMedia = async () => {
@@ -251,13 +252,26 @@ const GoogleDrivePlayer: React.FC<GoogleDrivePlayerProps> = ({
             sandbox="allow-scripts allow-same-origin allow-presentation"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
             loading="lazy"
+            onLoad={() => {
+              setVideoLoaded(true);
+              console.log('Google Drive video iframe carregado');
+            }}
             style={{ 
               width: '100%', 
               height: '100%', 
               objectFit: 'cover',
-              border: 'none'
+              border: 'none',
+              opacity: videoLoaded ? 1 : 0,
+              transition: 'opacity 0.3s ease'
             }}
           />
+          
+          {/* Loading indicator para Google Drive videos */}
+          {!videoLoaded && (
+            <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
+              <div className="text-gray-500 text-sm">Carregando vídeo...</div>
+            </div>
+          )}
         </div>
       </div>
     );
