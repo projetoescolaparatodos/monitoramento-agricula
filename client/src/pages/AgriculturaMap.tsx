@@ -232,6 +232,9 @@ const AgriculturaMapContent = () => {
     setMarkers(newMarkers);
   }, [mapInstance, isLoaded, tratoresFiltrados]);
 
+  // Log para debug
+  console.log('Tratores carregados:', tratores);
+
   const tratoresFiltrados = useMemo(() => {
     return tratores.filter((trator) => {
       if (filtro === "todos") return true;
@@ -240,6 +243,8 @@ const AgriculturaMapContent = () => {
       return true;
     });
   }, [tratores, filtro]);
+
+  console.log('Tratores filtrados:', tratoresFiltrados);
 
   const renderInfoWindow = useCallback(
     (trator: Trator) => {
@@ -577,7 +582,7 @@ const AgriculturaMapContent = () => {
           ]
         }}
       >
-        
+
         {selectedMarker && renderInfoWindow(selectedMarker)}
 
         {showBoundary && (
