@@ -26,11 +26,6 @@ export const storage = {
   app
 };
 
-export const storageImplementation = {
-  storage: firebaseStorage,
-  app
-};
-
 // Interface para operações de storage
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
