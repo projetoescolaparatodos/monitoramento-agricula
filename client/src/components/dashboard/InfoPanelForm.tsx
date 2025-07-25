@@ -110,42 +110,7 @@ const InfoPanelForm: React.FC<InfoPanelFormProps> = ({
     quality: 0.7
   });
 
-  const handleImageUpload = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-
-    input.onchange = async () => {
-      const file = input.files?.[0];
-      if (file) {
-        try {
-          const optimizedFile = await processImage(file);
-
-          // Upload para Firebase Storage
-          const formData = new FormData();
-          formData.append('file', optimizedFile);
-
-          const response = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            const quill = quillRef.current?.getEditor();
-            if (quill) {
-              const range = quill.getSelection();
-              quill.insertEmbed(range?.index || 0, 'image', data.secure_url);
-            }
-          }
-        } catch (error) {
-          console.error('Erro ao fazer upload da imagem:', error);
-        }
-      }
-    };
-
-    input.click();
-  };
+  
 
   const modules = {
     toolbar: {
@@ -263,32 +228,41 @@ const InfoPanelForm: React.FC<InfoPanelFormProps> = ({
     form.setValue('content', template);
   };
 
-  const handleImageUpload = async (file: File): Promise<string> => {
-    try {
-      // Processar/comprimir imagem se necessário
-      const { processImage } = await import('@/hooks/useImageUpload');
-      const { processImage: processFunc } = processImage({ maxSizeInMB: 5 });
-      const processedFile = await processFunc(file);
+  const handleImageUpload = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
 
-      const formData = new FormData();
-      formData.append('file', processedFile);
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (file) {
+        try {
+          const optimizedFile = await processImage(file);
 
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
+          // Upload para Firebase Storage
+          const formData = new FormData();
+          formData.append('file', optimizedFile);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Erro no upload da imagem');
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            const quill = quillRef.current?.getEditor();
+            if (quill) {
+              const range = quill.getSelection();
+              quill.insertEmbed(range?.index || 0, 'image', data.secure_url);
+            }
+          }
+        } catch (error) {
+          console.error('Erro ao fazer upload da imagem:', error);
+        }
       }
+    };
 
-      const data = await response.json();
-      return data.url;
-    } catch (error) {
-      console.error('Erro no upload:', error);
-      throw new Error('Falha ao fazer upload da imagem. Tente uma imagem menor.');
-    }
+    input.click();
   };
 
   return (
