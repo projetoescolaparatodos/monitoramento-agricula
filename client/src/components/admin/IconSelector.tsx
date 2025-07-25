@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,14 +69,14 @@ const IconSelector: React.FC<IconSelectorProps> = ({
     // Try to parse latitude
     const latResult = parseDMS(latitude);
     if (latResult === null) {
-      setError("Formato de latitude inválido. Exemplos válidos: '2° 48' 6.25\"S', '2° 48.104'S' ou '-2.81'");
+      setError("Formato de latitude inválido. Ex: '2° 48.104'S' ou '-2.81'");
       return false;
     }
 
     // Try to parse longitude
     const lngResult = parseDMS(longitude);
     if (lngResult === null) {
-      setError("Formato de longitude inválido. Exemplos válidos: '52° 4' 13.74\"O', '52° 4.229'O' ou '-52.07'");
+      setError("Formato de longitude inválido. Ex: '52° 4.229'O' ou '-52.07'");
       return false;
     }
 
@@ -106,7 +105,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({
       // Adicionamos um feedback visual para o usuário
       toast({
         title: "Localização definida",
-        description: `Coordenadas: ${formatCoordinate(parsedLat, true)}, ${formatCoordinate(parsedLng, false)}`
+        description: `Coordenadas: ${formatCoordinate(parsedLat, true)}, ${formatCoordinate(parsedLng, false)}`,
       });
     }
   };
@@ -126,7 +125,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({
           <Input
             id="latitude"
             type="text"
-            placeholder="Ex: 2° 48' 6.25\"S, 2° 48.104'S ou -2.81"
+            placeholder="Ex: 2° 48.104'S ou -2.81"
             value={latitude}
             onChange={(e) => handleLatitudeChange(e.target.value)}
             onBlur={() => validateCoordinates()}
@@ -142,7 +141,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({
           <Input
             id="longitude"
             type="text"
-            placeholder="Ex: 52° 4' 13.74\"O, 52° 4.229'O ou -52.07"
+            placeholder="Ex: 52° 4.229'O ou -52.07"
             value={longitude}
             onChange={(e) => handleLongitudeChange(e.target.value)}
             onBlur={() => validateCoordinates()}
@@ -162,7 +161,6 @@ const IconSelector: React.FC<IconSelectorProps> = ({
         <ul className="list-disc pl-5 mt-1">
           <li>Decimal: -2.8792, -52.0088</li>
           <li>Graus e minutos: 2° 52.752'S, 52° 0.528'O</li>
-          <li>Graus, minutos e segundos: 2° 48' 6.25"S, 52° 4' 13.74"O</li>
         </ul>
       </div>
 
