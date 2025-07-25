@@ -1,0 +1,71 @@
+Uncaught ReferenceError: Cannot access 'tratoresFiltrados' before initialization
+    at AgriculturaMapContent (AgriculturaMap.tsx:233:30)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=12b88d91:11548:26)
+    at mountIndeterminateComponent (chunk-RPCDYKBN.js?v=12b88d91:14926:21)
+    at beginWork (chunk-RPCDYKBN.js?v=12b88d91:15914:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=12b88d91:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=12b88d91:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=12b88d91:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=12b88d91:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=12b88d91:19201:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=12b88d91:19137:13)
+2ErrorBoundary.tsx:28 ErrorBoundary capturou um erro: ReferenceError: Cannot access 'tratoresFiltrados' before initialization
+    at AgriculturaMapContent (AgriculturaMap.tsx:233:30)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=12b88d91:11548:26)
+    at mountIndeterminateComponent (chunk-RPCDYKBN.js?v=12b88d91:14926:21)
+    at beginWork (chunk-RPCDYKBN.js?v=12b88d91:15914:22)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=12b88d91:19753:22)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=12b88d91:19201:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=12b88d91:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=12b88d91:19116:15)
+    at performConcurrentWorkOnRoot (chunk-RPCDYKBN.js?v=12b88d91:18678:83)
+    at workLoop (chunk-RPCDYKBN.js?v=12b88d91:197:42)
+getDerivedStateFromError @ ErrorBoundary.tsx:28
+AgriculturaMap.tsx:233 Uncaught ReferenceError: Cannot access 'tratoresFiltrados' before initialization
+    at AgriculturaMapContent (AgriculturaMap.tsx:233:30)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=12b88d91:11548:26)
+    at mountIndeterminateComponent (chunk-RPCDYKBN.js?v=12b88d91:14926:21)
+    at beginWork (chunk-RPCDYKBN.js?v=12b88d91:15914:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=12b88d91:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=12b88d91:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=12b88d91:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=12b88d91:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=12b88d91:19201:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=12b88d91:19137:13)
+2ErrorBoundary.tsx:28 ErrorBoundary capturou um erro: ReferenceError: Cannot access 'tratoresFiltrados' before initialization
+    at AgriculturaMapContent (AgriculturaMap.tsx:233:30)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=12b88d91:11548:26)
+    at mountIndeterminateComponent (chunk-RPCDYKBN.js?v=12b88d91:14926:21)
+    at beginWork (chunk-RPCDYKBN.js?v=12b88d91:15914:22)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=12b88d91:19753:22)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=12b88d91:19201:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=12b88d91:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=12b88d91:19116:15)
+    at recoverFromConcurrentError (chunk-RPCDYKBN.js?v=12b88d91:18736:28)
+    at performConcurrentWorkOnRoot (chunk-RPCDYKBN.js?v=12b88d91:18684:30)
+getDerivedStateFromError @ ErrorBoundary.tsx:28
+chunk-RPCDYKBN.js?v=12b88d91:14032 The above error occurred in the <AgriculturaMapContent> component:
+
+    at AgriculturaMapContent (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/pages/AgriculturaMap.tsx:20:35)
+    at ErrorBoundary (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/components/common/ErrorBoundary.tsx:5:5)
+    at AgriculturaMap
+    at Route (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=12b88d91:323:16)
+    at Switch (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=12b88d91:379:17)
+    at Suspense
+    at div
+    at Router (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/App.tsx?v=xDevFzF9Baa-CgSHR8yFJ:50:22)
+    at QueryClientProvider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2805:3)
+    at ErrorBoundary (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/components/common/ErrorBoundary.tsx:5:5)
+    at App
+    at Router (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:6387:13)
+    at BrowserRouter (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:8614:3)
+    at QueryClientProvider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2805:3)
+    at ErrorBoundary (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/components/common/ErrorBoundary.tsx?v=xDevFzF9Baa-CgSHR8yFJ:5:5)
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+logCapturedError @ chunk-RPCDYKBN.js?v=12b88d91:14032
+Mostrar mais 1 frame
+Mostre menos
+ErrorBoundary.tsx:49 ErrorBoundary - Detalhes completos do erro: Object
+componentDidCatch @ ErrorBoundary.tsx:49
+AgriculturaMap.tsx:612 Erro específico no AgriculturaMap: Object
