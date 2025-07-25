@@ -1,0 +1,79 @@
+chunk-RPCDYKBN.js?v=12b88d91:521 Warning: findDOMNode is deprecated and will be removed in the next major release. Instead, add a ref directly to the element you want to reference. Learn more about using refs safely here: https://reactjs.org/link/strict-mode-find-node
+    at ReactQuill2 (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/react-quill.js?v=12b88d91:11405:30)
+    at div
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UACHJROW.js?v=12b88d91:52:11
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UACHJROW.js?v=12b88d91:33:11
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/components/ui/form.tsx:85:44
+    at div
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/components/ui/form.tsx:49:38
+    at Controller (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-YABUFNLM.js?v=12b88d91:313:35)
+    at FormField (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/components/ui/form.tsx:16:6)
+    at div
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RLTE5R7I.js?v=12b88d91:41:13
+    at Presence (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NYR4UMVK.js?v=12b88d91:24:11)
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=12b88d91:171:13
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/components/ui/tabs.tsx:50:41
+    at div
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RLTE5R7I.js?v=12b88d91:41:13
+    at Provider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NPI43BMZ.js?v=12b88d91:38:15)
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=12b88d91:49:7
+    at form
+    at FormProvider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-YABUFNLM.js?v=12b88d91:102:11)
+    at div
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/components/ui/card.tsx:97:41
+    at div
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/components/ui/card.tsx:20:6
+    at div
+    at InfoPanelForm (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/components/dashboard/InfoPanelForm.tsx:67:3)
+    at div
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RLTE5R7I.js?v=12b88d91:41:13
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-3L65UTKK.js?v=12b88d91:59:7
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UACHJROW.js?v=12b88d91:52:11
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UACHJROW.js?v=12b88d91:33:11
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RLTE5R7I.js?v=12b88d91:41:13
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-FHFVYZLA.js?v=12b88d91:34:5
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-POMEPTTL.js?v=12b88d91:230:13
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-POMEPTTL.js?v=12b88d91:153:58
+    at Presence (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NYR4UMVK.js?v=12b88d91:24:11)
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-POMEPTTL.js?v=12b88d91:144:64
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UACHJROW.js?v=12b88d91:52:11
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UACHJROW.js?v=12b88d91:33:11
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RLTE5R7I.js?v=12b88d91:41:13
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-3L65UTKK.js?v=12b88d91:258:22
+    at Presence (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NYR4UMVK.js?v=12b88d91:24:11)
+    at Provider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NPI43BMZ.js?v=12b88d91:38:15)
+    at DialogPortal (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-POMEPTTL.js?v=12b88d91:107:11)
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/components/ui/dialog.tsx:32:43
+    at Provider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NPI43BMZ.js?v=12b88d91:38:15)
+    at Dialog (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-POMEPTTL.js?v=12b88d91:48:5)
+    at div
+    at InfoPanelManager (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/components/dashboard/InfoPanelManager.tsx:13:21)
+    at div
+    at div
+    at main
+    at Dashboard (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/pages/Dashboard.tsx:26:33)
+    at Route (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=12b88d91:323:16)
+    at Switch (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=12b88d91:379:17)
+    at Suspense
+    at div
+    at Router (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/App.tsx?v=ZsltPeomjusJ-QYR9KobL:49:22)
+    at QueryClientProvider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2805:3)
+    at App
+    at Router (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:6387:13)
+    at BrowserRouter (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:8614:3)
+    at QueryClientProvider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2805:3)
+printWarning @ chunk-RPCDYKBN.js?v=12b88d91:521
+Mostrar mais 1 frame
+Mostre menos
+react-quill.js?v=12b88d91:4152 [Deprecation] Listener added for a 'DOMNodeInserted' mutation event. This event type is deprecated, and will be removed from this browser VERY soon. Usage of this event listener will cause performance issues today, and represents a large risk of imminent site breakage. Consider using MutationObserver instead. See https://chromestatus.com/feature/5083947249172480 for more information.
+Scroll2 @ react-quill.js?v=12b88d91:4152
+Mostrar mais 1 frame
+Mostre menos
+react-quill.js?v=12b88d91:3131 addRange(): The given range isn't in document.
+setNativeRange @ react-quill.js?v=12b88d91:3131
+Mostrar mais 1 frame
+Mostre menos
+:3000/api/upload:1 
+        
+        
+       Failed to load resource: the server responded with a status of 500 (Internal Server Error)
