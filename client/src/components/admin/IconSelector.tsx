@@ -105,7 +105,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({
       // Adicionamos um feedback visual para o usuário
       toast({
         title: "Localização definida",
-        description: `Coordenadas: ${formatCoordinate(parsedLat, true)}, ${formatCoordinate(parsedLng, false)}`,
+        description: `Coordenadas: ${formatCoordinate(parsedLat, true)}, ${formatCoordinate(parsedLng, false)}`
       });
     }
   };
