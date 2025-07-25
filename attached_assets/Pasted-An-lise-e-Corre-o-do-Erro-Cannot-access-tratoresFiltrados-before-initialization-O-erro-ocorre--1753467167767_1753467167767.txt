@@ -1,0 +1,107 @@
+Análise e Correção do Erro "Cannot access 'tratoresFiltrados' before initialization"
+O erro ocorre porque você está tentando acessar a variável tratoresFiltrados antes de ela ser inicializada no componente AgriculturaMap.tsx. Vamos resolver isso passo a passo.
+
+Causa do Problema
+O erro indica que há uma referência à variável tratoresFiltrados antes de sua declaração/atribuição, possivelmente devido a:
+
+Ordem incorreta de declaração de variáveis
+
+Uso em um bloco de código que executa antes da inicialização
+
+Problema com hoisting em JavaScript/TypeScript
+
+Solução Proposta
+Verifique a ordem de declaração:
+
+Certifique-se que tratoresFiltrados está declarado antes de ser usado
+
+Se for um estado, declare-o com useState no topo do componente
+
+Exemplo de correção:
+
+typescript
+// Correção no AgriculturaMap.tsx
+
+const AgriculturaMapContent = () => {
+  // 1. Declare todos os estados no início do componente
+  const [tratoresFiltrados, setTratoresFiltrados] = useState<TratorType[]>([]);
+  
+  // 2. Outros estados e variáveis
+  const [loading, setLoading] = useState(true);
+  const [filtros, setFiltros] = useState({});
+  
+  // 3. Efeitos que usam tratoresFiltrados
+  useEffect(() => {
+    // Agora pode usar tratoresFiltrados com segurança
+    if (tratoresFiltrados.length > 0) {
+      // ... sua lógica aqui
+    }
+  }, [tratoresFiltrados]);
+
+  // 4. Funções que usam tratoresFiltrados
+  const filtrarTratores = () => {
+    // Lógica de filtro que atualiza tratoresFiltrados
+    setTratoresFiltrados(tratoresFiltrados.filter(...));
+  };
+
+  // ... resto do componente
+};
+Se for uma variável comum (não estado):
+
+typescript
+const AgriculturaMapContent = () => {
+  // Declare primeiro
+  const tratoresFiltrados = calcularTratoresFiltrados();
+  
+  // Depois use
+  return (
+    <div>
+      {tratoresFiltrados.map(trator => (...))}
+    </div>
+  );
+
+  function calcularTratoresFiltrados() {
+    // Lógica de filtro
+    return [...];
+  }
+};
+Verificações Adicionais
+Se estiver usando Contexto ou Propriedades:
+
+Certifique-se que o provedor do contexto está acima do componente que consome
+
+Verifique se as props estão sendo passadas corretamente
+
+Se for um hook customizado:
+
+Garanta que o hook retorna os valores na ordem esperada
+
+Verifique se não há dependências circulares
+
+Erro comum com async/await:
+
+Se estiver carregando dados assincronamente, garanta um estado inicial adequado:
+
+typescript
+const [tratoresFiltrados, setTratoresFiltrados] = useState<TratorType[] | null>(null);
+
+useEffect(() => {
+  const carregarTratores = async () => {
+    const dados = await api.getTratores();
+    setTratoresFiltrados(dados);
+  };
+  carregarTratores();
+}, []);
+
+if (tratoresFiltrados === null) {
+  return <Loading />;
+}
+Próximos Passos
+Localize no seu código onde tratoresFiltrados está sendo usado na linha 233 (como indicado no erro)
+
+Verifique se a declaração da variável/estado está antes desse uso
+
+Se necessário, compartilhe o trecho relevante do código para uma análise mais específica
+
+Essa abordagem deve resolver o erro de acesso antecipado à variável. Se o problema persistir, podemos analisar o trecho específico do código onde o erro ocorre.
+
