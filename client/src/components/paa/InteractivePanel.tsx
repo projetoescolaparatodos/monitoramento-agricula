@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { InfoPanelItem } from '@/types';
@@ -24,6 +23,7 @@ import {
   ArrowRight,
   Leaf
 } from 'lucide-react';
+import InfoPanelImageDisplay from '@/components/common/InfoPanelImageDisplay';
 
 interface InteractivePanelProps {
   pageType: string;
@@ -197,11 +197,11 @@ const InteractivePanel: React.FC<InteractivePanelProps> = ({ pageType, className
                     transition={{ delay: 0.1 }}
                     className="texto-institucional max-w-none text-gray-800"
                   >
-                    <div 
-                      className="rich-content-container"
-                      dangerouslySetInnerHTML={{ __html: currentPanel.content || '' }}
+                    <InfoPanelImageDisplay 
+                      content={currentPanel.content}
+                      className="text-gray-700"
                     />
-                    
+
                     {/* Componente adicional para contatos institucionais */}
                     <div className="mt-8 p-4 bg-[#f5f5f5] rounded-lg border border-[#e0e0e0]">
                       <h3 className="flex items-center gap-2 text-lg font-medium text-[#2e7d32] mb-3">

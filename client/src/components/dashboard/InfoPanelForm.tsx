@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -43,6 +42,7 @@ import {
   Type,
   Leaf,
 } from 'lucide-react';
+import { useImageUpload } from '@/hooks/useImageUpload';
 
 // Esquema de validação para o formulário
 const formSchema = z.object({
@@ -67,32 +67,6 @@ const formSchema = z.object({
   active: z.boolean().default(true),
 });
 
-// Configuração avançada do editor Quill com formatação institucional
-const modules = {
-  toolbar: [
-    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-    ['bold', 'italic', 'underline', 'strike'],
-    [{ 'color': ['#2e7d32', '#1b5e20', '#388e3c', '#4caf50', '#81c784', '#c8e6c9', '#37474f', '#455a64', '#1e88e5', '#000000'] }],
-    [{ 'background': ['#f1f8e9', '#e8f5e9', '#c8e6c9', '#f5f5f5', '#ffffff'] }],
-    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-    [{ 'indent': '-1'}, { 'indent': '+1' }],
-    [{ 'align': [] }],
-    ['blockquote', 'code-block'],
-    ['link', 'image'],
-    ['clean']
-  ],
-};
-
-const formats = [
-  'header',
-  'bold', 'italic', 'underline', 'strike',
-  'color', 'background',
-  'list', 'bullet', 'indent',
-  'align',
-  'blockquote', 'code-block',
-  'link', 'image'
-];
-
 interface InfoPanelFormProps {
   initialData?: InfoPanelItem;
   onSubmit: (data: InfoPanelFormData) => void;
@@ -104,6 +78,7 @@ const InfoPanelForm: React.FC<InfoPanelFormProps> = ({
   onSubmit,
   isSubmitting,
 }) => {
+  const quillRef = useRef<ReactQuill>(null);
   // Configurar o formulário com valores iniciais
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -127,6 +102,80 @@ const InfoPanelForm: React.FC<InfoPanelFormProps> = ({
           active: true,
         },
   });
+
+  const { processImage, isUploading: isCompressing } = useImageUpload({
+    maxSizeInMB: 1,
+    maxWidth: 1200,
+    maxHeight: 800,
+    quality: 0.7
+  });
+
+  const handleImageUpload = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (file) {
+        try {
+          const optimizedFile = await processImage(file);
+
+          // Upload para Firebase Storage
+          const formData = new FormData();
+          formData.append('file', optimizedFile);
+
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            const quill = quillRef.current?.getEditor();
+            if (quill) {
+              const range = quill.getSelection();
+              quill.insertEmbed(range?.index || 0, 'image', data.secure_url);
+            }
+          }
+        } catch (error) {
+          console.error('Erro ao fazer upload da imagem:', error);
+        }
+      }
+    };
+
+    input.click();
+  };
+
+  const modules = {
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'color': ['#2e7d32', '#1b5e20', '#388e3c', '#4caf50', '#81c784', '#c8e6c9', '#37474f', '#455a64', '#1e88e5', '#000000'] }],
+        [{ 'background': ['#f1f8e9', '#e8f5e9', '#c8e6c9', '#f5f5f5', '#ffffff'] }],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'indent': '-1'}, { 'indent': '+1' }],
+        [{ 'align': [] }],
+        ['blockquote', 'code-block'],
+        ['link', 'image'],
+        ['clean']
+      ],
+      handlers: {
+        image: handleImageUpload
+      }
+    },
+  };
+
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'color', 'background',
+    'list', 'bullet', 'indent',
+    'align',
+    'blockquote', 'code-block',
+    'link', 'image'
+  ];
 
   // Opções de ícones com visualização melhorada
   const iconOptions = [
@@ -402,6 +451,7 @@ const InfoPanelForm: React.FC<InfoPanelFormProps> = ({
                         <FormControl>
                           <div className="border border-gray-200 rounded-lg overflow-hidden">
                             <ReactQuill
+                              ref={quillRef}
                               theme="snow"
                               value={field.value}
                               onChange={field.onChange}
