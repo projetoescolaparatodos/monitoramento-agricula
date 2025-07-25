@@ -233,3 +233,99 @@ export function validateCoordinateFormat(input: string, expectedFormat?: 'decima
     errors
   };
 }
+
+// Funções para manipulação de mapas (compatibilidade com diferentes bibliotecas)
+
+// Função para obter instância do mapa Leaflet
+export function getLeafletMapInstance(mapContainer: HTMLElement): any | null {
+  try {
+    // Tenta acessar a instância do Leaflet no elemento
+    if (mapContainer && (mapContainer as any)._leaflet_map) {
+      return (mapContainer as any)._leaflet_map;
+    }
+    
+    // Busca por elementos filhos que possam conter o mapa
+    const mapElement = mapContainer.querySelector('.leaflet-container');
+    if (mapElement && (mapElement as any)._leaflet_map) {
+      return (mapElement as any)._leaflet_map;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Erro ao obter instância do mapa Leaflet:', error);
+    return null;
+  }
+}
+
+// Função para adicionar marcador ao mapa
+export function addMarkerToMap(map: any, lat: number, lng: number, centerMap: boolean = false): void {
+  try {
+    if (!map || typeof lat !== 'number' || typeof lng !== 'number') {
+      console.error('Parâmetros inválidos para adicionar marcador');
+      return;
+    }
+    
+    // Remove marcadores existentes (se houver método disponível)
+    if (map.eachLayer) {
+      map.eachLayer((layer: any) => {
+        if (layer.options && layer.options.isCustomMarker) {
+          map.removeLayer(layer);
+        }
+      });
+    }
+    
+    // Adiciona novo marcador (compatível com Leaflet)
+    if (typeof window !== 'undefined' && (window as any).L) {
+      const L = (window as any).L;
+      const marker = L.marker([lat, lng], { isCustomMarker: true });
+      marker.addTo(map);
+      
+      if (centerMap) {
+        map.setView([lat, lng], 15);
+      }
+    }
+    
+    console.log(`Marcador adicionado em: ${lat}, ${lng}`);
+  } catch (error) {
+    console.error('Erro ao adicionar marcador ao mapa:', error);
+  }
+}
+
+// Função para obter instância do Google Maps
+export function getGoogleMapInstance(mapContainer: HTMLElement): any | null {
+  try {
+    // Verifica se há instância do Google Maps no elemento
+    if (mapContainer && (mapContainer as any).googleMapInstance) {
+      return (mapContainer as any).googleMapInstance;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Erro ao obter instância do Google Maps:', error);
+    return null;
+  }
+}
+
+// Função para centralizar mapa em coordenadas específicas
+export function centerMapOnCoordinates(map: any, lat: number, lng: number, zoom: number = 15): void {
+  try {
+    if (!map || typeof lat !== 'number' || typeof lng !== 'number') {
+      console.error('Parâmetros inválidos para centralizar mapa');
+      return;
+    }
+    
+    // Leaflet
+    if (map.setView) {
+      map.setView([lat, lng], zoom);
+    }
+    // Google Maps
+    else if (map.setCenter && map.setZoom) {
+      map.setCenter({ lat, lng });
+      map.setZoom(zoom);
+    }
+    
+    console.log(`Mapa centralizado em: ${lat}, ${lng}`);
+  } catch (error) {
+    console.error('Erro ao centralizar mapa:', error);
+  }
+}
