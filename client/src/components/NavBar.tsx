@@ -91,22 +91,7 @@ const NavBar = () => {
               setTimeout(() => window.scrollTo(0, 0), 100);
             }}>
             </Link>
-            <Link to="/registrar-doacao" onClick={() => {
-              handleNavLinkClick();
-              setTimeout(() => window.scrollTo(0, 0), 100);
-            }}>
-              <Button variant="ghost" className="w-full md:w-auto justify-start">
-                 Doações
-              </Button>
-            </Link>
-            <Link to="/eventos-disponiveis" onClick={() => {
-              handleNavLinkClick();
-              setTimeout(() => window.scrollTo(0, 0), 100);
-            }}>
-              <Button variant="ghost" className="w-full md:w-auto justify-start">
-                 Telão
-              </Button>
-            </Link>
+            
             <Link to="/login/admin" onClick={handleNavLinkClick}>
               <Button variant="ghost" className="w-full md:w-auto justify-center" size="icon">
                 <Settings className="h-4 w-4" />
