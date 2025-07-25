@@ -1,0 +1,226 @@
+Solução Completa para Upload de Imagens no ReactQuill
+1. Atualize a Implementação do ReactQuill
+typescript
+// InfoPanelForm.tsx
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+
+const InfoPanelForm = () => {
+  const quillRef = useRef<ReactQuill>(null);
+  
+  // Configuração otimizada dos módulos
+  const modules = {
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        ['blockquote', 'code-block'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['link', 'image'],
+        ['clean']
+      ],
+      handlers: {
+        image: imageHandler
+      }
+    },
+    clipboard: {
+      matchVisual: false
+    }
+  };
+
+  const formats = [
+    'header', 'bold', 'italic', 'underline', 'strike',
+    'blockquote', 'list', 'bullet', 'link', 'image'
+  ];
+
+  // Handler modernizado para upload de imagens
+  const imageHandler = useCallback(() => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+
+      try {
+        // 1. Otimizar a imagem antes do upload
+        const optimizedFile = await optimizeImage(file);
+        
+        // 2. Fazer upload para o Firebase
+        const imageUrl = await uploadToFirebase(optimizedFile);
+        
+        // 3. Inserir no editor
+        const editor = quillRef.current?.getEditor();
+        const range = editor?.getSelection();
+        
+        if (editor && range) {
+          editor.insertEmbed(range.index, 'image', imageUrl);
+          editor.setSelection(range.index + 1);
+        }
+      } catch (error) {
+        console.error('Upload failed:', error);
+        toast.error('Falha ao enviar imagem');
+      }
+    };
+  }, []);
+
+  return (
+    <ReactQuill
+      ref={quillRef}
+      theme="snow"
+      modules={modules}
+      formats={formats}
+      // ... outras props
+    />
+  );
+};
+2. Funções Auxiliares para Upload
+typescript
+// utils/imageUpload.ts
+export const optimizeImage = async (file: File): Promise<File> => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 1200;
+        const MAX_HEIGHT = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob((blob) => {
+          if (!blob) return;
+          const optimizedFile = new File([blob], file.name, {
+            type: 'image/webp',
+            lastModified: Date.now()
+          });
+          resolve(optimizedFile);
+        }, 'image/webp', 0.7);
+      };
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
+export const uploadToFirebase = async (file: File): Promise<string> => {
+  const storageRef = ref(storage, `uploads/${Date.now()}_${file.name}`);
+  await uploadBytes(storageRef, file);
+  return getDownloadURL(storageRef);
+};
+3. Correção para o Aviso findDOMNode
+Adicione esta configuração especial para evitar o warning:
+
+typescript
+// No mesmo arquivo InfoPanelForm.tsx
+import { Quill } from 'react-quill';
+
+// Solução para o warning do findDOMNode
+Quill.register('modules/imageUpload', function(quill: any) {
+  quill.getModule('toolbar').addHandler('image', () => {
+    // Handler será substituído pelo nosso imageHandler
+  });
+});
+
+// Atualize os módulos para usar a solução
+const modules = {
+  // ... outros módulos
+  imageUpload: true // Adiciona esta linha
+};
+4. Tratamento de Erros Aprimorado
+typescript
+// Adicione este bloco no seu imageHandler
+try {
+  // ... código de upload
+  
+} catch (error) {
+  console.error('Upload error:', error);
+  
+  // Feedback visual para o usuário
+  const editor = quillRef.current?.getEditor();
+  const range = editor?.getSelection();
+  
+  if (editor && range) {
+    editor.insertText(range.index, '[ERRO: Imagem não carregada]');
+    editor.setSelection(range.index + 24);
+  }
+  
+  toast.error('Erro ao carregar imagem. Tente novamente ou use um arquivo menor.');
+}
+5. Configuração Recomendada do Firebase
+Atualize seu arquivo storage.ts:
+
+typescript
+import { initializeApp } from 'firebase/app';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
+const firebaseConfig = {
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID
+};
+
+const app = initializeApp(firebaseConfig);
+const storage = getStorage(app);
+
+export { storage, ref, uploadBytes, getDownloadURL };
+6. Solução Alternativa (Se os problemas persistirem)
+Se ainda enfrentar problemas com o ReactQuill, considere esta alternativa usando @tiptap/react:
+
+typescript
+// Alternativa com Tiptap (mais moderno e estável)
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Image from '@tiptap/extension-image';
+
+const TiptapEditor = () => {
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Image.configure({
+        inline: true,
+        allowBase64: false,
+        HTMLAttributes: {
+          class: 'editor-image'
+        }
+      })
+    ],
+    content: '<p>Comece a escrever aqui...</p>',
+  });
+
+  const addImage = async () => {
+    const url = await uploadImage(); // Sua função de upload
+    editor?.chain().focus().setImage({ src: url }).run();
+  };
+
+  return (
+    <div>
+      <button onClick={addImage}>Inserir Imagem</button>
+      <EditorContent editor={editor} />
+    </div>
+  );
+};
