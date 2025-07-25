@@ -1,4 +1,3 @@
-
 // Utilitários para compatibilidade entre navegadores
 export const detectBrowser = () => {
   const userAgent = navigator.userAgent;
