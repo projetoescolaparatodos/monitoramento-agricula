@@ -1,14 +1,15 @@
+
 // Utilitários para compatibilidade entre navegadores
 export const detectBrowser = () => {
   const userAgent = navigator.userAgent;
   
-  if (userAgent.includes('Chrome') && !userAgent.includes('Edge')) {
+  if (/Chrome/.test(userAgent) && !/Edge/.test(userAgent)) {
     return 'chrome';
-  } else if (userAgent.includes('Edge')) {
+  } else if (/Edge/.test(userAgent)) {
     return 'edge';
-  } else if (userAgent.includes('Firefox')) {
+  } else if (/Firefox/.test(userAgent)) {
     return 'firefox';
-  } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+  } else if (/Safari/.test(userAgent) && !/Chrome/.test(userAgent)) {
     return 'safari';
   }
   
@@ -33,8 +34,8 @@ export const isLowEndDevice = () => {
   
   // Verificar user agent para dispositivos conhecidamente problemáticos
   const userAgent = navigator.userAgent.toLowerCase();
-  const isOldAndroid = userAgent.includes('android') && 
-    (userAgent.includes('android 4') || userAgent.includes('android 5'));
+  const isOldAndroid = /android/.test(userAgent) && 
+    (/android 4/.test(userAgent) || /android 5/.test(userAgent));
   
   return isOldAndroid;
 };
@@ -126,8 +127,7 @@ export const initStatisticValueWatcher = () => {
     setTimeout(() => fixStatisticValueDisplay(), 100);
   }
 };
-<file_path>client/src/utils/browserCompatibility.ts</file_path>
-<line_number>1</line_number>
+
 // Utilitários para melhorar compatibilidade com diferentes navegadores
 export const browserCompatibility = {
   
