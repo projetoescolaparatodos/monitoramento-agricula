@@ -1,0 +1,68 @@
+Uncaught ReferenceError: Cannot access 'handleImageUpload' before initialization
+    at InfoPanelForm (InfoPanelForm.tsx:130:16)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=12b88d91:11548:26)
+    at mountIndeterminateComponent (chunk-RPCDYKBN.js?v=12b88d91:14926:21)
+    at beginWork (chunk-RPCDYKBN.js?v=12b88d91:15914:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=12b88d91:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=12b88d91:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=12b88d91:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=12b88d91:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=12b88d91:19201:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=12b88d91:19137:13)
+chunk-RPCDYKBN.js?v=12b88d91:14032 The above error occurred in the <InfoPanelForm> component:
+
+    at InfoPanelForm (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/components/dashboard/InfoPanelForm.tsx:67:3)
+    at div
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RLTE5R7I.js?v=12b88d91:41:13
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-3L65UTKK.js?v=12b88d91:59:7
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UACHJROW.js?v=12b88d91:52:11
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UACHJROW.js?v=12b88d91:33:11
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RLTE5R7I.js?v=12b88d91:41:13
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-FHFVYZLA.js?v=12b88d91:34:5
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-POMEPTTL.js?v=12b88d91:230:13
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-POMEPTTL.js?v=12b88d91:153:58
+    at Presence (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NYR4UMVK.js?v=12b88d91:24:11)
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-POMEPTTL.js?v=12b88d91:144:64
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UACHJROW.js?v=12b88d91:52:11
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-UACHJROW.js?v=12b88d91:33:11
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RLTE5R7I.js?v=12b88d91:41:13
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-3L65UTKK.js?v=12b88d91:258:22
+    at Presence (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NYR4UMVK.js?v=12b88d91:24:11)
+    at Provider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NPI43BMZ.js?v=12b88d91:38:15)
+    at DialogPortal (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-POMEPTTL.js?v=12b88d91:107:11)
+    at https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/components/ui/dialog.tsx:32:43
+    at Provider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NPI43BMZ.js?v=12b88d91:38:15)
+    at Dialog (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-POMEPTTL.js?v=12b88d91:48:5)
+    at div
+    at InfoPanelManager (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/components/dashboard/InfoPanelManager.tsx:13:21)
+    at div
+    at div
+    at main
+    at Dashboard (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/pages/Dashboard.tsx:26:33)
+    at Route (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=12b88d91:323:16)
+    at Switch (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=12b88d91:379:17)
+    at Suspense
+    at div
+    at Router (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/src/App.tsx?v=Eo02V3jXOabshZcELBIin:49:22)
+    at QueryClientProvider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2805:3)
+    at App
+    at Router (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:6387:13)
+    at BrowserRouter (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/react-router-dom.js?v=12b88d91:8614:3)
+    at QueryClientProvider (https://b8edcc22-d521-4d45-87db-953b6b1d5274-00-7a5a0x16fdsj.spock.replit.dev:3000/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=12b88d91:2805:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-RPCDYKBN.js?v=12b88d91:14032
+Mostrar mais 1 frame
+Mostre menos
+chunk-RPCDYKBN.js?v=12b88d91:9129 Uncaught ReferenceError: Cannot access 'handleImageUpload' before initialization
+    at InfoPanelForm (InfoPanelForm.tsx:130:16)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=12b88d91:11548:26)
+    at mountIndeterminateComponent (chunk-RPCDYKBN.js?v=12b88d91:14926:21)
+    at beginWork (chunk-RPCDYKBN.js?v=12b88d91:15914:22)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=12b88d91:19753:22)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=12b88d91:19201:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=12b88d91:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=12b88d91:19116:15)
+    at recoverFromConcurrentError (chunk-RPCDYKBN.js?v=12b88d91:18736:28)
+    at performSyncWorkOnRoot (chunk-RPCDYKBN.js?v=12b88d91:18879:28)
