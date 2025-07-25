@@ -7,7 +7,6 @@ import { useIsMobile } from "../hooks/use-mobile";
 import {
   useLoadScript,
   GoogleMap,
-  MarkerF,
   InfoWindow, 
   KmlLayer,
   Polygon
@@ -49,6 +48,8 @@ const AgriculturaMap = () => {
   const [isMaximized, setIsMaximized] = useState(false);
   const [showBoundary, setShowBoundary] = useState(true);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
+  const [markers, setMarkers] = useState<google.maps.marker.AdvancedMarkerElement[]>([]);
   const isMobile = useIsMobile();
 
   const mapContainerStyle = {
@@ -169,6 +170,42 @@ const AgriculturaMap = () => {
   useEffect(() => {
     fetchTratores();
   }, [fetchTratores]);
+
+  // useEffect para gerenciar marcadores avançados
+  useEffect(() => {
+    if (!mapInstance || !isLoaded) return;
+
+    // Limpar marcadores existentes
+    markers.forEach(marker => {
+      marker.map = null;
+    });
+    setMarkers([]);
+
+    const newMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
+
+    tratoresFiltrados.forEach((trator) => {
+      const img = document.createElement('img');
+      img.src = trator.concluido ? "/trator-icon.png" : "/giftrator.gif";
+      img.style.width = trator.concluido ? '60px' : '100px';
+      img.style.height = trator.concluido ? '60px' : '100px';
+      img.style.cursor = 'pointer';
+
+      const marker = new google.maps.marker.AdvancedMarkerElement({
+        map: mapInstance,
+        position: { lat: trator.latitude, lng: trator.longitude },
+        content: img,
+        title: trator.nome,
+      });
+
+      marker.addListener('click', () => {
+        setSelectedMarker(trator);
+      });
+
+      newMarkers.push(marker);
+    });
+
+    setMarkers(newMarkers);
+  }, [mapInstance, isLoaded, tratoresFiltrados]);
 
   const tratoresFiltrados = useMemo(() => {
     return tratores.filter((trator) => {
@@ -444,8 +481,12 @@ const AgriculturaMap = () => {
         mapContainerStyle={mapContainerStyle}
         center={center}
         zoom={12}
-        onLoad={() => setMapLoaded(true)}
+        onLoad={(map) => {
+          setMapLoaded(true);
+          setMapInstance(map);
+        }}
         options={{
+          mapId: "DEMO_MAP_ID",
           minZoom: 8,
           maxZoom: 16,
           restriction: {
@@ -497,27 +538,7 @@ const AgriculturaMap = () => {
           ]
         }}
       >
-        {tratoresFiltrados.map((trator) => (
-          <MarkerF
-            key={trator.id}
-            position={{ lat: trator.latitude, lng: trator.longitude }}
-            onClick={() => setSelectedMarker(trator)}
-            options={{ visible: true, clickable: true }}
-            icon={{
-              url: trator.concluido ? "/trator-icon.png" : "/giftrator.gif",
-              scaledSize: new window.google.maps.Size(
-                trator.concluido ? 60 : 100,
-                trator.concluido ? 60 : 100
-              ),
-              anchor: new window.google.maps.Point(
-                trator.concluido ? 30 : 50,
-                trator.concluido ? 30 : 50
-              ),
-              origin: new window.google.maps.Point(0, 0),
-              zIndex: 1000,
-            }}
-          />
-        ))}
+        
         {selectedMarker && renderInfoWindow(selectedMarker)}
 
         {showBoundary && (

@@ -20,7 +20,6 @@ import { Loader2, MapPin, Trash2, Edit2, Plus, ArrowLeft } from "lucide-react";
 import {
   useLoadScript,
   GoogleMap,
-  MarkerF,
   Polygon,
 } from "@react-google-maps/api";
 import EnhancedUpload from "@/components/EnhancedUpload";
@@ -115,6 +114,10 @@ const AdminAgricultura = () => {
     return ensureClockwise(municipioBoundary);
   }, [municipioBoundary]);
 
+  // Estado para referência do mapa
+  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
+  const [markers, setMarkers] = useState<google.maps.marker.AdvancedMarkerElement[]>([]);
+
   // useEffect para buscar dados (sempre executa - não condicional)
   useEffect(() => {
     const fetchTratores = async () => {
@@ -138,6 +141,59 @@ const AdminAgricultura = () => {
 
     fetchTratores();
   }, [toast]);
+
+  // useEffect para gerenciar marcadores avançados
+  useEffect(() => {
+    if (!mapInstance || !isLoaded) return;
+
+    // Limpar marcadores existentes
+    markers.forEach(marker => {
+      marker.map = null;
+    });
+    setMarkers([]);
+
+    const newMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
+
+    // Adicionar marcadores dos tratores existentes
+    tratoresCadastrados.forEach((trator) => {
+      const img = document.createElement('img');
+      img.src = '/trator-icon.png';
+      img.style.width = '40px';
+      img.style.height = '40px';
+      img.style.cursor = 'pointer';
+
+      const marker = new google.maps.marker.AdvancedMarkerElement({
+        map: mapInstance,
+        position: { lat: trator.latitude, lng: trator.longitude },
+        content: img,
+        title: trator.nome,
+      });
+
+      newMarkers.push(marker);
+    });
+
+    // Adicionar marcador para nova localização selecionada
+    if (latitude && longitude) {
+      const img = document.createElement('img');
+      img.src = '/trator-icon.png';
+      img.style.width = '50px';
+      img.style.height = '50px';
+      img.style.cursor = 'pointer';
+      img.style.border = '2px solid #22c55e';
+      img.style.borderRadius = '50%';
+
+      const marker = new google.maps.marker.AdvancedMarkerElement({
+        map: mapInstance,
+        position: { lat: latitude, lng: longitude },
+        content: img,
+        title: 'Nova localização',
+      });
+
+      newMarkers.push(marker);
+    }
+
+    setMarkers(newMarkers);
+  }, [mapInstance, isLoaded, tratoresCadastrados, latitude, longitude]);
 
   // Verificações condicionais após hooks básicos
   if (isLoading) {
@@ -474,38 +530,20 @@ const AdminAgricultura = () => {
                 center={mapCenter}
                 zoom={mapZoom}
                 onClick={handleMapClick}
-                onLoad={() => setMapLoaded(true)}
+                onLoad={(map) => {
+                  setMapLoaded(true);
+                  setMapInstance(map);
+                }}
                 options={{
                   mapTypeId: google.maps.MapTypeId.HYBRID,
                   mapTypeControl: true,
                   streetViewControl: false,
                   fullscreenControl: false,
+                  mapId: "DEMO_MAP_ID", // Necessário para AdvancedMarkerElement
                 }}
               >
-                {/* Marcadores dos tratores existentes */}
-                {tratoresCadastrados.map((trator) => (
-                  <MarkerF
-                    key={trator.id}
-                    position={{ lat: trator.latitude, lng: trator.longitude }}
-                    icon={{
-                      url: "/trator-icon.png",
-                      scaledSize: new window.google.maps.Size(40, 40),
-                      anchor: new window.google.maps.Point(20, 40),
-                    }}
-                  />
-                ))}
-
-                {/* Marcador para a nova localização selecionada */}
-                {latitude && longitude && (
-                  <MarkerF
-                    position={{ lat: latitude, lng: longitude }}
-                    icon={{
-                      url: "/trator-icon.png",
-                      scaledSize: new window.google.maps.Size(50, 50),
-                      anchor: new window.google.maps.Point(25, 50),
-                    }}
-                  />
-                )}
+                {/* Marcadores dos tratores existentes serão adicionados via useEffect */}
+                {/* Marcador para a nova localização selecionada será adicionado via useEffect */}
 
                 {/* Contorno do município */}
                 {showBoundary && (
