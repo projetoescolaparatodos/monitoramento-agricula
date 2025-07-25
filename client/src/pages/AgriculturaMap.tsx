@@ -196,6 +196,20 @@ const AgriculturaMapContent = () => {
     fetchTratores();
   }, [fetchTratores]);
 
+  // Log para debug
+  console.log('Tratores carregados:', tratores);
+
+  const tratoresFiltrados = useMemo(() => {
+    return tratores.filter((trator) => {
+      if (filtro === "todos") return true;
+      if (filtro === "em-servico") return !trator.concluido;
+      if (filtro === "concluidos") return trator.concluido;
+      return true;
+    });
+  }, [tratores, filtro]);
+
+  console.log('Tratores filtrados:', tratoresFiltrados);
+
   // useEffect para gerenciar marcadores avançados
   useEffect(() => {
     if (!mapInstance || !isLoaded) return;
@@ -231,20 +245,6 @@ const AgriculturaMapContent = () => {
 
     setMarkers(newMarkers);
   }, [mapInstance, isLoaded, tratoresFiltrados]);
-
-  // Log para debug
-  console.log('Tratores carregados:', tratores);
-
-  const tratoresFiltrados = useMemo(() => {
-    return tratores.filter((trator) => {
-      if (filtro === "todos") return true;
-      if (filtro === "em-servico") return !trator.concluido;
-      if (filtro === "concluidos") return trator.concluido;
-      return true;
-    });
-  }, [tratores, filtro]);
-
-  console.log('Tratores filtrados:', tratoresFiltrados);
 
   const renderInfoWindow = useCallback(
     (trator: Trator) => {
