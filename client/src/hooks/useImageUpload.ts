@@ -1,111 +1,128 @@
+import { useState, useCallback } from 'react';
+import { optimizeImage, validateImageFile } from '@/utils/imageUpload';
 
-import { useState } from 'react';
-
-interface UseImageUploadProps {
+interface UseImageUploadOptions {
   maxSizeInMB?: number;
   maxWidth?: number;
   maxHeight?: number;
   quality?: number;
 }
 
-export const useImageUpload = ({
-  maxSizeInMB = 5,
-  maxWidth = 1920,
-  maxHeight = 1080,
-  quality = 0.8
-}: UseImageUploadProps = {}) => {
-  const [isUploading, setIsUploading] = useState(false);
+interface UseImageUploadReturn {
+  processImage: (file: File) => Promise<File>;
+  isUploading: boolean;
+  uploadProgress: number;
+  error: string | null;
+  clearError: () => void;
+}
 
-  const compressImage = (file: File): Promise<File> => {
+export const useImageUpload = (options: UseImageUploadOptions = {}): UseImageUploadReturn => {
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+
+  const {
+    maxSizeInMB = 2,
+    maxWidth = 1200,
+    maxHeight = 800,
+    quality = 0.8
+  } = options;
+
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  const compressImage = useCallback((file: File): Promise<File> => {
     return new Promise((resolve, reject) => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       const img = new Image();
 
       img.onload = () => {
-        try {
-          // Calcular novas dimensões mantendo proporção
-          let { width, height } = img;
-          
-          if (width > maxWidth || height > maxHeight) {
-            const ratio = Math.min(maxWidth / width, maxHeight / height);
-            width = Math.floor(width * ratio);
-            height = Math.floor(height * ratio);
-          }
+        // Calcular novas dimensões mantendo proporção
+        let { width, height } = img;
 
-          canvas.width = width;
-          canvas.height = height;
+        if (width > maxWidth || height > maxHeight) {
+          const ratio = Math.min(maxWidth / width, maxHeight / height);
+          width *= ratio;
+          height *= ratio;
+        }
 
-          // Desenhar imagem redimensionada
-          ctx?.drawImage(img, 0, 0, width, height);
+        canvas.width = width;
+        canvas.height = height;
 
-          // Converter para blob com qualidade reduzida
+        if (ctx) {
+          // Melhorar qualidade da compressão
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, width, height);
+
           canvas.toBlob(
             (blob) => {
               if (blob) {
-                const compressedFile = new File([blob], file.name, {
-                  type: 'image/jpeg',
+                const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '.webp'), {
+                  type: 'image/webp',
                   lastModified: Date.now(),
                 });
                 resolve(compressedFile);
               } else {
-                resolve(file);
+                reject(new Error('Falha ao comprimir imagem'));
               }
             },
-            'image/jpeg',
+            'image/webp',
             quality
           );
-        } catch (error) {
-          console.error('Erro na compressão:', error);
-          resolve(file);
+        } else {
+          reject(new Error('Falha ao criar contexto do canvas'));
         }
       };
 
-      img.onerror = () => {
-        console.error('Erro ao carregar imagem para compressão');
-        resolve(file);
-      };
-
+      img.onerror = () => reject(new Error('Falha ao carregar imagem'));
       img.src = URL.createObjectURL(file);
     });
-  };
+  }, [maxWidth, maxHeight, quality]);
 
-  const processImage = async (file: File): Promise<File> => {
+  const processImage = useCallback(async (file: File): Promise<File> => {
     setIsUploading(true);
-    
-    try {
-      // Verificar se é uma imagem
-      if (!file.type.startsWith('image/')) {
-        return file;
-      }
+    setUploadProgress(0);
+    setError(null);
 
-      // Verificar se o arquivo já está dentro do limite
-      const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
-      
-      if (file.size <= maxSizeInBytes) {
-        return file;
+    try {
+      // Validar arquivo
+      validateImageFile(file);
+      setUploadProgress(25);
+
+      // Verificar tamanho do arquivo
+      const fileSizeInMB = file.size / (1024 * 1024);
+      setUploadProgress(50);
+
+      if (fileSizeInMB <= maxSizeInMB) {
+        setUploadProgress(100);
+        return file; // Arquivo já está no tamanho adequado
       }
 
       // Comprimir se necessário
+      setUploadProgress(75);
       const compressedFile = await compressImage(file);
-      
-      // Se ainda estiver muito grande, tentar comprimir mais
-      if (compressedFile.size > maxSizeInBytes) {
-        const furtherCompressed = await compressImage(compressedFile);
-        return furtherCompressed;
-      }
-      
+      setUploadProgress(100);
+
       return compressedFile;
     } catch (error) {
-      console.error('Erro no processamento da imagem:', error);
-      return file;
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao processar imagem';
+      setError(errorMessage);
+      console.error('Erro ao processar imagem:', error);
+      throw error;
     } finally {
       setIsUploading(false);
+      setTimeout(() => setUploadProgress(0), 1000);
     }
-  };
+  }, [maxSizeInMB, compressImage]);
 
   return {
     processImage,
-    isUploading
+    isUploading,
+    uploadProgress,
+    error,
+    clearError
   };
 };

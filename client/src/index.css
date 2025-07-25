@@ -1515,26 +1515,79 @@ iframe[src*="drive.google.com"] {
 .bg-warning { background-color: #FF9800; }
 .bg-danger { background-color: #F44336; }
 
-/* Estilos para ReactQuill */
+/* Estilos para ReactQuill moderno */
 .quill-container .ql-toolbar {
-  border-top: 1px solid #ccc;
-  border-left: 1px solid #ccc;
-  border-right: 1px solid #ccc;
+  border-top: 1px solid #e2e8f0;
+  border-left: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
   border-radius: 6px 6px 0 0;
-  background: #fafafa;
+  background: #f8fafc;
+  padding: 8px 12px;
 }
 
 .quill-container .ql-container {
-  border-bottom: 1px solid #ccc;
-  border-left: 1px solid #ccc;
-  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #e2e8f0;
+  border-left: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
   border-radius: 0 0 6px 6px;
   font-family: inherit;
 }
 
 .quill-container .ql-editor {
-  min-height: 80px;
-  color: #000;
+  min-height: 200px;
+  padding: 16px;
+  line-height: 1.6;
+  color: #1f2937;
+  background-color: #ffffff;
+}
+
+/* Estilos para imagens no editor */
+.quill-container .ql-editor img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 8px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Melhorar aparência dos botões da toolbar */
+.quill-container .ql-toolbar button {
+  border-radius: 4px;
+  margin: 1px;
+  transition: all 0.2s ease;
+}
+
+.quill-container .ql-toolbar button:hover {
+  background-color: #e2e8f0;
+}
+
+.quill-container .ql-toolbar button.ql-active {
+  background-color: #2e7d32;
+  color: white;
+}
+
+/* Estilos para tema escuro */
+.dark .quill-container .ql-toolbar {
+  background-color: #374151;
+  border-color: #4b5563;
+}
+
+.dark .quill-container .ql-container {
+  border-color: #4b5563;
+}
+
+.dark .quill-container .ql-editor {
+  background-color: #1f2937;
+  color: #f9fafb;
+}
+
+.dark .quill-container .ql-toolbar button:hover {
+  background-color: #4b5563;
+}
+
+.dark .quill-container .ql-toolbar button.ql-active {
+  background-color: #2e7d32;
+  color: white;: #000;
   font-size: 14px;
   line-height: 1.5;
 }

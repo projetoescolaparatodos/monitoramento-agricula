@@ -127,6 +127,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: true, message: 'Nenhum arquivo enviado' });
       }
 
+      // Validar tipo de arquivo
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm'];
+      if (!allowedTypes.includes(req.file.mimetype)) {
+        return res.status(400).json({ 
+          error: true, 
+          message: 'Tipo de arquivo não suportado. Use JPEG, PNG, WebP, GIF, MP4 ou WebM.' 
+        });
+      }
+
+      // Validar tamanho do arquivo (máximo 50MB)
+      const maxSize = 50 * 1024 * 1024; // 50MB
+      if (req.file.size > maxSize) {
+        return res.status(400).json({ 
+          error: true, 
+          message: 'Arquivo muito grande. Máximo 50MB permitido.' 
+        });
+      }
+
       // Importar Firebase Storage functions
       const { getStorage, ref, uploadBytes, getDownloadURL } = await import('firebase/storage');
       const { storage } = await import('./storage');
@@ -146,19 +164,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Criar referência para o arquivo
       const fileRef = ref(storage.storage, path);
 
-      // Upload do arquivo para o Firebase Storage
+      // Upload do arquivo para o Firebase Storage com metadata
       await uploadBytes(fileRef, req.file.buffer, {
-        contentType: req.file.mimetype
+        contentType: req.file.mimetype,
+        customMetadata: {
+          originalName: req.file.originalname,
+          uploadedAt: new Date().toISOString(),
+          fileSize: req.file.size.toString()
+        }
       });
 
       // Obter URL de download
       const downloadUrl = await getDownloadURL(fileRef);
 
-      console.log('Upload successful:', downloadUrl);
-      res.json({ url: downloadUrl, secure_url: downloadUrl });
+      console.log('Upload successful:', {
+        url: downloadUrl,
+        originalName: req.file.originalname,
+        size: req.file.size,
+        type: req.file.mimetype
+      });
+
+      res.json({ 
+        url: downloadUrl, 
+        secure_url: downloadUrl,
+        metadata: {
+          originalName: req.file.originalname,
+          size: req.file.size,
+          type: req.file.mimetype
+        }
+      });
     } catch (error) {
       console.error('Error uploading file:', error);
-      res.status(500).json({ error: true, message: 'Erro ao fazer upload do arquivo' });
+      
+      // Retornar erro mais específico
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido ao fazer upload';
+      res.status(500).json({ 
+        error: true, 
+        message: `Erro ao fazer upload do arquivo: ${errorMessage}` 
+      });
     }
   });
 

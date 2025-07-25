@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -110,51 +110,63 @@ const InfoPanelForm: React.FC<InfoPanelFormProps> = ({
     quality: 0.7
   });
 
-  const handleImageUpload = () => {
+  // Handler modernizado para upload de imagens
+  const imageHandler = useCallback(() => {
     const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
 
     input.onchange = async () => {
       const file = input.files?.[0];
-      if (file) {
-        try {
-          const optimizedFile = await processImage(file);
+      if (!file) return;
 
-          // Upload para Firebase Storage
-          const formData = new FormData();
-          formData.append('file', optimizedFile);
+      try {
+        // 1. Otimizar a imagem antes do upload
+        const optimizedFile = await processImage(file);
+        
+        // 2. Fazer upload para Firebase
+        const formData = new FormData();
+        formData.append('file', optimizedFile);
 
-          const response = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-          });
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
 
-          if (response.ok) {
-            const data = await response.json();
-            const quill = quillRef.current?.getEditor();
-            if (quill) {
-              const range = quill.getSelection();
-              // Usar URL diretamente da resposta
-              const imageUrl = data.url || data.secure_url;
-              quill.insertEmbed(range?.index || 0, 'image', imageUrl);
-            }
-          } else {
-            const errorData = await response.json();
-            console.error('Erro no upload:', errorData);
-            alert('Erro ao fazer upload da imagem. Tente novamente.');
+        if (response.ok) {
+          const data = await response.json();
+          
+          // 3. Inserir no editor de forma segura
+          const editor = quillRef.current?.getEditor();
+          const range = editor?.getSelection();
+          
+          if (editor && range) {
+            const imageUrl = data.url || data.secure_url;
+            editor.insertEmbed(range.index, 'image', imageUrl);
+            editor.setSelection(range.index + 1);
           }
-        } catch (error) {
-          console.error('Erro ao fazer upload da imagem:', error);
-          alert('Erro ao processar a imagem. Tente novamente.');
+        } else {
+          throw new Error('Falha no upload da imagem');
         }
+      } catch (error) {
+        console.error('Upload failed:', error);
+        
+        // Feedback visual para o usuário
+        const editor = quillRef.current?.getEditor();
+        const range = editor?.getSelection();
+        
+        if (editor && range) {
+          editor.insertText(range.index, '[ERRO: Imagem não carregada - tente novamente]');
+          editor.setSelection(range.index + 45);
+        }
+        
+        alert('Erro ao carregar imagem. Tente novamente ou use um arquivo menor.');
       }
     };
+  }, [processImage]);
 
-    input.click();
-  };
-
-  const modules = {
+  const modules = useMemo(() => ({
     toolbar: {
       container: [
         [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
@@ -169,10 +181,13 @@ const InfoPanelForm: React.FC<InfoPanelFormProps> = ({
         ['clean']
       ],
       handlers: {
-        image: handleImageUpload
+        image: imageHandler
       }
     },
-  };
+    clipboard: {
+      matchVisual: false
+    }
+  }), [imageHandler]);
 
   const formats = [
     'header',
