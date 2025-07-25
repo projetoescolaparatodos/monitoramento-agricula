@@ -6,7 +6,6 @@ import { collection, query, where, getDocs, addDoc, doc, getDoc, Timestamp } fro
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import ErrorBoundary from '@/components/common/ErrorBoundary';
 
 import { Gift, User, Package, ArrowLeft, Wifi, WifiOff } from 'lucide-react';
 import { FirebaseOptimizer, useFirebaseStatus } from '@/utils/firebaseOptimizations';
@@ -31,7 +30,7 @@ interface Insumo {
   }>;
 }
 
-const RegistrarDoacaoInternal: React.FC = () => {
+const RegistrarDoacao: React.FC = () => {
   const [location, navigate] = useLocation();
   const [user] = useState(null); // Remover autenticação obrigatória
   const authLoading = false;
@@ -66,94 +65,55 @@ const RegistrarDoacaoInternal: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    let isCancelled = false;
-
     const fetchData = async () => {
-      if (isCancelled || !isMountedRef.current) return;
-
       try {
-        setLoading(true);
-
-        // Timeout para evitar travamentos
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout ao carregar dados')), 15000)
-        );
-
         // Usar Promise.all para buscar dados em paralelo (mais rápido)
-        const dataPromise = Promise.all([
+        const [eventosSnapshot, insumosSnapshot] = await Promise.all([
           getDocs(query(collection(db, 'eventos'), where('ativo', '==', true))),
           getDocs(query(collection(db, 'insumos'), where('ativo', '==', true)))
         ]);
 
-        const [eventosSnapshot, insumosSnapshot] = await Promise.race([
-          dataPromise,
-          timeoutPromise
-        ]) as any;
+        // Verificar se o componente ainda está montado antes de atualizar estado
+        if (!isMountedRef.current) return;
 
-        // Verificar se o componente ainda está montado e não foi cancelado
-        if (isCancelled || !isMountedRef.current) return;
-
-        // Processar eventos com validação extra
-        const eventosData = eventosSnapshot.docs.map((doc: any) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            nome: data.nome || 'Evento sem nome',
-            dataInicio: data.dataInicio,
-            dataFim: data.dataFim,
-            ativo: data.ativo !== false
-          };
-        }) as Evento[];
+        // Processar eventos
+        const eventosData = eventosSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Evento[];
 
         // Filtrar eventos que estão no período atual
         const agora = new Date();
         const eventosAtivos = eventosData.filter(evento => {
-          try {
-            if (!evento.dataInicio || !evento.dataFim) return false;
-            const inicio = evento.dataInicio?.toDate();
-            const fim = evento.dataFim?.toDate();
-            return inicio <= agora && agora <= fim;
-          } catch (error) {
-            console.warn('Erro ao processar datas do evento:', evento.id, error);
-            return false;
-          }
+          const inicio = evento.dataInicio?.toDate();
+          const fim = evento.dataFim?.toDate();
+          return inicio <= agora && agora <= fim;
         });
 
-        // Processar insumos com validação extra
-        const insumosData = insumosSnapshot.docs.map((doc: any) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            nome: data.nome || 'Insumo sem nome',
-            unidade: data.unidade || 'unidade',
-            ativo: data.ativo !== false,
-            isKit: data.isKit || false,
-            kitComposicao: Array.isArray(data.kitComposicao) ? data.kitComposicao : []
-          };
-        }) as Insumo[];
+        setEventos(eventosAtivos);
 
-        if (!isCancelled && isMountedRef.current) {
-          setEventos(eventosAtivos);
-          setInsumos(insumosData);
-          setLoading(false);
-          console.log('✅ Dados carregados - Eventos:', eventosAtivos.length, 'Insumos:', insumosData.length);
-        }
+        // Processar insumos
+        const insumosData = insumosSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Insumo[];
 
+        setInsumos(insumosData);
+        setLoading(false);
+
+        console.log('✅ Dados carregados - Eventos:', eventosAtivos.length, 'Insumos:', insumosData.length);
       } catch (error) {
         console.error('❌ Erro ao buscar dados:', error);
-        
-        if (isCancelled || !isMountedRef.current) return;
+        if (!isMountedRef.current) return;
         
         setLoading(false);
 
         let errorMessage = "Falha ao carregar eventos e insumos. Tente recarregar a página.";
 
-        if ((error as any)?.code === 'permission-denied') {
+        if (error.code === 'permission-denied') {
           errorMessage = "Sem permissão para acessar os dados. Verifique sua autenticação.";
-        } else if ((error as any)?.code === 'unavailable') {
+        } else if (error.code === 'unavailable') {
           errorMessage = "Serviço temporariamente indisponível. Tente novamente em alguns momentos.";
-        } else if ((error as any)?.message?.includes('Timeout')) {
-          errorMessage = "Tempo limite excedido. Verifique sua conexão de internet.";
         }
 
         toast({
@@ -165,14 +125,9 @@ const RegistrarDoacaoInternal: React.FC = () => {
       }
     };
 
-    if (!authLoading && isMountedRef.current) {
+    if (!authLoading) {
       fetchData();
     }
-
-    // Cleanup function
-    return () => {
-      isCancelled = true;
-    };
   }, [authLoading, toast]);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
@@ -667,32 +622,6 @@ const RegistrarDoacaoInternal: React.FC = () => {
         </Card>
       </div>
     </div>
-  );
-};
-
-const RegistrarDoacao: React.FC = () => {
-  return (
-    <ErrorBoundary fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
-          <div className="text-red-500 text-5xl mb-4">⚠️</div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
-            Erro no Formulário de Doações
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Ocorreu um erro ao carregar o formulário. Por favor, recarregue a página.
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-          >
-            Recarregar Página
-          </button>
-        </div>
-      </div>
-    }>
-      <RegistrarDoacaoInternal />
-    </ErrorBoundary>
   );
 };
 

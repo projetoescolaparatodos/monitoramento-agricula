@@ -5,7 +5,6 @@ import { ChatButton } from "@/components/chat/ChatButton";
 import ChatbotWidget from "@/components/chat/ChatbotWidget";
 import { Toaster } from "@/components/ui/toaster";
 import { queryClient } from "./lib/queryClient";
-import ErrorBoundary from "@/components/common/ErrorBoundary";
 import Home from "@/pages/Home";
 import Report from "@/pages/Report";
 import AgriculturaMap from "@/pages/AgriculturaMap";
@@ -65,15 +64,15 @@ function Router() {
 
   function ConditionalFooter() {
     const [location] = useLocation();
-
+  
     // Lista de rotas onde o Footer não deve aparecer
     const mapRoutes = ['/agricultura/map', '/pesca/map', '/paa/map'];
-
+  
     // Não renderiza o Footer se a rota atual estiver na lista de mapas
     if (mapRoutes.includes(location)) {
       return null;
     }
-
+  
     return <Footer />;
   }
 
@@ -176,24 +175,11 @@ function Router() {
 
 function App() {
   return (
-    <ErrorBoundary
-      onError={(error, errorInfo) => {
-        console.error('Erro global da aplicação:', {
-          error: error.message,
-          stack: error.stack,
-          componentStack: errorInfo.componentStack,
-          timestamp: new Date().toISOString(),
-          url: window.location.href,
-          userAgent: navigator.userAgent
-        });
-      }}
-    >
-      <QueryClientProvider client={queryClient}>
-        <Router />
-        <ChatbotWidget />
-        <Toaster />
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <Router />
+      <ChatbotWidget />
+      <Toaster />
+    </QueryClientProvider>
   );
 }
 

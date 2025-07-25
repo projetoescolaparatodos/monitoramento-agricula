@@ -7,6 +7,7 @@ import { useIsMobile } from "../hooks/use-mobile";
 import {
   useLoadScript,
   GoogleMap,
+  MarkerF,
   InfoWindow, 
   KmlLayer,
   Polygon
@@ -15,7 +16,6 @@ import { Loader2, X, CheckCircle, Activity, MapPin, Clock, Calendar, User, HardH
 import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import ErrorBoundary from "@/components/common/ErrorBoundary";
 import styles from "./AgriculturaMap.module.css";
 
 interface Trator {
@@ -37,34 +37,10 @@ interface Trator {
   tecnicoResponsavel?: string;
 }
 
-const AgriculturaMapContent = () => {
-  const { isLoaded, loadError } = useLoadScript({
+const AgriculturaMap = () => {
+  const { isLoaded } = useLoadScript({
     googleMapsApiKey: "AIzaSyC3fPdcovy7a7nQLe9aGBMR2PFY_qZZVZc",
   });
-
-  // Tratamento de erro de carregamento do Google Maps
-  if (loadError) {
-    console.error('Erro ao carregar Google Maps:', loadError);
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
-          <div className="text-red-500 text-5xl mb-4">📍</div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
-            Erro ao Carregar Mapa
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Não foi possível carregar o Google Maps. Verifique sua conexão e tente novamente.
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-          >
-            Tentar Novamente
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   const [tratores, setTratores] = useState<Trator[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,8 +49,6 @@ const AgriculturaMapContent = () => {
   const [isMaximized, setIsMaximized] = useState(false);
   const [showBoundary, setShowBoundary] = useState(true);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
-  const [markers, setMarkers] = useState<google.maps.marker.AdvancedMarkerElement[]>([]);
   const isMobile = useIsMobile();
 
   const mapContainerStyle = {
@@ -196,9 +170,6 @@ const AgriculturaMapContent = () => {
     fetchTratores();
   }, [fetchTratores]);
 
-  // Log para debug
-  console.log('Tratores carregados:', tratores);
-
   const tratoresFiltrados = useMemo(() => {
     return tratores.filter((trator) => {
       if (filtro === "todos") return true;
@@ -207,44 +178,6 @@ const AgriculturaMapContent = () => {
       return true;
     });
   }, [tratores, filtro]);
-
-  console.log('Tratores filtrados:', tratoresFiltrados);
-
-  // useEffect para gerenciar marcadores avançados
-  useEffect(() => {
-    if (!mapInstance || !isLoaded) return;
-
-    // Limpar marcadores existentes
-    markers.forEach(marker => {
-      marker.map = null;
-    });
-    setMarkers([]);
-
-    const newMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
-
-    tratoresFiltrados.forEach((trator) => {
-      const img = document.createElement('img');
-      img.src = trator.concluido ? "/trator-icon.png" : "/giftrator.gif";
-      img.style.width = trator.concluido ? '60px' : '100px';
-      img.style.height = trator.concluido ? '60px' : '100px';
-      img.style.cursor = 'pointer';
-
-      const marker = new google.maps.marker.AdvancedMarkerElement({
-        map: mapInstance,
-        position: { lat: trator.latitude, lng: trator.longitude },
-        content: img,
-        title: trator.nome,
-      });
-
-      marker.addListener('click', () => {
-        setSelectedMarker(trator);
-      });
-
-      newMarkers.push(marker);
-    });
-
-    setMarkers(newMarkers);
-  }, [mapInstance, isLoaded, tratoresFiltrados]);
 
   const renderInfoWindow = useCallback(
     (trator: Trator) => {
@@ -472,27 +405,13 @@ const AgriculturaMapContent = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-green-600 mx-auto mb-4" />
-          <p className="text-gray-600">Carregando dados da agricultura...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-pulse">
-            <div className="h-12 w-12 bg-green-200 rounded-full mx-auto mb-4"></div>
-          </div>
-          <p className="text-gray-600">Carregando Google Maps...</p>
-        </div>
-      </div>
-    );
-  }
+  if (!isLoaded) return <div>Loading...</div>;
 
   return (
     <div className={`${isMobile ? 'pt-0' : 'pt-16'} relative h-screen`}>
@@ -525,12 +444,8 @@ const AgriculturaMapContent = () => {
         mapContainerStyle={mapContainerStyle}
         center={center}
         zoom={12}
-        onLoad={(map) => {
-          setMapLoaded(true);
-          setMapInstance(map);
-        }}
+        onLoad={() => setMapLoaded(true)}
         options={{
-          mapId: "DEMO_MAP_ID",
           minZoom: 8,
           maxZoom: 16,
           restriction: {
@@ -582,7 +497,27 @@ const AgriculturaMapContent = () => {
           ]
         }}
       >
-
+        {tratoresFiltrados.map((trator) => (
+          <MarkerF
+            key={trator.id}
+            position={{ lat: trator.latitude, lng: trator.longitude }}
+            onClick={() => setSelectedMarker(trator)}
+            options={{ visible: true, clickable: true }}
+            icon={{
+              url: trator.concluido ? "/trator-icon.png" : "/giftrator.gif",
+              scaledSize: new window.google.maps.Size(
+                trator.concluido ? 60 : 100,
+                trator.concluido ? 60 : 100
+              ),
+              anchor: new window.google.maps.Point(
+                trator.concluido ? 30 : 50,
+                trator.concluido ? 30 : 50
+              ),
+              origin: new window.google.maps.Point(0, 0),
+              zIndex: 1000,
+            }}
+          />
+        ))}
         {selectedMarker && renderInfoWindow(selectedMarker)}
 
         {showBoundary && (
@@ -607,51 +542,6 @@ const AgriculturaMapContent = () => {
         </div>
       </GoogleMap>
     </div>
-  );
-};
-
-const AgriculturaMap = () => {
-  return (
-    <ErrorBoundary
-      onError={(error, errorInfo) => {
-        console.error('Erro específico no AgriculturaMap:', {
-          error: error.message,
-          stack: error.stack,
-          componentStack: errorInfo.componentStack,
-          location: window.location.href,
-          userAgent: navigator.userAgent
-        });
-      }}
-      fallback={
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-          <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
-            <div className="text-red-500 text-5xl mb-4">🚜</div>
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              Problema no Mapa da Agricultura
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Ocorreu um erro ao carregar o mapa. Isso pode ser um problema temporário.
-            </p>
-            <div className="space-y-3">
-              <button
-                onClick={() => window.location.reload()}
-                className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
-              >
-                🔄 Recarregar Mapa
-              </button>
-              <button
-                onClick={() => window.history.back()}
-                className="w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors"
-              >
-                ← Voltar
-              </button>
-            </div>
-          </div>
-        </div>
-      }
-    >
-      <AgriculturaMapContent />
-    </ErrorBoundary>
   );
 };
 

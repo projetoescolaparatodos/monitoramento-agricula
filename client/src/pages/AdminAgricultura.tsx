@@ -20,6 +20,7 @@ import { Loader2, MapPin, Trash2, Edit2, Plus, ArrowLeft } from "lucide-react";
 import {
   useLoadScript,
   GoogleMap,
+  MarkerF,
   Polygon,
 } from "@react-google-maps/api";
 import EnhancedUpload from "@/components/EnhancedUpload";
@@ -35,9 +36,8 @@ const AdminAgricultura = () => {
   const { toast } = useToast();
 
   // Google Maps
-  const { isLoaded, loadError } = useLoadScript({
+  const { isLoaded } = useLoadScript({
     googleMapsApiKey: "AIzaSyC3fPdcovy7a7nQLe9aGBMR2PFY_qZZVZc",
-    libraries: ["marker"], // Garantir que a biblioteca de marcadores seja carregada
   });
 
   // Estados do formulário
@@ -115,10 +115,6 @@ const AdminAgricultura = () => {
     return ensureClockwise(municipioBoundary);
   }, [municipioBoundary]);
 
-  // Estado para referência do mapa
-  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
-  const [markers, setMarkers] = useState<(google.maps.marker.AdvancedMarkerElement | google.maps.Marker)[]>([]);
-
   // useEffect para buscar dados (sempre executa - não condicional)
   useEffect(() => {
     const fetchTratores = async () => {
@@ -143,101 +139,6 @@ const AdminAgricultura = () => {
     fetchTratores();
   }, [toast]);
 
-  // useEffect para gerenciar marcadores avançados
-  useEffect(() => {
-    if (!mapInstance || !isLoaded) return;
-    
-    // Verificar se a API do Google Maps está totalmente carregada
-    if (!window.google || !window.google.maps || !window.google.maps.marker) {
-      console.warn('Google Maps API não está completamente carregada ainda');
-      return;
-    }
-
-    // Limpar marcadores existentes
-    markers.forEach(marker => {
-      if (marker && marker.map !== undefined) {
-        marker.map = null;
-      }
-    });
-    setMarkers([]);
-
-    const newMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
-
-    // Função auxiliar para criar marcadores com fallback
-    const createMarker = (lat: number, lng: number, iconSrc: string, title: string, isNew: boolean = false) => {
-      try {
-        // Verificar se AdvancedMarkerElement está disponível
-        if (google.maps.marker && google.maps.marker.AdvancedMarkerElement) {
-          const img = document.createElement('img');
-          img.src = iconSrc;
-          img.style.width = isNew ? '50px' : '40px';
-          img.style.height = isNew ? '50px' : '40px';
-          img.style.cursor = 'pointer';
-          if (isNew) {
-            img.style.border = '2px solid #22c55e';
-            img.style.borderRadius = '50%';
-          }
-
-          const marker = new google.maps.marker.AdvancedMarkerElement({
-            map: mapInstance,
-            position: { lat, lng },
-            content: img,
-            title: title,
-          });
-
-          return marker;
-        } else {
-          // Fallback para Marker clássico se AdvancedMarkerElement não estiver disponível
-          console.warn('AdvancedMarkerElement não disponível, usando Marker clássico');
-          const marker = new google.maps.Marker({
-            map: mapInstance,
-            position: { lat, lng },
-            title: title,
-            icon: {
-              url: iconSrc,
-              scaledSize: new google.maps.Size(isNew ? 50 : 40, isNew ? 50 : 40),
-            }
-          });
-          return marker;
-        }
-      } catch (error) {
-        console.error('Erro ao criar marcador:', error);
-        return null;
-      }
-    };
-
-    // Adicionar marcadores dos tratores existentes
-    tratoresCadastrados.forEach((trator) => {
-      if (trator.latitude && trator.longitude) {
-        const marker = createMarker(
-          trator.latitude, 
-          trator.longitude, 
-          '/trator-icon.png', 
-          trator.nome
-        );
-        if (marker) {
-          newMarkers.push(marker);
-        }
-      }
-    });
-
-    // Adicionar marcador para nova localização selecionada
-    if (latitude && longitude) {
-      const marker = createMarker(
-        latitude, 
-        longitude, 
-        '/trator-icon.png', 
-        'Nova localização',
-        true
-      );
-      if (marker) {
-        newMarkers.push(marker);
-      }
-    }
-
-    setMarkers(newMarkers);
-  }, [mapInstance, isLoaded, tratoresCadastrados, latitude, longitude]);
-
   // Verificações condicionais após hooks básicos
   if (isLoading) {
     return (
@@ -258,19 +159,6 @@ const AdminAgricultura = () => {
   if (!hasAccess('agricultura')) {
     setLocation("/acesso-negado");
     return null;
-  }
-
-  if (loadError) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">Erro ao carregar Google Maps</p>
-          <Button onClick={() => window.location.reload()}>
-            Tentar Novamente
-          </Button>
-        </div>
-      </div>
-    );
   }
 
   if (!isLoaded) {
@@ -586,20 +474,38 @@ const AdminAgricultura = () => {
                 center={mapCenter}
                 zoom={mapZoom}
                 onClick={handleMapClick}
-                onLoad={(map) => {
-                  setMapLoaded(true);
-                  setMapInstance(map);
-                }}
+                onLoad={() => setMapLoaded(true)}
                 options={{
                   mapTypeId: google.maps.MapTypeId.HYBRID,
                   mapTypeControl: true,
                   streetViewControl: false,
                   fullscreenControl: false,
-                  mapId: "DEMO_MAP_ID", // Necessário para AdvancedMarkerElement
                 }}
               >
-                {/* Marcadores dos tratores existentes serão adicionados via useEffect */}
-                {/* Marcador para a nova localização selecionada será adicionado via useEffect */}
+                {/* Marcadores dos tratores existentes */}
+                {tratoresCadastrados.map((trator) => (
+                  <MarkerF
+                    key={trator.id}
+                    position={{ lat: trator.latitude, lng: trator.longitude }}
+                    icon={{
+                      url: "/trator-icon.png",
+                      scaledSize: new window.google.maps.Size(40, 40),
+                      anchor: new window.google.maps.Point(20, 40),
+                    }}
+                  />
+                ))}
+
+                {/* Marcador para a nova localização selecionada */}
+                {latitude && longitude && (
+                  <MarkerF
+                    position={{ lat: latitude, lng: longitude }}
+                    icon={{
+                      url: "/trator-icon.png",
+                      scaledSize: new window.google.maps.Size(50, 50),
+                      anchor: new window.google.maps.Point(25, 50),
+                    }}
+                  />
+                )}
 
                 {/* Contorno do município */}
                 {showBoundary && (
