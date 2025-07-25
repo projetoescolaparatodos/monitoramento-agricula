@@ -50,6 +50,7 @@ const InfoPanelImageDisplay: React.FC<InfoPanelImageDisplayProps> = ({ content, 
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.style.display = 'none';
+                    console.warn('Falha ao carregar imagem:', url);
                   }}
                 />
               </div>

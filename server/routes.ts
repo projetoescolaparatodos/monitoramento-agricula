@@ -8,7 +8,8 @@ import multer from 'multer';
 const upload = multer({ 
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB
+    fileSize: 50 * 1024 * 1024, // 50MB
+    fieldSize: 50 * 1024 * 1024
   },
 });
 
@@ -126,20 +127,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: true, message: 'Nenhum arquivo enviado' });
       }
 
-      // Importação direta do módulo do Firebase
-      const { getStorage, ref, uploadBytes, getDownloadURL } = require('firebase/storage');
-      const { storage } = require('./storage');
+      // Importação correta usando import dinâmico
+      const { getStorage, ref, uploadBytes, getDownloadURL } = await import('firebase/storage');
+      const { storage } = await import('./storage');
 
       // Criar caminho para o arquivo
       const fileType = req.file.mimetype.split('/')[0]; // 'image' ou 'video'
       const timestamp = Date.now();
-      const path = `uploads/${fileType}/${timestamp}_${req.file.originalname}`;
+      const sanitizedName = req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const path = `uploads/${fileType}/${timestamp}_${sanitizedName}`;
 
       // Criar referência para o arquivo
-      const fileRef = ref(storage, path);
+      const fileRef = ref(storage.storage, path);
 
       // Upload do arquivo para o Firebase Storage
-      await uploadBytes(fileRef, req.file.buffer);
+      await uploadBytes(fileRef, req.file.buffer, {
+        contentType: req.file.mimetype
+      });
 
       // Obter URL de download
       const downloadUrl = await getDownloadURL(fileRef);
