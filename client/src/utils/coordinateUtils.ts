@@ -23,24 +23,62 @@ export function parseDMS(coordinate: string): number | null {
       return parseFloat(cleanCoord);
     }
 
-    // Extrair partes
-    const parts = cleanCoord.split(/[°'"\s]+/);
-    let degrees = parseFloat(parts[0] || '0');
-    let minutes = parts[1] ? parseFloat(parts[1]) : 0;
-    let seconds = parts[2] ? parseFloat(parts[2]) : 0;
-    
-    // Determinar direção
+    // Determinar direção primeiro
     let direction = 1;
-    const lastPart = cleanCoord.toUpperCase();
-    if (lastPart.includes('O') || lastPart.includes('W') || 
-        lastPart.includes('S') || lastPart.includes('SUL') || 
-        lastPart.includes('SOUTH') || lastPart.includes('WEST') ||
-        lastPart.includes('OESTE')) {
+    const upperCoord = cleanCoord.toUpperCase();
+    if (upperCoord.includes('O') || upperCoord.includes('W') || 
+        upperCoord.includes('S') || upperCoord.includes('SUL') || 
+        upperCoord.includes('SOUTH') || upperCoord.includes('WEST') ||
+        upperCoord.includes('OESTE')) {
       direction = -1;
     }
 
-    // Calcular valor decimal
-    return direction * (degrees + (minutes / 60) + (seconds / 3600));
+    // Remover letras direcionais para facilitar o parsing
+    const coordWithoutDirection = cleanCoord.replace(/[NSEWOSUL]/gi, '').trim();
+    
+    // Extrair graus, minutos e segundos usando regex mais precisa
+    const dmsRegex = /(\d+(?:\.\d+)?)°?\s*(\d+(?:\.\d+)?)'?\s*(\d+(?:\.\d+)?)?"?/;
+    const match = coordWithoutDirection.match(dmsRegex);
+    
+    if (match) {
+      const degrees = parseFloat(match[1] || '0');
+      const minutes = parseFloat(match[2] || '0');
+      const seconds = parseFloat(match[3] || '0');
+      
+      // Validar valores
+      if (degrees < 0 || degrees > 180 || minutes < 0 || minutes >= 60 || seconds < 0 || seconds >= 60) {
+        console.error("Valores DMS inválidos:", { degrees, minutes, seconds });
+        return null;
+      }
+      
+      // Calcular valor decimal
+      const decimal = degrees + (minutes / 60) + (seconds / 3600);
+      return direction * decimal;
+    }
+
+    // Tentar parsing alternativo para formatos como "2° 48.104'S"
+    const altRegex = /(\d+(?:\.\d+)?)°?\s*(\d+(?:\.\d+)?)'?/;
+    const altMatch = coordWithoutDirection.match(altRegex);
+    
+    if (altMatch) {
+      const degrees = parseFloat(altMatch[1] || '0');
+      const minutes = parseFloat(altMatch[2] || '0');
+      
+      // Validar valores
+      if (degrees < 0 || degrees > 180 || minutes < 0 || minutes >= 60) {
+        console.error("Valores DM inválidos:", { degrees, minutes });
+        return null;
+      }
+      
+      // Calcular valor decimal
+      const decimal = degrees + (minutes / 60);
+      return direction * decimal;
+    }
+
+    // Se não conseguiu fazer o parsing, retorna null
+    console.error("Não foi possível fazer parsing da coordenada:", coordinate);
+    return null;
+    
   } catch (e) {
     console.error("Erro ao converter coordenada:", coordinate, e);
     return null;
