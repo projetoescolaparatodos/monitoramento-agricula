@@ -225,7 +225,6 @@ const AdminAgricultura = () => {
     try {
       if (
         !nome ||
-        !fazenda ||
         !atividade ||
         !piloto ||
         !latitude ||
@@ -563,12 +562,11 @@ const AdminAgricultura = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="fazenda">Nome do Imóvel Rural</Label>
+                <Label htmlFor="fazenda">Nome do Imóvel Rural (Opcional)</Label>
                 <Input
                   id="fazenda"
                   value={fazenda}
                   onChange={(e) => setFazenda(e.target.value)}
-                  required
                   placeholder="Du Rancho"
                 />
               </div>
@@ -758,7 +756,7 @@ const AdminAgricultura = () => {
                 {tratoresCadastrados.map((trator) => (
                   <tr key={trator.id} className="hover:bg-gray-50">
                     <td className="p-2 border">{trator.nome}</td>
-                    <td className="p-2 border">{trator.fazenda}</td>
+                    <td className="p-2 border">{trator.fazenda || "-"}</td>
                     <td className="p-2 border">{trator.operacao}</td>
                     <td className="p-2 border">{trator.piloto}</td>
                     <td className="p-2 border">{trator.horaMaquina || "-"}</td>
