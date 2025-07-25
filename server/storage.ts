@@ -1,21 +1,35 @@
 import { users, type User, type InsertUser } from "../shared/schema";
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, doc, getDoc, getDocs, addDoc, query, where } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, doc, getDoc, getDocs, addDoc, query, where } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
-export const firebaseConfig = {
-  apiKey: "AIzaSyCAHOYOjHyvoRXkVhuQc_Ld3VrJtmqO1XM",
-  authDomain: "transparencia-agricola.firebaseapp.com",
+const firebaseConfig = {
   projectId: "transparencia-agricola",
+  authDomain: "transparencia-agricola.firebaseapp.com",
   storageBucket: "transparencia-agricola.firebasestorage.app",
-  messagingSenderId: "667594200798",
-  appId: "1:667594200798:web:77966c861af0943825944f",
-  measurementId: "G-335VMCKSLN",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdef123456"
 };
 
+// Inicializar Firebase
 const app = initializeApp(firebaseConfig);
+
+// Inicializar Firestore
 export const db = getFirestore(app);
-export const firebaseStorage = getStorage(app);
+
+// Inicializar Storage
+const firebaseStorage = getStorage(app);
+
+// Implementação do storage para compatibilidade
+export const storage = {
+  storage: firebaseStorage,
+  app
+};
+
+export const storageImplementation = {
+  storage: firebaseStorage,
+  app
+};
 
 // Interface para operações de storage
 export interface IStorage {
@@ -79,7 +93,7 @@ export class FirebaseStorage implements IStorage {
         password: string; 
         isAdmin?: boolean;
       };
-      
+
       return { 
         id: docData.id, 
         username: docData.username, 
@@ -105,7 +119,7 @@ export class FirebaseStorage implements IStorage {
         password: string; 
         isAdmin?: boolean;
       };
-      
+
       return { 
         id: docData.id, 
         username: docData.username, 

@@ -127,9 +127,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: true, message: 'Nenhum arquivo enviado' });
       }
 
-      // Importação correta usando import dinâmico
+      // Importar Firebase Storage functions
       const { getStorage, ref, uploadBytes, getDownloadURL } = await import('firebase/storage');
       const { storage } = await import('./storage');
+
+      // Verificar se o storage está inicializado
+      if (!storage || !storage.storage) {
+        console.error('Firebase Storage não inicializado');
+        return res.status(500).json({ error: true, message: 'Storage não configurado' });
+      }
 
       // Criar caminho para o arquivo
       const fileType = req.file.mimetype.split('/')[0]; // 'image' ou 'video'
@@ -148,7 +154,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Obter URL de download
       const downloadUrl = await getDownloadURL(fileRef);
 
-      res.json({ url: downloadUrl });
+      console.log('Upload successful:', downloadUrl);
+      res.json({ url: downloadUrl, secure_url: downloadUrl });
     } catch (error) {
       console.error('Error uploading file:', error);
       res.status(500).json({ error: true, message: 'Erro ao fazer upload do arquivo' });

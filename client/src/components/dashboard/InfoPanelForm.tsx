@@ -135,11 +135,18 @@ const InfoPanelForm: React.FC<InfoPanelFormProps> = ({
             const quill = quillRef.current?.getEditor();
             if (quill) {
               const range = quill.getSelection();
-              quill.insertEmbed(range?.index || 0, 'image', data.secure_url);
+              // Usar URL diretamente da resposta
+              const imageUrl = data.url || data.secure_url;
+              quill.insertEmbed(range?.index || 0, 'image', imageUrl);
             }
+          } else {
+            const errorData = await response.json();
+            console.error('Erro no upload:', errorData);
+            alert('Erro ao fazer upload da imagem. Tente novamente.');
           }
         } catch (error) {
           console.error('Erro ao fazer upload da imagem:', error);
+          alert('Erro ao processar a imagem. Tente novamente.');
         }
       }
     };
