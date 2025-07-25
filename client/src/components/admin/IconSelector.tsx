@@ -160,7 +160,8 @@ const IconSelector: React.FC<IconSelectorProps> = ({
         <p>Formatos aceitos:</p>
         <ul className="list-disc pl-5 mt-1">
           <li>Decimal: -2.8792, -52.0088</li>
-          <li>Graus e minutos: 2° 52.752'S, 52° 0.528'O</li>
+          <li>Graus e minutos: 2° 52.752&apos;S, 52° 0.528&apos;O</li>
+          <li>Graus, minutos e segundos: 2° 48&apos; 6.25&quot;S, 52° 4&apos; 13.74&quot;O</li>
         </ul>
       </div>
 
