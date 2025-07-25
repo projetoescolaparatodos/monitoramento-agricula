@@ -35,8 +35,9 @@ const AdminAgricultura = () => {
   const { toast } = useToast();
 
   // Google Maps
-  const { isLoaded } = useLoadScript({
+  const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: "AIzaSyC3fPdcovy7a7nQLe9aGBMR2PFY_qZZVZc",
+    libraries: ["marker"], // Garantir que a biblioteca de marcadores seja carregada
   });
 
   // Estados do formulário
@@ -116,7 +117,7 @@ const AdminAgricultura = () => {
 
   // Estado para referência do mapa
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
-  const [markers, setMarkers] = useState<google.maps.marker.AdvancedMarkerElement[]>([]);
+  const [markers, setMarkers] = useState<(google.maps.marker.AdvancedMarkerElement | google.maps.Marker)[]>([]);
 
   // useEffect para buscar dados (sempre executa - não condicional)
   useEffect(() => {
@@ -145,51 +146,93 @@ const AdminAgricultura = () => {
   // useEffect para gerenciar marcadores avançados
   useEffect(() => {
     if (!mapInstance || !isLoaded) return;
+    
+    // Verificar se a API do Google Maps está totalmente carregada
+    if (!window.google || !window.google.maps || !window.google.maps.marker) {
+      console.warn('Google Maps API não está completamente carregada ainda');
+      return;
+    }
 
     // Limpar marcadores existentes
     markers.forEach(marker => {
-      marker.map = null;
+      if (marker && marker.map !== undefined) {
+        marker.map = null;
+      }
     });
     setMarkers([]);
 
     const newMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
 
+    // Função auxiliar para criar marcadores com fallback
+    const createMarker = (lat: number, lng: number, iconSrc: string, title: string, isNew: boolean = false) => {
+      try {
+        // Verificar se AdvancedMarkerElement está disponível
+        if (google.maps.marker && google.maps.marker.AdvancedMarkerElement) {
+          const img = document.createElement('img');
+          img.src = iconSrc;
+          img.style.width = isNew ? '50px' : '40px';
+          img.style.height = isNew ? '50px' : '40px';
+          img.style.cursor = 'pointer';
+          if (isNew) {
+            img.style.border = '2px solid #22c55e';
+            img.style.borderRadius = '50%';
+          }
+
+          const marker = new google.maps.marker.AdvancedMarkerElement({
+            map: mapInstance,
+            position: { lat, lng },
+            content: img,
+            title: title,
+          });
+
+          return marker;
+        } else {
+          // Fallback para Marker clássico se AdvancedMarkerElement não estiver disponível
+          console.warn('AdvancedMarkerElement não disponível, usando Marker clássico');
+          const marker = new google.maps.Marker({
+            map: mapInstance,
+            position: { lat, lng },
+            title: title,
+            icon: {
+              url: iconSrc,
+              scaledSize: new google.maps.Size(isNew ? 50 : 40, isNew ? 50 : 40),
+            }
+          });
+          return marker;
+        }
+      } catch (error) {
+        console.error('Erro ao criar marcador:', error);
+        return null;
+      }
+    };
+
     // Adicionar marcadores dos tratores existentes
     tratoresCadastrados.forEach((trator) => {
-      const img = document.createElement('img');
-      img.src = '/trator-icon.png';
-      img.style.width = '40px';
-      img.style.height = '40px';
-      img.style.cursor = 'pointer';
-
-      const marker = new google.maps.marker.AdvancedMarkerElement({
-        map: mapInstance,
-        position: { lat: trator.latitude, lng: trator.longitude },
-        content: img,
-        title: trator.nome,
-      });
-
-      newMarkers.push(marker);
+      if (trator.latitude && trator.longitude) {
+        const marker = createMarker(
+          trator.latitude, 
+          trator.longitude, 
+          '/trator-icon.png', 
+          trator.nome
+        );
+        if (marker) {
+          newMarkers.push(marker);
+        }
+      }
     });
 
     // Adicionar marcador para nova localização selecionada
     if (latitude && longitude) {
-      const img = document.createElement('img');
-      img.src = '/trator-icon.png';
-      img.style.width = '50px';
-      img.style.height = '50px';
-      img.style.cursor = 'pointer';
-      img.style.border = '2px solid #22c55e';
-      img.style.borderRadius = '50%';
-
-      const marker = new google.maps.marker.AdvancedMarkerElement({
-        map: mapInstance,
-        position: { lat: latitude, lng: longitude },
-        content: img,
-        title: 'Nova localização',
-      });
-
-      newMarkers.push(marker);
+      const marker = createMarker(
+        latitude, 
+        longitude, 
+        '/trator-icon.png', 
+        'Nova localização',
+        true
+      );
+      if (marker) {
+        newMarkers.push(marker);
+      }
     }
 
     setMarkers(newMarkers);
@@ -215,6 +258,19 @@ const AdminAgricultura = () => {
   if (!hasAccess('agricultura')) {
     setLocation("/acesso-negado");
     return null;
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Erro ao carregar Google Maps</p>
+          <Button onClick={() => window.location.reload()}>
+            Tentar Novamente
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   if (!isLoaded) {
