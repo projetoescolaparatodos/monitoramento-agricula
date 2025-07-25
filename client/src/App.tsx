@@ -64,15 +64,15 @@ function Router() {
 
   function ConditionalFooter() {
     const [location] = useLocation();
-  
+
     // Lista de rotas onde o Footer não deve aparecer
     const mapRoutes = ['/agricultura/map', '/pesca/map', '/paa/map'];
-  
+
     // Não renderiza o Footer se a rota atual estiver na lista de mapas
     if (mapRoutes.includes(location)) {
       return null;
     }
-  
+
     return <Footer />;
   }
 
