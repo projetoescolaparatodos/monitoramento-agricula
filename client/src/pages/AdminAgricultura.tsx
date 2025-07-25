@@ -66,6 +66,7 @@ const AdminAgricultura = () => {
   const [tratorEmEdicao, setTratorEmEdicao] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const [agriculturasAtividades, setAgriculturasAtividades] = useState<any[]>([]);
+  const [showAllActivities, setShowAllActivities] = useState(false);
 
   // Estados para controle do contorno municipal
   const [showBoundary, setShowBoundary] = useState(true);
@@ -401,11 +402,16 @@ const AdminAgricultura = () => {
 
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>Lista de Atividades</CardTitle>
+          <CardTitle className="flex justify-between items-center">
+            Lista de Atividades
+            <span className="text-sm font-normal text-gray-500">
+              {agriculturasAtividades.length} atividade{agriculturasAtividades.length !== 1 ? 's' : ''} cadastrada{agriculturasAtividades.length !== 1 ? 's' : ''}
+            </span>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {agriculturasAtividades.map((atividade) => (
+            {(showAllActivities ? agriculturasAtividades : agriculturasAtividades.slice(0, 5)).map((atividade) => (
               <Card key={atividade.id} className="p-4">
                 <div className="flex justify-between items-center">
                   <div>
@@ -435,6 +441,38 @@ const AdminAgricultura = () => {
                 </div>
               </Card>
             ))}
+            
+            {agriculturasAtividades.length > 5 && (
+              <div className="flex justify-center pt-4">
+                <Button
+                  onClick={() => setShowAllActivities(!showAllActivities)}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  {showAllActivities ? (
+                    <>
+                      Ver menos
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                      </svg>
+                    </>
+                  ) : (
+                    <>
+                      Ver mais ({agriculturasAtividades.length - 5} restantes)
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+            
+            {agriculturasAtividades.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                <p>Nenhuma atividade cadastrada ainda.</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
