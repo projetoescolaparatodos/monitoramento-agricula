@@ -15,6 +15,7 @@ import { Loader2, X, CheckCircle, Activity, MapPin, Clock, Calendar, User, HardH
 import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
 import styles from "./AgriculturaMap.module.css";
 
 interface Trator {
@@ -36,10 +37,34 @@ interface Trator {
   tecnicoResponsavel?: string;
 }
 
-const AgriculturaMap = () => {
-  const { isLoaded } = useLoadScript({
+const AgriculturaMapContent = () => {
+  const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: "AIzaSyC3fPdcovy7a7nQLe9aGBMR2PFY_qZZVZc",
   });
+
+  // Tratamento de erro de carregamento do Google Maps
+  if (loadError) {
+    console.error('Erro ao carregar Google Maps:', loadError);
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
+          <div className="text-red-500 text-5xl mb-4">📍</div>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">
+            Erro ao Carregar Mapa
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Não foi possível carregar o Google Maps. Verifique sua conexão e tente novamente.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+          >
+            Tentar Novamente
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const [tratores, setTratores] = useState<Trator[]>([]);
   const [loading, setLoading] = useState(true);
@@ -442,13 +467,27 @@ const AgriculturaMap = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-green-600 mx-auto mb-4" />
+          <p className="text-gray-600">Carregando dados da agricultura...</p>
+        </div>
       </div>
     );
   }
 
-  if (!isLoaded) return <div>Loading...</div>;
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-pulse">
+            <div className="h-12 w-12 bg-green-200 rounded-full mx-auto mb-4"></div>
+          </div>
+          <p className="text-gray-600">Carregando Google Maps...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`${isMobile ? 'pt-0' : 'pt-16'} relative h-screen`}>
@@ -563,6 +602,51 @@ const AgriculturaMap = () => {
         </div>
       </GoogleMap>
     </div>
+  );
+};
+
+const AgriculturaMap = () => {
+  return (
+    <ErrorBoundary
+      onError={(error, errorInfo) => {
+        console.error('Erro específico no AgriculturaMap:', {
+          error: error.message,
+          stack: error.stack,
+          componentStack: errorInfo.componentStack,
+          location: window.location.href,
+          userAgent: navigator.userAgent
+        });
+      }}
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+          <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
+            <div className="text-red-500 text-5xl mb-4">🚜</div>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">
+              Problema no Mapa da Agricultura
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Ocorreu um erro ao carregar o mapa. Isso pode ser um problema temporário.
+            </p>
+            <div className="space-y-3">
+              <button
+                onClick={() => window.location.reload()}
+                className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
+              >
+                🔄 Recarregar Mapa
+              </button>
+              <button
+                onClick={() => window.history.back()}
+                className="w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors"
+              >
+                ← Voltar
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <AgriculturaMapContent />
+    </ErrorBoundary>
   );
 };
 

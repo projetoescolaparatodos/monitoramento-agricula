@@ -5,6 +5,7 @@ import { ChatButton } from "@/components/chat/ChatButton";
 import ChatbotWidget from "@/components/chat/ChatbotWidget";
 import { Toaster } from "@/components/ui/toaster";
 import { queryClient } from "./lib/queryClient";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
 import Home from "@/pages/Home";
 import Report from "@/pages/Report";
 import AgriculturaMap from "@/pages/AgriculturaMap";
@@ -175,11 +176,24 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router />
-      <ChatbotWidget />
-      <Toaster />
-    </QueryClientProvider>
+    <ErrorBoundary
+      onError={(error, errorInfo) => {
+        console.error('Erro global da aplicação:', {
+          error: error.message,
+          stack: error.stack,
+          componentStack: errorInfo.componentStack,
+          timestamp: new Date().toISOString(),
+          url: window.location.href,
+          userAgent: navigator.userAgent
+        });
+      }}
+    >
+      <QueryClientProvider client={queryClient}>
+        <Router />
+        <ChatbotWidget />
+        <Toaster />
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
