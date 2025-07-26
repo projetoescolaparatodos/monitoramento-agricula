@@ -8,7 +8,11 @@ import { MediaItem } from "@/types";
 const HeroSection = React.lazy(() => import("@/components/home/HeroSection"));
 const StatisticsSection = React.lazy(() => import("@/components/home/StatisticsSection"));
 const DataVisualizationSection = React.lazy(() => import("@/components/home/DataVisualizationSection"));
-const MediaGallerySection = React.lazy(() => import("@/components/home/MediaGallerySection"));
+const MediaGallerySection = React.lazy(() => 
+  import("@/components/home/MediaGallerySection").catch(() => ({
+    default: () => <div className="text-center text-gray-500 py-8">Galeria de mídia indisponível</div>
+  }))
+);
 const HomeMediaGallerySection = React.lazy(() => import("@/components/home/HomeMediaGallerySection"));
 const AreasSection = React.lazy(() => import("@/components/home/AreasSection"));
 

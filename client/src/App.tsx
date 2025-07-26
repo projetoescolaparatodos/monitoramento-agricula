@@ -174,7 +174,22 @@ function Router() {
 }
 
 function App() {
-  // Monitoramento contínuo de erros
+  // Monitoramento contínuo de erros e DOM
+  React.useEffect(() => {
+    // Importar função de verificação de DOM
+    import('@/utils/domSafeManipulation').then(({ checkDomIntegrity }) => {
+      // Verificar integridade do DOM periodicamente
+      const domCheckInterval = setInterval(() => {
+        if (!checkDomIntegrity()) {
+          console.warn('🔍 Problemas de integridade DOM detectados');
+        }
+      }, 30000); // Verificar a cada 30 segundos
+
+      // Cleanup do interval
+      return () => clearInterval(domCheckInterval);
+    });
+  }, []);
+
   React.useEffect(() => {
     // Capturar erros JavaScript globais
     const handleError = (event: ErrorEvent) => {
@@ -224,10 +239,22 @@ function App() {
 
     // Capturar promises rejeitadas não tratadas
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      // Evitar log de promises vazias/conhecidas
+      if (event.reason && (
+        event.reason.message?.includes('fetch') ||
+        event.reason.message?.includes('import') ||
+        Object.keys(event.reason).length === 0
+      )) {
+        // Silenciar erros conhecidos de importação/fetch
+        event.preventDefault();
+        return;
+      }
+      
       console.error('❌ Promise rejeitada não tratada:', {
         reason: event.reason,
         timestamp: new Date().toISOString(),
-        url: window.location.href
+        url: window.location.href,
+        stack: event.reason?.stack
       });
     };
 

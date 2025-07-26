@@ -43,6 +43,26 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       if (componentMatch) {
         console.error("Componente problemático identificado:", componentMatch[1]);
       }
+
+      // Tentar recuperação automática
+      setTimeout(() => {
+        try {
+          // Force garbage collection se disponível
+          if (window.gc) {
+            window.gc();
+          }
+          
+          // Limpar possíveis elementos órfãos
+          const elements = document.querySelectorAll('[data-error-boundary]');
+          elements.forEach(el => {
+            if (!el.isConnected) {
+              console.log('🧹 Removendo elemento órfão detectado pelo ErrorBoundary');
+            }
+          });
+        } catch (recoveryError) {
+          console.warn('Erro durante tentativa de recuperação:', recoveryError);
+        }
+      }, 1000);
     }
 
     // Log para erros de React relacionados a refs

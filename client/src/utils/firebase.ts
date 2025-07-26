@@ -27,14 +27,16 @@ console.log('✅ Firebase app inicializada:', app.name);
 const db = getFirestore(app);
 console.log('✅ Firestore inicializado para projeto:', db.app.options.projectId);
 
-// Habilitar persistência offline
-enableMultiTabIndexedDbPersistence(db).catch((err) => {
+// Habilitar persistência offline com nova API
+try {
+  enableMultiTabIndexedDbPersistence(db);
+} catch (err: any) {
   if (err.code === 'failed-precondition') {
-    console.warn('Persistência offline não pôde ser habilitada: múltiplas abas abertas');
+    console.warn('Múltiplas abas abertas, persistência desabilitada');
   } else if (err.code === 'unimplemented') {
-    console.warn('Persistência offline não é suportada neste navegador');
+    console.warn('Persistência não suportada neste navegador');
   }
-});
+}
 
 // Inicializar o Storage
 const storage = getStorage(app);
@@ -46,20 +48,20 @@ export const withRetry = async <T>(
   delay: number = 1000
 ): Promise<T> => {
   let lastError: Error;
-  
+
   for (let i = 0; i < maxRetries; i++) {
     try {
       return await operation();
     } catch (error: any) {
       lastError = error;
       console.warn(`Tentativa ${i + 1} falhou:`, error.message);
-      
+
       if (i < maxRetries - 1) {
         await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i)));
       }
     }
   }
-  
+
   throw lastError!;
 };
 

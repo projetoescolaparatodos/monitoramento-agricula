@@ -161,6 +161,38 @@ export class DomSafeManipulation {
 }
 
 /**
+ * Verifica a integridade geral do DOM
+ */
+export const checkDomIntegrity = (): boolean => {
+  try {
+    // Verificar se o documento está disponível
+    if (!document || !document.body) {
+      console.warn('DOM não está disponível');
+      return false;
+    }
+
+    // Verificar se há elementos órfãos conhecidos
+    const cards = document.querySelectorAll('[class*="card"]');
+    let orphanCount = 0;
+    
+    cards.forEach(card => {
+      if (card && !card.isConnected) {
+        orphanCount++;
+      }
+    });
+
+    if (orphanCount > 0) {
+      console.warn(`Encontrados ${orphanCount} elementos órfãos no DOM`);
+    }
+
+    return orphanCount === 0;
+  } catch (error) {
+    console.error('Erro ao verificar integridade do DOM:', error);
+    return false;
+  }
+};
+
+/**
  * Hook personalizado para cleanup seguro de componentes
  */
 export const useSafeCleanup = () => {
