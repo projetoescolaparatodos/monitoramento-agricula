@@ -1,195 +1,362 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Text } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/utils/firebase';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
-import { useSafeCleanup } from '@/utils/domSafeManipulation';
 
-const FormAgricultura: React.FC = () => {
-  const [isMounted, setIsMounted] = useState(false);
+interface ChatContext {
+  ultimasMensagens: Array<{text: string, isUser: boolean, timestamp: Date}>;
+  setor: string;
+  userLocation: {latitude: number, longitude: number} | null;
+}
+
+const FormAgricultura = () => {
+  const [activeStep, setActiveStep] = useState(0);
+  const [formData, setFormData] = useState({
+    // Dados pessoais
+    nome: '',
+    cpf: '',
+    telefone: '',
+    email: '',
+    // Dados da propriedade
+    nomePropriedade: '',
+    endereco: '',
+    tamanho: '',
+    // Serviço solicitado
+    servico: '',
+    descricao: '',
+    urgencia: 'normal',
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { addCleanup, executeCleanup, isMounted: isSafelyMounted } = useSafeCleanup();
+  const [submitted, setSubmitted] = useState(false);
+  const [chatContext, setChatContext] = useState<ChatContext | null>(null);
 
   useEffect(() => {
-    setIsMounted(true);
+    // Recuperar contexto do chat, se disponível
+    const storedContext = localStorage.getItem('chatContext');
+    if (storedContext) {
+      try {
+        const parsedContext = JSON.parse(storedContext) as ChatContext;
+        setChatContext(parsedContext);
 
-    // Registrar função de limpeza
-    addCleanup(() => {
-      console.log('🧹 Limpeza do FormAgricultura executada');
-    });
-
-    return () => {
-      // Limpeza segura com atraso para evitar conflitos de DOM
-      setTimeout(() => {
-        if (isSafelyMounted()) {
-          executeCleanup();
+        // Pré-preencher dados do formulário se tiver informações parciais
+        if (parsedContext.ultimasMensagens) {
+          // Aqui poderia ter lógica para extrair informações das mensagens
+          // Por enquanto, apenas registramos que temos o contexto
+          console.log('Contexto do chat recuperado:', parsedContext);
         }
-        setIsMounted(false);
-      }, 100);
-    };
-  }, [addCleanup, executeCleanup, isSafelyMounted]);
-
-  // Função de submit segura
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!isMounted || !isSafelyMounted() || isSubmitting) {
-      console.warn('FormAgricultura: Submit cancelado - componente não está em estado seguro');
-      return;
+      } catch (error) {
+        console.error('Erro ao carregar contexto do chat:', error);
+      }
     }
+  }, []);
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const nextStep = () => {
+    setActiveStep(prev => prev + 1);
+  };
+
+  const prevStep = () => {
+    setActiveStep(prev => prev - 1);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      // Sua lógica de submit aqui
-      console.log('📝 Processando formulário de agricultura...');
+      // Adicionar dados ao Firebase
+      await addDoc(collection(db, 'solicitacoes_agricultura'), {
+        ...formData,
+        userLocation: chatContext?.userLocation || null,
+        timestamp: serverTimestamp(),
+        status: 'pendente',
+        origem: 'formulario_web'
+      });
 
-      // Simular processamento
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      console.log('✅ Formulário processado com sucesso');
+      setSubmitted(true);
+      // Limpar contexto após envio bem-sucedido
+      localStorage.removeItem('chatContext');
     } catch (error) {
-      console.error('❌ Erro no submit do formulário:', error);
+      console.error('Erro ao enviar formulário:', error);
+      alert('Erro ao enviar solicitação. Por favor, tente novamente.');
     } finally {
-      if (isSafelyMounted()) {
-        setIsSubmitting(false);
-      }
+      setIsSubmitting(false);
     }
-  }, [isMounted, isSafelyMounted, isSubmitting]);
+  };
 
-  // Renderização condicional segura
-  if (!isMounted) {
+  if (submitted) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Carregando formulário...</div>
+      <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="bg-green-50">
+            <CardTitle className="text-green-800">Solicitação Enviada!</CardTitle>
+            <CardDescription>Sua solicitação foi registrada com sucesso.</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <p className="text-center mb-4">
+              Um técnico entrará em contato em breve para agendar o atendimento.
+            </p>
+            <p className="text-center text-sm text-gray-500">
+              Número de protocolo: {Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}
+            </p>
+          </CardContent>
+          <CardFooter className="flex justify-center">
+            <Button onClick={() => window.close()} variant="outline" className="mr-2">
+              Fechar
+            </Button>
+            <Button onClick={() => {
+              setSubmitted(false);
+              setFormData({
+                nome: '',
+                cpf: '',
+                telefone: '',
+                email: '',
+                nomePropriedade: '',
+                endereco: '',
+                tamanho: '',
+                servico: '',
+                descricao: '',
+                urgencia: 'normal',
+              });
+              setActiveStep(0);
+            }}>
+              Nova Solicitação
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
     );
   }
 
+  const renderStep = () => {
+    switch (activeStep) {
+      case 0:
+        return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="nome">Nome Completo</Label>
+              <Input
+                id="nome"
+                name="nome"
+                value={formData.nome}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="cpf">CPF</Label>
+              <Input
+                id="cpf"
+                name="cpf"
+                value={formData.cpf}
+                onChange={handleChange}
+                placeholder="000.000.000-00"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="telefone">Telefone</Label>
+              <Input
+                id="telefone"
+                name="telefone"
+                value={formData.telefone}
+                onChange={handleChange}
+                placeholder="(00) 00000-0000"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">E-mail (opcional)</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+        );
+      case 1:
+        return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="nomePropriedade">Nome da Propriedade</Label>
+              <Input
+                id="nomePropriedade"
+                name="nomePropriedade"
+                value={formData.nomePropriedade}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="endereco">Endereço da Propriedade</Label>
+              <Input
+                id="endereco"
+                name="endereco"
+                value={formData.endereco}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="tamanho">Tamanho da Propriedade (hectares)</Label>
+              <Input
+                id="tamanho"
+                name="tamanho"
+                type="number"
+                value={formData.tamanho}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            {chatContext?.userLocation && (
+              <div className="bg-green-50 p-3 rounded-lg mt-4">
+                <p className="text-sm text-green-800 font-medium">Localização compartilhada pelo chat:</p>
+                <p className="text-xs text-gray-600">
+                  Latitude: {chatContext.userLocation.latitude.toFixed(6)}, 
+                  Longitude: {chatContext.userLocation.longitude.toFixed(6)}
+                </p>
+              </div>
+            )}
+          </div>
+        );
+      case 2:
+        return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="servico">Serviço Solicitado</Label>
+              <select
+                id="servico"
+                name="servico"
+                value={formData.servico}
+                onChange={handleChange as any}
+                className="w-full p-2 border rounded-md"
+                required
+              >
+                <option value="">Selecione um serviço</option>
+                <option value="Assistência técnica">Assistência técnica</option>
+                <option value="Mecanização agrícola">Mecanização agrícola</option>
+                <option value="Análise de solo">Análise de solo</option>
+                <option value="Distribuição de mudas">Distribuição de mudas</option>
+                <option value="Capacitação">Capacitação</option>
+                <option value="Outro">Outro serviço</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="descricao">Descrição da Solicitação</Label>
+              <Textarea
+                id="descricao"
+                name="descricao"
+                value={formData.descricao}
+                onChange={handleChange}
+                rows={4}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="urgencia">Nível de Urgência</Label>
+              <select
+                id="urgencia"
+                name="urgencia"
+                value={formData.urgencia}
+                onChange={handleChange as any}
+                className="w-full p-2 border rounded-md"
+              >
+                <option value="baixa">Baixa</option>
+                <option value="normal">Normal</option>
+                <option value="alta">Alta</option>
+                <option value="urgente">Urgente</option>
+              </select>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
-    <ErrorBoundary 
-      fallback={
-        <div className="p-4 bg-red-50 text-red-700 rounded-lg shadow-md max-w-md mx-auto mt-8">
-          <h3 className="font-bold mb-2">Erro no Formulário</h3>
-          <p>O formulário encontrou um erro. Por favor, recarregue a página.</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+    <ErrorBoundary fallback={<div className="p-4 text-center">Erro ao carregar o formulário de agricultura</div>}>
+      <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4 relative">
+        {/* Botão para voltar ao portal */}
+        <div className="fixed bottom-6 left-6 z-20">
+          <Button 
+            onClick={() => window.location.href = '/'} 
+            className="rounded-full w-12 h-12 bg-green-600 hover:bg-green-700 text-white shadow-lg flex items-center justify-center"
+            title="Voltar ao Portal"
           >
-            Recarregar Página
-          </button>
+            <ArrowLeft size={20} />
+          </Button>
         </div>
-      }
-      onError={(error, errorInfo) => {
-        console.error('🔥 ErrorBoundary - Erro capturado no FormAgricultura:', {
-          error: error.message,
-          stack: error.stack,
-          componentStack: errorInfo.componentStack,
-          timestamp: new Date().toISOString()
-        });
-      }}
-    >
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4">
-          <Card 
-            className="shadow-lg"
-            onUnmount={() => {
-              console.log('🔄 Card do FormAgricultura sendo desmontado');
-            }}
-          >
-            <CardHeader>
-              <CardTitle className="text-green-700 text-center">
-                Formulário de Agricultura
-              </CardTitle>
-            </CardHeader>
-
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <Text variant="lead" className="text-center text-gray-600">
-                  Sistema de Cadastro Agrícola - SEMAPA
-                </Text>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nome do Produtor
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                      placeholder="Digite o nome completo"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      CPF
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                      placeholder="000.000.000-00"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Área Plantada (ha)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                      placeholder="0.00"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Cultura Principal
-                    </label>
-                    <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                      <option value="">Selecione a cultura</option>
-                      <option value="milho">Milho</option>
-                      <option value="soja">Soja</option>
-                      <option value="cacau">Cacau</option>
-                      <option value="banana">Banana</option>
-                      <option value="outros">Outros</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Observações
-                  </label>
-                  <textarea
-                    rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="Informações adicionais sobre a propriedade..."
-                  />
-                </div>
-
-                <div className="flex justify-center space-x-4">
-                  <button
-                    type="button"
-                    onClick={() => window.history.back()}
-                    className="px-6 py-3 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
-                    disabled={isSubmitting}
+        <Card className="w-full max-w-md">
+          <CardHeader className="bg-green-50">
+            <CardTitle className="text-green-800">Solicitação de Serviço Agrícola</CardTitle>
+            <CardDescription>
+              {activeStep === 0 && "Preencha seus dados pessoais"}
+              {activeStep === 1 && "Informe os dados da propriedade"}
+              {activeStep === 2 && "Detalhe o serviço solicitado"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="mb-6">
+              <div className="flex justify-between mb-2">
+                {[0, 1, 2].map((step) => (
+                  <div 
+                    key={step}
+                    className={`flex items-center justify-center w-8 h-8 rounded-full border-2 
+                      ${activeStep >= step 
+                        ? 'bg-green-100 border-green-500 text-green-700' 
+                        : 'bg-gray-100 border-gray-300 text-gray-400'
+                      }`}
                   >
-                    Voltar
-                  </button>
+                    {step + 1}
+                  </div>
+                ))}
+              </div>
+              <div className="relative w-full h-1 bg-gray-200">
+                <div 
+                  className="absolute top-0 left-0 h-full bg-green-500 transition-all" 
+                  style={{ width: `${(activeStep / 2) * 100}%` }}
+                />
+              </div>
+            </div>
 
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSubmitting ? 'Processando...' : 'Cadastrar'}
-                  </button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
+            <form onSubmit={handleSubmit}>
+              {renderStep()}
+            </form>
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            {activeStep > 0 && (
+              <Button onClick={prevStep} variant="outline" disabled={isSubmitting}>
+                Anterior
+              </Button>
+            )}
+            {activeStep < 2 ? (
+              <Button onClick={nextStep} className="ml-auto">
+                Próximo
+              </Button>
+            ) : (
+              <Button onClick={handleSubmit} disabled={isSubmitting} className="ml-auto">
+                {isSubmitting ? "Enviando..." : "Concluir Solicitação"}
+              </Button>
+            )}
+          </CardFooter>
+        </Card>
       </div>
     </ErrorBoundary>
   );

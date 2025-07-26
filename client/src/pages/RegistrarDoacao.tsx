@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { db } from '@/utils/firebase';
@@ -35,7 +36,7 @@ const RegistrarDoacao: React.FC = () => {
   const authLoading = false;
   const { toast } = useToast();
   const { isOnline, isConnected } = useFirebaseStatus();
-
+  
   // Ref para controlar se o componente está montado
   const isMountedRef = useRef(true);
 
@@ -104,7 +105,7 @@ const RegistrarDoacao: React.FC = () => {
       } catch (error) {
         console.error('❌ Erro ao buscar dados:', error);
         if (!isMountedRef.current) return;
-
+        
         setLoading(false);
 
         let errorMessage = "Falha ao carregar eventos e insumos. Tente recarregar a página.";
@@ -115,19 +116,12 @@ const RegistrarDoacao: React.FC = () => {
           errorMessage = "Serviço temporariamente indisponível. Tente novamente em alguns momentos.";
         }
 
-        // Toast de erro com cleanup seguro
-        try {
-          toast({
-            title: "Erro",
-            description: errorMessage,
-            variant: "destructive",
-            duration: 5000
-          });
-        } catch (toastError) {
-          console.warn('Erro ao exibir toast de erro:', toastError);
-          // Fallback: log do erro sem toast
-          console.error('Erro na operação:', errorMessage);
-        }
+        toast({
+          title: "Erro",
+          description: errorMessage,
+          variant: "destructive",
+          duration: 5000
+        });
       }
     };
 

@@ -8,11 +8,7 @@ import { MediaItem } from "@/types";
 const HeroSection = React.lazy(() => import("@/components/home/HeroSection"));
 const StatisticsSection = React.lazy(() => import("@/components/home/StatisticsSection"));
 const DataVisualizationSection = React.lazy(() => import("@/components/home/DataVisualizationSection"));
-const MediaGallerySection = React.lazy(() => 
-  import("@/components/home/MediaGallerySection").catch(() => ({
-    default: () => <div className="text-center text-gray-500 py-8">Galeria de mídia indisponível</div>
-  }))
-);
+const MediaGallerySection = React.lazy(() => import("@/components/home/MediaGallerySection"));
 const HomeMediaGallerySection = React.lazy(() => import("@/components/home/HomeMediaGallerySection"));
 const AreasSection = React.lazy(() => import("@/components/home/AreasSection"));
 
@@ -28,15 +24,10 @@ const Home = () => {
   const [, setLocation] = useLocation();
 
   // Buscar mídias da página home com staleTime para cache
-  const { data: allMediaItems, isLoading: isLoadingMedia, error } = useQuery<MediaItem[]>({
+  const { data: allMediaItems, isLoading: isLoadingMedia } = useQuery<MediaItem[]>({
     queryKey: ['/api/media-items'],
     staleTime: 5 * 60 * 1000, // 5 minutos de cache
     gcTime: 10 * 60 * 1000, // 10 minutos no garbage collector
-    retry: 2,
-    retryDelay: 1000,
-    onError: (error) => {
-      console.warn('Erro ao carregar mídias da home:', error);
-    }
   });
 
   // Memoizar filtro de mídias para evitar recálculos
