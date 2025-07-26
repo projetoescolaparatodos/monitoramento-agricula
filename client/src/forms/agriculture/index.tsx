@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Text } from '@/components/ui/card';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { useSafeCleanup } from '@/utils/domSafeManipulation';

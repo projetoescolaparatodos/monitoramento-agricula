@@ -1,4 +1,3 @@
-
 export interface PerformanceMetrics {
   memoryUsage: number;
   domElements: number;
@@ -22,16 +21,16 @@ class PerformanceMonitor {
     // Monitorar promises rejeitadas com mais detalhes
     window.addEventListener('unhandledrejection', (event) => {
       this.metrics.promiseRejections++;
-      
+
       // Tentar identificar a origem
       const stack = event.reason?.stack || new Error().stack;
       const source = this.extractSourceFromStack(stack);
-      
+
       if (source && !this.rejectionSources.includes(source)) {
         this.rejectionSources.push(source);
         console.warn('📊 Nova fonte de promise rejeitada:', source);
       }
-      
+
       // Silenciar objetos vazios automaticamente
       if (this.isEmptyObject(event.reason)) {
         event.preventDefault();
@@ -55,7 +54,7 @@ class PerformanceMonitor {
 
   private extractSourceFromStack(stack?: string): string | null {
     if (!stack) return null;
-    
+
     const lines = stack.split('\n');
     for (const line of lines) {
       if (line.includes('client/src/')) {
@@ -86,15 +85,41 @@ class PerformanceMonitor {
   }
 
   private logMetricsIfNecessary(): void {
-    const memoryMB = Math.round(this.metrics.memoryUsage / 1024 / 1024);
-    
-    if (memoryMB > 100 || this.metrics.domElements > 1000 || this.metrics.promiseRejections > 10) {
-      console.warn('📊 Métricas de performance:', {
-        memoryUsage: `${memoryMB}MB`,
-        domElements: this.metrics.domElements,
+    try {
+      const memoryInfo = (performance as any).memory;
+      const memoryUsage = memoryInfo ? 
+        Math.round(memoryInfo.usedJSHeapSize / 1024 / 1024) + 'MB' : 
+        'N/A';
+
+      const domElements = document.querySelectorAll('*').length;
+      const formElements = document.querySelectorAll('form').length;
+      const cardElements = document.querySelectorAll('[class*="card"]').length;
+      const orphanElements = Array.from(document.querySelectorAll('*')).filter(el => !el.isConnected).length;
+
+      console.log('📊 Métricas de performance:', {
+        memoryUsage,
+        domElements,
+        formElements,
+        cardElements,
+        orphanElements,
         promiseRejections: this.metrics.promiseRejections,
-        rejectionSources: this.rejectionSources
+        rejectionSources: this.rejectionSources.slice(-3)
       });
+
+      // Alertas específicos
+      if (orphanElements > 5) {
+        console.warn('⚠️ Muitos elementos órfãos detectados:', orphanElements);
+      }
+
+      if (formElements > 3) {
+        console.warn('⚠️ Muitos formulários ativos:', formElements);
+      }
+
+      // Reset counters
+      this.metrics.promiseRejections = 0;
+      this.rejectionSources = [];
+    } catch (error) {
+      console.warn('Erro ao coletar métricas:', error);
     }
   }
 
