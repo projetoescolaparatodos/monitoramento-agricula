@@ -1,3 +1,4 @@
+
 import { Switch, Route, useLocation } from "wouter";
 import React, { Suspense, lazy } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -253,28 +254,47 @@ function App() {
       }
     };
 
-    // Capturar promises rejeitadas não tratadas
+    // Capturar promises rejeitadas não tratadas com filtro melhorado
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      // Evitar log de promises vazias/conhecidas
-      if (!event.reason || 
-          Object.keys(event.reason).length === 0 ||
-          event.reason.message?.includes('fetch') ||
-          event.reason.message?.includes('import') ||
-          event.reason.message?.includes('Loading chunk') ||
-          event.reason.message?.includes('vite') ||
-          typeof event.reason === 'object' && !event.reason.message && !event.reason.stack) {
-        // Silenciar erros conhecidos de importação/fetch/vite
+      const reason = event.reason;
+      
+      // Lista expandida de erros para silenciar
+      const shouldSilence = (
+        !reason || 
+        (typeof reason === 'object' && Object.keys(reason).length === 0) ||
+        (typeof reason === 'string' && reason.trim() === '') ||
+        (reason.message && (
+          reason.message.includes('fetch') ||
+          reason.message.includes('import') ||
+          reason.message.includes('Loading chunk') ||
+          reason.message.includes('vite') ||
+          reason.message.includes('Failed to import') ||
+          reason.message.includes('network') ||
+          reason.message.toLowerCase().includes('loading')
+        )) ||
+        (reason.name && (
+          reason.name === 'ChunkLoadError' ||
+          reason.name === 'NetworkError' ||
+          reason.name === 'AbortError'
+        ))
+      );
+
+      if (shouldSilence) {
+        // Silenciar completamente esses erros
         event.preventDefault();
         return;
       }
       
-      console.error('❌ Promise rejeitada não tratada:', {
-        reason: event.reason,
-        reasonType: typeof event.reason,
-        reasonKeys: Object.keys(event.reason || {}),
+      // Log apenas erros realmente relevantes
+      console.error('❌ Promise rejeitada (relevante):', {
+        reason: reason,
+        reasonType: typeof reason,
+        reasonKeys: reason && typeof reason === 'object' ? Object.keys(reason) : [],
+        message: reason?.message || 'No message',
+        stack: reason?.stack || 'No stack',
+        name: reason?.name || 'No name',
         timestamp: new Date().toISOString(),
-        url: window.location.href,
-        stack: event.reason?.stack
+        url: window.location.href
       });
     };
 
