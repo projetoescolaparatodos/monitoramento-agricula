@@ -2,6 +2,7 @@ import * as React from "react"
 import { useEffect, useRef } from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
+import { DomSafeManipulation, useSafeCleanup } from "@/utils/domSafeManipulation"
 
 const cardVariants = cva(
   "rounded-lg border shadow-sm",
@@ -25,108 +26,178 @@ export interface CardProps
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ className, children, ...props }, ref) => {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const isMountedRef = useRef(true);
+>(({ className, ...props }, ref) => {
+  const { addCleanup } = useSafeCleanup();
+  const cardRef = React.useRef<HTMLDivElement>(null);
 
-  // Adicionar limpeza segura
-  useEffect(() => {
-    isMountedRef.current = true;
+  // Combinar refs de forma segura
+  React.useImperativeHandle(ref, () => cardRef.current!);
 
-    return () => {
-      isMountedRef.current = false;
-      // Evitar manipulação direta do DOM após desmontagem
-      if (cardRef.current && cardRef.current.parentNode) {
-        // Nenhuma manipulação direta necessária - React cuida disso
+  React.useEffect(() => {
+    const element = cardRef.current;
+
+    // Adicionar cleanup seguro
+    addCleanup(() => {
+      if (element && DomSafeManipulation.elementExists(element)) {
+        // Limpeza segura se necessário
       }
-    };
-  }, []);
-
-  const combinedRef = React.useCallback((node: HTMLDivElement) => {
-    cardRef.current = node;
-    if (typeof ref === 'function') {
-      ref(node);
-    } else if (ref) {
-      ref.current = node;
-    }
-  }, [ref]);
+    });
+  }, [addCleanup]);
 
   return (
     <div
-      ref={combinedRef}
+      ref={cardRef}
       className={cn(
         "rounded-lg border bg-card text-card-foreground shadow-sm",
         className
       )}
       {...props}
-    >
-      {children}
-    </div>
+    />
   );
-})
+});
 Card.displayName = "Card"
 
 const CardHeader = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("flex flex-col space-y-1.5 p-6", className)}
-    {...props}
-  />
-))
+>(({ className, ...props }, ref) => {
+  const { addCleanup } = useSafeCleanup();
+  const headerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useImperativeHandle(ref, () => headerRef.current!);
+
+  React.useEffect(() => {
+    const element = headerRef.current;
+    addCleanup(() => {
+      if (element && DomSafeManipulation.elementExists(element)) {
+        // Limpeza segura se necessário
+      }
+    });
+  }, [addCleanup]);
+
+  return (
+    <div
+      ref={headerRef}
+      className={cn("flex flex-col space-y-1.5 p-6", className)}
+      {...props}
+    />
+  );
+});
 CardHeader.displayName = "CardHeader"
 
 const CardTitle = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLHeadingElement>
->(({ className, ...props }, ref) => (
-  <h3
-    ref={ref}
-    className={cn("text-2xl font-semibold leading-none tracking-tight", className)}
-    {...props}
-  />
-))
+>(({ className, ...props }, ref) => {
+  const { addCleanup } = useSafeCleanup();
+  const titleRef = React.useRef<HTMLHeadingElement>(null);
+
+  React.useImperativeHandle(ref, () => titleRef.current!);
+
+  React.useEffect(() => {
+    const element = titleRef.current;
+    addCleanup(() => {
+      if (element && DomSafeManipulation.elementExists(element)) {
+        // Limpeza segura se necessário
+      }
+    });
+  }, [addCleanup]);
+
+  return (
+    <h3
+      ref={titleRef}
+      className={cn(
+        "text-2xl font-semibold leading-none tracking-tight",
+        className
+      )}
+      {...props}
+    />
+  );
+});
 CardTitle.displayName = "CardTitle"
 
 const CardDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
->(({ className, ...props }, ref) => (
-  <p
-    ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
-    {...props}
-  />
-))
+>(({ className, ...props }, ref) => {
+  const { addCleanup } = useSafeCleanup();
+  const descRef = React.useRef<HTMLParagraphElement>(null);
+
+  React.useImperativeHandle(ref, () => descRef.current!);
+
+  React.useEffect(() => {
+    const element = descRef.current;
+    addCleanup(() => {
+      if (element && DomSafeManipulation.elementExists(element)) {
+        // Limpeza segura se necessário
+      }
+    });
+  }, [addCleanup]);
+
+  return (
+    <p
+      ref={descRef}
+      className={cn("text-sm text-muted-foreground", className)}
+      {...props}
+    />
+  );
+});
 CardDescription.displayName = "CardDescription"
 
 const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
-))
+>(({ className, ...props }, ref) => {
+  const { addCleanup } = useSafeCleanup();
+  const contentRef = React.useRef<HTMLDivElement>(null);
+
+  React.useImperativeHandle(ref, () => contentRef.current!);
+
+  React.useEffect(() => {
+    const element = contentRef.current;
+    addCleanup(() => {
+      if (element && DomSafeManipulation.elementExists(element)) {
+        // Limpeza segura se necessário
+      }
+    });
+  }, [addCleanup]);
+
+  return (
+    <div 
+      ref={contentRef} 
+      className={cn("p-6 pt-0", className)} 
+      {...props} 
+    />
+  );
+});
 CardContent.displayName = "CardContent"
 
 const CardFooter = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("flex items-center p-6 pt-0", className)}
-    {...props}
-  />
-))
+>(({ className, ...props }, ref) => {
+  const { addCleanup } = useSafeCleanup();
+  const footerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useImperativeHandle(ref, () => footerRef.current!);
+
+  React.useEffect(() => {
+    const element = footerRef.current;
+    addCleanup(() => {
+      if (element && DomSafeManipulation.elementExists(element)) {
+        // Limpeza segura se necessário
+      }
+    });
+  }, [addCleanup]);
+
+  return (
+    <div
+      ref={footerRef}
+      className={cn("flex items-center p-6 pt-0", className)}
+      {...props}
+    />
+  );
+});
 CardFooter.displayName = "CardFooter"
 
-export {
-  Card,
-  CardHeader,
-  CardFooter,
-  CardTitle,
-  CardDescription,
-  CardContent
-}
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }

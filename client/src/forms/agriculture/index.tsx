@@ -73,7 +73,7 @@ const FormAgricultura = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     if (!isMountedRef.current) return;
-    
+
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -95,10 +95,10 @@ const FormAgricultura = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Verificar se o componente ainda está montado
     if (!isMountedRef.current) return;
-    
+
     setIsSubmitting(true);
 
     try {

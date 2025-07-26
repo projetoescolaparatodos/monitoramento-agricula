@@ -3,6 +3,72 @@ import React from 'react';
 
 export class DomSafeManipulation {
   /**
+   * Verifica se um nó é filho de um parent de forma segura
+   */
+  static isChildOf(parent: Node | null, child: Node | null): boolean {
+    try {
+      if (!parent || !child) return false;
+      return parent.contains(child);
+    } catch (error) {
+      console.warn('Erro ao verificar relação parent-child:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Remove um elemento do DOM apenas se ele estiver conectado
+   */
+  static safeRemoveIfConnected(element: Element | null): boolean {
+    try {
+      if (!element) return false;
+      
+      // Verificar se o elemento está conectado ao DOM
+      if (!element.isConnected) {
+        console.warn('Elemento não está conectado ao DOM');
+        return false;
+      }
+
+      // Verificar se tem parent
+      if (!element.parentNode) {
+        console.warn('Elemento não tem parentNode');
+        return false;
+      }
+
+      return this.safeRemoveChild(element.parentNode, element);
+    } catch (error) {
+      console.error('Erro ao remover elemento conectado:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Adiciona um observer para mudanças no DOM de forma segura
+   */
+  static createSafeMutationObserver(
+    callback: MutationCallback,
+    options: MutationObserverInit = {}
+  ): MutationObserver | null {
+    try {
+      if (!window.MutationObserver) {
+        console.warn('MutationObserver não está disponível');
+        return null;
+      }
+
+      const observer = new MutationObserver((mutations, obs) => {
+        try {
+          callback(mutations, obs);
+        } catch (error) {
+          console.error('Erro no callback do MutationObserver:', error);
+        }
+      });
+
+      return observer;
+    } catch (error) {
+      console.error('Erro ao criar MutationObserver:', error);
+      return null;
+    }
+  }
+  /**
    * Remove um elemento do DOM de forma segura
    */
   static safeRemoveChild(parent: Node | null, child: Node | null): boolean {
@@ -99,24 +165,38 @@ export class DomSafeManipulation {
  */
 export const useSafeCleanup = () => {
   const cleanupFunctions = React.useRef<(() => void)[]>([]);
+  const isMountedRef = React.useRef(true);
 
   const addCleanup = React.useCallback((fn: () => void) => {
-    cleanupFunctions.current.push(fn);
+    if (isMountedRef.current) {
+      cleanupFunctions.current.push(fn);
+    }
+  }, []);
+
+  const executeCleanup = React.useCallback(() => {
+    if (!isMountedRef.current) return;
+    
+    // Executar todas as funções de cleanup de forma segura
+    cleanupFunctions.current.forEach((fn, index) => {
+      try {
+        fn();
+      } catch (error) {
+        console.warn(`Erro durante cleanup da função ${index}:`, error);
+      }
+    });
+    cleanupFunctions.current = [];
   }, []);
 
   React.useEffect(() => {
     return () => {
-      // Executar todas as funções de cleanup de forma segura
-      cleanupFunctions.current.forEach(fn => {
-        try {
-          fn();
-        } catch (error) {
-          console.warn('Erro durante cleanup:', error);
-        }
-      });
-      cleanupFunctions.current = [];
+      isMountedRef.current = false;
+      executeCleanup();
     };
-  }, []);
+  }, [executeCleanup]);
 
-  return { addCleanup };
+  return { 
+    addCleanup, 
+    executeCleanup,
+    isMounted: () => isMountedRef.current 
+  };
 };

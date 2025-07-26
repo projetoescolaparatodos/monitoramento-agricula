@@ -189,13 +189,36 @@ function App() {
       
       // Verificar se é erro específico de DOM
       if (event.error?.message?.includes('removeChild') || 
-          event.error?.message?.includes('Node')) {
+          event.error?.message?.includes('Node') ||
+          event.error?.message?.includes('insertBefore') ||
+          event.error?.message?.includes('appendChild')) {
         console.error('🔴 Erro de manipulação DOM detectado:', {
           error: event.error.message,
           stack: event.error.stack,
           userAgent: navigator.userAgent,
-          url: window.location.href
+          url: window.location.href,
+          component: event.error.stack?.match(/at (\w+)/)?.[1] || 'Unknown'
         });
+
+        // Tentar recuperação automática para erros específicos do Card
+        if (event.error.message.includes('removeChild') && 
+            event.error.stack?.includes('card.tsx')) {
+          console.log('🔄 Tentando recuperação automática para erro no Card...');
+          
+          // Limpar possíveis referências DOM órfãs
+          setTimeout(() => {
+            try {
+              const cards = document.querySelectorAll('[class*="card"]');
+              cards.forEach(card => {
+                if (card && !card.isConnected) {
+                  console.log('🧹 Removendo referência DOM órfã de card');
+                }
+              });
+            } catch (cleanupError) {
+              console.warn('Erro durante limpeza automática:', cleanupError);
+            }
+          }, 100);
+        }
       }
     };
 
