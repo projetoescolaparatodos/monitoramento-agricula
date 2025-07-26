@@ -1,0 +1,130 @@
+Análise e Solução para o Erro "Failed to execute 'removeChild' on 'Node'"
+Este erro ocorre quando o React tenta remover um elemento DOM que já foi removido ou não pertence mais ao componente pai. Vamos entender e resolver o problema:
+
+Causa do Problema
+O erro específico NotFoundError: Failed to execute 'removeChild' on 'Node' geralmente acontece quando:
+
+Condições de corrida: Um componente é desmontado antes que a operação de remoção seja concluída
+
+Manipulação direta do DOM: Altera-se o DOM manualmente fora do controle do React
+
+Bibliotecas de animação: Que manipulam o DOM diretamente
+
+Re-renderizações muito rápidas: Que causam conflitos nas operações do DOM
+
+Soluções Recomendadas
+1. Adicionar Error Boundaries (Primeira Medida)
+tsx
+// ErrorBoundary.tsx
+import { Component, ErrorInfo, ReactNode } from 'react';
+
+interface ErrorBoundaryProps {
+  children: ReactNode;
+  fallback?: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+}
+
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(_: Error): ErrorBoundaryState {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("ErrorBoundary caught:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback || <div>Algo deu errado.</div>;
+    }
+
+    return this.props.children;
+  }
+}
+
+export default ErrorBoundary;
+Use em volta dos componentes problemáticos:
+
+tsx
+<ErrorBoundary fallback={<div>Erro no formulário</div>}>
+  <FormAgricultura />
+</ErrorBoundary>
+2. Verificar Manipulação de Estado Assíncrona
+No seu componente FormAgricultura, verifique:
+
+tsx
+useEffect(() => {
+  let isMounted = true;
+
+  const fetchData = async () => {
+    try {
+      const data = await api.getData();
+      if (isMounted) {
+        setData(data); // Só atualiza estado se componente estiver montado
+      }
+    } catch (error) {
+      if (isMounted) {
+        setError(error);
+      }
+    }
+  };
+
+  fetchData();
+
+  return () => {
+    isMounted = false; // Limpeza
+  };
+}, []);
+3. Verificar Animações/Transições
+Se estiver usando bibliotecas como Framer Motion ou react-transition-group:
+
+tsx
+// Exemplo com Framer Motion corrigido
+<motion.div
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  exit={{ opacity: 0 }}
+  transition={{ duration: 0.3 }}
+  key="unique-key" // Adicione uma chave única
+>
+  {/* conteúdo */}
+</motion.div>
+4. Solução Específica para o Card Component
+Parece que o erro ocorre no card.tsx. Verifique:
+
+tsx
+// card.tsx - versão corrigida
+const Card = ({ children }: { children: React.ReactNode }) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // Evita manipulação direta do DOM
+  useEffect(() => {
+    const card = cardRef.current;
+    return () => {
+      // Limpeza segura
+      if (card && card.parentNode) {
+        // Não manipule o DOM diretamente aqui
+      }
+    };
+  }, []);
+
+  return (
+    <div ref={cardRef} className="card">
+      {children}
+    </div>
+  );
+};
+5. Atualizar Dependências
+Verifique se todas as dependências estão atualizadas, especialmente:
+
+bash
+npm update react react-dom
+npm update @types/react @types/react-dom
