@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/utils/firebase';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 
 interface ChatContext {
   ultimasMensagens: Array<{text: string, isUser: boolean, timestamp: Date}>;
@@ -43,7 +43,7 @@ const FormAgricultura = () => {
       try {
         const parsedContext = JSON.parse(storedContext) as ChatContext;
         setChatContext(parsedContext);
-        
+
         // Pré-preencher dados do formulário se tiver informações parciais
         if (parsedContext.ultimasMensagens) {
           // Aqui poderia ter lógica para extrair informações das mensagens
@@ -291,72 +291,74 @@ const FormAgricultura = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4 relative">
-      {/* Botão para voltar ao portal */}
-      <div className="fixed bottom-6 left-6 z-20">
-        <Button 
-          onClick={() => window.location.href = '/'} 
-          className="rounded-full w-12 h-12 bg-green-600 hover:bg-green-700 text-white shadow-lg flex items-center justify-center"
-          title="Voltar ao Portal"
-        >
-          <ArrowLeft size={20} />
-        </Button>
-      </div>
-      <Card className="w-full max-w-md">
-        <CardHeader className="bg-green-50">
-          <CardTitle className="text-green-800">Solicitação de Serviço Agrícola</CardTitle>
-          <CardDescription>
-            {activeStep === 0 && "Preencha seus dados pessoais"}
-            {activeStep === 1 && "Informe os dados da propriedade"}
-            {activeStep === 2 && "Detalhe o serviço solicitado"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <div className="mb-6">
-            <div className="flex justify-between mb-2">
-              {[0, 1, 2].map((step) => (
+    <ErrorBoundary fallback={<div className="p-4 text-center">Erro ao carregar o formulário de agricultura</div>}>
+      <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4 relative">
+        {/* Botão para voltar ao portal */}
+        <div className="fixed bottom-6 left-6 z-20">
+          <Button 
+            onClick={() => window.location.href = '/'} 
+            className="rounded-full w-12 h-12 bg-green-600 hover:bg-green-700 text-white shadow-lg flex items-center justify-center"
+            title="Voltar ao Portal"
+          >
+            <ArrowLeft size={20} />
+          </Button>
+        </div>
+        <Card className="w-full max-w-md">
+          <CardHeader className="bg-green-50">
+            <CardTitle className="text-green-800">Solicitação de Serviço Agrícola</CardTitle>
+            <CardDescription>
+              {activeStep === 0 && "Preencha seus dados pessoais"}
+              {activeStep === 1 && "Informe os dados da propriedade"}
+              {activeStep === 2 && "Detalhe o serviço solicitado"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="mb-6">
+              <div className="flex justify-between mb-2">
+                {[0, 1, 2].map((step) => (
+                  <div 
+                    key={step}
+                    className={`flex items-center justify-center w-8 h-8 rounded-full border-2 
+                      ${activeStep >= step 
+                        ? 'bg-green-100 border-green-500 text-green-700' 
+                        : 'bg-gray-100 border-gray-300 text-gray-400'
+                      }`}
+                  >
+                    {step + 1}
+                  </div>
+                ))}
+              </div>
+              <div className="relative w-full h-1 bg-gray-200">
                 <div 
-                  key={step}
-                  className={`flex items-center justify-center w-8 h-8 rounded-full border-2 
-                    ${activeStep >= step 
-                      ? 'bg-green-100 border-green-500 text-green-700' 
-                      : 'bg-gray-100 border-gray-300 text-gray-400'
-                    }`}
-                >
-                  {step + 1}
-                </div>
-              ))}
+                  className="absolute top-0 left-0 h-full bg-green-500 transition-all" 
+                  style={{ width: `${(activeStep / 2) * 100}%` }}
+                />
+              </div>
             </div>
-            <div className="relative w-full h-1 bg-gray-200">
-              <div 
-                className="absolute top-0 left-0 h-full bg-green-500 transition-all" 
-                style={{ width: `${(activeStep / 2) * 100}%` }}
-              />
-            </div>
-          </div>
 
-          <form onSubmit={handleSubmit}>
-            {renderStep()}
-          </form>
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          {activeStep > 0 && (
-            <Button onClick={prevStep} variant="outline" disabled={isSubmitting}>
-              Anterior
-            </Button>
-          )}
-          {activeStep < 2 ? (
-            <Button onClick={nextStep} className="ml-auto">
-              Próximo
-            </Button>
-          ) : (
-            <Button onClick={handleSubmit} disabled={isSubmitting} className="ml-auto">
-              {isSubmitting ? "Enviando..." : "Concluir Solicitação"}
-            </Button>
-          )}
-        </CardFooter>
-      </Card>
-    </div>
+            <form onSubmit={handleSubmit}>
+              {renderStep()}
+            </form>
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            {activeStep > 0 && (
+              <Button onClick={prevStep} variant="outline" disabled={isSubmitting}>
+                Anterior
+              </Button>
+            )}
+            {activeStep < 2 ? (
+              <Button onClick={nextStep} className="ml-auto">
+                Próximo
+              </Button>
+            ) : (
+              <Button onClick={handleSubmit} disabled={isSubmitting} className="ml-auto">
+                {isSubmitting ? "Enviando..." : "Concluir Solicitação"}
+              </Button>
+            )}
+          </CardFooter>
+        </Card>
+      </div>
+    </ErrorBoundary>
   );
 };
 

@@ -1,8 +1,7 @@
-
 // Utilitários para compatibilidade entre navegadores
 export const detectBrowser = () => {
   const userAgent = navigator.userAgent;
-  
+
   if (userAgent.includes('Chrome') && !userAgent.includes('Edge')) {
     return 'chrome';
   } else if (userAgent.includes('Edge')) {
@@ -12,45 +11,53 @@ export const detectBrowser = () => {
   } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
     return 'safari';
   }
-  
+
   return 'unknown';
 };
 
 export const fixStatisticValueDisplay = () => {
-  const browser = detectBrowser();
-  
-  // Para Chrome e Edge, aplicar fix específico
-  if (browser === 'chrome' || browser === 'edge') {
-    const statisticValues = document.querySelectorAll('.statistic-value');
-    
-    statisticValues.forEach((element) => {
-      const htmlElement = element as HTMLElement;
-      
-      // Força re-render para Chrome/Edge
-      const computedStyle = window.getComputedStyle(htmlElement);
-      const hasTransparentFill = computedStyle.webkitTextFillColor === 'transparent';
-      
-      if (hasTransparentFill) {
-        // Temporariamente remove o background-clip para forçar visibilidade
-        htmlElement.style.webkitTextFillColor = 'initial';
-        htmlElement.style.backgroundClip = 'initial';
-        
-        // Reaplica os estilos após um pequeno delay
-        setTimeout(() => {
-          htmlElement.style.background = 'linear-gradient(45deg, #059669, #10b981)';
-          htmlElement.style.webkitBackgroundClip = 'text';
-          htmlElement.style.webkitTextFillColor = 'transparent';
-          htmlElement.style.backgroundClip = 'text';
-        }, 10);
-      }
-    });
+  try {
+    const browser = detectBrowser();
+
+    if (browser === 'chrome' || browser === 'edge') {
+      const statisticValues = document.querySelectorAll('.statistic-value');
+
+      statisticValues.forEach((element) => {
+        try {
+          const htmlElement = element as HTMLElement;
+
+          // Verificar se o elemento ainda existe e está no DOM
+          if (!htmlElement || !htmlElement.parentNode) {
+            return;
+          }
+
+          // Force reflow específico para Chrome/Edge
+          const originalTransform = htmlElement.style.transform;
+          htmlElement.style.transform = 'translateZ(0)';
+
+          // Força recalculo do layout
+          void htmlElement.offsetHeight;
+
+          // Restaura transform original de forma segura
+          setTimeout(() => {
+            if (htmlElement && htmlElement.parentNode) {
+              htmlElement.style.transform = originalTransform;
+            }
+          }, 10);
+        } catch (elementError) {
+          console.warn("Erro ao aplicar fix em elemento específico:", elementError);
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Erro geral no fixStatisticValueDisplay:", error);
   }
 };
 
 // Função para monitorar mudanças nos valores e aplicar fix
 export const initStatisticValueWatcher = () => {
   const browser = detectBrowser();
-  
+
   if (browser === 'chrome' || browser === 'edge') {
     // Observer para detectar mudanças nos valores
     const observer = new MutationObserver((mutations) => {
@@ -63,7 +70,7 @@ export const initStatisticValueWatcher = () => {
         }
       });
     });
-    
+
     // Observa mudanças em todos os elementos com classe statistic-value
     const statisticValues = document.querySelectorAll('.statistic-value');
     statisticValues.forEach((element) => {
@@ -73,7 +80,7 @@ export const initStatisticValueWatcher = () => {
         subtree: true
       });
     });
-    
+
     // Aplicar fix inicial
     setTimeout(() => fixStatisticValueDisplay(), 100);
   }

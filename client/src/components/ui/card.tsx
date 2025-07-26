@@ -1,5 +1,5 @@
-
 import * as React from "react"
+import { useEffect, useRef } from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
@@ -22,15 +22,30 @@ export interface CardProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof cardVariants> {}
 
-const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant, ...props }, ref) => (
+const Card = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, variant, ...props }, ref) => {
+  const internalRef = useRef<HTMLDivElement>(null);
+  const cardRef = ref || internalRef;
+
+  useEffect(() => {
+    let isMounted = true;
+
+    return () => {
+      isMounted = false;
+      // Evita manipulação direta do DOM durante cleanup
+    };
+  }, []);
+
+  return (
     <div
-      ref={ref}
+      ref={cardRef}
       className={cn(cardVariants({ variant }), className)}
       {...props}
     />
-  )
-)
+  );
+})
 Card.displayName = "Card"
 
 const CardHeader = React.forwardRef<
