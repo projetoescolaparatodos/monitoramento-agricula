@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -35,28 +35,45 @@ const FormAgricultura = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [chatContext, setChatContext] = useState<ChatContext | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
+    setIsMounted(true);
+    isMountedRef.current = true;
+
     // Recuperar contexto do chat, se disponível
     const storedContext = localStorage.getItem('chatContext');
     if (storedContext) {
       try {
         const parsedContext = JSON.parse(storedContext) as ChatContext;
-        setChatContext(parsedContext);
+        if (isMountedRef.current) {
+          setChatContext(parsedContext);
 
-        // Pré-preencher dados do formulário se tiver informações parciais
-        if (parsedContext.ultimasMensagens) {
-          // Aqui poderia ter lógica para extrair informações das mensagens
-          // Por enquanto, apenas registramos que temos o contexto
-          console.log('Contexto do chat recuperado:', parsedContext);
+          // Pré-preencher dados do formulário se tiver informações parciais
+          if (parsedContext.ultimasMensagens) {
+            // Aqui poderia ter lógica para extrair informações das mensagens
+            // Por enquanto, apenas registramos que temos o contexto
+            console.log('Contexto do chat recuperado:', parsedContext);
+          }
         }
       } catch (error) {
-        console.error('Erro ao carregar contexto do chat:', error);
+        if (isMountedRef.current) {
+          console.error('Erro ao carregar contexto do chat:', error);
+        }
       }
     }
+
+    // Cleanup para evitar vazamentos
+    return () => {
+      setIsMounted(false);
+      isMountedRef.current = false;
+    };
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    if (!isMountedRef.current) return;
+    
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -65,15 +82,23 @@ const FormAgricultura = () => {
   };
 
   const nextStep = () => {
-    setActiveStep(prev => prev + 1);
+    if (isMountedRef.current) {
+      setActiveStep(prev => prev + 1);
+    }
   };
 
   const prevStep = () => {
-    setActiveStep(prev => prev - 1);
+    if (isMountedRef.current) {
+      setActiveStep(prev => prev - 1);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Verificar se o componente ainda está montado
+    if (!isMountedRef.current) return;
+    
     setIsSubmitting(true);
 
     try {
@@ -86,14 +111,21 @@ const FormAgricultura = () => {
         origem: 'formulario_web'
       });
 
-      setSubmitted(true);
-      // Limpar contexto após envio bem-sucedido
-      localStorage.removeItem('chatContext');
+      // Verificar novamente se ainda está montado antes de atualizar estado
+      if (isMountedRef.current) {
+        setSubmitted(true);
+        // Limpar contexto após envio bem-sucedido
+        localStorage.removeItem('chatContext');
+      }
     } catch (error) {
-      console.error('Erro ao enviar formulário:', error);
-      alert('Erro ao enviar solicitação. Por favor, tente novamente.');
+      if (isMountedRef.current) {
+        console.error('Erro ao enviar formulário:', error);
+        alert('Erro ao enviar solicitação. Por favor, tente novamente.');
+      }
     } finally {
-      setIsSubmitting(false);
+      if (isMountedRef.current) {
+        setIsSubmitting(false);
+      }
     }
   };
 

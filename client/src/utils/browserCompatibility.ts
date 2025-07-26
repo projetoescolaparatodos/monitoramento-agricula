@@ -27,7 +27,12 @@ export const fixStatisticValueDisplay = () => {
           const htmlElement = element as HTMLElement;
 
           // Verificar se o elemento ainda existe e está no DOM
-          if (!htmlElement || !htmlElement.parentNode) {
+          if (!htmlElement || !htmlElement.parentNode || !document.contains(htmlElement)) {
+            return;
+          }
+
+          // Verificar se o elemento não foi removido durante a operação
+          if (!htmlElement.isConnected) {
             return;
           }
 
@@ -40,7 +45,11 @@ export const fixStatisticValueDisplay = () => {
 
           // Restaura transform original de forma segura
           setTimeout(() => {
-            if (htmlElement && htmlElement.parentNode) {
+            // Verificação adicional antes de modificar
+            if (htmlElement && 
+                htmlElement.parentNode && 
+                document.contains(htmlElement) && 
+                htmlElement.isConnected) {
               htmlElement.style.transform = originalTransform;
             }
           }, 10);
@@ -64,7 +73,13 @@ export const initStatisticValueWatcher = () => {
       mutations.forEach((mutation) => {
         if (mutation.type === 'childList' || mutation.type === 'characterData') {
           const target = mutation.target as HTMLElement;
-          if (target.classList && target.classList.contains('statistic-value')) {
+          
+          // Verificações de segurança antes de processar
+          if (target && 
+              target.classList && 
+              target.classList.contains('statistic-value') &&
+              document.contains(target) &&
+              target.isConnected) {
             setTimeout(() => fixStatisticValueDisplay(), 50);
           }
         }
@@ -74,14 +89,32 @@ export const initStatisticValueWatcher = () => {
     // Observa mudanças em todos os elementos com classe statistic-value
     const statisticValues = document.querySelectorAll('.statistic-value');
     statisticValues.forEach((element) => {
-      observer.observe(element, {
-        childList: true,
-        characterData: true,
-        subtree: true
-      });
+      try {
+        // Verificar se o elemento é válido antes de observar
+        if (element && document.contains(element) && (element as HTMLElement).isConnected) {
+          observer.observe(element, {
+            childList: true,
+            characterData: true,
+            subtree: true
+          });
+        }
+      } catch (observerError) {
+        console.warn("Erro ao configurar observer para elemento:", observerError);
+      }
     });
 
     // Aplicar fix inicial
     setTimeout(() => fixStatisticValueDisplay(), 100);
+
+    // Retornar função de cleanup
+    return () => {
+      try {
+        observer.disconnect();
+      } catch (disconnectError) {
+        console.warn("Erro ao desconectar observer:", disconnectError);
+      }
+    };
   }
+
+  return () => {}; // Função vazia para browsers que não precisam do fix
 };

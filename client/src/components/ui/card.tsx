@@ -25,25 +25,43 @@ export interface CardProps
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ className, variant, ...props }, ref) => {
-  const internalRef = useRef<HTMLDivElement>(null);
-  const cardRef = ref || internalRef;
+>(({ className, children, ...props }, ref) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const isMountedRef = useRef(true);
 
+  // Adicionar limpeza segura
   useEffect(() => {
-    let isMounted = true;
+    isMountedRef.current = true;
 
     return () => {
-      isMounted = false;
-      // Evita manipulação direta do DOM durante cleanup
+      isMountedRef.current = false;
+      // Evitar manipulação direta do DOM após desmontagem
+      if (cardRef.current && cardRef.current.parentNode) {
+        // Nenhuma manipulação direta necessária - React cuida disso
+      }
     };
   }, []);
 
+  const combinedRef = React.useCallback((node: HTMLDivElement) => {
+    cardRef.current = node;
+    if (typeof ref === 'function') {
+      ref(node);
+    } else if (ref) {
+      ref.current = node;
+    }
+  }, [ref]);
+
   return (
     <div
-      ref={cardRef}
-      className={cn(cardVariants({ variant }), className)}
+      ref={combinedRef}
+      className={cn(
+        "rounded-lg border bg-card text-card-foreground shadow-sm",
+        className
+      )}
       {...props}
-    />
+    >
+      {children}
+    </div>
   );
 })
 Card.displayName = "Card"
