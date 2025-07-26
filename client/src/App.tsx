@@ -176,13 +176,91 @@ function Router() {
 }
 
 function App() {
-  // Inicializar monitoramento de performance
+  // Inicializar monitoramento de performance e diagnóstico
   React.useEffect(() => {
     performanceMonitor.startMonitoring();
+    
+    // Importar e executar diagnóstico inicial
+    import('@/utils/domSafeManipulation').then(({ diagnoseReactComponents, createReactStateMonitor }) => {
+      // Diagnóstico inicial após 2 segundos
+      setTimeout(() => {
+        diagnoseReactComponents();
+      }, 2000);
+      
+      // Monitoramento contínuo de estado (apenas em desenvolvimento)
+      if (process.env.NODE_ENV === 'development') {
+        const cleanupStateMonitor = createReactStateMonitor();
+        
+        // Cleanup após 5 minutos para evitar memory leak
+        setTimeout(() => {
+          cleanupStateMonitor();
+        }, 300000);
+      }
+      
+      // Diagnóstico periódico
+      const diagnosticInterval = setInterval(() => {
+        diagnoseReactComponents();
+      }, 120000); // A cada 2 minutos
+      
+      return () => {
+        clearInterval(diagnosticInterval);
+      };
+    });
   }, []);
 
   // Monitoramento contínuo de erros e DOM
   React.useEffect(() => {
+    // MutationObserver para monitorar mudanças no DOM
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(mutation => {
+        if (mutation.removedNodes.length > 0) {
+          Array.from(mutation.removedNodes).forEach(node => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              const element = node as Element;
+              console.debug('🔍 Nó removido:', {
+                tagName: element.tagName,
+                className: element.className,
+                id: element.id,
+                hasParent: !!mutation.target,
+                targetTag: mutation.target?.nodeName
+              });
+              
+              // Verificar se é um componente conhecido problemático
+              if (element.className?.includes('card') || 
+                  element.className?.includes('text') ||
+                  element.tagName === 'P') {
+                console.warn('⚠️ Componente crítico removido:', {
+                  element: element.tagName,
+                  classes: element.className,
+                  id: element.id
+                });
+              }
+            }
+          });
+        }
+        
+        if (mutation.addedNodes.length > 0) {
+          Array.from(mutation.addedNodes).forEach(node => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              const element = node as Element;
+              console.debug('➕ Nó adicionado:', {
+                tagName: element.tagName,
+                className: element.className,
+                id: element.id
+              });
+            }
+          });
+        }
+      });
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeOldValue: true
+    });
+
     // Importar funções de verificação e limpeza de DOM
     import('@/utils/domSafeManipulation').then(({ checkDomIntegrity, performAutomaticCleanup }) => {
       // Verificar integridade do DOM periodicamente
@@ -199,12 +277,17 @@ function App() {
         performAutomaticCleanup();
       }, 300000); // Limpar a cada 5 minutos
 
-      // Cleanup dos intervals
+      // Cleanup dos intervals e observer
       return () => {
         clearInterval(domCheckInterval);
         clearInterval(cleanupInterval);
+        observer.disconnect();
       };
     });
+
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   React.useEffect(() => {
@@ -261,7 +344,11 @@ function App() {
       // Lista expandida de erros para silenciar
       const shouldSilence = (
         !reason || 
-        (typeof reason === 'object' && Object.keys(reason).length === 0) ||
+        (typeof reason === 'object' && (
+          Object.keys(reason).length === 0 ||
+          JSON.stringify(reason) === '{}' ||
+          reason.constructor === Object && Object.entries(reason).length === 0
+        )) ||
         (typeof reason === 'string' && reason.trim() === '') ||
         (reason.message && (
           reason.message.includes('fetch') ||
@@ -270,17 +357,26 @@ function App() {
           reason.message.includes('vite') ||
           reason.message.includes('Failed to import') ||
           reason.message.includes('network') ||
-          reason.message.toLowerCase().includes('loading')
+          reason.message.toLowerCase().includes('loading') ||
+          reason.message.includes('hydration') ||
+          reason.message.includes('ReactDOM') ||
+          reason.message.includes('findDOMNode')
         )) ||
         (reason.name && (
           reason.name === 'ChunkLoadError' ||
           reason.name === 'NetworkError' ||
-          reason.name === 'AbortError'
-        ))
+          reason.name === 'AbortError' ||
+          reason.name === 'TypeError' && !reason.message
+        )) ||
+        // Silenciar promises vazias que são comuns em desenvolvimento
+        (reason === undefined || reason === null)
       );
 
       if (shouldSilence) {
-        // Silenciar completamente esses erros
+        // Silenciar completamente esses erros, mas manter contagem para debugging
+        if (process.env.NODE_ENV === 'development') {
+          console.debug('🔇 Promise rejeitada silenciada:', typeof reason, reason);
+        }
         event.preventDefault();
         return;
       }

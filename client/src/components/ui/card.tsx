@@ -187,42 +187,70 @@ const Text = React.forwardRef<
 }, ref) => {
   const textRef = React.useRef<HTMLParagraphElement>(null);
   const isMountedRef = React.useRef(true);
+  const cleanupExecutedRef = React.useRef(false);
 
   React.useEffect(() => {
+    isMountedRef.current = true;
+    cleanupExecutedRef.current = false;
+    
     return () => {
-      isMountedRef.current = false;
-      // Executa limpeza segura se fornecido
-      if (onUnmount && typeof onUnmount === 'function') {
-        try {
-          onUnmount();
-        } catch (error) {
-          console.warn('Erro na limpeza do componente Text:', error);
+      if (!cleanupExecutedRef.current) {
+        cleanupExecutedRef.current = true;
+        isMountedRef.current = false;
+        
+        // Executa limpeza segura se fornecido - sem manipulação DOM direta
+        if (onUnmount && typeof onUnmount === 'function') {
+          try {
+            // Aguardar próximo tick para evitar conflitos
+            setTimeout(() => {
+              if (cleanupExecutedRef.current) {
+                onUnmount();
+              }
+            }, 0);
+          } catch (error) {
+            console.warn('Erro na limpeza do componente Text:', error);
+          }
+        }
+        
+        // Limpar referência sem manipular DOM
+        if (textRef.current) {
+          console.debug('🧹 Limpando referência do componente Text');
+          textRef.current = null;
         }
       }
     };
   }, [onUnmount]);
 
-  // Combinar refs
-  const combinedRef = React.useCallback((node: HTMLParagraphElement) => {
-    textRef.current = node;
-    if (typeof ref === 'function') {
-      ref(node);
-    } else if (ref) {
-      ref.current = node;
+  // Combinar refs de forma mais segura
+  const combinedRef = React.useCallback((node: HTMLParagraphElement | null) => {
+    if (isMountedRef.current) {
+      textRef.current = node;
+      
+      if (typeof ref === 'function') {
+        ref(node);
+      } else if (ref) {
+        ref.current = node;
+      }
     }
   }, [ref]);
 
   const baseClasses = 'text-base';
   const variantClasses = {
     default: 'text-gray-900',
-    muted: 'text-gray-500',
+    muted: 'text-gray-500', 
     lead: 'text-lg text-gray-700'
   };
+
+  // Verificar se o componente ainda está montado antes de renderizar
+  if (!isMountedRef.current && cleanupExecutedRef.current) {
+    return null;
+  }
 
   return (
     <p 
       ref={combinedRef}
       className={cn(baseClasses, variantClasses[variant], className)}
+      data-component="text-safe"
       {...props}
     >
       {children}

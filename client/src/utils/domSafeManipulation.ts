@@ -1,6 +1,85 @@
 
 import React from 'react';
 
+/**
+ * Sistema de diagnóstico para componentes React
+ */
+export const diagnoseReactComponents = (): void => {
+  try {
+    console.group('🔍 Diagnóstico de Componentes React');
+
+    // Verificar versões das bibliotecas críticas
+    const reactVersion = React.version;
+    console.log('React version:', reactVersion);
+
+    // Verificar elementos DOM com problemas conhecidos
+    const problematicElements = document.querySelectorAll('[data-component]');
+    console.log('Componentes com data-component:', problematicElements.length);
+
+    // Verificar uso de findDOMNode (deprecated)
+    const reactDOMElements = document.querySelectorAll('[data-reactroot]');
+    console.log('Elementos React DOM encontrados:', reactDOMElements.length);
+
+    // Verificar elementos com muitos event listeners
+    const elementsWithListeners = Array.from(document.querySelectorAll('*')).filter(el => {
+      return Object.keys(el).some(key => key.startsWith('__reactEventHandlers'));
+    });
+    console.log('Elementos com event handlers React:', elementsWithListeners.length);
+
+    // Verificar cards potencialmente problemáticos
+    const cards = document.querySelectorAll('[class*="card"]');
+    let problematicCards = 0;
+    
+    cards.forEach(card => {
+      if (!card.isConnected) {
+        problematicCards++;
+        console.warn('Card desconectado encontrado:', card);
+      }
+    });
+    
+    console.log('Cards problemáticos:', problematicCards);
+
+    // Verificar componentes Text
+    const textComponents = document.querySelectorAll('[data-component="text-safe"]');
+    console.log('Componentes Text seguros:', textComponents.length);
+
+    console.groupEnd();
+  } catch (error) {
+    console.error('Erro durante diagnóstico de componentes:', error);
+  }
+};
+
+/**
+ * Monitorar mudanças de estado em componentes React
+ */
+export const createReactStateMonitor = (): (() => void) => {
+  const stateChanges: Array<{timestamp: number, type: string, details: any}> = [];
+  
+  const originalSetState = React.Component.prototype.setState;
+  React.Component.prototype.setState = function(partialState, callback) {
+    stateChanges.push({
+      timestamp: Date.now(),
+      type: 'setState',
+      details: {
+        component: this.constructor.name,
+        state: partialState
+      }
+    });
+    
+    return originalSetState.call(this, partialState, callback);
+  };
+
+  // Cleanup function
+  return () => {
+    React.Component.prototype.setState = originalSetState;
+    console.log('Estado monitorado:', stateChanges.slice(-10)); // Últimas 10 mudanças
+  };
+};
+
+
+
+import React from 'react';
+
 export class DomSafeManipulation {
   /**
    * Verifica se um nó é filho de um parent de forma segura
