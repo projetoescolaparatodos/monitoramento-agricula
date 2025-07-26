@@ -173,22 +173,84 @@ export const checkDomIntegrity = (): boolean => {
 
     // Verificar se há elementos órfãos conhecidos
     const cards = document.querySelectorAll('[class*="card"]');
-    let orphanCount = 0;
+    const forms = document.querySelectorAll('form');
+    const buttons = document.querySelectorAll('button');
     
+    let orphanCount = 0;
+    let performanceIssues = 0;
+    
+    // Verificar cards órfãos
     cards.forEach(card => {
       if (card && !card.isConnected) {
         orphanCount++;
       }
     });
 
+    // Verificar elementos com muitos event listeners
+    const elementsWithListeners = document.querySelectorAll('[data-listener-count]');
+    if (elementsWithListeners.length > 50) {
+      performanceIssues++;
+      console.warn(`Muitos elementos com listeners: ${elementsWithListeners.length}`);
+    }
+
+    // Verificar memory leaks potenciais
+    if (buttons.length > 200) {
+      console.warn(`Muitos botões renderizados: ${buttons.length}`);
+      performanceIssues++;
+    }
+
     if (orphanCount > 0) {
       console.warn(`Encontrados ${orphanCount} elementos órfãos no DOM`);
     }
 
-    return orphanCount === 0;
+    // Verificar performance da página
+    if (performance && performance.memory) {
+      const memoryInfo = (performance as any).memory;
+      if (memoryInfo.usedJSHeapSize > 50 * 1024 * 1024) { // 50MB
+        console.warn('Alto uso de memória JavaScript detectado:', {
+          used: Math.round(memoryInfo.usedJSHeapSize / 1024 / 1024) + 'MB',
+          total: Math.round(memoryInfo.totalJSHeapSize / 1024 / 1024) + 'MB'
+        });
+        performanceIssues++;
+      }
+    }
+
+    return orphanCount === 0 && performanceIssues < 3;
   } catch (error) {
     console.error('Erro ao verificar integridade do DOM:', error);
     return false;
+  }
+};
+
+/**
+ * Sistema de limpeza automática de recursos
+ */
+export const performAutomaticCleanup = (): void => {
+  try {
+    // Limpar event listeners órfãos
+    const elementsWithListeners = document.querySelectorAll('[data-cleanup-needed]');
+    elementsWithListeners.forEach(el => {
+      if (!el.isConnected) {
+        el.remove();
+      }
+    });
+
+    // Forçar garbage collection se disponível (apenas desenvolvimento)
+    if (typeof window.gc === 'function' && process.env.NODE_ENV === 'development') {
+      window.gc();
+    }
+
+    // Limpar cache de imagens quebradas
+    const brokenImages = document.querySelectorAll('img[src=""]');
+    brokenImages.forEach(img => {
+      if (img.parentNode) {
+        img.remove();
+      }
+    });
+
+    console.log('🧹 Limpeza automática concluída');
+  } catch (error) {
+    console.warn('Erro durante limpeza automática:', error);
   }
 };
 

@@ -28,10 +28,15 @@ const Home = () => {
   const [, setLocation] = useLocation();
 
   // Buscar mídias da página home com staleTime para cache
-  const { data: allMediaItems, isLoading: isLoadingMedia } = useQuery<MediaItem[]>({
+  const { data: allMediaItems, isLoading: isLoadingMedia, error } = useQuery<MediaItem[]>({
     queryKey: ['/api/media-items'],
     staleTime: 5 * 60 * 1000, // 5 minutos de cache
     gcTime: 10 * 60 * 1000, // 10 minutos no garbage collector
+    retry: 2,
+    retryDelay: 1000,
+    onError: (error) => {
+      console.warn('Erro ao carregar mídias da home:', error);
+    }
   });
 
   // Memoizar filtro de mídias para evitar recálculos

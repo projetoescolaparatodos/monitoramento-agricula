@@ -5,6 +5,7 @@ import { ChatButton } from "@/components/chat/ChatButton";
 import ChatbotWidget from "@/components/chat/ChatbotWidget";
 import { Toaster } from "@/components/ui/toaster";
 import { queryClient } from "./lib/queryClient";
+import { performanceMonitor } from "@/utils/performanceMonitor";
 import Home from "@/pages/Home";
 import Report from "@/pages/Report";
 import AgriculturaMap from "@/pages/AgriculturaMap";
@@ -174,19 +175,34 @@ function Router() {
 }
 
 function App() {
+  // Inicializar monitoramento de performance
+  React.useEffect(() => {
+    performanceMonitor.startMonitoring();
+  }, []);
+
   // Monitoramento contínuo de erros e DOM
   React.useEffect(() => {
-    // Importar função de verificação de DOM
-    import('@/utils/domSafeManipulation').then(({ checkDomIntegrity }) => {
+    // Importar funções de verificação e limpeza de DOM
+    import('@/utils/domSafeManipulation').then(({ checkDomIntegrity, performAutomaticCleanup }) => {
       // Verificar integridade do DOM periodicamente
       const domCheckInterval = setInterval(() => {
         if (!checkDomIntegrity()) {
           console.warn('🔍 Problemas de integridade DOM detectados');
+          // Executar limpeza automática se problemas forem detectados
+          performAutomaticCleanup();
         }
-      }, 30000); // Verificar a cada 30 segundos
+      }, 60000); // Verificar a cada 1 minuto
 
-      // Cleanup do interval
-      return () => clearInterval(domCheckInterval);
+      // Limpeza automática mais frequente
+      const cleanupInterval = setInterval(() => {
+        performAutomaticCleanup();
+      }, 300000); // Limpar a cada 5 minutos
+
+      // Cleanup dos intervals
+      return () => {
+        clearInterval(domCheckInterval);
+        clearInterval(cleanupInterval);
+      };
     });
   }, []);
 
@@ -240,18 +256,22 @@ function App() {
     // Capturar promises rejeitadas não tratadas
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       // Evitar log de promises vazias/conhecidas
-      if (event.reason && (
-        event.reason.message?.includes('fetch') ||
-        event.reason.message?.includes('import') ||
-        Object.keys(event.reason).length === 0
-      )) {
-        // Silenciar erros conhecidos de importação/fetch
+      if (!event.reason || 
+          Object.keys(event.reason).length === 0 ||
+          event.reason.message?.includes('fetch') ||
+          event.reason.message?.includes('import') ||
+          event.reason.message?.includes('Loading chunk') ||
+          event.reason.message?.includes('vite') ||
+          typeof event.reason === 'object' && !event.reason.message && !event.reason.stack) {
+        // Silenciar erros conhecidos de importação/fetch/vite
         event.preventDefault();
         return;
       }
       
       console.error('❌ Promise rejeitada não tratada:', {
         reason: event.reason,
+        reasonType: typeof event.reason,
+        reasonKeys: Object.keys(event.reason || {}),
         timestamp: new Date().toISOString(),
         url: window.location.href,
         stack: event.reason?.stack
