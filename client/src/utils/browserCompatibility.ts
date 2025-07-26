@@ -73,7 +73,7 @@ export const initStatisticValueWatcher = () => {
       mutations.forEach((mutation) => {
         if (mutation.type === 'childList' || mutation.type === 'characterData') {
           const target = mutation.target as HTMLElement;
-          
+
           // Verificações de segurança antes de processar
           if (target && 
               target.classList && 
@@ -117,4 +117,49 @@ export const initStatisticValueWatcher = () => {
   }
 
   return () => {}; // Função vazia para browsers que não precisam do fix
+};
+
+// Detecção específica de problemas conhecidos no Chrome
+const detectChromeIssues = (): string[] => {
+  const issues: string[] = [];
+
+  if (isChrome()) {
+    // Verificar versão do Chrome para problemas conhecidos
+    const chromeVersion = getChromeVersion();
+
+    if (chromeVersion && chromeVersion >= 90 && chromeVersion <= 95) {
+      issues.push('Versão do Chrome pode ter problemas com manipulação de DOM');
+    }
+
+    // Verificar se há extensões que podem interferir
+    if (navigator.plugins.length > 10) {
+      issues.push('Muitas extensões podem causar conflitos de DOM');
+    }
+
+    // Verificar se está em modo de desenvolvimento
+    if (window.location.hostname === 'localhost' || 
+        window.location.hostname.includes('replit')) {
+      issues.push('Ambiente de desenvolvimento - logs de DOM habilitados');
+    }
+  }
+
+  return issues;
+};
+
+const getChromeVersion = (): number | null => {
+  const match = navigator.userAgent.match(/Chrome\/(\d+)/);
+  return match ? parseInt(match[1], 10) : null;
+};
+
+export const checkBrowserCompatibility = (): BrowserCompatibilityResult => {
+  // Adicionar detecção específica de problemas do Chrome
+  const chromeIssues = detectChromeIssues();
+  warnings.push(...chromeIssues);
+
+  return {
+    isSupported: true,
+    browser: browserInfo,
+    features: featureSupport,
+    warnings
+  };
 };

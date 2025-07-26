@@ -174,6 +174,49 @@ function Router() {
 }
 
 function App() {
+  // Monitoramento contínuo de erros
+  React.useEffect(() => {
+    // Capturar erros JavaScript globais
+    const handleError = (event: ErrorEvent) => {
+      console.error('❌ Erro global capturado:', {
+        message: event.error?.message,
+        stack: event.error?.stack,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Verificar se é erro específico de DOM
+      if (event.error?.message?.includes('removeChild') || 
+          event.error?.message?.includes('Node')) {
+        console.error('🔴 Erro de manipulação DOM detectado:', {
+          error: event.error.message,
+          stack: event.error.stack,
+          userAgent: navigator.userAgent,
+          url: window.location.href
+        });
+      }
+    };
+
+    // Capturar promises rejeitadas não tratadas
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      console.error('❌ Promise rejeitada não tratada:', {
+        reason: event.reason,
+        timestamp: new Date().toISOString(),
+        url: window.location.href
+      });
+    };
+
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    return () => {
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <Router />

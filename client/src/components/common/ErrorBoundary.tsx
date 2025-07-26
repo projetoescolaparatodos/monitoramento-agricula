@@ -25,10 +25,30 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     console.error("ErrorBoundary caught:", error, errorInfo);
     
     // Log específico para erros de DOM
-    if (error.message.includes('removeChild') || error.message.includes('Node')) {
-      console.error("DOM manipulation error detected:", {
+    if (error.message.includes('removeChild') || 
+        error.message.includes('Node') ||
+        error.message.includes('insertBefore') ||
+        error.message.includes('appendChild')) {
+      console.error("🔴 DOM manipulation error detected:", {
         error: error.message,
         stack: error.stack,
+        componentStack: errorInfo.componentStack,
+        userAgent: navigator.userAgent,
+        timestamp: new Date().toISOString(),
+        url: window.location.href
+      });
+
+      // Tentar identificar o componente problemático
+      const componentMatch = errorInfo.componentStack?.match(/at (\w+)/);
+      if (componentMatch) {
+        console.error("Componente problemático identificado:", componentMatch[1]);
+      }
+    }
+
+    // Log para erros de React relacionados a refs
+    if (error.message.includes('ref') || error.message.includes('current')) {
+      console.error("🟡 React ref error detected:", {
+        error: error.message,
         componentStack: errorInfo.componentStack
       });
     }
