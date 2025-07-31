@@ -102,7 +102,7 @@ const AdminLogin = () => {
                   <Shield className="h-6 w-6" />
                 </div>
                 <span className="font-semibold">Painel do Secretário</span>
-              </Button></div>
+              </Button>
             </CardContent>
           </Card>
 
