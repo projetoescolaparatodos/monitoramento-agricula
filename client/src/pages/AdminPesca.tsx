@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from "react";
 import { db } from "../utils/firebase";
 import {
@@ -429,468 +430,544 @@ const AdminPesca = () => {
     <div className="min-h-screen bg-gray-800 text-white">
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setLocation("/")}
-          className="bg-green-600 text-black border-green-600 hover:bg-green-700 hover:text-black"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <h1 className="text-2xl font-bold text-blue-800">Administração - Pesca</h1>
-      </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setLocation("/")}
+            className="bg-green-600 text-black border-green-600 hover:bg-green-700 hover:text-black"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <h1 className="text-2xl font-bold text-blue-800">Administração - Pesca</h1>
+        </div>
 
-      {/* Tabs principais */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-6">
-          <TabsTrigger value="atividades">Cadastrar Atividades</TabsTrigger>
-          <TabsTrigger value="viveiros">Viveiros em Construção</TabsTrigger>
-          <TabsTrigger value="visitas">Visitas Técnicas</TabsTrigger>
-        </TabsList>
+        {/* Tabs principais */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsTrigger value="atividades">Cadastrar Atividades</TabsTrigger>
+            <TabsTrigger value="viveiros">Viveiros em Construção</TabsTrigger>
+            <TabsTrigger value="visitas">Visitas Técnicas</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="atividades">
-          {/* Lista de Atividades */}
-          <Card className="mb-8 bg-gray-500">
-            <CardHeader>
-              <CardTitle className="text-white">Lista de Atividades</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {pesqueirosCadastrados.length === 0 ? (
-                  <p className="text-white text-center py-4">
-                    Nenhuma atividade cadastrada ainda.
-                  </p>
-                ) : (
-                  pesqueirosCadastrados.map((atividade) => (
-                    <Card key={atividade.id} className="p-4 bg-gray-600">
-                      <div className="flex justify-between items-center">
+          <TabsContent value="atividades">
+            {/* Lista de Atividades */}
+            <Card className="mb-8 bg-gray-500">
+              <CardHeader>
+                <CardTitle className="text-white">Lista de Atividades</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {pesqueirosCadastrados.length === 0 ? (
+                    <p className="text-white text-center py-4">
+                      Nenhuma atividade cadastrada ainda.
+                    </p>
+                  ) : (
+                    pesqueirosCadastrados.map((atividade) => (
+                      <Card key={atividade.id} className="p-4 bg-gray-600">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <h4 className="font-semibold text-white">{atividade.localidade}</h4>
+                            <p className="text-sm text-white">
+                              Operador: {atividade.operador || "Não informado"}
+                            </p>
+                            <p className="text-sm text-white">
+                              Data: {new Date(atividade.dataCadastro).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <Badge variant={atividade.concluido ? "default" : "secondary"}>
+                              {atividade.concluido ? "Concluído" : "Em Serviço"}
+                            </Badge>
+                            <Button
+                              onClick={() => atualizarStatusPesca(atividade.id, atividade.concluido)}
+                              variant="outline"
+                              size="sm"
+                              className="bg-green-600 text-black border-green-600 hover:bg-green-700 hover:text-black"
+                            >
+                              Alterar Status
+                            </Button>
+                          </div>
+                        </div>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Formulário de Cadastro */}
+            <Card className="mb-8 bg-gray-500">
+              <CardHeader>
+                <CardTitle>
+                  {pesqueiroEmEdicao ? "Editar Atividade" : "Cadastrar Nova Atividade"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {/* Mapa do Google Maps */}
+                <div className="mb-8">
+                  <Label className="text-base font-semibold mb-4 block">
+                    Selecione a localização no mapa
+                  </Label>
+
+                  {/* Componente para inserção manual de coordenadas */}
+                  <div className="bg-gray-500 rounded-lg p-4">
+                    <IconSelector 
+                      onLocationSelect={(lat, lng) => {
+                        setLatitude(lat);
+                        setLongitude(lng);
+                      }}
+                      onMapCenterChange={(lat, lng) => {
+                        setMapCenter({ lat, lng });
+                        setMapZoom(15);
+                      }}
+                      initialLatitude={latitude}
+                      initialLongitude={longitude}
+                    />
+                  </div>
+
+                  <div className="rounded-lg overflow-hidden border relative">
+                    <GoogleMap
+                      mapContainerStyle={mapContainerStyle}
+                      center={mapCenter}
+                      zoom={mapZoom}
+                      onClick={handleMapClick}
+                      onLoad={() => setMapLoaded(true)}
+                      options={{
+                        mapTypeId: google.maps.MapTypeId.HYBRID,
+                        mapTypeControl: true,
+                        streetViewControl: false,
+                        fullscreenControl: false,
+                      }}
+                    >
+                      {/* Marcadores dos pesqueiros existentes */}
+                      {pesqueirosCadastrados.map((pesca) => (
+                        <MarkerF
+                          key={pesca.id}
+                          position={{ lat: pesca.latitude, lng: pesca.longitude }}
+                          onClick={() => handleMarkerClick(pesca)}
+                          icon={{
+                            url: "/pesca-icon.png",
+                            scaledSize: new window.google.maps.Size(40, 40),
+                            anchor: new window.google.maps.Point(20, 40),
+                          }}
+                        />
+                      ))}
+
+                      {/* Marcador para a nova localização selecionada */}
+                      {latitude && longitude && (
+                        <MarkerF
+                          position={{ lat: latitude, lng: longitude }}
+                          icon={{
+                            url: "/pesca-icon.png",
+                            scaledSize: new window.google.maps.Size(50, 50),
+                            anchor: new window.google.maps.Point(25, 50),
+                          }}
+                        />
+                      )}
+
+                      {/* Contorno do município */}
+                      {showBoundary && (
+                        <Polygon
+                          paths={correctedBoundary}
+                          options={boundaryStyle}
+                        />
+                      )}
+                    </GoogleMap>
+                    
+                    {/* Botão de controle para o limite municipal */}
+                    <div className="absolute top-4 right-4 z-10">
+                      <button
+                        onClick={() => setShowBoundary(!showBoundary)}
+                        className={styles["boundary-toggle"]}
+                        title={showBoundary ? "Ocultar Contorno Municipal" : "Mostrar Contorno Municipal"}
+                      >
+                        <img 
+                          src="/contornoicone.png" 
+                          alt="Contorno Municipal" 
+                          className={`${showBoundary ? styles["icon-active"] : ""}`}
+                        />
+                      </button>
+                    </div>
+                  </div>
+
+                  {latitude && longitude && (
+                    <div className="mt-2 text-sm text-gray-600">
+                      <strong>Coordenadas selecionadas:</strong> {latitude.toFixed(6)}, {longitude.toFixed(6)}
+                    </div>
+                  )}
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="localidade">Localidade</Label>
+                      <Input
+                        id="localidade"
+                        value={localidade}
+                        onChange={(e) => setLocalidade(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="nomeImovel">Nome do Imóvel Rural</Label>
+                      <Input
+                        id="nomeImovel"
+                        value={nomeImovel}
+                        onChange={(e) => setNomeImovel(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="proprietario">Nome do Proprietário</Label>
+                      <Input
+                        id="proprietario"
+                        value={proprietario}
+                        onChange={(e) => setProprietario(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="tipoTanque">Estrutura Aquícola</Label>
+                      <Input
+                        id="tipoTanque"
+                        value={tipoTanque}
+                        onChange={(e) => setTipoTanque(e.target.value)}
+                        placeholder="Ex: Tanque escavado, tanque rede, etc."
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="areaAlagada">Área Alagada (ha)</Label>
+                      <Input
+                        id="areaAlagada"
+                        type="number"
+                        step="0.01"
+                        value={areaAlagada}
+                        onChange={(e) => setAreaAlagada(Number(e.target.value))}
+                        placeholder="Ex: 2.5"
+                        required
+                        min="0"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="especiePeixe">Espécie de Peixe</Label>
+                      <Input
+                        id="especiePeixe"
+                        value={especiePeixe}
+                        onChange={(e) => setEspeciePeixe(e.target.value)}
+                        placeholder="Ex: Tilápia, Tambaqui, etc."
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="quantidadeAlevinos">
+                        Quantidade de Alevinos (kg)
+                      </Label>
+                      <Input
+                        id="quantidadeAlevinos"
+                        type="number"
+                        step="0.01"
+                        value={quantidadeAlevinos}
+                        onChange={(e) =>
+                          setQuantidadeAlevinos(Number(e.target.value))
+                        }
+                        placeholder="Peso dos alevinos em kg"
+                        required
+                        min="0"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="metodoAlimentacao">Método de Alimentação</Label>
+                      <Input
+                        id="metodoAlimentacao"
+                        value={metodoAlimentacao}
+                        onChange={(e) => setMetodoAlimentacao(e.target.value)}
+                        placeholder="Ex: Ração, alimentação natural, etc."
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="operador">Operador</Label>
+                      <Input
+                        id="operador"
+                        value={operador}
+                        onChange={(e) => setOperador(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="tecnicoResponsavel">Técnico Responsável</Label>
+                      <Input
+                        id="tecnicoResponsavel"
+                        value={tecnicoResponsavel}
+                        onChange={(e) => setTecnicoResponsavel(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="dataCadastroPesca">Data</Label>
+                      <Input
+                        id="dataCadastroPesca"
+                        type="date"
+                        value={dataCadastro}
+                        onChange={(e) => setDataCadastro(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-white">Fotos/Vídeos</Label>
+                    <div className="bg-gray-500 rounded-lg p-4">
+                      <EnhancedUpload onUpload={handleUpload} />
+                    </div>
+                    <div className="grid grid-cols-4 gap-2 mt-2">
+                      {midias.map((url, index) => (
+                        <div key={index} className="relative group">
+                          {url.includes("/video/") || url.includes("/video/upload/") || 
+                            url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".mov") ? (
+                            <video
+                              src={url}
+                              controls
+                              className="w-full h-24 object-cover rounded-lg"
+                              onError={(e) => {
+                                console.error("Erro ao carregar vídeo:", url);
+                                e.currentTarget.poster = 'https://placehold.co/600x400?text=Erro+no+vídeo';
+                              }}
+                            />
+                          ) : (
+                            <img
+                              src={url}
+                              alt={`Mídia ${index + 1}`}
+                              className="w-full h-24 object-cover rounded-lg"
+                              onError={(e) => {
+                                console.error("Erro ao carregar imagem:", url);
+                                (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Erro+ao+carregar';
+                              }}
+                            />
+                          )}
+                          <Button 
+                            variant="destructive" 
+                            size="sm"
+                            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-red-600 text-white hover:bg-red-700"
+                            onClick={() => setMidias(midias.filter((_, i) => i !== index))}
+                          >
+                            ✕
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button type="submit" disabled={loading} className="flex-1 bg-green-600 text-black hover:bg-green-700 hover:text-black">
+                      {loading ? (
+                        <span className="flex items-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Salvando...
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          <Plus className="h-4 w-4" />
+                          {pesqueiroEmEdicao ? "Atualizar" : "Adicionar"}
+                        </span>
+                      )}
+                    </Button>
+
+                    {pesqueiroEmEdicao && (
+                      <Button type="button" variant="outline" onClick={cancelarEdicao} className="bg-green-600 text-black border-green-600 hover:bg-green-700 hover:text-black">
+                        Cancelar
+                      </Button>
+                    )}
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+
+            {/* Lista de Pesqueiros Cadastrados */}
+            <Card className="bg-gray-500">
+              <CardHeader>
+                <CardTitle className="text-white">Pesqueiros Cadastrados</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {pesqueirosCadastrados.length === 0 ? (
+                    <p className="text-white text-center py-8">
+                      Nenhum pesqueiro cadastrado ainda.
+                    </p>
+                  ) : (
+                    pesqueirosCadastrados.map((pesqueiro) => (
+                      <div
+                        key={pesqueiro.id}
+                        className="flex items-center justify-between p-4 border rounded-lg bg-gray-400"
+                      >
                         <div>
-                          <h4 className="font-semibold text-white">{atividade.localidade}</h4>
+                          <h3 className="font-semibold text-white">{pesqueiro.localidade}</h3>
                           <p className="text-sm text-white">
-                            Operador: {atividade.operador || "Não informado"}
+                            {pesqueiro.nomeImovel} -{" "}
+                            {pesqueiro.concluido ? "Concluído" : "Em Andamento"}
                           </p>
-                          <p className="text-sm text-white">
-                            Data: {new Date(atividade.dataCadastro).toLocaleDateString()}
+                          <p className="text-xs text-white">
+                            Proprietário: {pesqueiro.proprietario}
                           </p>
                         </div>
-                        <div className="flex items-center gap-4">
-                          <Badge variant={atividade.concluido ? "default" : "secondary"}>
-                            {atividade.concluido ? "Concluído" : "Em Serviço"}
-                          </Badge>
+                        <div className="flex gap-2">
                           <Button
-                            onClick={() => atualizarStatusPesca(atividade.id, atividade.concluido)}
                             variant="outline"
                             size="sm"
+                            onClick={() => handleEditarPesqueiro(pesqueiro)}
                             className="bg-green-600 text-black border-green-600 hover:bg-green-700 hover:text-black"
                           >
-                            Alterar Status
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleExcluirPesqueiro(pesqueiro.id)}
+                            className="bg-red-600 text-white hover:bg-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
-                    </Card>
-                  ))
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="viveiros">
-          <Card className="mb-8 bg-gray-500">
-            <CardHeader>
-              <CardTitle className="text-white">Viveiros em Construção</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-white mb-4">
-                Clique no mapa para cadastrar um novo viveiro em construção.
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="visitas">
-          <Card className="mb-8 bg-gray-500">
-            <CardHeader>
-              <CardTitle className="text-white">Visitas Técnicas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-white mb-4">
-                Clique no mapa para registrar uma nova visita técnica.
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Formulário de Cadastro */}
-          <Card className="mb-8 bg-gray-500">
-            <CardHeader>
-              <CardTitle>
-                {pesqueiroEmEdicao ? "Editar Atividade" : "Cadastrar Nova Atividade"}
-              </CardTitle>
-            </CardHeader>
-        <CardContent>
-          {/* Mapa do Google Maps */}
-          <div className="mb-8">
-            <Label className="text-base font-semibold mb-4 block">
-              Selecione a localização no mapa
-            </Label>
-
-            {/* Componente para inserção manual de coordenadas */}
-            <div className="bg-gray-500 rounded-lg p-4">
-              <IconSelector 
-                onLocationSelect={(lat, lng) => {
-                  setLatitude(lat);
-                  setLongitude(lng);
-                }}
-                onMapCenterChange={(lat, lng) => {
-                  setMapCenter({ lat, lng });
-                  setMapZoom(15);
-                }}
-                initialLatitude={latitude}
-                initialLongitude={longitude}
-              />
-            </div>
-
-            <div className="rounded-lg overflow-hidden border relative">
-              <GoogleMap
-                mapContainerStyle={mapContainerStyle}
-                center={mapCenter}
-                zoom={mapZoom}
-                onClick={handleMapClick}
-                onLoad={() => setMapLoaded(true)}
-                options={{
-                  mapTypeId: google.maps.MapTypeId.HYBRID,
-                  mapTypeControl: true,
-                  streetViewControl: false,
-                  fullscreenControl: false,
-                }}
-              >
-                {/* Marcadores dos pesqueiros existentes */}
-                {pesqueirosCadastrados.map((pesca) => (
-                  <MarkerF
-                    key={pesca.id}
-                    position={{ lat: pesca.latitude, lng: pesca.longitude }}
-                    onClick={() => handleMarkerClick(pesca)}
-                    icon={{
-                      url: "/pesca-icon.png",
-                      scaledSize: new window.google.maps.Size(40, 40),
-                      anchor: new window.google.maps.Point(20, 40),
+          <TabsContent value="viveiros">
+            <Card className="mb-8 bg-gray-500">
+              <CardHeader>
+                <CardTitle className="text-white">Viveiros em Construção</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-white mb-4">
+                  Clique no mapa para cadastrar um novo viveiro em construção.
+                </p>
+                
+                <div className="rounded-lg overflow-hidden border relative">
+                  <GoogleMap
+                    mapContainerStyle={mapContainerStyle}
+                    center={mapCenter}
+                    zoom={mapZoom}
+                    onClick={handleMapClick}
+                    onLoad={() => setMapLoaded(true)}
+                    options={{
+                      mapTypeId: google.maps.MapTypeId.HYBRID,
+                      mapTypeControl: true,
+                      streetViewControl: false,
+                      fullscreenControl: false,
                     }}
-                  />
-                ))}
-
-                {/* Marcador para a nova localização selecionada */}
-                {latitude && longitude && (
-                  <MarkerF
-                    position={{ lat: latitude, lng: longitude }}
-                    icon={{
-                      url: "/pesca-icon.png",
-                      scaledSize: new window.google.maps.Size(50, 50),
-                      anchor: new window.google.maps.Point(25, 50),
-                    }}
-                  />
-                )}
-
-                {/* Contorno do município */}
-                {showBoundary && (
-                  <Polygon
-                    paths={correctedBoundary}
-                    options={boundaryStyle}
-                  />
-                )}
-              </GoogleMap>
-              
-              {/* Botão de controle para o limite municipal */}
-              <div className="absolute top-4 right-4 z-10">
-                <button
-                  onClick={() => setShowBoundary(!showBoundary)}
-                  className={styles["boundary-toggle"]}
-                  title={showBoundary ? "Ocultar Contorno Municipal" : "Mostrar Contorno Municipal"}
-                >
-                  <img 
-                    src="/contornoicone.png" 
-                    alt="Contorno Municipal" 
-                    className={`${showBoundary ? styles["icon-active"] : ""}`}
-                  />
-                </button>
-              </div>
-            </div>
-
-            {latitude && longitude && (
-              <div className="mt-2 text-sm text-gray-600">
-                <strong>Coordenadas selecionadas:</strong> {latitude.toFixed(6)}, {longitude.toFixed(6)}
-              </div>
-            )}
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="localidade">Localidade</Label>
-                <Input
-                  id="localidade"
-                  value={localidade}
-                  onChange={(e) => setLocalidade(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="nomeImovel">Nome do Imóvel Rural</Label>
-                <Input
-                  id="nomeImovel"
-                  value={nomeImovel}
-                  onChange={(e) => setNomeImovel(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="proprietario">Nome do Proprietário</Label>
-                <Input
-                  id="proprietario"
-                  value={proprietario}
-                  onChange={(e) => setProprietario(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="tipoTanque">Estrutura Aquícola</Label>
-                <Input
-                  id="tipoTanque"
-                  value={tipoTanque}
-                  onChange={(e) => setTipoTanque(e.target.value)}
-                  placeholder="Ex: Tanque escavado, tanque rede, etc."
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="areaAlagada">Área Alagada (ha)</Label>
-                <Input
-                  id="areaAlagada"
-                  type="number"
-                  step="0.01"
-                  value={areaAlagada}
-                  onChange={(e) => setAreaAlagada(Number(e.target.value))}
-                  placeholder="Ex: 2.5"
-                  required
-                  min="0"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="especiePeixe">Espécie de Peixe</Label>
-                <Input
-                  id="especiePeixe"
-                  value={especiePeixe}
-                  onChange={(e) => setEspeciePeixe(e.target.value)}
-                  placeholder="Ex: Tilápia, Tambaqui, etc."
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="quantidadeAlevinos">
-                  Quantidade de Alevinos (kg)
-                </Label>
-                <Input
-                  id="quantidadeAlevinos"
-                  type="number"
-                  step="0.01"
-                  value={quantidadeAlevinos}
-                  onChange={(e) =>
-                    setQuantidadeAlevinos(Number(e.target.value))
-                  }
-                  placeholder="Peso dos alevinos em kg"
-                  required
-                  min="0"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="metodoAlimentacao">Método de Alimentação</Label>
-                <Input
-                  id="metodoAlimentacao"
-                  value={metodoAlimentacao}
-                  onChange={(e) => setMetodoAlimentacao(e.target.value)}
-                  placeholder="Ex: Ração, alimentação natural, etc."
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="operador">Operador</Label>
-                <Input
-                  id="operador"
-                  value={operador}
-                  onChange={(e) => setOperador(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="tecnicoResponsavel">Técnico Responsável</Label>
-                <Input
-                  id="tecnicoResponsavel"
-                  value={tecnicoResponsavel}
-                  onChange={(e) => setTecnicoResponsavel(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="dataCadastroPesca">Data</Label>
-                <Input
-                  id="dataCadastroPesca"
-                  type="date"
-                  value={dataCadastro}
-                  onChange={(e) => setDataCadastro(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-white">Fotos/Vídeos</Label>
-              <div className="bg-gray-500 rounded-lg p-4">
-                <EnhancedUpload onUpload={handleUpload} />
-              </div>
-              <div className="grid grid-cols-4 gap-2 mt-2">
-                {midias.map((url, index) => (
-                  <div key={index} className="relative group">
-                    {url.includes("/video/") || url.includes("/video/upload/") || 
-                      url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".mov") ? (
-                      <video
-                        src={url}
-                        controls
-                        className="w-full h-24 object-cover rounded-lg"
-                        onError={(e) => {
-                          console.error("Erro ao carregar vídeo:", url);
-                          e.currentTarget.poster = 'https://placehold.co/600x400?text=Erro+no+vídeo';
-                        }}
-                      />
-                    ) : (
-                      <img
-                        src={url}
-                        alt={`Mídia ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg"
-                        onError={(e) => {
-                          console.error("Erro ao carregar imagem:", url);
-                          (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Erro+ao+carregar';
-                        }}
+                  >
+                    {/* Contorno do município */}
+                    {showBoundary && (
+                      <Polygon
+                        paths={correctedBoundary}
+                        options={boundaryStyle}
                       />
                     )}
-                    <Button 
-                      variant="destructive" 
-                      size="sm"
-                      className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-red-600 text-white hover:bg-red-700"
-                      onClick={() => setMidias(midias.filter((_, i) => i !== index))}
+                  </GoogleMap>
+                  
+                  {/* Botão de controle para o limite municipal */}
+                  <div className="absolute top-4 right-4 z-10">
+                    <button
+                      onClick={() => setShowBoundary(!showBoundary)}
+                      className={styles["boundary-toggle"]}
+                      title={showBoundary ? "Ocultar Contorno Municipal" : "Mostrar Contorno Municipal"}
                     >
-                      ✕
-                    </Button>
+                      <img 
+                        src="/contornoicone.png" 
+                        alt="Contorno Municipal" 
+                        className={`${showBoundary ? styles["icon-active"] : ""}`}
+                      />
+                    </button>
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-            <div className="flex gap-2">
-              <Button type="submit" disabled={loading} className="flex-1 bg-green-600 text-black hover:bg-green-700 hover:text-black">
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Salvando...
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    <Plus className="h-4 w-4" />
-                    {pesqueiroEmEdicao ? "Atualizar" : "Adicionar"}
-                  </span>
-                )}
-              </Button>
-
-              {pesqueiroEmEdicao && (
-                <Button type="button" variant="outline" onClick={cancelarEdicao} className="bg-green-600 text-black border-green-600 hover:bg-green-700 hover:text-black">
-                  Cancelar
-                </Button>
-              )}
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-
-          {/* Lista de Pesqueiros Cadastrados */}
-          <Card className="bg-gray-500">
-            <CardHeader>
-              <CardTitle className="text-white">Pesqueiros Cadastrados</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {pesqueirosCadastrados.length === 0 ? (
-                  <p className="text-white text-center py-8">
-                    Nenhum pesqueiro cadastrado ainda.
-                  </p>
-                ) : (
-                  pesqueirosCadastrados.map((pesqueiro) => (
-                    <div
-                      key={pesqueiro.id}
-                      className="flex items-center justify-between p-4 border rounded-lg bg-gray-400"
+          <TabsContent value="visitas">
+            <Card className="mb-8 bg-gray-500">
+              <CardHeader>
+                <CardTitle className="text-white">Visitas Técnicas</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-white mb-4">
+                  Clique no mapa para registrar uma nova visita técnica.
+                </p>
+                
+                <div className="rounded-lg overflow-hidden border relative">
+                  <GoogleMap
+                    mapContainerStyle={mapContainerStyle}
+                    center={mapCenter}
+                    zoom={mapZoom}
+                    onClick={handleMapClick}
+                    onLoad={() => setMapLoaded(true)}
+                    options={{
+                      mapTypeId: google.maps.MapTypeId.HYBRID,
+                      mapTypeControl: true,
+                      streetViewControl: false,
+                      fullscreenControl: false,
+                    }}
+                  >
+                    {/* Contorno do município */}
+                    {showBoundary && (
+                      <Polygon
+                        paths={correctedBoundary}
+                        options={boundaryStyle}
+                      />
+                    )}
+                  </GoogleMap>
+                  
+                  {/* Botão de controle para o limite municipal */}
+                  <div className="absolute top-4 right-4 z-10">
+                    <button
+                      onClick={() => setShowBoundary(!showBoundary)}
+                      className={styles["boundary-toggle"]}
+                      title={showBoundary ? "Ocultar Contorno Municipal" : "Mostrar Contorno Municipal"}
                     >
-                      <div>
-                        <h3 className="font-semibold text-white">{pesqueiro.localidade}</h3>
-                        <p className="text-sm text-white">
-                          {pesqueiro.nomeImovel} -{" "}
-                          {pesqueiro.concluido ? "Concluído" : "Em Andamento"}
-                        </p>
-                        <p className="text-xs text-white">
-                          Proprietário: {pesqueiro.proprietario}
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditarPesqueiro(pesqueiro)}
-                          className="bg-green-600 text-black border-green-600 hover:bg-green-700 hover:text-black"
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleExcluirPesqueiro(pesqueiro.id)}
-                          className="bg-red-600 text-white hover:bg-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                      <img 
+                        src="/contornoicone.png" 
+                        alt="Contorno Municipal" 
+                        className={`${showBoundary ? styles["icon-active"] : ""}`}
+                      />
+                    </button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
-      {/* Formulários modais das novas abas */}
-      <FormViveiros
-        latitude={clickedLat}
-        longitude={clickedLng}
-        isOpen={showFormViveiros}
-        onClose={() => setShowFormViveiros(false)}
-        onSuccess={handleViveirosSuccess}
-      />
+        {/* Formulários modais das novas abas */}
+        <FormViveiros
+          latitude={clickedLat}
+          longitude={clickedLng}
+          isOpen={showFormViveiros}
+          onClose={() => setShowFormViveiros(false)}
+          onSuccess={handleViveirosSuccess}
+        />
 
-      <FormVisitasTecnicas
-        latitude={clickedLat}
-        longitude={clickedLng}
-        isOpen={showFormVisitas}
-        onClose={() => setShowFormVisitas(false)}
-        onSuccess={handleVisitasSuccess}
-      />
+        <FormVisitasTecnicas
+          latitude={clickedLat}
+          longitude={clickedLng}
+          isOpen={showFormVisitas}
+          onClose={() => setShowFormVisitas(false)}
+          onSuccess={handleVisitasSuccess}
+        />
       </div>
     </div>
   );
