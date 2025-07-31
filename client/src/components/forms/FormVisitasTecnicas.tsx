@@ -55,17 +55,6 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
     setLoading(true);
 
     try {
-      // Verificar se o usuário está autenticado
-      if (!userAuth || !userAuth.user?.uid) {
-        toast({
-          title: "Erro de Autenticação",
-          description: "Usuário não autenticado. Faça login novamente.",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
       const visitaData = {
         dataVisita,
         horaInicio,
@@ -77,7 +66,7 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
         longitude,
         midias,
         timestamp: serverTimestamp(),
-        userId: userAuth.user?.uid,
+        userId: userAuth?.user?.uid || 'anonymous',
       };
 
       await addDoc(collection(db, 'visitas_tecnicas'), visitaData);
