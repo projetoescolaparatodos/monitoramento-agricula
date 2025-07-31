@@ -33,25 +33,21 @@ import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Cart
 
 interface ViveiroEstrutura {
   id: string;
-  nomeProprietario?: string;
-  proprietario?: string; // Campo alternativo
-  localidade?: string;
-  latitude?: number;
-  longitude?: number;
-  statusObra?: 'Iniciada' | 'Em andamento' | 'Concluída' | 'Parada';
-  status?: string; // Campo alternativo
-  tipoViveiro?: string;
-  tipo?: string; // Campo alternativo
-  tamanho?: number;
-  capacidade?: number;
-  observacoes?: string;
-  observacao?: string; // Campo alternativo
-  tecnicoResponsavel?: string;
-  tecnico?: string; // Campo alternativo
-  dataCadastro?: string;
-  data?: string; // Campo alternativo
+  localidade: string;
+  nomePropriedade: string;
+  especieCultivada: string;
+  tamanhoViveiro: number;
+  dataInicio: string;
+  dataTermino: string;
+  latitude: number;
+  longitude: number;
+  midias?: string[];
   criadoEm?: any;
   userId?: string;
+  // Campos opcionais para compatibilidade
+  observacoes?: string;
+  tecnicoResponsavel?: string;
+  statusObra?: string;
 }
 
 const MetadadosViveiros = () => {
@@ -67,45 +63,28 @@ const MetadadosViveiros = () => {
   useEffect(() => {
     const fetchViveiros = async () => {
       try {
-        // Tenta buscar em diferentes coleções possíveis
-        const possiveisColecoes = ['viveiros', 'viveiros_construcao', 'cadastro_viveiros', 'pesca_viveiros'];
-        let viveirosData: ViveiroEstrutura[] = [];
+        console.log('🔍 Buscando viveiros na coleção: viveiros_em_construcao');
+        const viveirosRef = collection(db, 'viveiros_em_construcao');
+        const q = query(viveirosRef, orderBy('criadoEm', 'desc'));
+        const snapshot = await getDocs(q);
         
-        for (const nomeColecao of possiveisColecoes) {
-          try {
-            console.log(`🔍 Buscando viveiros na coleção: ${nomeColecao}`);
-            const viveirosRef = collection(db, nomeColecao);
-            const q = query(viveirosRef, orderBy('criadoEm', 'desc'));
-            const snapshot = await getDocs(q);
-            
-            if (!snapshot.empty) {
-              console.log(`✅ Encontrados ${snapshot.size} viveiros na coleção ${nomeColecao}`);
-              viveirosData = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-              })) as ViveiroEstrutura[];
-              break; // Para na primeira coleção que encontrar dados
-            } else {
-              console.log(`⚠️ Coleção ${nomeColecao} está vazia`);
-            }
-          } catch (colecaoError) {
-            console.log(`❌ Erro ao acessar coleção ${nomeColecao}:`, colecaoError);
-            continue; // Tenta a próxima coleção
-          }
-        }
-        
-        if (viveirosData.length === 0) {
-          console.warn('Nenhum viveiro encontrado em nenhuma das coleções');
+        if (!snapshot.empty) {
+          console.log(`✅ Encontrados ${snapshot.size} viveiros na coleção viveiros_em_construcao`);
+          const viveirosData = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          })) as ViveiroEstrutura[];
+          
+          console.log(`📊 Total de viveiros carregados: ${viveirosData.length}`);
+          setViveiros(viveirosData);
+        } else {
+          console.log('⚠️ Coleção viveiros_em_construcao está vazia');
           toast({
             title: "Aviso",
-            description: "Nenhum viveiro cadastrado foi encontrado no sistema.",
+            description: "Nenhum viveiro em construção foi encontrado no sistema.",
             variant: "default",
           });
-        } else {
-          console.log(`📊 Total de viveiros carregados: ${viveirosData.length}`);
         }
-        
-        setViveiros(viveirosData);
       } catch (error) {
         console.error('Erro ao buscar viveiros:', error);
         toast({
@@ -124,17 +103,18 @@ const MetadadosViveiros = () => {
   // Dados filtrados
   const viveirosFiltrados = useMemo(() => {
     return viveiros.filter(viveiro => {
-      const status = viveiro.statusObra || viveiro.status || 'Não informado';
-      const tecnico = viveiro.tecnicoResponsavel || viveiro.tecnico || 'Não informado';
+      const status = viveiro.statusObra || 'Em construção';
+      const tecnico = viveiro.tecnicoResponsavel || 'Não informado';
       const localidade = viveiro.localidade || 'Não informado';
-      const proprietario = viveiro.nomeProprietario || viveiro.proprietario || '';
+      const proprietario = viveiro.nomePropriedade || '';
       
       const matchStatus = filtroStatus === 'todos' || status === filtroStatus;
       const matchTecnico = filtroTecnico === 'todos' || tecnico === filtroTecnico;
       const matchLocalidade = filtroLocalidade === 'todos' || localidade === filtroLocalidade;
       const matchBusca = busca === '' || 
         proprietario.toLowerCase().includes(busca.toLowerCase()) ||
-        localidade.toLowerCase().includes(busca.toLowerCase());
+        localidade.toLowerCase().includes(busca.toLowerCase()) ||
+        viveiro.especieCultivada?.toLowerCase().includes(busca.toLowerCase());
       
       return matchStatus && matchTecnico && matchLocalidade && matchBusca;
     });
@@ -143,7 +123,8 @@ const MetadadosViveiros = () => {
   // Dados para gráficos
   const dadosStatus = useMemo(() => {
     const contagem = viveirosFiltrados.reduce((acc, viveiro) => {
-      acc[viveiro.statusObra] = (acc[viveiro.statusObra] || 0) + 1;
+      const status = viveiro.statusObra || 'Em construção';
+      acc[status] = (acc[status] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
@@ -153,6 +134,7 @@ const MetadadosViveiros = () => {
       cor: {
         'Iniciada': '#FCD34D',
         'Em andamento': '#60A5FA',
+        'Em construção': '#60A5FA',
         'Concluída': '#34D399',
         'Parada': '#F87171'
       }[status] || '#9CA3AF'
@@ -161,7 +143,8 @@ const MetadadosViveiros = () => {
 
   const dadosTemporais = useMemo(() => {
     const cadastrosPorMes = viveirosFiltrados.reduce((acc, viveiro) => {
-      const mes = format(new Date(viveiro.dataCadastro), 'MM/yyyy');
+      const dataInicio = viveiro.dataInicio || viveiro.criadoEm?.toDate?.() || new Date();
+      const mes = format(new Date(dataInicio), 'MM/yyyy');
       acc[mes] = (acc[mes] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -188,6 +171,7 @@ const MetadadosViveiros = () => {
     switch (status) {
       case 'Iniciada': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
       case 'Em andamento': return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'Em construção': return 'bg-blue-100 text-blue-800 border-blue-300';
       case 'Concluída': return 'bg-green-100 text-green-800 border-green-300';
       case 'Parada': return 'bg-red-100 text-red-800 border-red-300';
       default: return 'bg-gray-100 text-gray-800 border-gray-300';
@@ -227,8 +211,8 @@ const MetadadosViveiros = () => {
               <div className="text-xs">Concluídos</div>
             </div>
             <div className="bg-green-700 rounded-lg p-3">
-              <div className="text-2xl font-bold">{dadosStatus.find(d => d.status === 'Em andamento')?.quantidade || 0}</div>
-              <div className="text-xs">Em Andamento</div>
+              <div className="text-2xl font-bold">{dadosStatus.find(d => d.status === 'Em construção' || d.status === 'Em andamento')?.quantidade || 0}</div>
+              <div className="text-xs">Em Construção</div>
             </div>
           </div>
         </div>
@@ -328,13 +312,13 @@ const MetadadosViveiros = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Proprietário</TableHead>
+                        <TableHead>Propriedade</TableHead>
                         <TableHead>Localidade</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead>Tipo</TableHead>
+                        <TableHead>Espécie Cultivada</TableHead>
                         <TableHead>Tamanho</TableHead>
                         <TableHead>Técnico</TableHead>
-                        <TableHead>Data Cadastro</TableHead>
+                        <TableHead>Data Início</TableHead>
                         <TableHead>Ações</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -345,18 +329,18 @@ const MetadadosViveiros = () => {
                           className={`cursor-pointer hover:bg-gray-50 ${viveiroSelecionado?.id === viveiro.id ? 'bg-blue-50' : ''}`}
                           onClick={() => setViveiroSelecionado(viveiro)}
                         >
-                          <TableCell className="font-medium">{viveiro.nomeProprietario}</TableCell>
+                          <TableCell className="font-medium">{viveiro.nomePropriedade}</TableCell>
                           <TableCell>{viveiro.localidade}</TableCell>
                           <TableCell>
-                            <Badge variant="outline" className={getStatusColor(viveiro.statusObra)}>
-                              {viveiro.statusObra}
+                            <Badge variant="outline" className={getStatusColor(viveiro.statusObra || 'Em construção')}>
+                              {viveiro.statusObra || 'Em construção'}
                             </Badge>
                           </TableCell>
-                          <TableCell>{viveiro.tipoViveiro}</TableCell>
-                          <TableCell>{viveiro.tamanho}m²</TableCell>
-                          <TableCell>{viveiro.tecnicoResponsavel}</TableCell>
+                          <TableCell>{viveiro.especieCultivada}</TableCell>
+                          <TableCell>{viveiro.tamanhoViveiro}m²</TableCell>
+                          <TableCell>{viveiro.tecnicoResponsavel || 'Não informado'}</TableCell>
                           <TableCell>
-                            {format(new Date(viveiro.dataCadastro), 'dd/MM/yyyy', { locale: ptBR })}
+                            {viveiro.dataInicio ? format(new Date(viveiro.dataInicio), 'dd/MM/yyyy', { locale: ptBR }) : 'Não informado'}
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2">
@@ -387,7 +371,7 @@ const MetadadosViveiros = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Eye className="h-5 w-5" />
-                  Detalhes - {viveiroSelecionado.nomeProprietario}
+                  Detalhes - {viveiroSelecionado.nomePropriedade}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -396,7 +380,16 @@ const MetadadosViveiros = () => {
                     <strong>Localidade:</strong> {viveiroSelecionado.localidade}
                   </div>
                   <div>
-                    <strong>Capacidade:</strong> {viveiroSelecionado.capacidade} peixes
+                    <strong>Espécie Cultivada:</strong> {viveiroSelecionado.especieCultivada}
+                  </div>
+                  <div>
+                    <strong>Tamanho:</strong> {viveiroSelecionado.tamanhoViveiro}m²
+                  </div>
+                  <div>
+                    <strong>Data Início:</strong> {viveiroSelecionado.dataInicio ? format(new Date(viveiroSelecionado.dataInicio), 'dd/MM/yyyy', { locale: ptBR }) : 'Não informado'}
+                  </div>
+                  <div>
+                    <strong>Data Término:</strong> {viveiroSelecionado.dataTermino ? format(new Date(viveiroSelecionado.dataTermino), 'dd/MM/yyyy', { locale: ptBR }) : 'Não informado'}
                   </div>
                   <div>
                     <strong>Coordenadas:</strong> {viveiroSelecionado.latitude?.toFixed(6)}, {viveiroSelecionado.longitude?.toFixed(6)}
