@@ -24,7 +24,10 @@ import {
   Search,
   Loader2,
   Map as MapIcon,
-  Building2
+  Building2,
+  Fuel,
+  Calculator,
+  Truck
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -50,7 +53,47 @@ interface ViveiroEstrutura {
   observacoes?: string;
   tecnicoResponsavel?: string;
   statusObra?: string;
+  // Campos para estimativa de combustível
+  maquinaUtilizada?: 'retroescavadeira' | 'trator' | 'pá carregadeira' | 'escavadeira';
+  horasOperacaoDia?: number;
 }
+
+interface EstimativaCombustivel {
+  totalLitros: number;
+  diasOperacao: number;
+  maquinaUsada: string;
+  consumoPorHora: number;
+  horasPorDia: number;
+}
+
+// Função para calcular estimativa de combustível
+const calcularEstimativaCombustivel = (viveiro: ViveiroEstrutura): EstimativaCombustivel => {
+  const consumoPorHora = {
+    retroescavadeira: 12,
+    trator: 10,
+    'pá carregadeira': 14,
+    escavadeira: 15,
+  };
+
+  const horasPorDiaPadrao = viveiro.horasOperacaoDia || 5;
+  const maquinaUsada = viveiro.maquinaUtilizada || 'retroescavadeira';
+  
+  // Calcular dias de operação
+  const inicio = new Date(viveiro.dataInicio);
+  const fim = new Date(viveiro.dataTermino);
+  const diasOperacao = Math.ceil((fim.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24)) || 1;
+  
+  const consumoHora = consumoPorHora[maquinaUsada];
+  const totalLitros = diasOperacao * horasPorDiaPadrao * consumoHora;
+
+  return {
+    totalLitros,
+    diasOperacao,
+    maquinaUsada,
+    consumoPorHora: consumoHora,
+    horasPorDia: horasPorDiaPadrao
+  };
+};
 
 const MetadadosViveiros = () => {
   const [viveiros, setViveiros] = useState<ViveiroEstrutura[]>([]);
@@ -191,6 +234,28 @@ const MetadadosViveiros = () => {
       .map(([mes, quantidade]) => ({ mes, quantidade }));
   }, [viveirosFiltrados]);
 
+  // Dados de combustível
+  const dadosCombustivel = useMemo(() => {
+    const combustivelPorMes = viveirosFiltrados.reduce((acc, viveiro) => {
+      const dataInicio = viveiro.dataInicio || viveiro.criadoEm?.toDate?.() || new Date();
+      const mes = format(new Date(dataInicio), 'MM/yyyy');
+      const estimativa = calcularEstimativaCombustivel(viveiro);
+      acc[mes] = (acc[mes] || 0) + estimativa.totalLitros;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(combustivelPorMes)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([mes, litros]) => ({ mes, litros: Math.round(litros) }));
+  }, [viveirosFiltrados]);
+
+  const totalCombustivelEstimado = useMemo(() => {
+    return viveirosFiltrados.reduce((total, viveiro) => {
+      const estimativa = calcularEstimativaCombustivel(viveiro);
+      return total + estimativa.totalLitros;
+    }, 0);
+  }, [viveirosFiltrados]);
+
   const tecnicos = useMemo(() => 
     [...new Set(viveiros.map(v => v.tecnicoResponsavel))].filter(Boolean)
   , [viveiros]);
@@ -272,7 +337,7 @@ const MetadadosViveiros = () => {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 text-center">
+          <div className="grid grid-cols-3 gap-4 text-center">
             <div className="bg-green-700 rounded-lg p-3">
               <div className="text-2xl font-bold">{dadosStatus.find(d => d.status === 'Concluída')?.quantidade || 0}</div>
               <div className="text-xs">Concluídos</div>
@@ -280,6 +345,10 @@ const MetadadosViveiros = () => {
             <div className="bg-green-700 rounded-lg p-3">
               <div className="text-2xl font-bold">{dadosStatus.find(d => d.status === 'Em construção' || d.status === 'Em andamento')?.quantidade || 0}</div>
               <div className="text-xs">Em Construção</div>
+            </div>
+            <div className="bg-green-700 rounded-lg p-3">
+              <div className="text-2xl font-bold">{Math.round(totalCombustivelEstimado).toLocaleString()}</div>
+              <div className="text-xs">Litros Estimados</div>
             </div>
           </div>
         </div>
@@ -384,6 +453,7 @@ const MetadadosViveiros = () => {
                         <TableHead>Status</TableHead>
                         <TableHead>Espécie Cultivada</TableHead>
                         <TableHead>Tamanho</TableHead>
+                        <TableHead>Combustível Est.</TableHead>
                         <TableHead>Técnico</TableHead>
                         <TableHead>Data Início</TableHead>
                         <TableHead>Ações</TableHead>
@@ -405,6 +475,12 @@ const MetadadosViveiros = () => {
                           </TableCell>
                           <TableCell>{viveiro.especieCultivada}</TableCell>
                           <TableCell>{typeof viveiro.tamanhoViveiro === 'string' ? parseFloat(viveiro.tamanhoViveiro).toFixed(0) : viveiro.tamanhoViveiro}m²</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1 text-amber-600">
+                              <Fuel className="h-4 w-4" />
+                              <span className="font-medium">{Math.round(calcularEstimativaCombustivel(viveiro).totalLitros)}L</span>
+                            </div>
+                          </TableCell>
                           <TableCell>{viveiro.tecnicoResponsavel || 'Não informado'}</TableCell>
                           <TableCell>
                             {viveiro.dataInicio ? format(new Date(viveiro.dataInicio), 'dd/MM/yyyy', { locale: ptBR }) : 'Não informado'}
@@ -458,6 +534,46 @@ const MetadadosViveiros = () => {
                   <div>
                     <strong>Data Término:</strong> {viveiroSelecionado.dataTermino ? format(new Date(viveiroSelecionado.dataTermino), 'dd/MM/yyyy', { locale: ptBR }) : 'Não informado'}
                   </div>
+                  <div>
+                    <strong>Coordenadas:</strong> {viveiroSelecionado.latitude?.toFixed(6)}, {viveiroSelecionado.longitude?.toFixed(6)}
+                  </div>
+                </div>
+
+                {/* Seção de Estimativa de Combustível */}
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-amber-800 mb-3 flex items-center gap-2">
+                    <Fuel className="h-5 w-5" />
+                    Estimativa de Combustível
+                  </h4>
+                  {(() => {
+                    const estimativa = calcularEstimativaCombustivel(viveiroSelecionado);
+                    return (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
+                        <div className="bg-white rounded p-3 text-center">
+                          <div className="text-xl font-bold text-amber-600">{Math.round(estimativa.totalLitros)}L</div>
+                          <div className="text-amber-700">Total Estimado</div>
+                        </div>
+                        <div className="bg-white rounded p-3 text-center">
+                          <div className="text-lg font-semibold text-gray-700">{estimativa.diasOperacao} dias</div>
+                          <div className="text-gray-600">Duração da Obra</div>
+                        </div>
+                        <div className="bg-white rounded p-3 text-center">
+                          <div className="text-lg font-semibold text-gray-700">{estimativa.horasPorDia}h/dia</div>
+                          <div className="text-gray-600">Horas Operação</div>
+                        </div>
+                        <div className="bg-white rounded p-3 text-center">
+                          <div className="text-lg font-semibold text-gray-700">{estimativa.consumoPorHora}L/h</div>
+                          <div className="text-gray-600">{estimativa.maquinaUsada}</div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                  <div className="mt-3 text-xs text-amber-700 bg-amber-100 p-2 rounded">
+                    <strong>💡 Cálculo:</strong> {calcularEstimativaCombustivel(viveiroSelecionado).diasOperacao} dias × {calcularEstimativaCombustivel(viveiroSelecionado).horasPorDia}h/dia × {calcularEstimativaCombustivel(viveiroSelecionado).consumoPorHora}L/h = {Math.round(calcularEstimativaCombustivel(viveiroSelecionado).totalLitros)} litros
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
                     <strong>Coordenadas:</strong> {viveiroSelecionado.latitude?.toFixed(6)}, {viveiroSelecionado.longitude?.toFixed(6)}
                   </div>
@@ -537,6 +653,69 @@ const MetadadosViveiros = () => {
             </Card>
           </div>
 
+          {/* Gráfico de Combustível */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Fuel className="h-5 w-5" />
+                  Estimativa de Combustível por Mês
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={dadosCombustivel}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="mes" />
+                    <YAxis />
+                    <Tooltip formatter={(value) => [`${value} litros`, 'Combustível']} />
+                    <Bar dataKey="litros" fill="#F59E0B" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calculator className="h-5 w-5" />
+                  Resumo de Combustível
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-amber-600 mb-2">
+                      {Math.round(totalCombustivelEstimado).toLocaleString()} L
+                    </div>
+                    <div className="text-amber-700 font-medium">Total Estimado de Combustível</div>
+                    <div className="text-sm text-amber-600 mt-2">
+                      Para {viveirosFiltrados.length} viveiros em construção
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Média por viveiro:</span>
+                    <span className="font-medium">
+                      {viveirosFiltrados.length > 0 ? Math.round(totalCombustivelEstimado / viveirosFiltrados.length) : 0}L
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Custo estimado*:</span>
+                    <span className="font-medium">
+                      R$ {(totalCombustivelEstimado * 6.50).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    * Baseado em R$ 6,50 por litro de diesel
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           {/* Cards de estatísticas */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {dadosStatus.map((item) => (
@@ -550,6 +729,41 @@ const MetadadosViveiros = () => {
               </Card>
             ))}
           </div>
+
+          {/* Card Especial de Combustível */}
+          <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-amber-800">
+                <Fuel className="h-6 w-6" />
+                Estimativa Total de Combustível
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="text-3xl font-bold text-amber-600">
+                    {Math.round(totalCombustivelEstimado).toLocaleString()}L
+                  </div>
+                  <div className="text-amber-700 text-sm">Total Estimado</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-green-600">
+                    R$ {(totalCombustivelEstimado * 6.50).toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
+                  </div>
+                  <div className="text-green-700 text-sm">Custo Estimado</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-blue-600">
+                    {viveirosFiltrados.length > 0 ? Math.round(totalCombustivelEstimado / viveirosFiltrados.length) : 0}L
+                  </div>
+                  <div className="text-blue-700 text-sm">Média por Viveiro</div>
+                </div>
+              </div>
+              <div className="mt-4 text-center text-xs text-amber-600 bg-amber-100 p-2 rounded">
+                💡 <strong>Como calculamos:</strong> Dias de obra × Horas/dia × Consumo da máquina (L/h)
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="mapa" className="space-y-4">
