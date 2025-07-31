@@ -107,6 +107,8 @@ function Router() {
             <Route path="/paa" component={PAAInfo} />
             <Route path="/paa/map" component={PAAMap} />
             <Route path="/dashboard/:section?" component={Dashboard} />
+            <Route path="/dashboard" component={Dashboard} />
+            <Route path="/admin/secretario" component={AdminSecretario} />
             <Route path="/login" component={Login} />
             <Route path="/login/admin" component={AdminLogin} />
             <Route path="/login/admin/gestor" component={AdminLoginGestor} />
@@ -160,7 +162,6 @@ function Router() {
             <Route path="/admin-panels" component={AdminPanels} />
             <Route path="/admin/info-panels" component={AdminPanels} />
             <Route path="/admin/dynamic-stats" component={AdminDynamicStats} />
-            <Route path="/admin/secretario" component={AdminSecretario} />
             <Route path="/registrar-doacao" component={RegistrarDoacao} />
             <Route path="/evento-telao" component={EventoTelao} />
             <Route path="/eventos-disponiveis" component={EventosDisponiveis} />
