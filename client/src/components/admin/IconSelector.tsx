@@ -129,6 +129,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({
             value={latitude}
             onChange={(e) => handleLatitudeChange(e.target.value)}
             onBlur={() => validateCoordinates()}
+            className="text-black bg-white placeholder:text-gray-500"
           />
         </div>
         <div className="space-y-2">
@@ -145,6 +146,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({
             value={longitude}
             onChange={(e) => handleLongitudeChange(e.target.value)}
             onBlur={() => validateCoordinates()}
+            className="text-black bg-white placeholder:text-gray-500"
           />
         </div>
       </div>

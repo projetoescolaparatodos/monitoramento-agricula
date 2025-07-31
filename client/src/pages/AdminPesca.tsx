@@ -867,6 +867,23 @@ const AdminPesca = () => {
                   Clique no mapa para cadastrar um novo viveiro em construção.
                 </p>
 
+                {/* Componente para inserção manual de coordenadas */}
+                <div className="bg-gray-500 rounded-lg p-4 mb-4">
+                  <IconSelector 
+                    onLocationSelect={(lat, lng) => {
+                      setClickedLat(lat);
+                      setClickedLng(lng);
+                      setShowFormViveiros(true);
+                    }}
+                    onMapCenterChange={(lat, lng) => {
+                      setMapCenter({ lat, lng });
+                      setMapZoom(15);
+                    }}
+                    initialLatitude={clickedLat}
+                    initialLongitude={clickedLng}
+                  />
+                </div>
+
                 <div className="rounded-lg overflow-hidden border relative">
                   <GoogleMap
                     mapContainerStyle={mapContainerStyle}
@@ -918,6 +935,23 @@ const AdminPesca = () => {
                 <p className="text-white mb-4">
                   Clique no mapa para registrar uma nova visita técnica.
                 </p>
+
+                {/* Componente para inserção manual de coordenadas */}
+                <div className="bg-gray-500 rounded-lg p-4 mb-4">
+                  <IconSelector 
+                    onLocationSelect={(lat, lng) => {
+                      setClickedLat(lat);
+                      setClickedLng(lng);
+                      setShowFormVisitas(true);
+                    }}
+                    onMapCenterChange={(lat, lng) => {
+                      setMapCenter({ lat, lng });
+                      setMapZoom(15);
+                    }}
+                    initialLatitude={clickedLat}
+                    initialLongitude={clickedLng}
+                  />
+                </div>
 
                 <div className="rounded-lg overflow-hidden border relative">
                   <GoogleMap
