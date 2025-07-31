@@ -1,0 +1,85 @@
+🔁 ESTRUTURA DO FIREBASE
+
+Você já está salvando os dados da visita técnica no Firebase com os campos:
+
+    responsavel
+
+    descricao
+
+    data
+
+    coordenadas
+
+    midias[] (opcional, se houver)
+
+    localidade
+
+    criadoEm
+
+✅ PASSO A PASSO DE IMPLEMENTAÇÃO
+1. 📥 Buscar os dados
+
+Use o useEffect + getDocs para buscar os dados da coleção no Firestore:
+
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/services/firebase';
+import { useEffect, useState } from 'react';
+
+const useVisitasTecnicasPesca = () => {
+  const [visitas, setVisitas] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const colRef = collection(db, 'pesca_visitas_tecnicas');
+      const snapshot = await getDocs(colRef);
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setVisitas(data);
+    };
+
+    fetchData();
+  }, []);
+
+  return visitas;
+};
+
+2. 📋 Exibir os dados em um card ou tabela
+
+Exemplo de componente PescaVisitasTecnicas.tsx:
+
+import { Card, CardContent } from '@/components/ui/card';
+import { MapPin } from 'lucide-react';
+import { format } from 'date-fns';
+import useVisitasTecnicasPesca from './hooks/useVisitasTecnicasPesca';
+
+export default function PescaVisitasTecnicas() {
+  const visitas = useVisitasTecnicasPesca();
+
+  return (
+    <div className="grid gap-4">
+      {visitas.map((visita) => (
+        <Card key={visita.id} className="p-4 shadow-md">
+          <CardContent>
+            <h2 className="font-bold text-lg">{visita.responsavel}</h2>
+            <p className="text-gray-700 italic">{visita.localidade}</p>
+            <p className="mt-2">{visita.descricao}</p>
+            <p className="text-sm text-gray-500">
+              Data: {format(new Date(visita.data), 'dd/MM/yyyy')}
+            </p>
+
+            {visita.coordenadas && (
+              <a
+                className="inline-flex items-center mt-2 text-blue-600 hover:underline"
+                href={`https://www.google.com/maps?q=${visita.coordenadas.lat},${visita.coordenadas.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <MapPin className="w-4 h-4 mr-1" />
+                Ver no mapa
+              </a>
+            )}
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
