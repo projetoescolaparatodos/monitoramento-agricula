@@ -22,6 +22,7 @@ import {
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
+import MediaDisplay from '@/components/common/MediaDisplay';
 
 interface VisitaTecnica {
   id: string;
@@ -134,23 +135,64 @@ const RelatorioVisitasTecnicas = () => {
           <Package className="h-4 w-4" />
           Mídias ({midias.length})
         </h4>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-          {midias.slice(0, 4).map((midia, index) => (
-            <div key={index} className="relative">
-              {midia.includes('video') || midia.includes('.mp4') ? (
-                <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
-                  <Video className="h-6 w-6 text-gray-500" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {midias.slice(0, 6).map((midia, index) => {
+            const isVideo = midia.includes('video') || midia.includes('.mp4') || midia.includes('.webm') || midia.includes('.mov');
+            
+            return (
+              <div key={index} className="relative group">
+                {isVideo ? (
+                  <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                    <video
+                      src={midia}
+                      controls
+                      className="w-full h-full object-cover"
+                      preload="metadata"
+                    >
+                      Seu navegador não suporta o elemento de vídeo.
+                    </video>
+                  </div>
+                ) : (
+                  <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                    <img
+                      src={midia}
+                      alt={`Mídia ${index + 1}`}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
+                      loading="lazy"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent) {
+                          parent.innerHTML = `
+                            <div class="w-full h-full flex items-center justify-center bg-gray-200">
+                              <div class="text-center text-gray-500">
+                                <svg class="h-8 w-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <p class="text-xs">Erro ao carregar</p>
+                              </div>
+                            </div>
+                          `;
+                        }
+                      }}
+                    />
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
+                  <button
+                    onClick={() => window.open(midia, '_blank')}
+                    className="opacity-0 group-hover:opacity-100 bg-white text-gray-800 px-3 py-1 rounded-full text-sm font-medium transition-opacity duration-200 hover:bg-gray-100"
+                  >
+                    Ver completo
+                  </button>
                 </div>
-              ) : (
-                <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
-                  <Image className="h-6 w-6 text-gray-500" />
-                </div>
-              )}
-            </div>
-          ))}
-          {midias.length > 4 && (
-            <div className="aspect-square bg-gray-50 rounded-lg flex items-center justify-center text-sm text-gray-600">
-              +{midias.length - 4}
+              </div>
+            );
+          })}
+          {midias.length > 6 && (
+            <div className="aspect-square bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex items-center justify-center text-blue-700 font-medium">
+              +{midias.length - 6} mais
             </div>
           )}
         </div>
