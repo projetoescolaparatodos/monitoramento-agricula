@@ -36,14 +36,16 @@ interface ViveiroEstrutura {
   localidade: string;
   nomePropriedade: string;
   especieCultivada: string;
-  tamanhoViveiro: number;
+  tamanhoViveiro: number | string;
   dataInicio: string;
   dataTermino: string;
   latitude: number;
   longitude: number;
   midias?: string[];
   criadoEm?: any;
+  timestamp?: any;
   userId?: string;
+  tipo?: string;
   // Campos opcionais para compatibilidade
   observacoes?: string;
   tecnicoResponsavel?: string;
@@ -65,20 +67,55 @@ const MetadadosViveiros = () => {
       try {
         console.log('🔍 Buscando viveiros na coleção: viveiros_em_construcao');
         const viveirosRef = collection(db, 'viveiros_em_construcao');
-        const q = query(viveirosRef, orderBy('criadoEm', 'desc'));
+        const q = query(viveirosRef, orderBy('timestamp', 'desc'));
         const snapshot = await getDocs(q);
         
         if (!snapshot.empty) {
           console.log(`✅ Encontrados ${snapshot.size} viveiros na coleção viveiros_em_construcao`);
-          const viveirosData = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          })) as ViveiroEstrutura[];
+          const viveirosData = snapshot.docs.map(doc => {
+            const data = doc.data();
+            console.log('📋 Dados do viveiro:', data);
+            return {
+              id: doc.id,
+              ...data
+            };
+          }) as ViveiroEstrutura[];
           
           console.log(`📊 Total de viveiros carregados: ${viveirosData.length}`);
+          console.log('📝 Primeiro viveiro:', viveirosData[0]);
           setViveiros(viveirosData);
         } else {
           console.log('⚠️ Coleção viveiros_em_construcao está vazia');
+          console.log('🔍 Tentando buscar em outras possíveis coleções...');
+          
+          // Tentar buscar em coleções alternativas
+          const alternativeCollections = ['viveiros_construcao', 'viveiros', 'construcao_viveiros'];
+          
+          for (const collectionName of alternativeCollections) {
+            try {
+              console.log(`🔍 Verificando coleção: ${collectionName}`);
+              const altRef = collection(db, collectionName);
+              const altSnapshot = await getDocs(altRef);
+              
+              if (!altSnapshot.empty) {
+                console.log(`✅ Encontrados ${altSnapshot.size} viveiros na coleção ${collectionName}`);
+                const altViveirosData = altSnapshot.docs.map(doc => ({
+                  id: doc.id,
+                  ...doc.data()
+                })) as ViveiroEstrutura[];
+                
+                setViveiros(altViveirosData);
+                toast({
+                  title: "Sucesso",
+                  description: `Dados encontrados na coleção ${collectionName}`,
+                });
+                return;
+              }
+            } catch (err) {
+              console.log(`❌ Erro ao buscar na coleção ${collectionName}:`, err);
+            }
+          }
+          
           toast({
             title: "Aviso",
             description: "Nenhum viveiro em construção foi encontrado no sistema.",
@@ -189,6 +226,36 @@ const MetadadosViveiros = () => {
 
   return (
     <div className="space-y-6">
+      {/* Botão de teste - remover após verificação */}
+      <div className="mb-4">
+        <Button
+          onClick={async () => {
+            try {
+              const testRef = collection(db, 'viveiros_em_construcao');
+              const testSnapshot = await getDocs(testRef);
+              console.log('🧪 Teste direto - Documentos encontrados:', testSnapshot.size);
+              testSnapshot.forEach(doc => {
+                console.log('📄 Documento:', doc.id, doc.data());
+              });
+              toast({
+                title: "Teste Executado",
+                description: `Encontrados ${testSnapshot.size} documentos. Verifique o console.`,
+              });
+            } catch (error) {
+              console.error('❌ Erro no teste:', error);
+              toast({
+                title: "Erro no Teste",
+                description: "Verifique o console para detalhes.",
+                variant: "destructive",
+              });
+            }
+          }}
+          className="bg-blue-600 hover:bg-blue-700"
+        >
+          🧪 Testar Conexão Firebase
+        </Button>
+      </div>
+
       {/* Header com estatísticas gerais */}
       <div className="bg-gradient-to-r from-green-600 to-green-800 rounded-lg p-6 text-white">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -337,7 +404,7 @@ const MetadadosViveiros = () => {
                             </Badge>
                           </TableCell>
                           <TableCell>{viveiro.especieCultivada}</TableCell>
-                          <TableCell>{viveiro.tamanhoViveiro}m²</TableCell>
+                          <TableCell>{typeof viveiro.tamanhoViveiro === 'string' ? parseFloat(viveiro.tamanhoViveiro).toFixed(0) : viveiro.tamanhoViveiro}m²</TableCell>
                           <TableCell>{viveiro.tecnicoResponsavel || 'Não informado'}</TableCell>
                           <TableCell>
                             {viveiro.dataInicio ? format(new Date(viveiro.dataInicio), 'dd/MM/yyyy', { locale: ptBR }) : 'Não informado'}
