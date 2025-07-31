@@ -7,6 +7,8 @@ import {
   updateDoc,
   doc,
   deleteDoc,
+  query,
+  orderBy,
 } from "firebase/firestore";
 import IconSelector from "@/components/admin/IconSelector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -100,6 +102,8 @@ const AdminPesca = () => {
   const [viveirosEmConstrucao, setViveirosEmConstrucao] = useState<Viveiro[]>([
     { id: '1', latitude: -2.87922, longitude: -52.0088 }
   ]);
+  const [viveirosCadastrados, setViveirosCadastrados] = useState<any[]>([]);
+  const [loadingViveiros, setLoadingViveiros] = useState(false);
 
   // Estados para controle do contorno municipal
   const [showBoundary, setShowBoundary] = useState(true);
@@ -176,7 +180,33 @@ const AdminPesca = () => {
       }
     };
 
+    const fetchViveiros = async () => {
+      try {
+        setLoadingViveiros(true);
+        const viveirosRef = collection(db, 'viveiros_em_construcao');
+        const q = query(viveirosRef, orderBy('timestamp', 'desc'));
+        const snapshot = await getDocs(q);
+        
+        const viveirosData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        setViveirosCadastrados(viveirosData);
+      } catch (error) {
+        console.error("Erro ao buscar viveiros:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar os dados dos viveiros.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoadingViveiros(false);
+      }
+    };
+
     fetchPesqueiros();
+    fetchViveiros();
   }, [toast]);
 
   // Verificações condicionais (sempre executam após os hooks)
@@ -433,6 +463,37 @@ const AdminPesca = () => {
   const handleVisitasSuccess = () => {
     setClickedLat(null);
     setClickedLng(null);
+  };
+
+  const handleExcluirViveiro = async (viveiroId: string) => {
+    if (window.confirm("Tem certeza que deseja excluir este viveiro?")) {
+      try {
+        await deleteDoc(doc(db, "viveiros_em_construcao", viveiroId));
+        toast({
+          title: "Sucesso",
+          description: "Viveiro excluído com sucesso!",
+        });
+
+        // Recarrega os dados dos viveiros
+        const viveirosRef = collection(db, 'viveiros_em_construcao');
+        const q = query(viveirosRef, orderBy('timestamp', 'desc'));
+        const snapshot = await getDocs(q);
+        
+        const viveirosData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        setViveirosCadastrados(viveirosData);
+      } catch (error) {
+        console.error("Erro ao excluir viveiro:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível excluir o viveiro.",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   return (
@@ -868,9 +929,58 @@ const AdminPesca = () => {
           </TabsContent>
 
           <TabsContent value="viveiros">
+            {/* Lista de Viveiros Cadastrados */}
             <Card className="mb-8 bg-gray-500">
               <CardHeader>
-                <CardTitle className="text-white">Viveiros em Construção</CardTitle>
+                <CardTitle className="text-white">Viveiros Cadastrados</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {loadingViveiros ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-white" />
+                    <span className="ml-2 text-white">Carregando viveiros...</span>
+                  </div>
+                ) : viveirosCadastrados.length === 0 ? (
+                  <p className="text-white text-center py-8">
+                    Nenhum viveiro cadastrado ainda.
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    {viveirosCadastrados.map((viveiro) => (
+                      <Card key={viveiro.id} className="p-4 bg-gray-600">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-white mb-2">
+                              {viveiro.nomePropriedade || 'Propriedade não informada'}
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-white">
+                              <p><strong>Localidade:</strong> {viveiro.localidade || 'Não informado'}</p>
+                              <p><strong>Espécie:</strong> {viveiro.especieCultivada || 'Não informado'}</p>
+                              <p><strong>Tamanho:</strong> {viveiro.tamanhoViveiro || 'Não informado'}m²</p>
+                              <p><strong>Data Início:</strong> {viveiro.dataInicio ? new Date(viveiro.dataInicio).toLocaleDateString() : 'Não informado'}</p>
+                              <p><strong>Data Término:</strong> {viveiro.dataTermino ? new Date(viveiro.dataTermino).toLocaleDateString() : 'Não informado'}</p>
+                              <p><strong>Coordenadas:</strong> {viveiro.latitude?.toFixed(6)}, {viveiro.longitude?.toFixed(6)}</p>
+                            </div>
+                          </div>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleExcluirViveiro(viveiro.id)}
+                            className="bg-red-600 text-white hover:bg-red-700 ml-4"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="mb-8 bg-gray-500">
+              <CardHeader>
+                <CardTitle className="text-white">Cadastrar Novo Viveiro</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-white mb-4">
