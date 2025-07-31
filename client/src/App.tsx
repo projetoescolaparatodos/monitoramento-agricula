@@ -33,11 +33,12 @@ import AgricultureInfo from "./pages/AgricultureInfo";
 import BackgroundVideo from "./components/ui/BackgroundVideo";
 //import MediaGallery from "@/pages/MediaGallery"; // Removed import
 import GoogleDriveTest from "@/components/debug/GoogleDriveTest";
-import AdminPanels from '@/pages/AdminPanels';
-import AdminDynamicStats from '@/pages/AdminDynamicStats';
-import RegistrarDoacao from '@/pages/RegistrarDoacao';
-import EventoTelao from './pages/EventoTelao';
-import EventosDisponiveis from './pages/EventosDisponiveis';
+import AdminPanels from "./pages/AdminPanels";
+import AdminSecretario from "./pages/AdminSecretario";
+import AdminDynamicStats from "@/pages/AdminDynamicStats";
+import RegistrarDoacao from "@/pages/RegistrarDoacao";
+import EventoTelao from "./pages/EventoTelao";
+import EventosDisponiveis from "./pages/EventosDisponiveis";
 import AdminLoginGestor from "./pages/AdminLoginGestor";
 
 // Formulários Setoriais - Importação lazy para melhor performance
@@ -52,27 +53,29 @@ const FormPAA = lazy(() => import("./forms/paa/index"));
 function Router() {
   // Verifica se a rota atual é um formulário ou página administrativa
   const [location] = useLocation();
-  const isFormPage = location.startsWith('/forms');
-  const isReportPage = location === '/report';
-  const isAdminPage = location.startsWith('/admin') || location === '/dashboard';
-  const isMapPage = location.includes('/map') || 
-                   location.includes('Map') ||
-                   ['/agriculture/map', '/paa/map', '/pesca/map'].includes(location);
+  const isFormPage = location.startsWith("/forms");
+  const isReportPage = location === "/report";
+  const isAdminPage =
+    location.startsWith("/admin") || location === "/dashboard";
+  const isMapPage =
+    location.includes('/map') ||
+    location.includes('Map') ||
+    ['/agriculture/map', '/paa/map', '/pesca/map'].includes(location);
   const isLoginPage = location.startsWith('/login/admin');
   const isDoacaoPage = location === '/registrar-doacao';
   const isTelaoPage = location.startsWith('/evento-telao');
 
   function ConditionalFooter() {
     const [location] = useLocation();
-  
+
     // Lista de rotas onde o Footer não deve aparecer
     const mapRoutes = ['/agricultura/map', '/pesca/map', '/paa/map'];
-  
+
     // Não renderiza o Footer se a rota atual estiver na lista de mapas
     if (mapRoutes.includes(location)) {
       return null;
     }
-  
+
     return <Footer />;
   }
 
@@ -80,7 +83,12 @@ function Router() {
     <>
       <BackgroundVideo videoPath="/videos/BackgroundVideo.mp4" opacity={0.3} />
       <div className="relative z-10">
-        {!isFormPage && !isReportPage && !isAdminPage && !isLoginPage && !isDoacaoPage && !isTelaoPage && <NavBar />}
+        {!isFormPage &&
+          !isReportPage &&
+          !isAdminPage &&
+          !isLoginPage &&
+          !isDoacaoPage &&
+          !isTelaoPage && <NavBar />}
         <Suspense
           fallback={
             <div className="flex items-center justify-center h-screen">
@@ -102,7 +110,10 @@ function Router() {
             <Route path="/login" component={Login} />
             <Route path="/login/admin" component={AdminLogin} />
             <Route path="/login/admin/gestor" component={AdminLoginGestor} />
-            <Route path="/login/admin/agricultura" component={AdminLoginAgricultura} />
+            <Route
+              path="/login/admin/agricultura"
+              component={AdminLoginAgricultura}
+            />
             <Route path="/login/admin/pesca" component={AdminLoginPesca} />
             <Route path="/login/admin/paa" component={AdminLoginPAA} />
             <Route path="/acesso-negado" component={AcessoNegado} />
@@ -149,6 +160,7 @@ function Router() {
             <Route path="/admin-panels" component={AdminPanels} />
             <Route path="/admin/info-panels" component={AdminPanels} />
             <Route path="/admin/dynamic-stats" component={AdminDynamicStats} />
+            <Route path="/admin/secretario" component={AdminSecretario} />
             <Route path="/registrar-doacao" component={RegistrarDoacao} />
             <Route path="/evento-telao" component={EventoTelao} />
             <Route path="/eventos-disponiveis" component={EventosDisponiveis} />
@@ -167,7 +179,12 @@ function Router() {
             <Route component={NotFound} />
           </Switch>
         </Suspense>
-        {!isFormPage && !isReportPage && !isAdminPage && !isLoginPage && !isDoacaoPage && !isTelaoPage && <ConditionalFooter />}
+        {!isFormPage &&
+          !isReportPage &&
+          !isAdminPage &&
+          !isLoginPage &&
+          !isDoacaoPage &&
+          !isTelaoPage && <ConditionalFooter />}
       </div>
     </>
   );
