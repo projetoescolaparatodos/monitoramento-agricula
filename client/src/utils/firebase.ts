@@ -27,8 +27,10 @@ console.log('✅ Firebase app inicializada:', app.name);
 const db = getFirestore(app);
 console.log('✅ Firestore inicializado para projeto:', db.app.options.projectId);
 
-// Habilitar persistência offline
-enableMultiTabIndexedDbPersistence(db).catch((err) => {
+// Habilitar persistência offline com configuração otimizada
+enableMultiTabIndexedDbPersistence(db, {
+  forceOwnership: false
+}).catch((err) => {
   if (err.code === 'failed-precondition') {
     console.warn('Persistência offline não pôde ser habilitada: múltiplas abas abertas');
   } else if (err.code === 'unimplemented') {
@@ -39,23 +41,28 @@ enableMultiTabIndexedDbPersistence(db).catch((err) => {
 // Inicializar o Storage
 const storage = getStorage(app);
 
-// Função de retry para operações do Firebase
+// Função de retry para operações do Firebase com timeout otimizado
 export const withRetry = async <T>(
   operation: () => Promise<T>,
-  maxRetries: number = 3,
-  delay: number = 1000
+  maxRetries: number = 2,
+  delay: number = 500
 ): Promise<T> => {
   let lastError: Error;
   
   for (let i = 0; i < maxRetries; i++) {
     try {
-      return await operation();
+      // Adicionar timeout para cada operação
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout na operação Firebase')), 8000);
+      });
+      
+      return await Promise.race([operation(), timeoutPromise]);
     } catch (error: any) {
       lastError = error;
       console.warn(`Tentativa ${i + 1} falhou:`, error.message);
       
       if (i < maxRetries - 1) {
-        await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i)));
+        await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
       }
     }
   }

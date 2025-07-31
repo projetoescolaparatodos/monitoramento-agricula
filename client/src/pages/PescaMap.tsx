@@ -15,6 +15,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Loader2, X } from "lucide-react"; // Importando o ícone de fechar
 import styles from "./PescaMap.module.css";
+import LoadingOptimizer from "@/components/common/LoadingOptimizer";
 
 interface Pesca {
   id: string;
@@ -183,6 +184,7 @@ const PescaMap = () => {
   useEffect(() => {
     const fetchPesqueiros = async () => {
       try {
+        setLoading(true);
         const querySnapshot = await getDocs(collection(db, "pesca"));
         const pescaData = querySnapshot.docs.map((doc) => ({
           id: doc.id,
@@ -191,6 +193,11 @@ const PescaMap = () => {
         setPesqueiros(pescaData);
       } catch (error) {
         console.error("Erro ao buscar dados de pesca:", error);
+        // Fallback para dados em cache se disponível
+        const cachedData = localStorage.getItem('pesca_cache');
+        if (cachedData) {
+          setPesqueiros(JSON.parse(cachedData));
+        }
       }
     };
 
@@ -202,13 +209,40 @@ const PescaMap = () => {
           ...doc.data(),
         })) as ViveiroEmConstrucao[];
         setViveirosEmConstrucao(viveirosData);
+        // Cache dos dados
+        localStorage.setItem('viveiros_cache', JSON.stringify(viveirosData));
       } catch (error) {
         console.error("Erro ao buscar viveiros em construção:", error);
+        // Fallback para dados em cache
+        const cachedData = localStorage.getItem('viveiros_cache');
+        if (cachedData) {
+          setViveirosEmConstrucao(JSON.parse(cachedData));
+        }
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchPesqueiros();
-    fetchViveiros();
+    // Carregar dados em cache primeiro para UI responsiva
+    const loadCachedData = () => {
+      const cachedPesca = localStorage.getItem('pesca_cache');
+      const cachedViveiros = localStorage.getItem('viveiros_cache');
+      
+      if (cachedPesca) setPesqueiros(JSON.parse(cachedPesca));
+      if (cachedViveiros) setViveirosEmConstrucao(JSON.parse(cachedViveiros));
+      
+      if (cachedPesca || cachedViveiros) {
+        setLoading(false);
+      }
+    };
+
+    loadCachedData();
+    
+    // Usar setTimeout para não bloquear a UI
+    setTimeout(() => {
+      fetchPesqueiros();
+      fetchViveiros();
+    }, 100);
   }, []);
 
   const pesqueirosFiltrados = useMemo(() => {
@@ -245,6 +279,100 @@ const PescaMap = () => {
   };
 
   const isMobile = useIsMobile();
+
+  const renderViveiroInfoWindow = useCallback(
+    (viveiro: ViveiroEmConstrucao) => {
+      const infoWindowStyle = {
+        backgroundColor: "rgba(255, 255, 255, 0.97)",
+        border: "2px solid #f59e0b",
+        borderRadius: isMobile ? "12px" : "12px",
+        boxShadow: "0 10px 25px rgba(0, 0, 0, 0.2)",
+        padding: isMobile ? "1rem" : "1.5rem",
+        width: isMobile ? `${Math.floor(window.innerWidth * 0.92)}px` : "420px",
+        maxHeight: isMobile ? "75vh" : "80vh",
+        overflowY: "auto",
+        backdropFilter: "blur(8px)",
+        position: "relative",
+        margin: "0",
+        boxSizing: "border-box",
+      };
+
+      return (
+        <InfoWindow
+          position={{ lat: viveiro.latitude, lng: viveiro.longitude }}
+          onCloseClick={() => setSelectedViveiro(null)}
+          options={{
+            maxWidth: isMobile ? Math.floor(window.innerWidth * 0.95) : 500,
+            pixelOffset: isMobile ? new google.maps.Size(0, -10) : new google.maps.Size(0, 0),
+          }}
+        >
+          <div className="relative" style={infoWindowStyle}>
+            <div className={`flex items-start gap-3 mb-4`}>
+              <div className="p-3 rounded-lg bg-amber-100 text-amber-800">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 3a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 4a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h2 className="text-xl font-bold text-gray-800 mb-1">{viveiro.localidade}</h2>
+                <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
+                  Viveiro em Construção
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-gray-700 mb-3">Informações do Projeto</h3>
+                <div className="space-y-2">
+                  <p className="text-base text-gray-600">
+                    <span className="font-medium">Propriedade:</span> 
+                    <span className="ml-1">{viveiro.nomePropriedade}</span>
+                  </p>
+                  <p className="text-base text-gray-600">
+                    <span className="font-medium">Espécie Cultivada:</span> 
+                    <span className="ml-1">{viveiro.especieCultivada}</span>
+                  </p>
+                  <p className="text-base text-gray-600">
+                    <span className="font-medium">Tamanho:</span> 
+                    <span className="ml-1">{viveiro.tamanhoViveiro} ha</span>
+                  </p>
+                  <p className="text-base text-gray-600">
+                    <span className="font-medium">Início:</span> 
+                    <span className="ml-1">{new Date(viveiro.dataInicio).toLocaleDateString('pt-BR')}</span>
+                  </p>
+                  <p className="text-base text-gray-600">
+                    <span className="font-medium">Previsão de Término:</span> 
+                    <span className="ml-1">{new Date(viveiro.dataTermino).toLocaleDateString('pt-BR')}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {viveiro.midias && viveiro.midias.length > 0 && (
+              <div className="mt-6">
+                <h3 className="font-semibold text-gray-700 text-lg mb-3">Mídias do Projeto</h3>
+                <div className="grid grid-cols-1 gap-4">
+                  {viveiro.midias.map((url, index) => (
+                    <img
+                      key={index}
+                      src={url}
+                      alt="Mídia do viveiro"
+                      className="w-full h-auto rounded-lg object-cover aspect-square bg-gray-100"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Mídia+indisponível';
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </InfoWindow>
+      );
+    },
+    [isMobile],
+  );
 
   const renderInfoWindow = useCallback(
     (pesca: Pesca) => {
@@ -484,17 +612,12 @@ const PescaMap = () => {
     [isMaximized, isMobile],
   );
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!isLoaded) return <div>Loading...</div>;
+  if (!isLoaded) return <LoadingOptimizer isLoading={true} />;
 
   return (
+    <LoadingOptimizer isLoading={loading}>
+      <>
+      {!loading && (
     <div className="pt-16 relative h-screen">
       <Card className="absolute left-4 top-1/2 transform -translate-y-1/2 z-[1000] p-4 bg-white/95 shadow-lg hidden md:block">
         <RadioGroup value={filtro} onValueChange={setFiltro}>
@@ -585,7 +708,25 @@ const PescaMap = () => {
             onClick={() => setSelectedMarker(pesca)}
           />
         ))}
+        
+        {viveirosEmConstrucao.map((viveiro) => (
+          <MarkerF
+            key={`viveiro-${viveiro.id}`}
+            position={{ lat: viveiro.latitude, lng: viveiro.longitude }}
+            options={{ visible: true, clickable: true }}
+            icon={{
+              url: "/pesca-icon.png",
+              scaledSize: new window.google.maps.Size(60, 60),
+              anchor: new window.google.maps.Point(30, 60),
+              origin: new window.google.maps.Point(0, 0),
+              zIndex: 999,
+            }}
+            onClick={() => setSelectedViveiro(viveiro)}
+          />
+        ))}
+        
         {selectedMarker && renderInfoWindow(selectedMarker)}
+        {selectedViveiro && renderViveiroInfoWindow(selectedViveiro)}
 
         {/* Contorno do município (opcional, controlado pelo filtro) */}
         {showBoundary && (
@@ -611,6 +752,9 @@ const PescaMap = () => {
         </div>
       </GoogleMap>
     </div>
+      )}
+      </>
+    </LoadingOptimizer>
   );
 };
 
