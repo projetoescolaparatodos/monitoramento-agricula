@@ -117,35 +117,38 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="dataVisita">Data da Visita</Label>
+            <Label htmlFor="dataVisita" className="text-white">Data da Visita</Label>
             <Input
               id="dataVisita"
               type="date"
               value={dataVisita}
               onChange={(e) => setDataVisita(e.target.value)}
               required
+              className="text-black bg-white"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="nomeEquipe">Nome da Equipe</Label>
+            <Label htmlFor="nomeEquipe" className="text-white">Nome da Equipe</Label>
             <Input
               id="nomeEquipe"
               value={nomeEquipe}
               onChange={(e) => setNomeEquipe(e.target.value)}
               placeholder="Ex: Equipe Técnica Regional"
               required
+              className="text-black bg-white placeholder:text-gray-500"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="tecnicoResponsavel">Técnico Responsável</Label>
+            <Label htmlFor="tecnicoResponsavel" className="text-white">Técnico Responsável</Label>
             <Input
               id="tecnicoResponsavel"
               value={tecnicoResponsavel}
               onChange={(e) => setTecnicoResponsavel(e.target.value)}
               placeholder="Nome do técnico"
               required
+              className="text-black bg-white placeholder:text-gray-500"
             />
           </div>
 
@@ -158,6 +161,7 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
               placeholder="Descreva o propósito e observações da visita técnica..."
               rows={4}
               required
+              className="text-black bg-white placeholder:text-gray-500"
             />
           </div>
 

@@ -32,7 +32,9 @@ const FormViveiros: React.FC<FormViveirosProps> = ({
   
   // Estados do formulário
   const [dataInicio, setDataInicio] = useState("");
+  const [horaInicio, setHoraInicio] = useState("");
   const [dataTermino, setDataTermino] = useState("");
+  const [horaTermino, setHoraTermino] = useState("");
   const [tamanhoViveiro, setTamanhoViveiro] = useState("");
   const [localidade, setLocalidade] = useState("");
   const [nomePropriedade, setNomePropriedade] = useState("");
@@ -45,20 +47,13 @@ const FormViveiros: React.FC<FormViveirosProps> = ({
     setLoading(true);
 
     try {
-      // Verificar se o usuário está autenticado
-      if (!userAuth || !userAuth.uid) {
-        toast({
-          title: "Erro de Autenticação",
-          description: "Usuário não autenticado. Faça login novamente.",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
+      // Criar strings de data/hora completas
+      const dataInicioCompleta = dataInicio && horaInicio ? `${dataInicio} ${horaInicio}` : dataInicio;
+      const dataTerminoCompleta = dataTermino && horaTermino ? `${dataTermino} ${horaTermino}` : dataTermino;
 
       const viveiroData = {
-        dataInicio,
-        dataTermino,
+        dataInicio: dataInicioCompleta,
+        dataTermino: dataTerminoCompleta,
         tamanhoViveiro,
         localidade,
         nomePropriedade,
@@ -67,7 +62,7 @@ const FormViveiros: React.FC<FormViveirosProps> = ({
         longitude,
         midias,
         timestamp: serverTimestamp(),
-        userId: userAuth.uid,
+        userId: userAuth?.uid || "anonimo",
         tipo: "viveiro_construcao"
       };
 
@@ -80,7 +75,9 @@ const FormViveiros: React.FC<FormViveirosProps> = ({
 
       // Limpar formulário
       setDataInicio("");
+      setHoraInicio("");
       setDataTermino("");
+      setHoraTermino("");
       setTamanhoViveiro("");
       setLocalidade("");
       setNomePropriedade("");
@@ -133,24 +130,46 @@ const FormViveiros: React.FC<FormViveirosProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="dataInicio" className="text-white">Data de Início</Label>
-                <Input
-                  id="dataInicio"
-                  type="date"
-                  value={dataInicio}
-                  onChange={(e) => setDataInicio(e.target.value)}
-                  required
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="dataInicio"
+                    type="date"
+                    value={dataInicio}
+                    onChange={(e) => setDataInicio(e.target.value)}
+                    required
+                    className="text-black bg-white"
+                  />
+                  <Input
+                    id="horaInicio"
+                    type="time"
+                    value={horaInicio}
+                    onChange={(e) => setHoraInicio(e.target.value)}
+                    className="text-black bg-white w-32"
+                    placeholder="Hora"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="dataTermino" className="text-white">Data de Término</Label>
-                <Input
-                  id="dataTermino"
-                  type="date"
-                  value={dataTermino}
-                  onChange={(e) => setDataTermino(e.target.value)}
-                  required
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="dataTermino"
+                    type="date"
+                    value={dataTermino}
+                    onChange={(e) => setDataTermino(e.target.value)}
+                    required
+                    className="text-black bg-white"
+                  />
+                  <Input
+                    id="horaTermino"
+                    type="time"
+                    value={horaTermino}
+                    onChange={(e) => setHoraTermino(e.target.value)}
+                    className="text-black bg-white w-32"
+                    placeholder="Hora"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -163,6 +182,7 @@ const FormViveiros: React.FC<FormViveirosProps> = ({
                   onChange={(e) => setTamanhoViveiro(e.target.value)}
                   placeholder="Ex: 1000"
                   required
+                  className="text-black bg-white placeholder:text-gray-500"
                 />
               </div>
 
@@ -174,6 +194,7 @@ const FormViveiros: React.FC<FormViveirosProps> = ({
                   onChange={(e) => setLocalidade(e.target.value)}
                   placeholder="Ex: Vila Nova"
                   required
+                  className="text-black bg-white placeholder:text-gray-500"
                 />
               </div>
 
@@ -185,6 +206,7 @@ const FormViveiros: React.FC<FormViveirosProps> = ({
                   onChange={(e) => setNomePropriedade(e.target.value)}
                   placeholder="Ex: Fazenda São José"
                   required
+                  className="text-black bg-white placeholder:text-gray-500"
                 />
               </div>
 
@@ -196,6 +218,7 @@ const FormViveiros: React.FC<FormViveirosProps> = ({
                   onChange={(e) => setEspecieCultivada(e.target.value)}
                   placeholder="Ex: Tilápia, Tambaqui"
                   required
+                  className="text-black bg-white placeholder:text-gray-500"
                 />
               </div>
             </div>
