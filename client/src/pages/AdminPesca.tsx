@@ -54,6 +54,13 @@ interface Pesca {
   midias?: string[];
 }
 
+interface Viveiro {
+  id: string;
+  latitude: number;
+  longitude: number;
+  // Outras propriedades do viveiro, se houver
+}
+
 const AdminPesca = () => {
   // Hooks sempre devem estar no topo do componente
   const { userAuth, hasAccess, getLoginUrl, isLoading } = useAuthProtection();
@@ -90,6 +97,9 @@ const AdminPesca = () => {
   const [pesqueiroEmEdicao, setPesqueiroEmEdicao] = useState<Pesca | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState<Pesca | null>(null);
+  const [viveirosEmConstrucao, setViveirosEmConstrucao] = useState<Viveiro[]>([
+    { id: '1', latitude: -2.87922, longitude: -52.0088 }
+  ]);
 
   // Estados para controle do contorno municipal
   const [showBoundary, setShowBoundary] = useState(true);
@@ -854,6 +864,7 @@ const AdminPesca = () => {
                   )}
                 </div>
               </CardContent>
+```python
             </Card>
           </TabsContent>
 
@@ -898,6 +909,19 @@ const AdminPesca = () => {
                       fullscreenControl: false,
                     }}
                   >
+                    {/* Marcadores dos viveiros em construção */}
+                    {viveirosEmConstrucao.map((viveiro) => (
+                      <MarkerF
+                        key={`viveiro-${viveiro.id}`}
+                        position={{ lat: viveiro.latitude, lng: viveiro.longitude }}
+                        icon={{
+                          url: "/videos/viveiro.gif",
+                          scaledSize: new window.google.maps.Size(70, 70),
+                          anchor: new window.google.maps.Point(35, 70),
+                        }}
+                      />
+                    ))}
+
                     {/* Contorno do município */}
                     {showBoundary && (
                       <Polygon
@@ -967,6 +991,19 @@ const AdminPesca = () => {
                       fullscreenControl: false,
                     }}
                   >
+                    {/* Marcadores dos viveiros em construção */}
+                    {viveirosEmConstrucao.map((viveiro) => (
+                      <MarkerF
+                        key={`viveiro-${viveiro.id}`}
+                        position={{ lat: viveiro.latitude, lng: viveiro.longitude }}
+                        icon={{
+                          url: "/videos/viveiro.gif",
+                          scaledSize: new window.google.maps.Size(70, 70),
+                          anchor: new window.google.maps.Point(35, 70),
+                        }}
+                      />
+                    ))}
+
                     {/* Contorno do município */}
                     {showBoundary && (
                       <Polygon
