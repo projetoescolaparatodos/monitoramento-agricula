@@ -33,19 +33,25 @@ import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Cart
 
 interface ViveiroEstrutura {
   id: string;
-  nomeProprietario: string;
-  localidade: string;
-  latitude: number;
-  longitude: number;
-  statusObra: 'Iniciada' | 'Em andamento' | 'Concluída' | 'Parada';
-  tipoViveiro: string;
-  tamanho: number;
-  capacidade: number;
-  observacoes: string;
-  tecnicoResponsavel: string;
-  dataCadastro: string;
-  criadoEm: any;
-  userId: string;
+  nomeProprietario?: string;
+  proprietario?: string; // Campo alternativo
+  localidade?: string;
+  latitude?: number;
+  longitude?: number;
+  statusObra?: 'Iniciada' | 'Em andamento' | 'Concluída' | 'Parada';
+  status?: string; // Campo alternativo
+  tipoViveiro?: string;
+  tipo?: string; // Campo alternativo
+  tamanho?: number;
+  capacidade?: number;
+  observacoes?: string;
+  observacao?: string; // Campo alternativo
+  tecnicoResponsavel?: string;
+  tecnico?: string; // Campo alternativo
+  dataCadastro?: string;
+  data?: string; // Campo alternativo
+  criadoEm?: any;
+  userId?: string;
 }
 
 const MetadadosViveiros = () => {
@@ -61,14 +67,43 @@ const MetadadosViveiros = () => {
   useEffect(() => {
     const fetchViveiros = async () => {
       try {
-        const viveirosRef = collection(db, 'viveiros_construcao');
-        const q = query(viveirosRef, orderBy('criadoEm', 'desc'));
-        const snapshot = await getDocs(q);
+        // Tenta buscar em diferentes coleções possíveis
+        const possiveisColecoes = ['viveiros', 'viveiros_construcao', 'cadastro_viveiros', 'pesca_viveiros'];
+        let viveirosData: ViveiroEstrutura[] = [];
         
-        const viveirosData = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as ViveiroEstrutura[];
+        for (const nomeColecao of possiveisColecoes) {
+          try {
+            console.log(`🔍 Buscando viveiros na coleção: ${nomeColecao}`);
+            const viveirosRef = collection(db, nomeColecao);
+            const q = query(viveirosRef, orderBy('criadoEm', 'desc'));
+            const snapshot = await getDocs(q);
+            
+            if (!snapshot.empty) {
+              console.log(`✅ Encontrados ${snapshot.size} viveiros na coleção ${nomeColecao}`);
+              viveirosData = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+              })) as ViveiroEstrutura[];
+              break; // Para na primeira coleção que encontrar dados
+            } else {
+              console.log(`⚠️ Coleção ${nomeColecao} está vazia`);
+            }
+          } catch (colecaoError) {
+            console.log(`❌ Erro ao acessar coleção ${nomeColecao}:`, colecaoError);
+            continue; // Tenta a próxima coleção
+          }
+        }
+        
+        if (viveirosData.length === 0) {
+          console.warn('Nenhum viveiro encontrado em nenhuma das coleções');
+          toast({
+            title: "Aviso",
+            description: "Nenhum viveiro cadastrado foi encontrado no sistema.",
+            variant: "default",
+          });
+        } else {
+          console.log(`📊 Total de viveiros carregados: ${viveirosData.length}`);
+        }
         
         setViveiros(viveirosData);
       } catch (error) {
@@ -89,12 +124,17 @@ const MetadadosViveiros = () => {
   // Dados filtrados
   const viveirosFiltrados = useMemo(() => {
     return viveiros.filter(viveiro => {
-      const matchStatus = filtroStatus === 'todos' || viveiro.statusObra === filtroStatus;
-      const matchTecnico = filtroTecnico === 'todos' || viveiro.tecnicoResponsavel === filtroTecnico;
-      const matchLocalidade = filtroLocalidade === 'todos' || viveiro.localidade === filtroLocalidade;
+      const status = viveiro.statusObra || viveiro.status || 'Não informado';
+      const tecnico = viveiro.tecnicoResponsavel || viveiro.tecnico || 'Não informado';
+      const localidade = viveiro.localidade || 'Não informado';
+      const proprietario = viveiro.nomeProprietario || viveiro.proprietario || '';
+      
+      const matchStatus = filtroStatus === 'todos' || status === filtroStatus;
+      const matchTecnico = filtroTecnico === 'todos' || tecnico === filtroTecnico;
+      const matchLocalidade = filtroLocalidade === 'todos' || localidade === filtroLocalidade;
       const matchBusca = busca === '' || 
-        viveiro.nomeProprietario.toLowerCase().includes(busca.toLowerCase()) ||
-        viveiro.localidade.toLowerCase().includes(busca.toLowerCase());
+        proprietario.toLowerCase().includes(busca.toLowerCase()) ||
+        localidade.toLowerCase().includes(busca.toLowerCase());
       
       return matchStatus && matchTecnico && matchLocalidade && matchBusca;
     });
