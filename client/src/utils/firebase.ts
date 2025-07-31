@@ -44,25 +44,31 @@ const storage = getStorage(app);
 // Função de retry para operações do Firebase com timeout otimizado
 export const withRetry = async <T>(
   operation: () => Promise<T>,
-  maxRetries: number = 2,
-  delay: number = 500
+  maxRetries: number = 3,
+  delay: number = 1000
 ): Promise<T> => {
   let lastError: Error;
   
   for (let i = 0; i < maxRetries; i++) {
     try {
-      // Adicionar timeout para cada operação
+      // Adicionar timeout para cada operação (aumentado para 15 segundos)
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Timeout na operação Firebase')), 8000);
+        setTimeout(() => reject(new Error('Timeout na operação Firebase')), 15000);
       });
       
       return await Promise.race([operation(), timeoutPromise]);
     } catch (error: any) {
       lastError = error;
-      console.warn(`Tentativa ${i + 1} falhou:`, error.message);
+      console.warn(`🔄 Tentativa ${i + 1}/${maxRetries} falhou:`, error.message);
+      
+      // Se for erro de rede, aguardar mais tempo
+      if (error.code === 'unavailable' || error.message.includes('timeout')) {
+        delay = delay * 2; // Backoff exponencial
+      }
       
       if (i < maxRetries - 1) {
-        await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
+        console.log(`⏳ Aguardando ${delay}ms antes da próxima tentativa...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
   }

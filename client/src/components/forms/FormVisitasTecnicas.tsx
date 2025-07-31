@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { db } from '../../utils/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -31,7 +30,7 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
   const { toast } = useToast();
   const { userAuth } = useAuthProtection();
   const [loading, setLoading] = useState(false);
-  
+
   // Estados do formulário
   const [dataVisita, setDataVisita] = useState(new Date().toISOString().split('T')[0]);
   const [nomeEquipe, setNomeEquipe] = useState('');
@@ -41,7 +40,7 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!latitude || !longitude) {
       toast({
         title: "Erro",
@@ -54,6 +53,17 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
     setLoading(true);
 
     try {
+      // Verificar se o usuário está autenticado
+      if (!userAuth || !userAuth.user?.uid) {
+        toast({
+          title: "Erro de Autenticação",
+          description: "Usuário não autenticado. Faça login novamente.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const visitaData = {
         dataVisita,
         nomeEquipe,
@@ -63,11 +73,11 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
         longitude,
         midias,
         timestamp: serverTimestamp(),
-        userId: userAuth.user?.uid || null,
+        userId: userAuth.user?.uid,
       };
 
       await addDoc(collection(db, 'visitas_tecnicas'), visitaData);
-      
+
       toast({
         title: "Sucesso",
         description: "Visita técnica cadastrada com sucesso!",
@@ -79,7 +89,7 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
       setTecnicoResponsavel('');
       setDescricao('');
       setMidias([]);
-      
+
       onSuccess();
       onClose();
     } catch (error) {
@@ -104,7 +114,7 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
         <DialogHeader>
           <DialogTitle>Cadastrar Visita Técnica</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="dataVisita">Data da Visita</Label>
@@ -206,7 +216,7 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
                 </span>
               )}
             </Button>
-            
+
             <Button type="button" variant="outline" onClick={onClose}>
               <X className="h-4 w-4" />
             </Button>

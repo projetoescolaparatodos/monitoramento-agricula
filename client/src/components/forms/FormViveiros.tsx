@@ -45,6 +45,17 @@ const FormViveiros: React.FC<FormViveirosProps> = ({
     setLoading(true);
 
     try {
+      // Verificar se o usuário está autenticado
+      if (!userAuth || !userAuth.uid) {
+        toast({
+          title: "Erro de Autenticação",
+          description: "Usuário não autenticado. Faça login novamente.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const viveiroData = {
         dataInicio,
         dataTermino,
