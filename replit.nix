@@ -1,6 +1,7 @@
 
 { pkgs }: {
   deps = [
+    pkgs.psmisc
     pkgs.tk
     pkgs.tcl
     pkgs.qhull
