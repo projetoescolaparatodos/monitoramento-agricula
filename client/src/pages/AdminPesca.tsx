@@ -27,6 +27,9 @@ import { useLocation } from "wouter";
 import { useAuthProtection } from "@/hooks/useAuthProtection";
 import { useKmlBoundary, isClockwise, ensureClockwise } from "../hooks/useKmlBoundary";
 import styles from "./PescaMap.module.css";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import FormViveiros from "@/components/forms/FormViveiros";
+import FormVisitasTecnicas from "@/components/forms/FormVisitasTecnicas";
 
 interface Pesca {
   id: string;
@@ -91,6 +94,13 @@ const AdminPesca = () => {
   // Estados para controle do contorno municipal
   const [showBoundary, setShowBoundary] = useState(true);
   const [mapLoaded, setMapLoaded] = useState(false);
+  
+  // Estados para as novas abas
+  const [activeTab, setActiveTab] = useState("atividades");
+  const [showFormViveiros, setShowFormViveiros] = useState(false);
+  const [showFormVisitas, setShowFormVisitas] = useState(false);
+  const [clickedLat, setClickedLat] = useState<number | null>(null);
+  const [clickedLng, setClickedLng] = useState<number | null>(null);
 
   // Configurações do Google Maps
   const mapContainerStyle = {
@@ -223,10 +233,21 @@ const AdminPesca = () => {
     if (e.latLng) {
       const lat = e.latLng.lat();
       const lng = e.latLng.lng();
-      setLatitude(lat);
-      setLongitude(lng);
-      setMapCenter({ lat, lng });
-      setMapZoom(15);
+      
+      if (activeTab === "atividades") {
+        setLatitude(lat);
+        setLongitude(lng);
+        setMapCenter({ lat, lng });
+        setMapZoom(15);
+      } else if (activeTab === "viveiros") {
+        setClickedLat(lat);
+        setClickedLng(lng);
+        setShowFormViveiros(true);
+      } else if (activeTab === "visitas") {
+        setClickedLat(lat);
+        setClickedLng(lng);
+        setShowFormVisitas(true);
+      }
     }
   };
 
@@ -394,6 +415,16 @@ const AdminPesca = () => {
     setDataCadastro(new Date().toISOString().split("T")[0]);
   };
 
+  const handleViveirosSuccess = () => {
+    setClickedLat(null);
+    setClickedLng(null);
+  };
+
+  const handleVisitasSuccess = () => {
+    setClickedLat(null);
+    setClickedLng(null);
+  };
+
   return (
     <div className="min-h-screen bg-gray-800 text-white">
       <div className="container mx-auto px-4 py-8">
@@ -409,58 +440,95 @@ const AdminPesca = () => {
         <h1 className="text-2xl font-bold text-blue-800">Administração - Pesca</h1>
       </div>
 
-      {/* Lista de Atividades */}
-      <Card className="mb-8 bg-gray-500">
-        <CardHeader>
-          <CardTitle className="text-white">Lista de Atividades</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {pesqueirosCadastrados.length === 0 ? (
-              <p className="text-white text-center py-4">
-                Nenhuma atividade cadastrada ainda.
+      {/* Tabs principais */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsTrigger value="atividades">Cadastrar Atividades</TabsTrigger>
+          <TabsTrigger value="viveiros">Viveiros em Construção</TabsTrigger>
+          <TabsTrigger value="visitas">Visitas Técnicas</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="atividades">
+          {/* Lista de Atividades */}
+          <Card className="mb-8 bg-gray-500">
+            <CardHeader>
+              <CardTitle className="text-white">Lista de Atividades</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {pesqueirosCadastrados.length === 0 ? (
+                  <p className="text-white text-center py-4">
+                    Nenhuma atividade cadastrada ainda.
+                  </p>
+                ) : (
+                  pesqueirosCadastrados.map((atividade) => (
+                    <Card key={atividade.id} className="p-4 bg-gray-600">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <h4 className="font-semibold text-white">{atividade.localidade}</h4>
+                          <p className="text-sm text-white">
+                            Operador: {atividade.operador || "Não informado"}
+                          </p>
+                          <p className="text-sm text-white">
+                            Data: {new Date(atividade.dataCadastro).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <Badge variant={atividade.concluido ? "default" : "secondary"}>
+                            {atividade.concluido ? "Concluído" : "Em Serviço"}
+                          </Badge>
+                          <Button
+                            onClick={() => atualizarStatusPesca(atividade.id, atividade.concluido)}
+                            variant="outline"
+                            size="sm"
+                            className="bg-green-600 text-black border-green-600 hover:bg-green-700 hover:text-black"
+                          >
+                            Alterar Status
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="viveiros">
+          <Card className="mb-8 bg-gray-500">
+            <CardHeader>
+              <CardTitle className="text-white">Viveiros em Construção</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-white mb-4">
+                Clique no mapa para cadastrar um novo viveiro em construção.
               </p>
-            ) : (
-              pesqueirosCadastrados.map((atividade) => (
-                <Card key={atividade.id} className="p-4 bg-gray-600">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h4 className="font-semibold text-white">{atividade.localidade}</h4>
-                      <p className="text-sm text-white">
-                        Operador: {atividade.operador || "Não informado"}
-                      </p>
-                      <p className="text-sm text-white">
-                        Data: {new Date(atividade.dataCadastro).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <Badge variant={atividade.concluido ? "default" : "secondary"}>
-                        {atividade.concluido ? "Concluído" : "Em Serviço"}
-                      </Badge>
-                      <Button
-                        onClick={() => atualizarStatusPesca(atividade.id, atividade.concluido)}
-                        variant="outline"
-                        size="sm"
-                        className="bg-green-600 text-black border-green-600 hover:bg-green-700 hover:text-black"
-                      >
-                        Alterar Status
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))
-            )}
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="visitas">
+          <Card className="mb-8 bg-gray-500">
+            <CardHeader>
+              <CardTitle className="text-white">Visitas Técnicas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-white mb-4">
+                Clique no mapa para registrar uma nova visita técnica.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Formulário de Cadastro */}
-      <Card className="mb-8 bg-gray-500">
-        <CardHeader>
-          <CardTitle>
-            {pesqueiroEmEdicao ? "Editar Atividade" : "Cadastrar Nova Atividade"}
-          </CardTitle>
-        </CardHeader>
+          <Card className="mb-8 bg-gray-500">
+            <CardHeader>
+              <CardTitle>
+                {pesqueiroEmEdicao ? "Editar Atividade" : "Cadastrar Nova Atividade"}
+              </CardTitle>
+            </CardHeader>
         <CardContent>
           {/* Mapa do Google Maps */}
           <div className="mb-8">
@@ -753,57 +821,76 @@ const AdminPesca = () => {
         </CardContent>
       </Card>
 
-      {/* Lista de Pesqueiros Cadastrados */}
-      <Card className="bg-gray-500">
-        <CardHeader>
-          <CardTitle className="text-white">Pesqueiros Cadastrados</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {pesqueirosCadastrados.length === 0 ? (
-              <p className="text-white text-center py-8">
-                Nenhum pesqueiro cadastrado ainda.
-              </p>
-            ) : (
-              pesqueirosCadastrados.map((pesqueiro) => (
-                <div
-                  key={pesqueiro.id}
-                  className="flex items-center justify-between p-4 border rounded-lg bg-gray-400"
-                >
-                  <div>
-                    <h3 className="font-semibold text-white">{pesqueiro.localidade}</h3>
-                    <p className="text-sm text-white">
-                      {pesqueiro.nomeImovel} -{" "}
-                      {pesqueiro.concluido ? "Concluído" : "Em Andamento"}
-                    </p>
-                    <p className="text-xs text-white">
-                      Proprietário: {pesqueiro.proprietario}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEditarPesqueiro(pesqueiro)}
-                      className="bg-green-600 text-black border-green-600 hover:bg-green-700 hover:text-black"
+          {/* Lista de Pesqueiros Cadastrados */}
+          <Card className="bg-gray-500">
+            <CardHeader>
+              <CardTitle className="text-white">Pesqueiros Cadastrados</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {pesqueirosCadastrados.length === 0 ? (
+                  <p className="text-white text-center py-8">
+                    Nenhum pesqueiro cadastrado ainda.
+                  </p>
+                ) : (
+                  pesqueirosCadastrados.map((pesqueiro) => (
+                    <div
+                      key={pesqueiro.id}
+                      className="flex items-center justify-between p-4 border rounded-lg bg-gray-400"
                     >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleExcluirPesqueiro(pesqueiro.id)}
-                      className="bg-red-600 text-white hover:bg-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </CardContent>
-      </Card>
+                      <div>
+                        <h3 className="font-semibold text-white">{pesqueiro.localidade}</h3>
+                        <p className="text-sm text-white">
+                          {pesqueiro.nomeImovel} -{" "}
+                          {pesqueiro.concluido ? "Concluído" : "Em Andamento"}
+                        </p>
+                        <p className="text-xs text-white">
+                          Proprietário: {pesqueiro.proprietario}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditarPesqueiro(pesqueiro)}
+                          className="bg-green-600 text-black border-green-600 hover:bg-green-700 hover:text-black"
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleExcluirPesqueiro(pesqueiro.id)}
+                          className="bg-red-600 text-white hover:bg-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Formulários modais das novas abas */}
+      <FormViveiros
+        latitude={clickedLat}
+        longitude={clickedLng}
+        isOpen={showFormViveiros}
+        onClose={() => setShowFormViveiros(false)}
+        onSuccess={handleViveirosSuccess}
+      />
+
+      <FormVisitasTecnicas
+        latitude={clickedLat}
+        longitude={clickedLng}
+        isOpen={showFormVisitas}
+        onClose={() => setShowFormVisitas(false)}
+        onSuccess={handleVisitasSuccess}
+      />
       </div>
     </div>
   );
