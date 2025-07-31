@@ -716,8 +716,8 @@ const PescaMap = () => {
             options={{ visible: true, clickable: true }}
             icon={{
               url: "/videos/viveiro.gif",
-              scaledSize: new window.google.maps.Size(70, 70),
-              anchor: new window.google.maps.Point(35, 70),
+              scaledSize: new window.google.maps.Size(100, 100),
+              anchor: new window.google.maps.Point(50, 100),
               origin: new window.google.maps.Point(0, 0),
               zIndex: 999,
             }}

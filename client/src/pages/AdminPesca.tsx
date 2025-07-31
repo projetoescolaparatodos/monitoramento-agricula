@@ -864,7 +864,6 @@ const AdminPesca = () => {
                   )}
                 </div>
               </CardContent>
-```python
             </Card>
           </TabsContent>
 
@@ -916,8 +915,8 @@ const AdminPesca = () => {
                         position={{ lat: viveiro.latitude, lng: viveiro.longitude }}
                         icon={{
                           url: "/videos/viveiro.gif",
-                          scaledSize: new window.google.maps.Size(70, 70),
-                          anchor: new window.google.maps.Point(35, 70),
+                          scaledSize: new window.google.maps.Size(100, 100),
+                          anchor: new window.google.maps.Point(50, 100),
                         }}
                       />
                     ))}
