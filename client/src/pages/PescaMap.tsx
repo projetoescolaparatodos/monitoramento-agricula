@@ -715,9 +715,9 @@ const PescaMap = () => {
             position={{ lat: viveiro.latitude, lng: viveiro.longitude }}
             options={{ visible: true, clickable: true }}
             icon={{
-              url: "/videos/viveiro.gif",
-              scaledSize: new window.google.maps.Size(100, 100),
-              anchor: new window.google.maps.Point(50, 100),
+              url: "/viveiro.gif",
+              scaledSize: new window.google.maps.Size(80, 80),
+              anchor: new window.google.maps.Point(40, 80),
               origin: new window.google.maps.Point(0, 0),
               zIndex: 999,
             }}
