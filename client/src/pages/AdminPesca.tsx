@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from "react";
 import { db } from "../utils/firebase";
 import {
@@ -91,11 +90,11 @@ const AdminPesca = () => {
   const [pesqueiroEmEdicao, setPesqueiroEmEdicao] = useState<Pesca | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState<Pesca | null>(null);
-  
+
   // Estados para controle do contorno municipal
   const [showBoundary, setShowBoundary] = useState(true);
   const [mapLoaded, setMapLoaded] = useState(false);
-  
+
   // Estados para as novas abas
   const [activeTab, setActiveTab] = useState("atividades");
   const [showFormViveiros, setShowFormViveiros] = useState(false);
@@ -110,10 +109,10 @@ const AdminPesca = () => {
   };
 
   const center = { lat: -2.87922, lng: -52.0088 };
-  
+
   // Usando o hook personalizado para carregar o contorno do município
   const { boundaryCoordinates, loading: loadingKml, error: kmlError } = useKmlBoundary();
-  
+
   // Fallback para coordenadas caso o KML não seja carregado
   const fallbackBoundary = useMemo(() => [
     { lat: -2.85, lng: -52.05 },
@@ -122,7 +121,7 @@ const AdminPesca = () => {
     { lat: -2.91, lng: -52.07 },
     { lat: -2.85, lng: -52.05 }, // Fechar o polígono
   ], []);
-  
+
   // Usar coordenadas do KML se disponíveis, senão usar fallback
   const municipioBoundary = useMemo(() => {
     if (boundaryCoordinates.length > 0) {
@@ -130,7 +129,7 @@ const AdminPesca = () => {
     }
     return fallbackBoundary;
   }, [boundaryCoordinates, fallbackBoundary]);
-  
+
   // Estilo para o contorno do município
   const boundaryStyle = useMemo(() => ({
     fillColor: '#00ff88',
@@ -141,7 +140,7 @@ const AdminPesca = () => {
     zIndex: 2,
     clickable: false
   }), []);
-  
+
   // Garantir que o caminho do município esteja no sentido horário
   const correctedBoundary = useMemo(() => {
     return ensureClockwise(municipioBoundary);
@@ -234,7 +233,7 @@ const AdminPesca = () => {
     if (e.latLng) {
       const lat = e.latLng.lat();
       const lng = e.latLng.lng();
-      
+
       if (activeTab === "atividades") {
         setLatitude(lat);
         setLongitude(lng);
@@ -573,7 +572,7 @@ const AdminPesca = () => {
                         />
                       )}
                     </GoogleMap>
-                    
+
                     {/* Botão de controle para o limite municipal */}
                     <div className="absolute top-4 right-4 z-10">
                       <button
@@ -606,6 +605,7 @@ const AdminPesca = () => {
                         value={localidade}
                         onChange={(e) => setLocalidade(e.target.value)}
                         required
+                        className="text-black bg-white placeholder:text-gray-500"
                       />
                     </div>
 
@@ -616,6 +616,7 @@ const AdminPesca = () => {
                         value={nomeImovel}
                         onChange={(e) => setNomeImovel(e.target.value)}
                         required
+                        className="text-black bg-white placeholder:text-gray-500"
                       />
                     </div>
 
@@ -626,6 +627,7 @@ const AdminPesca = () => {
                         value={proprietario}
                         onChange={(e) => setProprietario(e.target.value)}
                         required
+                        className="text-black bg-white placeholder:text-gray-500"
                       />
                     </div>
 
@@ -637,6 +639,7 @@ const AdminPesca = () => {
                         onChange={(e) => setTipoTanque(e.target.value)}
                         placeholder="Ex: Tanque escavado, tanque rede, etc."
                         required
+                        className="text-black bg-white placeholder:text-gray-500"
                       />
                     </div>
 
@@ -651,6 +654,7 @@ const AdminPesca = () => {
                         placeholder="Ex: 2.5"
                         required
                         min="0"
+                        className="text-black bg-white placeholder:text-gray-500"
                       />
                     </div>
 
@@ -662,6 +666,7 @@ const AdminPesca = () => {
                         onChange={(e) => setEspeciePeixe(e.target.value)}
                         placeholder="Ex: Tilápia, Tambaqui, etc."
                         required
+                        className="text-black bg-white placeholder:text-gray-500"
                       />
                     </div>
 
@@ -680,6 +685,7 @@ const AdminPesca = () => {
                         placeholder="Peso dos alevinos em kg"
                         required
                         min="0"
+                        className="text-black bg-white placeholder:text-gray-500"
                       />
                     </div>
 
@@ -691,6 +697,7 @@ const AdminPesca = () => {
                         onChange={(e) => setMetodoAlimentacao(e.target.value)}
                         placeholder="Ex: Ração, alimentação natural, etc."
                         required
+                        className="text-black bg-white placeholder:text-gray-500"
                       />
                     </div>
 
@@ -701,6 +708,7 @@ const AdminPesca = () => {
                         value={operador}
                         onChange={(e) => setOperador(e.target.value)}
                         required
+                        className="text-black bg-white placeholder:text-gray-500"
                       />
                     </div>
 
@@ -711,6 +719,7 @@ const AdminPesca = () => {
                         value={tecnicoResponsavel}
                         onChange={(e) => setTecnicoResponsavel(e.target.value)}
                         required
+                        className="text-black bg-white placeholder:text-gray-500"
                       />
                     </div>
 
@@ -722,6 +731,7 @@ const AdminPesca = () => {
                         value={dataCadastro}
                         onChange={(e) => setDataCadastro(e.target.value)}
                         required
+                        className="text-black bg-white placeholder:text-gray-500"
                       />
                     </div>
                   </div>
@@ -856,7 +866,7 @@ const AdminPesca = () => {
                 <p className="text-white mb-4">
                   Clique no mapa para cadastrar um novo viveiro em construção.
                 </p>
-                
+
                 <div className="rounded-lg overflow-hidden border relative">
                   <GoogleMap
                     mapContainerStyle={mapContainerStyle}
@@ -879,7 +889,7 @@ const AdminPesca = () => {
                       />
                     )}
                   </GoogleMap>
-                  
+
                   {/* Botão de controle para o limite municipal */}
                   <div className="absolute top-4 right-4 z-10">
                     <button
@@ -908,7 +918,7 @@ const AdminPesca = () => {
                 <p className="text-white mb-4">
                   Clique no mapa para registrar uma nova visita técnica.
                 </p>
-                
+
                 <div className="rounded-lg overflow-hidden border relative">
                   <GoogleMap
                     mapContainerStyle={mapContainerStyle}
@@ -931,7 +941,7 @@ const AdminPesca = () => {
                       />
                     )}
                   </GoogleMap>
-                  
+
                   {/* Botão de controle para o limite municipal */}
                   <div className="absolute top-4 right-4 z-10">
                     <button

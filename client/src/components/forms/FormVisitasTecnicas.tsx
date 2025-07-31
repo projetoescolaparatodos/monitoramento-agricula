@@ -33,6 +33,8 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
 
   // Estados do formulário
   const [dataVisita, setDataVisita] = useState(new Date().toISOString().split('T')[0]);
+  const [horaInicio, setHoraInicio] = useState('');
+  const [horaFim, setHoraFim] = useState('');
   const [nomeEquipe, setNomeEquipe] = useState('');
   const [tecnicoResponsavel, setTecnicoResponsavel] = useState('');
   const [descricao, setDescricao] = useState('');
@@ -66,6 +68,8 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
 
       const visitaData = {
         dataVisita,
+        horaInicio,
+        horaFim,
         nomeEquipe,
         tecnicoResponsavel,
         descricao,
@@ -85,6 +89,8 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
 
       // Limpar formulário
       setDataVisita(new Date().toISOString().split('T')[0]);
+      setHoraInicio('');
+      setHoraFim('');
       setNomeEquipe('');
       setTecnicoResponsavel('');
       setDescricao('');
@@ -126,6 +132,32 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
               required
               className="text-black bg-white"
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="horaInicio" className="text-white">Hora de Início</Label>
+              <Input
+                id="horaInicio"
+                type="time"
+                value={horaInicio}
+                onChange={(e) => setHoraInicio(e.target.value)}
+                required
+                className="text-black bg-white"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="horaFim" className="text-white">Hora de Fim</Label>
+              <Input
+                id="horaFim"
+                type="time"
+                value={horaFim}
+                onChange={(e) => setHoraFim(e.target.value)}
+                required
+                className="text-black bg-white"
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
