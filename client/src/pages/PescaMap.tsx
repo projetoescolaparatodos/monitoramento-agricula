@@ -39,6 +39,19 @@ interface Pesca {
   midias?: string[];
 }
 
+interface ViveiroEmConstrucao {
+  id: string;
+  localidade: string;
+  nomePropriedade: string;
+  especieCultivada: string;
+  tamanhoViveiro: number;
+  dataInicio: string;
+  dataTermino: string;
+  latitude: number;
+  longitude: number;
+  midias?: string[];
+}
+
 const PescaMap = () => {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: "AIzaSyC3fPdcovy7a7nQLe9aGBMR2PFY_qZZVZc",
@@ -49,6 +62,8 @@ const PescaMap = () => {
   const [selectedMarker, setSelectedMarker] = useState<Pesca | null>(null);
   const [filtro, setFiltro] = useState("todos");
   const [isMaximized, setIsMaximized] = useState(false);
+  const [viveirosEmConstrucao, setViveirosEmConstrucao] = useState<ViveiroEmConstrucao[]>([]);
+  const [selectedViveiro, setSelectedViveiro] = useState<ViveiroEmConstrucao | null>(null);
 
   const mapContainerStyle = {
     width: "100%",
@@ -166,8 +181,35 @@ const PescaMap = () => {
   }, []);
 
   useEffect(() => {
+    const fetchPesqueiros = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "pesca"));
+        const pescaData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Pesca[];
+        setPesqueiros(pescaData);
+      } catch (error) {
+        console.error("Erro ao buscar dados de pesca:", error);
+      }
+    };
+
+    const fetchViveiros = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "viveiros_em_construcao"));
+        const viveirosData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as ViveiroEmConstrucao[];
+        setViveirosEmConstrucao(viveirosData);
+      } catch (error) {
+        console.error("Erro ao buscar viveiros em construção:", error);
+      }
+    };
+
     fetchPesqueiros();
-  }, [fetchPesqueiros]);
+    fetchViveiros();
+  }, []);
 
   const pesqueirosFiltrados = useMemo(() => {
     return pesqueiros.filter((pesca) => {
