@@ -1,0 +1,107 @@
+você já tem uma visão muito clara do estado atual e do que precisa ser feito. Vou complementar sua lista com alguns detalhes práticos de implementação que podem acelerar a conclusão:
+
+🔧 1. MetadadosViveiros.tsx
+
+✅ Já busca dados, mas a coleção está retornando vazia → pode ser:
+
+O caminho da coleção no Firebase está errado (viveiros_em_construcao vs viveiros).
+
+O useEffect não está setando corretamente o state.
+
+Dados ainda não foram salvos nessa coleção (só no FormViveiros.tsx).
+
+Próximo passo:
+
+Conferir se o FormViveiros.tsx realmente salva em viveiros_em_construcao.
+
+Criar fallback no front: se não houver dados → mostrar card "Nenhum viveiro em construção".
+
+🔧 2. Estimativa de Combustível
+
+Função calcularEstimativaCombustivel(viveiro) já está pronta (te passei a base).
+
+Precisamos agora:
+
+Integrar na listagem de MetadadosViveiros.
+
+Mostrar em cards ou colunas extras na tabela:
+
+Estimativa total de litros
+
+Máquina utilizada
+
+Dias de construção
+
+Ideia extra → gerar um gráfico de barras por viveiro comparando consumo estimado.
+
+🔧 3. Agrupamento de Localidades (GraficoAtendimentos.tsx)
+
+Criar utils/agruparLocalidades.ts com string-similarity:
+
+Normalizar strings (remover acentos, colocar tudo em minúsculas, substituir “km-40”, “km 40”, “km40” por padrão).
+
+Agrupar localidades próximas com string-similarity.compareTwoStrings.
+
+Criar utils/fetchAtendimentos.ts:
+
+Buscar dados das coleções dos 3 mapas (agricultura, pesca, paa).
+
+Retornar um array unificado de atendimentos.
+
+Criar utils/prepararDadosGrafico.ts:
+
+Contar quantos atendimentos por localidade agrupada.
+
+Retornar no formato do recharts.
+
+🔧 4. Relatório de Visitas Técnicas
+
+No RelatorioVisitasTecnicas.tsx:
+
+Listar as visitas salvas no Firebase (coleção visitas_tecnicas).
+
+Exibir:
+
+Nome do agricultor
+
+Localidade
+
+Data
+
+Observações
+
+Ideia extra → permitir exportar em PDF direto do painel do secretário.
+
+🔧 5. Solicitações de Cadastro
+
+SolicitacoesCadastro.tsx:
+
+Puxar dados da coleção solicitacoes.
+
+Exibir em lista com status: "pendente", "validado", "rejeitado".
+
+Botões de ação para validar/rejeitar.
+
+Notificar setor responsável quando validado.
+
+🔧 6. Painel de Doações
+
+PainelDoacoes.tsx:
+
+Puxar dados da coleção doacoes.
+
+Exibir lista de doações + gráficos simples (linha ou pizza).
+
+Possibilidade de filtrar por período.
+
+🎯 Roadmap imediato:
+
+Corrigir MetadadosViveiros.tsx (para aparecer algo mesmo sem dados).
+
+Integrar cálculo de combustível → exibir em cards.
+
+Criar utils/agruparLocalidades.ts e validar agrupamento.
+
+Implementar GraficoAtendimentos.tsx.
+
+Implementar Relatórios, Solicitações e Doações (cada um já tem modelo claro).
