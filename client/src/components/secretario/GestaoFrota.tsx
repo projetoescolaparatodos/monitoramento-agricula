@@ -12,7 +12,8 @@ import {
   AlertTriangle,
   CheckCircle,
   DollarSign,
-  BarChart3
+  BarChart3,
+  Clock
 } from 'lucide-react';
 import {
   BarChart,
