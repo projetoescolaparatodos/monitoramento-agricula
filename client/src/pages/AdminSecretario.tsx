@@ -5,7 +5,7 @@ import { useLocation } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Users, BarChart3, Gift, FileText, Building, Car } from 'lucide-react';
+import { ArrowLeft, Users, BarChart3, Gift, FileText, Building, Car, AlertTriangle } from 'lucide-react';
 
 // Placeholder components - serão implementados nas próximas etapas
 import SolicitacoesCadastro from '@/components/secretario/SolicitacoesCadastro';
@@ -14,6 +14,7 @@ import PainelDoacoes from '@/components/secretario/PainelDoacoes';
 import RelatorioVisitasTecnicas from '@/components/secretario/RelatorioVisitasTecnicas';
 import MetadadosViveiros from '@/components/secretario/MetadadosViveiros';
 import GestaoFrota from '@/components/secretario/GestaoFrota';
+import AlertasInteligentes from '@/components/secretario/AlertasInteligentes';
 
 const AdminSecretario = () => {
   const { userAuth, hasAccess, getLoginUrl, isLoading } = useAuthProtection();
@@ -62,7 +63,7 @@ const AdminSecretario = () => {
 
         {/* Tabs principais */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 mb-8 bg-white shadow-sm">
+          <TabsList className="grid w-full grid-cols-7 mb-8 bg-white shadow-sm">
             <TabsTrigger 
               value="solicitacoes" 
               className="flex items-center gap-2"
@@ -104,6 +105,13 @@ const AdminSecretario = () => {
             >
               <Car className="h-4 w-4" />
               <span className="hidden sm:inline">Frota</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="alertas" 
+              className="flex items-center gap-2"
+            >
+              <AlertTriangle className="h-4 w-4" />
+              <span className="hidden sm:inline">Alertas</span>
             </TabsTrigger>
           </TabsList>
 
@@ -188,6 +196,20 @@ const AdminSecretario = () => {
               </CardHeader>
               <CardContent>
                 <GestaoFrota />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="alertas">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5" />
+                  Alertas Inteligentes da Frota
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <AlertasInteligentes />
               </CardContent>
             </Card>
           </TabsContent>

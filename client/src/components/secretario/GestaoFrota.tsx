@@ -87,6 +87,27 @@ const GestaoFrota = () => {
     total + (veiculo.manutencoes?.reduce((subTotal, manutencao) => subTotal + manutencao.custo, 0) || 0), 0
   );
 
+  // Métricas avançadas
+  const disponibilidadeFrota = veiculos.length > 0 ? (veiculosFuncionando / veiculos.length) * 100 : 0;
+  const tempoMedioInatividade = veiculos.reduce((total, veiculo) => {
+    const tempoTotal = veiculo.manutencoes?.reduce((sum, m) => sum + (m.tempoInatividade || 0), 0) || 0;
+    return total + tempoTotal;
+  }, 0) / Math.max(veiculos.length, 1);
+
+  const veiculosAltoRisco = veiculos.filter(v => {
+    const custoManutencoes = v.manutencoes?.reduce((sum, m) => sum + m.custo, 0) || 0;
+    const manutencoesCriticas = v.manutencoes?.filter(m => m.prioridadeUrgencia === 'critica').length || 0;
+    return custoManutencoes > 5000 || manutencoesCriticas > 2;
+  });
+
+  const top3VeiculosCustoManutencao = veiculos
+    .map(v => ({
+      ...v,
+      custoTotal: v.manutencoes?.reduce((sum, m) => sum + m.custo, 0) || 0
+    }))
+    .sort((a, b) => b.custoTotal - a.custoTotal)
+    .slice(0, 3);
+
   // Análise de uso por veículo
   const analisarUsoVeiculos = () => {
     const usoVeiculos = new Map();
@@ -187,7 +208,7 @@ const GestaoFrota = () => {
   return (
     <div className="space-y-6">
       {/* Estatísticas gerais */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center">
@@ -229,10 +250,85 @@ const GestaoFrota = () => {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center">
-              <Car className="h-4 w-4 text-blue-600 mr-2" />
+              <TrendingUp className="h-4 w-4 text-blue-600 mr-2" />
               <div>
-                <p className="text-2xl font-bold text-blue-600">{veiculos.length}</p>
-                <p className="text-xs text-gray-600">Total de Veículos</p>
+                <p className="text-2xl font-bold text-blue-600">{disponibilidadeFrota.toFixed(1)}%</p>
+                <p className="text-xs text-gray-600">Disponibilidade</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Métricas avançadas */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <AlertTriangle className="h-5 w-5 text-orange-600" />
+              Veículos Alto Risco
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {veiculosAltoRisco.length === 0 ? (
+              <p className="text-center text-green-600 py-4">✅ Nenhum veículo em risco</p>
+            ) : (
+              <div className="space-y-3">
+                {veiculosAltoRisco.map((veiculo) => (
+                  <div key={veiculo.id} className="bg-orange-50 border border-orange-200 rounded p-3">
+                    <h4 className="font-semibold text-orange-800">{veiculo.modelo}</h4>
+                    <p className="text-sm text-orange-700">
+                      Custo: R$ {(veiculo.manutencoes?.reduce((sum, m) => sum + m.custo, 0) || 0).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-orange-600">
+                      {veiculo.manutencoes?.filter(m => m.prioridadeUrgencia === 'critica').length || 0} manutenções críticas
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <DollarSign className="h-5 w-5 text-red-600" />
+              Top 3 Custos de Manutenção
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {top3VeiculosCustoManutencao.map((veiculo, index) => (
+                <div key={veiculo.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                  <div>
+                    <span className="font-medium text-gray-800">#{index + 1} {veiculo.modelo}</span>
+                    <p className="text-sm text-gray-600">{veiculo.tipo}</p>
+                  </div>
+                  <span className="text-lg font-bold text-red-600">
+                    R$ {veiculo.custoTotal.toLocaleString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Clock className="h-5 w-5 text-blue-600" />
+              Tempo Médio Inatividade
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center py-4">
+              <div className="text-3xl font-bold text-blue-600 mb-2">
+                {tempoMedioInatividade.toFixed(1)} dias
+              </div>
+              <p className="text-sm text-gray-600">Por manutenção em média</p>
+              <div className="mt-4 text-xs text-gray-500">
+                Total de {veiculos.reduce((sum, v) => sum + (v.manutencoes?.length || 0), 0)} manutenções registradas
               </div>
             </div>
           </CardContent>

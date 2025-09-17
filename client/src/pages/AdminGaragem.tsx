@@ -40,6 +40,14 @@ interface Manutencao {
   descricao: string;
   custo: number;
   data: string;
+  tempoInatividade?: number; // em dias
+  responsavelConserto?: string;
+  pecasTrocadas?: string[];
+  notaFiscalUrl?: string;
+  fotoUrl?: string;
+  prioridadeUrgencia?: 'baixa' | 'media' | 'alta' | 'critica';
+  dataInicio?: string;
+  dataTermino?: string;
 }
 
 interface Veiculo {
@@ -67,6 +75,12 @@ const AdminGaragem = () => {
   const [descricaoManutencao, setDescricaoManutencao] = useState("");
   const [custoManutencao, setCustoManutencao] = useState(0);
   const [veiculoManutencao, setVeiculoManutencao] = useState<string | null>(null);
+  const [tempoInatividade, setTempoInatividade] = useState(0);
+  const [responsavelConserto, setResponsavelConserto] = useState("");
+  const [pecasTrocadas, setPecasTrocadas] = useState("");
+  const [prioridadeManutencao, setPrioridadeManutencao] = useState<'baixa' | 'media' | 'alta' | 'critica'>('media');
+  const [dataInicioManutencao, setDataInicioManutencao] = useState('');
+  const [dataTerminoManutencao, setDataTerminoManutencao] = useState('');
 
   // Estados da aplicação
   const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
@@ -268,6 +282,12 @@ const AdminGaragem = () => {
         descricao: descricaoManutencao,
         custo: custoManutencao,
         data: new Date().toISOString(),
+        tempoInatividade: tempoInatividade,
+        responsavelConserto: responsavelConserto,
+        pecasTrocadas: pecasTrocadas ? pecasTrocadas.split(',').map(p => p.trim()) : [],
+        prioridadeUrgencia: prioridadeManutencao,
+        dataInicio: dataInicioManutencao,
+        dataTermino: dataTerminoManutencao,
       };
 
       const manutencaoesAtualizadas = [...(veiculo.manutencoes || []), novaManutencao];
@@ -286,6 +306,12 @@ const AdminGaragem = () => {
       setDescricaoManutencao("");
       setCustoManutencao(0);
       setVeiculoManutencao(null);
+      setTempoInatividade(0);
+      setResponsavelConserto("");
+      setPecasTrocadas("");
+      setPrioridadeManutencao('media');
+      setDataInicioManutencao('');
+      setDataTerminoManutencao('');
       setShowManutencaoDialog(false);
 
       // Atualizar lista
@@ -497,38 +523,108 @@ const AdminGaragem = () => {
                       Registre uma nova manutenção para o veículo
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label>Veículo</Label>
-                      <Select value={veiculoManutencao || ""} onValueChange={setVeiculoManutencao}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione o veículo" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {veiculos.map(veiculo => (
-                            <SelectItem key={veiculo.id} value={veiculo.id}>
-                              {veiculo.modelo} - {veiculo.tipo}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                  <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Veículo</Label>
+                        <Select value={veiculoManutencao || ""} onValueChange={setVeiculoManutencao}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o veículo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {veiculos.map(veiculo => (
+                              <SelectItem key={veiculo.id} value={veiculo.id}>
+                                {veiculo.modelo} - {veiculo.tipo}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Prioridade</Label>
+                        <Select value={prioridadeManutencao} onValueChange={setPrioridadeManutencao}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione a prioridade" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="baixa">🟢 Baixa - Preventiva</SelectItem>
+                            <SelectItem value="media">🟡 Média - Necessária</SelectItem>
+                            <SelectItem value="alta">🟠 Alta - Urgente</SelectItem>
+                            <SelectItem value="critica">🔴 Crítica - Emergencial</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
+
                     <div className="space-y-2">
                       <Label>Descrição do Problema</Label>
                       <Textarea
                         value={descricaoManutencao}
                         onChange={(e) => setDescricaoManutencao(e.target.value)}
-                        placeholder="Ex: Troca de embreagem, reparo no motor..."
+                        placeholder="Ex: Troca de embreagem, reparo no motor, revisão preventiva..."
+                        rows={3}
                       />
                     </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label>Custo (R$)</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={custoManutencao}
+                          onChange={(e) => setCustoManutencao(Number(e.target.value))}
+                          placeholder="0.00"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Tempo Inatividade (dias)</Label>
+                        <Input
+                          type="number"
+                          value={tempoInatividade}
+                          onChange={(e) => setTempoInatividade(Number(e.target.value))}
+                          placeholder="Ex: 3"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Responsável pelo Conserto</Label>
+                        <Input
+                          value={responsavelConserto}
+                          onChange={(e) => setResponsavelConserto(e.target.value)}
+                          placeholder="Ex: Oficina Silva"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Data de Início</Label>
+                        <Input
+                          type="date"
+                          value={dataInicioManutencao}
+                          onChange={(e) => setDataInicioManutencao(e.target.value)}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Data de Término</Label>
+                        <Input
+                          type="date"
+                          value={dataTerminoManutencao}
+                          onChange={(e) => setDataTerminoManutencao(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
                     <div className="space-y-2">
-                      <Label>Custo (R$)</Label>
+                      <Label>Peças Trocadas</Label>
                       <Input
-                        type="number"
-                        step="0.01"
-                        value={custoManutencao}
-                        onChange={(e) => setCustoManutencao(Number(e.target.value))}
-                        placeholder="0.00"
+                        value={pecasTrocadas}
+                        onChange={(e) => setPecasTrocadas(e.target.value)}
+                        placeholder="Ex: Filtro de óleo, pastilhas de freio, correia..."
                       />
                     </div>
                   </div>
