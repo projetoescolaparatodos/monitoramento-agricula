@@ -21,82 +21,82 @@ export async function fetchAtendimentosUnificados(): Promise<AtendimentoUnificad
   const atendimentos: AtendimentoUnificado[] = [];
   
   try {
-    // 1. Buscar dados da Agricultura
+    // 1. Buscar dados da Agricultura (coleção "tratores")
     console.log('🌾 Buscando dados da Agricultura...');
-    const agriculturaRef = collection(db, 'agricultura_atividades');
+    const agriculturaRef = collection(db, 'tratores');
     const agriculturaSnapshot = await getDocs(agriculturaRef);
     
     agriculturaSnapshot.forEach(doc => {
       const data = doc.data();
       atendimentos.push({
         id: doc.id,
-        localidade: data.localidade || data.fazenda || 'Não informado',
+        localidade: data.fazenda || data.localidade || 'Não informado',
         latitude: data.latitude,
         longitude: data.longitude,
         origem: 'agricultura',
         data: data.dataCadastro || data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
-        tecnico: data.tecnicoResponsavel || data.nome,
-        detalhes: `${data.atividade || ''} - ${data.operacao || ''}`.trim(),
+        tecnico: data.tecnicoResponsavel || data.piloto,
+        detalhes: `${data.atividade || ''} - ${data.nome || ''}`.trim(),
         ...data
       });
     });
     
-    // 2. Buscar dados da Pesca
+    // 2. Buscar dados da Pesca (coleção "pesca")
     console.log('🐟 Buscando dados da Pesca...');
-    const pescaRef = collection(db, 'pesca_atividades');
+    const pescaRef = collection(db, 'pesca');
     const pescaSnapshot = await getDocs(pescaRef);
     
     pescaSnapshot.forEach(doc => {
       const data = doc.data();
       atendimentos.push({
         id: doc.id,
-        localidade: data.localidade || data.local || 'Não informado',
+        localidade: data.localidade || data.nomeImovel || 'Não informado',
         latitude: data.latitude,
         longitude: data.longitude,
         origem: 'pesca',
         data: data.dataCadastro || data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
-        tecnico: data.tecnicoResponsavel || data.nome,
-        detalhes: `${data.atividade || ''} - ${data.tipoAtividade || ''}`.trim(),
+        tecnico: data.tecnicoResponsavel || data.operador,
+        detalhes: `${data.especiePeixe || ''} - ${data.tipoTanque || ''}`.trim(),
         ...data
       });
     });
     
-    // 3. Buscar dados do PAA
+    // 3. Buscar dados do PAA (coleção "paa")
     console.log('🥬 Buscando dados do PAA...');
-    const paaRef = collection(db, 'paa_atividades');
+    const paaRef = collection(db, 'paa');
     const paaSnapshot = await getDocs(paaRef);
     
     paaSnapshot.forEach(doc => {
       const data = doc.data();
       atendimentos.push({
         id: doc.id,
-        localidade: data.localidade || data.local || 'Não informado',
+        localidade: data.localidade || 'Não informado',
         latitude: data.latitude,
         longitude: data.longitude,
         origem: 'paa',
         data: data.dataCadastro || data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
-        tecnico: data.tecnicoResponsavel || data.responsavel,
-        detalhes: `${data.produto || ''} - ${data.categoria || ''}`.trim(),
+        tecnico: data.tecnicoResponsavel || data.operador,
+        detalhes: `${data.tipoAlimento || ''} - ${data.metodoColheita || ''}`.trim(),
         ...data
       });
     });
     
-    // 4. Buscar visitas técnicas
-    console.log('🔧 Buscando visitas técnicas...');
-    const visitasRef = collection(db, 'visitas_tecnicas');
-    const visitasSnapshot = await getDocs(visitasRef);
+    // 4. Buscar viveiros em construção (parte da pesca)
+    console.log('🏗️ Buscando viveiros em construção...');
+    const viveirosRef = collection(db, 'viveiros_em_construcao');
+    const viveirosSnapshot = await getDocs(viveirosRef);
     
-    visitasSnapshot.forEach(doc => {
+    viveirosSnapshot.forEach(doc => {
       const data = doc.data();
       atendimentos.push({
         id: doc.id,
-        localidade: data.localidade || 'Não informado',
+        localidade: data.localidade || data.nomePropriedade || 'Não informado',
         latitude: data.latitude,
         longitude: data.longitude,
-        origem: 'pesca', // Visitas técnicas são da pesca
-        data: data.dataVisita || data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
-        tecnico: data.tecnicoResponsavel,
-        detalhes: data.descricao || 'Visita técnica',
+        origem: 'pesca', // Viveiros são da área de pesca
+        data: data.dataInicio || data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
+        tecnico: data.tecnicoResponsavel || 'Não informado',
+        detalhes: `Viveiro - ${data.especieCultivada || ''}`.trim(),
         ...data
       });
     });

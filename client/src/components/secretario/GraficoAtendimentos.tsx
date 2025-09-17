@@ -61,6 +61,16 @@ const GraficoAtendimentos = () => {
           fetchEstatisticasAtendimentos()
         ]);
         
+        console.log('📊 Dados carregados:', {
+          totalAtendimentos: atendimentosData.length,
+          localidadesEncontradas: atendimentosData.map(a => a.localidade),
+          atendimentosPorOrigem: {
+            agricultura: atendimentosData.filter(a => a.origem === 'agricultura').length,
+            pesca: atendimentosData.filter(a => a.origem === 'pesca').length,
+            paa: atendimentosData.filter(a => a.origem === 'paa').length
+          }
+        });
+        
         setAtendimentos(atendimentosData);
         setEstatisticas(estatisticasData);
         
@@ -69,7 +79,7 @@ const GraficoAtendimentos = () => {
         const grupos = agruparLocalidades(atendimentosData, limiarSimilaridade);
         setLocalidadesAgrupadas(grupos);
         
-        console.log(`✅ ${grupos.length} grupos de localidades criados`);
+        console.log(`✅ ${grupos.length} grupos de localidades criados`, grupos);
         
         toast({
           title: "Dados carregados",
