@@ -143,54 +143,115 @@ const ConsumoFrotaConsolidado = () => {
           }
         });
 
-        // Buscar também na coleção de solicitações (caso os dados estejam lá)
-        try {
-          const solicitacoesSnapshot = await getDocs(collection(db, 'solicitacoes_agricultura'));
-          console.log('🌾 Buscando em solicitacoes_agricultura...');
+        // Buscar em TODAS as coleções possíveis onde os dados podem estar
+        const colecoesParaBuscar = [
+          'solicitacoes_agricultura',
+          'solicitacoes_agricultura_completo', 
+          'atividades_agricultura',
+          'servicos_agricultura',
+          'tratores_atividades',
+          'solicitacoes_servicos',
+          'agricultura_solicitacoes'
+        ];
 
-          solicitacoesSnapshot.docs.forEach(doc => {
-            const data = doc.data();
-            console.log('🌾 Dados da solicitação:', data);
+        console.log('🔍 Iniciando busca em todas as coleções possíveis...');
+        console.log('📋 Veículos disponíveis:', veiculosData.map(v => `${v.id}: ${v.modelo}`));
 
-            let veiculoId = data.veiculoId || data.tratoresSelecionados?.[0];
-            if (Array.isArray(veiculoId)) {
-              veiculoId = veiculoId[0];
-            }
+        for (const nomeColecao of colecoesParaBuscar) {
+          try {
+            console.log(`🔍 Buscando na coleção: ${nomeColecao}`);
+            const snapshot = await getDocs(collection(db, nomeColecao));
+            
+            console.log(`📊 Coleção ${nomeColecao}: ${snapshot.size} documentos encontrados`);
+            
+            if (!snapshot.empty) {
+              snapshot.docs.forEach((doc, index) => {
+                const data = doc.data();
+                console.log(`📄 Documento ${index + 1}/${snapshot.size} em ${nomeColecao}:`, {
+                  id: doc.id,
+                  data: data,
+                  veiculoId: data.veiculoId,
+                  tratoresSelecionados: data.tratoresSelecionados,
+                  tempoAtividade: data.tempoAtividade,
+                  tempoHoras: data.tempoHoras,
+                  horas: data.horas,
+                  tipoServico: data.tipoServico
+                });
 
-            const veiculo = veiculosData.find(v => v.id === veiculoId);
+                // Tentar múltiplas formas de encontrar o veículo
+                let veiculoId = data.veiculoId || 
+                               data.tratoresSelecionados?.[0] || 
+                               data.tratoresSelecionados ||
+                               data.veiculo ||
+                               data.tratores?.[0];
 
-            if (veiculo && (data.tempoAtividade || data.tempoHoras || data.horas)) {
-              let tempoHoras = 0;
-
-              if (data.tempoAtividade) {
-                tempoHoras = typeof data.tempoAtividade === 'string' ? 
-                  parseFloat(data.tempoAtividade) : data.tempoAtividade;
-                if (tempoHoras > 24) {
-                  tempoHoras = tempoHoras / 60;
+                if (Array.isArray(veiculoId)) {
+                  veiculoId = veiculoId[0];
                 }
-              } else if (data.tempoHoras) {
-                tempoHoras = parseFloat(data.tempoHoras);
-              } else if (data.horas) {
-                tempoHoras = parseFloat(data.horas);
-              }
 
-              const consumo = tempoHoras * (veiculo.consumoMedio || 10);
+                console.log(`🚜 Tentando encontrar veículo com ID: ${veiculoId}`);
+                const veiculo = veiculosData.find(v => v.id === veiculoId);
+                console.log(`🚜 Veículo encontrado:`, veiculo);
 
-              atividadesConsolidadas.push({
-                id: doc.id,
-                setor: 'agricultura',
-                atividade: data.tipoServico || data.atividade || 'Solicitação de Serviço',
-                veiculo: veiculo.modelo,
-                tempoOuDistancia: `${tempoHoras.toFixed(1)}h`,
-                consumoEstimado: consumo,
-                data: data.dataServico || data.data || data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
-                status: data.concluido ? 'Concluído' : (data.status || 'Pendente')
+                if (veiculo) {
+                  // Tentar múltiplas formas de encontrar o tempo
+                  let tempoHoras = 0;
+                  let tempoOriginal = null;
+
+                  if (data.tempoAtividade) {
+                    tempoOriginal = data.tempoAtividade;
+                    tempoHoras = typeof data.tempoAtividade === 'string' ? 
+                      parseFloat(data.tempoAtividade) : data.tempoAtividade;
+                    if (tempoHoras > 24) {
+                      tempoHoras = tempoHoras / 60; // Converter de minutos para horas
+                    }
+                  } else if (data.tempoHoras) {
+                    tempoOriginal = data.tempoHoras;
+                    tempoHoras = parseFloat(data.tempoHoras);
+                  } else if (data.horas) {
+                    tempoOriginal = data.horas;
+                    tempoHoras = parseFloat(data.horas);
+                  } else if (data.tempo) {
+                    tempoOriginal = data.tempo;
+                    tempoHoras = parseFloat(data.tempo);
+                  }
+
+                  console.log(`⏰ Tempo encontrado - Original: ${tempoOriginal}, Calculado: ${tempoHoras}h`);
+
+                  if (tempoHoras > 0) {
+                    const consumo = tempoHoras * (veiculo.consumoMedio || 10);
+                    
+                    console.log(`✅ Adicionando atividade: ${data.tipoServico || 'Serviço'} - ${tempoHoras}h - ${consumo}L`);
+
+                    atividadesConsolidadas.push({
+                      id: doc.id,
+                      setor: 'agricultura',
+                      atividade: data.tipoServico || data.atividade || data.servico || 'Solicitação de Serviço',
+                      veiculo: veiculo.modelo,
+                      tempoOuDistancia: `${tempoHoras.toFixed(1)}h`,
+                      consumoEstimado: consumo,
+                      data: data.dataServico || data.data || data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
+                      status: data.concluido ? 'Concluído' : (data.status || 'Pendente')
+                    });
+                  } else {
+                    console.log(`⚠️ Tempo inválido ou zero para documento ${doc.id}`);
+                  }
+                } else {
+                  console.log(`⚠️ Veículo não encontrado para ID: ${veiculoId}`);
+                }
               });
             }
-          });
-        } catch (error) {
-          console.log('ℹ️ Coleção solicitacoes_agricultura não encontrada ou vazia');
+          } catch (error) {
+            console.log(`ℹ️ Coleção ${nomeColecao} não encontrada ou erro:`, error.message);
+          }
         }
+
+        console.log('🎯 RESUMO FINAL:');
+        console.log(`📊 Total de atividades encontradas: ${atividadesConsolidadas.length}`);
+        console.log(`🌾 Agricultura: ${atividadesConsolidadas.filter(a => a.setor === 'agricultura').length}`);
+        console.log(`🐟 Pesca: ${atividadesConsolidadas.filter(a => a.setor === 'pesca').length}`);
+        console.log(`🥬 PAA: ${atividadesConsolidadas.filter(a => a.setor === 'paa').length}`);
+        console.log('📋 Atividades detalhadas:', atividadesConsolidadas);
 
         setAtividades(atividadesConsolidadas);
       } catch (error) {
