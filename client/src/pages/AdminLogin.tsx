@@ -103,6 +103,16 @@ const AdminLogin = () => {
                 </div>
                 <span className="font-semibold">Painel do Secretário</span>
               </Button>
+
+              <Button 
+                onClick={() => setLocation("/admin/garagem")}
+                className="w-full h-16 text-lg bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 flex items-center justify-center gap-4 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] group"
+              >
+                <div className="flex items-center justify-center w-10 h-10 bg-white/20 rounded-full group-hover:bg-white/30 transition-all duration-300">
+                  <Building className="h-6 w-6" />
+                </div>
+                <span className="font-semibold">Gestão da Garagem</span>
+              </Button>
             </CardContent>
           </Card>
 
