@@ -1653,7 +1653,7 @@ const Admin = () => {
     return null;
   }
 
-  
+
 
   const atualizarStatusAgricultura = async (id, statusAtual) => {
     try {
@@ -1703,7 +1703,7 @@ const Admin = () => {
     }
   };
 
-  
+
 
   return (
     <div className="container mx-auto px-4 py-20">
@@ -1744,7 +1744,7 @@ const Admin = () => {
             <Car className="h-6 w-6" />
             Garagem
           </Button>
-        </div></old_str>
+        </div>
       </div>
       <Tabs defaultValue="agricultura">
         <TabsList className="mb-8">
