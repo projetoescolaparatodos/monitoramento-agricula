@@ -1,0 +1,108 @@
+3. Integração com outros módulos
+
+FormViveiros: selecionar qual veículo foi usado na construção → calcula consumo com base no tempo estimado da obra.
+
+FormVisitasTecnicas: selecionar veículo usado na visita → calcula consumo baseado na distância (já temos coordenadas → podemos estimar km).
+
+Relatório do Secretário:
+
+Mostrar consumo de combustível estimado por veículo.
+
+Mostrar custo de manutenção acumulado.
+
+Ranking: veículos mais usados vs mais caros de manter.
+
+4. Página do Secretário (Futuro)
+
+Nova aba: "Garagem" ou "Gestão de Frota".
+
+Métricas a exibir:
+
+Total de veículos funcionando x quebrados.
+
+Custo de manutenção no período.
+
+Estimativa de combustível gasto por cada setor (Agricultura, Pesca, PAA).
+
+Lista dos veículos mais usados.
+
+5. Implementação passo a passo
+
+Criar AdminGaragem.tsx com abas:
+
+CadastrarVeiculoForm.tsx
+
+ListaVeiculos.tsx
+
+Criar coleção veiculos no Firebase.
+
+Integrar ListaVeiculos com botão rápido para mudar status.
+
+Adicionar campo de manutenção/custo no veículo.
+
+Nos outros formulários (viveiros, visitas técnicas), substituir o campo "qual veículo?" por um <select> puxando da coleção veiculos (filtrar apenas os funcionando).
+
+No cálculo de combustível → usar consumoMedio do veículo selecionado + distância ou tempo de trabalho.
+
+Criar aba "Garagem" também no AdminSecretario.tsx para exibir métricas.
+
+6. Exemplo de Componentes
+CadastrarVeiculoForm.tsx
+import { useState } from "react";
+import { addDoc, collection } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
+export default function CadastrarVeiculoForm() {
+  const [modelo, setModelo] = useState("");
+  const [tipo, setTipo] = useState("caminhonete");
+  const [consumo, setConsumo] = useState("");
+  const [status, setStatus] = useState("funcionando");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await addDoc(collection(db, "veiculos"), {
+      modelo,
+      tipo,
+      consumoMedio: parseFloat(consumo),
+      status,
+      manutencoes: []
+    });
+    setModelo("");
+    setConsumo("");
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 p-4 border rounded-lg">
+      <input
+        value={modelo}
+        onChange={(e) => setModelo(e.target.value)}
+        placeholder="Modelo do veículo"
+        className="border p-2 rounded w-full"
+        required
+      />
+      <select value={tipo} onChange={(e) => setTipo(e.target.value)} className="border p-2 rounded w-full">
+        <option value="caminhonete">Caminhonete</option>
+        <option value="carro">Carro</option>
+        <option value="trator">Trator</option>
+      </select>
+      <input
+        type="number"
+        step="0.1"
+        value={consumo}
+        onChange={(e) => setConsumo(e.target.value)}
+        placeholder="Consumo médio (km/L)"
+        className="border p-2 rounded w-full"
+        required
+      />
+      <select value={status} onChange={(e) => setStatus(e.target.value)} className="border p-2 rounded w-full">
+        <option value="funcionando">Funcionando</option>
+        <option value="quebrado">Quebrado</option>
+      </select>
+      <button className="bg-green-600 text-white px-4 py-2 rounded">Cadastrar</button>
+    </form>
+  );
+}
+
+
+👉 Minha sugestão: primeiro montamos o AdminGaragem.tsx com cadastro + listagem básica de veículos funcionando/quebrados.
+Depois a gente conecta isso nos formulários de viveiro, visitas e trator.
