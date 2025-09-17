@@ -8,6 +8,8 @@ import {
   updateDoc,
   doc,
   deleteDoc,
+  query,
+  where,
 } from "firebase/firestore";
 import IconSelector from "@/components/admin/IconSelector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +18,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Loader2, MapPin, Trash2, Edit2, Plus, ArrowLeft } from "lucide-react";
 import {
   useLoadScript,
@@ -60,6 +69,8 @@ const AdminAgricultura = () => {
   const [dataCadastro, setDataCadastro] = useState(
     new Date().toISOString().split("T")[0],
   );
+  const [veiculoId, setVeiculoId] = useState("");
+  const [tempoEstimadoHoras, setTempoEstimadoHoras] = useState(0);
 
   // Estados de dados
   const [tratoresCadastrados, setTratoresCadastrados] = useState<any[]>([]);
@@ -67,6 +78,8 @@ const AdminAgricultura = () => {
   const [loading, setLoading] = useState(false);
   const [agriculturasAtividades, setAgriculturasAtividades] = useState<any[]>([]);
   const [showAllActivities, setShowAllActivities] = useState(false);
+  const [veiculos, setVeiculos] = useState<any[]>([]);
+  const [loadingVeiculos, setLoadingVeiculos] = useState(true);
 
   // Estados para controle do contorno municipal
   const [showBoundary, setShowBoundary] = useState(true);
@@ -137,7 +150,32 @@ const AdminAgricultura = () => {
       }
     };
 
+    const fetchVeiculos = async () => {
+      try {
+        const veiculosRef = collection(db, 'veiculos');
+        const q = query(veiculosRef, where('status', '==', 'funcionando'));
+        const snapshot = await getDocs(q);
+
+        const veiculosData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+
+        setVeiculos(veiculosData);
+      } catch (error) {
+        console.error('Erro ao carregar veículos:', error);
+        toast({
+          title: "Aviso",
+          description: "Não foi possível carregar a lista de veículos.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoadingVeiculos(false);
+      }
+    };
+
     fetchTratores();
+    fetchVeiculos();
   }, [toast]);
 
   // Verificações condicionais após hooks básicos
@@ -272,6 +310,8 @@ const AdminAgricultura = () => {
         tecnicoResponsavel: tecnicoResponsavel || null,
         horaMaquina: horaMaquinaNum,
         operacao,
+        veiculoId: veiculoId || null,
+        tempoEstimadoHoras: tempoEstimadoHoras || null,
       };
 
       Object.keys(tratorData).forEach((key) => {
@@ -309,6 +349,8 @@ const AdminAgricultura = () => {
       setTempoAtividade(0);
       setAreaTrabalhada(0);
       setDataCadastro(new Date().toISOString().split("T")[0]);
+      setVeiculoId("");
+      setTempoEstimadoHoras(0);
       setTratorEmEdicao(null);
 
       const querySnapshot = await getDocs(collection(db, "tratores"));
@@ -353,6 +395,8 @@ const AdminAgricultura = () => {
     setMidias(trator.midias || []);
     setTempoAtividade(trator.tempoAtividade);
     setAreaTrabalhada(trator.areaTrabalhada || 0);
+    setVeiculoId(trator.veiculoId || "");
+    setTempoEstimadoHoras(trator.tempoEstimadoHoras || 0);
     // Converter a data para o formato YYYY-MM-DD se necessário
     const dataFormatada = trator.dataCadastro ? 
       (trator.dataCadastro.includes('T') ? 
@@ -708,6 +752,35 @@ const AdminAgricultura = () => {
                   value={dataCadastro}
                   onChange={(e) => setDataCadastro(e.target.value)}
                   required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="veiculoId">Veículo/Equipamento Utilizado</Label>
+                <Select value={veiculoId} onValueChange={setVeiculoId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={loadingVeiculos ? "Carregando veículos..." : "Selecione o veículo"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {veiculos.map((veiculo) => (
+                      <SelectItem key={veiculo.id} value={veiculo.id}>
+                        {veiculo.modelo} - {veiculo.tipo} ({veiculo.consumoMedio} km/L)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tempoEstimadoHoras">Tempo Estimado de Trabalho (horas)</Label>
+                <Input
+                  id="tempoEstimadoHoras"
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  value={tempoEstimadoHoras}
+                  onChange={(e) => setTempoEstimadoHoras(Number(e.target.value))}
+                  placeholder="Ex: 8 horas"
                 />
               </div>
             </div>

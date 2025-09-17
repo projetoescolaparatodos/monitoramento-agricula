@@ -9,6 +9,7 @@ import {
   deleteDoc,
   query,
   orderBy,
+  where,
 } from "firebase/firestore";
 import IconSelector from "@/components/admin/IconSelector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,6 +33,13 @@ import styles from "./PescaMap.module.css";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FormViveiros from "@/components/forms/FormViveiros";
 import FormVisitasTecnicas from "@/components/forms/FormVisitasTecnicas";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Pesca {
   id: string;
@@ -93,6 +101,9 @@ const AdminPesca = () => {
   const [dataCadastro, setDataCadastro] = useState(
     new Date().toISOString().split("T")[0],
   );
+  const [veiculoId, setVeiculoId] = useState("");
+  const [tempoEstimadoHoras, setTempoEstimadoHoras] = useState(0);
+  const [distanciaEstimadaKm, setDistanciaEstimadaKm] = useState(0);
 
   // Estados de dados
   const [pesqueirosCadastrados, setPesqueirosCadastrados] = useState<Pesca[]>([]);
@@ -104,6 +115,8 @@ const AdminPesca = () => {
   ]);
   const [viveirosCadastrados, setViveirosCadastrados] = useState<any[]>([]);
   const [loadingViveiros, setLoadingViveiros] = useState(false);
+  const [veiculos, setVeiculos] = useState<any[]>([]);
+  const [loadingVeiculos, setLoadingVeiculos] = useState(true);
 
   // Estados para controle do contorno municipal
   const [showBoundary, setShowBoundary] = useState(true);
@@ -205,8 +218,33 @@ const AdminPesca = () => {
       }
     };
 
+    const fetchVeiculos = async () => {
+      try {
+        const veiculosRef = collection(db, 'veiculos');
+        const q = query(veiculosRef, where('status', '==', 'funcionando'));
+        const snapshot = await getDocs(q);
+
+        const veiculosData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+
+        setVeiculos(veiculosData);
+      } catch (error) {
+        console.error('Erro ao carregar veículos:', error);
+        toast({
+          title: "Aviso",
+          description: "Não foi possível carregar a lista de veículos.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoadingVeiculos(false);
+      }
+    };
+
     fetchPesqueiros();
     fetchViveiros();
+    fetchVeiculos();
   }, [toast]);
 
   // Verificações condicionais (sempre executam após os hooks)
@@ -326,6 +364,9 @@ const AdminPesca = () => {
         midias,
         dataCadastro: dataCadastro,
         concluido: false,
+        veiculoId: veiculoId || null,
+        tempoEstimadoHoras: tempoEstimadoHoras || null,
+        distanciaEstimadaKm: distanciaEstimadaKm || null,
       };
 
       if (pesqueiroEmEdicao) {
@@ -357,6 +398,9 @@ const AdminPesca = () => {
       setLongitude(null);
       setMidias([]);
       setDataCadastro(new Date().toISOString().split("T")[0]);
+      setVeiculoId("");
+      setTempoEstimadoHoras(0);
+      setDistanciaEstimadaKm(0);
       setPesqueiroEmEdicao(null);
 
       // Recarrega os dados
@@ -399,6 +443,9 @@ const AdminPesca = () => {
     setMapCenter({lat: pesqueiro.latitude, lng: pesqueiro.longitude} || { lat: -3.15, lng: -52.0088 });
     setMapZoom(15);
     setMidias(pesqueiro.midias || []);
+    setVeiculoId(pesqueiro.veiculoId || "");
+    setTempoEstimadoHoras(pesqueiro.tempoEstimadoHoras || 0);
+    setDistanciaEstimadaKm(pesqueiro.distanciaEstimadaKm || 0);
     // Converter a data para o formato YYYY-MM-DD se necessário
     const dataFormatada = pesqueiro.dataCadastro ? 
       (pesqueiro.dataCadastro.includes('T') ? 
@@ -453,6 +500,9 @@ const AdminPesca = () => {
     setLongitude(null);
     setMidias([]);
     setDataCadastro(new Date().toISOString().split("T")[0]);
+    setVeiculoId("");
+    setTempoEstimadoHoras(0);
+    setDistanciaEstimadaKm(0);
   };
 
   const handleViveirosSuccess = () => {
@@ -802,6 +852,50 @@ const AdminPesca = () => {
                         value={dataCadastro}
                         onChange={(e) => setDataCadastro(e.target.value)}
                         required
+                        className="text-black bg-white placeholder:text-gray-500"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="veiculoId" className="text-white">Veículo/Equipamento Utilizado</Label>
+                      <Select value={veiculoId} onValueChange={setVeiculoId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={loadingVeiculos ? "Carregando veículos..." : "Selecione o veículo"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {veiculos.map((veiculo) => (
+                            <SelectItem key={veiculo.id} value={veiculo.id}>
+                              {veiculo.modelo} - {veiculo.tipo} ({veiculo.consumoMedio} km/L)
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="tempoEstimadoHoras" className="text-white">Tempo Estimado de Trabalho (horas)</Label>
+                      <Input
+                        id="tempoEstimadoHoras"
+                        type="number"
+                        min="0"
+                        step="0.5"
+                        value={tempoEstimadoHoras}
+                        onChange={(e) => setTempoEstimadoHoras(Number(e.target.value))}
+                        placeholder="Ex: 8 horas"
+                        className="text-black bg-white placeholder:text-gray-500"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="distanciaEstimadaKm" className="text-white">Distância Estimada (km)</Label>
+                      <Input
+                        id="distanciaEstimadaKm"
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        value={distanciaEstimadaKm}
+                        onChange={(e) => setDistanciaEstimadaKm(Number(e.target.value))}
+                        placeholder="Ex: 25.5"
                         className="text-black bg-white placeholder:text-gray-500"
                       />
                     </div>
