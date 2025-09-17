@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { useAuthProtection } from '@/hooks/useAuthProtection';
 import { useLocation } from 'wouter';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Users, BarChart3, Gift, FileText, Building, Car, AlertTriangle } from 'lucide-react';
@@ -64,50 +63,50 @@ const AdminSecretario = () => {
         {/* Tabs principais */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-7 mb-8 bg-white shadow-sm">
-            <TabsTrigger 
-              value="solicitacoes" 
+            <TabsTrigger
+              value="solicitacoes"
               className="flex items-center gap-2"
             >
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Solicitações</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="atendimentos" 
+            <TabsTrigger
+              value="atendimentos"
               className="flex items-center gap-2"
             >
               <BarChart3 className="h-4 w-4" />
               <span className="hidden sm:inline">Áreas Atendidas</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="doacoes" 
+            <TabsTrigger
+              value="doacoes"
               className="flex items-center gap-2"
             >
               <Gift className="h-4 w-4" />
               <span className="hidden sm:inline">Doações</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="visitas" 
+            <TabsTrigger
+              value="visitas"
               className="flex items-center gap-2"
             >
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Visitas Técnicas</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="viveiros" 
-              className="flex items-center gap-2"
-            >
-              <Building className="h-4 w-4" />
-              <span className="hidden sm:inline">Viveiros</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="frota" 
+            <TabsTrigger
+              value="frota-atividades"
               className="flex items-center gap-2"
             >
               <Car className="h-4 w-4" />
-              <span className="hidden sm:inline">Frota</span>
+              <span className="hidden sm:inline">Atividades com Frota</span>
             </TabsTrigger>
-            <TabsTrigger 
-              value="alertas" 
+            <TabsTrigger
+              value="frota"
+              className="flex items-center gap-2"
+            >
+              <Car className="h-4 w-4" />
+              <span className="hidden sm:inline">Gestão de Frota</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="alertas"
               className="flex items-center gap-2"
             >
               <AlertTriangle className="h-4 w-4" />
@@ -156,7 +155,7 @@ const AdminSecretario = () => {
                 <PainelDoacoes />
               </CardContent>
             </Card>
-            </TabsContent>
+          </TabsContent>
 
           <TabsContent value="visitas">
             <Card>
@@ -172,13 +171,16 @@ const AdminSecretario = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="viveiros">
+          <TabsContent value="frota-atividades" className="mt-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Building className="h-5 w-5" />
-                  Metadados de Viveiros em Construção
+                  <Car className="h-5 w-5" />
+                  Consumo de Máquinas por Setor
                 </CardTitle>
+                <CardDescription>
+                  Acompanhe o uso de veículos e máquinas em atividades da Agricultura, Pesca e PAA
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <MetadadosViveiros />

@@ -33,10 +33,15 @@ const FormPAA = () => {
     quantidadeEstimada: '',
     dataServico: '',
     observacoes: '',
+    // Dados de frota
+    veiculoId: '',
+    distanciaEstimadaKm: '',
+    necessitaTransporte: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [chatContext, setChatContext] = useState<ChatContext | null>(null);
+  const [veiculos, setVeiculos] = useState<any[]>([]);
 
   useEffect(() => {
     // Recuperar contexto do chat, se disponível
@@ -50,6 +55,25 @@ const FormPAA = () => {
         console.error('Erro ao carregar contexto do chat:', error);
       }
     }
+
+    // Buscar veículos disponíveis
+    const fetchVeiculos = async () => {
+      try {
+        const { getDocs, collection } = await import('firebase/firestore');
+        const { db } = await import('@/utils/firebase');
+        
+        const veiculosSnapshot = await getDocs(collection(db, 'veiculos'));
+        const veiculosData = veiculosSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setVeiculos(veiculosData);
+      } catch (error) {
+        console.error('Erro ao carregar veículos:', error);
+      }
+    };
+
+    fetchVeiculos();
   }, []);
 
   const handleChange = (name: string, value: any) => {
@@ -126,7 +150,11 @@ const FormPAA = () => {
                 areaMecanization: '', //Added
                 interesse: '',
                 quantidadeEstimada: '',
+                dataServico: '',
                 observacoes: '',
+                veiculoId: '',
+                distanciaEstimadaKm: '',
+                necessitaTransporte: false,
               });
               setActiveStep(0);
             }}>
@@ -294,6 +322,53 @@ const FormPAA = () => {
                 required
               />
             </div>
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="necessitaTransporte"
+                  checked={formData.necessitaTransporte}
+                  onChange={(e) => handleChange('necessitaTransporte', e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <Label htmlFor="necessitaTransporte">Necessita transporte da SEMAPA</Label>
+              </div>
+            </div>
+            
+            {formData.necessitaTransporte && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="veiculoId">Veículo Preferencial (opcional)</Label>
+                  <select
+                    id="veiculoId"
+                    value={formData.veiculoId}
+                    onChange={(e) => handleChange('veiculoId', e.target.value)}
+                    className="w-full p-2 border rounded-md"
+                  >
+                    <option value="">A equipe definirá o veículo</option>
+                    {veiculos
+                      .filter(v => v.tipo === 'caminhonete' || v.tipo === 'caminhao')
+                      .map(veiculo => (
+                        <option key={veiculo.id} value={veiculo.id}>
+                          {veiculo.modelo} - {veiculo.tipo}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="distanciaEstimadaKm">Distância Estimada (km)</Label>
+                  <Input
+                    type="number"
+                    id="distanciaEstimadaKm"
+                    value={formData.distanciaEstimadaKm}
+                    onChange={(e) => handleChange('distanciaEstimadaKm', e.target.value)}
+                    placeholder="Distância da sua propriedade até o destino"
+                  />
+                </div>
+              </>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="observacoes">Observações Adicionais</Label>
               <Textarea
