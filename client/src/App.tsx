@@ -40,6 +40,7 @@ import RegistrarDoacao from "@/pages/RegistrarDoacao";
 import EventoTelao from "./pages/EventoTelao";
 import EventosDisponiveis from "./pages/EventosDisponiveis";
 import AdminLoginGestor from "./pages/AdminLoginGestor";
+import AdminGaragem from "@/pages/AdminGaragem";
 
 // Formulários Setoriais - Importação lazy para melhor performance
 const FormAgricultura = lazy(() => import("./forms/agriculture/index"));
@@ -165,6 +166,7 @@ function Router() {
             <Route path="/registrar-doacao" component={RegistrarDoacao} />
             <Route path="/evento-telao" component={EventoTelao} />
             <Route path="/eventos-disponiveis" component={EventosDisponiveis} />
+            <Route path="/admin/garagem" component={AdminGaragem} />
             {/* Panel management is integrated into dashboard */}
             <Route path="/report" component={Report} />
             <Route path="/forms/agricultura" component={FormAgricultura} />

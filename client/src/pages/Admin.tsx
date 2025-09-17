@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, MapPin, Trash2, Edit2, Plus, ArrowLeft } from "lucide-react";
+import { Loader2, MapPin, Trash2, Edit2, Plus, ArrowLeft, Car } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Upload from "@/components/Upload";
@@ -1718,7 +1718,7 @@ const Admin = () => {
           </Button>
           <h1 className="text-3xl font-bold">Administração Geral</h1>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <Button 
             onClick={() => window.location.href = '/admin/agricultura'}
             className="h-20 text-lg bg-green-600 hover:bg-green-700"
@@ -1737,7 +1737,14 @@ const Admin = () => {
           >
             PAA
           </Button>
-        </div>
+          <Button 
+            onClick={() => window.location.href = '/admin/garagem'}
+            className="h-20 text-lg bg-purple-600 hover:bg-purple-700 flex items-center justify-center gap-2"
+          >
+            <Car className="h-6 w-6" />
+            Garagem
+          </Button>
+        </div></old_str>
       </div>
       <Tabs defaultValue="agricultura">
         <TabsList className="mb-8">
