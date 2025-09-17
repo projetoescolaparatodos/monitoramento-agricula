@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { db } from '../../utils/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, getDocs, query, where } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Plus, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -30,6 +31,8 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
   const { toast } = useToast();
   const { userAuth } = useAuthProtection();
   const [loading, setLoading] = useState(false);
+  const [veiculos, setVeiculos] = useState<any[]>([]);
+  const [loadingVeiculos, setLoadingVeiculos] = useState(true);
 
   // Estados do formulário
   const [dataVisita, setDataVisita] = useState(new Date().toISOString().split('T')[0]);
@@ -39,6 +42,70 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
   const [tecnicoResponsavel, setTecnicoResponsavel] = useState('');
   const [descricao, setDescricao] = useState('');
   const [midias, setMidias] = useState<string[]>([]);
+  const [formData, setFormData] = useState({
+    nomeProdutor: '',
+    cpf: '',
+    telefone: '',
+    endereco: '',
+    tipoAtividade: '',
+    finalidadeVisita: '',
+    dataVisita: '',
+    tecnicoResponsavel: '',
+    observacoes: '',
+    recomendacoes: '',
+    proximaVisita: '',
+    veiculoId: '',
+    distanciaEstimadaKm: 0
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  useEffect(() => {
+    // Solicitar localização do usuário
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.log('Erro ao obter localização:', error);
+        }
+      );
+    }
+
+    // Carregar veículos disponíveis
+    const fetchVeiculos = async () => {
+      try {
+        const veiculosRef = collection(db, 'veiculos');
+        const q = query(veiculosRef, where('status', '==', 'funcionando'));
+        const snapshot = await getDocs(q);
+
+        const veiculosData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+
+        setVeiculos(veiculosData);
+      } catch (error) {
+        console.error('Erro ao carregar veículos:', error);
+        toast({
+          title: "Aviso",
+          description: "Não foi possível carregar a lista de veículos.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoadingVeiculos(false);
+      }
+    };
+
+    fetchVeiculos();
+  }, [toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,17 +123,19 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
 
     try {
       const visitaData = {
-        dataVisita,
+        dataVisita: formData.dataVisita || dataVisita,
         horaInicio,
         horaFim,
         nomeEquipe,
-        tecnicoResponsavel,
+        tecnicoResponsavel: formData.tecnicoResponsavel || tecnicoResponsavel,
         descricao,
         latitude,
         longitude,
         midias,
         timestamp: serverTimestamp(),
         userId: userAuth?.user?.uid || 'anonymous',
+        veiculoId: formData.veiculoId,
+        distanciaEstimadaKm: formData.distanciaEstimadaKm,
       };
 
       await addDoc(collection(db, 'visitas_tecnicas'), visitaData);
@@ -84,6 +153,21 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
       setTecnicoResponsavel('');
       setDescricao('');
       setMidias([]);
+      setFormData({
+        nomeProdutor: '',
+        cpf: '',
+        telefone: '',
+        endereco: '',
+        tipoAtividade: '',
+        finalidadeVisita: '',
+        dataVisita: '',
+        tecnicoResponsavel: '',
+        observacoes: '',
+        recomendacoes: '',
+        proximaVisita: '',
+        veiculoId: '',
+        distanciaEstimadaKm: 0
+      });
 
       onSuccess();
       onClose();
@@ -165,8 +249,8 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
             <Label htmlFor="tecnicoResponsavel" className="text-white">Técnico Responsável</Label>
             <Input
               id="tecnicoResponsavel"
-              value={tecnicoResponsavel}
-              onChange={(e) => setTecnicoResponsavel(e.target.value)}
+              value={formData.tecnicoResponsavel || tecnicoResponsavel}
+              onChange={handleInputChange}
               placeholder="Nome do técnico"
               required
               className="text-black bg-white placeholder:text-gray-500"
@@ -194,7 +278,7 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
             <div className="grid grid-cols-3 gap-2 mt-2">
               {midias.map((url, index) => (
                 <div key={index} className="relative group">
-                  {url.includes("/video/") || url.includes("/video/upload/") || 
+                  {url.includes("/video/") || url.includes("/video/upload/") ||
                     url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".mov") ? (
                     <video
                       src={url}
@@ -208,8 +292,8 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
                       className="w-full h-20 object-cover rounded-lg"
                     />
                   )}
-                  <Button 
-                    variant="destructive" 
+                  <Button
+                    variant="destructive"
                     size="sm"
                     className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-red-600 text-white hover:bg-red-700 w-6 h-6 p-0"
                     onClick={() => setMidias(midias.filter((_, i) => i !== index))}
@@ -226,6 +310,38 @@ const FormVisitasTecnicas: React.FC<FormVisitasTecnicasProps> = ({
               <strong>Coordenadas:</strong> {latitude.toFixed(6)}, {longitude.toFixed(6)}
             </div>
           )}
+
+          {/* Seção de Veículo e Distância */}
+          <div className="space-y-2">
+            <Label htmlFor="veiculoId">Veículo Utilizado</Label>
+            <Select value={formData.veiculoId} onValueChange={(value) => setFormData(prev => ({...prev, veiculoId: value}))}>
+              <SelectTrigger>
+                <SelectValue placeholder={loadingVeiculos ? "Carregando veículos..." : "Selecione o veículo"} />
+              </SelectTrigger>
+              <SelectContent>
+                {veiculos.map((veiculo) => (
+                  <SelectItem key={veiculo.id} value={veiculo.id}>
+                    {veiculo.modelo} - {veiculo.tipo} ({veiculo.consumoMedio} km/L)
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="distanciaEstimadaKm">Distância Estimada (km)</Label>
+            <Input
+              id="distanciaEstimadaKm"
+              name="distanciaEstimadaKm"
+              type="number"
+              min="0"
+              step="0.1"
+              value={formData.distanciaEstimadaKm}
+              onChange={handleInputChange}
+              placeholder="Ex: 25.5"
+            />
+          </div>
+          {/* Fim da Seção de Veículo e Distância */}
 
           <div className="flex gap-2">
             <Button type="submit" disabled={loading} className="flex-1 bg-green-600 text-white hover:bg-green-700">

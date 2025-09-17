@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/utils/firebase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -56,6 +56,10 @@ interface ViveiroEstrutura {
   // Campos para estimativa de combustível
   maquinaUtilizada?: 'retroescavadeira' | 'trator' | 'pá carregadeira' | 'escavadeira';
   horasOperacaoDia?: number;
+  // Novos campos para integração de veículos
+  veiculoId?: string;
+  tempoEstimadoHoras?: string;
+  areaTotalViveiro?: string; // Campo original para fallback
 }
 
 interface EstimativaCombustivel {
@@ -95,6 +99,63 @@ const calcularEstimativaCombustivel = (viveiro: ViveiroEstrutura): EstimativaCom
   };
 };
 
+// Calcular estimativa de combustível baseada no veículo específico
+const calcularEstimativaCombustivelPorVeiculo = async (viveiro: ViveiroEstrutura): Promise<{ combustivel: number; veiculoTipo: string; consumoInfo: string }> => {
+  let combustivelEstimado = 0;
+  let veiculoTipo = 'Estimativa Geral';
+  let consumoInfo = '';
+
+  if (viveiro.veiculoId && viveiro.tempoEstimadoHoras) {
+    try {
+      const veiculoRef = doc(db, 'veiculos', viveiro.veiculoId);
+      const veiculoSnap = await getDoc(veiculoRef);
+
+      if (veiculoSnap.exists()) {
+        const veiculo = veiculoSnap.data();
+        const consumoMedio = veiculo.consumoMedio || 5; // km/L padrão
+        const tempoHoras = parseFloat(viveiro.tempoEstimadoHoras) || 0;
+
+        if (veiculo.tipo === 'trator' || veiculo.tipo === 'maquinario') {
+          // Para tratores e equipamentos pesados, estimar 8-12L por hora
+          const consumoPorHoraMaquinario = veiculo.consumoPorHora || 10; // Default 10L/h
+          combustivelEstimado = tempoHoras * consumoPorHoraMaquinario;
+          veiculoTipo = veiculo.nome || 'Maquinário';
+          consumoInfo = `${tempoHoras}h x ${consumoPorHoraMaquinario}L/h`;
+        } else {
+          // Para veículos, estimar baseado em consumo médio e velocidade média
+          const velocidadeMedia = veiculo.velocidadeMedia || 30; // 30 km/h média
+          const kmEstimados = tempoHoras * velocidadeMedia;
+          combustivelEstimado = kmEstimados / consumoMedio;
+          veiculoTipo = veiculo.nome || 'Veículo';
+          consumoInfo = `${kmEstimados}km / ${consumoMedio}km/L`;
+        }
+      }
+    } catch (error) {
+      console.error(`Erro ao buscar dados do veículo ${viveiro.veiculoId}:`, error);
+      // Fallback para estimativa genérica se houver erro na busca
+      const area = parseFloat(viveiro.areaTotalViveiro) || 0;
+      const fatorConsumo = 2.5; // litros por hectare estimado
+      combustivelEstimado = area * fatorConsumo;
+      veiculoTipo = 'Estimativa (Erro)';
+      consumoInfo = `${area}ha x ${fatorConsumo}L/ha`;
+    }
+  } else {
+    // Estimativa genérica se não há veículo especificado ou tempo
+    const area = parseFloat(viveiro.areaTotalViveiro) || 0;
+    const fatorConsumo = 2.5; // litros por hectare estimado
+    combustivelEstimado = area * fatorConsumo;
+    veiculoTipo = 'Estimativa Geral';
+    consumoInfo = `${area}ha x ${fatorConsumo}L/ha`;
+  }
+
+  return {
+    combustivel: Math.round(combustivelEstimado),
+    veiculoTipo,
+    consumoInfo
+  };
+};
+
+
 const MetadadosViveiros = () => {
   const [viveiros, setViveiros] = useState<ViveiroEstrutura[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,6 +165,8 @@ const MetadadosViveiros = () => {
   const [busca, setBusca] = useState('');
   const [viveiroSelecionado, setViveiroSelecionado] = useState<ViveiroEstrutura | null>(null);
   const { toast } = useToast();
+  const [dadosCombustivel, setDadosCombustivel] = useState([]);
+
 
   useEffect(() => {
     const fetchViveiros = async () => {
@@ -127,6 +190,11 @@ const MetadadosViveiros = () => {
           console.log(`📊 Total de viveiros carregados: ${viveirosData.length}`);
           console.log('📝 Primeiro viveiro:', viveirosData[0]);
           setViveiros(viveirosData);
+
+          // Carregar dados de combustível após buscar os viveiros
+          const estimativas = await Promise.all(viveirosData.map(v => calcularEstimativaCombustivelPorVeiculo(v)));
+          setDadosCombustivel(estimativas);
+
         } else {
           console.log('⚠️ Coleção viveiros_em_construcao está vazia');
           console.log('🔍 Tentando buscar em outras possíveis coleções...');
@@ -148,6 +216,11 @@ const MetadadosViveiros = () => {
                 })) as ViveiroEstrutura[];
 
                 setViveiros(altViveirosData);
+
+                // Carregar dados de combustível após buscar os viveiros
+                const estimativas = await Promise.all(altViveirosData.map(v => calcularEstimativaCombustivelPorVeiculo(v)));
+                setDadosCombustivel(estimativas);
+
                 toast({
                   title: "Sucesso",
                   description: `Dados encontrados na coleção ${collectionName}`,
@@ -234,27 +307,24 @@ const MetadadosViveiros = () => {
       .map(([mes, quantidade]) => ({ mes, quantidade }));
   }, [viveirosFiltrados]);
 
-  // Dados de combustível
-  const dadosCombustivel = useMemo(() => {
-    const combustivelPorMes = viveirosFiltrados.reduce((acc, viveiro) => {
-      const dataInicio = viveiro.dataInicio || viveiro.criadoEm?.toDate?.() || new Date();
-      const mes = format(new Date(dataInicio), 'MM/yyyy');
-      const estimativa = calcularEstimativaCombustivel(viveiro);
-      acc[mes] = (acc[mes] || 0) + estimativa.totalLitros;
+  // Dados de combustível - usando a nova função
+  const dadosCombustivelFormatado = useMemo(() => {
+    const combustivelPorMes = dadosCombustivel.reduce((acc, item) => {
+      // Para simplificar o gráfico, estamos usando o nome do viveiro/veículo como chave.
+      // Se precisar de agregação por mês, a lógica precisará ser ajustada para considerar a data de início.
+      const nome = viveiroSelecionado?.nomePropriedade || item.veiculoTipo; // Prioriza nome do viveiro selecionado, senão tipo de veículo
+      acc[nome] = (acc[nome] || 0) + item.combustivel;
       return acc;
     }, {} as Record<string, number>);
 
     return Object.entries(combustivelPorMes)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([mes, litros]) => ({ mes, litros: Math.round(litros) }));
-  }, [viveirosFiltrados]);
+      .map(([nome, litros]) => ({ nome, litros: Math.round(litros) }));
+  }, [dadosCombustivel, viveiroSelecionado]);
+
 
   const totalCombustivelEstimado = useMemo(() => {
-    return viveirosFiltrados.reduce((total, viveiro) => {
-      const estimativa = calcularEstimativaCombustivel(viveiro);
-      return total + estimativa.totalLitros;
-    }, 0);
-  }, [viveirosFiltrados]);
+    return dadosCombustivel.reduce((total, item) => total + item.combustivel, 0);
+  }, [dadosCombustivel]);
 
   const tecnicos = useMemo(() => 
     [...new Set(viveiros.map(v => v.tecnicoResponsavel))].filter(Boolean)
@@ -576,30 +646,72 @@ const MetadadosViveiros = () => {
                       Estimativa de Combustível
                     </h4>
                     {(() => {
-                      const estimativa = calcularEstimativaCombustivel(viveiroSelecionado);
-                      return (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
-                          <div className="bg-white rounded p-3 text-center">
-                            <div className="text-xl font-bold text-amber-600">{Math.round(estimativa.totalLitros)}L</div>
-                            <div className="text-amber-700">Total Estimado</div>
-                          </div>
-                          <div className="bg-white rounded p-3 text-center">
-                            <div className="text-lg font-semibold text-gray-700">{estimativa.diasOperacao} dias</div>
-                            <div className="text-gray-600">Duração da Obra</div>
-                          </div>
-                          <div className="bg-white rounded p-3 text-center">
-                            <div className="text-lg font-semibold text-gray-700">{estimativa.horasPorDia}h/dia</div>
-                            <div className="text-gray-600">Horas Operação</div>
-                          </div>
-                          <div className="bg-white rounded p-3 text-center">
-                            <div className="text-lg font-semibold text-gray-700">{estimativa.consumoPorHora}L/h</div>
-                            <div className="text-gray-600">{estimativa.maquinaUsada}</div>
-                          </div>
-                        </div>
+                      // Encontrar os dados de combustível correspondentes ao viveiro selecionado
+                      const itemCombustivel = dadosCombustivel.find(item => 
+                        item.nomePropriedade === viveiroSelecionado.nomePropriedade || // Tenta casar pelo nome da propriedade
+                        (item.veiculoTipo !== 'Estimativa Geral' && viveiroSelecionado.veiculoId && item.veiculoTipo.includes(viveiroSelecionado.veiculoId)) // Tenta casar pelo ID do veículo se disponível
                       );
+                      
+                      if (itemCombustivel) {
+                        return (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
+                            <div className="bg-white rounded p-3 text-center">
+                              <div className="text-xl font-bold text-amber-600">{itemCombustivel.combustivel}L</div>
+                              <div className="text-amber-700">Total Estimado</div>
+                            </div>
+                            <div className="bg-white rounded p-3 text-center">
+                              <div className="text-lg font-semibold text-gray-700">{viveiroSelecionado.tempoEstimadoHoras || 'N/A'} horas</div>
+                              <div className="text-gray-600">Tempo Estimado</div>
+                            </div>
+                            <div className="bg-white rounded p-3 text-center">
+                              <div className="text-lg font-semibold text-gray-700">{itemCombustivel.veiculoTipo}</div>
+                              <div className="text-gray-600">Tipo/Veículo</div>
+                            </div>
+                            <div className="bg-white rounded p-3 text-center">
+                              <div className="text-lg font-semibold text-gray-700">{itemCombustivel.consumoInfo}</div>
+                              <div className="text-gray-600">Detalhes Consumo</div>
+                            </div>
+                          </div>
+                        );
+                      } else {
+                        // Caso não encontre os dados detalhados, mostra a estimativa geral do viveiro
+                        const estimativaGeral = calcularEstimativaCombustivel(viveiroSelecionado);
+                        return (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
+                            <div className="bg-white rounded p-3 text-center">
+                              <div className="text-xl font-bold text-amber-600">{Math.round(estimativaGeral.totalLitros)}L</div>
+                              <div className="text-amber-700">Total Estimado</div>
+                            </div>
+                            <div className="bg-white rounded p-3 text-center">
+                              <div className="text-lg font-semibold text-gray-700">{estimativaGeral.diasOperacao} dias</div>
+                              <div className="text-gray-600">Duração da Obra</div>
+                            </div>
+                            <div className="bg-white rounded p-3 text-center">
+                              <div className="text-lg font-semibold text-gray-700">{estimativaGeral.horasPorDia}h/dia</div>
+                              <div className="text-gray-600">Horas Operação</div>
+                            </div>
+                            <div className="bg-white rounded p-3 text-center">
+                              <div className="text-lg font-semibold text-gray-700">{estimativaGeral.consumoPorHora}L/h</div>
+                              <div className="text-gray-600">{estimativaGeral.maquinaUsada}</div>
+                            </div>
+                          </div>
+                        );
+                      }
                     })()}
                     <div className="mt-3 text-xs text-amber-700 bg-amber-100 p-2 rounded">
-                      <strong>💡 Cálculo:</strong> {calcularEstimativaCombustivel(viveiroSelecionado).diasOperacao} dias × {calcularEstimativaCombustivel(viveiroSelecionado).horasPorDia}h/dia × {calcularEstimativaCombustivel(viveiroSelecionado).consumoPorHora}L/h = {Math.round(calcularEstimativaCombustivel(viveiroSelecionado).totalLitros)} litros
+                      <strong>💡 Cálculo:</strong> 
+                      {(() => {
+                        const itemCombustivel = dadosCombustivel.find(item => 
+                          item.nomePropriedade === viveiroSelecionado.nomePropriedade || 
+                          (item.veiculoTipo !== 'Estimativa Geral' && viveiroSelecionado.veiculoId && item.veiculoTipo.includes(viveiroSelecionado.veiculoId))
+                        );
+                        if (itemCombustivel) {
+                          return itemCombustivel.consumoInfo ? `${itemCombustivel.consumoInfo} = ${itemCombustivel.combustivel} litros` : 'Informação de consumo não disponível.';
+                        } else {
+                          const estimativaGeral = calcularEstimativaCombustivel(viveiroSelecionado);
+                          return `${estimativaGeral.diasOperacao} dias × ${estimativaGeral.horasPorDia}h/dia × ${estimativaGeral.consumoPorHora}L/h = ${Math.round(estimativaGeral.totalLitros)} litros`;
+                        }
+                      })()}
                     </div>
                   </div>
 
@@ -689,14 +801,14 @@ const MetadadosViveiros = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Fuel className="h-5 w-5" />
-                    Estimativa de Combustível por Mês
+                    Estimativa de Combustível por Veículo/Tipo
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={dadosCombustivel}>
+                    <BarChart data={dadosCombustivelFormatado}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="mes" />
+                      <XAxis dataKey="nome" />
                       <YAxis />
                       <Tooltip formatter={(value) => [`${value} litros`, 'Combustível']} />
                       <Bar dataKey="litros" fill="#F59E0B" />
