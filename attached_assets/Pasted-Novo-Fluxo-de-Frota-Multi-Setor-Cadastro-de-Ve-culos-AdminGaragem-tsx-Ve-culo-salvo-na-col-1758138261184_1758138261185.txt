@@ -1,0 +1,90 @@
+Novo Fluxo de Frota Multi-Setor
+
+Cadastro de Veículos (AdminGaragem.tsx)
+
+Veículo é salvo na coleção veiculos.
+
+Cada veículo tem: modelo, tipo (trator, caminhonete, retroescavadeira etc.), consumoMedio, status.
+
+todos os veículos aparecem na lista, não apenas os com status funcionando
+
+Uso nos Formulários de Atividades
+
+Agricultura (/admin/agricultura)
+
+Campo atual “Nome do trator” vira um dropdown que busca da coleção veiculos.
+
+Usuário escolhe o trator, informa o tempo de uso (em horas).
+
+Esses dados vão para a coleção do firebase
+isso já esta feito e funcionando
+
+Pesca 
+
+Já adaptado para selecionar veículos.
+
+Salva em viveiros_em_construcao.
+
+PAA (FormPAA.tsx, se houver uso de frota)
+
+Mesmo padrão: dropdown de veículos, tempo/distância.
+
+Visitas Técnicas
+
+Seleção de veículos + distância percorrida (km).
+
+Processamento de Consumo
+
+Cálculo feito em função do veículo selecionado + tempo/distância.
+
+Exemplo:
+
+litros = tempoHoras * consumoMedio   // trator
+litros = (distanciaKm / consumoMedio) // caminhonete
+
+
+Registro salvo junto com atividade/visita.
+
+Página do Secretário
+
+Aba Viveiros → renomeada para “Consumo de Máquinas” (ou “Atividades com Frota”).
+
+Essa aba passa a consolidar dados de Agricultura + Pesca (e futuramente PAA).
+
+Mostra:
+
+Consumo total de combustível por setor.
+
+Comparativo Agricultura x Pesca.
+
+Lista de atividades (ex: “Preparação de solo - 12h trator Massey Ferguson - 120L”).
+
+Gráficos de distribuição por veículo e setor.
+
+📊 Exemplo Visual de Exibição no Secretário
+
+Resumo rápido:
+
+🚜 Tratores (Agricultura) → 350L
+
+🐟 Máquinas (Pesca) → 220L
+
+🚗 Veículos em visitas → 95L
+
+🔧 Total → 665L
+
+Tabela detalhada:
+
+Setor	Atividade	Veículo	Tempo/Distância	Consumo Estimado
+Agricultura	Preparação de Solo	Trator MF 290	10h	100L
+Pesca	Construção Viveiro (Km-40)	Retroescavadeira	8h	96L
+PAA	Transporte de alimentos	Hilux	80km	8.5L
+✅ Benefício dessa integração
+
+O cadastro da Garagem vira a fonte única de veículos para todos os setores.
+
+O Secretário ganha visão global → pode ver onde, quando e quanto cada veículo foi usado.
+
+Métricas mais precisas e unificadas de consumo.
+
+Fica fácil gerar relatórios comparativos entre setores.
