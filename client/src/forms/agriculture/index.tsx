@@ -31,6 +31,7 @@ const FormAgricultura = () => {
     servico: '',
     descricao: '',
     urgencia: 'normal',
+    dataServico: '', // Adicionado campo para data do serviço
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -130,6 +131,7 @@ const FormAgricultura = () => {
                 servico: '',
                 descricao: '',
                 urgencia: 'normal',
+                dataServico: '',
               });
               setActiveStep(0);
             }}>
@@ -256,6 +258,17 @@ const FormAgricultura = () => {
                 <option value="Capacitação">Capacitação</option>
                 <option value="Outro">Outro serviço</option>
               </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="dataServico">Data Prevista do Serviço</Label>
+              <Input
+                id="dataServico"
+                name="dataServico"
+                type="date"
+                value={formData.dataServico}
+                onChange={handleChange}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="descricao">Descrição da Solicitação</Label>

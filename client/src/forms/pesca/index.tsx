@@ -32,6 +32,7 @@ const FormPesca = () => {
     servico: '',
     descricao: '',
     urgencia: 'normal',
+    dataServico: '', // Adicionado campo de data do serviço
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -129,6 +130,7 @@ const FormPesca = () => {
                 servico: '',
                 descricao: '',
                 urgencia: 'normal',
+                dataServico: '',
               });
               setActiveStep(0);
             }}>
@@ -265,6 +267,17 @@ const FormPesca = () => {
                 <option value="Licenciamento ambiental">Licenciamento ambiental</option>
                 <option value="Outro">Outro serviço</option>
               </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="dataServico">Data Prevista do Serviço</Label>
+              <Input
+                id="dataServico"
+                name="dataServico"
+                type="date"
+                value={formData.dataServico}
+                onChange={handleChange}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="descricao">Descrição da Solicitação</Label>

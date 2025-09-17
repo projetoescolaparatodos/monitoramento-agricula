@@ -34,7 +34,7 @@ export async function fetchAtendimentosUnificados(): Promise<AtendimentoUnificad
         latitude: data.latitude,
         longitude: data.longitude,
         origem: 'agricultura',
-        data: data.dataCadastro || data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
+        data: data.dataServico || data.dataCadastro || data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
         tecnico: data.tecnicoResponsavel || data.piloto,
         detalhes: `${data.atividade || ''} - ${data.nome || ''}`.trim(),
         ...data
@@ -54,7 +54,7 @@ export async function fetchAtendimentosUnificados(): Promise<AtendimentoUnificad
         latitude: data.latitude,
         longitude: data.longitude,
         origem: 'pesca',
-        data: data.dataCadastro || data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
+        data: data.dataServico || data.dataCadastro || data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
         tecnico: data.tecnicoResponsavel || data.operador,
         detalhes: `${data.especiePeixe || ''} - ${data.tipoTanque || ''}`.trim(),
         ...data
@@ -74,7 +74,7 @@ export async function fetchAtendimentosUnificados(): Promise<AtendimentoUnificad
         latitude: data.latitude,
         longitude: data.longitude,
         origem: 'paa',
-        data: data.dataCadastro || data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
+        data: data.dataServico || data.dataCadastro || data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
         tecnico: data.tecnicoResponsavel || data.operador,
         detalhes: `${data.tipoAlimento || ''} - ${data.metodoColheita || ''}`.trim(),
         ...data
@@ -94,7 +94,7 @@ export async function fetchAtendimentosUnificados(): Promise<AtendimentoUnificad
         latitude: data.latitude,
         longitude: data.longitude,
         origem: 'pesca', // Viveiros são da área de pesca
-        data: data.dataInicio || data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
+        data: data.dataInicio || data.dataServico || data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
         tecnico: data.tecnicoResponsavel || 'Não informado',
         detalhes: `Viveiro - ${data.especieCultivada || ''}`.trim(),
         ...data

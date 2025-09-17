@@ -31,6 +31,7 @@ const FormPAA = () => {
     // Interesse no PAA
     interesse: '',
     quantidadeEstimada: '',
+    dataServico: '',
     observacoes: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -279,6 +280,17 @@ const FormPAA = () => {
                 value={formData.quantidadeEstimada}
                 onChange={handleChange}
                 placeholder="Ex: 100kg de hortaliças, 50kg de frutas"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="dataServico">Data Prevista do Atendimento</Label>
+              <Input
+                id="dataServico"
+                name="dataServico"
+                type="date"
+                value={formData.dataServico}
+                onChange={(e) => handleChange('dataServico', e.target.value)}
                 required
               />
             </div>
