@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -64,7 +63,7 @@ const ConsumoFrotaConsolidado = () => {
           if (veiculo && data.tempoAtividade) {
             const tempoHoras = data.tempoAtividade / 60; // convertendo minutos para horas
             const consumo = tempoHoras * (veiculo.consumoMedio || 10);
-            
+
             atividadesConsolidadas.push({
               id: doc.id,
               setor: 'agricultura',
@@ -86,7 +85,7 @@ const ConsumoFrotaConsolidado = () => {
           if (veiculo && data.tempoEstimadoHoras) {
             const tempoHoras = parseFloat(data.tempoEstimadoHoras);
             const consumo = tempoHoras * (veiculo.consumoMedio || 15);
-            
+
             atividadesConsolidadas.push({
               id: doc.id,
               setor: 'pesca',
@@ -108,7 +107,7 @@ const ConsumoFrotaConsolidado = () => {
           if (veiculo && data.distanciaEstimadaKm && data.necessitaTransporte) {
             const distancia = parseFloat(data.distanciaEstimadaKm);
             const consumo = (distancia * 2) / (veiculo.consumoMedio || 10); // ida e volta
-            
+
             atividadesConsolidadas.push({
               id: doc.id,
               setor: 'paa',
@@ -130,7 +129,7 @@ const ConsumoFrotaConsolidado = () => {
           if (veiculo && data.distanciaEstimadaKm) {
             const distancia = parseFloat(data.distanciaEstimadaKm);
             const consumo = (distancia * 2) / (veiculo.consumoMedio || 10);
-            
+
             atividadesConsolidadas.push({
               id: doc.id,
               setor: data.setor || 'pesca',
@@ -143,6 +142,55 @@ const ConsumoFrotaConsolidado = () => {
             });
           }
         });
+
+        // Buscar também na coleção de solicitações (caso os dados estejam lá)
+        try {
+          const solicitacoesSnapshot = await getDocs(collection(db, 'solicitacoes_agricultura'));
+          console.log('🌾 Buscando em solicitacoes_agricultura...');
+
+          solicitacoesSnapshot.docs.forEach(doc => {
+            const data = doc.data();
+            console.log('🌾 Dados da solicitação:', data);
+
+            let veiculoId = data.veiculoId || data.tratoresSelecionados?.[0];
+            if (Array.isArray(veiculoId)) {
+              veiculoId = veiculoId[0];
+            }
+
+            const veiculo = veiculosData.find(v => v.id === veiculoId);
+
+            if (veiculo && (data.tempoAtividade || data.tempoHoras || data.horas)) {
+              let tempoHoras = 0;
+
+              if (data.tempoAtividade) {
+                tempoHoras = typeof data.tempoAtividade === 'string' ? 
+                  parseFloat(data.tempoAtividade) : data.tempoAtividade;
+                if (tempoHoras > 24) {
+                  tempoHoras = tempoHoras / 60;
+                }
+              } else if (data.tempoHoras) {
+                tempoHoras = parseFloat(data.tempoHoras);
+              } else if (data.horas) {
+                tempoHoras = parseFloat(data.horas);
+              }
+
+              const consumo = tempoHoras * (veiculo.consumoMedio || 10);
+
+              atividadesConsolidadas.push({
+                id: doc.id,
+                setor: 'agricultura',
+                atividade: data.tipoServico || data.atividade || 'Solicitação de Serviço',
+                veiculo: veiculo.modelo,
+                tempoOuDistancia: `${tempoHoras.toFixed(1)}h`,
+                consumoEstimado: consumo,
+                data: data.dataServico || data.data || data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
+                status: data.concluido ? 'Concluído' : (data.status || 'Pendente')
+              });
+            }
+          });
+        } catch (error) {
+          console.log('ℹ️ Coleção solicitacoes_agricultura não encontrada ou vazia');
+        }
 
         setAtividades(atividadesConsolidadas);
       } catch (error) {
@@ -352,7 +400,7 @@ const ConsumoFrotaConsolidado = () => {
                 ))}
               </tbody>
             </table>
-            
+
             {atividades.length === 0 && (
               <div className="text-center py-8 text-gray-500">
                 Nenhuma atividade com uso de frota registrada ainda.
