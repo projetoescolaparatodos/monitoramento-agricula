@@ -56,24 +56,53 @@ const ConsumoFrotaConsolidado = () => {
         const atividadesConsolidadas: AtividadeComFrota[] = [];
 
         // Buscar dados de agricultura (tratores)
+        console.log('📊 Iniciando busca detalhada de atividades...');
+        
         const tratoresSnapshot = await getDocs(collection(db, 'tratores'));
+        console.log(`🌾 Coleção 'tratores': ${tratoresSnapshot.size} documentos`);
+        
         tratoresSnapshot.docs.forEach(doc => {
           const data = doc.data();
-          const veiculo = veiculosData.find(v => v.id === data.tratoresSelecionados?.[0]);
-          if (veiculo && data.tempoAtividade) {
-            const tempoHoras = data.tempoAtividade / 60; // convertendo minutos para horas
+          console.log(`🔍 Analisando trator ${doc.id}:`, {
+            tratoresSelecionados: data.tratoresSelecionados,
+            tempoAtividade: data.tempoAtividade,
+            nome: data.nome,
+            tipoServico: data.tipoServico
+          });
+
+          // Buscar veículo de múltiplas formas
+          let veiculoId = data.tratoresSelecionados?.[0] || data.veiculoId || data.tratoresSelecionados;
+          if (Array.isArray(veiculoId)) {
+            veiculoId = veiculoId[0];
+          }
+
+          const veiculo = veiculosData.find(v => v.id === veiculoId);
+          console.log(`🚜 Veículo encontrado para ${doc.id}:`, veiculo ? `${veiculo.modelo} (${veiculo.id})` : 'Não encontrado');
+
+          if (veiculo && data.tempoAtividade && data.tempoAtividade > 0) {
+            let tempoHoras = data.tempoAtividade;
+            
+            // Converter minutos para horas se necessário
+            if (tempoHoras > 24) {
+              tempoHoras = tempoHoras / 60;
+            }
+            
             const consumo = tempoHoras * (veiculo.consumoMedio || 10);
+            
+            console.log(`✅ Atividade adicionada: ${veiculo.modelo} - ${tempoHoras}h - ${consumo.toFixed(1)}L`);
 
             atividadesConsolidadas.push({
               id: doc.id,
               setor: 'agricultura',
-              atividade: data.tipoServico || 'Atividade Agrícola',
+              atividade: data.tipoServico || data.atividade || 'Atividade Agrícola',
               veiculo: veiculo.modelo,
               tempoOuDistancia: `${tempoHoras.toFixed(1)}h`,
               consumoEstimado: consumo,
-              data: data.data || new Date().toISOString(),
+              data: data.data || data.dataCadastro || new Date().toISOString(),
               status: data.concluido ? 'Concluído' : 'Em Andamento'
             });
+          } else {
+            console.log(`⚠️ Atividade ignorada ${doc.id}: veiculo=${!!veiculo}, tempoAtividade=${data.tempoAtividade}`);
           }
         });
 
@@ -155,7 +184,16 @@ const ConsumoFrotaConsolidado = () => {
         ];
 
         console.log('🔍 Iniciando busca em todas as coleções possíveis...');
-        console.log('📋 Veículos disponíveis:', veiculosData.map(v => `${v.id}: ${v.modelo}`));
+        console.log('📋 Veículos disponíveis:', veiculosData.map(v => ({
+          id: v.id,
+          modelo: v.modelo,
+          tipo: v.tipo,
+          status: v.status
+        })));
+        
+        if (veiculosData.length === 0) {
+          console.warn('⚠️ NENHUM VEÍCULO ENCONTRADO! Verifique a coleção "veiculos" no Firebase.');
+        }
 
         for (const nomeColecao of colecoesParaBuscar) {
           try {
@@ -167,82 +205,93 @@ const ConsumoFrotaConsolidado = () => {
             if (!snapshot.empty) {
               snapshot.docs.forEach((doc, index) => {
                 const data = doc.data();
-                console.log(`📄 Documento ${index + 1}/${snapshot.size} em ${nomeColecao}:`, {
+                
+                // Log mais limpo e focado
+                const relevantData = {
                   id: doc.id,
-                  data: data,
                   veiculoId: data.veiculoId,
                   tratoresSelecionados: data.tratoresSelecionados,
                   tempoAtividade: data.tempoAtividade,
-                  tempoHoras: data.tempoHoras,
-                  horas: data.horas,
-                  tipoServico: data.tipoServico
-                });
+                  nome: data.nome,
+                  tipoServico: data.tipoServico,
+                  concluido: data.concluido
+                };
+                
+                console.log(`📄 Doc ${index + 1}/${snapshot.size} - ${nomeColecao}:`, relevantData);
 
-                // Tentar múltiplas formas de encontrar o veículo
+                // Buscar veículo de múltiplas formas (prioridade por ordem mais comum)
                 let veiculoId = data.veiculoId || 
                                data.tratoresSelecionados?.[0] || 
                                data.tratoresSelecionados ||
                                data.veiculo ||
-                               data.tratores?.[0];
+                               data.tratores?.[0] ||
+                               data.nome; // Fallback: usar o nome como possível referência
 
                 if (Array.isArray(veiculoId)) {
                   veiculoId = veiculoId[0];
                 }
 
-                console.log(`🚜 Tentando encontrar veículo com ID: ${veiculoId}`);
-                const veiculo = veiculosData.find(v => v.id === veiculoId);
-                console.log(`🚜 Veículo encontrado:`, veiculo);
+                // Tentar encontrar por ID primeiro, depois por nome/modelo se não encontrar
+                let veiculo = veiculosData.find(v => v.id === veiculoId);
+                if (!veiculo && typeof veiculoId === 'string') {
+                  // Tentar encontrar por nome/modelo
+                  veiculo = veiculosData.find(v => 
+                    v.modelo?.toLowerCase().includes(veiculoId.toLowerCase()) ||
+                    v.nome?.toLowerCase().includes(veiculoId.toLowerCase())
+                  );
+                }
+
+                console.log(`🚜 Veículo para ID "${veiculoId}":`, veiculo ? `${veiculo.modelo} (${veiculo.id})` : 'Não encontrado');
 
                 if (veiculo) {
-                  // Tentar múltiplas formas de encontrar o tempo
+                  // Buscar tempo de múltiplas formas
                   let tempoHoras = 0;
-                  let tempoOriginal = null;
+                  let campoTempo = '';
 
-                  if (data.tempoAtividade) {
-                    tempoOriginal = data.tempoAtividade;
+                  if (data.tempoAtividade && data.tempoAtividade > 0) {
                     tempoHoras = typeof data.tempoAtividade === 'string' ? 
                       parseFloat(data.tempoAtividade) : data.tempoAtividade;
+                    campoTempo = 'tempoAtividade';
+                    // Converter minutos para horas se valor muito alto
                     if (tempoHoras > 24) {
-                      tempoHoras = tempoHoras / 60; // Converter de minutos para horas
+                      tempoHoras = tempoHoras / 60;
                     }
-                  } else if (data.tempoHoras) {
-                    tempoOriginal = data.tempoHoras;
+                  } else if (data.tempoHoras && data.tempoHoras > 0) {
                     tempoHoras = parseFloat(data.tempoHoras);
-                  } else if (data.horas) {
-                    tempoOriginal = data.horas;
+                    campoTempo = 'tempoHoras';
+                  } else if (data.horas && data.horas > 0) {
                     tempoHoras = parseFloat(data.horas);
-                  } else if (data.tempo) {
-                    tempoOriginal = data.tempo;
+                    campoTempo = 'horas';
+                  } else if (data.tempo && data.tempo > 0) {
                     tempoHoras = parseFloat(data.tempo);
+                    campoTempo = 'tempo';
                   }
-
-                  console.log(`⏰ Tempo encontrado - Original: ${tempoOriginal}, Calculado: ${tempoHoras}h`);
 
                   if (tempoHoras > 0) {
                     const consumo = tempoHoras * (veiculo.consumoMedio || 10);
                     
-                    console.log(`✅ Adicionando atividade: ${data.tipoServico || 'Serviço'} - ${tempoHoras}h - ${consumo}L`);
+                    console.log(`✅ SUCESSO - ${veiculo.modelo}: ${tempoHoras}h (${campoTempo}) = ${consumo.toFixed(1)}L`);
 
                     atividadesConsolidadas.push({
                       id: doc.id,
                       setor: 'agricultura',
-                      atividade: data.tipoServico || data.atividade || data.servico || 'Solicitação de Serviço',
+                      atividade: data.tipoServico || data.atividade || data.servico || data.descricao || 'Serviço Agrícola',
                       veiculo: veiculo.modelo,
                       tempoOuDistancia: `${tempoHoras.toFixed(1)}h`,
                       consumoEstimado: consumo,
-                      data: data.dataServico || data.data || data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
+                      data: data.dataServico || data.data || data.dataCadastro || data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
                       status: data.concluido ? 'Concluído' : (data.status || 'Pendente')
                     });
                   } else {
-                    console.log(`⚠️ Tempo inválido ou zero para documento ${doc.id}`);
+                    console.log(`⚠️ IGNORADO - ${doc.id}: sem tempo válido`);
                   }
                 } else {
-                  console.log(`⚠️ Veículo não encontrado para ID: ${veiculoId}`);
+                  console.log(`⚠️ IGNORADO - ${doc.id}: veículo não encontrado para "${veiculoId}"`);
                 }
               });
             }
           } catch (error) {
-            console.log(`ℹ️ Coleção ${nomeColecao} não encontrada ou erro:`, error.message);
+            console.log(`❌ Erro na coleção ${nomeColecao}:`, error.message);
           }
         }
 
