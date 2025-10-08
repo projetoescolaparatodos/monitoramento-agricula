@@ -37,6 +37,8 @@ import { useLocation } from "wouter";
 import { useAuthProtection } from "@/hooks/useAuthProtection";
 import { useKmlBoundary, isClockwise, ensureClockwise } from "../hooks/useKmlBoundary";
 import styles from "./AgriculturaMap.module.css";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import FormViveiroMudas from "@/components/forms/FormViveiroMudas";
 
 const AdminAgricultura = () => {
   // Hooks sempre devem estar no topo do componente
@@ -80,6 +82,8 @@ const AdminAgricultura = () => {
   const [showAllActivities, setShowAllActivities] = useState(false);
   const [veiculos, setVeiculos] = useState<any[]>([]);
   const [loadingVeiculos, setLoadingVeiculos] = useState(true);
+  const [showFormViveiro, setShowFormViveiro] = useState(false);
+  const [activeTab, setActiveTab] = useState("atividades");
 
   // Estados para controle do contorno municipal
   const [showBoundary, setShowBoundary] = useState(true);
@@ -431,6 +435,13 @@ const AdminAgricultura = () => {
     }
   };
 
+  const handleViveiroSuccess = () => {
+    toast({
+      title: "Sucesso",
+      description: "Produção de mudas registrada com sucesso!",
+    });
+  };
+
   return (
     <div className="min-h-screen container mx-auto px-4 py-8">
       <div className="flex items-center gap-4 mb-6">
@@ -444,15 +455,22 @@ const AdminAgricultura = () => {
         <h1 className="text-2xl font-bold text-green-800">Administração - Agricultura</h1>
       </div>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="flex justify-between items-center">
-            Lista de Atividades
-            <span className="text-sm font-normal text-gray-500">
-              {agriculturasAtividades.length} atividade{agriculturasAtividades.length !== 1 ? 's' : ''} cadastrada{agriculturasAtividades.length !== 1 ? 's' : ''}
-            </span>
-          </CardTitle>
-        </CardHeader>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+        <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsTrigger value="atividades">Atividades Agrícolas</TabsTrigger>
+          <TabsTrigger value="viveiro">Viveiro de Mudas</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="atividades">
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex justify-between items-center">
+                Lista de Atividades
+                <span className="text-sm font-normal text-gray-500">
+                  {agriculturasAtividades.length} atividade{agriculturasAtividades.length !== 1 ? 's' : ''} cadastrada{agriculturasAtividades.length !== 1 ? 's' : ''}
+                </span>
+              </CardTitle>
+            </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {(showAllActivities ? agriculturasAtividades : agriculturasAtividades.slice(0, 5)).map((atividade) => (
@@ -520,6 +538,30 @@ const AdminAgricultura = () => {
           </div>
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="viveiro">
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex justify-between items-center">
+                Viveiro de Mudas
+                <Button 
+                  onClick={() => setShowFormViveiro(true)}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Cadastrar Produção
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">
+                Registre aqui as produções de mudas do viveiro municipal. 
+                Essas informações serão usadas para controle de estoque e análise de custos.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       <Card className="mb-8">
         <CardHeader>
@@ -903,6 +945,12 @@ const AdminAgricultura = () => {
           </div>
         </CardContent>
       </Card>
+
+      <FormViveiroMudas
+        isOpen={showFormViveiro}
+        onClose={() => setShowFormViveiro(false)}
+        onSuccess={handleViveiroSuccess}
+      />
     </div>
   );
 };
