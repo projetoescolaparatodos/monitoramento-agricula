@@ -29,7 +29,7 @@ const FormViveiroMudas: React.FC<FormViveiroMudasProps> = ({
     especieMuda: '',
     quantidadePlantada: 0,
     dataPlantio: new Date().toISOString().split('T')[0],
-    previsaoDoacao: '',
+    tempoEstimadoMeses: 0,
     insumos: {
       sacolas: 0,
       calcario: 0,
@@ -74,7 +74,7 @@ const FormViveiroMudas: React.FC<FormViveiroMudasProps> = ({
     setLoading(true);
 
     try {
-      if (!formData.especieMuda || formData.quantidadePlantada <= 0) {
+      if (!formData.especieMuda || formData.quantidadePlantada <= 0 || formData.tempoEstimadoMeses <= 0) {
         toast({
           title: "Erro",
           description: "Preencha todos os campos obrigatórios",
@@ -84,8 +84,14 @@ const FormViveiroMudas: React.FC<FormViveiroMudasProps> = ({
         return;
       }
 
+      // Calcular data de previsão baseado no tempo em meses
+      const dataPlantio = new Date(formData.dataPlantio);
+      const previsaoDoacao = new Date(dataPlantio);
+      previsaoDoacao.setMonth(previsaoDoacao.getMonth() + formData.tempoEstimadoMeses);
+
       await addDoc(collection(db, 'viveiro_mudas'), {
         ...formData,
+        previsaoDoacao: previsaoDoacao.toISOString().split('T')[0],
         timestamp: serverTimestamp(),
       });
 
@@ -99,7 +105,7 @@ const FormViveiroMudas: React.FC<FormViveiroMudasProps> = ({
         especieMuda: '',
         quantidadePlantada: 0,
         dataPlantio: new Date().toISOString().split('T')[0],
-        previsaoDoacao: '',
+        tempoEstimadoMeses: 0,
         insumos: {
           sacolas: 0,
           calcario: 0,
@@ -187,15 +193,23 @@ const FormViveiroMudas: React.FC<FormViveiroMudasProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="previsaoDoacao">Previsão para Doação *</Label>
+                <Label htmlFor="tempoEstimadoMeses">Tempo Estimado para Ficar Pronta (meses) *</Label>
                 <Input
-                  id="previsaoDoacao"
-                  name="previsaoDoacao"
-                  type="date"
-                  value={formData.previsaoDoacao}
+                  id="tempoEstimadoMeses"
+                  name="tempoEstimadoMeses"
+                  type="number"
+                  min="1"
+                  step="0.5"
+                  value={formData.tempoEstimadoMeses}
                   onChange={handleInputChange}
+                  placeholder="Ex: 6 meses"
                   required
                 />
+                <p className="text-xs text-gray-500">
+                  {formData.tempoEstimadoMeses > 0 && formData.dataPlantio && (
+                    <>Previsão de doação: {new Date(new Date(formData.dataPlantio).setMonth(new Date(formData.dataPlantio).getMonth() + formData.tempoEstimadoMeses)).toLocaleDateString('pt-BR')}</>
+                  )}
+                </p>
               </div>
 
               <div className="space-y-2">
