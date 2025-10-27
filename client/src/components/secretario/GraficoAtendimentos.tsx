@@ -38,11 +38,15 @@ import { fetchAtendimentosUnificados, fetchEstatisticasAtendimentos } from '@/ut
 import { agruparLocalidades, prepararDadosGrafico, LocalidadeAgrupada } from '@/utils/agruparLocalidades';
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '@/utils/firebase';
 
 const GraficoAtendimentos = () => {
   const [loading, setLoading] = useState(true);
   const [atendimentos, setAtendimentos] = useState<any[]>([]);
+  const [solicitacoes, setSolicitacoes] = useState<any[]>([]);
   const [localidadesAgrupadas, setLocalidadesAgrupadas] = useState<LocalidadeAgrupada[]>([]);
+  const [solicitacoesAgrupadas, setSolicitacoesAgrupadas] = useState<LocalidadeAgrupada[]>([]);
   const [estatisticas, setEstatisticas] = useState<any>(null);
   const [limiarSimilaridade, setLimiarSimilaridade] = useState(0.7);
   const [filtroOrigem, setFiltroOrigem] = useState<'todos' | 'agricultura' | 'pesca' | 'paa'>('todos');
@@ -81,9 +85,72 @@ const GraficoAtendimentos = () => {
         
         console.log(`✅ ${grupos.length} grupos de localidades criados`, grupos);
         
+        // Carregar solicitações pendentes
+        console.log('🔄 Carregando solicitações pendentes...');
+        const solicitacoesData = [];
+        
+        // Buscar solicitações de agricultura
+        const agriculturaRef = collection(db, 'solicitacoes_agricultura');
+        const agriculturaQuery = query(agriculturaRef, where('status', '==', 'pendente'));
+        const agriculturaSnapshot = await getDocs(agriculturaQuery);
+        agriculturaSnapshot.forEach(doc => {
+          const data = doc.data();
+          solicitacoesData.push({
+            id: doc.id,
+            localidade: data.localidade || data.fazenda || 'Não informado',
+            origem: 'agricultura',
+            data: data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
+            solicitante: data.nome || 'Não informado',
+            detalhes: data.descricao || data.servico || '',
+            status: data.status
+          });
+        });
+        
+        // Buscar solicitações de pesca
+        const pescaRef = collection(db, 'solicitacoes_pesca');
+        const pescaQuery = query(pescaRef, where('status', '==', 'pendente'));
+        const pescaSnapshot = await getDocs(pescaQuery);
+        pescaSnapshot.forEach(doc => {
+          const data = doc.data();
+          solicitacoesData.push({
+            id: doc.id,
+            localidade: data.localidade || 'Não informado',
+            origem: 'pesca',
+            data: data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
+            solicitante: data.nome || 'Não informado',
+            detalhes: data.descricao || data.servico || '',
+            status: data.status
+          });
+        });
+        
+        // Buscar solicitações de PAA
+        const paaRef = collection(db, 'solicitacoes_paa');
+        const paaQuery = query(paaRef, where('status', '==', 'pendente'));
+        const paaSnapshot = await getDocs(paaQuery);
+        paaSnapshot.forEach(doc => {
+          const data = doc.data();
+          solicitacoesData.push({
+            id: doc.id,
+            localidade: data.localidade || 'Não informado',
+            origem: 'paa',
+            data: data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
+            solicitante: data.nome || 'Não informado',
+            detalhes: data.descricao || data.servico || '',
+            status: data.status
+          });
+        });
+        
+        setSolicitacoes(solicitacoesData);
+        
+        // Agrupar solicitações por localidade
+        const gruposSolicitacoes = agruparLocalidades(solicitacoesData, limiarSimilaridade);
+        setSolicitacoesAgrupadas(gruposSolicitacoes);
+        
+        console.log(`✅ ${solicitacoesData.length} solicitações pendentes encontradas em ${gruposSolicitacoes.length} localidades`);
+        
         toast({
           title: "Dados carregados",
-          description: `${atendimentosData.length} atendimentos processados em ${grupos.length} localidades.`,
+          description: `${atendimentosData.length} atendimentos e ${solicitacoesData.length} solicitações pendentes processados.`,
         });
         
       } catch (error) {
@@ -112,6 +179,18 @@ const GraficoAtendimentos = () => {
     const grupos = agruparLocalidades(atendimentosFiltrados, limiarSimilaridade);
     return prepararDadosGrafico(grupos);
   }, [atendimentos, filtroOrigem, limiarSimilaridade]);
+
+  // Dados de solicitações filtrados
+  const solicitacoesFiltradas = useMemo(() => {
+    let solicitacoesFiltradas = solicitacoes;
+    
+    if (filtroOrigem !== 'todos') {
+      solicitacoesFiltradas = solicitacoes.filter(s => s.origem === filtroOrigem);
+    }
+    
+    const grupos = agruparLocalidades(solicitacoesFiltradas, limiarSimilaridade);
+    return prepararDadosGrafico(grupos);
+  }, [solicitacoes, filtroOrigem, limiarSimilaridade]);
 
   // Dados temporais (últimos 6 meses)
   const dadosTemporais = useMemo(() => {
@@ -323,6 +402,59 @@ const GraficoAtendimentos = () => {
               </CardContent>
             </Card>
           )}
+
+          {/* Seção de Solicitações Pendentes */}
+          <Card className="mt-6 border-amber-200 bg-amber-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-amber-800">
+                <Info className="h-5 w-5" />
+                Solicitações Pendentes por Localidade
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {solicitacoesFiltradas.length > 0 ? (
+                <>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={solicitacoesFiltradas.slice(0, 10)}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="localidade" 
+                        angle={-45} 
+                        textAnchor="end" 
+                        height={80}
+                        fontSize={12}
+                      />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="quantidade" fill="#F59E0B" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                  
+                  {showDetalhes && (
+                    <div className="space-y-4 mt-4">
+                      <h4 className="font-semibold">Detalhes das Solicitações</h4>
+                      {solicitacoesAgrupadas.slice(0, 10).map((grupo, index) => (
+                        <div key={index} className="border border-amber-300 rounded-lg p-4 bg-white">
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="font-semibold text-lg">{grupo.nome}</h4>
+                            <Badge variant="outline" className="bg-amber-100">{grupo.quantidade} solicitações</Badge>
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            <strong>Variantes encontradas:</strong> {grupo.variantes.join(', ')}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <Info className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+                  <p>Nenhuma solicitação pendente no momento</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="temporal" className="space-y-4">
