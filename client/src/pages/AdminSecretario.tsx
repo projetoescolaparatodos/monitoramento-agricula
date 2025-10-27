@@ -37,7 +37,7 @@ const AdminSecretario = () => {
   }
 
   if (!hasAccess('gestor')) {
-    setLocation("/acesso-negado");
+    setLocation(getLoginUrl('gestor'));
     return null;
   }
 

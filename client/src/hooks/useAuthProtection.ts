@@ -66,7 +66,7 @@ export const useAuthProtection = () => {
     return () => unsubscribe();
   }, [setLocation]);
 
-  const hasAccess = (area: 'agricultura' | 'pesca' | 'paa' | 'admin') => {
+  const hasAccess = (area: 'agricultura' | 'pesca' | 'paa' | 'admin' | 'gestor') => {
     if (!userData) return false;
 
     // Admin e coordenação têm acesso a tudo
@@ -79,13 +79,21 @@ export const useAuthProtection = () => {
       return userData.setor === 'coordenacao';
     }
 
+    // Para a página do gestor/secretário, verificar se é admin ou coordenação
+    if (area === 'gestor') {
+      return userData.setor === 'admin' || userData.setor === 'coordenacao' || userData.permissao === 'admin';
+    }
+
     // Verificar se o setor do usuário corresponde à área solicitada
     return userData.setor === area;
   };
 
-  const getLoginUrl = (area: 'agricultura' | 'pesca' | 'paa' | 'admin') => {
+  const getLoginUrl = (area: 'agricultura' | 'pesca' | 'paa' | 'admin' | 'gestor') => {
     if (area === 'admin') {
       return '/login/admin';
+    }
+    if (area === 'gestor') {
+      return '/login/admin/gestor';
     }
     return `/login/admin/${area}`;
   };
