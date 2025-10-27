@@ -85,60 +85,55 @@ const GraficoAtendimentos = () => {
         
         console.log(`✅ ${grupos.length} grupos de localidades criados`, grupos);
         
-        // Carregar solicitações pendentes
-        console.log('🔄 Carregando solicitações pendentes...');
+        // Carregar solicitações pendentes de todas as coleções
+        console.log('🔄 Carregando solicitações pendentes de todas as coleções...');
         const solicitacoesData = [];
         
-        // Buscar solicitações de agricultura
-        const agriculturaRef = collection(db, 'solicitacoes_agricultura');
-        const agriculturaQuery = query(agriculturaRef, where('status', '==', 'pendente'));
-        const agriculturaSnapshot = await getDocs(agriculturaQuery);
-        agriculturaSnapshot.forEach(doc => {
-          const data = doc.data();
-          solicitacoesData.push({
-            id: doc.id,
-            localidade: data.localidade || data.fazenda || 'Não informado',
-            origem: 'agricultura',
-            data: data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
-            solicitante: data.nome || 'Não informado',
-            detalhes: data.descricao || data.servico || '',
-            status: data.status
-          });
-        });
+        // Definir todas as coleções de solicitações
+        const colecoesSolicitacoes = [
+          { nome: 'solicitacoes_agricultura', origem: 'agricultura' },
+          { nome: 'solicitacoes_agricultura_completo', origem: 'agricultura' },
+          { nome: 'solicitacoes_pesca', origem: 'pesca' },
+          { nome: 'solicitacoes_pesca_completo', origem: 'pesca' },
+          { nome: 'solicitacoes_paa', origem: 'paa' }
+        ];
         
-        // Buscar solicitações de pesca
-        const pescaRef = collection(db, 'solicitacoes_pesca');
-        const pescaQuery = query(pescaRef, where('status', '==', 'pendente'));
-        const pescaSnapshot = await getDocs(pescaQuery);
-        pescaSnapshot.forEach(doc => {
-          const data = doc.data();
-          solicitacoesData.push({
-            id: doc.id,
-            localidade: data.localidade || 'Não informado',
-            origem: 'pesca',
-            data: data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
-            solicitante: data.nome || 'Não informado',
-            detalhes: data.descricao || data.servico || '',
-            status: data.status
-          });
-        });
-        
-        // Buscar solicitações de PAA
-        const paaRef = collection(db, 'solicitacoes_paa');
-        const paaQuery = query(paaRef, where('status', '==', 'pendente'));
-        const paaSnapshot = await getDocs(paaQuery);
-        paaSnapshot.forEach(doc => {
-          const data = doc.data();
-          solicitacoesData.push({
-            id: doc.id,
-            localidade: data.localidade || 'Não informado',
-            origem: 'paa',
-            data: data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
-            solicitante: data.nome || 'Não informado',
-            detalhes: data.descricao || data.servico || '',
-            status: data.status
-          });
-        });
+        // Buscar de cada coleção
+        for (const colecao of colecoesSolicitacoes) {
+          try {
+            const colecaoRef = collection(db, colecao.nome);
+            const colecaoQuery = query(colecaoRef, where('status', '==', 'pendente'));
+            const snapshot = await getDocs(colecaoQuery);
+            
+            console.log(`📋 ${colecao.nome}: ${snapshot.size} solicitações pendentes`);
+            
+            snapshot.forEach(doc => {
+              const data = doc.data();
+              
+              // Extrair localidade de diferentes campos possíveis
+              const localidade = data.localidade || 
+                                data.fazenda || 
+                                data.nomePropriedade || 
+                                data.enderecoPropriedade ||
+                                data.endereco ||
+                                data.travessao ||
+                                'Não informado';
+              
+              solicitacoesData.push({
+                id: doc.id,
+                localidade: localidade,
+                origem: colecao.origem,
+                data: data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
+                solicitante: data.nome || 'Não informado',
+                detalhes: data.descricao || data.servico || data.tipoServico || '',
+                status: data.status,
+                colecao: colecao.nome
+              });
+            });
+          } catch (error) {
+            console.error(`❌ Erro ao buscar solicitações de ${colecao.nome}:`, error);
+          }
+        }
         
         setSolicitacoes(solicitacoesData);
         
@@ -147,6 +142,11 @@ const GraficoAtendimentos = () => {
         setSolicitacoesAgrupadas(gruposSolicitacoes);
         
         console.log(`✅ ${solicitacoesData.length} solicitações pendentes encontradas em ${gruposSolicitacoes.length} localidades`);
+        console.log('📍 Solicitações por origem:', {
+          agricultura: solicitacoesData.filter(s => s.origem === 'agricultura').length,
+          pesca: solicitacoesData.filter(s => s.origem === 'pesca').length,
+          paa: solicitacoesData.filter(s => s.origem === 'paa').length
+        });
         
         toast({
           title: "Dados carregados",
