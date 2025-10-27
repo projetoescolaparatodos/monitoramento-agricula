@@ -272,60 +272,75 @@ const GestaoViveiroMudas = () => {
         </Card>
       </div>
 
-      {/* Cards de Previsão de Doação */}
+      {/* Cards de Previsão de Doação Acumulativa */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CalendarClock className="h-5 w-5 text-blue-600" />
-              Próximas Doações (Próximos 30 dias)
+              Previsão Acumulativa - Próximos 30 dias
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {producoesFiltradas
-                .filter(p => {
-                  const previsao = new Date(p.previsaoDoacao);
-                  const hoje = new Date();
-                  const dias30 = new Date();
-                  dias30.setDate(hoje.getDate() + 30);
-                  return p.status === 'em_processo' && previsao >= hoje && previsao <= dias30;
-                })
-                .sort((a, b) => new Date(a.previsaoDoacao).getTime() - new Date(b.previsaoDoacao).getTime())
-                .slice(0, 5)
-                .map((producao) => {
-                  const diasRestantes = Math.ceil((new Date(producao.previsaoDoacao).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+              {(() => {
+                // Agrupar produções por data de previsão (acumulativo)
+                const previsoesPorData = new Map<string, {quantidade: number, especies: Set<string>}>();
+                
+                producoesFiltradas
+                  .filter(p => {
+                    const previsao = new Date(p.previsaoDoacao);
+                    const hoje = new Date();
+                    const dias30 = new Date();
+                    dias30.setDate(hoje.getDate() + 30);
+                    return p.status === 'em_processo' && previsao >= hoje && previsao <= dias30;
+                  })
+                  .forEach(producao => {
+                    const dataKey = producao.previsaoDoacao;
+                    const atual = previsoesPorData.get(dataKey) || {quantidade: 0, especies: new Set()};
+                    atual.quantidade += (producao.quantidadeEmProcesso || producao.quantidadePlantada);
+                    atual.especies.add(producao.especieMuda);
+                    previsoesPorData.set(dataKey, atual);
+                  });
+
+                const previsoesList = Array.from(previsoesPorData.entries())
+                  .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
+                  .slice(0, 5);
+
+                if (previsoesList.length === 0) {
                   return (
-                    <div key={producao.id} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                    <p className="text-center text-gray-500 py-4">
+                      Nenhuma doação prevista para os próximos 30 dias
+                    </p>
+                  );
+                }
+
+                return previsoesList.map(([data, info]) => {
+                  const diasRestantes = Math.ceil((new Date(data).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                  const especiesArray = Array.from(info.especies);
+                  
+                  return (
+                    <div key={data} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
                       <div className="flex-1">
-                        <p className="font-semibold text-gray-900">{producao.especieMuda}</p>
+                        <p className="font-semibold text-gray-900">
+                          {new Date(data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                        </p>
                         <p className="text-sm text-gray-600">
-                          Previsão: {new Date(producao.previsaoDoacao).toLocaleDateString('pt-BR')}
+                          {especiesArray.length} espécie{especiesArray.length !== 1 ? 's' : ''}: {especiesArray.slice(0, 2).join(', ')}
+                          {especiesArray.length > 2 && ` +${especiesArray.length - 2}`}
                         </p>
                         <p className="text-xs text-gray-500">
                           {diasRestantes} dia{diasRestantes !== 1 ? 's' : ''} restante{diasRestantes !== 1 ? 's' : ''}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-2xl font-bold text-blue-600">
-                          {producao.quantidadeEmProcesso || producao.quantidadePlantada}
-                        </p>
-                        <p className="text-xs text-gray-500">mudas estimadas</p>
+                        <p className="text-2xl font-bold text-blue-600">{info.quantidade}</p>
+                        <p className="text-xs text-gray-500">mudas totais</p>
                       </div>
                     </div>
                   );
-                })}
-              {producoesFiltradas.filter(p => {
-                const previsao = new Date(p.previsaoDoacao);
-                const hoje = new Date();
-                const dias30 = new Date();
-                dias30.setDate(hoje.getDate() + 30);
-                return p.status === 'em_processo' && previsao >= hoje && previsao <= dias30;
-              }).length === 0 && (
-                <p className="text-center text-gray-500 py-4">
-                  Nenhuma doação prevista para os próximos 30 dias
-                </p>
-              )}
+                });
+              })()}
             </div>
           </CardContent>
         </Card>
@@ -334,55 +349,63 @@ const GestaoViveiroMudas = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-green-600" />
-              Previsão de Estoque por Espécie
+              Previsão Acumulativa por Espécie
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {Object.entries(
-                producoesFiltradas
-                  .filter(p => p.status === 'em_processo')
-                  .reduce((acc, p) => {
-                    if (!acc[p.especieMuda]) {
-                      acc[p.especieMuda] = {
-                        quantidade: 0,
-                        proximaData: p.previsaoDoacao
-                      };
-                    }
-                    acc[p.especieMuda].quantidade += (p.quantidadeEmProcesso || p.quantidadePlantada);
-                    if (new Date(p.previsaoDoacao) < new Date(acc[p.especieMuda].proximaData)) {
-                      acc[p.especieMuda].proximaData = p.previsaoDoacao;
-                    }
-                    return acc;
-                  }, {} as Record<string, {quantidade: number, proximaData: string}>)
-              )
-              .sort((a, b) => new Date(a[1].proximaData).getTime() - new Date(b[1].proximaData).getTime())
-              .map(([especie, dados]) => (
-                <div key={especie} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                  <div className="flex-1">
-                    <p className="font-semibold text-gray-900">{especie}</p>
-                    <p className="text-sm text-gray-600">
-                      Próxima disponibilidade: {new Date(dados.proximaData).toLocaleDateString('pt-BR')}
+              {(() => {
+                // Agrupar por espécie e calcular quantidade acumulativa
+                const especiesAcumuladas = Object.entries(
+                  producoesFiltradas
+                    .filter(p => p.status === 'em_processo')
+                    .reduce((acc, p) => {
+                      if (!acc[p.especieMuda]) {
+                        acc[p.especieMuda] = {
+                          quantidadeTotal: 0,
+                          proximaData: p.previsaoDoacao,
+                          producoes: []
+                        };
+                      }
+                      acc[p.especieMuda].quantidadeTotal += (p.quantidadeEmProcesso || p.quantidadePlantada);
+                      acc[p.especieMuda].producoes.push({
+                        data: p.previsaoDoacao,
+                        quantidade: p.quantidadeEmProcesso || p.quantidadePlantada
+                      });
+                      if (new Date(p.previsaoDoacao) < new Date(acc[p.especieMuda].proximaData)) {
+                        acc[p.especieMuda].proximaData = p.previsaoDoacao;
+                      }
+                      return acc;
+                    }, {} as Record<string, {quantidadeTotal: number, proximaData: string, producoes: Array<{data: string, quantidade: number}>}>)
+                )
+                .sort((a, b) => new Date(a[1].proximaData).getTime() - new Date(b[1].proximaData).getTime());
+
+                if (especiesAcumuladas.length === 0) {
+                  return (
+                    <p className="text-center text-gray-500 py-4">
+                      Nenhuma produção em processo
                     </p>
+                  );
+                }
+
+                return especiesAcumuladas.map(([especie, dados]) => (
+                  <div key={especie} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900">{especie}</p>
+                      <p className="text-sm text-gray-600">
+                        Próxima disponibilidade: {new Date(dados.proximaData).toLocaleDateString('pt-BR')}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {dados.producoes.length} produção{dados.producoes.length !== 1 ? 'ões' : ''} em andamento
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-green-600">{dados.quantidadeTotal}</p>
+                      <p className="text-xs text-gray-500">mudas acumuladas</p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-green-600">{dados.quantidade}</p>
-                    <p className="text-xs text-gray-500">mudas previstas</p>
-                  </div>
-                </div>
-              ))}
-              {Object.keys(
-                producoesFiltradas
-                  .filter(p => p.status === 'em_processo')
-                  .reduce((acc, p) => {
-                    acc[p.especieMuda] = true;
-                    return acc;
-                  }, {} as Record<string, boolean>)
-              ).length === 0 && (
-                <p className="text-center text-gray-500 py-4">
-                  Nenhuma produção em processo
-                </p>
-              )}
+                ));
+              })()}
             </div>
           </CardContent>
         </Card>

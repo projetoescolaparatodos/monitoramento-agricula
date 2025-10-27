@@ -89,8 +89,12 @@ const FormViveiroMudas: React.FC<FormViveiroMudasProps> = ({
       const previsaoDoacao = new Date(dataPlantio);
       previsaoDoacao.setMonth(previsaoDoacao.getMonth() + formData.tempoEstimadoMeses);
 
+      // Definir quantidade em processo como igual à plantada inicialmente
+      const quantidadeEmProcesso = formData.status === 'em_processo' ? formData.quantidadePlantada : 0;
+
       await addDoc(collection(db, 'viveiro_mudas'), {
         ...formData,
+        quantidadeEmProcesso,
         previsaoDoacao: previsaoDoacao.toISOString().split('T')[0],
         timestamp: serverTimestamp(),
       });
@@ -205,11 +209,23 @@ const FormViveiroMudas: React.FC<FormViveiroMudasProps> = ({
                   placeholder="Ex: 6 meses"
                   required
                 />
-                <p className="text-xs text-gray-500">
-                  {formData.tempoEstimadoMeses > 0 && formData.dataPlantio && (
-                    <>Previsão de doação: {new Date(new Date(formData.dataPlantio).setMonth(new Date(formData.dataPlantio).getMonth() + formData.tempoEstimadoMeses)).toLocaleDateString('pt-BR')}</>
-                  )}
-                </p>
+                {formData.tempoEstimadoMeses > 0 && formData.dataPlantio && (
+                  <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm font-semibold text-blue-900">
+                      📅 Previsão calculada de doação:
+                    </p>
+                    <p className="text-lg font-bold text-blue-600">
+                      {new Date(new Date(formData.dataPlantio).setMonth(new Date(formData.dataPlantio).getMonth() + formData.tempoEstimadoMeses)).toLocaleDateString('pt-BR', { 
+                        day: '2-digit', 
+                        month: 'long', 
+                        year: 'numeric' 
+                      })}
+                    </p>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {formData.quantidadePlantada > 0 && `${formData.quantidadePlantada} mudas estimadas`}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
