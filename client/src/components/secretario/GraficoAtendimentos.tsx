@@ -110,13 +110,13 @@ const GraficoAtendimentos = () => {
             snapshot.forEach(doc => {
               const data = doc.data();
               
-              // Extrair localidade de diferentes campos possíveis
-              const localidade = data.localidade || 
+              // Priorizar travessão para agrupamento, depois outras localidades
+              const localidade = data.travessao || 
+                                data.localidade || 
+                                data.endereco ||
+                                data.enderecoPropriedade ||
                                 data.fazenda || 
                                 data.nomePropriedade || 
-                                data.enderecoPropriedade ||
-                                data.endereco ||
-                                data.travessao ||
                                 'Não informado';
               
               solicitacoesData.push({
