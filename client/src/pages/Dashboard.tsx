@@ -17,6 +17,7 @@ import ChatbotSolicitacoes from "@/components/dashboard/ChatbotSolicitacoes";
 import ChatbotAdmin from "@/components/dashboard/ChatbotAdmin";
 import InfoPanelManager from "@/components/dashboard/InfoPanelManager";
 import CadastrosSolicitacoesManager from '@/components/dashboard/CadastrosSolicitacoesManager';
+import NormalizarSolicitacoes from '@/components/dashboard/NormalizarSolicitacoes';
 import FirebaseTest from '@/components/debug/FirebaseTest';
 import { DynamicStatsManager } from '@/components/dashboard/DynamicStatsManager';
 import { EventosManager } from '@/components/dashboard/EventosManager';
@@ -175,6 +176,7 @@ const Dashboard = () => {
             {section === "chatbot" && <ChatbotAdmin />}
             {section === "solicitacoes" && <ChatbotSolicitacoes />}
             {section === "cadastros" && <CadastrosSolicitacoesManager />}
+            {section === "normalizar" && <NormalizarSolicitacoes />}
             {section === "dynamic-stats" && <DynamicStatsManager />}
             {section === "eventos" && <EventosManager />}
             {section === "insumos" && <InsumosManager />}
