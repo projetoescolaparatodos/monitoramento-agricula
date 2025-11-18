@@ -94,8 +94,8 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
   // Determinar a página destino com âncora para a seção de galeria
   const getDestinationPage = (pageType: string) => {
     switch (pageType) {
-      case 'agriculture': return '/agriculture#media';
-      case 'fishing': return '/fishing#media';
+      case 'agriculture': return '/agricultura#media';
+      case 'fishing': return '/pesca#media';
       case 'paa': return '/paa#media';
       default: return '/';
     }
@@ -211,8 +211,17 @@ const MediaPreviewCard = ({ item }: { item: MediaItem }) => {
       // Previne o comportamento padrão
       e.preventDefault(); 
 
+      // Mapear para o nome correto da página
+      const pageMap: Record<string, string> = {
+        'agriculture': 'agricultura',
+        'fishing': 'pesca',
+        'paa': 'paa'
+      };
+      
+      const pageName = pageMap[item.pageType] || item.pageType;
+
       // Navega para a página e rola até a seção de mídia
-      window.location.href = `/${item.pageType}#media`;
+      window.location.href = `/${pageName}#media`;
     }}>
       {cardContent}
     </Link>
