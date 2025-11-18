@@ -58,7 +58,7 @@ const AdminLoginGestor = () => {
         description: "Redirecionando para área do Gestor...",
       });
 
-      setLocation('/dashboard');
+      setLocation('/admin/secretario');
     } catch (error: any) {
       console.error('Erro no login:', error);
       toast({
