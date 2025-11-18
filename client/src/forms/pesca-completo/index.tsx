@@ -218,26 +218,48 @@ const FormPescaCompleto = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validar campos obrigatórios
+    if (!formData.nome || !formData.cpf || !formData.celular) {
+      alert('Por favor, preencha os campos obrigatórios: Nome, CPF e Celular');
+      return;
+    }
+    
     setIsSubmitting(true);
 
     try {
-      // Adicionar dados ao Firebase
-      await addDoc(collection(db, 'solicitacoes_pesca_completo'), {
+      console.log('🚀 Iniciando envio do formulário de pesca completo...');
+      console.log('📝 Dados do formulário:', formData);
+      
+      // Preparar dados para salvamento
+      const dadosParaSalvar = {
         ...formData,
         userLocation: chatContext?.userLocation || null,
         timestamp: serverTimestamp(),
         status: 'pendente',
         origem: 'formulario_web',
         tipo: 'cadastro_completo'
-      });
+      };
+      
+      console.log('💾 Dados preparados para salvar:', dadosParaSalvar);
+      console.log('🔥 Conectando ao Firebase...');
+      
+      // Adicionar dados ao Firebase
+      const docRef = await addDoc(collection(db, 'solicitacoes_pesca_completo'), dadosParaSalvar);
+      
+      console.log('✅ Documento salvo com sucesso! ID:', docRef.id);
+      console.log('📍 Coleção: solicitacoes_pesca_completo');
 
       setSubmitted(true);
+      alert('Solicitação enviada com sucesso!');
+      
       // Limpar contexto e rascunho após envio bem-sucedido
       localStorage.removeItem('chatContext');
       localStorage.removeItem('formPescaCompletoDraft');
     } catch (error) {
-      console.error('Erro ao enviar formulário:', error);
-      alert('Erro ao enviar solicitação. Por favor, tente novamente.');
+      console.error('❌ Erro detalhado ao enviar formulário:', error);
+      console.error('Stack trace:', error instanceof Error ? error.stack : 'N/A');
+      alert(`Erro ao enviar solicitação: ${error instanceof Error ? error.message : 'Erro desconhecido'}. Por favor, tente novamente.`);
     } finally {
       setIsSubmitting(false);
     }
