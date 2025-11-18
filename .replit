@@ -25,6 +25,10 @@ externalPort = 3000
 [[ports]]
 localPort = 24678
 
+[[ports]]
+localPort = 37775
+externalPort = 3001
+
 [workflows]
 runButton = "Run on Different Port"
 

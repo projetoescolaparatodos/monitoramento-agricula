@@ -1,5 +1,4 @@
-
-const admin = require('firebase-admin');
+import admin from 'firebase-admin';
 
 // Configurar Firebase Admin SDK
 const serviceAccount = {
