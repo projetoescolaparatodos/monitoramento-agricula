@@ -23,9 +23,9 @@ admin.initializeApp({
 async function createSecretarioUser() {
   try {
     // ✏️ EDITE AQUI: Dados do novo secretário
-    const email = 'secretario2@semapa.gov.br';  // ← Altere o email aqui
-    const password = 'Secretario2025!';         // ← Altere a senha aqui
-    const nome = 'Nome do Secretário';           // ← Altere o nome aqui
+    const email = 'secwilliam@gmail.com';  // ← Altere o email aqui
+    const password = 'semapa2025';         // ← Altere a senha aqui
+    const nome = 'William - Secretário';   // ← Altere o nome aqui
 
     console.log('🔐 Criando usuário secretário...');
     console.log('📧 Email:', email);
