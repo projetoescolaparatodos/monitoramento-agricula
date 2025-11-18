@@ -8,7 +8,7 @@ import { useLocation } from "wouter";
 import { Shield, Lock, ArrowLeft } from "lucide-react";
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '@/utils/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
 const AdminLoginGestor = () => {
@@ -42,7 +42,31 @@ const AdminLoginGestor = () => {
         userDoc = await getDoc(doc(db, 'usuarios', user.uid));
         
         if (!userDoc.exists()) {
-          throw new Error('Usuário não autorizado para o sistema administrativo');
+          // ✨ AUTO-REGISTRO: Criar documento automaticamente para novos secretários
+          console.log('🆕 Novo usuário detectado. Criando registro de secretário...');
+          
+          await setDoc(doc(db, 'usuarios_admin', user.uid), {
+            email: user.email,
+            nome: user.displayName || user.email?.split('@')[0] || 'Secretário',
+            setor: 'coordenacao', // Setor coordenação = gestor/secretário
+            cargo: 'Secretário',
+            permissions: ['read', 'write', 'manage_reports'],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            active: true,
+            firstLogin: true
+          });
+
+          toast({
+            title: "Bem-vindo(a)!",
+            description: "Sua conta de secretário foi criada automaticamente.",
+          });
+
+          console.log('✅ Registro de secretário criado com sucesso');
+          
+          // Redirecionar para o painel
+          setLocation('/admin/secretario');
+          return;
         }
 
         userData = userDoc.data();
