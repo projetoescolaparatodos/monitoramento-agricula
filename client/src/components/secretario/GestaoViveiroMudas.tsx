@@ -121,44 +121,13 @@ const GestaoViveiroMudas: React.FC = () => {
         ...doc.data()
       })) as Muda[];
 
-      // 🆕 Filtrar por período selecionado
-      // REGRA: Sempre mostrar mudas com estoque disponível (prontas ou em processo)
-      const dataAtual = new Date();
-      const mudasFiltradas = mudasData.filter(muda => {
-        const temEstoque = (muda.quantidadePronta > 0) || (muda.quantidadeEmProcesso > 0);
-        
-        // Se tem estoque, SEMPRE mostrar independente do período
-        if (temEstoque) {
-          return true;
-        }
-        
-        // Se NÃO tem estoque, aplicar filtro de data de plantio
-        const dataPlantio = new Date(muda.dataPlantio);
-        
-        if (periodo === 'mensal') {
-          // Últimos 30 dias
-          const umMesAtras = new Date(dataAtual);
-          umMesAtras.setDate(dataAtual.getDate() - 30);
-          return dataPlantio >= umMesAtras;
-        } else if (periodo === 'semestral') {
-          // Últimos 6 meses
-          const seisMesesAtras = new Date(dataAtual);
-          seisMesesAtras.setMonth(dataAtual.getMonth() - 6);
-          return dataPlantio >= seisMesesAtras;
-        } else if (periodo === 'anual') {
-          // Último ano
-          const umAnoAtras = new Date(dataAtual);
-          umAnoAtras.setFullYear(dataAtual.getFullYear() - 1);
-          return dataPlantio >= umAnoAtras;
-        }
-        return true;
-      });
-
-      setMudas(mudasFiltradas.sort((a, b) => a.especieMuda.localeCompare(b.especieMuda)));
+      // Para estatísticas e previsões, usar TODOS os dados
+      // Nota: O filtro por período afeta apenas a visualização, não os totais
+      setMudas(mudasData.sort((a, b) => a.especieMuda.localeCompare(b.especieMuda)));
       setLoading(false);
 
-      // 🆕 Sincronizar estoque de cada muda com insumoId
-      mudasFiltradas.forEach(muda => {
+      // Sincronizar estoque de cada muda com insumoId
+      mudasData.forEach(muda => {
         if (muda.insumoId) {
           sincronizarEstoque(muda.id, muda.insumoId);
         }
@@ -174,15 +143,20 @@ const GestaoViveiroMudas: React.FC = () => {
       const muda = mudas.find(m => m.id === mudaId);
 
       if (muda) {
+        // Usar quantidadePlantada se quantidadeEmProcesso não estiver definida
+        const quantidadeParaPronta = muda.quantidadeEmProcesso > 0 
+          ? muda.quantidadeEmProcesso 
+          : (muda.status === 'em_processo' && muda.quantidadePlantada > 0 ? muda.quantidadePlantada : 0);
+        
         await updateDoc(mudaRef, {
           status: 'pronta',
-          quantidadePronta: muda.quantidadeEmProcesso,
+          quantidadePronta: quantidadeParaPronta,
           quantidadeEmProcesso: 0
         });
 
         toast({
           title: "Sucesso",
-          description: `${muda.especieMuda} marcada como pronta para doação!`
+          description: `${muda.especieMuda} marcada como pronta para doação! (${quantidadeParaPronta} mudas)`
         });
       }
     } catch (error) {
@@ -196,11 +170,26 @@ const GestaoViveiroMudas: React.FC = () => {
   };
 
   // Cálculos de estatísticas
-  const mudasEmProcesso = mudas.filter(m => m.quantidadeEmProcesso > 0);
+  // IMPORTANTE: Mudas em processo devem usar quantidadePlantada se quantidadeEmProcesso não estiver definida
+  const mudasEmProcesso = mudas.filter(m => {
+    if (m.quantidadeEmProcesso > 0) return true;
+    // Se status é em_processo e não tem quantidadeEmProcesso, usar quantidadePlantada
+    if (m.status === 'em_processo' && m.quantidadePlantada > 0 && m.quantidadePronta === 0) return true;
+    return false;
+  });
+  
   const mudasProntas = mudas.filter(m => m.quantidadePronta > 0);
-  const totalMudasPlantadas = mudas.reduce((sum, m) => sum + m.quantidadePlantada, 0);
-  const totalMudasProntas = mudasProntas.reduce((sum, m) => sum + m.quantidadePronta, 0);
-  const totalMudasEmProcesso = mudasEmProcesso.reduce((sum, m) => sum + m.quantidadeEmProcesso, 0);
+  const totalMudasPlantadas = mudas.reduce((sum, m) => sum + (m.quantidadePlantada || 0), 0);
+  const totalMudasProntas = mudas.reduce((sum, m) => sum + (m.quantidadePronta || 0), 0);
+  
+  // Total em processo: usar quantidadePlantada para mudas que não têm quantidadeEmProcesso definida
+  const totalMudasEmProcesso = mudas.reduce((sum, m) => {
+    if (m.quantidadeEmProcesso > 0) return sum + m.quantidadeEmProcesso;
+    if (m.status === 'em_processo' && m.quantidadePlantada > 0 && (m.quantidadePronta || 0) === 0) {
+      return sum + m.quantidadePlantada;
+    }
+    return sum;
+  }, 0);
 
   // Custo total
   const custoTotal = mudas.reduce((sum, m) => {
@@ -219,7 +208,11 @@ const GestaoViveiroMudas: React.FC = () => {
   
   const mudasProximas30Dias = mudas.filter(m => {
     const previsao = new Date(m.previsaoDoacao);
-    const quantidade = m.quantidadeEmProcesso + m.quantidadePronta;
+    // Usar quantidadePlantada para mudas em processo sem quantidadeEmProcesso
+    let quantidade = (m.quantidadeEmProcesso || 0) + (m.quantidadePronta || 0);
+    if (quantidade === 0 && m.status === 'em_processo' && m.quantidadePlantada > 0) {
+      quantidade = m.quantidadePlantada;
+    }
     return previsao <= dataLimite && quantidade > 0;
   });
 
@@ -252,13 +245,19 @@ const GestaoViveiroMudas: React.FC = () => {
   ].filter(item => item.value > 0);
 
   // Previsão acumulativa por espécie
+  // IMPORTANTE: Usar quantidadePlantada para mudas em processo que ainda não tiveram estoque definido
   const previsaoPorEspecie = mudas.reduce((acc, muda) => {
-    // Incluir mudas em processo E prontas (que ainda não foram doadas)
     const quantidadeEmProcesso = muda.quantidadeEmProcesso || 0;
     const quantidadePronta = muda.quantidadePronta || 0;
-    const quantidade = quantidadeEmProcesso + quantidadePronta;
+    const quantidadePlantada = muda.quantidadePlantada || 0;
     
-    // Só incluir se tiver alguma quantidade disponível
+    // Se a muda está em processo e não tem quantidadeEmProcesso definida, usar quantidadePlantada
+    let quantidade = quantidadeEmProcesso + quantidadePronta;
+    if (quantidade === 0 && muda.status === 'em_processo' && quantidadePlantada > 0) {
+      quantidade = quantidadePlantada;
+    }
+    
+    // Só incluir se tiver alguma quantidade
     if (quantidade === 0) return acc;
     
     // Normalizar nome da espécie (primeiro caractere maiúsculo, resto minúsculo)
@@ -399,7 +398,11 @@ const GestaoViveiroMudas: React.FC = () => {
             ) : (
               <div className="space-y-2">
                 {mudasProximas30Dias.map(muda => {
-                  const quantidadeTotal = muda.quantidadeEmProcesso + muda.quantidadePronta;
+                  // Usar quantidadePlantada para mudas em processo sem quantidadeEmProcesso
+                  let quantidadeTotal = (muda.quantidadeEmProcesso || 0) + (muda.quantidadePronta || 0);
+                  if (quantidadeTotal === 0 && muda.status === 'em_processo' && muda.quantidadePlantada > 0) {
+                    quantidadeTotal = muda.quantidadePlantada;
+                  }
                   return (
                     <div key={muda.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
                       <div>
@@ -603,7 +606,10 @@ const GestaoViveiroMudas: React.FC = () => {
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2 text-sm">
                           <div>
                             <p className="text-gray-500">Em Processo</p>
-                            <p className="font-bold text-yellow-600">{muda.quantidadeEmProcesso} mudas</p>
+                            <p className="font-bold text-yellow-600">
+                              {muda.quantidadeEmProcesso > 0 ? muda.quantidadeEmProcesso : 
+                                (muda.status === 'em_processo' && muda.quantidadePlantada > 0 ? muda.quantidadePlantada : 0)} mudas
+                            </p>
                           </div>
                           <div>
                             <p className="text-gray-500">Plantadas</p>
@@ -633,11 +639,75 @@ const GestaoViveiroMudas: React.FC = () => {
         </CardContent>
       </Card>
 
+      {/* Produções Detalhadas */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Produções Detalhadas</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-3 px-2">Espécie</th>
+                  <th className="text-center py-3 px-2">Plantadas</th>
+                  <th className="text-center py-3 px-2">Prontas</th>
+                  <th className="text-center py-3 px-2">Em Processo</th>
+                  <th className="text-center py-3 px-2">Previsão Doação</th>
+                  <th className="text-center py-3 px-2">Custo Total</th>
+                  <th className="text-center py-3 px-2">Custo/Muda</th>
+                  <th className="text-center py-3 px-2">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mudas.map(muda => {
+                  const custoMuda = muda.insumos ? 
+                    (muda.insumos.sacolas * muda.insumos.valorSacola) +
+                    (muda.insumos.calcario * muda.insumos.valorCalcario) +
+                    (muda.insumos.adubo * muda.insumos.valorAdubo) : 0;
+                  const custoPorUnidade = muda.quantidadePlantada > 0 ? custoMuda / muda.quantidadePlantada : 0;
+                  
+                  return (
+                    <tr key={muda.id} className="border-b hover:bg-gray-50">
+                      <td className="py-3 px-2 font-medium">{muda.especieMuda}</td>
+                      <td className="text-center py-3 px-2">{muda.quantidadePlantada}</td>
+                      <td className="text-center py-3 px-2">{muda.quantidadePronta}</td>
+                      <td className="text-center py-3 px-2">
+                        {muda.quantidadeEmProcesso > 0 ? muda.quantidadeEmProcesso : 
+                          (muda.status === 'em_processo' && muda.quantidadePlantada > 0 ? muda.quantidadePlantada : 0)}
+                      </td>
+                      <td className="text-center py-3 px-2">
+                        {new Date(muda.previsaoDoacao).toLocaleDateString('pt-BR')}
+                      </td>
+                      <td className="text-center py-3 px-2">R$ {custoMuda.toFixed(2)}</td>
+                      <td className="text-center py-3 px-2">R$ {custoPorUnidade.toFixed(2)}</td>
+                      <td className="text-center py-3 px-2">
+                        <Badge 
+                          variant="outline"
+                          className={
+                            muda.status === 'pronta' ? 'bg-green-100 text-green-800' :
+                            muda.status === 'doada' ? 'bg-blue-100 text-blue-800' :
+                            'bg-yellow-100 text-yellow-800'
+                          }
+                        >
+                          {muda.status === 'pronta' ? 'Pronta' :
+                           muda.status === 'doada' ? 'Doada' : 'Em Processo'}
+                        </Badge>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Alerta de Sincronização */}
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          ✅ O estoque de mudas é sincronizado automaticamente com as doações registradas nos eventos.
+          O estoque de mudas é sincronizado automaticamente com as doações registradas nos eventos.
           Quando uma doação é feita usando mudas, a quantidade é descontada automaticamente do estoque disponível.
         </AlertDescription>
       </Alert>

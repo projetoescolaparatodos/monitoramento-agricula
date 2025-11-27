@@ -12,10 +12,6 @@ build = ["sh", "-c", "npm run build"]
 
 [[ports]]
 localPort = 5000
-externalPort = 5000
-
-[[ports]]
-localPort = 5001
 externalPort = 80
 
 [[ports]]
@@ -25,8 +21,12 @@ externalPort = 3000
 [[ports]]
 localPort = 24678
 
+[[ports]]
+localPort = 44963
+externalPort = 3001
+
 [workflows]
-runButton = "Run on Different Port"
+runButton = "Project"
 
 [[workflows.workflow]]
 name = "Project"
@@ -43,9 +43,7 @@ author = "agent"
 
 [workflows.workflow.metadata]
 agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
+outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
