@@ -187,8 +187,8 @@ const GestaoViveiroMudas: React.FC = () => {
   };
 
   // Cálculos de estatísticas
-  const mudasEmProcesso = mudas.filter(m => m.status === 'em_processo');
-  const mudasProntas = mudas.filter(m => m.status === 'pronta' && m.quantidadePronta > 0);
+  const mudasEmProcesso = mudas.filter(m => m.quantidadeEmProcesso > 0);
+  const mudasProntas = mudas.filter(m => m.quantidadePronta > 0);
   const totalMudasPlantadas = mudas.reduce((sum, m) => sum + m.quantidadePlantada, 0);
   const totalMudasProntas = mudasProntas.reduce((sum, m) => sum + m.quantidadePronta, 0);
   const totalMudasEmProcesso = mudasEmProcesso.reduce((sum, m) => sum + m.quantidadeEmProcesso, 0);
@@ -208,9 +208,10 @@ const GestaoViveiroMudas: React.FC = () => {
   const dataLimite = new Date();
   dataLimite.setDate(dataLimite.getDate() + 30);
   
-  const mudasProximas30Dias = mudasEmProcesso.filter(m => {
+  const mudasProximas30Dias = mudas.filter(m => {
     const previsao = new Date(m.previsaoDoacao);
-    return previsao <= dataLimite;
+    const quantidade = m.quantidadeEmProcesso + m.quantidadePronta;
+    return previsao <= dataLimite && quantidade > 0;
   });
 
   // Dados para gráfico de produção por espécie
@@ -242,19 +243,24 @@ const GestaoViveiroMudas: React.FC = () => {
   ].filter(item => item.value > 0);
 
   // Previsão acumulativa por espécie
-  const previsaoPorEspecie = mudasEmProcesso.reduce((acc, muda) => {
+  const previsaoPorEspecie = mudas.reduce((acc, muda) => {
+    // Incluir mudas em processo E prontas (que ainda não foram doadas)
+    const quantidade = muda.quantidadeEmProcesso + muda.quantidadePronta;
+    if (quantidade === 0) return acc;
+    
     const existing = acc.find(item => item.especie === muda.especieMuda);
     const previsao = new Date(muda.previsaoDoacao);
     
     if (existing) {
-      existing.quantidade += muda.quantidadeEmProcesso;
+      existing.quantidade += quantidade;
+      existing.producoes += 1;
       if (previsao < new Date(existing.proximaDisponibilidade)) {
         existing.proximaDisponibilidade = muda.previsaoDoacao;
       }
     } else {
       acc.push({
         especie: muda.especieMuda,
-        quantidade: muda.quantidadeEmProcesso,
+        quantidade: quantidade,
         proximaDisponibilidade: muda.previsaoDoacao,
         producoes: 1
       });
@@ -372,17 +378,20 @@ const GestaoViveiroMudas: React.FC = () => {
               <p className="text-center text-gray-500 py-4">Nenhuma doação prevista para os próximos 30 dias</p>
             ) : (
               <div className="space-y-2">
-                {mudasProximas30Dias.map(muda => (
-                  <div key={muda.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                    <div>
-                      <p className="font-semibold">{muda.especieMuda}</p>
-                      <p className="text-sm text-gray-500">
-                        Previsão: {new Date(muda.previsaoDoacao).toLocaleDateString('pt-BR')}
-                      </p>
+                {mudasProximas30Dias.map(muda => {
+                  const quantidadeTotal = muda.quantidadeEmProcesso + muda.quantidadePronta;
+                  return (
+                    <div key={muda.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                      <div>
+                        <p className="font-semibold">{muda.especieMuda}</p>
+                        <p className="text-sm text-gray-500">
+                          Previsão: {new Date(muda.previsaoDoacao).toLocaleDateString('pt-BR')}
+                        </p>
+                      </div>
+                      <p className="text-lg font-bold text-green-600">{quantidadeTotal} mudas</p>
                     </div>
-                    <p className="text-lg font-bold text-green-600">{muda.quantidadeEmProcesso} mudas</p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </CardContent>
