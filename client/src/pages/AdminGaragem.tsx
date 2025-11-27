@@ -348,7 +348,7 @@ const AdminGaragem = () => {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setLocation("/admin")}
+            onClick={() => setLocation("/")}
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
