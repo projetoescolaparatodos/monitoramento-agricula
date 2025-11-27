@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, X } from 'lucide-react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, query, where, getDocs, doc, setDoc } from 'firebase/firestore';
 import { db } from '@/utils/firebase';
 
 interface FormViveiroMudasProps {
@@ -92,16 +92,45 @@ const FormViveiroMudas: React.FC<FormViveiroMudasProps> = ({
       // Definir quantidade em processo como igual à plantada inicialmente
       const quantidadeEmProcesso = formData.status === 'em_processo' ? formData.quantidadePlantada : 0;
 
+      // 🌱 AUTO-CADASTRO DE INSUMO: Verificar se a espécie já existe como insumo
+      const especieNormalizada = formData.especieMuda.trim();
+      const insumosRef = collection(db, 'insumos');
+      const q = query(insumosRef, where('nome', '==', `Muda de ${especieNormalizada}`));
+      const insumosSnapshot = await getDocs(q);
+
+      let insumoId = null;
+
+      if (insumosSnapshot.empty) {
+        // Criar novo insumo automaticamente
+        const novoInsumoRef = await addDoc(collection(db, 'insumos'), {
+          nome: `Muda de ${especieNormalizada}`,
+          unidade: 'mudas',
+          ativo: true,
+          isKit: false,
+          tipoOrigem: 'viveiro', // Marcador para identificar insumos de mudas
+          especieViveiro: especieNormalizada,
+          criadoEm: serverTimestamp(),
+        });
+        insumoId = novoInsumoRef.id;
+        
+        console.log(`✅ Insumo criado automaticamente: Muda de ${especieNormalizada}`);
+      } else {
+        insumoId = insumosSnapshot.docs[0].id;
+        console.log(`ℹ️ Insumo já existe: Muda de ${especieNormalizada}`);
+      }
+
+      // Salvar produção de mudas com referência ao insumo
       await addDoc(collection(db, 'viveiro_mudas'), {
         ...formData,
         quantidadeEmProcesso,
         previsaoDoacao: previsaoDoacao.toISOString().split('T')[0],
+        insumoId, // Vincular com o insumo criado/existente
         timestamp: serverTimestamp(),
       });
 
       toast({
         title: "Sucesso",
-        description: "Produção de mudas cadastrada com sucesso!",
+        description: `Produção de mudas cadastrada e insumo "${especieNormalizada}" registrado!`,
       });
 
       // Limpar formulário

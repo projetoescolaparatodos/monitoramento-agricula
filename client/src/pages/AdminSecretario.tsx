@@ -14,6 +14,7 @@ import RelatorioVisitasTecnicas from '@/components/secretario/RelatorioVisitasTe
 import MetadadosViveiros from '@/components/secretario/MetadadosViveiros';
 import GestaoFrota from '@/components/secretario/GestaoFrota';
 import AlertasInteligentes from '@/components/secretario/AlertasInteligentes';
+import GestaoViveiroMudas from '@/components/secretario/GestaoViveiroMudas';
 
 const AdminSecretario = () => {
   const { userAuth, hasAccess, getLoginUrl, isLoading } = useAuthProtection();
@@ -62,7 +63,7 @@ const AdminSecretario = () => {
 
         {/* Tabs principais */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-7 mb-8 bg-white shadow-sm">
+          <TabsList className="grid w-full grid-cols-8 mb-8 bg-white shadow-sm">
             <TabsTrigger
               value="solicitacoes"
               className="flex items-center gap-2"
@@ -111,6 +112,13 @@ const AdminSecretario = () => {
             >
               <AlertTriangle className="h-4 w-4" />
               <span className="hidden sm:inline">Alertas</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="viveiro-mudas"
+              className="flex items-center gap-2"
+            >
+              <Building className="h-4 w-4" />
+              <span className="hidden sm:inline">Viveiro de Mudas</span>
             </TabsTrigger>
           </TabsList>
 
@@ -212,6 +220,23 @@ const AdminSecretario = () => {
               </CardHeader>
               <CardContent>
                 <AlertasInteligentes />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="viveiro-mudas">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Building className="h-5 w-5" />
+                  Gestão do Viveiro de Mudas
+                </CardTitle>
+                <CardDescription>
+                  Acompanhe o estoque de mudas prontas para doação e sincronização automática com eventos
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <GestaoViveiroMudas />
               </CardContent>
             </Card>
           </TabsContent>
