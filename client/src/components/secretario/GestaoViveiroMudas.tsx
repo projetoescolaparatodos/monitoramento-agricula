@@ -121,11 +121,35 @@ const GestaoViveiroMudas: React.FC = () => {
         ...doc.data()
       })) as Muda[];
 
-      setMudas(mudasData.sort((a, b) => a.especieMuda.localeCompare(b.especieMuda)));
+      // 🆕 Filtrar por período selecionado
+      const dataAtual = new Date();
+      const mudasFiltradas = mudasData.filter(muda => {
+        const dataPlantio = new Date(muda.dataPlantio);
+        
+        if (periodo === 'mensal') {
+          // Últimos 30 dias
+          const umMesAtras = new Date(dataAtual);
+          umMesAtras.setDate(dataAtual.getDate() - 30);
+          return dataPlantio >= umMesAtras;
+        } else if (periodo === 'semestral') {
+          // Últimos 6 meses
+          const seisMesesAtras = new Date(dataAtual);
+          seisMesesAtras.setMonth(dataAtual.getMonth() - 6);
+          return dataPlantio >= seisMesesAtras;
+        } else if (periodo === 'anual') {
+          // Último ano
+          const umAnoAtras = new Date(dataAtual);
+          umAnoAtras.setFullYear(dataAtual.getFullYear() - 1);
+          return dataPlantio >= umAnoAtras;
+        }
+        return true;
+      });
+
+      setMudas(mudasFiltradas.sort((a, b) => a.especieMuda.localeCompare(b.especieMuda)));
       setLoading(false);
 
       // 🆕 Sincronizar estoque de cada muda com insumoId
-      mudasData.forEach(muda => {
+      mudasFiltradas.forEach(muda => {
         if (muda.insumoId) {
           sincronizarEstoque(muda.id, muda.insumoId);
         }
@@ -133,7 +157,7 @@ const GestaoViveiroMudas: React.FC = () => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [periodo]);
 
   const marcarComoPronta = async (mudaId: string) => {
     try {
