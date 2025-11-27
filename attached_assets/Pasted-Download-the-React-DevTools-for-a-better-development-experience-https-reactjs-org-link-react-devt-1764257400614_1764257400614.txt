@@ -1,0 +1,135 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+firebase.ts:17 🔧 Inicializando Firebase com config: Object
+firebase.ts:24 ✅ Firebase app inicializada: [DEFAULT]
+firebase.ts:28 ✅ Firestore inicializado para projeto: transparencia-agricola
+logger.ts:115  [2025-11-27T15:29:41.274Z]  @firebase/firestore: Firestore (11.3.1): enableMultiTabIndexedDbPersistence() will be deprecated in the future, you can use `FirestoreSettings.cache` instead.
+defaultLogHandler @ logger.ts:115
+openrouter.ts:7 OpenRouter API Key disponível: true
+useAuthProtection.ts:24 🔐 Iniciando verificação de autenticação...
+useAuthProtection.ts:27 🔐 Estado de autenticação mudou: Logado
+ChatbotWidget.tsx:734 Respostas treinadas carregadas: 0
+ChatbotWidget.tsx:1276 Carregadas 0 respostas treinadas
+keywordMatcher.ts:424 Palavras-chave carregadas do Firestore: 21
+useAuthProtection.ts:44 ✅ Usuário encontrado em usuarios: Object
+useSolicitacoes.ts:130 🚀 Iniciando busca de solicitações...
+useSolicitacoes.ts:136 🔧 Testando conexão com Firebase...
+useSolicitacoes.ts:137 Database instance: Firestore
+useSolicitacoes.ts:138 Firebase app: FirebaseAppImpl
+useSolicitacoes.ts:139 Firebase app name: [DEFAULT]
+useSolicitacoes.ts:140 Firebase project ID: transparencia-agricola
+useSolicitacoes.ts:145 ✅ Conseguiu criar referência de teste
+useSolicitacoes.ts:155 🔍 Buscando coleção: solicitacoes_agricultura_completo (tipo: solicitacoes_agricultura_completo)
+useSolicitacoes.ts:159 📦 Referência da coleção solicitacoes_agricultura_completo criada: _CollectionReference
+useSolicitacoes.ts:163 📊 Busca simples em solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:175 📊 Busca ordenada em solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:183 📄 Documento aOxxkS9pdUZGHkWEwOnB de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação aOxxkS9pdUZGHkWEwOnB do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento 0tdytO7LMEyfP9yotGAb de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação 0tdytO7LMEyfP9yotGAb do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento lbO8CzpyegmRnFLdRZ8l de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação lbO8CzpyegmRnFLdRZ8l do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento otApvB5QTDRQE3m2exfK de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação otApvB5QTDRQE3m2exfK do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento A06thpLIrd0tUDKyUXlf de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação A06thpLIrd0tUDKyUXlf do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento 2DENCNFVMlo2mMZHl7Uo de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação 2DENCNFVMlo2mMZHl7Uo do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento OaUgbJCP9T337dccoyY6 de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação OaUgbJCP9T337dccoyY6 do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento 15aSkyaO0MG4sIuuYqXE de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação 15aSkyaO0MG4sIuuYqXE do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento nnQO6dKMHDMOD4ARVqe6 de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação nnQO6dKMHDMOD4ARVqe6 do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento Y7dr55sK4EyUWBbUgZ3C de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação Y7dr55sK4EyUWBbUgZ3C do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento gBMcPEEuoxQOqZs6du6n de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação gBMcPEEuoxQOqZs6du6n do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento Xbq7R8Ua4l0vCvqRaljt de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação Xbq7R8Ua4l0vCvqRaljt do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento 9AntfaHEQMnVg4DM1FyN de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação 9AntfaHEQMnVg4DM1FyN do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento sX2GMHnISyis82OeXiMN de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação sX2GMHnISyis82OeXiMN do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento BJjLlfQhpbufFITdScjb de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação BJjLlfQhpbufFITdScjb do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento vC3UU8YOCpQyxls5Xfbx de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação vC3UU8YOCpQyxls5Xfbx do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento D95NBUFkKty5YJ34WmJi de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação D95NBUFkKty5YJ34WmJi do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento ijMYJCpcs5D7rsRdxHGD de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação ijMYJCpcs5D7rsRdxHGD do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento 7YmXtCJthTWnyD4EUpop de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação 7YmXtCJthTWnyD4EUpop do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento FNESdlSIBLpNQTgJMEnQ de solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação FNESdlSIBLpNQTgJMEnQ do tipo solicitacoes_agricultura_completo: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:187 ✅ 20 documentos processados de solicitacoes_agricultura_completo
+useSolicitacoes.ts:155 🔍 Buscando coleção: solicitacoes_agricultura (tipo: solicitacoes_agricultura)
+useSolicitacoes.ts:159 📦 Referência da coleção solicitacoes_agricultura criada: _CollectionReference
+useSolicitacoes.ts:163 📊 Busca simples em solicitacoes_agricultura: Object
+useSolicitacoes.ts:175 📊 Busca ordenada em solicitacoes_agricultura: Object
+useSolicitacoes.ts:183 📄 Documento i0fRbOlRZiSOQ4VIZUop de solicitacoes_agricultura: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação i0fRbOlRZiSOQ4VIZUop do tipo solicitacoes_agricultura: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento jhE98PiWi6hnzcS8AeE2 de solicitacoes_agricultura: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação jhE98PiWi6hnzcS8AeE2 do tipo solicitacoes_agricultura: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento DEWoWhYNU7moPp7VXkLm de solicitacoes_agricultura: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação DEWoWhYNU7moPp7VXkLm do tipo solicitacoes_agricultura: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento UnoKjJ4TSYlOCQ4wkmuC de solicitacoes_agricultura: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação UnoKjJ4TSYlOCQ4wkmuC do tipo solicitacoes_agricultura: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento 3u5gtFxj5enOSnmwyUO6 de solicitacoes_agricultura: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação 3u5gtFxj5enOSnmwyUO6 do tipo solicitacoes_agricultura: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento KKSH4YBYurysAE99nBbo de solicitacoes_agricultura: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação KKSH4YBYurysAE99nBbo do tipo solicitacoes_agricultura: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:183 📄 Documento KoaCL0ZCOcSTPvJaqtjr de solicitacoes_agricultura: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação KoaCL0ZCOcSTPvJaqtjr do tipo solicitacoes_agricultura: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:187 ✅ 7 documentos processados de solicitacoes_agricultura
+useSolicitacoes.ts:155 🔍 Buscando coleção: solicitacoes_pesca_completo (tipo: solicitacoes_pesca_completo)
+useSolicitacoes.ts:159 📦 Referência da coleção solicitacoes_pesca_completo criada: _CollectionReference
+GestaoViveiroMudas.tsx:131 📊 Sincronizado: Açaí - 150 disponíveis (base: 200, doadas: 50)
+useSolicitacoes.ts:163 📊 Busca simples em solicitacoes_pesca_completo: Object
+useSolicitacoes.ts:203 ⚠️ Coleção solicitacoes_pesca_completo está realmente vazia
+useSolicitacoes.ts:155 🔍 Buscando coleção: solicitacoes_pesca (tipo: solicitacoes_pesca)
+useSolicitacoes.ts:159 📦 Referência da coleção solicitacoes_pesca criada: _CollectionReference
+useSolicitacoes.ts:163 📊 Busca simples em solicitacoes_pesca: Object
+useSolicitacoes.ts:175 📊 Busca ordenada em solicitacoes_pesca: Object
+useSolicitacoes.ts:183 📄 Documento dJDFfhDEERoQtwTk5ilb de solicitacoes_pesca: Object
+useSolicitacoes.ts:53 📝 Normalizando solicitação dJDFfhDEERoQtwTk5ilb do tipo solicitacoes_pesca: Object
+useSolicitacoes.ts:110 ✅ Solicitação normalizada: Object
+useSolicitacoes.ts:187 ✅ 1 documentos processados de solicitacoes_pesca
+useSolicitacoes.ts:155 🔍 Buscando coleção: solicitacoes_paa (tipo: solicitacoes_paa)
+useSolicitacoes.ts:159 📦 Referência da coleção solicitacoes_paa criada: _CollectionReference
+useSolicitacoes.ts:163 📊 Busca simples em solicitacoes_paa: Object
+useSolicitacoes.ts:203 ⚠️ Coleção solicitacoes_paa está realmente vazia
+useSolicitacoes.ts:155 🔍 Buscando coleção: solicitacoes_servicos (tipo: solicitacoes_servicos)
+useSolicitacoes.ts:159 📦 Referência da coleção solicitacoes_servicos criada: _CollectionReference
+useSolicitacoes.ts:163 📊 Busca simples em solicitacoes_servicos: {empty: true, size: 0, docs: 0}
+useSolicitacoes.ts:203 ⚠️ Coleção solicitacoes_servicos está realmente vazia
+useSolicitacoes.ts:227 🎯 Total de solicitações encontradas: 28
+useSolicitacoes.ts:228 📋 Resumo por tipo: {solicitacoes_agricultura_completo: 20, solicitacoes_agricultura: 7, solicitacoes_pesca: 1}
+useSolicitacoes.ts:243 🏁 Busca de solicitações finalizada
