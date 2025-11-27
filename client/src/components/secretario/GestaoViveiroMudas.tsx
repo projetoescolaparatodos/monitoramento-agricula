@@ -122,8 +122,17 @@ const GestaoViveiroMudas: React.FC = () => {
       })) as Muda[];
 
       // 🆕 Filtrar por período selecionado
+      // REGRA: Sempre mostrar mudas com estoque disponível (prontas ou em processo)
       const dataAtual = new Date();
       const mudasFiltradas = mudasData.filter(muda => {
+        const temEstoque = (muda.quantidadePronta > 0) || (muda.quantidadeEmProcesso > 0);
+        
+        // Se tem estoque, SEMPRE mostrar independente do período
+        if (temEstoque) {
+          return true;
+        }
+        
+        // Se NÃO tem estoque, aplicar filtro de data de plantio
         const dataPlantio = new Date(muda.dataPlantio);
         
         if (periodo === 'mensal') {
