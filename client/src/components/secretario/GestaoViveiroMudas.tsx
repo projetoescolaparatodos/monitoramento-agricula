@@ -70,6 +70,7 @@ const GestaoViveiroMudas: React.FC = () => {
   const { toast } = useToast();
 
   // 🆕 Sincronizar estoque de mudas prontas com doações
+  // CORRIGIDO: Usa quantidadePlantada como base fixa para evitar cascata de reduções
   const sincronizarEstoque = async (mudaId: string, insumoId: string) => {
     try {
       // Buscar total doado deste insumo
@@ -89,20 +90,26 @@ const GestaoViveiroMudas: React.FC = () => {
       if (!mudasSnapshot.empty) {
         const mudaDoc = mudasSnapshot.docs[0];
         const mudaData = mudaDoc.data();
+        
+        // CORREÇÃO: Usar quantidadePlantada como base fixa para cálculo
+        // Isso evita a cascata de reduções que ocorria ao usar quantidadePronta
+        const quantidadeBase = mudaData.quantidadePlantada || 0;
         const quantidadeAtualPronta = mudaData.quantidadePronta || 0;
+        const quantidadeDoadaAtual = mudaData.quantidadeDoada || 0;
 
-        // Calcular estoque disponível (diminuir baseado nas doações)
-        const estoqueDisponivel = Math.max(0, quantidadeAtualPronta - totalDoado);
+        // Calcular estoque disponível: base fixa - total doado
+        const estoqueDisponivel = Math.max(0, quantidadeBase - totalDoado);
 
-        // Atualizar apenas se houver mudança
-        if (estoqueDisponivel !== quantidadeAtualPronta) {
+        // Atualizar apenas se houver mudança real nos valores
+        // Verificar tanto a quantidade pronta quanto a doada para evitar atualizações desnecessárias
+        if (estoqueDisponivel !== quantidadeAtualPronta || totalDoado !== quantidadeDoadaAtual) {
           await updateDoc(doc(db, 'viveiro_mudas', mudaDoc.id), {
             quantidadePronta: estoqueDisponivel,
             quantidadeDoada: totalDoado,
             ultimaSincronizacao: new Date().toISOString()
           });
 
-          console.log(`📊 Estoque sincronizado - ${mudaData.especieMuda}: ${estoqueDisponivel} mudas disponíveis (${totalDoado} doadas)`);
+          console.log(`📊 Estoque sincronizado - ${mudaData.especieMuda}: ${estoqueDisponivel} mudas disponíveis (base: ${quantidadeBase}, doadas: ${totalDoado})`);
         }
       }
     } catch (error) {
