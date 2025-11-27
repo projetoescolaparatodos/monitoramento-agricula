@@ -254,28 +254,39 @@ const GestaoViveiroMudas: React.FC = () => {
   // Previsão acumulativa por espécie
   const previsaoPorEspecie = mudas.reduce((acc, muda) => {
     // Incluir mudas em processo E prontas (que ainda não foram doadas)
-    const quantidade = muda.quantidadeEmProcesso + muda.quantidadePronta;
+    const quantidadeEmProcesso = muda.quantidadeEmProcesso || 0;
+    const quantidadePronta = muda.quantidadePronta || 0;
+    const quantidade = quantidadeEmProcesso + quantidadePronta;
+    
+    // Só incluir se tiver alguma quantidade disponível
     if (quantidade === 0) return acc;
     
-    const existing = acc.find(item => item.especie === muda.especieMuda);
+    // Normalizar nome da espécie (primeiro caractere maiúsculo, resto minúsculo)
+    const especieNormalizada = muda.especieMuda.charAt(0).toUpperCase() + muda.especieMuda.slice(1).toLowerCase();
+    
+    const existing = acc.find(item => 
+      item.especie.toLowerCase() === especieNormalizada.toLowerCase()
+    );
     const previsao = new Date(muda.previsaoDoacao);
     
     if (existing) {
       existing.quantidade += quantidade;
       existing.producoes += 1;
+      // Manter a previsão mais próxima
       if (previsao < new Date(existing.proximaDisponibilidade)) {
         existing.proximaDisponibilidade = muda.previsaoDoacao;
       }
     } else {
       acc.push({
-        especie: muda.especieMuda,
+        especie: especieNormalizada,
         quantidade: quantidade,
         proximaDisponibilidade: muda.previsaoDoacao,
         producoes: 1
       });
     }
     return acc;
-  }, [] as { especie: string; quantidade: number; proximaDisponibilidade: string; producoes: number }[]);
+  }, [] as { especie: string; quantidade: number; proximaDisponibilidade: string; producoes: number }[])
+    .sort((a, b) => b.quantidade - a.quantidade); // Ordenar por quantidade (maior primeiro)
 
   if (loading) {
     return (
