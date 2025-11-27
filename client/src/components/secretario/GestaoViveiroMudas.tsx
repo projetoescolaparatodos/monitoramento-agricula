@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { db } from '@/utils/firebase';
 import { 
   collection, 
@@ -8,7 +8,8 @@ import {
   doc, 
   updateDoc, 
   where,
-  getDocs 
+  getDocs,
+  getDoc 
 } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -68,59 +69,13 @@ const GestaoViveiroMudas: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [periodo, setPeriodo] = useState<'mensal' | 'semestral' | 'anual'>('mensal');
   const { toast } = useToast();
+  
+  // Ref para controlar se a sincronização inicial já foi executada
+  const sincronizacaoInicial = useRef(false);
 
-  // 🆕 Sincronizar estoque de mudas prontas com doações
-  // CORRIGIDO: Usa quantidadePlantada como base fixa para evitar cascata de reduções
-  const sincronizarEstoque = async (mudaId: string, insumoId: string) => {
-    try {
-      // Buscar total doado deste insumo
-      const doacoesRef = collection(db, 'doacoes_evento');
-      const qDoacoes = query(doacoesRef, where('insumoId', '==', insumoId));
-      const doacoesSnapshot = await getDocs(qDoacoes);
-
-      const totalDoado = doacoesSnapshot.docs.reduce((sum, doc) => {
-        return sum + (doc.data().quantidade || 0);
-      }, 0);
-
-      // Buscar dados da muda
-      const mudasRef = collection(db, 'viveiro_mudas');
-      const qMudas = query(mudasRef, where('insumoId', '==', insumoId));
-      const mudasSnapshot = await getDocs(qMudas);
-
-      if (!mudasSnapshot.empty) {
-        const mudaDoc = mudasSnapshot.docs[0];
-        const mudaData = mudaDoc.data();
-        
-        // CORREÇÃO: Usar quantidadePlantada como base fixa para cálculo
-        // Isso evita a cascata de reduções que ocorria ao usar quantidadePronta
-        const quantidadeBase = mudaData.quantidadePlantada || 0;
-        const quantidadeAtualPronta = mudaData.quantidadePronta || 0;
-        const quantidadeDoadaAtual = mudaData.quantidadeDoada || 0;
-
-        // Calcular estoque disponível: base fixa - total doado
-        const estoqueDisponivel = Math.max(0, quantidadeBase - totalDoado);
-
-        // Atualizar apenas se houver mudança real nos valores
-        // Verificar tanto a quantidade pronta quanto a doada para evitar atualizações desnecessárias
-        if (estoqueDisponivel !== quantidadeAtualPronta || totalDoado !== quantidadeDoadaAtual) {
-          await updateDoc(doc(db, 'viveiro_mudas', mudaDoc.id), {
-            quantidadePronta: estoqueDisponivel,
-            quantidadeDoada: totalDoado,
-            ultimaSincronizacao: new Date().toISOString()
-          });
-
-          console.log(`📊 Estoque sincronizado - ${mudaData.especieMuda}: ${estoqueDisponivel} mudas disponíveis (base: ${quantidadeBase}, doadas: ${totalDoado})`);
-        }
-      }
-    } catch (error) {
-      console.error('Erro ao sincronizar estoque:', error);
-    }
-  };
-
+  // Carregar dados das mudas (listener em tempo real)
   useEffect(() => {
-    const mudasQuery = query(
-      collection(db, 'viveiro_mudas')
-    );
+    const mudasQuery = query(collection(db, 'viveiro_mudas'));
 
     const unsubscribe = onSnapshot(mudasQuery, (snapshot) => {
       const mudasData = snapshot.docs.map(doc => ({
@@ -128,21 +83,65 @@ const GestaoViveiroMudas: React.FC = () => {
         ...doc.data()
       })) as Muda[];
 
-      // Para estatísticas e previsões, usar TODOS os dados
-      // Nota: O filtro por período afeta apenas a visualização, não os totais
       setMudas(mudasData.sort((a, b) => a.especieMuda.localeCompare(b.especieMuda)));
       setLoading(false);
-
-      // Sincronizar estoque de cada muda com insumoId
-      mudasData.forEach(muda => {
-        if (muda.insumoId) {
-          sincronizarEstoque(muda.id, muda.insumoId);
-        }
-      });
     });
 
     return () => unsubscribe();
-  }, [periodo]);
+  }, []);
+
+  // Sincronização inicial - executar APENAS UMA VEZ quando o componente monta
+  useEffect(() => {
+    if (sincronizacaoInicial.current) return;
+    
+    const sincronizarTodos = async () => {
+      try {
+        // Buscar todas as mudas com insumoId
+        const mudasSnapshot = await getDocs(collection(db, 'viveiro_mudas'));
+        const mudasComInsumo = mudasSnapshot.docs.filter(doc => doc.data().insumoId);
+        
+        for (const mudaDoc of mudasComInsumo) {
+          const mudaData = mudaDoc.data();
+          const insumoId = mudaData.insumoId;
+          
+          // Buscar total doado deste insumo
+          const doacoesQuery = query(
+            collection(db, 'doacoes_evento'),
+            where('insumoId', '==', insumoId)
+          );
+          const doacoesSnapshot = await getDocs(doacoesQuery);
+          
+          const totalDoado = doacoesSnapshot.docs.reduce((sum, doc) => {
+            return sum + (doc.data().quantidade || 0);
+          }, 0);
+          
+          // Calcular estoque: base fixa (quantidadePlantada) - total doado
+          const quantidadeBase = mudaData.quantidadePlantada || 0;
+          const quantidadeAtualPronta = mudaData.quantidadePronta || 0;
+          const quantidadeDoadaAtual = mudaData.quantidadeDoada || 0;
+          const estoqueDisponivel = Math.max(0, quantidadeBase - totalDoado);
+          
+          // Só atualizar se houver diferença real
+          if (estoqueDisponivel !== quantidadeAtualPronta || totalDoado !== quantidadeDoadaAtual) {
+            await updateDoc(doc(db, 'viveiro_mudas', mudaDoc.id), {
+              quantidadePronta: estoqueDisponivel,
+              quantidadeDoada: totalDoado,
+              ultimaSincronizacao: new Date().toISOString()
+            });
+            console.log(`📊 Sincronizado: ${mudaData.especieMuda} - ${estoqueDisponivel} disponíveis (base: ${quantidadeBase}, doadas: ${totalDoado})`);
+          }
+        }
+        
+        sincronizacaoInicial.current = true;
+      } catch (error) {
+        console.error('Erro na sincronização inicial:', error);
+      }
+    };
+    
+    // Executar sincronização após pequeno delay para garantir que os dados foram carregados
+    const timer = setTimeout(sincronizarTodos, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const marcarComoPronta = async (mudaId: string) => {
     try {
