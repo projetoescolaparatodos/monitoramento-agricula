@@ -169,21 +169,47 @@ const GestaoViveiroMudas: React.FC = () => {
     }
   };
 
-  // Cálculos de estatísticas
+  // Filtrar mudas por período selecionado
+  const filtrarPorPeriodo = (mudasList: Muda[]) => {
+    const dataAtual = new Date();
+    return mudasList.filter(muda => {
+      const dataPlantio = new Date(muda.dataPlantio);
+      
+      if (periodo === 'mensal') {
+        const umMesAtras = new Date(dataAtual);
+        umMesAtras.setDate(dataAtual.getDate() - 30);
+        return dataPlantio >= umMesAtras;
+      } else if (periodo === 'semestral') {
+        const seisMesesAtras = new Date(dataAtual);
+        seisMesesAtras.setMonth(dataAtual.getMonth() - 6);
+        return dataPlantio >= seisMesesAtras;
+      } else if (periodo === 'anual') {
+        const umAnoAtras = new Date(dataAtual);
+        umAnoAtras.setFullYear(dataAtual.getFullYear() - 1);
+        return dataPlantio >= umAnoAtras;
+      }
+      return true;
+    });
+  };
+
+  // Aplicar filtro de período
+  const mudasFiltradas = filtrarPorPeriodo(mudas);
+
+  // Cálculos de estatísticas usando dados FILTRADOS por período
   // IMPORTANTE: Mudas em processo devem usar quantidadePlantada se quantidadeEmProcesso não estiver definida
-  const mudasEmProcesso = mudas.filter(m => {
+  const mudasEmProcesso = mudasFiltradas.filter(m => {
     if (m.quantidadeEmProcesso > 0) return true;
     // Se status é em_processo e não tem quantidadeEmProcesso, usar quantidadePlantada
     if (m.status === 'em_processo' && m.quantidadePlantada > 0 && m.quantidadePronta === 0) return true;
     return false;
   });
   
-  const mudasProntas = mudas.filter(m => m.quantidadePronta > 0);
-  const totalMudasPlantadas = mudas.reduce((sum, m) => sum + (m.quantidadePlantada || 0), 0);
-  const totalMudasProntas = mudas.reduce((sum, m) => sum + (m.quantidadePronta || 0), 0);
+  const mudasProntas = mudasFiltradas.filter(m => m.quantidadePronta > 0);
+  const totalMudasPlantadas = mudasFiltradas.reduce((sum, m) => sum + (m.quantidadePlantada || 0), 0);
+  const totalMudasProntas = mudasFiltradas.reduce((sum, m) => sum + (m.quantidadePronta || 0), 0);
   
   // Total em processo: usar quantidadePlantada para mudas que não têm quantidadeEmProcesso definida
-  const totalMudasEmProcesso = mudas.reduce((sum, m) => {
+  const totalMudasEmProcesso = mudasFiltradas.reduce((sum, m) => {
     if (m.quantidadeEmProcesso > 0) return sum + m.quantidadeEmProcesso;
     if (m.status === 'em_processo' && m.quantidadePlantada > 0 && (m.quantidadePronta || 0) === 0) {
       return sum + m.quantidadePlantada;
@@ -191,8 +217,8 @@ const GestaoViveiroMudas: React.FC = () => {
     return sum;
   }, 0);
 
-  // Custo total
-  const custoTotal = mudas.reduce((sum, m) => {
+  // Custo total (usando dados filtrados)
+  const custoTotal = mudasFiltradas.reduce((sum, m) => {
     if (!m.insumos) return sum;
     return sum + 
       (m.insumos.sacolas * m.insumos.valorSacola) +
@@ -202,11 +228,11 @@ const GestaoViveiroMudas: React.FC = () => {
 
   const custoPorMuda = totalMudasPlantadas > 0 ? custoTotal / totalMudasPlantadas : 0;
 
-  // Previsão próximos 30 dias
+  // Previsão próximos 30 dias (usando dados filtrados)
   const dataLimite = new Date();
   dataLimite.setDate(dataLimite.getDate() + 30);
   
-  const mudasProximas30Dias = mudas.filter(m => {
+  const mudasProximas30Dias = mudasFiltradas.filter(m => {
     const previsao = new Date(m.previsaoDoacao);
     // Usar quantidadePlantada para mudas em processo sem quantidadeEmProcesso
     let quantidade = (m.quantidadeEmProcesso || 0) + (m.quantidadePronta || 0);
@@ -216,8 +242,8 @@ const GestaoViveiroMudas: React.FC = () => {
     return previsao <= dataLimite && quantidade > 0;
   });
 
-  // Dados para gráfico de produção por espécie
-  const producaoPorEspecie = mudas.reduce((acc, muda) => {
+  // Dados para gráfico de produção por espécie (usando dados filtrados)
+  const producaoPorEspecie = mudasFiltradas.reduce((acc, muda) => {
     const existing = acc.find(item => item.especie === muda.especieMuda);
     if (existing) {
       existing.quantidade += muda.quantidadePlantada;
@@ -227,8 +253,8 @@ const GestaoViveiroMudas: React.FC = () => {
     return acc;
   }, [] as { especie: string; quantidade: number }[]);
 
-  // Dados para gráfico de custos
-  const custosPorInsumo = mudas.reduce((acc, muda) => {
+  // Dados para gráfico de custos (usando dados filtrados)
+  const custosPorInsumo = mudasFiltradas.reduce((acc, muda) => {
     if (!muda.insumos) return acc;
     
     acc.sacolas += muda.insumos.sacolas * muda.insumos.valorSacola;
@@ -244,9 +270,9 @@ const GestaoViveiroMudas: React.FC = () => {
     { name: 'Adubo', value: custosPorInsumo.adubo }
   ].filter(item => item.value > 0);
 
-  // Previsão acumulativa por espécie
+  // Previsão acumulativa por espécie (usando dados filtrados)
   // IMPORTANTE: Usar quantidadePlantada para mudas em processo que ainda não tiveram estoque definido
-  const previsaoPorEspecie = mudas.reduce((acc, muda) => {
+  const previsaoPorEspecie = mudasFiltradas.reduce((acc, muda) => {
     const quantidadeEmProcesso = muda.quantidadeEmProcesso || 0;
     const quantidadePronta = muda.quantidadePronta || 0;
     const quantidadePlantada = muda.quantidadePlantada || 0;
@@ -660,7 +686,7 @@ const GestaoViveiroMudas: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {mudas.map(muda => {
+                {mudasFiltradas.map(muda => {
                   const custoMuda = muda.insumos ? 
                     (muda.insumos.sacolas * muda.insumos.valorSacola) +
                     (muda.insumos.calcario * muda.insumos.valorCalcario) +
