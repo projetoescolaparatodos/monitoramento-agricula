@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { db } from '@/utils/firebase';
 import { 
@@ -20,8 +21,24 @@ import {
   Clock, 
   AlertCircle,
   CheckCircle,
-  TrendingUp
+  TrendingUp,
+  DollarSign
 } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
 
 interface Muda {
   id: string;
@@ -33,15 +50,26 @@ interface Muda {
   previsaoDoacao: string;
   status: 'em_processo' | 'pronta' | 'doada';
   insumoId?: string;
+  insumos?: {
+    sacolas: number;
+    calcario: number;
+    adubo: number;
+    valorSacola: number;
+    valorCalcario: number;
+    valorAdubo: number;
+  };
   timestamp: any;
 }
+
+const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 const GestaoViveiroMudas: React.FC = () => {
   const [mudas, setMudas] = useState<Muda[]>([]);
   const [loading, setLoading] = useState(true);
+  const [periodo, setPeriodo] = useState<'mensal' | 'semestral' | 'anual'>('mensal');
   const { toast } = useToast();
 
-  // Sincronizar estoque de mudas prontas com doações
+  // 🆕 Sincronizar estoque de mudas prontas com doações
   const sincronizarEstoque = async (mudaId: string, insumoId: string) => {
     try {
       // Buscar total doado deste insumo
@@ -58,13 +86,12 @@ const GestaoViveiroMudas: React.FC = () => {
       const qMudas = query(mudasRef, where('insumoId', '==', insumoId));
       const mudasSnapshot = await getDocs(qMudas);
 
-      if (!mudas.empty) {
+      if (!mudasSnapshot.empty) {
         const mudaDoc = mudasSnapshot.docs[0];
         const mudaData = mudaDoc.data();
         const quantidadeAtualPronta = mudaData.quantidadePronta || 0;
-        const quantidadeTotalProduzida = mudaData.quantidadePlantada || 0;
 
-        // Calcular estoque disponível
+        // Calcular estoque disponível (diminuir baseado nas doações)
         const estoqueDisponivel = Math.max(0, quantidadeAtualPronta - totalDoado);
 
         // Atualizar apenas se houver mudança
@@ -97,7 +124,7 @@ const GestaoViveiroMudas: React.FC = () => {
       setMudas(mudasData.sort((a, b) => a.especieMuda.localeCompare(b.especieMuda)));
       setLoading(false);
 
-      // Sincronizar estoque de cada muda com insumoId
+      // 🆕 Sincronizar estoque de cada muda com insumoId
       mudasData.forEach(muda => {
         if (muda.insumoId) {
           sincronizarEstoque(muda.id, muda.insumoId);
@@ -135,6 +162,82 @@ const GestaoViveiroMudas: React.FC = () => {
     }
   };
 
+  // Cálculos de estatísticas
+  const mudasEmProcesso = mudas.filter(m => m.status === 'em_processo');
+  const mudasProntas = mudas.filter(m => m.status === 'pronta' && m.quantidadePronta > 0);
+  const totalMudasPlantadas = mudas.reduce((sum, m) => sum + m.quantidadePlantada, 0);
+  const totalMudasProntas = mudasProntas.reduce((sum, m) => sum + m.quantidadePronta, 0);
+  const totalMudasEmProcesso = mudasEmProcesso.reduce((sum, m) => sum + m.quantidadeEmProcesso, 0);
+
+  // Custo total
+  const custoTotal = mudas.reduce((sum, m) => {
+    if (!m.insumos) return sum;
+    return sum + 
+      (m.insumos.sacolas * m.insumos.valorSacola) +
+      (m.insumos.calcario * m.insumos.valorCalcario) +
+      (m.insumos.adubo * m.insumos.valorAdubo);
+  }, 0);
+
+  const custoPorMuda = totalMudasPlantadas > 0 ? custoTotal / totalMudasPlantadas : 0;
+
+  // Previsão próximos 30 dias
+  const dataLimite = new Date();
+  dataLimite.setDate(dataLimite.getDate() + 30);
+  
+  const mudasProximas30Dias = mudasEmProcesso.filter(m => {
+    const previsao = new Date(m.previsaoDoacao);
+    return previsao <= dataLimite;
+  });
+
+  // Dados para gráfico de produção por espécie
+  const producaoPorEspecie = mudas.reduce((acc, muda) => {
+    const existing = acc.find(item => item.especie === muda.especieMuda);
+    if (existing) {
+      existing.quantidade += muda.quantidadePlantada;
+    } else {
+      acc.push({ especie: muda.especieMuda, quantidade: muda.quantidadePlantada });
+    }
+    return acc;
+  }, [] as { especie: string; quantidade: number }[]);
+
+  // Dados para gráfico de custos
+  const custosPorInsumo = mudas.reduce((acc, muda) => {
+    if (!muda.insumos) return acc;
+    
+    acc.sacolas += muda.insumos.sacolas * muda.insumos.valorSacola;
+    acc.calcario += muda.insumos.calcario * muda.insumos.valorCalcario;
+    acc.adubo += muda.insumos.adubo * muda.insumos.valorAdubo;
+    
+    return acc;
+  }, { sacolas: 0, calcario: 0, adubo: 0 });
+
+  const dadosCustos = [
+    { name: 'Sacolas', value: custosPorInsumo.sacolas },
+    { name: 'Calcário', value: custosPorInsumo.calcario },
+    { name: 'Adubo', value: custosPorInsumo.adubo }
+  ].filter(item => item.value > 0);
+
+  // Previsão acumulativa por espécie
+  const previsaoPorEspecie = mudasEmProcesso.reduce((acc, muda) => {
+    const existing = acc.find(item => item.especie === muda.especieMuda);
+    const previsao = new Date(muda.previsaoDoacao);
+    
+    if (existing) {
+      existing.quantidade += muda.quantidadeEmProcesso;
+      if (previsao < new Date(existing.proximaDisponibilidade)) {
+        existing.proximaDisponibilidade = muda.previsaoDoacao;
+      }
+    } else {
+      acc.push({
+        especie: muda.especieMuda,
+        quantidade: muda.quantidadeEmProcesso,
+        proximaDisponibilidade: muda.previsaoDoacao,
+        producoes: 1
+      });
+    }
+    return acc;
+  }, [] as { especie: string; quantidade: number; proximaDisponibilidade: string; producoes: number }[]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-48">
@@ -143,37 +246,44 @@ const GestaoViveiroMudas: React.FC = () => {
     );
   }
 
-  const mudasEmProcesso = mudas.filter(m => m.status === 'em_processo');
-  const mudasProntas = mudas.filter(m => m.status === 'pronta' && m.quantidadePronta > 0);
-  const totalMudasProntas = mudasProntas.reduce((sum, m) => sum + m.quantidadePronta, 0);
-
   return (
     <div className="space-y-6">
-      {/* Resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="bg-yellow-100 p-3 rounded-full">
-                <Clock className="h-6 w-6 text-yellow-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Em Processo</p>
-                <p className="text-2xl font-bold">{mudasEmProcesso.length} espécies</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Controle de Período */}
+      <div className="flex gap-2">
+        <Button
+          variant={periodo === 'mensal' ? 'default' : 'outline'}
+          onClick={() => setPeriodo('mensal')}
+          className={periodo === 'mensal' ? 'bg-green-600 hover:bg-green-700' : ''}
+        >
+          Mensal
+        </Button>
+        <Button
+          variant={periodo === 'semestral' ? 'default' : 'outline'}
+          onClick={() => setPeriodo('semestral')}
+          className={periodo === 'semestral' ? 'bg-green-600 hover:bg-green-700' : ''}
+        >
+          Semestral
+        </Button>
+        <Button
+          variant={periodo === 'anual' ? 'default' : 'outline'}
+          onClick={() => setPeriodo('anual')}
+          className={periodo === 'anual' ? 'bg-green-600 hover:bg-green-700' : ''}
+        >
+          Anual
+        </Button>
+      </div>
 
+      {/* Cards de Resumo */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <div className="bg-green-100 p-3 rounded-full">
-                <CheckCircle className="h-6 w-6 text-green-600" />
+                <Sprout className="h-6 w-6 text-green-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Prontas para Doação</p>
-                <p className="text-2xl font-bold">{totalMudasProntas.toLocaleString()} mudas</p>
+                <p className="text-sm text-gray-500">Mudas Plantadas</p>
+                <p className="text-2xl font-bold">{totalMudasPlantadas}</p>
               </div>
             </div>
           </CardContent>
@@ -183,16 +293,189 @@ const GestaoViveiroMudas: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
               <div className="bg-blue-100 p-3 rounded-full">
-                <Package className="h-6 w-6 text-blue-600" />
+                <CheckCircle className="h-6 w-6 text-blue-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Espécies Disponíveis</p>
-                <p className="text-2xl font-bold">{mudasProntas.length}</p>
+                <p className="text-sm text-gray-500">Prontas p/ Doação</p>
+                <p className="text-2xl font-bold">{totalMudasProntas}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="bg-yellow-100 p-3 rounded-full">
+                <Clock className="h-6 w-6 text-yellow-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Em Processo</p>
+                <p className="text-2xl font-bold">{totalMudasEmProcesso}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="bg-purple-100 p-3 rounded-full">
+                <DollarSign className="h-6 w-6 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Custo Total</p>
+                <p className="text-2xl font-bold">R$ {custoTotal.toFixed(2)}</p>
+                <p className="text-xs text-gray-400">R$ {custoPorMuda.toFixed(2)}/muda</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Previsões */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Previsão 30 dias */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-blue-600" />
+              Previsão Acumulativa - Próximos 30 dias
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {mudasProximas30Dias.length === 0 ? (
+              <p className="text-center text-gray-500 py-4">Nenhuma doação prevista para os próximos 30 dias</p>
+            ) : (
+              <div className="space-y-2">
+                {mudasProximas30Dias.map(muda => (
+                  <div key={muda.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                    <div>
+                      <p className="font-semibold">{muda.especieMuda}</p>
+                      <p className="text-sm text-gray-500">
+                        Previsão: {new Date(muda.previsaoDoacao).toLocaleDateString('pt-BR')}
+                      </p>
+                    </div>
+                    <p className="text-lg font-bold text-green-600">{muda.quantidadeEmProcesso} mudas</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Previsão por Espécie */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-green-600" />
+              Previsão Acumulativa por Espécie
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {previsaoPorEspecie.length === 0 ? (
+              <p className="text-center text-gray-500 py-4">Nenhuma produção em andamento</p>
+            ) : (
+              <div className="space-y-2">
+                {previsaoPorEspecie.map((item, index) => (
+                  <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                    <div>
+                      <p className="font-semibold">{item.especie}</p>
+                      <p className="text-sm text-gray-500">
+                        Próxima disponibilidade: {new Date(item.proximaDisponibilidade).toLocaleDateString('pt-BR')}
+                      </p>
+                      <p className="text-xs text-gray-400">{item.producoes} produção(ões) em andamento</p>
+                    </div>
+                    <p className="text-lg font-bold text-green-600">{item.quantidade}</p>
+                    <span className="text-xs text-gray-500">mudas acumuladas</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Gráficos */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Produção por Espécie */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart className="h-5 w-5" />
+              Produção por Espécie
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={producaoPorEspecie}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="especie" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="quantidade" fill="#10b981" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Distribuição de Custos */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <DollarSign className="h-5 w-5" />
+              Distribuição de Custos por Insumo
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {dadosCustos.length === 0 ? (
+              <p className="text-center text-gray-500 py-12">Nenhum custo registrado</p>
+            ) : (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={dadosCustos}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, value }) => `${name}: R$ ${value.toFixed(2)}`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {dadosCustos.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Evolução da Produção */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Evolução da Produção
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={producaoPorEspecie}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="especie" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="quantidade" stroke="#10b981" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
 
       {/* Mudas Prontas */}
       <Card>
@@ -301,7 +584,7 @@ const GestaoViveiroMudas: React.FC = () => {
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          O estoque de mudas é sincronizado automaticamente com as doações registradas nos eventos.
+          ✅ O estoque de mudas é sincronizado automaticamente com as doações registradas nos eventos.
           Quando uma doação é feita usando mudas, a quantidade é descontada automaticamente do estoque disponível.
         </AlertDescription>
       </Alert>
