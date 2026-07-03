@@ -4,11 +4,12 @@ import { getFirestore, collection, doc, getDoc, getDocs, addDoc, query, where } 
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  projectId: "transparencia-agricola",
+  apiKey: "AIzaSyCAHOYOjHyvoRXkVhuQc_Ld3VrJtmqO1XM",
   authDomain: "transparencia-agricola.firebaseapp.com",
+  projectId: "transparencia-agricola",
   storageBucket: "transparencia-agricola.firebasestorage.app",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef123456"
+  messagingSenderId: "667594200798",
+  appId: "1:667594200798:web:77966c861af0943825944f",
 };
 
 // Inicializar Firebase

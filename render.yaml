@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: semapa-digital
+    runtime: node
+    plan: starter # use "free" para testar (o serviço hiberna após 15 min sem acesso)
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      # Chaves VITE_* são embutidas no bundle do frontend DURANTE O BUILD.
+      # Defina os valores no painel do Render antes do primeiro deploy.
+      - key: VITE_OPENROUTER_API_KEY
+        sync: false
+      - key: VITE_GOOGLE_DRIVE_API_KEY
+        sync: false

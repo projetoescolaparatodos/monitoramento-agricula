@@ -1,18 +1,11 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import { serveStatic, log } from "./static";
 
 // Create Express application
 const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
-
-// Configuração para o ambiente serverless do Vercel
-export const config = {
-  api: {
-    bodyParser: true,
-  },
-};
 
 // Middleware para logging
 app.use((req, res, next) => {
@@ -108,31 +101,23 @@ const setupServer = async () => {
     }
   });
 
-  // Setup Vite only in development mode
+  // Setup Vite only in development mode.
+  // O import é dinâmico com caminho em variável para o esbuild não incluir
+  // o Vite (dependência de desenvolvimento) no bundle de produção.
   if (app.get("env") === "development") {
+    const devViteModule = "./vite";
+    const { setupVite } = await import(devViteModule);
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // Apenas inicia o servidor se não estivermos no Vercel
-  if (process.env.NODE_ENV !== "production" || process.env.VERCEL !== "1") {
-    const PORT = process.env.PORT || 5000;
-    server.listen(Number(PORT), "0.0.0.0", () => {
-      log(`serving on port ${PORT}`);
-    });
-  }
+  const PORT = process.env.PORT || 5000;
+  server.listen(Number(PORT), "0.0.0.0", () => {
+    log(`serving on port ${PORT}`);
+  });
 
   return app;
 };
 
-// Executa a configuração para desenvolvimento local
-if (process.env.NODE_ENV !== "production" || process.env.VERCEL !== "1") {
-  setupServer();
-}
-
-// Handler para o Vercel serverless
-export default async function handler(req: Request, res: Response) {
-  const appInstance = await setupServer();
-  return appInstance(req, res);
-}
+setupServer();
