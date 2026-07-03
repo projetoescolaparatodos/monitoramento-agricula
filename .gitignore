@@ -14,3 +14,9 @@ vite.config.ts.*
 .upm/
 uv.lock
 .config/
+
+# Scripts locais com credenciais (nunca commitar)
+create_*.js
+create_*.cjs
+create_admin_account.html
+CRIAR_SECRETARIOS.md
