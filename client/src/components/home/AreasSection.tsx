@@ -81,6 +81,27 @@ export const AreasSection = () => {
                     />
                   </svg>
                 </Link>
+                {/* Cadastro completo direto (sem chatbot) — apenas mobile */}
+                <Link
+                  href="/forms/agricultura-completo"
+                  className="md:hidden flex items-center text-green-600 font-semibold hover:text-green-700 transition-colors cursor-pointer w-full text-left p-2 rounded-lg hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}
+                >
+                  <span className="mr-2 text-sm uppercase tracking-wider">Cadastro completo</span>
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    aria-hidden="true"
+                  >
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                    <path
+                      fillRule="evenodd"
+                      d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </Link>
               </div>
             </div>
           </motion.div>
@@ -147,6 +168,27 @@ export const AreasSection = () => {
                     />
                   </svg>
                 </Link>
+                {/* Cadastro completo direto (sem chatbot) — apenas mobile */}
+                <Link
+                  href="/forms/pesca-completo"
+                  className="md:hidden flex items-center text-blue-600 font-semibold hover:text-blue-700 transition-colors cursor-pointer w-full text-left p-2 rounded-lg hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}
+                >
+                  <span className="mr-2 text-sm uppercase tracking-wider">Cadastro completo</span>
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    aria-hidden="true"
+                  >
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                    <path
+                      fillRule="evenodd"
+                      d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </Link>
               </div>
             </div>
           </motion.div>
@@ -209,6 +251,27 @@ export const AreasSection = () => {
                     <path
                       fillRule="evenodd"
                       d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </Link>
+                {/* Cadastro completo direto (sem chatbot) — apenas mobile */}
+                <Link
+                  href="/forms/paa"
+                  className="md:hidden flex items-center text-orange-600 font-semibold hover:text-orange-700 transition-colors cursor-pointer w-full text-left p-2 rounded-lg hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  onClick={() => setTimeout(() => window.scrollTo(0, 0), 100)}
+                >
+                  <span className="mr-2 text-sm uppercase tracking-wider">Cadastro completo</span>
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    aria-hidden="true"
+                  >
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                    <path
+                      fillRule="evenodd"
+                      d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
                       clipRule="evenodd"
                     />
                   </svg>
