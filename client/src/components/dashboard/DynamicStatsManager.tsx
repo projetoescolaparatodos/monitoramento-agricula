@@ -39,6 +39,34 @@ interface Evento {
   dataFim: any;
 }
 
+// Safras disponíveis para seleção: de 2022/2023 até a safra atual (ano-safra vira em 1º de julho)
+const getSafraOptions = () => {
+  const now = new Date();
+  const safraAtualInicio = now.getMonth() >= 6 ? now.getFullYear() : now.getFullYear() - 1;
+  const options: { value: string; label: string }[] = [];
+  for (let ano = safraAtualInicio; ano >= 2022; ano--) {
+    options.push({ value: `safra-${ano}`, label: `Safra ${ano}/${ano + 1}` });
+  }
+  return options;
+};
+
+export const formatPeriodoLabel = (periodo: string) => {
+  const safraMatch = /^safra-(\d{4})$/.exec(periodo || "");
+  if (safraMatch) {
+    const ano = parseInt(safraMatch[1], 10);
+    return `Safra ${ano}/${ano + 1}`;
+  }
+  const labels: Record<string, string> = {
+    hoje: "Hoje",
+    "7dias": "Últimos 7 dias",
+    "30dias": "Últimos 30 dias",
+    mesAtual: "Mês atual",
+    safraAtual: "Safra atual",
+    todos: "Todos os períodos",
+  };
+  return labels[periodo] || periodo;
+};
+
 export const DynamicStatsManager: React.FC = () => {
   const [configs, setConfigs] = useState<DynamicStatsConfig[]>([]);
   const [insumos, setInsumos] = useState<Insumo[]>([]);
@@ -450,7 +478,15 @@ export const DynamicStatsManager: React.FC = () => {
                       <option value="30dias">Últimos 30 dias</option>
                       <option value="mesAtual">Mês atual</option>
                       <option value="safraAtual">Safra atual</option>
+                      {getSafraOptions().map((safra) => (
+                        <option key={safra.value} value={safra.value}>{safra.label}</option>
+                      ))}
+                      <option value="todos">Todos os períodos</option>
                     </select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      "Safra atual" acompanha o ano-safra vigente (muda todo 1º de julho). Para eventos
+                      passados, escolha a safra específica — o total fica fixo para sempre.
+                    </p>
                   </div>
 
                   <div>
@@ -526,7 +562,7 @@ export const DynamicStatsManager: React.FC = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {config.tipoAgregacao} {config.campo || 'contagem'}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{config.periodo}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatPeriodoLabel(config.periodo)}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                             config.ativo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'

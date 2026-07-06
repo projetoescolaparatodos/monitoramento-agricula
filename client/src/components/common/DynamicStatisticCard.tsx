@@ -227,6 +227,7 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
     const calcularPeriodo = () => {
       const now = new Date();
       let startDate = new Date();
+      let endDate = now;
 
       switch (config.periodo) {
         case "hoje":
@@ -247,10 +248,19 @@ export const DynamicStatisticCard: React.FC<DynamicStatisticCardProps> = ({
           startDate = new Date(currentYear, startMonth, 1);
           break;
         default:
-          startDate = new Date(0);
+          // Safra específica no formato "safra-2024" = 01/07/2024 a 30/06/2025.
+          // Mantém o total do evento visível para sempre, mesmo após virar a safra.
+          const safraMatch = /^safra-(\d{4})$/.exec(config.periodo || "");
+          if (safraMatch) {
+            const safraYear = parseInt(safraMatch[1], 10);
+            startDate = new Date(safraYear, 6, 1);
+            endDate = new Date(safraYear + 1, 5, 30, 23, 59, 59, 999);
+          } else {
+            startDate = new Date(0);
+          }
       }
 
-      return { startDate, endDate: now };
+      return { startDate, endDate };
     };
 
     const fetchData = () => {
