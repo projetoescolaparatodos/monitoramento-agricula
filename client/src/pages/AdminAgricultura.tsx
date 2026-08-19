@@ -38,6 +38,7 @@ import { useAuthProtection } from "@/hooks/useAuthProtection";
 import { useKmlBoundary, isClockwise, ensureClockwise } from "../hooks/useKmlBoundary";
 import styles from "./AgriculturaMap.module.css";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ProdutoresManager from "@/components/agricultura/ProdutoresManager";
 import FormViveiroMudas from "@/components/forms/FormViveiroMudas";
 
 const AdminAgricultura = () => {
@@ -456,10 +457,15 @@ const AdminAgricultura = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-        <TabsList className="grid w-full grid-cols-2 mb-6">
+        <TabsList className="grid w-full grid-cols-3 mb-6">
           <TabsTrigger value="atividades">Atividades Agrícolas</TabsTrigger>
           <TabsTrigger value="viveiro">Viveiro de Mudas</TabsTrigger>
+          <TabsTrigger value="produtores">Produtores</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="produtores">
+          <ProdutoresManager />
+        </TabsContent>
 
         <TabsContent value="atividades">
           <Card className="mb-8">

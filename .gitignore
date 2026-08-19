@@ -20,3 +20,6 @@ create_*.js
 create_*.cjs
 create_admin_account.html
 CRIAR_SECRETARIOS.md
+
+# Dados pessoais de produtores (nunca commitar - repo publico)
+scripts/data/
