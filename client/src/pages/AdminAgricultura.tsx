@@ -544,31 +544,6 @@ const AdminAgricultura = () => {
           </div>
         </CardContent>
       </Card>
-        </TabsContent>
-
-        <TabsContent value="viveiro">
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="flex justify-between items-center">
-                Viveiro de Mudas
-                <Button 
-                  onClick={() => setShowFormViveiro(true)}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  Cadastrar Produção
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">
-                Registre aqui as produções de mudas do viveiro municipal. 
-                Essas informações serão usadas para controle de estoque e análise de custos.
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
       <Card className="mb-8">
         <CardHeader>
           <CardTitle className="flex justify-between items-center">
@@ -951,6 +926,31 @@ const AdminAgricultura = () => {
           </div>
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="viveiro">
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex justify-between items-center">
+                Viveiro de Mudas
+                <Button 
+                  onClick={() => setShowFormViveiro(true)}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Cadastrar Produção
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">
+                Registre aqui as produções de mudas do viveiro municipal. 
+                Essas informações serão usadas para controle de estoque e análise de custos.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
 
       <FormViveiroMudas
         isOpen={showFormViveiro}

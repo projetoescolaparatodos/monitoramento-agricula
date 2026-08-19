@@ -97,6 +97,13 @@ const PAGE_SIZE = 30;
 const normalizarCpf = (valor: any): string =>
   String(valor || "").replace(/\D/g, "");
 
+// Texto sem acento e em minúsculas, para busca tolerante
+const semAcento = (texto: string): string =>
+  (texto || "")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase();
+
 const slugNome = (nome: string): string =>
   nome
     .normalize("NFD")
@@ -230,12 +237,28 @@ export const ProdutoresManager: React.FC = () => {
   }, [produtores]);
 
   const filtrados = useMemo(() => {
-    const termo = busca.trim().toLowerCase();
+    const termo = semAcento(busca.trim());
+    const termoDigitos = busca.replace(/\D/g, "");
     return produtores.filter((p) => {
       if (termo) {
-        const alvo =
-          `${p.nome} ${p.cpf} ${p.localidade} ${p.telefone}`.toLowerCase();
-        if (!alvo.includes(termo)) return false;
+        // Busca geral: nome, CPF (com ou sem pontuação), telefone,
+        // localidade, região e também os serviços/atividades do produtor
+        const alvo = semAcento(
+          [
+            p.nome,
+            p.cpf,
+            p.telefone,
+            p.localidade,
+            p.regiao,
+            ...p.atividades.map((a) => `${a.tipoLabel} ${a.servico} ${a.localidade || ""}`),
+          ].join(" "),
+        );
+        const casaTexto = alvo.includes(termo);
+        const casaNumero =
+          termoDigitos.length >= 3 &&
+          (normalizarCpf(p.cpf).includes(termoDigitos) ||
+            p.telefone.replace(/\D/g, "").includes(termoDigitos));
+        if (!casaTexto && !casaNumero) return false;
       }
       if (filtroTipo !== "todos") {
         if (!p.atividades.some((a) => a.tipo === filtroTipo)) return false;
@@ -246,13 +269,7 @@ export const ProdutoresManager: React.FC = () => {
           p.atividades.some((a) => a.regiao === filtroRegiao);
         if (!naRegiao) return false;
       }
-      if (filtroOrigem !== "todas") {
-        if (filtroOrigem === "ambos" && p.origem !== "ambos") return false;
-        if (filtroOrigem === "planilha" && p.origem === "formulario_web")
-          return false;
-        if (filtroOrigem === "formulario_web" && p.origem === "planilha")
-          return false;
-      }
+      if (filtroOrigem !== "todas" && p.origem !== filtroOrigem) return false;
       return true;
     });
   }, [produtores, busca, filtroTipo, filtroRegiao, filtroOrigem]);
@@ -457,10 +474,10 @@ export const ProdutoresManager: React.FC = () => {
                 <SelectValue placeholder="Origem" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="todas">Todas as origens</SelectItem>
-                <SelectItem value="planilha">Base inicial (planilha)</SelectItem>
-                <SelectItem value="formulario_web">Somente site</SelectItem>
-                <SelectItem value="ambos">Planilha + site</SelectItem>
+                <SelectItem value="todas">Todas as origens (tudo)</SelectItem>
+                <SelectItem value="planilha">Só na base inicial</SelectItem>
+                <SelectItem value="formulario_web">Só cadastro no site</SelectItem>
+                <SelectItem value="ambos">Nos dois (planilha e site)</SelectItem>
               </SelectContent>
             </Select>
           </div>

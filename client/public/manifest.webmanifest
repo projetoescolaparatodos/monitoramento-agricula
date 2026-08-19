@@ -1,0 +1,59 @@
+{
+  "name": "SEMAPA - Vitória do Xingu",
+  "short_name": "SEMAPA",
+  "description": "Sistema de gestão e transparência da Secretaria Municipal de Agricultura, Pesca e Abastecimento de Vitória do Xingu",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#166534",
+  "orientation": "any",
+  "lang": "pt-BR",
+  "categories": ["government", "productivity"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Painel da Agricultura",
+      "short_name": "Agricultura",
+      "url": "/admin/agricultura",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Painel do Secretário",
+      "short_name": "Secretário",
+      "url": "/admin/secretario",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Mapa da Agricultura",
+      "short_name": "Mapa",
+      "url": "/agricultura/map",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
